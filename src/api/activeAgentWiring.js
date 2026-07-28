@@ -27,6 +27,8 @@
  *   V5 supersedes V4 when both flags are on (V5 is a superset of V4).
  * Phase 1 Quality — CBT_THERAPIST_WIRING_STAGE2_V6 added as the formulation-context path.
  *   V6 supersedes V5 when both flags are on (V6 is a superset of V5).
+ *   CBT_THERAPIST_WIRING_STAGE2_V6_LED added as the formulation-led variant.
+ *   V6-LED supersedes V6 when FORMULATION_CONTEXT_ENABLED + FORMULATION_LED_ENABLED are both on.
  * Phase 3 Deep Personalization — CBT_THERAPIST_WIRING_STAGE2_V7 added as the continuity path.
  *   V7 supersedes V6 when both flags are on (V7 is a superset of V6).
  * Wave 2B — CBT_THERAPIST_WIRING_STAGE2_V8 added as the strategy layer path.
@@ -60,6 +62,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V4,
   CBT_THERAPIST_WIRING_STAGE2_V5,
   CBT_THERAPIST_WIRING_STAGE2_V6,
+  CBT_THERAPIST_WIRING_STAGE2_V6_LED,
   CBT_THERAPIST_WIRING_STAGE2_V7,
   CBT_THERAPIST_WIRING_STAGE2_V8,
   CBT_THERAPIST_WIRING_STAGE2_V9,
@@ -128,19 +131,22 @@ import {
  *                       → CBT_THERAPIST_WIRING_STAGE2_V8 (Wave 2B strategy layer)
  *   7. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V7 (Phase 3 continuity)
- *   8. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
- *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 1 Quality formulation context)
- *   9. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   8. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on,
+ *      THERAPIST_UPGRADE_FORMULATION_LED_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V6_LED (Phase 1 Quality formulation context + formulation-led)
+ *   9. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 1 Quality formulation context only)
+ *  10. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *  10. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *  11. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *  11. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *  12. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *  12. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *  13. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *  13. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *  14. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *  14. Master gate on, no matching phase flag
+ *  15. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
  *
  * Wave 5 Planner-First (V12) takes precedence over all prior phases because V12
@@ -165,8 +171,13 @@ import {
  * Phase 3 Deep Personalization (V7) takes precedence over Phase 1 Quality (V6)
  * and all prior phases because V7 is a strict superset of V6.
  *
- * Phase 1 Quality (V6) takes precedence over Phase 7 (V5) and all prior phases
- * when the formulation context flag is on because V6 is a strict superset of V5.
+ * Phase 1 Quality (V6/V6-LED) takes precedence over Phase 7 (V5) and all prior
+ * phases when the formulation context flag is on because V6 is a strict superset
+ * of V5.  When FORMULATION_LED_ENABLED is also on, V6-LED is selected instead of
+ * V6, injecting THERAPIST_FORMULATION_INSTRUCTIONS in addition to the CaseFormulation
+ * context block.  When only FORMULATION_CONTEXT_ENABLED is on, V6 is selected and
+ * THERAPIST_FORMULATION_INSTRUCTIONS is NOT injected — ensuring the diagnostic
+ * accurately reflects effective runtime behavior.
  *
  * Phase 7 (V5) takes precedence over Phase 6 (V4) and all prior phases when
  * the safety mode flag is on because V5 is a superset of V4, which is a
@@ -256,6 +267,15 @@ export function resolveTherapistWiring() {
 
     // ── Phase 1 Quality — Formulation context (supersedes Phase 7 and earlier) ──
     if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED')) {
+      // When FORMULATION_LED_ENABLED is also on, select the formulation-led variant
+      if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_LED_ENABLED')) {
+        logUpgradeEvent('route_selected', {
+          flag: 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED',
+          path: 'stage2_v6_led',
+          phase: '1_quality_formulation_led',
+        });
+        return CBT_THERAPIST_WIRING_STAGE2_V6_LED;
+      }
       logUpgradeEvent('route_selected', {
         flag: 'THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED',
         path: 'stage2_v6',

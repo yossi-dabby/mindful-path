@@ -96,6 +96,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V2,
   CBT_THERAPIST_WIRING_STAGE2_V5,
   CBT_THERAPIST_WIRING_STAGE2_V6,
+  CBT_THERAPIST_WIRING_STAGE2_V6_LED,
 } from '../../src/api/agentWiring.js';
 
 // ── Context injector ──────────────────────────────────────────────────────────
@@ -237,8 +238,8 @@ describe('Phase 10 — CBT_THERAPIST_WIRING_STAGE2_V6 exists and is well-formed'
     expect(CBT_THERAPIST_WIRING_STAGE2_V6.stage2_phase).toBe(10);
   });
 
-  it('V6 has formulation_led_enabled: true', () => {
-    expect(CBT_THERAPIST_WIRING_STAGE2_V6.formulation_led_enabled).toBe(true);
+  it('V6 has formulation_led_enabled: false (context-only path; use V6-LED for formulation-led)', () => {
+    expect(CBT_THERAPIST_WIRING_STAGE2_V6.formulation_led_enabled).toBe(false);
   });
 
   it('V6 has safety_mode_enabled: true (from V5)', () => {
@@ -312,10 +313,30 @@ describe('Phase 10 — getFormulationLedContextForWiring', () => {
     expect(getFormulationLedContextForWiring(undefined)).toBeNull();
   });
 
-  it('returns THERAPIST_FORMULATION_INSTRUCTIONS for V6 wiring', () => {
-    expect(getFormulationLedContextForWiring(CBT_THERAPIST_WIRING_STAGE2_V6)).toBe(
+  it('returns null for V6 wiring (context-only, formulation-led flag off)', () => {
+    // V6 has formulation_led_enabled: false. The runtime flag is off in tests.
+    // Fail-closed: context path selected but led not active → null.
+    expect(getFormulationLedContextForWiring(CBT_THERAPIST_WIRING_STAGE2_V6)).toBeNull();
+  });
+
+  it('returns THERAPIST_FORMULATION_INSTRUCTIONS for V6-LED wiring', () => {
+    // V6-LED has formulation_led_enabled: true — always injects regardless of runtime flag.
+    expect(getFormulationLedContextForWiring(CBT_THERAPIST_WIRING_STAGE2_V6_LED)).toBe(
       THERAPIST_FORMULATION_INSTRUCTIONS,
     );
+  });
+
+  it('returns THERAPIST_FORMULATION_INSTRUCTIONS for V6 wiring when _formulationLedEnabled override is true', () => {
+    // V7–V12 chain: runtime flag on → inject even though wiring.formulation_led_enabled is false.
+    expect(
+      getFormulationLedContextForWiring(CBT_THERAPIST_WIRING_STAGE2_V6, { _formulationLedEnabled: true }),
+    ).toBe(THERAPIST_FORMULATION_INSTRUCTIONS);
+  });
+
+  it('returns null for V6 wiring when _formulationLedEnabled override is false', () => {
+    expect(
+      getFormulationLedContextForWiring(CBT_THERAPIST_WIRING_STAGE2_V6, { _formulationLedEnabled: false }),
+    ).toBeNull();
   });
 });
 
@@ -350,8 +371,14 @@ describe('Phase 10 — buildV6SessionStartContentAsync', () => {
     expect(result).toContain('[START_SESSION]');
   });
 
-  it('result for V6 contains THERAPIST_FORMULATION_INSTRUCTIONS', async () => {
+  it('result for V6 does NOT contain THERAPIST_FORMULATION_INSTRUCTIONS when flag is off', async () => {
+    // V6 is context-only (formulation_led_enabled: false). Flag is off in tests.
     const result = await buildV6SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V6, {}, null);
+    expect(result).not.toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
+  });
+
+  it('result for V6-LED contains THERAPIST_FORMULATION_INSTRUCTIONS', async () => {
+    const result = await buildV6SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V6_LED, {}, null);
     expect(result).toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
   });
 

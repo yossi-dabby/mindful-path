@@ -923,6 +923,12 @@ export const AI_COMPANION_WIRING_UPGRADE_V1 = {
  *                         aligned rules in the workflow engine are also active
  *                         on this wiring.
  *
+ * formulation_led_enabled is intentionally false in this base V6 variant.
+ * When THERAPIST_UPGRADE_FORMULATION_LED_ENABLED is also on, routing selects
+ * CBT_THERAPIST_WIRING_STAGE2_V6_LED (the formulation-led variant) instead.
+ * This separates the two capabilities so the diagnostic and staged rollout
+ * accurately reflect which instructions are actually injected.
+ *
  * Entity tool_configs: IDENTICAL to V5.  No new entity access is added.
  * Formulation context is read through the existing CaseFormulation tool_config
  * (source_order 12, read_only: true, caution_layer: true) already in V5.
@@ -955,7 +961,7 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
   live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
   safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
   formulation_context_enabled: true,       // Phase 1 Quality — formulation context injection
-  formulation_led_enabled: true,           // Phase 10 — formulation-led CBT
+  formulation_led_enabled: false,          // false here — use V6-LED when FORMULATION_LED_ENABLED flag is on
   tool_configs: [
     // ── Step 1: Preferred entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
     { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
@@ -1010,6 +1016,104 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
     // from CompanionMemory (source_order 10, read_only: true) which is already
     // present.  The continuity_layer_enabled flag enables cross-session memory
     // injection via crossSessionContinuity.js and workflowContextInjector.js.
+  ],
+};
+
+// ─── Stage 2 V6-LED wiring config (Phase 1 Quality + Formulation-Led CBT) ────
+
+/**
+ * Stage 2 V6-LED wiring for the CBT Therapist agent.
+ *
+ * Phase 1 Quality Gains — Formulation Context + Formulation-Led CBT.
+ *
+ * This is the formulation-led variant of V6.  It is IDENTICAL to
+ * CBT_THERAPIST_WIRING_STAGE2_V6 except that formulation_led_enabled is
+ * true.  This enables THERAPIST_FORMULATION_INSTRUCTIONS injection via
+ * getFormulationLedContextForWiring in buildV6SessionStartContentAsync.
+ *
+ * ACTIVATION
+ * ----------
+ * Reached only when resolveTherapistWiring() finds BOTH of:
+ *   - THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED (Phase 1 Quality gate)
+ *   - THERAPIST_UPGRADE_FORMULATION_LED_ENABLED     (Phase 10 gate)
+ * as well as the master gate THERAPIST_UPGRADE_ENABLED.
+ * All three default to false.
+ *
+ * SEPARATION GUARANTEE
+ * --------------------
+ * CBT_THERAPIST_WIRING_STAGE2_V6 (context-only) does NOT inject
+ * THERAPIST_FORMULATION_INSTRUCTIONS.
+ * CBT_THERAPIST_WIRING_STAGE2_V6_LED (context + led) DOES inject them.
+ * The admin diagnostic therefore accurately reflects effective runtime
+ * behavior: formulation_led_effective matches what is actually injected.
+ *
+ * Entity tool_configs: IDENTICAL to V6 and V5.  No new entity access is added.
+ * The stage2_phase is 10 (same family as V6) to preserve diagnostic mapping.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_FORMULATION_LED_ENABLED to false to revert from
+ * V6-LED to V6 (context-only) with no other code changes.
+ * Set THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED to false to revert to V5.
+ * Set THERAPIST_UPGRADE_ENABLED to false to revert to HYBRID entirely.
+ *
+ * Source of truth: Formulation-led separation problem statement.
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V6_LED = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 10,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // Phase 1 Quality — formulation context injection
+  formulation_led_enabled: true,           // Phase 10 — formulation-led CBT (THERAPIST_FORMULATION_INSTRUCTIONS)
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V6 / V5 / V4 / V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Formulation-led (Phase 10) is NOT a new entity access — the wiring
+    // flag only enables injection of THERAPIST_FORMULATION_INSTRUCTIONS into the
+    // session-start context payload via workflowContextInjector.js.
   ],
 };
 
