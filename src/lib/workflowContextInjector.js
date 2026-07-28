@@ -420,6 +420,126 @@ export function getLiveRetrievalContextForWiring(wiring) {
   return null;
 }
 
+// ─── Phase 6b — V4 live retrieval runtime status block ───────────────────────
+
+/**
+ * Bounded enum of live_status_reason values for the V4 runtime status block.
+ *
+ * These values mirror the live_skip_reason values returned by
+ * executeV4BoundedRetrieval, plus 'injected' (success with content) and
+ * 'unknown' (fallback for any unrecognised value).
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const LIVE_STATUS_REASONS = Object.freeze({
+  FLAG_OFF: 'flag_off',
+  NO_URL: 'no_url',
+  NO_CLIENT: 'no_client',
+  INTERNAL_SUFFICIENT: 'internal_sufficient',
+  V3_FAILED: 'v3_failed',
+  LIVE_RETRIEVAL_ERROR: 'live_retrieval_error',
+  BLOCKED: 'blocked',
+  NO_LIVE_CONTENT: 'no_live_content',
+  INJECTED: 'injected',
+  UNKNOWN: 'unknown',
+});
+
+/**
+ * Builds a deterministic V4 live retrieval runtime status instruction block.
+ *
+ * The block is derived from the ACTUAL V4RetrievalResult — not from the
+ * frontend feature flag or wiring alone.  It accurately reports:
+ *
+ *   verified_live_context_injected: true | false
+ *   live_retrieval_attempted:       true | false
+ *   live_retrieval_blocked:         true | false
+ *   live_status_reason:             a bounded LIVE_STATUS_REASONS value
+ *
+ * When verified_live_context_injected is false, an explicit behavioral
+ * instruction is included that prohibits the model from claiming browsing,
+ * search, or fetch capability for the current session.
+ *
+ * When verified_live_context_injected is true, an explicit behavioral
+ * instruction is included that restricts the model to the supplied live
+ * context and prohibits claims of general or ongoing browsing capability.
+ *
+ * This block is appended AFTER the live context section (if any) so that
+ * it acts as the authoritative, result-derived behavioral instruction and
+ * overrides any implicit capability claims in the policy preamble.
+ *
+ * NULL SAFETY: accepts null / undefined result — treats it as a failed
+ * retrieval (no verified live context, live_status_reason: v3_failed).
+ *
+ * This function never throws.
+ *
+ * @param {object | null | undefined} v4Result - The V4RetrievalResult object
+ * @returns {string} The formatted runtime status instruction block
+ */
+export function buildV4RuntimeStatusBlock(v4Result) {
+  // Derive verified_live_context_injected from actual live items in the result
+  const liveItems = Array.isArray(v4Result?.items)
+    ? v4Result.items.filter(
+        (item) =>
+          item &&
+          item.source_type === LIVE_KNOWLEDGE_SOURCE_TYPE &&
+          item.content,
+      )
+    : [];
+  const verifiedLiveContextInjected = liveItems.length > 0;
+
+  const liveAttempted = v4Result?.live_attempted === true;
+  const liveBlocked = v4Result?.live_blocked === true;
+
+  // Map the raw skip/block reason to a bounded enum value
+  let liveStatusReason;
+  if (verifiedLiveContextInjected) {
+    liveStatusReason = LIVE_STATUS_REASONS.INJECTED;
+  } else {
+    const rawReason =
+      typeof v4Result?.live_skip_reason === 'string'
+        ? v4Result.live_skip_reason
+        : '';
+    const knownReasons = Object.values(LIVE_STATUS_REASONS);
+    if (rawReason && knownReasons.includes(rawReason)) {
+      liveStatusReason = rawReason;
+    } else if (rawReason) {
+      liveStatusReason = LIVE_STATUS_REASONS.UNKNOWN;
+    } else {
+      liveStatusReason = LIVE_STATUS_REASONS.V3_FAILED;
+    }
+  }
+
+  const behavioralInstruction = verifiedLiveContextInjected
+    ? [
+        '[BEHAVIORAL INSTRUCTION — REQUIRED]',
+        'Verified live context has been supplied in this session (see LIVE RETRIEVED CONTEXT section above).',
+        'Use only the supplied live context. Do not claim general or ongoing browsing capability.',
+        'Do not promise to retrieve additional live information during later turns',
+        'unless a new verified retrieval result is explicitly supplied in the context.',
+      ].join('\n')
+    : [
+        '[BEHAVIORAL INSTRUCTION — REQUIRED]',
+        'No verified live context was supplied in this session.',
+        'Do not claim that you can browse, search, fetch, or verify information online',
+        'in this session. Do not offer to perform a future search.',
+        'State only that no verified live context was supplied.',
+        'Your response must be based on internal app context and stored therapeutic memory only.',
+      ].join('\n');
+
+  return [
+    '=== V4 LIVE RETRIEVAL RUNTIME STATUS ===',
+    '',
+    `verified_live_context_injected: ${verifiedLiveContextInjected}`,
+    `live_retrieval_attempted: ${liveAttempted}`,
+    `live_retrieval_blocked: ${liveBlocked}`,
+    `live_status_reason: ${liveStatusReason}`,
+    '',
+    behavioralInstruction,
+    '',
+    '=== END V4 LIVE RETRIEVAL RUNTIME STATUS ===',
+  ].join('\n');
+}
+
 /**
  * Builds the session-start message content for the V4 upgraded path,
  * executing real bounded retrieval (sources 1–4 from Phase 5 + conditional
@@ -496,8 +616,14 @@ export async function buildV4SessionStartContentAsync(
       },
     );
   } catch {
-    // Fail-open: V4 retrieval entirely failed — return content without context
-    return contentWithLivePolicy;
+    // Fail-open: V4 retrieval entirely failed — return content with no-context runtime status
+    let failedContent = contentWithLivePolicy;
+    try {
+      failedContent += '\n\n' + buildV4RuntimeStatusBlock(null);
+    } catch {
+      // Ignore — never block session start
+    }
+    return failedContent;
   }
 
   // Step 4: Build the internal context package from sources 1–4
@@ -536,6 +662,19 @@ export async function buildV4SessionStartContentAsync(
 
   if (liveContextSection && liveContextSection.trim()) {
     result += '\n\n' + liveContextSection;
+  }
+
+  // Step 6: Append the V4 runtime status block (derived from actual result)
+  // This block provides authoritative behavioral instructions based on whether
+  // verified live context was actually injected.  It overrides any implicit
+  // capability claims from the policy preamble.
+  try {
+    const runtimeStatusBlock = buildV4RuntimeStatusBlock(v4Result);
+    if (runtimeStatusBlock && runtimeStatusBlock.trim()) {
+      result += '\n\n' + runtimeStatusBlock;
+    }
+  } catch {
+    // Ignore — never block session start
   }
 
   return result;
