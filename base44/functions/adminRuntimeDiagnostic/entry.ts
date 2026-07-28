@@ -39,12 +39,12 @@
  * code path.  This function acknowledges them as "configured_but_unused" but
  * does NOT read their values or create any behavior for them.
  *
- * DIAGNOSTIC VERSION: 1.0.0
+ * DIAGNOSTIC VERSION: 1.0.1
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
-const DIAGNOSTIC_VERSION = '1.0.0';
+const DIAGNOSTIC_VERSION = '1.0.1';
 
 /**
  * Configured-but-unused secret names.
@@ -101,6 +101,21 @@ Deno.serve(async (req) => {
   const knowledge_index_backend_enabled =
     Deno.env.get('KNOWLEDGE_INDEX_ENABLED') === 'true';
 
+  // ── Secret UI diagnostic (read-only, three-state, never returns raw value) ───
+  //
+  // Classifies BASE44_SECRET_UI_DIAGNOSTIC into one of three non-boolean states
+  // so the caller can distinguish "set correctly", "set incorrectly", and "absent".
+  // The raw env var value is never returned, logged, or included in any output.
+  const diagnosticSecretRaw =
+    Deno.env.get('BASE44_SECRET_UI_DIAGNOSTIC');
+
+  const base44_secret_ui_diagnostic =
+    diagnosticSecretRaw === undefined
+      ? 'missing'
+      : diagnosticSecretRaw === 'diagnostic_true_2026'
+        ? 'exact_match'
+        : 'mismatch';
+
   // ── Snapshot assembly ─────────────────────────────────────────────────────
   const snapshot = {
     // Backend-derived boolean flags (no raw values, no credentials)
@@ -113,6 +128,9 @@ Deno.serve(async (req) => {
 
     // Obsolete / configured-but-unused secret names (documented, not activated)
     configured_but_unused: CONFIGURED_BUT_UNUSED_SECRET_NAMES,
+
+    // Secret UI diagnostic: three-state classification (never returns raw value)
+    base44_secret_ui_diagnostic,
 
     diagnostic_version: DIAGNOSTIC_VERSION,
     generated_at: new Date().toISOString(),
