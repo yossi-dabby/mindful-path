@@ -141,7 +141,7 @@ export default function PdfViewer() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleDownload} className="[font-family:'Brygada_1918',_serif]">
+            onClick={handleDownload} className="[font-family:'Caveat',_system-ui]">
             
               {t('chat.generated_file.download_button', 'Download')}
             </Button>
