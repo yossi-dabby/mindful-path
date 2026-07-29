@@ -965,7 +965,7 @@ const FORMULATION_LED_RUNTIME_TRIGGER_MATCHERS = Object.freeze({
     Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(["qu'est ce que cela dit de moi"]) }),
     Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(["ne me donne pas encore d'exercice"]) }),
     Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['comprends moi avant d’intervenir']) }),
-    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['comprends moi avant d\'intervenir']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(["comprends moi avant d'intervenir"]) }),
   ]),
   de: Object.freeze([
     Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['was fehlt in der formulierung']) }),

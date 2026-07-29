@@ -67,7 +67,7 @@ const CASES = Object.freeze({
     understandBeforeExercise: 'Me entenda antes de intervir. Não me dê um exercício ainda.',
     greeting: 'Olá',
     ordinaryTherapy: 'Estou estressado com o trabalho e quero falar sobre a minha semana.',
-    singleKeyword: 'exercício',
+    singleKeyword: 'significado',
   }),
 });
 
