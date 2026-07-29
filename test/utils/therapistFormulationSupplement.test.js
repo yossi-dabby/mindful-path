@@ -255,7 +255,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(result).toMatch(/hypothesis|unverified|tentative|\u05D4\u05E9\u05E2\u05E8\u05D4/i);
   });
 
-  it('17. Supplement explicitly prohibits certainty language ("the real threat is" etc.)', () => {
+  it('17. Supplement explicitly prohibits certainty language ("the real threat is" etc.) including tentatively-prefaced Hebrew framing', () => {
     const result = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
@@ -264,7 +264,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(result).not.toBeNull();
     // Must contain explicit prohibition against certainty framing
     expect(result).toMatch(/the real threat is|prohibited|Do NOT use/i);
-    // Must specifically name at least one of the prohibited phrases
+    // Must specifically name at least one of the prohibited English phrases
     const hasCertaintyProhibition =
       result.includes('the real threat is') ||
       result.includes('the true reason is') ||
@@ -272,6 +272,15 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
       result.includes('this is where the real threat lies') ||
       result.includes('your value as a person depends on');
     expect(hasCertaintyProhibition).toBe(true);
+    // Must also explicitly name the Hebrew phrase "האיום האמיתי" as prohibited
+    expect(result).toContain('\u05D4\u05D0\u05D9\u05D5\u05DD \u05D4\u05D0\u05DE\u05D9\u05EA\u05D9'); // האיום האמיתי
+    // Must state that a tentative prefix does not make the framing acceptable
+    const hasTentativePrefixProhibition =
+      result.includes('\u05D9\u05D9\u05EA\u05DB\u05DF \u05E9') || // ייתכן ש (in prohibition context)
+      result.includes('tentative') ||
+      result.includes('even when preceded') ||
+      result.includes('CRITICAL ADDITION');
+    expect(hasTentativePrefixProhibition).toBe(true);
   });
 
   it('18. Supplement requires exactly one collaborative verification question when hypothesis is introduced', () => {

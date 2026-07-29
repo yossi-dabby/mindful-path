@@ -278,6 +278,54 @@ function stripFormRouterContextBlock(content) {
   return content.replace(/\n?\[FORM_ROUTER_CONTEXT\][\s\S]*$/, '').trim();
 }
 
+/**
+ * Strips bounded agent-only per-turn runtime supplement blocks from a user
+ * message content string so they are never shown to the user or stored in
+ * visible chat history.
+ *
+ * Only exact, bounded blocks with recognized start/end marker pairs are
+ * removed.  Ordinary user text that contains the words "formulation", "safety",
+ * "emergency", or "instructions" is NOT affected.  A user who types a single
+ * marker-like line without a closing counterpart will not lose any content.
+ *
+ * Covered blocks (all prepended before the user's actual text by Chat.jsx):
+ *   - === FORMULATION DEEPENING — THIS TURN ONLY === … === END FORMULATION DEEPENING ===
+ *   - === SAFETY MODE — STAGE 2 PHASE 7 === … === END SAFETY MODE CONSTRAINTS ===
+ *   - === EMERGENCY RESOURCES — STAGE 2 PHASE 7 === … === END EMERGENCY RESOURCES ===
+ *
+ * The agent-facing content sent to Base44 is NOT modified here; this function
+ * is applied only to the visible/persisted message content.
+ */
+export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
+  if (typeof content !== 'string') return content;
+
+  // Each entry is [exactStartMarker, exactEndMarker].
+  const AGENT_ONLY_BLOCK_BOUNDS = [
+    ['=== FORMULATION DEEPENING \u2014 THIS TURN ONLY ===', '=== END FORMULATION DEEPENING ==='],
+    ['=== SAFETY MODE \u2014 STAGE 2 PHASE 7 ===', '=== END SAFETY MODE CONSTRAINTS ==='],
+    ['=== EMERGENCY RESOURCES \u2014 STAGE 2 PHASE 7 ===', '=== END EMERGENCY RESOURCES ==='],
+  ];
+
+  let result = content;
+  for (const [start, end] of AGENT_ONLY_BLOCK_BOUNDS) {
+    let startIdx = result.indexOf(start);
+    while (startIdx !== -1) {
+      const endIdx = result.indexOf(end, startIdx);
+      if (endIdx === -1) break; // no closing marker — do not strip partial blocks
+      const afterEnd = endIdx + end.length;
+      // Walk back any leading newlines immediately before the block start
+      let blockStart = startIdx;
+      while (blockStart > 0 && result[blockStart - 1] === '\n') blockStart--;
+      // Walk forward past the separator newlines that follow the closing marker
+      let blockEnd = afterEnd;
+      while (blockEnd < result.length && result[blockEnd] === '\n') blockEnd++;
+      result = result.substring(0, blockStart) + result.substring(blockEnd);
+      startIdx = result.indexOf(start);
+    }
+  }
+  return result.trim();
+}
+
 function getVisibleUserContentForIntent(rawContent) {
   if (typeof rawContent !== 'string') return '';
   let content = rawContent.trim();
@@ -302,8 +350,10 @@ function getVisibleUserContentForIntent(rawContent) {
   }
 
   const { content: contentWithoutAttachmentMarker } = extractAttachmentMetadataFromUserContent(content);
-  return stripFormRouterContextBlock(
-    stripAttachmentContextBlock(contentWithoutAttachmentMarker)
+  return stripAgentOnlyRuntimeBlocksFromUserContent(
+    stripFormRouterContextBlock(
+      stripAttachmentContextBlock(contentWithoutAttachmentMarker)
+    )
   );
 }
 
@@ -1029,7 +1079,9 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         const userText = content.substring(splitPos + 2).trim();
         const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
         if (userText) {
-          const visibleUserText = stripFormRouterContextBlock(stripAttachmentContextBlock(cleanedUserText));
+          const visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
+            stripFormRouterContextBlock(stripAttachmentContextBlock(cleanedUserText))
+          );
           const pdfMetaSession = {};
           if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
           if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;
@@ -1055,7 +1107,9 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
 
     if (msg.role === 'user' && typeof msg.content === 'string') {
       const { content, attachment } = extractAttachmentMetadataFromUserContent(msg.content);
-      const visibleUserText = stripFormRouterContextBlock(stripAttachmentContextBlock(content));
+      const visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
+        stripFormRouterContextBlock(stripAttachmentContextBlock(content))
+      );
       // Preserve pdf_extracted_text / pdf_page_count from incoming metadata so the
       // collapsible card in MessageBubble always has the data available, regardless
       // of whether the SDK round-trips custom metadata fields.
