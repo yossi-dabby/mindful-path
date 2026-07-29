@@ -80,6 +80,10 @@ import {
 
 // ── Exact Hebrew production message ───────────────────────────────────────────
 // Stored as a constant to avoid repeating in test output; never logged.
+// Translation (English): "I feel that you already know the story, but you still
+// don't really understand why this is so threatening to me. Don't go back over
+// what is already known and don't suggest an exercise to me yet — tell me gently
+// what you think is missing from the formulation."
 const HEBREW_PRODUCTION_MSG =
   '\u05D0\u05E0\u05D9 \u05DE\u05E8\u05D2\u05D9\u05E9 \u05E9\u05D0\u05EA\u05D4 \u05DB\u05D1\u05E8 \u05D9\u05D5\u05D3\u05E2 \u05D0\u05EA \u05D4\u05E1\u05D9\u05E4\u05D5\u05E8, \u05D0\u05D1\u05DC \u05E2\u05D3\u05D9\u05D9\u05DF \u05DC\u05D0 \u05D1\u05D0\u05DE\u05EA \u05DE\u05D1\u05D9\u05DF \u05DC\u05DE\u05D4 \u05D6\u05D4 \u05DB\u05DC \u05DB\u05DA \u05DE\u05D0\u05D9\u05D9\u05DD \u05E2\u05DC\u05D9\u05D9. \u05D0\u05DC \u05EA\u05D7\u05D6\u05D5\u05E8 \u05E2\u05DC \u05DE\u05D4 \u05E9\u05DB\u05D1\u05E8 \u05D9\u05D3\u05D5\u05E2 \u05D5\u05D0\u05DC \u05EA\u05E6\u05D9\u05E2 \u05DC\u05D9 \u05E2\u05D3\u05D9\u05D9\u05DF \u05EA\u05E8\u05D2\u05D9\u05DC \u2014 \u05EA\u05D2\u05D9\u05D3 \u05D1\u05E2\u05D3\u05D9\u05E0\u05D5\u05EA \u05DE\u05D4 \u05DC\u05D3\u05E2\u05EA\u05DA \u05D7\u05E1\u05E8 \u05D1\u05E4\u05D5\u05E8\u05DE\u05D5\u05DC\u05E6\u05D9\u05D4.';
 
@@ -248,7 +252,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     );
     expect(hasTentativeHe || hasTentativeEn).toBe(true);
     // Supplement must require labeling hypotheses as unverified
-    expect(result.toLowerCase()).toMatch(/hypothesis|unverified|tentative|\u05D4\u05E9\u05E2\u05E8\u05D4/i);
+    expect(result).toMatch(/hypothesis|unverified|tentative|\u05D4\u05E9\u05E2\u05E8\u05D4/i);
   });
 
   it('17. Supplement explicitly prohibits certainty language ("the real threat is" etc.)', () => {
