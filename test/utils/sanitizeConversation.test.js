@@ -655,10 +655,41 @@ const SAFETY_END   = '=== END SAFETY MODE CONSTRAINTS ===';
 const EMERGENCY_START = '=== EMERGENCY RESOURCES \u2014 STAGE 2 PHASE 7 ===';
 const EMERGENCY_END   = '=== END EMERGENCY RESOURCES ===';
 
-// Minimal realistic blocks (content lines deliberately kept short)
-const FORMULATION_BLOCK = `${FORM_START}\nDo not repeat known cycle. Label hypotheses.\n${FORM_END}`;
-const SAFETY_BLOCK = `${SAFETY_START}\nSafety guidelines apply.\n${SAFETY_END}`;
-const EMERGENCY_BLOCK = `${EMERGENCY_START}\nEmergency contacts listed here.\n${EMERGENCY_END}`;
+// Realistic multi-line blocks that mirror actual production supplement structure.
+const FORMULATION_BLOCK = [
+  FORM_START,
+  '',
+  'The person is explicitly asking for deeper formulation insight. Apply the following for this response only:',
+  '',
+  '1. Do not repeat the already-known maintaining cycle.',
+  '2. Clearly distinguish: (a) established; (b) inference; (c) unverified hypothesis; (d) still unknown.',
+  '3. Any new interpretation MUST be labeled as an unverified hypothesis.',
+  '4. Do NOT use certainty language: "the real threat is...", "the true reason is...".',
+  '5. End with exactly one collaborative verification question.',
+  '',
+  FORM_END,
+].join('\n');
+
+const SAFETY_BLOCK = [
+  SAFETY_START,
+  '',
+  'DISTRESS DETECTED: Tier-High. Apply safety-first constraints for this response only:',
+  '- Acknowledge feelings warmly before any therapeutic move.',
+  '- Do not introduce new exercises, homework, or behavioral experiments.',
+  '- Keep the response brief and grounding-oriented.',
+  '',
+  SAFETY_END,
+].join('\n');
+
+const EMERGENCY_BLOCK = [
+  EMERGENCY_START,
+  '',
+  'Emergency resources for this session locale (read-only):',
+  '- \u05E2\u05E8\u05D5\u05E5 \u05D4\u05E1\u05D9\u05D5\u05E2 \u05DC\u05DE\u05E9\u05D1\u05E8: 1201 (\u05D7\u05D9\u05E0\u05DD, 24/7)',
+  '- ERAN: 1201 (free, 24/7)',
+  '',
+  EMERGENCY_END,
+].join('\n');
 
 // Hebrew production message (stored as escaped unicode to avoid test-output leakage)
 // Translation: "I feel that you already know the story…"
@@ -707,7 +738,9 @@ describe('stripAgentOnlyRuntimeBlocksFromUserContent — unit tests', () => {
   it('A10a. A lone start-marker line without a closing marker is not stripped', () => {
     const userMsg = `${FORM_START}\nThis is my regular message about formulation.`;
     const result = stripAgentOnlyRuntimeBlocksFromUserContent(userMsg);
-    // Must not be broadly deleted
+    // The start marker itself must be preserved (incomplete block → no stripping)
+    expect(result).toContain(FORM_START);
+    // The surrounding user text must also be preserved
     expect(result).toContain('regular message about formulation');
   });
 
