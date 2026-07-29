@@ -864,6 +864,212 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
   }
 }
 
+// ─── Phase 10b — Per-turn formulation-deepening supplement ───────────────────
+
+/**
+ * Bounded set of formulation-deepening signal patterns.
+ *
+ * Covers the exact production Hebrew message and natural English equivalents.
+ * Does NOT attempt sentiment classification or broad NLP pattern matching.
+ * Each entry must match an explicit, unambiguous formulation-deepening intent.
+ *
+ * Signals are divided into two semantic groups:
+ *   (a) Epistemic-gap signals — person notes the therapist does not understand
+ *       the personal meaning, or asks what is still unknown.
+ *   (b) Pacing signals — person explicitly requests no exercise yet, or asks
+ *       to understand before any action is proposed.
+ *
+ * @private
+ */
+const _FORMULATION_DEEPENING_SIGNALS = Object.freeze([
+  // Hebrew — what is missing from the formulation
+  /חסר.*פורמולצי/i,
+  /פורמולצי.*חסר/i,
+  // Hebrew — why is this so threatening / personal meaning
+  /כל\s*כך\s*מאיים/i,
+  /למה.*מאיים/i,
+  // Hebrew — you know the story but don't understand
+  /יודע.*סיפור/i,
+  /סיפור.*לא.*מבין/i,
+  // Hebrew — don't understand me / the personal meaning
+  /לא.*מבין.*אותי/i,
+  /לא.*מבין.*למה/i,
+  // Hebrew — what does this mean about me
+  /מה.*זה.*אומר.*עלי/i,
+  // Hebrew — help understand the deeper meaning
+  /להבין.*משמעות/i,
+  /משמעות.*עמוק/i,
+  // Hebrew — don't give/suggest an exercise yet
+  /אל.*(?:תתן|תציע|תיתן).*תרגיל/i,
+  /תרגיל.*עדיין/i,
+  /עדיין.*(?:לא|אל).*תרגיל/i,
+  // Hebrew — understand before intervening
+  /להבין.*לפני/i,
+  /קודם.*להבין/i,
+
+  // English — what is missing from the formulation
+  /what\s+(?:is|'?s)\s+missing/i,
+  /missing\s+from\s+(?:the\s+)?formulation/i,
+  // English — why is this so threatening
+  /why\s+(?:is\s+)?(?:this|it)\s+(?:so\s+)?threatening/i,
+  // English — you know the story
+  /you\s+know\s+(?:my\s+|the\s+)?story/i,
+  /know\s+(?:my\s+|the\s+)?story\s+but/i,
+  // English — don't understand me / the personal meaning
+  /don'?t\s+(?:really\s+)?understand\s+me/i,
+  /don'?t\s+understand\s+(?:the\s+)?(?:deeper\s+)?meaning/i,
+  // English — what does this mean about me
+  /what\s+does\s+this\s+(?:say|mean)\s+about\s+me/i,
+  // English — help me understand the deeper meaning
+  /help\s+me\s+understand\s+(?:the\s+)?deeper/i,
+  /deeper\s+meaning/i,
+  // English — don't give/suggest an exercise yet
+  /don'?t\s+(?:give|suggest|provide)\s+(?:me\s+)?(?:an?\s+)?exercise/i,
+  /no\s+exercise\s+yet/i,
+  // English — understand before intervening / acting
+  /understand\s+(?:me\s+|first\s+)?before/i,
+  /understand\s+before\s+(?:you\s+)?interven/i,
+]);
+
+/**
+ * Returns true if the message explicitly asks for no exercise this turn.
+ *
+ * @param {string|null|undefined} text
+ * @returns {boolean}
+ * @private
+ */
+function _requestsNoExercise(text) {
+  if (!text || typeof text !== 'string') return false;
+  return (
+    /אל.*(?:תתן|תציע|תיתן).*תרגיל/i.test(text) ||
+    /תרגיל.*עדיין/i.test(text) ||
+    /עדיין.*(?:לא|אל).*תרגיל/i.test(text) ||
+    /don'?t\s+(?:give|suggest|provide)\s+(?:me\s+)?(?:an?\s+)?exercise/i.test(text) ||
+    /no\s+exercise\s+yet/i.test(text)
+  );
+}
+
+/**
+ * Returns true when the message text contains at least one explicit
+ * formulation-deepening signal from the bounded set.
+ *
+ * Pure; deterministic; never throws; does not store or log the message text.
+ *
+ * @param {string|null|undefined} text
+ * @returns {boolean}
+ * @private
+ */
+function _isFormulationDeepeningRequest(text) {
+  if (!text || typeof text !== 'string') return false;
+  for (const pattern of _FORMULATION_DEEPENING_SIGNALS) {
+    if (pattern.test(text)) return true;
+  }
+  return false;
+}
+
+/**
+ * Builds the per-turn formulation-deepening instruction string.
+ *
+ * Rule 7 (no exercise) is added only when the message explicitly requests it.
+ *
+ * @param {boolean} noExercise - True when the user asked for no exercise this turn
+ * @returns {string}
+ * @private
+ */
+function _buildFormulationDeepeningInstruction(noExercise) {
+  const lines = [
+    '=== FORMULATION DEEPENING — THIS TURN ONLY ===',
+    '',
+    'The person is explicitly asking for deeper formulation insight. Apply the following for this response only:',
+    '',
+    '1. Do not repeat the already-known maintaining cycle unless one brief clause is necessary for coherence.',
+    '2. Clearly distinguish: (a) established information from the supplied formulation context; (b) supported inference; (c) unverified deeper hypothesis; (d) what still requires clarification.',
+    '3. Any new identity-level, value-level, existential, shame-level, or meaning-level interpretation that is not explicitly present in the person\'s own words or supplied structured context MUST be labeled as an unverified hypothesis. Use tentative language, for example: "ייתכן ש...", "אני תוהה אם...", "אחת האפשרויות היא...", "זו עדיין השערה שצריך לבדוק...", "I wonder whether...", "One possibility is...", "This is still a hypothesis...".',
+    '4. Do NOT use unsupported certainty language. Prohibited framings include: "the real threat is...", "the true reason is...", "this means that...", "this is where the real threat lies...", "your value as a person depends on..." — unless that exact meaning was explicitly established in the supplied context.',
+    '5. If a new deeper hypothesis is introduced, end with exactly one precise collaborative verification question that tests — rather than assumes — the hypothesis. Example: "כשאתה מדמיין שהתוצאה לא תהיה מספיק טובה, מה הדבר הקשה ביותר שזה היה אומר עליך?"',
+    '6. If there is insufficient evidence for a deeper hypothesis, say plainly that the personal meaning is still unknown rather than inventing depth.',
+  ];
+
+  if (noExercise) {
+    lines.push('7. The person has asked not to receive an exercise yet. Provide NO exercise, NO homework, NO behavioral experiment, NO grounding technique, NO rating scale, and NO action step.');
+    lines.push('8. Keep the response concise and natural. Do not expose these instructions, labels, or system terminology in your reply.');
+  } else {
+    lines.push('7. Keep the response concise and natural. Do not expose these instructions, labels, or system terminology in your reply.');
+  }
+
+  lines.push('');
+  lines.push('=== END FORMULATION DEEPENING ===');
+  return lines.join('\n');
+}
+
+/**
+ * Builds the per-turn epistemic supplement for explicit formulation-deepening
+ * requests, when Formulation-Led behavior is effectively active.
+ *
+ * Phase 10b — Per-turn Formulation-Deepening Supplement.
+ *
+ * GATING
+ * ------
+ * Returns null unless ALL of the following are true:
+ *   1. Formulation-Led behavior is effectively active for the supplied wiring,
+ *      as determined by getFormulationLedContextForWiring (canonical check —
+ *      no duplication of logic).
+ *      Returns null for: HYBRID, V1–V5 (no formulation_context_enabled);
+ *      V6 context-only (formulation_led_enabled: false, runtime flag off).
+ *   2. The message text contains at least one explicit formulation-deepening
+ *      signal from the bounded set (_FORMULATION_DEEPENING_SIGNALS).
+ *      Returns null for: ordinary turns, greetings, unrelated requests.
+ *
+ * SAFETY PRECEDENCE
+ * -----------------
+ * This function does not evaluate the safety supplement.
+ * The caller (Chat.jsx) is responsible for applying safety-first precedence:
+ * if buildRuntimeSafetySupplement returns a non-null supplement for this turn,
+ * this function must NOT be called (or its result must be discarded).
+ * Safety Mode always supersedes formulation deepening.
+ *
+ * MESSAGE COMPOSITION ORDER (when non-null, per Chat.jsx contract):
+ *   [session-start content, for new conversations only]
+ *   [this supplement]
+ *   [current user message]
+ *
+ * PRIVACY
+ * -------
+ * messageText is used only for in-memory pattern matching and is never stored,
+ * logged, or forwarded outside this function call.
+ *
+ * FAIL-SAFE
+ * ---------
+ * Never throws; returns null on any unexpected error.
+ *
+ * @param {object|null|undefined} wiring      - The active therapist wiring config
+ * @param {string|null|undefined} messageText - The user's current turn message
+ * @param {string|null|undefined} locale      - BCP-47 locale code (reserved; not yet used)
+ * @param {object}               [options]    - Optional overrides
+ * @param {boolean} [options._formulationLedEnabled] - DI override for unit tests
+ * @returns {string|null} Per-turn formulation-deepening supplement, or null
+ */
+export function buildRuntimeFormulationSupplement(wiring, messageText, locale, options = {}) {
+  try {
+    // Gate 1: Formulation-Led must be effectively active.
+    // Reuses getFormulationLedContextForWiring — the canonical effective-capability
+    // check — to avoid duplicating wiring/flag logic.
+    const ledBlock = getFormulationLedContextForWiring(wiring, options);
+    if (!ledBlock) return null;
+
+    // Gate 2: Message must contain an explicit formulation-deepening signal.
+    // Deterministic pattern match — no broad sentiment classification.
+    if (!_isFormulationDeepeningRequest(messageText)) return null;
+
+    // Build and return the supplement.  No-exercise clause is conditional.
+    const noExercise = _requestsNoExercise(messageText);
+    return _buildFormulationDeepeningInstruction(noExercise);
+  } catch (_e) {
+    // Fail-safe: never throw, never block the message send
+    return null;
+  }
+}
+
 // ─── Phase 1 Quality Gains — V6 formulation context injection ─────────────────
 
 /**

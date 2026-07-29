@@ -37,7 +37,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
 import {
   ensureTherapeuticFormsPolicyInjected,
   getTherapeuticFormsPolicyPayload,
@@ -2009,6 +2009,17 @@ export default function Chat() {
       setSafetyModeActive(true);
     }
 
+    // Phase 10b: Per-turn formulation-deepening supplement (V6-LED / V7-V12 paths only).
+    // Safety-first precedence: only computed when the safety supplement is null.
+    // Returns null for HYBRID, V1-V5, V6 context-only, and non-deepening turns.
+    const formulationSupplement = runtimeSupplement === null
+      ? buildRuntimeFormulationSupplement(
+          ACTIVE_CBT_THERAPIST_WIRING,
+          messageText,
+          i18n?.language ?? 'en'
+        )
+      : null;
+
     // CRITICAL: Add loading timeout failsafe (10s)
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
@@ -2087,9 +2098,19 @@ export default function Chat() {
 
       // When the user types their first message without clicking "Start Session",
       // prepend the [START_SESSION] block so the agent initialises on all wiring paths.
-      let messageContent = runtimeSupplement ?
-      runtimeSupplement + '\n\n' + messageText :
-      messageText;
+      // Message composition order:
+      //   1. Safety supplement (if active) — supersedes formulation supplement
+      //   2. Formulation-deepening supplement (if active and safety is null)
+      //   3. Current user message
+      // For new conversations the session-start content is prepended before all of the above.
+      let messageContent;
+      if (runtimeSupplement) {
+        messageContent = runtimeSupplement + '\n\n' + messageText;
+      } else if (formulationSupplement) {
+        messageContent = formulationSupplement + '\n\n' + messageText;
+      } else {
+        messageContent = messageText;
+      }
       const deterministicFormRoute = resolveFormIntentRequest(messageText, {
         language: sessionLanguageRef.current,
       });
