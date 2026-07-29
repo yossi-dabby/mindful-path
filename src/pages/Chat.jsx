@@ -35,7 +35,7 @@ import { detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
+import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import {
   applyFormulationGuardToConversationMessages,
   buildPendingFormulationCorrectionBlock,
@@ -431,6 +431,7 @@ export default function Chat() {
     setAudioDraftTranscript('');
     speechTranscriptRef.current = '';
     setIsTranscribingAudio(false);
+    pendingFormulationCorrectionRef.current = null;
     setAudioDraftUrl((prevUrl) => {
       if (prevUrl) {
         URL.revokeObjectURL(prevUrl);
@@ -637,27 +638,33 @@ export default function Chat() {
    *
    * Pipeline order:
    *   1. sanitizeConversationMessages    — strips internal blocks from user messages
-   *   2. applyFormulationGuardToConversationMessages
+   *   2. optional aligned transform      — index-preserving assistant transforms
+   *                                        (e.g. validateAgentOutput in subscription)
+   *   3. applyFormulationGuardToConversationMessages
    *                                     — replaces violating guarded responses with
    *                                        the deterministic fallback
-   *   3. null filtering                  — removes messages hidden by the sanitizer
+   *   4. null filtering                  — removes messages hidden by the sanitizer
    *
    * Also updates pendingFormulationCorrectionRef for the next outbound send.
    *
    * @param {Array<object>} rawMessages   Original Base44 messages (full content).
    * @param {string}        sessionLang   Active session locale (e.g. 'he', 'en').
+   * @param {(msg: object|null, index: number) => object|null} [transformAlignedMessage]
    * @returns {Array<object>} Final guarded messages (null-free).
    */
-  const buildVisibleConversationMessages = (rawMessages, sessionLang) => {
+  const buildVisibleConversationMessages = (rawMessages, sessionLang, transformAlignedMessage = null) => {
     const raw = Array.isArray(rawMessages) ? rawMessages : [];
-    const sanitized = sanitizeConversationMessages(raw, sessionLang).filter(Boolean);
+    const sanitized = sanitizeConversationMessagesAligned(raw, sessionLang);
+    const alignedProcessed = typeof transformAlignedMessage === 'function'
+      ? sanitized.map((msg, index) => transformAlignedMessage(msg, index))
+      : sanitized;
     const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
       raw,
-      sanitized,
+      alignedProcessed,
       { locale: sessionLang }
     );
     pendingFormulationCorrectionRef.current = pendingCorrection;
-    return guarded;
+    return guarded.filter(Boolean);
   };
 
   // CRITICAL: Safe state update with duplicate detection
@@ -1057,50 +1064,34 @@ export default function Chat() {
             return;
           }
 
-          // Second pass: process only safe messages.
-          // IMPORTANT: run the full conversation sanitizer first so user attachment
-          // metadata is recovered from the send-contract marker during live updates.
-          const sanitizedIncomingMessages = sanitizeConversationMessages(data.messages || [], sessionLanguageRef.current);
-          const preGuardMessages = sanitizedIncomingMessages.
-          map((msg) => {
-            if (msg.role === 'assistant' && msg.content) {
-              // Skip if not render-safe
-              if (!isMessageRenderSafe(msg)) {
-                return null;
-              }
+          processedMessages = buildVisibleConversationMessages(
+            data.messages || [],
+            sessionLanguageRef.current,
+            (msg) => {
+              if (!msg) return null;
+              if (msg.role === 'assistant' && msg.content) {
+                // Skip if not render-safe
+                if (!isMessageRenderSafe(msg)) {
+                  return null;
+                }
 
-              // Validate and extract structured data (non-blocking)
-              const validated = validateAgentOutput(msg.content);
-              if (validated) {
-                lastStructuredData = validated;
-                return {
-                  ...msg,
-                  content: validated.assistant_message || msg.content,
-                  metadata: {
-                    ...(msg.metadata || {}),
-                    structured_data: validated
-                  }
-                };
+                // Validate and extract structured data (non-blocking)
+                const validated = validateAgentOutput(msg.content);
+                if (validated) {
+                  lastStructuredData = validated;
+                  return {
+                    ...msg,
+                    content: validated.assistant_message || msg.content,
+                    metadata: {
+                      ...(msg.metadata || {}),
+                      structured_data: validated
+                    }
+                  };
+                }
               }
-
               return msg;
             }
-            return msg;
-          }).
-          filter((msg) => msg !== null);
-
-          // Apply formulation contract guard after validateAgentOutput processing.
-          // Raw messages are needed for guarded-turn scope detection.
-          {
-            const { messages: guardedSub, pendingCorrection: pendingCorrectionSub } =
-              applyFormulationGuardToConversationMessages(
-                data.messages || [],
-                preGuardMessages,
-                { locale: sessionLanguageRef.current }
-              );
-            pendingFormulationCorrectionRef.current = pendingCorrectionSub;
-            processedMessages = guardedSub;
-          }
+          );
 
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');

@@ -20,6 +20,7 @@ import {
   FORMULATION_CORRECTION_START,
   FORMULATION_CORRECTION_END,
 } from '../../src/components/utils/formulationContractGuard.js';
+import { sanitizeConversationMessagesAligned } from '../../src/components/utils/validateAgentOutput.jsx';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -125,6 +126,37 @@ const ORDINARY_RESPONSE_HE =
 // English no-exercise violation
 const EXERCISE_VIOLATION_EN =
   'Let us try a grounding exercise to help you feel more settled. What do you think?';
+
+const TEST_B_USER_PROMPT =
+  'אני מרגיש שאתה כבר יודע את הסיפור, אבל עדיין לא באמת מבין למה זה כל כך מאיים עליי. אל תחזור על מה שכבר ידוע ואל תציע לי עדיין תרגיל. תגיד מה לדעתך חסר בפורמולציה, אבל בלי הסתייגויות ובלי לשאול אותי שאלה.';
+
+const TEST_A_USER_PROMPT =
+  'אני מבקש שתאמר מה לדעתך חסר בפורמולציה, אבל הפעם בלי להשתמש במילים "ייתכן" או "אולי", ובלי לשאול אותי שום שאלה. אל תציע תרגיל.';
+
+const TEST_B_FAILING_ASSISTANT =
+  'הקשר בין מוכשרות לערך עצמי. בשבילך הם התאחדו לחלוטין. זה מבחן קיומי כדי להיות בעל ערך בכלל. בכל סיטואציה כזו זה מרגיש כמו הימור על כל הערך העצמי שלך ועל הבסיס הכי יסודי של תחושת הערך שלך.';
+
+const TEST_A_FAILING_ASSISTANT =
+  'האיום נובע מהמשמעות של הכישלון בשבילך. אתה עצמך לא מספיק. הקישור בין הביצוע לבין הערך העצמי יוצר דפוס שבו הדחייה משמרת את האשליה.';
+
+function runAlignedPipeline(rawMessages, locale = 'he', transformAlignedMessage = null) {
+  const sanitizedAligned = sanitizeConversationMessagesAligned(rawMessages, locale);
+  const transformedAligned = typeof transformAlignedMessage === 'function'
+    ? sanitizedAligned.map((msg, index) => transformAlignedMessage(msg, index))
+    : sanitizedAligned;
+  const { messages: guardedAligned, pendingCorrection } = applyFormulationGuardToConversationMessages(
+    rawMessages,
+    transformedAligned,
+    { locale }
+  );
+  return {
+    sanitizedAligned,
+    transformedAligned,
+    guardedAligned,
+    finalVisible: guardedAligned.filter(Boolean),
+    pendingCorrection,
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // UNIT TESTS
@@ -706,6 +738,194 @@ describe('formulationContractGuard — integration/regression tests', () => {
     if (result.pendingCorrection !== null) {
       expect(typeof result.pendingCorrection.then).toBe('undefined');
     }
+  });
+});
+
+describe('formulationContractGuard — raw-index alignment regressions', () => {
+  it('1. no id/no created_at with one leading null: TEST B failing response is deterministically replaced', () => {
+    const raw = [
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'assistant', content: 'שלום, אני כאן איתך.' },
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+
+    const result = runAlignedPipeline(raw, 'he');
+
+    expect(result.sanitizedAligned).toHaveLength(4);
+    expect(result.sanitizedAligned[0]).toBeNull();
+    expect(result.sanitizedAligned[1]?.content).toBe('שלום, אני כאן איתך.');
+    expect(result.sanitizedAligned[2]?.content).toBe(TEST_B_USER_PROMPT);
+    expect(result.sanitizedAligned[3]?.content).toBe(TEST_B_FAILING_ASSISTANT);
+
+    const guardedAssistant = result.guardedAligned[3];
+    expect(guardedAssistant.content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(guardedAssistant.metadata?.formulation_guard_replaced).toBe(true);
+    expect(guardedAssistant.metadata?.formulation_guard_reason_codes).toContain(
+      'unsupported_deeper_claim_without_tentative_marker'
+    );
+    expect(guardedAssistant.metadata?.formulation_guard_reason_codes).toContain(
+      'missing_verification_question'
+    );
+    expect(result.finalVisible.some((m) => m?.content === TEST_B_FAILING_ASSISTANT)).toBe(false);
+    expect(result.pendingCorrection).not.toBeNull();
+    expect(result.finalVisible.map((m) => m.role)).toEqual(['assistant', 'user', 'assistant']);
+  });
+
+  it('2. no id/no created_at with one leading null: TEST A failing response is deterministically replaced', () => {
+    const raw = [
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'assistant', content: 'שלום, אני כאן איתך.' },
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_A_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_A_FAILING_ASSISTANT },
+    ];
+
+    const result = runAlignedPipeline(raw, 'he');
+    const guardedAssistant = result.guardedAligned[3];
+    expect(guardedAssistant.content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(guardedAssistant.metadata?.formulation_guard_replaced).toBe(true);
+    expect(guardedAssistant.metadata?.formulation_guard_reason_codes).toContain(
+      'unsupported_deeper_claim_without_tentative_marker'
+    );
+    expect(guardedAssistant.metadata?.formulation_guard_reason_codes).toContain(
+      'missing_verification_question'
+    );
+  });
+
+  it('3. no id/no created_at with multiple leading null/internal user messages still guards by raw index', () => {
+    const raw = [
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'assistant', content: 'פתיחה רגילה.' },
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+    const result = runAlignedPipeline(raw, 'he');
+    expect(result.sanitizedAligned[0]).toBeNull();
+    expect(result.sanitizedAligned[1]).toBeNull();
+    expect(result.guardedAligned[4]?.metadata?.formulation_guard_replaced).toBe(true);
+    expect(result.guardedAligned[4]?.content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('4. stable IDs present: replacement behavior is unchanged', () => {
+    const rawUser = rawGuardedUser('u-100', TEST_B_USER_PROMPT);
+    const asst = assistantMsg('a-100', TEST_B_FAILING_ASSISTANT);
+    const result = runAlignedPipeline([rawUser, asst], 'he');
+    expect(result.guardedAligned[1].content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(result.guardedAligned[1].metadata?.formulation_guard_replaced).toBe(true);
+  });
+
+  it('5. created_at present and IDs absent: replacement behavior is unchanged', () => {
+    const raw = [
+      { role: 'user', created_at: '2026-07-29T00:00:00.000Z', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', created_at: '2026-07-29T00:00:01.000Z', content: TEST_B_FAILING_ASSISTANT },
+    ];
+    const result = runAlignedPipeline(raw, 'he');
+    expect(result.guardedAligned[1].content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(result.guardedAligned[1].metadata?.formulation_guard_replaced).toBe(true);
+  });
+
+  it('6. subscription-aligned transform preserves raw array length/indexes before guard', () => {
+    const raw = [
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'assistant', content: 'פתיחה רגילה.' },
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+
+    const result = runAlignedPipeline(raw, 'he', (msg) => {
+      if (!msg) return null;
+      if (msg.role === 'assistant' && msg.content === 'פתיחה רגילה.') return null;
+      return msg;
+    });
+
+    expect(result.transformedAligned).toHaveLength(raw.length);
+    expect(result.transformedAligned[0]).toBeNull();
+    expect(result.transformedAligned[1]).toBeNull();
+    expect(result.transformedAligned[2]?.role).toBe('user');
+    expect(result.transformedAligned[3]?.role).toBe('assistant');
+    expect(result.guardedAligned[3]?.metadata?.formulation_guard_replaced).toBe(true);
+  });
+
+  it('7. ordinary unguarded response after null entries remains unchanged', () => {
+    const raw = [
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'assistant', content: 'פתיחה רגילה.' },
+      { role: 'user', content: 'שאלה רגילה בלי בלוק.' },
+      { role: 'assistant', content: 'תגובה רגילה בלי העמקה זהותית.' },
+    ];
+    const result = runAlignedPipeline(raw, 'he');
+    expect(result.guardedAligned[3].content).toBe('תגובה רגילה בלי העמקה זהותית.');
+    expect(result.guardedAligned[3].metadata?.formulation_guard_replaced).toBeUndefined();
+  });
+
+  it('8. Safety Mode response after null entries remains unchanged', () => {
+    const raw = [
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'assistant', content: 'פתיחה רגילה.' },
+      {
+        role: 'user',
+        content: `${SM_START}\nSafety instructions.\n${SM_END}\n\n${FD_START}\nFormulation instructions.\n${FD_END}\n\nעזרה`,
+      },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+    const result = runAlignedPipeline(raw, 'he');
+    expect(result.guardedAligned[3].content).toBe(TEST_B_FAILING_ASSISTANT);
+    expect(result.guardedAligned[3].metadata?.formulation_guard_replaced).toBeUndefined();
+  });
+
+  it('9. no duplicate fallback across re-application', () => {
+    const raw = [
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+    const first = runAlignedPipeline(raw, 'he');
+    const second = applyFormulationGuardToConversationMessages(raw, first.guardedAligned, { locale: 'he' });
+    expect(second.messages.filter((m) => m && m.role === 'assistant')).toHaveLength(1);
+    expect(second.messages[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('10. pending correction is one-shot in same conversation and does not carry across another conversation', () => {
+    const convA = [
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+    const firstPass = runAlignedPipeline(convA, 'he');
+    expect(firstPass.pendingCorrection).not.toBeNull();
+
+    const correctionBlock = buildPendingFormulationCorrectionBlock(firstPass.pendingCorrection.fallbackText);
+    const convAAfterCorrection = [
+      ...convA,
+      { role: 'user', content: `${correctionBlock}\n\nהודעה חדשה` },
+      { role: 'assistant', content: 'תשובה תקינה.' },
+    ];
+    const secondPass = runAlignedPipeline(convAAfterCorrection, 'he');
+    expect(secondPass.pendingCorrection).toBeNull();
+
+    const convB = [
+      { role: 'user', content: 'שיחה נפרדת ללא בלוק העמקה.' },
+      { role: 'assistant', content: 'תשובה נפרדת.' },
+    ];
+    const convBPass = runAlignedPipeline(convB, 'he');
+    expect(convBPass.pendingCorrection).toBeNull();
+    expect(convBPass.finalVisible[1].content).toBe('תשובה נפרדת.');
+  });
+
+  it('11. guard path does not log raw message content', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const raw = [
+      { role: 'user', content: `${FD_START}\nSome instruction.\n${FD_END}\n\n${TEST_B_USER_PROMPT}` },
+      { role: 'assistant', content: TEST_B_FAILING_ASSISTANT },
+    ];
+    runAlignedPipeline(raw, 'he');
+    expect(logSpy).not.toHaveBeenCalled();
+    expect(warnSpy).not.toHaveBeenCalled();
+    expect(errorSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 });
 
