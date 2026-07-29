@@ -36,6 +36,11 @@ import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
+import {
+  applyFormulationGuardToConversationMessages,
+  buildPendingFormulationCorrectionBlock,
+  hasFormulationCorrectionAlreadyBeenApplied,
+} from '../components/utils/formulationContractGuard.js';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
 import {
@@ -387,6 +392,10 @@ export default function Chat() {
   // Prevents double-writes when both a switch trigger and requestSummary fire for
   // the same conversation.
   const conversationMemoryWrittenRef = useRef(new Set());
+  // Formulation contract guard — tracks the most recent unresolved pending
+  // correction.  Set by buildVisibleConversationMessages after each guard pass;
+  // consumed and cleared by handleSendMessage when the next user message is sent.
+  const pendingFormulationCorrectionRef = useRef(null);
 
   const emitTherapeuticFormsSessionStartDiagnostic = (conversationId) => {
     const { policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload({
@@ -616,6 +625,39 @@ export default function Chat() {
     }
 
     return deduplicateMessages(validated);
+  };
+
+  /**
+   * Phase 6 — Centralized visible-message transformation.
+   *
+   * Transforms raw Base44 conversation messages into the final array that may
+   * be passed to safeUpdateMessages.  All ingestion paths (hydration, switching,
+   * subscription, polling, refetch, visibility-refetch) must call this helper
+   * instead of calling sanitizeConversationMessages directly.
+   *
+   * Pipeline order:
+   *   1. sanitizeConversationMessages    — strips internal blocks from user messages
+   *   2. applyFormulationGuardToConversationMessages
+   *                                     — replaces violating guarded responses with
+   *                                        the deterministic fallback
+   *   3. null filtering                  — removes messages hidden by the sanitizer
+   *
+   * Also updates pendingFormulationCorrectionRef for the next outbound send.
+   *
+   * @param {Array<object>} rawMessages   Original Base44 messages (full content).
+   * @param {string}        sessionLang   Active session locale (e.g. 'he', 'en').
+   * @returns {Array<object>} Final guarded messages (null-free).
+   */
+  const buildVisibleConversationMessages = (rawMessages, sessionLang) => {
+    const raw = Array.isArray(rawMessages) ? rawMessages : [];
+    const sanitized = sanitizeConversationMessages(raw, sessionLang).filter(Boolean);
+    const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
+      raw,
+      sanitized,
+      { locale: sessionLang }
+    );
+    pendingFormulationCorrectionRef.current = pendingCorrection;
+    return guarded;
   };
 
   // CRITICAL: Safe state update with duplicate detection
@@ -896,8 +938,8 @@ export default function Chat() {
           console.log('[Visibility] Still loading - forcing refetch');
           try {
             const conversation = await base44.agents.getConversation(currentConversationId);
-            const sanitized = sanitizeConversationMessages(conversation.messages || [], sessionLanguageRef.current);
-            const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
+            const guarded = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
+            const updated = safeUpdateMessages(guarded, 'VisibilityRefetch');
             if (updated) {
               setIsLoading(false);
               emitStabilitySummary();
@@ -996,8 +1038,8 @@ export default function Chat() {
             refetchDebounceRef.current = setTimeout(async () => {
               try {
                 const refetched = await base44.agents.getConversation(currentConversationId);
-                const sanitized = sanitizeConversationMessages(refetched.messages || [], sessionLanguageRef.current);
-                safeUpdateMessages(sanitized, 'Refetch');
+                const guardedRefetch = buildVisibleConversationMessages(refetched.messages || [], sessionLanguageRef.current);
+                safeUpdateMessages(guardedRefetch, 'Refetch');
                 // Phase 2 fix: clear loading after refetch completes.  The subscription
                 // returned early (no setIsLoading call) when unsafe content was detected.
                 // The refetch is the recovery path — loading must always clear here so
@@ -1019,7 +1061,7 @@ export default function Chat() {
           // IMPORTANT: run the full conversation sanitizer first so user attachment
           // metadata is recovered from the send-contract marker during live updates.
           const sanitizedIncomingMessages = sanitizeConversationMessages(data.messages || [], sessionLanguageRef.current);
-          processedMessages = sanitizedIncomingMessages.
+          const preGuardMessages = sanitizedIncomingMessages.
           map((msg) => {
             if (msg.role === 'assistant' && msg.content) {
               // Skip if not render-safe
@@ -1046,6 +1088,19 @@ export default function Chat() {
             return msg;
           }).
           filter((msg) => msg !== null);
+
+          // Apply formulation contract guard after validateAgentOutput processing.
+          // Raw messages are needed for guarded-turn scope detection.
+          {
+            const { messages: guardedSub, pendingCorrection: pendingCorrectionSub } =
+              applyFormulationGuardToConversationMessages(
+                data.messages || [],
+                preGuardMessages,
+                { locale: sessionLanguageRef.current }
+              );
+            pendingFormulationCorrectionRef.current = pendingCorrectionSub;
+            processedMessages = guardedSub;
+          }
 
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
@@ -1209,8 +1264,8 @@ export default function Chat() {
     const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
     sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
-    const sanitized = sanitizeConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
-    safeUpdateMessages(sanitized, 'CurrentConversationHydrate');
+    const guardedHydrate = buildVisibleConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
+    safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
   }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
 
   useEffect(() => {
@@ -1400,8 +1455,8 @@ export default function Chat() {
       }
 
       // Process and sanitize messages before setting
-      const sanitized = sanitizeConversationMessages(conversation.messages || [], sessionLanguageRef.current);
-      safeUpdateMessages(sanitized, 'LoadConversation');
+      const guardedLoad = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
+      safeUpdateMessages(guardedLoad, 'LoadConversation');
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);
@@ -2098,18 +2153,44 @@ export default function Chat() {
 
       // When the user types their first message without clicking "Start Session",
       // prepend the [START_SESSION] block so the agent initialises on all wiring paths.
-      // Message composition order:
+      // Message composition order (Phase 7 updated):
       //   1. Safety supplement (if active) — supersedes formulation supplement
       //   2. Formulation-deepening supplement (if active and safety is null)
-      //   3. Current user message
+      //   3. Pending formulation contract correction block (if prior guarded turn was
+      //      replaced and correction not yet sent) — see Phase 7.
+      //   4. Current user message
       // For new conversations the session-start content is prepended before all of the above.
+
+      // Phase 7: Build pending correction block if needed.
+      // Uses the current conversation's persisted messages (already fetched above) to
+      // determine whether the correction was already sent.
+      let pendingCorrectionBlock = null;
+      if (pendingFormulationCorrectionRef.current) {
+        const alreadySent = hasFormulationCorrectionAlreadyBeenApplied(
+          conversation.messages || [],
+          // afterIndex = -1 searches from the beginning of the conversation.
+          -1
+        );
+        if (!alreadySent) {
+          pendingCorrectionBlock = buildPendingFormulationCorrectionBlock(
+            pendingFormulationCorrectionRef.current.fallbackText
+          );
+        }
+        // Clear the pending state after consuming it (send-once guarantee).
+        pendingFormulationCorrectionRef.current = null;
+      }
+
       let messageContent;
       if (runtimeSupplement) {
-        messageContent = runtimeSupplement + '\n\n' + messageText;
+        messageContent = runtimeSupplement + '\n\n' +
+          (pendingCorrectionBlock ? pendingCorrectionBlock + '\n\n' : '') +
+          messageText;
       } else if (formulationSupplement) {
-        messageContent = formulationSupplement + '\n\n' + messageText;
+        messageContent = formulationSupplement + '\n\n' +
+          (pendingCorrectionBlock ? pendingCorrectionBlock + '\n\n' : '') +
+          messageText;
       } else {
-        messageContent = messageText;
+        messageContent = (pendingCorrectionBlock ? pendingCorrectionBlock + '\n\n' : '') + messageText;
       }
       const deterministicFormRoute = resolveFormIntentRequest(messageText, {
         language: sessionLanguageRef.current,
@@ -2261,12 +2342,12 @@ export default function Chat() {
 
           try {
             const updatedConv = await base44.agents.getConversation(convId);
-            const sanitized = sanitizeConversationMessages(updatedConv.messages || [], sessionLanguageRef.current);
+            const guardedPoll = buildVisibleConversationMessages(updatedConv.messages || [], sessionLanguageRef.current);
 
-            console.log(`[Polling] Retrieved ${sanitized.length} messages, expected ${expectedReplyCountRef.current}`);
+            console.log(`[Polling] Retrieved ${guardedPoll.length} messages, expected ${expectedReplyCountRef.current}`);
 
             // Check if we have the expected reply
-            if (sanitized.length >= expectedReplyCountRef.current) {
+            if (guardedPoll.length >= expectedReplyCountRef.current) {
               console.log('[Polling] ✅ Reply found - stopping polling');
 
               // CRITICAL: Safe update with validation
@@ -2274,7 +2355,7 @@ export default function Chat() {
               // snapshot can be shorter than the streamed response and must not win.
               const updated = subscriptionSucceededRef.current ?
               false :
-              safeUpdateMessages(sanitized, 'Polling');
+              safeUpdateMessages(guardedPoll, 'Polling');
               if (subscriptionSucceededRef.current) {
                 console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
               }
@@ -2315,7 +2396,7 @@ export default function Chat() {
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
 
               // CRITICAL: Safe update with validation
-              safeUpdateMessages(sanitized, 'Polling-Timeout');
+              safeUpdateMessages(guardedPoll, 'Polling-Timeout');
               setIsLoading(false);
               emitStabilitySummary();
 

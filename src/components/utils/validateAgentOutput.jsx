@@ -300,10 +300,13 @@ export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
   if (typeof content !== 'string') return content;
 
   // Each entry is [exactStartMarker, exactEndMarker].
+  // Phase 8: the FORMULATION CONTRACT CORRECTION block is also agent-only and
+  // must be removed from visible user content after persistence/reload.
   const AGENT_ONLY_BLOCK_BOUNDS = [
     ['=== FORMULATION DEEPENING \u2014 THIS TURN ONLY ===', '=== END FORMULATION DEEPENING ==='],
     ['=== SAFETY MODE \u2014 STAGE 2 PHASE 7 ===', '=== END SAFETY MODE CONSTRAINTS ==='],
     ['=== EMERGENCY RESOURCES \u2014 STAGE 2 PHASE 7 ===', '=== END EMERGENCY RESOURCES ==='],
+    ['=== FORMULATION CONTRACT CORRECTION \u2014 NEXT TURN ONLY ===', '=== END FORMULATION CONTRACT CORRECTION ==='],
   ];
 
   let result = content;
