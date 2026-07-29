@@ -892,3 +892,60 @@ describe('sanitizeConversationMessages — agent-only runtime block stripping', 
     expect(strippedWithUser).toBe('user text');
   });
 });
+
+// ─── Formulation Contract Correction block stripping ──────────────────────────
+
+describe('stripAgentOnlyRuntimeBlocksFromUserContent — Formulation Contract Correction block', () => {
+  const CORRECTION_START = '=== FORMULATION CONTRACT CORRECTION \u2014 NEXT TURN ONLY ===';
+  const CORRECTION_END = '=== END FORMULATION CONTRACT CORRECTION ===';
+
+  function makeBlock(body = 'correction text') {
+    return `${CORRECTION_START}\n${body}\n${CORRECTION_END}`;
+  }
+
+  it('strips a complete correction block leaving user text intact', () => {
+    const userText = 'המשך מכאן';
+    const content = makeBlock('some correction instructions') + '\n\n' + userText;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+    expect(result).not.toContain(CORRECTION_START);
+    expect(result).not.toContain(CORRECTION_END);
+    expect(result.trim()).toBe(userText);
+  });
+
+  it('strips correction block that is the entire content (no trailing user text)', () => {
+    const content = makeBlock('instructions');
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+    expect(result.trim()).toBe('');
+  });
+
+  it('does NOT strip an incomplete block — start marker only', () => {
+    const content = `${CORRECTION_START}\nsome text without end marker`;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+    expect(result).toContain(CORRECTION_START);
+  });
+
+  it('does NOT strip ordinary text containing the word "formulation"', () => {
+    const ordinary = 'Let us revisit your formulation to explore further.';
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(ordinary);
+    expect(result).toBe(ordinary);
+  });
+
+  it('does NOT strip ordinary text containing the word "correction"', () => {
+    const ordinary = 'I want to make a correction to what I said earlier.';
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(ordinary);
+    expect(result).toBe(ordinary);
+  });
+
+  it('ordinary user text is byte-for-byte unchanged', () => {
+    const ordinary = 'Hello, I would like to talk about my anxiety today.';
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(ordinary);
+    expect(result).toBe(ordinary);
+  });
+
+  it('idempotent: stripping twice yields the same result as stripping once', () => {
+    const content = makeBlock('correction body') + '\n\nuser message';
+    const once = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+    const twice = stripAgentOnlyRuntimeBlocksFromUserContent(once);
+    expect(once).toBe(twice);
+  });
+});

@@ -112,7 +112,7 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
     const chatSrc = fs.readFileSync(`${ROOT}/src/pages/Chat.jsx`, 'utf8');
     expect(chatSrc).toContain("location.state?.pdfViewerReturn?.source === 'chat'");
     expect(chatSrc).toContain("chatConversationId: currentConversationId");
-    expect(chatSrc).toContain("safeUpdateMessages(sanitized, 'CurrentConversationHydrate')");
+    expect(chatSrc).toContain("safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate')");
   });
 });
 
