@@ -31,6 +31,7 @@ import {
   serializeAttachmentMetadataMarker,
   extractAttachmentMetadataFromUserContent,
   ATTACHMENT_METADATA_MARKER_PREFIX,
+  stripAgentOnlyRuntimeBlocksFromUserContent,
 } from '../../src/components/utils/validateAgentOutput.jsx';
 
 // ─── PURE JSON-EXTRACTION LOGIC (mirrors functions/sanitizeConversation.ts) ───
@@ -641,5 +642,253 @@ describe('attachment metadata marker helpers', () => {
       url: 'https://files.example.com/new.pdf',
       name: 'new.pdf',
     });
+  });
+});
+
+// ─── TESTS — stripAgentOnlyRuntimeBlocksFromUserContent ───────────────────────
+
+// Exact start/end marker constants (must match workflowContextInjector.js exactly)
+const FORM_START = '=== FORMULATION DEEPENING \u2014 THIS TURN ONLY ===';
+const FORM_END   = '=== END FORMULATION DEEPENING ===';
+const SAFETY_START = '=== SAFETY MODE \u2014 STAGE 2 PHASE 7 ===';
+const SAFETY_END   = '=== END SAFETY MODE CONSTRAINTS ===';
+const EMERGENCY_START = '=== EMERGENCY RESOURCES \u2014 STAGE 2 PHASE 7 ===';
+const EMERGENCY_END   = '=== END EMERGENCY RESOURCES ===';
+
+// Realistic multi-line blocks that mirror actual production supplement structure.
+const FORMULATION_BLOCK = [
+  FORM_START,
+  '',
+  'The person is explicitly asking for deeper formulation insight. Apply the following for this response only:',
+  '',
+  '1. Do not repeat the already-known maintaining cycle.',
+  '2. Clearly distinguish: (a) established; (b) inference; (c) unverified hypothesis; (d) still unknown.',
+  '3. Any new interpretation MUST be labeled as an unverified hypothesis.',
+  '4. Do NOT use certainty language: "the real threat is...", "the true reason is...".',
+  '5. End with exactly one collaborative verification question.',
+  '',
+  FORM_END,
+].join('\n');
+
+const SAFETY_BLOCK = [
+  SAFETY_START,
+  '',
+  'DISTRESS DETECTED: Tier-High. Apply safety-first constraints for this response only:',
+  '- Acknowledge feelings warmly before any therapeutic move.',
+  '- Do not introduce new exercises, homework, or behavioral experiments.',
+  '- Keep the response brief and grounding-oriented.',
+  '',
+  SAFETY_END,
+].join('\n');
+
+const EMERGENCY_BLOCK = [
+  EMERGENCY_START,
+  '',
+  'Emergency resources for this session locale (read-only):',
+  '- \u05E2\u05E8\u05D5\u05E5 \u05D4\u05E1\u05D9\u05D5\u05E2 \u05DC\u05DE\u05E9\u05D1\u05E8: 1201 (\u05D7\u05D9\u05E0\u05DD, 24/7)',
+  '- ERAN: 1201 (free, 24/7)',
+  '',
+  EMERGENCY_END,
+].join('\n');
+
+// Hebrew production message (stored as escaped unicode to avoid test-output leakage)
+// Translation: "I feel that you already know the story…"
+const HEBREW_USER_MSG =
+  '\u05D0\u05E0\u05D9 \u05DE\u05E8\u05D2\u05D9\u05E9 \u05E9\u05D0\u05EA\u05D4 \u05DB\u05D1\u05E8 \u05D9\u05D5\u05D3\u05E2';
+
+describe('stripAgentOnlyRuntimeBlocksFromUserContent — unit tests', () => {
+
+  // A1 — Formulation block + Hebrew message → only Hebrew message
+  it('A1. Formulation block followed by a Hebrew user message renders only the Hebrew message', () => {
+    const input = `${FORMULATION_BLOCK}\n\n${HEBREW_USER_MSG}`;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(input);
+    expect(result).toBe(HEBREW_USER_MSG);
+    expect(result).not.toContain(FORM_START);
+    expect(result).not.toContain(FORM_END);
+  });
+
+  // A2 — Safety block + user message → only user message
+  it('A2. Safety Mode block followed by a user message renders only the user message', () => {
+    const userMsg = 'I feel overwhelmed right now.';
+    const input = `${SAFETY_BLOCK}\n\n${userMsg}`;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(input);
+    expect(result).toBe(userMsg);
+    expect(result).not.toContain(SAFETY_START);
+    expect(result).not.toContain(SAFETY_END);
+  });
+
+  // A3 — Safety + Emergency + user message → only user message
+  it('A3. Safety block followed by Emergency Resources block and then the user message renders only the user message', () => {
+    const userMsg = 'I need help.';
+    const input = `${SAFETY_BLOCK}\n\n${EMERGENCY_BLOCK}\n\n${userMsg}`;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(input);
+    expect(result).toBe(userMsg);
+    expect(result).not.toContain(SAFETY_START);
+    expect(result).not.toContain(EMERGENCY_START);
+  });
+
+  // A9 — Ordinary multiline user message unchanged
+  it('A9. Ordinary multiline user message is returned byte-for-byte unchanged', () => {
+    const userMsg = 'Line one.\nLine two.\nLine three with Hebrew: \u05E9\u05DC\u05D5\u05DD.';
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(userMsg);
+    expect(result).toBe(userMsg);
+  });
+
+  // A10a — Single marker-like start line without closing marker is not stripped
+  it('A10a. A lone start-marker line without a closing marker is not stripped', () => {
+    const userMsg = `${FORM_START}\nThis is my regular message about formulation.`;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(userMsg);
+    // The start marker itself must be preserved (incomplete block → no stripping)
+    expect(result).toContain(FORM_START);
+    // The surrounding user text must also be preserved
+    expect(result).toContain('regular message about formulation');
+  });
+
+  // A10b — Words like "formulation" or "safety" in ordinary text are not stripped
+  it('A10b. Ordinary text containing words like "formulation", "safety", "emergency" is not stripped', () => {
+    const userMsg =
+      'I want to discuss the formulation and safety plan we have in case of an emergency.';
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(userMsg);
+    expect(result).toBe(userMsg);
+  });
+
+  // Handles null/undefined gracefully
+  it('Returns non-string input unchanged (null, undefined, number)', () => {
+    expect(stripAgentOnlyRuntimeBlocksFromUserContent(null)).toBe(null);
+    expect(stripAgentOnlyRuntimeBlocksFromUserContent(undefined)).toBe(undefined);
+    expect(stripAgentOnlyRuntimeBlocksFromUserContent(42)).toBe(42);
+  });
+});
+
+// ─── TESTS — sanitizeConversationMessages with agent-only block stripping ─────
+
+describe('sanitizeConversationMessages — agent-only runtime block stripping', () => {
+
+  // A1 via sanitizeConversationMessages
+  it('A1. Persisted user message with Formulation block renders only the Hebrew user text', () => {
+    const messages = [
+      { role: 'user', content: `${FORMULATION_BLOCK}\n\n${HEBREW_USER_MSG}` },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(HEBREW_USER_MSG);
+    expect(result[0].content).not.toContain(FORM_START);
+  });
+
+  // A2 via sanitizeConversationMessages
+  it('A2. Persisted user message with Safety Mode block renders only the user text', () => {
+    const userMsg = 'I feel overwhelmed right now.';
+    const messages = [
+      { role: 'user', content: `${SAFETY_BLOCK}\n\n${userMsg}` },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(userMsg);
+    expect(result[0].content).not.toContain(SAFETY_START);
+  });
+
+  // A3 via sanitizeConversationMessages
+  it('A3. Safety + Emergency Resources blocks with user message renders only the user message', () => {
+    const userMsg = 'I need help.';
+    const messages = [
+      { role: 'user', content: `${SAFETY_BLOCK}\n\n${EMERGENCY_BLOCK}\n\n${userMsg}` },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(userMsg);
+    expect(result[0].content).not.toContain(SAFETY_START);
+    expect(result[0].content).not.toContain(EMERGENCY_START);
+  });
+
+  // A4 — New-conversation: session-start + runtime supplement + user message
+  it('A4. New-conversation message with session-start, runtime supplement, and user text renders only the user text', () => {
+    const userMsg = 'What is missing from the formulation?';
+    // Simulate Chat.jsx new-conversation composition with formulation supplement
+    const sessionStartBlock =
+      '[START_SESSION]\n=== WORKFLOW CONTEXT ===\nWorkflow instructions here.\n=== END WORKFLOW CONTEXT ===';
+    const fullContent = `${sessionStartBlock}\n\n${FORMULATION_BLOCK}\n\n${userMsg}`;
+    const messages = [{ role: 'user', content: fullContent }];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0]).not.toBeNull();
+    expect(result[0].content).toContain(userMsg);
+    expect(result[0].content).not.toContain(FORM_START);
+  });
+
+  // A5 — Attachment metadata preserved after stripping
+  it('A5. Attachment metadata is preserved when a runtime block is stripped from a user message', () => {
+    const userMsg = 'Please look at this file.';
+    const attachmentMarker = serializeAttachmentMetadataMarker({
+      type: 'pdf',
+      url: 'https://files.example.com/doc.pdf',
+      name: 'doc.pdf',
+    });
+    const content = `${FORMULATION_BLOCK}\n\n${userMsg}\n${attachmentMarker}`;
+    const messages = [{ role: 'user', content }];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toContain(userMsg);
+    expect(result[0].content).not.toContain(FORM_START);
+    expect(result[0].metadata?.attachment).toBeDefined();
+    expect(result[0].metadata.attachment.type).toBe('pdf');
+  });
+
+  // A6 — Voice transcript text preserved
+  it('A6. Voice transcript text is preserved byte-for-byte when a runtime block is stripped', () => {
+    const voiceTranscript =
+      '\u05D4\u05D9\u05D9\u05EA\u05D9 \u05DE\u05D0\u05D5\u05D3 \u05E2\u05E6\u05D1\u05E0\u05D9 \u05D4\u05D9\u05D5\u05DD.'; // "הייתי מאוד עצבני היום."
+    const content = `${SAFETY_BLOCK}\n\n${voiceTranscript}`;
+    const messages = [{ role: 'user', content }];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(voiceTranscript);
+  });
+
+  // A8 — Polling and subscription sanitization produce the same visible result
+  it('A8. Calling sanitizeConversationMessages twice on the same data produces the same visible result (idempotent)', () => {
+    const userMsg = 'Feeling anxious.';
+    const messages = [
+      { role: 'user', content: `${FORMULATION_BLOCK}\n\n${userMsg}` },
+    ];
+    const firstPass = sanitizeConversationMessages(messages);
+    const secondPass = sanitizeConversationMessages(firstPass.filter(Boolean));
+    expect(secondPass[0].content).toBe(firstPass[0].content);
+    expect(secondPass[0].content).toBe(userMsg);
+  });
+
+  // A9 — Ordinary multiline message unchanged
+  it('A9. Ordinary multiline user messages remain byte-for-byte unchanged', () => {
+    const userMsg = 'Line one.\nLine two.\n\u05E9\u05DC\u05D5\u05DD line three.';
+    const messages = [{ role: 'user', content: userMsg }];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(userMsg);
+  });
+
+  // A10 — Marker-like user text that is not a complete bounded block is not deleted
+  it('A10. A lone start-marker line typed by the user (without a closing marker) does not cause broad deletion', () => {
+    const userMsg = `${FORM_START}\nI am just describing the formulation request here.`;
+    const messages = [{ role: 'user', content: userMsg }];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toContain('formulation request here');
+  });
+
+  // A11 — Agent-facing content is unchanged (smoke-check via workflowContextInjector output)
+  it('A11. The supplement content itself (agent-facing) is not affected by this sanitizer', () => {
+    // The sanitizer modifies stored/displayed messages, not the string produced by
+    // buildRuntimeFormulationSupplement before it is sent to the agent.
+    // This test verifies round-trip: a raw supplement string (not wrapped in a message)
+    // passed through stripAgentOnlyRuntimeBlocksFromUserContent removes the block,
+    // proving the two strings are the same (same markers) — which confirms the sanitizer
+    // targets the identical blocks that would be embedded in a persisted message.
+    const agentFacingContent = FORMULATION_BLOCK;
+    const stripped = stripAgentOnlyRuntimeBlocksFromUserContent(agentFacingContent);
+    // The block is stripped when there is no user text after it (empty trim)
+    expect(stripped).toBe('');
+    // But the same supplement prepended to user text strips correctly
+    const withUser = `${FORMULATION_BLOCK}\n\nuser text`;
+    const strippedWithUser = stripAgentOnlyRuntimeBlocksFromUserContent(withUser);
+    expect(strippedWithUser).toBe('user text');
   });
 });

@@ -12,6 +12,7 @@ import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown'
 import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { PDF_VIEWER_ROUTE_PATH } from './utils/formFileUrls';
+import { stripAgentOnlyRuntimeBlocksFromUserContent } from '../utils/validateAgentOutput.jsx';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
@@ -212,11 +213,13 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   let thinkingContent = null;
   try {
     const rawContent = typeof message.content === 'string' ? message.content : '';
-    // Strip [ATTACHMENT_CONTEXT] block from user messages — it's an AI-facing context
-    // block that must never appear in the visible chat. Strip everything from the marker
-    // to end-of-string (the block is always appended after the human-visible text).
+    // Strip [ATTACHMENT_CONTEXT] block and any agent-only runtime supplement blocks
+    // from user messages — these are AI-facing context blocks that must never appear
+    // in the visible chat.  stripAgentOnlyRuntimeBlocksFromUserContent is the same
+    // canonical helper used by sanitizeConversationMessages and acts as a final
+    // render defense for any message that bypassed the conversation-load sanitization.
     const contentStr = isUser
-      ? rawContent.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim()
+      ? stripAgentOnlyRuntimeBlocksFromUserContent(rawContent.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim())
       : rawContent.trim();
     const hasRawToolCallMarkup = !isUser && /<\/?(?:tool_call|tool_calls|function_call|function_calls)\b[^>]*>/i.test(contentStr);
 
