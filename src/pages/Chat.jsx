@@ -37,7 +37,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationLedSupplement } from '@/lib/workflowContextInjector.js';
 import {
   ensureTherapeuticFormsPolicyInjected,
   getTherapeuticFormsPolicyPayload,
@@ -1998,14 +1998,22 @@ export default function Chat() {
 
     // Phase 7.1 Layer 3: Per-turn safety mode supplement (V5 wiring only, flag-gated).
     // Returns null for default HYBRID wiring — no change to default behavior.
-    const runtimeSupplement = buildRuntimeSafetySupplement(
+    const runtimeSafetySupplement = buildRuntimeSafetySupplement(
       ACTIVE_CBT_THERAPIST_WIRING,
       messageText,
       i18n?.language ?? 'en'
     );
+    const runtimeFormulationLedSupplement = runtimeSafetySupplement === null
+      ? buildRuntimeFormulationLedSupplement(
+        ACTIVE_CBT_THERAPIST_WIRING,
+        messageText,
+        i18n?.language ?? 'en'
+      )
+      : null;
+    const runtimeSupplement = runtimeSafetySupplement ?? runtimeFormulationLedSupplement;
     // Phase 8: track safety mode activation for the upgraded UI indicator.
     // Once triggered, the indicator persists for the rest of the session.
-    if (runtimeSupplement !== null) {
+    if (runtimeSafetySupplement !== null) {
       setSafetyModeActive(true);
     }
 

@@ -79,7 +79,7 @@ import {
   SAFETY_MODE_FAIL_CLOSED_RESULT,
   evaluateRuntimeSafetyMode,
 } from './therapistSafetyMode.js';
-import { buildEmergencyResourceSection } from './emergencyResourceLayer.js';
+import { buildEmergencyResourceSection, SUPPORTED_LOCALES } from './emergencyResourceLayer.js';
 import {
   extractMessageSignals,
   scoreDistressTier,
@@ -860,6 +860,257 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
     return supplement;
   } catch (_e) {
     // Fail-safe: never throw, never block the message send
+    return null;
+  }
+}
+
+// ─── Phase 10.1 — Per-turn runtime formulation-led supplement ─────────────────
+
+/**
+ * Canonical runtime supplement prepended when the current turn explicitly asks
+ * for deeper understanding before intervention on an effectively
+ * formulation-led path.
+ *
+ * This supplement is intentionally compact and constant. It never echoes raw
+ * user text and does not vary by locale because it is model-facing control
+ * context, not user-facing UI copy.
+ *
+ * @type {string}
+ */
+const FORMULATION_LED_RUNTIME_SUPPLEMENT = [
+  '=== FORMULATION-LED TURN PRIORITY ===',
+  'The current user turn explicitly asks for deeper understanding before intervention.',
+  'For this turn:',
+  '1. Stay in formulation / explanation mode.',
+  '2. Clarify what feels threatening, what may be missing, or what the deeper meaning may be without overstating certainty.',
+  '3. Do not assign or push an exercise yet unless the person clearly asks for one after understanding is established.',
+  '4. Ground any deeper hypothesis in the existing formulation and distinguish established facts from tentative inferences.',
+  '=== END FORMULATION-LED TURN PRIORITY ===',
+].join('\n');
+
+/**
+ * Locale coverage for deterministic formulation-led runtime trigger matching.
+ * Matches the app's supported user-facing language set.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const FORMULATION_LED_RUNTIME_TRIGGER_LOCALES = Object.freeze([
+  'en', 'he', 'es', 'fr', 'de', 'it', 'pt',
+]);
+
+/**
+ * Narrow, deterministic trigger phrase sets for explicit formulation-led
+ * turn-level requests. Each matcher requires all listed fragments after
+ * bounded normalization; broad single-keyword matches are intentionally
+ * excluded to reduce false positives.
+ *
+ * @type {Readonly<Record<string, ReadonlyArray<Readonly<{trigger_key: string, all: ReadonlyArray<string>}>>>>}
+ */
+const FORMULATION_LED_RUNTIME_TRIGGER_MATCHERS = Object.freeze({
+  en: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['missing from the formulation']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['missing in the formulation']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['what are we missing', 'formulation']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['why is this so threatening']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['why does this feel so threatening']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['you know the story', "don't understand me"]) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['you know the story', 'do not understand me']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['help me understand', 'deeper meaning']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['understand the deeper meaning']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(['what does this mean about me']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(["don't give me an exercise yet"]) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['do not give me an exercise yet']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['understand before intervening']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['understand me before intervening']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['understand what is happening before deciding']) }),
+  ]),
+  he: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['מה חסר בפורמולציה']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['מה עוד חסר בפורמולציה']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['למה זה כל כך מאיים']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['למה זה מרגיש כל כך מאיים']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['אתם כבר יודעים את הסיפור', 'לא מבינים אותי']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['אתם יודעים את הסיפור', 'לא באמת מבינים אותי']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['תעזרו לי להבין', 'המשמעות העמוקה']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['להבין את המשמעות העמוקה']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(['מה זה אומר עליי']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['אל תציעו תרגיל עדיין']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['אל תתנו לי תרגיל עדיין']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['תבינו לפני שמתערבים']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['תבינו אותי לפני שמתערבים']) }),
+  ]),
+  es: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['qué falta en la formulación']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['qué estamos pasando por alto', 'formulación']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['por qué esto es tan amenazante']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['por qué esto se siente tan amenazante']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['conoces la historia', 'no me entiendes']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['sabes la historia', 'no me entiendes']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['ayúdame a entender', 'significado más profundo']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['entender el significado más profundo']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(['qué significa esto sobre mí']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['no me des un ejercicio todavía']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['entiéndeme antes de intervenir']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['entiende antes de intervenir']) }),
+  ]),
+  fr: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(["qu'est ce qui manque dans la formulation"]) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(["qu'est ce qui manque à la formulation"]) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(["pourquoi est ce si menaçant"]) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(["pourquoi cela semble si menaçant"]) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(["tu connais l'histoire", 'tu ne me comprends pas']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(["vous connaissez l'histoire", 'vous ne me comprenez pas']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(["aide moi à comprendre", 'sens plus profond']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['comprendre le sens plus profond']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(["qu'est ce que cela dit de moi"]) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(["ne me donne pas encore d'exercice"]) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['comprends moi avant d’intervenir']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['comprends moi avant d\'intervenir']) }),
+  ]),
+  de: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['was fehlt in der formulierung']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['was fehlt noch', 'formulierung']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['warum ist das so bedrohlich']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['warum fühlt sich das so bedrohlich an']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['du kennst die geschichte', 'verstehst mich nicht']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['ihr kennt die geschichte', 'versteht mich nicht']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['hilf mir', 'tiefere bedeutung']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['die tiefere bedeutung verstehen']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(['was sagt das über mich aus']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['gib mir noch keine übung']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['versteh mich bevor du eingreifst']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['erst verstehen dann eingreifen']) }),
+  ]),
+  it: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['cosa manca nella formulazione']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['cosa stiamo trascurando', 'formulazione']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['perché questo è così minaccioso']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['perché questo sembra così minaccioso']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['conosci la storia', 'non mi capisci']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['sapete la storia', 'non mi capite']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['aiutami a capire', 'significato più profondo']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['capire il significato più profondo']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(['cosa significa questo su di me']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['non darmi ancora un esercizio']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['capiscimi prima di intervenire']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['capire prima di intervenire']) }),
+  ]),
+  pt: Object.freeze([
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['o que falta na formulação']) }),
+    Object.freeze({ trigger_key: 'missing_formulation', all: Object.freeze(['o que estamos deixando passar', 'formulação']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['por que isso é tão ameaçador']) }),
+    Object.freeze({ trigger_key: 'why_threatening', all: Object.freeze(['por que isso parece tão ameaçador']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['você conhece a história', 'não me entende']) }),
+    Object.freeze({ trigger_key: 'story_not_understood', all: Object.freeze(['vocês conhecem a história', 'não me entendem']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['me ajude a entender', 'significado mais profundo']) }),
+    Object.freeze({ trigger_key: 'deeper_meaning', all: Object.freeze(['entender o significado mais profundo']) }),
+    Object.freeze({ trigger_key: 'mean_about_me', all: Object.freeze(['o que isso diz sobre mim']) }),
+    Object.freeze({ trigger_key: 'no_exercise_yet', all: Object.freeze(['não me dê um exercício ainda']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['me entenda antes de intervir']) }),
+    Object.freeze({ trigger_key: 'understand_before_intervening', all: Object.freeze(['entenda antes de intervir']) }),
+  ]),
+});
+
+/**
+ * No language-independent runtime formulation-led matchers are configured.
+ * Unknown locales therefore fail closed even when the message text resembles a
+ * supported-language intent.
+ *
+ * @type {ReadonlyArray<Readonly<{trigger_key: string, all: ReadonlyArray<string>}>>}
+ */
+const FORMULATION_LED_RUNTIME_LANGUAGE_INDEPENDENT_MATCHERS = Object.freeze([]);
+
+function normalizeRuntimeFormulationLedText(messageText) {
+  if (typeof messageText !== 'string') return '';
+  return messageText
+    .toLowerCase()
+    .replace(/[’`´]/g, '\'')
+    .replace(/[‐‑‒–—―-]/g, ' ')
+    .replace(/[.,!?;:()[\]{}"“”«»…¿¡]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function resolveRuntimeFormulationLedLocale(locale) {
+  if (!locale || typeof locale !== 'string') return null;
+  const normalized = locale.trim().toLowerCase();
+  if (SUPPORTED_LOCALES.has(normalized)) return normalized;
+
+  const baseCode = normalized.split('-')[0].split('_')[0];
+  return SUPPORTED_LOCALES.has(baseCode) ? baseCode : null;
+}
+
+function isRuntimeFormulationLedMatcherSatisfied(normalizedText, matcher) {
+  return Array.isArray(matcher?.all) && matcher.all.every((fragment) => normalizedText.includes(fragment));
+}
+
+/**
+ * Matches a bounded, deterministic formulation-led turn intent for the given
+ * message and locale.
+ *
+ * FAIL-CLOSED:
+ * - Unknown / unsupported locales return null.
+ * - No silent fallback to English or Hebrew is applied.
+ * - No language-independent safe patterns are currently configured.
+ *
+ * @param {string|null|undefined} messageText
+ * @param {string|null|undefined} locale
+ * @returns {{ locale: string, trigger_key: string }|null}
+ */
+export function matchRuntimeFormulationLedIntent(messageText, locale) {
+  try {
+    const normalizedText = normalizeRuntimeFormulationLedText(messageText);
+    if (!normalizedText) return null;
+
+    const resolvedLocale = resolveRuntimeFormulationLedLocale(locale);
+    const candidateMatchers = resolvedLocale
+      ? FORMULATION_LED_RUNTIME_TRIGGER_MATCHERS[resolvedLocale]
+      : FORMULATION_LED_RUNTIME_LANGUAGE_INDEPENDENT_MATCHERS;
+
+    if (!Array.isArray(candidateMatchers) || candidateMatchers.length === 0) {
+      return null;
+    }
+
+    for (const matcher of candidateMatchers) {
+      if (isRuntimeFormulationLedMatcherSatisfied(normalizedText, matcher)) {
+        return Object.freeze({
+          locale: resolvedLocale,
+          trigger_key: matcher.trigger_key,
+        });
+      }
+    }
+
+    return null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
+ * Builds the per-turn formulation-led supplement for effectively
+ * formulation-led therapist paths.
+ *
+ * PRECEDENCE:
+ * Chat.jsx must evaluate the runtime safety supplement first. When safety mode
+ * is active for the turn, this formulation-led supplement remains suppressed.
+ *
+ * @param {object|null|undefined} wiring
+ * @param {string|null|undefined} messageText
+ * @param {string|null|undefined} locale
+ * @param {object} [options]
+ * @param {boolean} [options._formulationLedEnabled]
+ * @returns {string|null}
+ */
+export function buildRuntimeFormulationLedSupplement(wiring, messageText, locale, options = {}) {
+  try {
+    if (!getFormulationLedContextForWiring(wiring, options)) {
+      return null;
+    }
+
+    return matchRuntimeFormulationLedIntent(messageText, locale)
+      ? FORMULATION_LED_RUNTIME_SUPPLEMENT
+      : null;
+  } catch (_e) {
     return null;
   }
 }
