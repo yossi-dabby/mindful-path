@@ -1034,7 +1034,7 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
  * @param {string} [sessionLanguage='en'] - Current app/session language code.
  * @returns {object[]}
  */
-export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
+export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 'en') {
   if (!Array.isArray(messages)) return [];
 
   const normalizedSessionLang = normalizeSessionLanguage(sessionLanguage);
@@ -1285,5 +1285,9 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       }
     }
     return msg;
-  }).filter(msg => msg !== null);
+  });
+}
+
+export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
+  return sanitizeConversationMessagesAligned(messages, sessionLanguage).filter((msg) => msg !== null);
 }

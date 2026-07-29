@@ -588,38 +588,6 @@ export function hasFormulationCorrectionAlreadyBeenApplied(rawMessages, afterInd
   return false;
 }
 
-// ─── Internal: pairing helper ────────────────────────────────────────────────
-
-/**
- * Finds the raw index of a processed message in rawMessages using stable ID,
- * created_at+role, or falling back to a forward-scan position search.
- *
- * @param {Array<object>} rawMessages
- * @param {object}        processedMsg
- * @param {number}        hintIdx  Approximate position in rawMessages to start near.
- * @returns {number} Index in rawMessages, or -1 if not found.
- */
-function _findRawIndex(rawMessages, processedMsg, hintIdx) {
-  // ID-based (most reliable)
-  if (processedMsg.id) {
-    const idx = rawMessages.findIndex((r) => r && r.id === processedMsg.id);
-    if (idx !== -1) return idx;
-  }
-  // created_at + role (fallback)
-  if (processedMsg.created_at) {
-    const idx = rawMessages.findIndex(
-      (r) => r && r.created_at === processedMsg.created_at && r.role === processedMsg.role
-    );
-    if (idx !== -1) return idx;
-  }
-  // Position hint (last resort for test fixtures without IDs)
-  if (hintIdx >= 0 && hintIdx < rawMessages.length) {
-    const candidate = rawMessages[hintIdx];
-    if (candidate && candidate.role === processedMsg.role) return hintIdx;
-  }
-  return -1;
-}
-
 /**
  * Finds the immediately preceding persisted role=user message in rawMessages
  * before the given index.
@@ -641,8 +609,8 @@ function _findPrecedingRawUser(rawMessages, beforeIdx) {
  * Applies the formulation contract guard to a final processed message array.
  *
  * Steps:
- * 1. For each assistant message in `finalMessages`, locate its raw counterpart
- *    in `rawMessages` and find the immediately preceding raw user message.
+ * 1. For each assistant message in `finalMessages`, use the same array index in
+ *    `rawMessages` and find the immediately preceding raw user message.
  * 2. If that user message is a guarded turn (FORMULATION DEEPENING block present,
  *    no SAFETY MODE block), evaluate the assistant content.
  * 3. If the content violates the contract, replace it with the deterministic
@@ -657,7 +625,7 @@ function _findPrecedingRawUser(rawMessages, beforeIdx) {
  * For locales other than 'he' or 'en', the function returns finalMessages unchanged.
  *
  * @param {Array<object>}  rawMessages     Original Base44 messages (full content).
- * @param {Array<object>}  finalMessages   Sanitized + processed messages (null-free).
+ * @param {Array<object>}  finalMessages   Sanitized + processed messages (raw-index aligned).
  * @param {object}         [options]
  * @param {'he'|'en'|string} [options.locale='en']  Session locale.
  * @returns {{
@@ -686,21 +654,17 @@ export function applyFormulationGuardToConversationMessages(
   let lastReplacedRawIdx = -1;
   let lastReplacedFallback = null;
 
-  // Track the processed message index to provide a position hint for _findRawIndex
-  let processedMsgCount = 0;
-
   for (let fi = 0; fi < finalMessages.length; fi++) {
     const msg = finalMessages[fi];
 
     // Only guard assistant messages
     if (!msg || msg.role !== 'assistant' || typeof msg.content !== 'string') {
       result.push(msg);
-      if (msg) processedMsgCount++;
       continue;
     }
 
-    // Find the raw counterpart to get the preceding user message
-    const rawIdx = _findRawIndex(rawMessages, msg, fi);
+    // Canonical production contract: processed index must match raw index.
+    const rawIdx = fi >= 0 && fi < rawMessages.length ? fi : -1;
     const precedingRawUser = rawIdx !== -1 ? _findPrecedingRawUser(rawMessages, rawIdx) : null;
 
     const rawUserContent = precedingRawUser ? precedingRawUser.content : null;
@@ -712,14 +676,12 @@ export function applyFormulationGuardToConversationMessages(
     if (!guarded || safetyMode) {
       // Out of scope — pass through unchanged
       result.push(msg);
-      processedMsgCount++;
       continue;
     }
 
     // Already guarded_replaced (idempotency): do not re-evaluate
     if (msg.metadata?.formulation_guard_replaced === true) {
       result.push(msg);
-      processedMsgCount++;
       // Still track as a replaced turn for pending correction logic
       if (rawIdx !== -1) {
         lastReplacedRawIdx = rawIdx;
@@ -733,7 +695,6 @@ export function applyFormulationGuardToConversationMessages(
 
     if (evaluation.pass) {
       result.push(msg);
-      processedMsgCount++;
       continue;
     }
 
@@ -749,7 +710,6 @@ export function applyFormulationGuardToConversationMessages(
       },
     };
     result.push(replacedMsg);
-    processedMsgCount++;
 
     if (rawIdx !== -1) {
       lastReplacedRawIdx = rawIdx;
