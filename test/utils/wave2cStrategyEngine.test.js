@@ -294,8 +294,8 @@ describe('Wave 2C — scoreFormulationStrength', () => {
 
 // ─── Section 4 — Risk flags in continuity → STABILISATION ────────────────────
 
-describe('Wave 2C — Risk flags in continuity → STABILISATION for low/mild distress', () => {
-  it('continuity with risk_flags + TIER_LOW → STABILISATION', () => {
+describe('Wave 2C — Historical risk flags do NOT force STABILISATION (V8 hardening)', () => {
+  it('continuity with risk_flags + TIER_LOW → does NOT produce STABILISATION', () => {
     const result = determineTherapistStrategy(
       {
         records: [
@@ -310,11 +310,12 @@ describe('Wave 2C — Risk flags in continuity → STABILISATION for low/mild di
       DISTRESS_TIERS.TIER_LOW,
       null,
     );
-    expect(result.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    // Historical risk alone must not force STABILISATION — current distress is authoritative
+    expect(result.intervention_mode).not.toBe(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
     expect(result.has_risk_flags).toBe(true);
   });
 
-  it('continuity with risk_flags + TIER_MILD → STABILISATION', () => {
+  it('continuity with risk_flags + TIER_MILD → does NOT produce STABILISATION', () => {
     const result = determineTherapistStrategy(
       {
         records: [
@@ -328,11 +329,13 @@ describe('Wave 2C — Risk flags in continuity → STABILISATION for low/mild di
       DISTRESS_TIERS.TIER_MILD,
       extractMessageSignals('I have been feeling a bit sad lately.'),
     );
-    expect(result.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
-    expect(result.rationale).toBe('risk_flags_present_stabilisation');
+    // Historical risk alone must not force STABILISATION
+    expect(result.has_risk_flags).toBe(true);
+    // rationale must NOT be the removed rule
+    expect(result.rationale).not.toBe('risk_flags_present_stabilisation');
   });
 
-  it('risk flags in continuity + formulation + low distress → STABILISATION (overrides deepening)', () => {
+  it('risk flags in continuity + formulation + low distress → NOT forced to STABILISATION', () => {
     const result = determineTherapistStrategy(
       {
         records: [
@@ -350,12 +353,13 @@ describe('Wave 2C — Risk flags in continuity → STABILISATION for low/mild di
       DISTRESS_TIERS.TIER_LOW,
       null,
     );
-    expect(result.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    // Historical risk must not override formulation deepening posture
     expect(result.has_risk_flags).toBe(true);
-    expect(result.rationale).toBe('risk_flags_present_stabilisation');
+    expect(result.rationale).not.toBe('risk_flags_present_stabilisation');
+    expect(result.intervention_mode).not.toBe(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
-  it('TIER_HIGH with risk flags → still CONTAINMENT (safety contract unbroken)', () => {
+  it('TIER_HIGH with risk flags → still CONTAINMENT (current distress rules)', () => {
     const result = determineTherapistStrategy(
       {
         records: [
@@ -386,11 +390,11 @@ describe('Wave 2C — Risk flags in continuity → STABILISATION for low/mild di
       DISTRESS_TIERS.TIER_LOW,
       null,
     );
-    // Should NOT be STABILISATION (risk rule did not fire)
+    // Should NOT be STABILISATION (no risk or distress gate)
     expect(result.intervention_mode).not.toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
   });
 
-  it('aggregated shape with riskFlags active → STABILISATION', () => {
+  it('aggregated shape with riskFlags active + low distress → NOT forced to STABILISATION', () => {
     const result = determineTherapistStrategy(
       {
         sessionCount: 2,
@@ -404,8 +408,9 @@ describe('Wave 2C — Risk flags in continuity → STABILISATION for low/mild di
       DISTRESS_TIERS.TIER_LOW,
       null,
     );
-    expect(result.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    // Historical risk alone must not force STABILISATION
     expect(result.has_risk_flags).toBe(true);
+    expect(result.rationale).not.toBe('risk_flags_present_stabilisation');
   });
 });
 
@@ -899,30 +904,30 @@ describe('Wave 2C — TherapistStrategyState enrichment fields present in all re
 // ─── Section 12 — buildStrategyContextSection Wave 2C output ─────────────────
 
 describe('Wave 2C — buildStrategyContextSection updated output', () => {
-  it('section header contains WAVE 2C (not WAVE 2A)', () => {
+  it('section header contains INTERNAL THERAPEUTIC STRATEGY', () => {
     const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
     const section = buildStrategyContextSection(state);
-    expect(section).toContain('WAVE 2C');
+    expect(section).toContain('INTERNAL THERAPEUTIC STRATEGY');
     expect(section).not.toContain('WAVE 2A');
   });
 
-  it('section still contains === THERAPEUTIC STRATEGY (unchanged structure)', () => {
+  it('section contains current posture and key fields', () => {
     const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
     const section = buildStrategyContextSection(state);
-    expect(section).toContain('=== THERAPEUTIC STRATEGY');
-    expect(section).toContain('=== END THERAPEUTIC STRATEGY ===');
-  });
-
-  it('section still contains Intervention mode, Distress tier, Prior continuity, Formulation active', () => {
-    const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
-    const section = buildStrategyContextSection(state);
-    expect(section).toContain('Intervention mode');
-    expect(section).toContain('Distress tier');
+    expect(section).toContain('Current posture');
     expect(section).toContain('Prior continuity');
     expect(section).toContain('Formulation active');
+    expect(section).toContain('Action permitted');
   });
 
-  it('risk flags active → context signals block appears in section', () => {
+  it('section does not expose internal distress tier label to therapist', () => {
+    const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
+    const section = buildStrategyContextSection(state);
+    // Distress tier is internal only — not emitted in the strategy block
+    expect(section).not.toContain('Distress tier     :');
+  });
+
+  it('risk flags present → historical safety context reminder (not "active")', () => {
     const state = determineTherapistStrategy(
       { records: [{ session_summary: 'Session', risk_flags: ['suicidal_ideation'] }] },
       null,
@@ -930,8 +935,8 @@ describe('Wave 2C — buildStrategyContextSection updated output', () => {
       null,
     );
     const section = buildStrategyContextSection(state);
-    expect(section).toContain('Risk flags');
-    expect(section).toContain('active');
+    expect(section).toContain('Historical safety context is present');
+    expect(section).not.toContain('Risk flags       : active');
   });
 
   it('open tasks pending → context signals block appears in section', () => {
@@ -1004,11 +1009,10 @@ describe('Wave 2C — buildStrategyContextSection updated output', () => {
     expect(section).not.toContain('SENSITIVE_CONTENT_XYZ');
   });
 
-  it('null state → returns safe fallback string containing WAVE 2C', () => {
+  it('null state → returns empty string (fail-open fallback)', () => {
     const section = buildStrategyContextSection(null);
-    expect(section).toContain('WAVE 2C');
     expect(typeof section).toBe('string');
-    expect(section.length).toBeGreaterThan(0);
+    // Empty fallback is valid (V7 base will be used as-is)
   });
 });
 
@@ -1168,7 +1172,7 @@ describe('Wave 2C — Full pipeline integration', () => {
     expect(state.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
   });
 
-  it('returning client with risk flags + low distress → STABILISATION (risk-aware)', () => {
+  it('returning client with risk flags + low distress → NOT forced to STABILISATION (historical only)', () => {
     const messageText = 'I feel okay today, just checking in.';
     const ms = extractMessageSignals(messageText);
     const tier = scoreDistressTier({}, ms);
@@ -1176,8 +1180,10 @@ describe('Wave 2C — Full pipeline integration', () => {
       records: [{ session_summary: 'Prior', risk_flags: ['passive_self_harm'] }],
     };
     const state = determineTherapistStrategy(cont, null, tier, ms);
-    expect(state.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    // Historical risk alone must not force STABILISATION — current state is neutral
     expect(state.has_risk_flags).toBe(true);
+    expect(state.rationale).not.toBe('risk_flags_present_stabilisation');
+    expect(state.intervention_mode).not.toBe(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
   it('returning client with open tasks + formulation + low distress → FORMULATION_DEEPENING', () => {
@@ -1192,7 +1198,7 @@ describe('Wave 2C — Full pipeline integration', () => {
     expect(state.intervention_mode).toBe(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
     expect(state.has_open_tasks).toBe(true);
     const section = buildStrategyContextSection(state);
-    expect(section).toContain('WAVE 2C');
+    expect(section).toContain('INTERNAL THERAPEUTIC STRATEGY');
     expect(section).toContain('formulation_deepening');
     expect(section).not.toContain('SENSITIVE');
   });

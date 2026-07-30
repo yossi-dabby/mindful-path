@@ -1,0 +1,132 @@
+diff --git a/src/lib/workflowContextInjector.js b/src/lib/workflowContextInjector.js
+index a7ebeff..57c1ad1 100644
+--- a/src/lib/workflowContextInjector.js
++++ b/src/lib/workflowContextInjector.js
+@@ -1380,29 +1380,23 @@ export function buildPlannerContext(formulationRecord, safetyResult, distressTie
+  * ─────────────────────────────────────────────────────────────────────────────
+  * 1. Evaluates the active precedence level for the current session context.
+  * 2. Checks each of the four action-enabling legacy gates via isLegacyGateBlocked().
+- * 3. If any blocked gate would allow a legacy shortcut to fire AND the current
+- *    intervention_mode is action-capable (structured_exploration / formulation_deepening),
+- *    overrides the mode to stabilisation — the safest non-containment mode.
++ * 3. If any blocked gate is present, sets action_permitted=false in the returned
++ *    state to block concrete exercises, homework, and direct techniques.
++ *    The intervention_mode (posture) is NOT changed — structured_exploration and
++ *    formulation_deepening remain valid postures even when action is blocked.
++ *    Only containment/stabilisation override for safety reasons (safety_mode_active).
+  * 4. Returns an augmented strategy state that includes enforcement metadata
+- *    (precedence_enforced, active_precedence_level, blocked_gates, etc.).
++ *    (precedence_enforced, active_precedence_level, blocked_gates, action_permitted).
+  *
+- * MODES AFFECTED
++ * MODES PROTECTED
+  * ─────────────────────────────────────────────────────────────────────────────
+- * Only structured_exploration and formulation_deepening are overridden.
+- * containment, stabilisation, and psychoeducation are already safe and are
+- * NEVER modified by this function.
++ * structured_exploration and formulation_deepening are valid response postures
++ * even when action is blocked.  Only action_permitted is set to false; the mode
++ * remains unchanged to allow empathic holding, reflection, exploration and
++ * formulation without concrete technique assignment.
+  *
+- * PROTECTED CASE TYPES (trigger PACING_SENSITIVITY level 3)
+- * ─────────────────────────────────────────────────────────────────────────────
+- * teen_shame, grief_loss, trauma, scrupulosity, ocd_checking, ocd, adhd_overwhelm,
+- * nothing_helps, social_anxiety → social_anxiety_direct_action and
+- * domain_to_intervention_template gates are both blocked at level 3; mode
+- * override to stabilisation fires.
+- *
+- * UNREADY SESSIONS (trigger FORMULATION_FIRST level 2)
+- * ─────────────────────────────────────────────────────────────────────────────
+- * When formulation_in_place is false or has_been_understood is false →
+- * skip_clarification gate is blocked; mode override to stabilisation fires.
++ * Readiness gates NEVER block: empathic holding, reflection, clarification,
++ * structured exploration, formulation, or explanation of a maintaining cycle.
+  *
+  * FAIL-OPEN CONTRACT
+  * ─────────────────────────────────────────────────────────────────────────────
+@@ -1427,22 +1421,19 @@ export function applyStrategyPrecedenceGuard(strategyState, plannerContext) {
+     );
+ 
+     const hasBlockedGates = blockedGates.length > 0;
+-    const modeIsActionCapable = _ACTION_CAPABLE_MODES.has(currentMode);
+-
+-    // Mode override fires when active precedence level is <= threshold (levels 1-5:
+-    // SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY, FIRST_DISCLOSURE,
+-    // INTERVENTION_READINESS).  This ensures "not ready yet" sessions cannot stay
+-    // in an action-capable mode while readiness gates are unmet.
+-    const shouldEnforceMode =
+-      hasBlockedGates &&
+-      precedence.level <= _MODE_OVERRIDE_PRECEDENCE_THRESHOLD &&
+-      modeIsActionCapable;
+-    const enforcedMode = shouldEnforceMode ? 'stabilisation' : currentMode;
++
++    // action_permitted: false when any gate is blocked.
++    // Mode is NOT overridden — posture (structured_exploration / formulation_deepening)
++    // remains valid while action_permitted=false.
++    // Empathic holding, reflection, clarification, and formulation are always allowed.
++    const actionPermitted = !hasBlockedGates;
++
+     // precedence_enforced is true when ANY gate is blocked (for enforcement block text)
+     const precedenceEnforced = hasBlockedGates;
+ 
+     return Object.assign({}, ss, {
+-      intervention_mode: enforcedMode,
++      intervention_mode: currentMode,
++      action_permitted: actionPermitted,
+       precedence_enforced: precedenceEnforced,
+       active_precedence_level: precedence.level,
+       active_precedence_name: precedence.name,
+@@ -1487,11 +1478,13 @@ export function buildPrecedenceEnforcementBlock(guardResult) {
+       '',
+       `Active Level  : ${name} (level ${level})`,
+       `Reason        : ${reason}`,
+-      `Enforced Mode : stabilisation`,
+       '',
+       'The following legacy shortcuts are blocked in this session:',
+       ...gateLines,
+       '',
++      'Action (exercises, homework, techniques) is NOT PERMITTED this session.',
++      'Empathic holding, reflection, clarification, exploration, and formulation are always allowed.',
++      '',
+       'Planner-first order is MANDATORY:',
+       '  understand → hold → clarify → formulate → select target → decide move type',
+       '  → THEN consider intervention (only when all readiness gates pass)',
+@@ -1857,20 +1850,23 @@ function _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs) {
+     if (params.get('_s2debug') !== 'true') return;
+     const snapshot = buildStrategyDiagnosticSnapshot(strategyState);
+     console.group('[Wave 2D] Therapist strategy decision');
+-    console.log('intervention_mode        :', snapshot.intervention_mode);
+-    console.log('distress_tier            :', snapshot.distress_tier);
+-    console.log('rationale                :', snapshot.rationale);
+-    console.log('continuity_present       :', snapshot.continuity_present);
+-    console.log('formulation_present      :', snapshot.formulation_present);
+-    console.log('session_count            :', snapshot.session_count);
+-    console.log('has_risk_flags           :', snapshot.has_risk_flags);
+-    console.log('has_open_tasks           :', snapshot.has_open_tasks);
+-    console.log('intervention_saturated   :', snapshot.intervention_saturated);
+-    console.log('continuity_richness_score:', snapshot.continuity_richness_score);
+-    console.log('formulation_strength_score:', snapshot.formulation_strength_score);
+-    console.log('lts_trajectory           :', snapshot.lts_trajectory);
+-    console.log('strategy_version         :', snapshot.strategy_version);
+-    console.log('fail_safe                :', snapshot.fail_safe);
++    console.log('intervention_mode             :', snapshot.intervention_mode);
++    console.log('distress_tier                 :', snapshot.distress_tier);
++    console.log('rationale                     :', snapshot.rationale);
++    console.log('continuity_present            :', snapshot.continuity_present);
++    console.log('formulation_present           :', snapshot.formulation_present);
++    console.log('historical_safety_context_present:', snapshot.has_risk_flags === true);
++    console.log('action_permitted              :', strategyState?.action_permitted !== false);
++    console.log('precedence_enforced           :', strategyState?.precedence_enforced === true);
++    console.log('active_precedence_level       :', strategyState?.active_precedence_level ?? null);
++    console.log('session_count                 :', snapshot.session_count);
++    console.log('has_open_tasks                :', snapshot.has_open_tasks);
++    console.log('intervention_saturated        :', snapshot.intervention_saturated);
++    console.log('continuity_richness_score     :', snapshot.continuity_richness_score);
++    console.log('formulation_strength_score    :', snapshot.formulation_strength_score);
++    console.log('lts_trajectory                :', snapshot.lts_trajectory);
++    console.log('strategy_version              :', snapshot.strategy_version);
++    console.log('fail_safe                     :', snapshot.fail_safe);
+     // Wave 3E — LTS signal group (emitted only when LTS inputs are available)
+     if (ltsInputs != null) {
+       const ltsSnap = buildLTSDiagnosticSnapshot(ltsInputs);

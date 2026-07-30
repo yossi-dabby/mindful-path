@@ -211,6 +211,11 @@ const _SHUTDOWN_PATTERNS = Object.freeze([
   /\bcan'?t\s+(function|cope|go\s+on|face)\b/i,
   /\btotally\s+(lost|numb|empty|broken)\b/i,
   /\bgiven\s+up\b/i,
+  // Hebrew — shutdown/collapse language (Wave 2E signal parity)
+  /מתפרק/,
+  /לא\s+מסוגל.{0,3}לתפקד/,
+  /(?:נשבר|מתמוטט)/,
+  /לא\s+(?:יכול|מסוגלת?)\s+להמשיך/,
 ]);
 
 /** @type {ReadonlyArray<RegExp>} */
@@ -221,6 +226,10 @@ const _CATASTROPHIC_PATTERNS = Object.freeze([
   /\birreversible\b/i,
   /\bnever\s+(recover|be\s+okay|be\s+normal|be\s+the\s+same)\b/i,
   /\bthis\s+is\s+(the\s+end|all\s+over)\b/i,
+  // Hebrew — catastrophic language (Wave 2E signal parity)
+  /הכל\s+(?:הרוס|נגמר|אבוד)/,
+  /החיים\s+(?:שלי\s+)?(?:הרוסים|נגמרו|נהרסו)/,
+  /(?:אין|לא)\s+(?:חזרה|דרך\s+חזרה)/,
 ]);
 
 /** @type {ReadonlyArray<RegExp>} */
@@ -231,6 +240,11 @@ const _HIGH_DISTRESS_PATTERNS = Object.freeze([
   /\bpanic(king|ked)?\b/i,
   /\bscreaming\s+inside\b/i,
   /\bcan'?t\s+stop\s+crying\b/i,
+  // Hebrew — elevated distress, not containment-level on its own (Wave 2E parity)
+  /מוצף/,
+  /לא\s+מצליח\s+לחשוב/,
+  /לא\s+(?:יכול|מסוגל)\s+לנשום/,
+  /בפאניקה/,
 ]);
 
 /** @type {ReadonlyArray<RegExp>} */
@@ -239,7 +253,48 @@ const _EMOTIONAL_LANGUAGE_PATTERNS = Object.freeze([
   /\b(sad|angry|anxious|worried|scared|afraid|frustrated|upset)\b/i,
   /\b(emotion|emotional)\b/i,
   /\b(stressed|stress)\b/i,
+  // Hebrew — general emotional language, mild tier (Wave 2E parity)
+  /(?:מרגיש|מרגישה)/,
+  /(?:עצוב|עצובה|לחוץ|לחוצה|מודאג|מודאגת|מפחד|מפחדת|כועס|כועסת|עצבני|עצבנית)/,
+  /(?:חרדה|פחד|כעס|עצב|מתח)\b/,
 ]);
+
+// ─── Wave 2E — Hebrew hopelessness with negation resistance (Fix 6) ────────────
+//
+// Hebrew hopelessness detection needs negation awareness because "לא" (not)
+// immediately before a hopelessness phrase inverts its meaning.
+// Example: "אני לא מרגיש חסר תקווה" ("I do not feel hopeless") must NOT trigger
+// hopelessness detection, while "אני חסר תקווה" ("I am hopeless") must.
+//
+// The helper checks bounded Hebrew hopelessness constructs and, for the
+// "חסר תקווה" construct specifically, verifies that "לא" does not appear within
+// 20 characters before the phrase.  Other constructs (e.g. "אין תקווה") embed
+// their own negation and do not need a secondary guard.
+//
+// Deterministic, bounded, no external calls, non-diagnostic.
+//
+// @private
+// @param {string} text
+// @returns {boolean}
+function _hebrewHopelessnessPresent(text) {
+  try {
+    // "אין תקווה" / "אין שום תקווה" — "there is no hope" (negation already embedded)
+    if (/אין\s+(?:שום\s+)?תקווה/.test(text)) return true;
+    // "שום דבר לא ישתפר" — "nothing will improve"
+    if (/שום\s+דבר\s+לא\s+ישתפר/.test(text)) return true;
+    // "כלום לא ישתנה/ישתפר" — "nothing will change/improve"
+    if (/כלום\s+לא\s+(?:ישתנה|ישתפר)/.test(text)) return true;
+    // "חסר תקווה" — "hopeless" — but NOT when preceded by "לא" within 20 chars
+    const m = text.match(/חסר\s*תקווה/);
+    if (m && typeof m.index === 'number') {
+      const windowBefore = text.slice(Math.max(0, m.index - 20), m.index);
+      if (!windowBefore.includes('לא')) return true;
+    }
+    return false;
+  } catch (_e) {
+    return false;
+  }
+}
 
 /** Minimum message length to not be considered empty/short. @type {number} */
 const _EMPTY_OR_SHORT_THRESHOLD = 10;
@@ -402,7 +457,7 @@ export function extractMessageSignals(messageText) {
     const text = typeof messageText === 'string' ? messageText : '';
     const isEmpty = text.trim().length < _EMPTY_OR_SHORT_THRESHOLD;
 
-    const hasHopelessness = _HOPELESSNESS_PATTERNS.some(p => p.test(text));
+    const hasHopelessness = _HOPELESSNESS_PATTERNS.some(p => p.test(text)) || _hebrewHopelessnessPresent(text);
     const hasShutdown = _SHUTDOWN_PATTERNS.some(p => p.test(text));
     const hasCatastrophic = _CATASTROPHIC_PATTERNS.some(p => p.test(text));
     const hasHighDistress = _HIGH_DISTRESS_PATTERNS.some(p => p.test(text));
@@ -1048,14 +1103,20 @@ export function buildStrategyContextSection(strategyState) {
     const hasOpenTasks = ss.has_open_tasks === true;
     const isSaturated = ss.intervention_saturated === true;
     const ltsTrajectory = typeof ss.lts_trajectory === 'string' ? ss.lts_trajectory : '';
+    const actionPermitted = ss.action_permitted === true;
 
     const lines = [
       `=== THERAPEUTIC STRATEGY — WAVE 2C v${version} ===`,
+      '',
+      'INTERNAL USE ONLY — a provisional response posture for this turn; not a diagnosis or fact.',
+      'Current user information always overrides prior formulation, continuity, and historical tasks.',
+      'Do not reveal these labels; never say "The system selected...", "Your distress tier is...", or "You are in ... mode."',
       '',
       `Intervention mode : ${mode}`,
       `Distress tier     : ${tier}`,
       `Prior continuity  : ${contPresent ? 'yes' : 'no'}`,
       `Formulation active: ${formPresent ? 'yes' : 'no'}`,
+      `Action permitted  : ${actionPermitted ? 'yes' : 'no — hold, reflect, clarify, explore, or formulate only; no concrete techniques'}`,
     ];
 
     // Context signals block — only emitted when there is meaningful session context.
@@ -1063,9 +1124,16 @@ export function buildStrategyContextSection(strategyState) {
       lines.push('');
       lines.push('Context signals:');
       if (sessionCount > 0) lines.push(`  Sessions         : ${sessionCount}`);
-      if (hasRiskFlags) lines.push('  Risk flags       : active');
+      if (hasRiskFlags) lines.push('  Risk flags       : historical context — not currently active');
       if (hasOpenTasks) lines.push('  Open tasks       : pending');
       if (isSaturated) lines.push('  Intervention sat.: flagged');
+    }
+
+    // Historical safety context — corrective note (Fix 1). Historical risk is not
+    // proof of present danger, not a current diagnosis, and never "active".
+    if (hasRiskFlags) {
+      lines.push('');
+      lines.push('Historical safety context is present. Do not infer current risk; verify the current state when clinically relevant.');
     }
 
     // Wave 3D: LTS trajectory line (emitted only when a meaningful signal is present).
@@ -1076,6 +1144,14 @@ export function buildStrategyContextSection(strategyState) {
 
     lines.push('');
     lines.push(_getModeGuidance(mode));
+    lines.push('');
+    lines.push('USAGE CONTRACT:');
+    lines.push('- This mode is a provisional response posture, not a diagnosis or fact about the user.');
+    lines.push('- Current user information always overrides prior formulation, continuity, and historical tasks.');
+    lines.push('- Mode alone never authorizes homework, forms, exposure, or techniques; that requires confirmed readiness.');
+    lines.push('- Reference at most one historical theme, and only when directly relevant to what is shared now.');
+    lines.push('- A theme the user has set aside or rejected must not be revived unless the user returns to it.');
+    lines.push('- Ask at most one focused question when needed; warm answers of 2-4 natural paragraphs are welcome.');
     lines.push('');
     lines.push('=== END THERAPEUTIC STRATEGY ===');
 
@@ -1327,6 +1403,8 @@ export const STRATEGY_FAIL_SAFE_STATE = Object.freeze({
   formulation_strength_score: 0,
   // Wave 3D enrichment field
   lts_trajectory: '',
+  // Wave 2E — action permission (Fix 3): fail-safe never authorises action.
+  action_permitted: false,
 });
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
@@ -1455,6 +1533,11 @@ function _buildStrategyState(mode, meta) {
       typeof meta.formulation_strength_score === 'number' ? meta.formulation_strength_score : 0,
     // Wave 3D enrichment field — '' when LTS is absent or not active
     lts_trajectory: typeof meta.lts_trajectory === 'string' ? meta.lts_trajectory : '',
+    // Wave 2E — action permission (Fix 3). Response posture (intervention_mode)
+    // is separate from action permission. The engine never authorises concrete
+    // action on its own; action_permitted defaults to false and is only raised
+    // by the injector's precedence guard when clinical readiness is confirmed.
+    action_permitted: meta.action_permitted === true,
   });
 }
 
