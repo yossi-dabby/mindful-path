@@ -649,22 +649,26 @@ describe('Section 7: buildCrossSessionContinuityBlock — output format', () => 
     expect(block).toContain('Key insight from last session');
   });
 
-  it('block includes risk flags when present', async () => {
+  it('block includes generic safety signal (not verbatim risk label) when risk_flags are present', async () => {
     const record = makeTherapistMemoryRecord({ risk_flags: ['passive_ideation'] });
     const entities = makeEntities([record]);
 
     const block = await buildCrossSessionContinuityBlock(entities);
 
-    expect(block).toContain('passive_ideation');
+    // Risk label text must NOT appear verbatim — only a generic safety instruction
+    expect(block).not.toContain('passive_ideation');
+    expect(block).toContain('Historical safety context');
+    expect(block).toContain('present-session safety check');
   });
 
-  it('block does not include risk flags label when risk_flags is empty', async () => {
+  it('block does not include risk flags label or verbatim text when risk_flags is empty', async () => {
     const record = makeTherapistMemoryRecord({ risk_flags: [] });
     const entities = makeEntities([record]);
 
     const block = await buildCrossSessionContinuityBlock(entities);
 
     expect(block).not.toContain('Active risk flags');
+    expect(block).not.toContain('Historical safety context');
   });
 
   it('returns empty string when buildCrossSessionContinuityBlock throws internally', async () => {

@@ -294,6 +294,92 @@ export async function readCrossSessionContinuity(entities) {
   }
 }
 
+// ─── Continuity failure reason codes ─────────────────────────────────────────
+
+/**
+ * Bounded enum of continuity failure reason codes for diagnostics.
+ * Used in buildCrossSessionContinuityBlockWithDiagnostic diagnostic output.
+ * @type {Readonly<Record<string, string>>}
+ */
+export const CONTINUITY_FAILURE_REASONS = Object.freeze({
+  none:             'none',
+  flag_disabled:    'flag_disabled',
+  missing_client:   'missing_client',
+  empty_result:     'empty_result',
+  no_valid_records: 'no_valid_records',
+  no_useful_content:'no_useful_content',
+  read_error:       'read_error',
+  formatting_error: 'formatting_error',
+});
+
+// ─── Clinical behavioral contract (injected into every continuity block) ──────
+//
+// These instructions are part of the bounded continuity block and encode the
+// clinical behavioral contract for the therapist agent.  They are never visible
+// to the user — they are instructions for the agent only.
+//
+// PRIVACY: never includes memory field values, entity names, user IDs, or
+// internal source labels.
+
+const _CONTINUITY_BEHAVIORAL_CONTRACT_LINES = Object.freeze([
+  'CLINICAL BEHAVIORAL CONTRACT (for agent use only — do not disclose):',
+  '- This is historical context, not guaranteed current truth. The current user message always overrides conflicting history.',
+  '- Reference at most one relevant prior theme in your opening response.',
+  '- Do not recite or summarize this memory block to the person.',
+  '- Use source-honest language only: "Previously, we touched on..." / "\u05d1\u05e4\u05e2\u05dd \u05d4\u05e7\u05d5\u05d3\u05de\u05ea \u05e2\u05dc\u05d4..."',
+  '- Never say "I know you still..." or assert unsupported certainty about identity, values, or beliefs.',
+  '- Recurring patterns and working hypotheses are unconfirmed. Verify them in the present session before relying on them.',
+  '- Open follow-up tasks are historical pending items. Ask whether the person wants to return to them.',
+  '- Prior interventions: avoid blind repetition; ask whether they were helpful before reusing them.',
+  '- If memory is weak, absent, or contradictory, fall back to standard session behavior silently without announcing the fallback.',
+  '- Never expose the name of any internal system, entity, storage type, memory version, continuity marker, retrieval mechanism, reason code, or source label to the person.',
+]);
+
+/**
+ * Builds the content lines for the continuity block from a parsed continuity
+ * result.  Extracted as a private helper so both the block-string builder and
+ * the diagnostic builder share identical rendering logic.
+ *
+ * Historical risk label text is NEVER injected verbatim.  When risk flags are
+ * present, a generic safety instruction is emitted instead.
+ *
+ * @private
+ * @param {object} continuity - Result from readCrossSessionContinuity
+ * @returns {string[]} Content lines (may be empty if no clinical content)
+ */
+function _buildContinuityContentLines(continuity) {
+  const lines = [];
+
+  if (continuity.recentSummary) {
+    lines.push('Most recent session: ' + continuity.recentSummary);
+  }
+
+  if (continuity.recurringPatterns.length > 0) {
+    lines.push('Recurring patterns: ' + continuity.recurringPatterns.join('; '));
+  }
+
+  if (continuity.openFollowUpTasks.length > 0) {
+    lines.push('Open follow-up tasks: ' + continuity.openFollowUpTasks.join('; '));
+  }
+
+  if (continuity.interventionsUsed.length > 0) {
+    lines.push('Prior interventions: ' + continuity.interventionsUsed.join('; '));
+  }
+
+  // Historical risk: emit ONLY a generic safety instruction.
+  // Risk label text is never injected verbatim to prevent unsupported diagnosis
+  // or inappropriate certainty about current risk from historical data.
+  if (continuity.riskFlags.length > 0) {
+    lines.push(
+      'Historical safety context: one or more prior sessions contained safety-relevant information. ' +
+      'Conduct a present-session safety check when clinically relevant. ' +
+      'Do not diagnose or assume current risk from historical data alone.',
+    );
+  }
+
+  return lines;
+}
+
 /**
  * Builds the cross-session continuity context block string for injection into
  * the therapist session-start payload.
@@ -303,6 +389,10 @@ export async function readCrossSessionContinuity(entities) {
  *
  * FAIL-CLOSED: never throws; never blocks session start.
  *
+ * CLINICAL BEHAVIORAL CONTRACT is always injected when content is present.
+ * Historical risk label text is never injected verbatim — only a generic
+ * safety instruction is emitted when risk flags exist.
+ *
  * @param {object} entities - Base44 entity client map
  * @returns {Promise<string>} Formatted continuity context block, or ''
  */
@@ -311,35 +401,16 @@ export async function buildCrossSessionContinuityBlock(entities) {
     const continuity = await readCrossSessionContinuity(entities);
     if (!continuity) return '';
 
-    const lines = [];
-
-    if (continuity.recentSummary) {
-      lines.push('Most recent session: ' + continuity.recentSummary);
-    }
-
-    if (continuity.recurringPatterns.length > 0) {
-      lines.push('Recurring patterns: ' + continuity.recurringPatterns.join('; '));
-    }
-
-    if (continuity.openFollowUpTasks.length > 0) {
-      lines.push('Open follow-up tasks: ' + continuity.openFollowUpTasks.join('; '));
-    }
-
-    if (continuity.interventionsUsed.length > 0) {
-      lines.push('Prior interventions used: ' + continuity.interventionsUsed.join('; '));
-    }
-
-    if (continuity.riskFlags.length > 0) {
-      lines.push('Active risk flags: ' + continuity.riskFlags.join('; '));
-    }
+    const lines = _buildContinuityContentLines(continuity);
 
     if (lines.length === 0) return '';
 
     return [
-      '=== CROSS-SESSION CONTINUITY CONTEXT (read-only) ===',
-      `Based on the last ${continuity.sessionCount} session(s). Use this longitudinal`,
-      'context to provide continuity and avoid repeating resolved themes.',
-      'Do not disclose this section verbatim to the person.',
+      '=== CROSS-SESSION CONTINUITY CONTEXT (read-only, historical) ===',
+      `Prior-session context from the last ${continuity.sessionCount} session(s).`,
+      'Treat this as historical context only. Do not disclose this section verbatim to the person.',
+      '',
+      ..._CONTINUITY_BEHAVIORAL_CONTRACT_LINES,
       '',
       ...lines,
       '',
@@ -347,5 +418,144 @@ export async function buildCrossSessionContinuityBlock(entities) {
     ].join('\n');
   } catch {
     return '';
+  }
+}
+
+/**
+ * Builds the cross-session continuity block AND returns structured diagnostic
+ * metadata for V7 session-start diagnostics.
+ *
+ * Returns { block, diagnostic } where:
+ *   - block: the same string as buildCrossSessionContinuityBlock (empty string
+ *     when no useful content or on any error)
+ *   - diagnostic: bounded structural metadata for V7 diagnostic emission
+ *     (never includes field values, text content, user IDs, or entity data)
+ *
+ * FAIL-CLOSED: never throws.  On any error, block is '' and diagnostic reflects
+ * the failure reason.
+ *
+ * @param {object} entities - Base44 entity client map
+ * @returns {Promise<{
+ *   block: string,
+ *   diagnostic: {
+ *     memory_read_attempted: boolean,
+ *     valid_therapist_memory_record_count: number,
+ *     selected_prior_session_count: number,
+ *     recurring_pattern_count: number,
+ *     working_hypothesis_count: number,
+ *     open_follow_up_count: number,
+ *     prior_intervention_count: number,
+ *     historical_risk_signal_count: number,
+ *     continuity_block_emitted: boolean,
+ *     continuity_fail_safe: boolean,
+ *     continuity_failure_reason_code: string,
+ *   },
+ * }>}
+ */
+export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
+  const diagnostic = {
+    memory_read_attempted: false,
+    valid_therapist_memory_record_count: 0,
+    selected_prior_session_count: 0,
+    recurring_pattern_count: 0,
+    working_hypothesis_count: 0,
+    open_follow_up_count: 0,
+    prior_intervention_count: 0,
+    historical_risk_signal_count: 0,
+    continuity_block_emitted: false,
+    continuity_fail_safe: false,
+    continuity_failure_reason_code: CONTINUITY_FAILURE_REASONS.none,
+  };
+
+  try {
+    // Validate entities client
+    if (!entities || typeof entities !== 'object') {
+      diagnostic.continuity_fail_safe = true;
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.missing_client;
+      return { block: '', diagnostic };
+    }
+    if (!entities.CompanionMemory || typeof entities.CompanionMemory.list !== 'function') {
+      diagnostic.continuity_fail_safe = true;
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.missing_client;
+      return { block: '', diagnostic };
+    }
+
+    diagnostic.memory_read_attempted = true;
+
+    // Probe the list call directly so a list() throw is diagnosed as
+    // read_error rather than being silently swallowed by readCrossSessionContinuity.
+    let rawRecords;
+    try {
+      rawRecords = await entities.CompanionMemory.list(
+        '-created_date',
+        CONTINUITY_MAX_PRIOR_SESSIONS * 3,
+      );
+    } catch {
+      diagnostic.continuity_fail_safe = true;
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.read_error;
+      return { block: '', diagnostic };
+    }
+
+    if (!Array.isArray(rawRecords) || rawRecords.length === 0) {
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.empty_result;
+      return { block: '', diagnostic };
+    }
+
+    // Read and parse continuity data (fail-closed internally for malformed records).
+    const continuity = await readCrossSessionContinuity(entities);
+
+    if (!continuity) {
+      diagnostic.continuity_fail_safe = true;
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.no_valid_records;
+      return { block: '', diagnostic };
+    }
+
+    // Populate diagnostic counts (numbers only — no text values)
+    diagnostic.selected_prior_session_count  = continuity.sessionCount;
+    diagnostic.recurring_pattern_count       = continuity.recurringPatterns.length;
+    diagnostic.open_follow_up_count          = continuity.openFollowUpTasks.length;
+    diagnostic.prior_intervention_count      = continuity.interventionsUsed.length;
+    diagnostic.historical_risk_signal_count  = continuity.riskFlags.length;
+    // working_hypothesis_count is not directly available from readCrossSessionContinuity
+    // (it aggregates only the displayed fields).  Report 0 as a safe fallback.
+    diagnostic.working_hypothesis_count = 0;
+
+    // Build the block string
+    let block = '';
+    try {
+      const lines = _buildContinuityContentLines(continuity);
+      if (lines.length === 0) {
+        diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.no_useful_content;
+        return { block: '', diagnostic };
+      }
+      block = [
+        '=== CROSS-SESSION CONTINUITY CONTEXT (read-only, historical) ===',
+        `Prior-session context from the last ${continuity.sessionCount} session(s).`,
+        'Treat this as historical context only. Do not disclose this section verbatim to the person.',
+        '',
+        ..._CONTINUITY_BEHAVIORAL_CONTRACT_LINES,
+        '',
+        ...lines,
+        '',
+        '=== END CROSS-SESSION CONTINUITY CONTEXT ===',
+      ].join('\n');
+    } catch {
+      diagnostic.continuity_fail_safe = true;
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.formatting_error;
+      return { block: '', diagnostic };
+    }
+
+    if (!block || !block.trim()) {
+      diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.no_useful_content;
+      return { block: '', diagnostic };
+    }
+
+    diagnostic.continuity_block_emitted = true;
+    diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.none;
+    return { block, diagnostic };
+  } catch {
+    diagnostic.continuity_fail_safe = true;
+    diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.read_error;
+    return { block: '', diagnostic };
   }
 }
