@@ -197,6 +197,93 @@ function runAlignedPipeline(rawMessages, locale = 'he', transformAlignedMessage 
   };
 }
 
+function buildGuardModesByRawIndex(rawMessages) {
+  return rawMessages.map((rawMsg, rawIndex) => {
+    if (!rawMsg || rawMsg.role !== 'assistant') return null;
+    for (let i = rawIndex - 1; i >= 0; i--) {
+      const candidate = rawMessages[i];
+      if (candidate?.role === 'user' && typeof candidate.content === 'string') {
+        return classifyFormulationGuardedTurn(candidate.content);
+      }
+    }
+    return null;
+  });
+}
+
+function runChatVisiblePipeline(rawMessages, locale = 'en') {
+  const raw = Array.isArray(rawMessages) ? rawMessages : [];
+  const guardModes = buildGuardModesByRawIndex(raw);
+  const sanitizedAligned = sanitizeConversationMessagesAligned(raw, locale);
+  const { messages: guardedAligned } = applyFormulationGuardToConversationMessages(raw, sanitizedAligned, { locale });
+  return guardedAligned
+    .map((msg, rawIndex) => (msg ? { ...msg, __rawIndex: rawIndex, __guardMode: guardModes[rawIndex] || null } : null))
+    .filter(Boolean);
+}
+
+function getAssistantIdentityKey(msg, index) {
+  if (!msg || msg.role !== 'assistant') return null;
+  if (msg.id) return `id:${msg.id}`;
+  const rawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : null;
+  const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
+  if (rawIndex !== null && createdAt) return `raw:${rawIndex}|created:${createdAt}`;
+  if (rawIndex !== null) return `raw:${rawIndex}`;
+  if (createdAt) return `created:${createdAt}|idx:${index}`;
+  return `idx:${index}|role:${msg.role}`;
+}
+
+function buildAssistantLookup(messages) {
+  const map = new Map();
+  (messages || []).forEach((msg, index) => {
+    if (!msg || msg.role !== 'assistant') return;
+    const key = getAssistantIdentityKey(msg, index);
+    if (key) map.set(key, msg);
+  });
+  return map;
+}
+
+function applyMonotonicGuardedMerge({ conversationId, incomingMessages, lastConfirmedMessages, scopedMemory }) {
+  if (!scopedMemory.has(conversationId)) scopedMemory.set(conversationId, new Map());
+  const conversationMemory = scopedMemory.get(conversationId);
+  const confirmedLookup = buildAssistantLookup(lastConfirmedMessages || []);
+
+  const merged = (incomingMessages || []).map((msg, index) => {
+    if (!msg || msg.role !== 'assistant') return msg;
+    const identityKey = getAssistantIdentityKey(msg, index);
+    if (!identityKey) return msg;
+    const incomingReplaced = msg.metadata?.formulation_guard_replaced === true;
+    const confirmed = confirmedLookup.get(identityKey);
+    const confirmedReplaced = confirmed?.metadata?.formulation_guard_replaced === true;
+    const remembered = conversationMemory.get(identityKey);
+    const rememberedReplaced = remembered?.metadata?.formulation_guard_replaced === true;
+    const dominant = confirmedReplaced ? confirmed : rememberedReplaced ? remembered : null;
+    if (!incomingReplaced && dominant) {
+      return {
+        ...msg,
+        content: dominant.content,
+        metadata: {
+          ...(msg.metadata || {}),
+          ...(dominant.metadata || {}),
+          formulation_guard_replaced: true,
+          formulation_guard_reason_codes: Array.isArray(dominant.metadata?.formulation_guard_reason_codes)
+            ? dominant.metadata.formulation_guard_reason_codes
+            : [],
+        },
+      };
+    }
+    return msg;
+  });
+
+  merged.forEach((msg, index) => {
+    if (!msg || msg.role !== 'assistant') return;
+    if (msg.metadata?.formulation_guard_replaced !== true) return;
+    const identityKey = getAssistantIdentityKey(msg, index);
+    if (!identityKey) return;
+    conversationMemory.set(identityKey, msg);
+  });
+
+  return merged;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // UNIT TESTS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1125,6 +1212,319 @@ describe('formulationContractGuard — raw-index alignment regressions', () => {
     logSpy.mockRestore();
     warnSpy.mockRestore();
     errorSpy.mockRestore();
+  });
+});
+
+describe('Chat monotonic guarded-message merge regressions', () => {
+  it('1. subscription fallback then polling raw overwrite keeps fallback visible', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-sub-1';
+    const guardedRaw = [rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const fallbackVisible = runChatVisiblePipeline(guardedRaw, 'he');
+    const first = applyMonotonicGuardedMerge({ conversationId, incomingMessages: fallbackVisible, lastConfirmedMessages: [], scopedMemory });
+
+    const staleRaw = [{ id: 'u1', role: 'user', content: TEST_B_USER_PROMPT }, assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const staleVisible = runChatVisiblePipeline(staleRaw, 'he');
+    const second = applyMonotonicGuardedMerge({ conversationId, incomingMessages: staleVisible, lastConfirmedMessages: first, scopedMemory });
+
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(second[1].metadata?.formulation_guard_replaced).toBe(true);
+  });
+
+  it('2. polling fallback then subscription raw overwrite keeps fallback visible', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-poll-1';
+    const guardedRaw = [rawGuardedUser('u1', TEST_A_USER_PROMPT), assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    const pollingVisible = runChatVisiblePipeline(guardedRaw, 'he');
+    const first = applyMonotonicGuardedMerge({ conversationId, incomingMessages: pollingVisible, lastConfirmedMessages: [], scopedMemory });
+
+    const subscriptionRaw = [{ id: 'u1', role: 'user', content: TEST_A_USER_PROMPT }, assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    const subscriptionVisible = runChatVisiblePipeline(subscriptionRaw, 'he');
+    const second = applyMonotonicGuardedMerge({ conversationId, incomingMessages: subscriptionVisible, lastConfirmedMessages: first, scopedMemory });
+
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('3. fallback snapshot followed by marker-incomplete stale snapshot preserves fallback', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-stale-1';
+    const guardedRaw = [rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(guardedRaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const markerIncompleteRaw = [
+      { id: 'u1', role: 'user', content: '=== FORMULATION DEEPENING — THIS TURN ONLY ===\nmissing end block' },
+      assistantMsg('a1', TEST_B_FAILING_ASSISTANT),
+    ];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(markerIncompleteRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('4. correction-followup fallback cannot be replaced by failing English raw response', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-cf-en';
+    const guardedRaw = [
+      rawCorrectionFollowupUser('u2', EXACT_ENGLISH_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_EN),
+      assistantMsg('a2', PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN),
+    ];
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(guardedRaw, 'en'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const staleRaw = [
+      { id: 'u2', role: 'user', content: CORRECTION_FOLLOWUP_USER_PROMPT_EN },
+      assistantMsg('a2', PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN),
+    ];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(staleRaw, 'en'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+  });
+
+  it('5. initial Hebrew fallback cannot be replaced by failing Hebrew raw response', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-init-he';
+    const guardedRaw = [rawGuardedUser('u1', TEST_A_USER_PROMPT), assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(guardedRaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const staleRaw = [{ id: 'u1', role: 'user', content: TEST_A_USER_PROMPT }, assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(staleRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('6. partial streaming update followed by invalid final response never shows rejected content', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-stream-invalid';
+    const partialRaw = [rawGuardedUser('u1', 'continue'), assistantMsg('a1', 'ייתכן שזה נוגע לערך עצמי. מה אתה חושב?')];
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(partialRaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const invalidFinalRaw = [rawGuardedUser('u1', 'continue'), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(invalidFinalRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(second[1].content).not.toBe(TEST_B_FAILING_ASSISTANT);
+  });
+
+  it('7. invalid partial then valid completed response uses deterministic sticky precedence (guarded wins)', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-invalid-then-valid';
+    const invalidRaw = [rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(invalidRaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const staleValidRaw = [{ id: 'u1', role: 'user', content: TEST_B_USER_PROMPT }, assistantMsg('a1', VALID_TENTATIVE_HE)];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(staleValidRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(second[1].metadata?.formulation_guard_replaced).toBe(true);
+  });
+
+  it('8. visibility refetch after fallback cannot restore rejected content', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-visibility';
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline([rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)], 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const visibilityRaw = [{ id: 'u1', role: 'user', content: TEST_B_USER_PROMPT }, assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(visibilityRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('9. focus refetch after fallback cannot restore rejected content', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-focus';
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline([rawGuardedUser('u1', TEST_A_USER_PROMPT), assistantMsg('a1', TEST_A_FAILING_ASSISTANT)], 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const focusRaw = [{ id: 'u1', role: 'user', content: TEST_A_USER_PROMPT }, assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(focusRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('10. hydration after refresh reconstructs fallback from complete raw history', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-hydration-refresh';
+    const raw = [rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const hydrated = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(raw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    expect(hydrated[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('11. conversation switch away and back reconstructs fallback', () => {
+    const scopedMemory = new Map();
+    const convA = 'conv-A';
+    const convB = 'conv-B';
+    const convARaw = [rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const firstA = applyMonotonicGuardedMerge({
+      conversationId: convA,
+      incomingMessages: runChatVisiblePipeline(convARaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const convBRaw = [{ id: 'u10', role: 'user', content: 'regular message' }, assistantMsg('a10', 'regular answer')];
+    applyMonotonicGuardedMerge({
+      conversationId: convB,
+      incomingMessages: runChatVisiblePipeline(convBRaw, 'en'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const backToA = applyMonotonicGuardedMerge({
+      conversationId: convA,
+      incomingMessages: runChatVisiblePipeline(convARaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    expect(firstA[1].content).toBe(EXACT_HEBREW_FALLBACK);
+    expect(backToA[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('12. guarded decision in conversation A does not affect conversation B', () => {
+    const scopedMemory = new Map();
+    const convA = 'conv-A-iso';
+    const convB = 'conv-B-iso';
+    const convARaw = [rawGuardedUser('u1', TEST_A_USER_PROMPT), assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    applyMonotonicGuardedMerge({
+      conversationId: convA,
+      incomingMessages: runChatVisiblePipeline(convARaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const convBRaw = [{ id: 'u1', role: 'user', content: TEST_A_USER_PROMPT }, assistantMsg('a1', TEST_A_FAILING_ASSISTANT)];
+    const convBVisible = applyMonotonicGuardedMerge({
+      conversationId: convB,
+      incomingMessages: runChatVisiblePipeline(convBRaw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    expect(convBVisible[1].content).toBe(TEST_A_FAILING_ASSISTANT);
+    expect(convBVisible[1].metadata?.formulation_guard_replaced).toBeUndefined();
+  });
+
+  it('13. later genuine assistant turn with different identity is not blocked', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-later-turn';
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline([rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)], 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const laterRaw = [
+      rawGuardedUser('u1', TEST_B_USER_PROMPT),
+      assistantMsg('a1', TEST_B_FAILING_ASSISTANT),
+      { id: 'u2', role: 'user', content: 'שאלה חדשה רגילה' },
+      assistantMsg('a2', 'תגובה חדשה ותקינה.'),
+    ];
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(laterRaw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    expect(second).toHaveLength(4);
+    expect(second[3].content).toBe('תגובה חדשה ותקינה.');
+  });
+
+  it('14. repeated identical subscription snapshots remain idempotent without duplicates', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-idempotent';
+    const raw = [rawGuardedUser('u1', TEST_B_USER_PROMPT), assistantMsg('a1', TEST_B_FAILING_ASSISTANT)];
+    const first = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(raw, 'he'),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const second = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(raw, 'he'),
+      lastConfirmedMessages: first,
+      scopedMemory,
+    });
+    const assistantIds = second.filter((m) => m.role === 'assistant').map((m) => m.id);
+    expect(assistantIds).toEqual(['a1']);
+    expect(second[1].content).toBe(EXACT_HEBREW_FALLBACK);
+  });
+
+  it('15. no second Agent request or retry call is introduced', async () => {
+    const fs = await import('node:fs');
+    const source = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages/Chat.jsx', 'utf8');
+    const addMessageCalls = (source.match(/base44\.agents\.addMessage\(/g) || []).length;
+    expect(addMessageCalls).toBe(6);
+  });
+
+  it('16. bounded guard metadata/log payload does not include raw rejected text', () => {
+    const scopedMemory = new Map();
+    const conversationId = 'conv-bounded-meta';
+    const merged = applyMonotonicGuardedMerge({
+      conversationId,
+      incomingMessages: runChatVisiblePipeline(
+        [rawCorrectionFollowupUser('u2', EXACT_ENGLISH_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_EN), assistantMsg('a2', PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN)],
+        'en'
+      ),
+      lastConfirmedMessages: [],
+      scopedMemory,
+    });
+    const serializedMetadata = JSON.stringify(merged[1].metadata || {});
+    expect(serializedMetadata).not.toContain(PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN.slice(0, 64));
+    expect(Array.isArray(merged[1].metadata?.formulation_guard_reason_codes)).toBe(true);
   });
 });
 
