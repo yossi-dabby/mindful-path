@@ -8,7 +8,8 @@
  * ---------------------
  * • Identifies "guarded turns": assistant responses where the immediately
  *   preceding persisted role=user message contains a complete
- *   === FORMULATION DEEPENING — THIS TURN ONLY === block.
+ *   === FORMULATION DEEPENING — THIS TURN ONLY === block or a complete
+ *   === FORMULATION CONTRACT CORRECTION — NEXT TURN ONLY === block.
  * • Evaluates guarded assistant responses against a bounded clinical contract.
  * • Replaces violating responses with a deterministic safe fallback before the
  *   message reaches UI state.
@@ -33,6 +34,7 @@
  * multiple_questions
  * exercise_proposed_when_blocked
  * internal_instruction_leak
+ * conclusion_drawn_when_explicitly_blocked
  *
  * LOCALE SUPPORT
  * --------------
@@ -58,6 +60,9 @@ export const FORMULATION_CORRECTION_START =
 export const FORMULATION_CORRECTION_END =
   '=== END FORMULATION CONTRACT CORRECTION ===';
 
+const INITIAL_FORMULATION_GUARD_MODE = 'initial_formulation';
+const CORRECTION_FOLLOWUP_GUARD_MODE = 'correction_followup';
+
 // ─── Exact fallback texts (immutable) ─────────────────────────────────────────
 
 /**
@@ -71,6 +76,12 @@ const HEBREW_FALLBACK =
  */
 const ENGLISH_FALLBACK =
   'I hear that something important is still missing from our understanding.\nWhat remains unknown is the personal meaning you attach to the possibility\nthat the result may not be good enough. I do not want to invent that meaning\nfor you. When you imagine that outcome, what would be the hardest thing it\nmight say about you?';
+
+const HEBREW_CONTINUATION_FALLBACK =
+  'אני שומע שהחלק הקשה ביותר הוא המחשבה "אני לא מספיק טוב".\nמה שכבר ברור הוא שהמחשבה הזאת מכאיבה; מה שעדיין לא ברור הוא אם\nהיא מופיעה בעיקר סביב ביצועים ומשימות או משקפת משהו רחב יותר,\nואני לא רוצה לקבוע זאת בלי לבדוק איתך. האם המחשבה הזאת עולה\nבעיקר כשאתה נדרש להוכיח יכולת, או גם במצבים אחרים?';
+
+const ENGLISH_CONTINUATION_FALLBACK =
+  'I hear that the hardest part is the thought, "I am not good enough." What is\nalready clear is that this thought is painful; what remains unclear is whether\nit appears mainly around performance and tasks or reflects something broader,\nand I do not want to decide that without checking with you. Does this thought\ncome up mainly when you have to prove your ability, or in other situations\ntoo?';
 
 // ─── Phase A: Prohibited certainty phrases ────────────────────────────────────
 
@@ -102,6 +113,52 @@ const PROHIBITED_PHRASES_EN = [
   'this explains why',
   'discover something about yourself you cannot bear',
   'the question of who you are',
+];
+
+const EXPLICIT_CONCLUSION_BLOCKERS_HE = [
+  'אל תקבע עדיין מסקנה',
+  'בלי לקבוע מסקנה',
+  'אל תסיק עדיין מסקנה',
+];
+
+const EXPLICIT_CONCLUSION_BLOCKERS_EN = [
+  'do not draw a conclusion yet',
+  "don't draw a conclusion yet",
+  'do not reach a conclusion yet',
+  'without drawing a conclusion',
+];
+
+const BLOCKED_CONCLUSION_PHRASES_HE = [
+  'זה המקום שבו כל הדפוס נמצא',
+  'זה המקום שבו הדפוס כולו נמצא',
+  'זה לא פרפקציוניזם',
+  'זה משהו הרבה יותר אישי',
+  'זה הפך למקום שבו משהו עליך יכול להיות מוכח',
+];
+
+const BLOCKED_CONCLUSION_PHRASES_EN = [
+  'this is where the whole pattern lives',
+  'this is where this whole pattern lives',
+  "that's not perfectionism",
+  'that is not perfectionism',
+  'this is something much more personal',
+  'became a place where something about you could be confirmed',
+];
+
+const EXPLICIT_NO_EXERCISE_REQUESTS_HE = [
+  'אל תציע לי תרגיל',
+  'בלי תרגיל',
+  'ללא תרגיל',
+  'אל תיתן לי תרגיל',
+];
+
+const EXPLICIT_NO_EXERCISE_REQUESTS_EN = [
+  'do not give me an exercise',
+  "don't give me an exercise",
+  'do not suggest an exercise',
+  "don't suggest an exercise",
+  'no exercise yet',
+  'without an exercise',
 ];
 
 // ─── Phase B: Deeper hypothesis indicators ────────────────────────────────────
@@ -237,17 +294,62 @@ function _hasCompleteBlock(content, startMarker, endMarker) {
 
 // ─── Phase 3: Guarded-turn scope detection ────────────────────────────────────
 
+function _stripCompleteBlock(content, startMarker, endMarker) {
+  if (typeof content !== 'string' || !content) return content;
+
+  let result = content;
+  let startIdx = result.indexOf(startMarker);
+  while (startIdx !== -1) {
+    const endIdx = result.indexOf(endMarker, startIdx + startMarker.length);
+    if (endIdx === -1) break;
+    result = `${result.slice(0, startIdx)}${result.slice(endIdx + endMarker.length)}`;
+    startIdx = result.indexOf(startMarker);
+  }
+
+  return result;
+}
+
+function _getVisibleUserContent(rawUserContent) {
+  if (typeof rawUserContent !== 'string') return '';
+
+  return _stripCompleteBlock(
+    _stripCompleteBlock(
+      _stripCompleteBlock(rawUserContent, FD_START, FD_END),
+      FORMULATION_CORRECTION_START,
+      FORMULATION_CORRECTION_END
+    ),
+    SM_START,
+    SM_END
+  ).trim();
+}
+
 /**
- * Returns true when the raw user message content indicates a guarded turn:
- * a complete === FORMULATION DEEPENING — THIS TURN ONLY === block is present.
+ * Classifies the raw user message for bounded formulation guarding.
  *
- * Must be called on the RAW persisted user message content (before stripping).
+ * Safety Mode always supersedes formulation guarding.
+ *
+ * @param {string|null|undefined} rawUserContent
+ * @returns {'initial_formulation'|'correction_followup'|null}
+ */
+export function classifyFormulationGuardedTurn(rawUserContent) {
+  if (_isSafetyModeTurn(rawUserContent)) return null;
+  if (_hasCompleteBlock(rawUserContent, FD_START, FD_END)) {
+    return INITIAL_FORMULATION_GUARD_MODE;
+  }
+  if (_hasCompleteBlock(rawUserContent, FORMULATION_CORRECTION_START, FORMULATION_CORRECTION_END)) {
+    return CORRECTION_FOLLOWUP_GUARD_MODE;
+  }
+  return null;
+}
+
+/**
+ * Compatibility wrapper for existing callers that only need a boolean.
  *
  * @param {string|null|undefined} rawUserContent
  * @returns {boolean}
  */
 export function isGuardedTurn(rawUserContent) {
-  return _hasCompleteBlock(rawUserContent, FD_START, FD_END);
+  return classifyFormulationGuardedTurn(rawUserContent) !== null;
 }
 
 /**
@@ -273,6 +375,27 @@ function _isSafetyModeTurn(rawUserContent) {
 function _hasNoExerciseClause(rawUserContent) {
   if (typeof rawUserContent !== 'string') return false;
   return rawUserContent.includes('The person has asked not to receive an exercise yet');
+}
+
+function _hasExplicitNoExerciseRequest(rawUserContent) {
+  const visibleUserContent = _getVisibleUserContent(rawUserContent);
+  if (!visibleUserContent) return false;
+
+  for (const phrase of EXPLICIT_NO_EXERCISE_REQUESTS_HE) {
+    if (visibleUserContent.includes(phrase)) return true;
+  }
+
+  const lower = visibleUserContent.toLowerCase();
+  for (const phrase of EXPLICIT_NO_EXERCISE_REQUESTS_EN) {
+    if (lower.includes(phrase)) return true;
+  }
+
+  return false;
+}
+
+function _hasNoExerciseRestriction(rawUserContent, guardMode) {
+  if (_hasNoExerciseClause(rawUserContent)) return true;
+  return guardMode === CORRECTION_FOLLOWUP_GUARD_MODE && _hasExplicitNoExerciseRequest(rawUserContent);
 }
 
 // ─── Phase 4A: Prohibited certainty phrase detection ─────────────────────────
@@ -455,20 +578,58 @@ function _hasInternalContentLeak(content) {
   return false;
 }
 
+function _hasExplicitConclusionBlocker(rawUserContent, guardMode) {
+  if (guardMode !== CORRECTION_FOLLOWUP_GUARD_MODE) return false;
+
+  const visibleUserContent = _getVisibleUserContent(rawUserContent);
+  if (!visibleUserContent) return false;
+
+  for (const phrase of EXPLICIT_CONCLUSION_BLOCKERS_HE) {
+    if (visibleUserContent.includes(phrase)) return true;
+  }
+
+  const lower = visibleUserContent.toLowerCase();
+  for (const phrase of EXPLICIT_CONCLUSION_BLOCKERS_EN) {
+    if (lower.includes(phrase)) return true;
+  }
+
+  return false;
+}
+
+function _hasBlockedConclusionPhrase(content) {
+  if (typeof content !== 'string') return false;
+
+  for (const phrase of BLOCKED_CONCLUSION_PHRASES_HE) {
+    if (content.includes(phrase)) return true;
+  }
+
+  const lower = content.toLowerCase();
+  for (const phrase of BLOCKED_CONCLUSION_PHRASES_EN) {
+    if (lower.includes(phrase)) return true;
+  }
+
+  return false;
+}
+
 // ─── Phase 4: Bounded response validation ─────────────────────────────────────
 
 /**
  * Evaluates a guarded assistant response against the Formulation-Led clinical
  * contract.
  *
- * Called ONLY for in-scope turns (isGuardedTurn=true, isSafetyModeTurn=false).
+ * Called ONLY for in-scope guarded turns.
  * For out-of-scope turns, do not call this function.
  *
  * @param {string} assistantContent   The sanitized assistant message text.
  * @param {string} rawUserContent     The raw (pre-strip) originating user message.
+ * @param {'initial_formulation'|'correction_followup'} [guardMode='initial_formulation']
  * @returns {{ pass: boolean, reasonCodes: string[] }}
  */
-export function evaluateFormulationResponseContract(assistantContent, rawUserContent) {
+export function evaluateFormulationResponseContract(
+  assistantContent,
+  rawUserContent,
+  guardMode = INITIAL_FORMULATION_GUARD_MODE
+) {
   const reasonCodes = [];
 
   if (typeof assistantContent !== 'string' || !assistantContent.trim()) {
@@ -487,12 +648,19 @@ export function evaluateFormulationResponseContract(assistantContent, rawUserCon
   }
 
   // ── Phase 4D: No-exercise rule ──────────────────────────────────────────────
-  const noExerciseActive = _hasNoExerciseClause(rawUserContent);
+  const noExerciseActive = _hasNoExerciseRestriction(rawUserContent, guardMode);
   if (noExerciseActive && _hasExerciseSuggestion(assistantContent)) {
     reasonCodes.push('exercise_proposed_when_blocked');
   }
 
   // ── Phase 4B + 4C: Deeper hypothesis + tentative marker + question ──────────
+  if (
+    _hasExplicitConclusionBlocker(rawUserContent, guardMode) &&
+    _hasBlockedConclusionPhrase(assistantContent)
+  ) {
+    reasonCodes.push('conclusion_drawn_when_explicitly_blocked');
+  }
+
   if (_hasDeepHypothesisIndicator(assistantContent)) {
     const hasTentative = _hasAnyTentativeMarker(assistantContent);
     const statesUnknown = _statesPersonalMeaningUnknown(assistantContent);
@@ -521,9 +689,17 @@ export function evaluateFormulationResponseContract(assistantContent, rawUserCon
  * Each fallback contains exactly one question mark.
  *
  * @param {'he'|'en'} locale
+ * @param {'initial_formulation'|'correction_followup'} [guardMode='initial_formulation']
  * @returns {string}
  */
-export function buildFormulationSafeFallback(locale) {
+export function buildFormulationSafeFallback(
+  locale,
+  guardMode = INITIAL_FORMULATION_GUARD_MODE
+) {
+  if (guardMode === CORRECTION_FOLLOWUP_GUARD_MODE) {
+    return locale === 'he' ? HEBREW_CONTINUATION_FALLBACK : ENGLISH_CONTINUATION_FALLBACK;
+  }
+
   return locale === 'he' ? HEBREW_FALLBACK : ENGLISH_FALLBACK;
 }
 
@@ -611,8 +787,7 @@ function _findPrecedingRawUser(rawMessages, beforeIdx) {
  * Steps:
  * 1. For each assistant message in `finalMessages`, use the same array index in
  *    `rawMessages` and find the immediately preceding raw user message.
- * 2. If that user message is a guarded turn (FORMULATION DEEPENING block present,
- *    no SAFETY MODE block), evaluate the assistant content.
+ * 2. If that user message is a guarded turn, evaluate the assistant content.
  * 3. If the content violates the contract, replace it with the deterministic
  *    fallback. The original message ID, role, created_at, and ordering are
  *    preserved; only `content` and `metadata.formulation_guard_replaced` /
@@ -669,12 +844,11 @@ export function applyFormulationGuardToConversationMessages(
 
     const rawUserContent = precedingRawUser ? precedingRawUser.content : null;
 
-    // Determine scope
-    const guarded = rawUserContent !== null && isGuardedTurn(rawUserContent);
-    const safetyMode = rawUserContent !== null && _isSafetyModeTurn(rawUserContent);
+    const guardMode = rawUserContent !== null
+      ? classifyFormulationGuardedTurn(rawUserContent)
+      : null;
 
-    if (!guarded || safetyMode) {
-      // Out of scope — pass through unchanged
+    if (!guardMode) {
       result.push(msg);
       continue;
     }
@@ -691,7 +865,7 @@ export function applyFormulationGuardToConversationMessages(
     }
 
     // Evaluate the assistant response
-    const evaluation = evaluateFormulationResponseContract(msg.content, rawUserContent);
+    const evaluation = evaluateFormulationResponseContract(msg.content, rawUserContent, guardMode);
 
     if (evaluation.pass) {
       result.push(msg);
@@ -699,7 +873,7 @@ export function applyFormulationGuardToConversationMessages(
     }
 
     // ── Contract violated: replace with deterministic fallback ────────────────
-    const fallbackText = buildFormulationSafeFallback(effectiveLocale);
+    const fallbackText = buildFormulationSafeFallback(effectiveLocale, guardMode);
     const replacedMsg = {
       ...msg,
       content: fallbackText,

@@ -9,8 +9,9 @@
  *    subscription/polling/hydration paths simulated via the pure function)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
+  classifyFormulationGuardedTurn,
   isGuardedTurn,
   evaluateFormulationResponseContract,
   buildFormulationSafeFallback,
@@ -59,6 +60,20 @@ function rawSafetyUser(id) {
   return { id, role: 'user', content: block + '\n\nעזרה' };
 }
 
+function rawCorrectionFollowupUser(id, fallbackText, userText) {
+  const correctionBlock = buildPendingFormulationCorrectionBlock(fallbackText);
+  return { id, role: 'user', content: correctionBlock + '\n\n' + userText };
+}
+
+function rawSafetyPlusCorrectionUser(id, fallbackText, userText = 'עזרה') {
+  const correctionBlock = buildPendingFormulationCorrectionBlock(fallbackText);
+  return {
+    id,
+    role: 'user',
+    content: `${SM_START}\nSafety instructions.\n${SM_END}\n\n${correctionBlock}\n\n${userText}`,
+  };
+}
+
 // ─── Exact expected fallback texts ───────────────────────────────────────────
 
 const EXACT_HEBREW_FALLBACK =
@@ -66,6 +81,12 @@ const EXACT_HEBREW_FALLBACK =
 
 const EXACT_ENGLISH_FALLBACK =
   'I hear that something important is still missing from our understanding.\nWhat remains unknown is the personal meaning you attach to the possibility\nthat the result may not be good enough. I do not want to invent that meaning\nfor you. When you imagine that outcome, what would be the hardest thing it\nmight say about you?';
+
+const EXACT_HEBREW_CONTINUATION_FALLBACK =
+  'אני שומע שהחלק הקשה ביותר הוא המחשבה "אני לא מספיק טוב".\nמה שכבר ברור הוא שהמחשבה הזאת מכאיבה; מה שעדיין לא ברור הוא אם\nהיא מופיעה בעיקר סביב ביצועים ומשימות או משקפת משהו רחב יותר,\nואני לא רוצה לקבוע זאת בלי לבדוק איתך. האם המחשבה הזאת עולה\nבעיקר כשאתה נדרש להוכיח יכולת, או גם במצבים אחרים?';
+
+const EXACT_ENGLISH_CONTINUATION_FALLBACK =
+  'I hear that the hardest part is the thought, "I am not good enough." What is\nalready clear is that this thought is painful; what remains unclear is whether\nit appears mainly around performance and tasks or reflects something broader,\nand I do not want to decide that without checking with you. Does this thought\ncome up mainly when you have to prove your ability, or in other situations\ntoo?';
 
 // ─── Unit test fixtures ───────────────────────────────────────────────────────
 
@@ -126,6 +147,24 @@ const ORDINARY_RESPONSE_HE =
 // English no-exercise violation
 const EXERCISE_VIOLATION_EN =
   'Let us try a grounding exercise to help you feel more settled. What do you think?';
+
+const CORRECTION_FOLLOWUP_USER_PROMPT_EN =
+  'The hardest thing would be thinking that I am not good enough. Continue gently from there and do not draw a conclusion yet.';
+
+const PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN =
+  `That carries a different kind of weight. 'Not good enough' about a result is one thing. 'Not good enough' about who you are is something else entirely. I want to stay with that, because the gap between those two is where this whole pattern lives. Somewhere along the way, what you were avoiding stopped being just the work and became a place where something about you could be confirmed. That's not perfectionism about quality. That's something much more personal, and I can feel how heavy that is.`;
+
+const CORRECTION_FOLLOWUP_USER_PROMPT_HE =
+  'החלק הקשה ביותר הוא המחשבה "אני לא מספיק טוב". תמשיך בעדינות מכאן ואל תקבע עדיין מסקנה. בלי תרגיל עדיין.';
+
+const VALID_CORRECTION_FOLLOWUP_HE =
+  'ייתכן שיש כאן משמעות אישית רחבה יותר, אבל עדיין לא ברור אם זה כך. האם המחשבה הזאת עולה בעיקר סביב מצבים שבהם אתה צריך להוכיח יכולת?';
+
+const INVALID_CORRECTION_FOLLOWUP_HE =
+  'זה קשור לזהות שלך. זה משהו הרבה יותר אישי.';
+
+const CORRECTION_FOLLOWUP_EXERCISE_VIOLATION_HE =
+  'אולי כדאי לנסות תרגיל קצר כבר עכשיו. מה אתה חושב?';
 
 const TEST_B_USER_PROMPT =
   'אני מרגיש שאתה כבר יודע את הסיפור, אבל עדיין לא באמת מבין למה זה כל כך מאיים עליי. אל תחזור על מה שכבר ידוע ואל תציע לי עדיין תרגיל. תגיד מה לדעתך חסר בפורמולציה, אבל בלי הסתייגויות ובלי לשאול אותי שאלה.';
@@ -329,6 +368,7 @@ describe('formulationContractGuard — unit tests', () => {
       'multiple_questions',
       'exercise_proposed_when_blocked',
       'internal_instruction_leak',
+      'conclusion_drawn_when_explicitly_blocked',
     ]);
     const inputs = [
       PROHIBITED_HE_CERTAINTY_WITH_TENTATIVE,
@@ -399,6 +439,53 @@ describe('formulationContractGuard — unit tests', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // INTEGRATION / REGRESSION TESTS
 // ═══════════════════════════════════════════════════════════════════════════════
+
+
+describe('formulationContractGuard — correction-followup unit tests', () => {
+  it('19. correction-followup Hebrew fallback has exact continuation text', () => {
+    const fallback = buildFormulationSafeFallback('he', 'correction_followup');
+    expect(fallback).toBe(EXACT_HEBREW_CONTINUATION_FALLBACK);
+    expect((fallback.match(/\?/g) || []).length).toBe(1);
+  });
+
+  it('20. correction-followup English fallback has exact continuation text', () => {
+    const fallback = buildFormulationSafeFallback('en', 'correction_followup');
+    expect(fallback).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+    expect((fallback.match(/\?/g) || []).length).toBe(1);
+  });
+
+  it('21. correction-followup tentative Hebrew response with one question passes', () => {
+    const result = evaluateFormulationResponseContract(
+      VALID_CORRECTION_FOLLOWUP_HE,
+      rawCorrectionFollowupUser('u2', EXACT_HEBREW_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_HE).content,
+      'correction_followup'
+    );
+    expect(result.pass).toBe(true);
+    expect(result.reasonCodes).toEqual([]);
+  });
+
+  it('22. correction-followup explicit no-exercise request blocks exercises', () => {
+    const result = evaluateFormulationResponseContract(
+      CORRECTION_FOLLOWUP_EXERCISE_VIOLATION_HE,
+      rawCorrectionFollowupUser('u2', EXACT_HEBREW_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_HE).content,
+      'correction_followup'
+    );
+    expect(result.pass).toBe(false);
+    expect(result.reasonCodes).toContain('exercise_proposed_when_blocked');
+  });
+
+  it('23. correction-followup explicit no-conclusion request adds bounded reason code', () => {
+    const result = evaluateFormulationResponseContract(
+      INVALID_CORRECTION_FOLLOWUP_HE,
+      rawCorrectionFollowupUser('u2', EXACT_HEBREW_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_HE).content,
+      'correction_followup'
+    );
+    expect(result.pass).toBe(false);
+    expect(result.reasonCodes).toContain('conclusion_drawn_when_explicitly_blocked');
+    expect(result.reasonCodes).toContain('unsupported_deeper_claim_without_tentative_marker');
+    expect(result.reasonCodes).toContain('missing_verification_question');
+  });
+});
 
 describe('formulationContractGuard — integration/regression tests', () => {
   // ── 1. Subscription invalid response becomes fallback ───────────────────────
@@ -741,6 +828,118 @@ describe('formulationContractGuard — integration/regression tests', () => {
   });
 });
 
+
+describe('formulationContractGuard — correction-followup integration/regression tests', () => {
+  it('18. exact English production correction-followup response is deterministically replaced', () => {
+    const initialRawUser = rawGuardedUser('u1', 'What do you think?', true);
+    const initialBadAssistant = assistantMsg('a1', DEEPER_WITH_TENTATIVE_NO_Q_HE);
+    const correctionRawUser = rawCorrectionFollowupUser(
+      'u2',
+      EXACT_ENGLISH_FALLBACK,
+      CORRECTION_FOLLOWUP_USER_PROMPT_EN
+    );
+    const failingAssistant = assistantMsg('a2', PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN);
+
+    const rawMessages = [initialRawUser, initialBadAssistant, correctionRawUser, failingAssistant];
+    const result = runAlignedPipeline(rawMessages, 'en');
+
+    expect(classifyFormulationGuardedTurn(rawMessages[2].content)).toBe('correction_followup');
+    expect(result.guardedAligned[3].content).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+    expect(result.guardedAligned[3].metadata?.formulation_guard_replaced).toBe(true);
+    expect(result.guardedAligned[3].metadata?.formulation_guard_reason_codes).toContain(
+      'unsupported_deeper_claim_without_tentative_marker'
+    );
+    expect(result.guardedAligned[3].metadata?.formulation_guard_reason_codes).toContain(
+      'missing_verification_question'
+    );
+    expect(result.guardedAligned[3].metadata?.formulation_guard_reason_codes).toContain(
+      'conclusion_drawn_when_explicitly_blocked'
+    );
+    expect(result.finalVisible.some((m) => m?.content === PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN)).toBe(false);
+    expect(result.finalVisible.filter((m) => m?.content === EXACT_ENGLISH_CONTINUATION_FALLBACK)).toHaveLength(1);
+    expect(result.pendingCorrection).not.toBeNull();
+    expect(result.pendingCorrection.fallbackText).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+    expect(result.finalVisible[2].content).toBe(CORRECTION_FOLLOWUP_USER_PROMPT_EN);
+  });
+
+  it('19. correction-followup valid Hebrew response remains byte-for-byte unchanged', () => {
+    const rawUser = rawCorrectionFollowupUser('u2', EXACT_HEBREW_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_HE);
+    const asst = assistantMsg('a2', VALID_CORRECTION_FOLLOWUP_HE);
+
+    const { messages, pendingCorrection } = applyFormulationGuardToConversationMessages(
+      [rawUser, asst],
+      [sanitizedUser('u2', CORRECTION_FOLLOWUP_USER_PROMPT_HE), asst],
+      { locale: 'he' }
+    );
+
+    expect(messages[1].content).toBe(VALID_CORRECTION_FOLLOWUP_HE);
+    expect(messages[1].metadata?.formulation_guard_replaced).toBeUndefined();
+    expect(pendingCorrection).toBeNull();
+  });
+
+  it('20. correction-followup invalid Hebrew response becomes the Hebrew continuation fallback', () => {
+    const rawUser = rawCorrectionFollowupUser('u2', EXACT_HEBREW_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_HE);
+    const asst = assistantMsg('a2', INVALID_CORRECTION_FOLLOWUP_HE);
+
+    const { messages, pendingCorrection } = applyFormulationGuardToConversationMessages(
+      [rawUser, asst],
+      [sanitizedUser('u2', CORRECTION_FOLLOWUP_USER_PROMPT_HE), asst],
+      { locale: 'he' }
+    );
+
+    expect(messages[1].content).toBe(EXACT_HEBREW_CONTINUATION_FALLBACK);
+    expect(messages[1].metadata?.formulation_guard_reason_codes).toContain(
+      'conclusion_drawn_when_explicitly_blocked'
+    );
+    expect(pendingCorrection?.fallbackText).toBe(EXACT_HEBREW_CONTINUATION_FALLBACK);
+  });
+
+  it('21. correction-followup Safety Mode turn bypasses the formulation guard', () => {
+    const rawUser = rawSafetyPlusCorrectionUser('u3', EXACT_HEBREW_FALLBACK, 'תמשיך בעדינות ובלי לקבוע מסקנה');
+    const asst = assistantMsg('a3', INVALID_CORRECTION_FOLLOWUP_HE);
+
+    const { messages } = applyFormulationGuardToConversationMessages(
+      [rawUser, asst],
+      [sanitizedUser('u3', 'תמשיך בעדינות ובלי לקבוע מסקנה'), asst],
+      { locale: 'he' }
+    );
+
+    expect(messages[1].content).toBe(INVALID_CORRECTION_FOLLOWUP_HE);
+    expect(messages[1].metadata?.formulation_guard_replaced).toBeUndefined();
+  });
+
+  it('22. correction-followup subscription, polling, hydration, and restoration stay identical', () => {
+    const rawUser = rawCorrectionFollowupUser('u2', EXACT_ENGLISH_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_EN);
+    const asst = assistantMsg('a2', PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN);
+    const sanitizedAligned = [sanitizedUser('u2', CORRECTION_FOLLOWUP_USER_PROMPT_EN), asst];
+
+    const subscription = applyFormulationGuardToConversationMessages([rawUser, asst], sanitizedAligned, { locale: 'en' });
+    const polling = applyFormulationGuardToConversationMessages([rawUser, asst], sanitizedAligned, { locale: 'en' });
+    const hydration = applyFormulationGuardToConversationMessages([rawUser, asst], sanitizedAligned, { locale: 'en' });
+    const restoration = applyFormulationGuardToConversationMessages([rawUser, asst], sanitizedAligned, { locale: 'en' });
+
+    const contents = [subscription, polling, hydration, restoration].map((result) => result.messages[1].content);
+    expect(new Set(contents)).toEqual(new Set([EXACT_ENGLISH_CONTINUATION_FALLBACK]));
+    expect(subscription.pendingCorrection?.fallbackText).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+    expect(polling.pendingCorrection?.fallbackText).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+  });
+
+  it('23. correction-followup repeated processing is idempotent', () => {
+    const rawUser = rawCorrectionFollowupUser('u2', EXACT_ENGLISH_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_EN);
+    const asst = assistantMsg('a2', PRODUCTION_CORRECTION_FOLLOWUP_FAILING_ASSISTANT_EN);
+    const first = applyFormulationGuardToConversationMessages(
+      [rawUser, asst],
+      [sanitizedUser('u2', CORRECTION_FOLLOWUP_USER_PROMPT_EN), asst],
+      { locale: 'en' }
+    );
+    const second = applyFormulationGuardToConversationMessages([rawUser, asst], first.messages, { locale: 'en' });
+
+    expect(second.messages[1].content).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+    expect(second.messages[1].metadata?.formulation_guard_replaced).toBe(true);
+    expect(second.pendingCorrection?.fallbackText).toBe(EXACT_ENGLISH_CONTINUATION_FALLBACK);
+  });
+});
+
 describe('formulationContractGuard — raw-index alignment regressions', () => {
   it('1. no id/no created_at with one leading null: TEST B failing response is deterministically replaced', () => {
     const raw = [
@@ -933,12 +1132,54 @@ describe('formulationContractGuard — raw-index alignment regressions', () => {
 // isGuardedTurn helper tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
+
+describe('classifyFormulationGuardedTurn', () => {
+  it('returns initial_formulation for complete formulation deepening block', () => {
+    expect(classifyFormulationGuardedTurn(rawGuardedUser('u1').content)).toBe('initial_formulation');
+  });
+
+  it('returns correction_followup for complete correction block', () => {
+    expect(
+      classifyFormulationGuardedTurn(
+        rawCorrectionFollowupUser('u2', EXACT_ENGLISH_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_EN).content
+      )
+    ).toBe('correction_followup');
+  });
+
+  it('returns null for incomplete correction block', () => {
+    expect(
+      classifyFormulationGuardedTurn(
+        `${FORMULATION_CORRECTION_START}
+Partial correction only
+
+${CORRECTION_FOLLOWUP_USER_PROMPT_EN}`
+      )
+    ).toBeNull();
+  });
+
+  it('returns null when Safety Mode and correction block are both present', () => {
+    expect(
+      classifyFormulationGuardedTurn(
+        rawSafetyPlusCorrectionUser('u3', EXACT_HEBREW_FALLBACK, 'תמשיך בעדינות').content
+      )
+    ).toBeNull();
+  });
+});
+
 describe('isGuardedTurn', () => {
   it('returns true for raw user message with complete FD block', () => {
     expect(isGuardedTurn(rawGuardedUser('u1').content)).toBe(true);
   });
 
-  it('returns false for message without FD block', () => {
+  it('returns true for raw user message with complete correction block', () => {
+    expect(
+      isGuardedTurn(
+        rawCorrectionFollowupUser('u2', EXACT_ENGLISH_FALLBACK, CORRECTION_FOLLOWUP_USER_PROMPT_EN).content
+      )
+    ).toBe(true);
+  });
+
+  it('returns false for message without guarded block', () => {
     expect(isGuardedTurn('hello world')).toBe(false);
   });
 
