@@ -261,6 +261,23 @@ export function buildRuntimeCapabilitySnapshot({
   const competence_layer_enabled        = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_COMPETENCE_ENABLED');
   const planner_first_enabled           = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED');
 
+  // ── V7 continuity static diagnostic fields ────────────────────────────────
+  //
+  // continuity_configured: the THERAPIST_UPGRADE_CONTINUITY_ENABLED flag is on.
+  // continuity_effective: the ACTIVE wiring has continuity_layer_enabled === true
+  //   (the flag won routing and V7+ is the selected wiring).
+  // formulation_context_effective: the active wiring has formulation_context_enabled.
+  // safety_mode_effective: the active wiring has safety_mode_enabled.
+  //
+  // These reflect STATIC structural state.  Runtime per-read counts (memory
+  // records, continuity block emitted, etc.) are emitted by
+  // _emitV7ContinuityDiagnosticIfEnabled in workflowContextInjector.js only
+  // when _s2debug=true.
+  const continuity_configured         = continuity_layer_enabled;
+  const continuity_effective          = therapistWiring?.continuity_layer_enabled === true;
+  const formulation_context_effective = therapistWiring?.formulation_context_enabled === true;
+  const safety_mode_effective         = therapistWiring?.safety_mode_enabled === true;
+
   // ── Wiring identity (safe string fields derived from resolved wiring) ────
   const selected_therapist_wiring = _therapistWiringCanonicalName(therapistWiring);
   const selected_therapist_stage  = therapistWiring?.stage2 === true ? 'stage2' : 'hybrid';
@@ -313,6 +330,10 @@ export function buildRuntimeCapabilitySnapshot({
     formulation_led_configured,
     formulation_led_effective,
     continuity_layer_enabled,
+    continuity_configured,
+    continuity_effective,
+    formulation_context_effective,
+    safety_mode_effective,
     strategy_layer_enabled,
     longitudinal_layer_enabled,
     knowledge_layer_enabled,

@@ -94,6 +94,8 @@ import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.
 import { getTherapeuticFormsPolicyPayload } from './therapeuticFormsPolicy.js';
 // Formulation-led separation — runtime flag check for V7+ chains.
 import { isUpgradeEnabled } from './featureFlags.js';
+// V7 continuity diagnostics (used in buildV7SessionStartContentAsync only).
+import { buildCrossSessionContinuityBlockWithDiagnostic, CONTINUITY_FAILURE_REASONS } from './crossSessionContinuity.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -1654,14 +1656,33 @@ export async function buildV7SessionStartContentAsync(
   );
 
   // Step 2: Build cross-session continuity block (read-only, fail-closed)
+  // Uses diagnostic version to capture structured V7 diagnostic metadata.
   let continuityBlock = '';
+  let continuityDiagnostic = null;
   try {
-    const { buildCrossSessionContinuityBlock } = await import('./crossSessionContinuity.js');
-    continuityBlock = await buildCrossSessionContinuityBlock(entities);
+    const { block, diagnostic } = await buildCrossSessionContinuityBlockWithDiagnostic(entities);
+    continuityBlock = block;
+    continuityDiagnostic = diagnostic;
   } catch {
     // Fail-closed: continuity injection failure must never block session start
     continuityBlock = '';
+    continuityDiagnostic = {
+      memory_read_attempted: false,
+      valid_therapist_memory_record_count: 0,
+      selected_prior_session_count: 0,
+      recurring_pattern_count: 0,
+      working_hypothesis_count: 0,
+      open_follow_up_count: 0,
+      prior_intervention_count: 0,
+      historical_risk_signal_count: 0,
+      continuity_block_emitted: false,
+      continuity_fail_safe: true,
+      continuity_failure_reason_code: CONTINUITY_FAILURE_REASONS.read_error,
+    };
   }
+
+  // Step 3: Emit V7 continuity diagnostic (only when _s2debug=true, fail-closed)
+  _emitV7ContinuityDiagnosticIfEnabled(wiring, continuityDiagnostic);
 
   if (!continuityBlock || !continuityBlock.trim()) {
     return v6Base;
@@ -1669,6 +1690,61 @@ export async function buildV7SessionStartContentAsync(
 
   return v6Base + '\n\n' + continuityBlock;
 }
+
+// ─── V7 continuity diagnostic emission ───────────────────────────────────────
+
+/**
+ * Emits a safe V7 continuity diagnostic to the console when `?_s2debug=true`
+ * is present in the URL.  No-op in all other environments (production, CI).
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Gated by `_s2debug=true` in the URL.
+ * - Only emits bounded structural fields (booleans and counts).
+ * - Never emits summaries, pattern text, hypothesis text, task text,
+ *   intervention text, risk text, raw user/assistant content, record
+ *   contents, user IDs, or emails.
+ * - Does NOT change any routing decision, session content, or therapeutic
+ *   behavior.  Diagnostic output only.
+ * - Fail-closed on any error (never propagates).
+ *
+ * @private
+ * @param {object|null} wiring - The active V7 wiring configuration
+ * @param {object|null} diagnostic - Diagnostic result from buildCrossSessionContinuityBlockWithDiagnostic
+ */
+function _emitV7ContinuityDiagnosticIfEnabled(wiring, diagnostic) {
+  try {
+    if (typeof window === 'undefined') return;
+    const search = window.location?.search ?? '';
+    if (!search) return;
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return;
+
+    const d = diagnostic ?? {};
+    console.group('[V7] Cross-session continuity diagnostic');
+    console.log('active_wiring                    :', wiring?.name ?? 'unknown');
+    console.log('continuity_configured            :', wiring?.continuity_layer_enabled === true);
+    console.log('continuity_effective             :', wiring?.continuity_layer_enabled === true);
+    console.log('formulation_context_effective    :', wiring?.formulation_context_enabled === true);
+    console.log('formulation_led_effective        :', wiring?.formulation_led_enabled === true);
+    console.log('safety_mode_effective            :', wiring?.safety_mode_enabled === true);
+    console.log('memory_read_attempted            :', d.memory_read_attempted ?? false);
+    console.log('valid_therapist_memory_record_count:', d.valid_therapist_memory_record_count ?? 0);
+    console.log('selected_prior_session_count     :', d.selected_prior_session_count ?? 0);
+    console.log('recurring_pattern_count          :', d.recurring_pattern_count ?? 0);
+    console.log('working_hypothesis_count         :', d.working_hypothesis_count ?? 0);
+    console.log('open_follow_up_count             :', d.open_follow_up_count ?? 0);
+    console.log('prior_intervention_count         :', d.prior_intervention_count ?? 0);
+    console.log('historical_risk_signal_count     :', d.historical_risk_signal_count ?? 0);
+    console.log('continuity_block_emitted         :', d.continuity_block_emitted ?? false);
+    console.log('continuity_fail_safe             :', d.continuity_fail_safe ?? false);
+    console.log('continuity_failure_reason_code   :', d.continuity_failure_reason_code ?? 'unknown');
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostic emission must never propagate — fail silently.
+  }
+}
+
 
 // ─── Wave 5D — Quality Evaluator diagnostic helpers ───────────────────────────
 
