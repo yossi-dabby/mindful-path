@@ -21,7 +21,11 @@ import {
   resolveSpanishWorkbookIntentWithContext,
 } from '../../utils/resolveWorkbookIntent.js';
 import { getAllTherapeuticForms, SUPPORTED_LANGUAGES, MAX_GENERATED_FILES_PER_RESPONSE } from '../../data/therapeuticForms/index.js';
-import { THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER } from '../../lib/therapeuticFormsPolicy.js';
+import {
+  THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
+  THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
+  THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER,
+} from '../../lib/therapeuticFormsPolicy.js';
 import { normalizeGeneratedFile } from '../chat/utils/normalizeGeneratedFile.js';
 
 // Safety patterns to detect and strip
@@ -307,6 +311,7 @@ export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
     ['=== SAFETY MODE \u2014 STAGE 2 PHASE 7 ===', '=== END SAFETY MODE CONSTRAINTS ==='],
     ['=== EMERGENCY RESOURCES \u2014 STAGE 2 PHASE 7 ===', '=== END EMERGENCY RESOURCES ==='],
     ['=== FORMULATION CONTRACT CORRECTION \u2014 NEXT TURN ONLY ===', '=== END FORMULATION CONTRACT CORRECTION ==='],
+    [THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START, THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END],
   ];
 
   let result = content;
@@ -358,6 +363,11 @@ function getVisibleUserContentForIntent(rawContent) {
       stripAttachmentContextBlock(contentWithoutAttachmentMarker)
     )
   );
+}
+
+function isLegacyPureTherapeuticFormsPolicyRefreshUserMessage(content) {
+  if (typeof content !== 'string') return false;
+  return content.trim().startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER);
 }
 
 function hasFormRefusalLikeContent(content) {
@@ -1160,6 +1170,9 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
       const isTherapeuticFormsPolicyRefreshMessage =
         typeof rawTriggeringUserMsg === 'string' &&
         rawTriggeringUserMsg.trim().startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER);
+      if (isLegacyPureTherapeuticFormsPolicyRefreshUserMessage(rawTriggeringUserMsg)) {
+        return null;
+      }
       const previousUserContext =
         // Space-joining is sufficient: workbook routing only does substring matching
         // against Hebrew keywords, so word boundaries between joined messages are fine.

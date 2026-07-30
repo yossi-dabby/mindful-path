@@ -6,11 +6,15 @@ import {
 } from '../../src/data/therapeuticForms/index.js';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
 import {
+  consumePendingPolicyRefreshAfterSuccessfulSend,
+  THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
+  THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
   THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER,
   buildTherapeuticFormsPolicyRefreshMessage,
   ensureTherapeuticFormsPolicyInjected,
   extractTherapeuticFormsPolicyVersion,
   getTherapeuticFormsPolicyPayload,
+  prependPendingPolicyRefreshToUserContent,
 } from '../../src/lib/therapeuticFormsPolicy.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
@@ -39,52 +43,75 @@ describe('therapeutic forms policy reliability', () => {
     expect(policy).toContain('CURRENTLY APPROVED FORMS SUMMARY');
   });
 
-  it('injects a hidden refresh policy message for an existing conversation that lacks the current version', async () => {
+  it('records a pending refresh for an existing conversation that lacks the current version without sending an agent message', async () => {
     const addMessage = vi.fn().mockResolvedValue({});
     const cache = new Map();
+    const pendingRefreshByConversation = new Map();
     const conversation = {
       id: 'conversation-existing',
       messages: [{ role: 'user', content: 'Hello there' }],
     };
 
     const result = await ensureTherapeuticFormsPolicyInjected({
-      base44: { agents: { addMessage } },
       conversation,
       sessionLanguage: 'en',
       isNewConversation: false,
       injectedVersionCache: cache,
+      pendingRefreshByConversation,
     });
 
-    expect(result.injected).toBe(true);
-    expect(addMessage).toHaveBeenCalledOnce();
-    const injectedContent = addMessage.mock.calls[0][1].content;
-    expect(injectedContent.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)).toBe(true);
-    expect(extractTherapeuticFormsPolicyVersion(injectedContent)).toBe(getTherapeuticFormsPolicyVersion());
-    expect(cache.get(conversation.id)).toBe(getTherapeuticFormsPolicyVersion());
+    expect(result.injected).toBe(false);
+    expect(result.pendingRecorded).toBe(true);
+    expect(addMessage).not.toHaveBeenCalled();
+    expect(result.pendingRefresh.content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START)).toBe(true);
+    expect(result.pendingRefresh.content.includes(THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END)).toBe(true);
+    expect(result.pendingRefresh.content.includes(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)).toBe(true);
+    expect(extractTherapeuticFormsPolicyVersion(result.pendingRefresh.content)).toBe(getTherapeuticFormsPolicyVersion());
+    expect(cache.get(conversation.id)).toBeUndefined();
+    expect(pendingRefreshByConversation.get(conversation.id)?.policyVersion).toBe(getTherapeuticFormsPolicyVersion());
   });
 
-  it('does not inject the hidden refresh policy again when the current version is already present', async () => {
+  it('never calls addMessage during policy refresh maintenance checks', async () => {
+    const addMessage = vi.fn().mockResolvedValue({});
+    await ensureTherapeuticFormsPolicyInjected({
+      base44: { agents: { addMessage } },
+      conversation: {
+        id: 'conversation-maintenance',
+        messages: [{ role: 'user', content: 'hello' }],
+      },
+      sessionLanguage: 'en',
+      injectedVersionCache: new Map(),
+      pendingRefreshByConversation: new Map(),
+    });
+    expect(addMessage).not.toHaveBeenCalled();
+  });
+
+  it('does not record pending refresh when current policy version is already present', async () => {
     const addMessage = vi.fn().mockResolvedValue({});
     const refreshMessage = buildTherapeuticFormsPolicyRefreshMessage({ sessionLanguage: 'en' });
+    const pendingRefreshByConversation = new Map();
     const conversation = {
       id: 'conversation-current',
       messages: [{ role: 'user', content: refreshMessage.content }],
     };
 
     const result = await ensureTherapeuticFormsPolicyInjected({
-      base44: { agents: { addMessage } },
       conversation,
       sessionLanguage: 'en',
       isNewConversation: false,
       injectedVersionCache: new Map(),
+      pendingRefreshByConversation,
     });
 
     expect(result.injected).toBe(false);
+    expect(result.pendingRecorded).toBe(false);
     expect(addMessage).not.toHaveBeenCalled();
+    expect(pendingRefreshByConversation.has(conversation.id)).toBe(false);
   });
 
-  it('refreshes an older conversation when it only contains a stale policy version', async () => {
+  it('records pending refresh for stale policy versions without sending an agent message', async () => {
     const addMessage = vi.fn().mockResolvedValue({});
+    const pendingRefreshByConversation = new Map();
     const conversation = {
       id: 'conversation-stale',
       messages: [{
@@ -94,26 +121,27 @@ describe('therapeutic forms policy reliability', () => {
     };
 
     const result = await ensureTherapeuticFormsPolicyInjected({
-      base44: { agents: { addMessage } },
       conversation,
       sessionLanguage: 'en',
       isNewConversation: false,
       injectedVersionCache: new Map(),
+      pendingRefreshByConversation,
     });
 
-    expect(result.injected).toBe(true);
-    expect(addMessage).toHaveBeenCalledOnce();
+    expect(result.injected).toBe(false);
+    expect(result.pendingRecorded).toBe(true);
+    expect(addMessage).not.toHaveBeenCalled();
+    expect(result.pendingRefresh.content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START)).toBe(true);
   });
 
-  it('keeps the refresh policy hidden from the visible chat transcript', () => {
+  it('hides legacy pure policy-refresh user turns and the immediate assistant orphan', () => {
     const refreshMessage = buildTherapeuticFormsPolicyRefreshMessage({ sessionLanguage: 'en' });
     const sanitized = sanitizeConversationMessages([
       { role: 'user', content: refreshMessage.content },
       { role: 'assistant', content: 'I can help with that.' },
     ], 'en');
 
-    expect(sanitized).toHaveLength(1);
-    expect(sanitized[0].role).toBe('assistant');
+    expect(sanitized).toHaveLength(0);
   });
 
   it('prevents final assistant replies from falsely claiming there is no access to forms', () => {
@@ -123,6 +151,65 @@ describe('therapeutic forms policy reliability', () => {
 
     expect(sanitized[0].content).toContain('installed therapeutic forms catalog');
     expect(sanitized[0].content.toLowerCase()).not.toContain('no access to therapeutic forms');
+  });
+
+  it('prepends pending policy refresh into one genuine user send payload deterministically', () => {
+    const pendingRefresh = buildTherapeuticFormsPolicyRefreshMessage({ sessionLanguage: 'en' }).boundedContent;
+    const outbound = prependPendingPolicyRefreshToUserContent('This is my actual request.', pendingRefresh);
+
+    expect(outbound.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START)).toBe(true);
+    expect(outbound.includes(THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END)).toBe(true);
+    expect(outbound.endsWith('This is my actual request.')).toBe(true);
+    expect(extractTherapeuticFormsPolicyVersion(outbound)).toBe(getTherapeuticFormsPolicyVersion());
+  });
+
+  it('pending policy refresh state stays conversation-scoped and does not cross conversations', async () => {
+    const pendingRefreshByConversation = new Map();
+    const cache = new Map();
+    await ensureTherapeuticFormsPolicyInjected({
+      conversation: {
+        id: 'conversation-a',
+        messages: [{ role: 'user', content: 'hello from a' }],
+      },
+      sessionLanguage: 'en',
+      injectedVersionCache: cache,
+      pendingRefreshByConversation,
+    });
+
+    expect(pendingRefreshByConversation.has('conversation-a')).toBe(true);
+    expect(pendingRefreshByConversation.has('conversation-b')).toBe(false);
+  });
+
+  it('successful genuine send consumes pending refresh once and marks injected version cache', () => {
+    const pendingRefreshByConversation = new Map([
+      ['conversation-a', { content: 'policy', policyVersion: 'v-current' }],
+    ]);
+    const cache = new Map();
+    const first = consumePendingPolicyRefreshAfterSuccessfulSend({
+      conversationId: 'conversation-a',
+      pendingRefreshByConversation,
+      injectedVersionCache: cache,
+    });
+    const second = consumePendingPolicyRefreshAfterSuccessfulSend({
+      conversationId: 'conversation-a',
+      pendingRefreshByConversation,
+      injectedVersionCache: cache,
+    });
+
+    expect(first).toEqual({ consumed: true, policyVersion: 'v-current' });
+    expect(second).toEqual({ consumed: false, policyVersion: null });
+    expect(cache.get('conversation-a')).toBe('v-current');
+    expect(pendingRefreshByConversation.has('conversation-a')).toBe(false);
+  });
+
+  it('failed genuine send path can keep pending refresh without falsely marking injected version', () => {
+    const pendingRefreshByConversation = new Map([
+      ['conversation-a', { content: 'policy', policyVersion: 'v-current' }],
+    ]);
+    const cache = new Map();
+
+    expect(cache.has('conversation-a')).toBe(false);
+    expect(pendingRefreshByConversation.has('conversation-a')).toBe(true);
   });
 });
 
