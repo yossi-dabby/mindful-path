@@ -45,9 +45,11 @@ import {
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
 import {
+  consumePendingPolicyRefreshAfterSuccessfulSend,
   ensureTherapeuticFormsPolicyInjected,
   getTherapeuticFormsPolicyPayload,
   logTherapeuticFormsPolicyDiagnostic,
+  prependPendingPolicyRefreshToUserContent,
 } from '@/lib/therapeuticFormsPolicy.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
 import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
@@ -349,6 +351,7 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const formsPolicyVersionCacheRef = useRef(new Map());
+  const pendingTherapeuticFormsPolicyRefreshRef = useRef(new Map());
   const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
@@ -1668,16 +1671,13 @@ export default function Chat() {
       sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
       const policyRefresh = await ensureTherapeuticFormsPolicyInjected({
-        base44,
         conversation,
         sessionLanguage: sessionLanguageRef.current,
         isNewConversation: false,
         injectedVersionCache: formsPolicyVersionCacheRef.current,
+        pendingRefreshByConversation: pendingTherapeuticFormsPolicyRefreshRef.current,
       });
-
-      if (policyRefresh.injected) {
-        conversation = await base44.agents.getConversation(conversationId);
-      }
+      void policyRefresh;
 
       // Process and sanitize messages before setting
       const guardedLoad = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
@@ -2366,11 +2366,11 @@ export default function Chat() {
 
       if (!isNewConversation) {
         await ensureTherapeuticFormsPolicyInjected({
-          base44,
           conversation,
           sessionLanguage: sessionLanguageRef.current,
           isNewConversation: false,
           injectedVersionCache: formsPolicyVersionCacheRef.current,
+          pendingRefreshByConversation: pendingTherapeuticFormsPolicyRefreshRef.current,
         });
       }
 
@@ -2435,6 +2435,10 @@ export default function Chat() {
           sessionLanguageRef.current
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;
+      }
+      const pendingPolicyRefresh = pendingTherapeuticFormsPolicyRefreshRef.current.get(convId) || null;
+      if (pendingPolicyRefresh?.content) {
+        messageContent = prependPendingPolicyRefreshToUserContent(messageContent, pendingPolicyRefresh.content);
       }
 
       // Upload file attachment if present
@@ -2536,6 +2540,13 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      if (pendingPolicyRefresh?.policyVersion) {
+        consumePendingPolicyRefreshAfterSuccessfulSend({
+          conversationId: convId,
+          pendingRefreshByConversation: pendingTherapeuticFormsPolicyRefreshRef.current,
+          injectedVersionCache: formsPolicyVersionCacheRef.current,
+        });
+      }
       if (isNewConversation) {
         emitTherapeuticFormsSessionStartDiagnostic(convId);
       }

@@ -33,6 +33,11 @@ import {
   ATTACHMENT_METADATA_MARKER_PREFIX,
   stripAgentOnlyRuntimeBlocksFromUserContent,
 } from '../../src/components/utils/validateAgentOutput.jsx';
+import {
+  THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
+  THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
+  THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER,
+} from '../../src/lib/therapeuticFormsPolicy.js';
 
 // ─── PURE JSON-EXTRACTION LOGIC (mirrors functions/sanitizeConversation.ts) ───
 
@@ -947,5 +952,67 @@ describe('stripAgentOnlyRuntimeBlocksFromUserContent — Formulation Contract Co
     const once = stripAgentOnlyRuntimeBlocksFromUserContent(content);
     const twice = stripAgentOnlyRuntimeBlocksFromUserContent(once);
     expect(once).toBe(twice);
+  });
+});
+
+describe('therapeutic forms policy refresh sanitization', () => {
+  const policyVersion = 'forms-test-version';
+  const boundedPolicyBlock = [
+    THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
+    THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER,
+    '[THERAPEUTIC_FORMS_POLICY]',
+    `[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`,
+    'Policy payload.',
+    THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
+  ].join('\n');
+
+  it('strips complete bounded policy block while keeping genuine user text', () => {
+    const userText = 'Please help me continue from here.';
+    const messages = [{ role: 'user', content: `${boundedPolicyBlock}\n\n${userText}` }];
+    const sanitized = sanitizeConversationMessages(messages);
+    expect(sanitized).toHaveLength(1);
+    expect(sanitized[0].content).toBe(userText);
+  });
+
+  it('stripping complete bounded policy block is idempotent', () => {
+    const userText = 'Continue gently.';
+    const input = `${boundedPolicyBlock}\n\n${userText}`;
+    const once = stripAgentOnlyRuntimeBlocksFromUserContent(input);
+    const twice = stripAgentOnlyRuntimeBlocksFromUserContent(once);
+    expect(once).toBe(userText);
+    expect(twice).toBe(userText);
+  });
+
+  it('does not strip incomplete bounded policy block', () => {
+    const incomplete = `${THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START}\n${THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER}\nuser text`;
+    const result = stripAgentOnlyRuntimeBlocksFromUserContent(incomplete);
+    expect(result).toContain(THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START);
+    expect(result).toContain('user text');
+  });
+
+  it('keeps assistant reply visible after mixed policy+genuine-user turn', () => {
+    const userText = 'What can I do now?';
+    const mixed = `${boundedPolicyBlock}\n\n${userText}`;
+    const sanitized = sanitizeConversationMessages([
+      { role: 'user', content: mixed },
+      { role: 'assistant', content: 'Let us take one small next step together.' },
+    ]);
+    expect(sanitized.map((msg) => msg.role)).toEqual(['user', 'assistant']);
+    expect(sanitized[0].content).toBe(userText);
+    expect(sanitized[1].content).toBe('Let us take one small next step together.');
+  });
+
+  it('hides legacy pure policy user message and only the immediately following assistant reply', () => {
+    const legacyPolicyUser = `${THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER}\n[THERAPEUTIC_FORMS_POLICY]\n[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`;
+    const sanitized = sanitizeConversationMessages([
+      { role: 'user', content: legacyPolicyUser },
+      { role: 'assistant', content: 'I am here whenever you are ready to take the next step into that.' },
+      { role: 'user', content: 'Thanks, continue.' },
+      { role: 'assistant', content: 'Of course, let us continue.' },
+    ]);
+
+    expect(sanitized.map((msg) => msg.role)).toEqual(['user', 'assistant']);
+    expect(sanitized[0].content).toBe('Thanks, continue.');
+    expect(sanitized[1].content).toBe('Of course, let us continue.');
   });
 });

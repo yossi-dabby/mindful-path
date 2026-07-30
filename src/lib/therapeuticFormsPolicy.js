@@ -7,6 +7,9 @@ import {
 export const THERAPEUTIC_FORMS_POLICY_MARKER = '[THERAPEUTIC_FORMS_POLICY]';
 export const THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER = '[THERAPEUTIC_FORMS_POLICY_REFRESH]';
 export const THERAPEUTIC_FORMS_POLICY_VERSION_PATTERN = /\[THERAPEUTIC_FORMS_POLICY_VERSION:\s*([^\]]+)\]/;
+export const THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START = '=== THERAPEUTIC FORMS POLICY REFRESH — AGENT ONLY ===';
+export const THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END = '=== END THERAPEUTIC FORMS POLICY REFRESH ===';
+const MAX_PENDING_POLICY_REFRESH_CONVERSATIONS = 100;
 
 const THERAPEUTIC_FORMS_DEBUG_QUERY_PARAM = '_s2debug';
 const FORM_CATALOG_AUDIENCE_ORDER = ['adults', 'older_adults', 'adolescents', 'children'];
@@ -211,25 +214,66 @@ export function hasTherapeuticFormsPolicyVersion(messages, expectedVersion) {
 
 export function buildTherapeuticFormsPolicyRefreshMessage(options = {}) {
   const { policy, policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload(options);
+  const content = `${THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER}\n${policy}`;
 
   return {
-    content: `${THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER}\n${policy}`,
+    content,
+    boundedContent: [
+      THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
+      content,
+      THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
+    ].join('\n'),
     policyVersion,
     diagnostics,
   };
 }
 
+function setPendingRefreshState(pendingRefreshByConversation, conversationId, pendingRefresh) {
+  if (!(pendingRefreshByConversation instanceof Map) || !conversationId) return;
+  if (pendingRefreshByConversation.size >= MAX_PENDING_POLICY_REFRESH_CONVERSATIONS && !pendingRefreshByConversation.has(conversationId)) {
+    const oldestConversationId = pendingRefreshByConversation.keys().next().value;
+    if (oldestConversationId) pendingRefreshByConversation.delete(oldestConversationId);
+  }
+  pendingRefreshByConversation.set(conversationId, pendingRefresh);
+}
+
+export function prependPendingPolicyRefreshToUserContent(userContent, pendingRefreshContent) {
+  if (typeof pendingRefreshContent !== 'string' || !pendingRefreshContent.trim()) {
+    return userContent;
+  }
+  const safeUserContent = typeof userContent === 'string' ? userContent : '';
+  if (!safeUserContent) return pendingRefreshContent;
+  return `${pendingRefreshContent}\n\n${safeUserContent}`;
+}
+
+export function consumePendingPolicyRefreshAfterSuccessfulSend({
+  conversationId,
+  pendingRefreshByConversation,
+  injectedVersionCache,
+} = {}) {
+  if (!conversationId || !(pendingRefreshByConversation instanceof Map)) {
+    return { consumed: false, policyVersion: null };
+  }
+  const pendingRefresh = pendingRefreshByConversation.get(conversationId);
+  if (!pendingRefresh?.policyVersion) {
+    return { consumed: false, policyVersion: null };
+  }
+  injectedVersionCache?.set(conversationId, pendingRefresh.policyVersion);
+  pendingRefreshByConversation.delete(conversationId);
+  return { consumed: true, policyVersion: pendingRefresh.policyVersion };
+}
+
 export async function ensureTherapeuticFormsPolicyInjected({
-  base44,
   conversation,
   sessionLanguage,
   sessionAudience,
   environment,
   isNewConversation = false,
   injectedVersionCache,
+  pendingRefreshByConversation,
 } = {}) {
   const conversationId = conversation?.id || null;
-  const { content, policyVersion, diagnostics } = buildTherapeuticFormsPolicyRefreshMessage({
+  const { boundedContent, policyVersion, diagnostics } = buildTherapeuticFormsPolicyRefreshMessage({
     sessionLanguage,
     sessionAudience,
     environment,
@@ -243,7 +287,7 @@ export async function ensureTherapeuticFormsPolicyInjected({
     wasExistingConversation: !isNewConversation,
   };
 
-  if (!conversationId || !conversation || !base44?.agents?.addMessage) {
+  if (!conversationId || !conversation) {
     logTherapeuticFormsPolicyDiagnostic('refresh-skip', {
       ...baseDiagnosticPayload,
       injected: false,
@@ -251,37 +295,36 @@ export async function ensureTherapeuticFormsPolicyInjected({
     });
     return { injected: false, policyVersion, diagnostics: baseDiagnosticPayload };
   }
-
   if (alreadyInjected) {
     injectedVersionCache?.set(conversationId, policyVersion);
+    injectedVersionCache?.set(conversationId, policyVersion);
+    pendingRefreshByConversation?.delete(conversationId);
     logTherapeuticFormsPolicyDiagnostic('refresh-skip', {
       ...baseDiagnosticPayload,
       injected: false,
       reason: 'current-policy-already-present',
     });
-    return { injected: false, policyVersion, diagnostics: baseDiagnosticPayload };
+    return { injected: false, pendingRecorded: false, policyVersion, diagnostics: baseDiagnosticPayload };
   }
 
-  try {
-    await base44.agents.addMessage(conversation, {
-      role: 'user',
-      content,
-    });
-    injectedVersionCache?.set(conversationId, policyVersion);
+  const pendingRefresh = {
+    content: boundedContent,
+    policyVersion,
+  };
+  setPendingRefreshState(pendingRefreshByConversation, conversationId, pendingRefresh);
 
-    logTherapeuticFormsPolicyDiagnostic('refresh-injected', {
-      ...baseDiagnosticPayload,
-      injected: true,
-      reason: 'current-policy-missing',
-    });
+  logTherapeuticFormsPolicyDiagnostic('refresh-pending', {
+    ...baseDiagnosticPayload,
+    injected: false,
+    pendingRecorded: true,
+    reason: 'current-policy-missing',
+  });
 
-    return { injected: true, policyVersion, diagnostics: baseDiagnosticPayload };
-  } catch (error) {
-    logTherapeuticFormsPolicyDiagnostic('refresh-error', {
-      ...baseDiagnosticPayload,
-      injected: false,
-      reason: error?.message || 'unknown-error',
-    });
-    return { injected: false, policyVersion, diagnostics: baseDiagnosticPayload, error };
-  }
+  return {
+    injected: false,
+    pendingRecorded: true,
+    pendingRefresh,
+    policyVersion,
+    diagnostics: baseDiagnosticPayload,
+  };
 }
