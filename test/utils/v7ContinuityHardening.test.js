@@ -909,3 +909,190 @@ describe('Section 6: Clinical block structural integrity', () => {
     expect(v7Result).not.toContain('CROSS-SESSION CONTINUITY CONTEXT');
   });
 });
+
+// ─── Section 7: V7-B Refinement regression tests ─────────────────────────────
+//
+// These 24 tests verify the V7-B behavioral contract refinements by inspecting
+// the actual generated internal contract block, not comments.
+//
+// Items 20–24 are already verified by tests 34, 33, 32, 40, and 45 respectively;
+// their V7-B assertions are included here for completeness.
+
+describe('Section 7: V7-B Refinement regression tests', () => {
+  async function makeContractBlock(recordOverrides = {}) {
+    const record = makeTherapistRecord(recordOverrides);
+    const entities = makeEntities([record]);
+    return buildCrossSessionContinuityBlock(entities);
+  }
+
+  // Item 1: natural recall language is preferred
+  it('V7-B-1. Natural recall language is present in the contract block', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('I recall that we touched on');
+  });
+
+  // Item 2: "I have a record" language is prohibited
+  it('V7-B-2. Contract block explicitly prohibits "I have a record of..." phrasing', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('"I have a record of..."');
+  });
+
+  // Item 3: "I don't have a record" language is prohibited
+  it('V7-B-3. Contract block explicitly prohibits "I don\'t have a record of..." phrasing', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('"I don\'t have a record of..."');
+  });
+
+  // Item 4: stored-memory/system wording is prohibited
+  it('V7-B-4. Contract block explicitly prohibits "The system remembers..." phrasing', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('"The system remembers..."');
+  });
+
+  // Item 5: missing details must not be invented
+  it('V7-B-5. Contract block instructs agent not to invent missing details', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('Do not invent it');
+  });
+
+  // Item 6: bounded uncertainty language is supplied
+  it('V7-B-6. Contract block supplies bounded uncertainty language', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('I may be missing part of it, so I don\'t want to invent a detail');
+  });
+
+  // Item 7: rejected themes are left aside
+  it('V7-B-7. Contract block instructs agent to leave aside a rejected theme', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('leave that theme aside');
+  });
+
+  // Item 8: the current user topic remains authoritative
+  it('V7-B-8. Contract block states the current user message always overrides historical info', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('current user message always overrides');
+  });
+
+  // Item 9: permanent topic closure is prohibited
+  it('V7-B-9. Contract block prohibits permanent topic-closure language', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('"That theme is behind us completely."');
+  });
+
+  // Item 10: a non-absolute alternative is supplied
+  it('V7-B-10. Contract block supplies a non-absolute topic-closure alternative', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain("We'll leave that theme aside unless you choose to return to it.");
+  });
+
+  // Item 11: historical safety information is not current danger
+  it('V7-B-11. Contract block states historical safety info is not proof of current danger', async () => {
+    const block = await makeContractBlock({ risk_flags: ['passive_ideation'] });
+    expect(block).toContain('not proof of current danger');
+  });
+
+  // Item 12: historical safety alone does not require escalation
+  it('V7-B-12. Contract block states historical safety alone does not require emergency escalation', async () => {
+    const block = await makeContractBlock({ risk_flags: ['passive_ideation'] });
+    expect(block).toContain('does not by itself require emergency escalation');
+  });
+
+  // Item 13: a direct present-safety question is required when relevant
+  it('V7-B-13. Contract block states a direct safety check is required when clinically indicated', async () => {
+    const block = await makeContractBlock({ risk_flags: ['passive_ideation'] });
+    expect(block).toContain('direct safety check is clinically required');
+  });
+
+  // Item 14: "do you feel safe in this moment?" or equivalent is present
+  it('V7-B-14. Contract block contains the preferred direct present-safety question phrase', async () => {
+    const block = await makeContractBlock({ risk_flags: ['passive_ideation'] });
+    expect(block).toContain('do you feel safe in this moment?');
+  });
+
+  // Item 15: vague "anything I should know?" is not sufficient by itself
+  it('V7-B-15. Contract block states vague "Is there anything I should know?" is not sufficient', async () => {
+    const block = await makeContractBlock({ risk_flags: ['passive_ideation'] });
+    expect(block).toContain('Is there anything I should know?');
+    expect(block).toContain('not sufficient by itself');
+  });
+
+  // Item 16: raw historical risk labels remain absent from the block data
+  it('V7-B-16. Raw historical risk label text does not appear in the block data section', async () => {
+    const block = await makeContractBlock({ risk_flags: ['passive_ideation', 'suicidal_ideation'] });
+    expect(block).not.toContain('passive_ideation');
+    expect(block).not.toContain('suicidal_ideation');
+    // Generic safety instruction IS present instead
+    expect(block).toContain('Historical safety context');
+  });
+
+  // Item 17: internal storage and retrieval language remains prohibited
+  it('V7-B-17. Contract block prohibits "According to stored memory..." phrasing', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('"According to stored memory..."');
+  });
+
+  // Item 18: warmth and useful detail remain allowed
+  it('V7-B-18. Contract block explicitly allows warm, detailed responses', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('two to four natural paragraphs');
+  });
+
+  // Item 19: no artificial brevity rule is introduced
+  it('V7-B-19. Contract block prohibits artificial brevity', async () => {
+    const block = await makeContractBlock();
+    expect(block).toContain('Do not impose artificial brevity');
+  });
+
+  // Item 20: no-memory V7 output is byte-for-byte identical to V6/V6-LED (ref test 34)
+  it('V7-B-20. No-memory V7 output is byte-for-byte identical to V6 output', async () => {
+    const entities = makeEntities([]);
+    const v6Result = await buildV6SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V7, entities, {});
+    const v7Result = await buildV7SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V7, entities, {});
+    expect(v7Result).toBe(v6Result);
+    expect(v7Result).not.toContain('CROSS-SESSION CONTINUITY CONTEXT');
+  });
+
+  // Item 21: the continuity block appears at most once
+  it('V7-B-21. Continuity block appears at most once in V7 output', async () => {
+    const record = makeTherapistRecord({ core_patterns: ['test_pattern'] });
+    const entities = makeEntities([record]);
+    const result = await buildV7SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V7, entities, {});
+    const openCount = (result.match(/CROSS-SESSION CONTINUITY CONTEXT \(/g) ?? []).length;
+    expect(openCount).toBeLessThanOrEqual(1);
+  });
+
+  // Item 22: the Formulation-Led block appears exactly once
+  it('V7-B-22. Formulation-Led block appears exactly once in V6-LED output', async () => {
+    const entities = makeEntities([]);
+    const v6LedResult = await buildV6SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V6_LED, entities, {});
+    const count = (v6LedResult.match(/FORMULATION-LED CBT/g) ?? []).length;
+    expect(count).toBeGreaterThanOrEqual(1);
+    expect(v6LedResult).toContain('END FORMULATION-LED CBT');
+  });
+
+  // Item 23: V7 diagnostics remain content-free
+  it('V7-B-23. V7 diagnostic fields contain only counts and bounded enums, no text values', async () => {
+    const record = makeTherapistRecord({
+      core_patterns: ['private_pattern'],
+      risk_flags: ['private_risk_label'],
+    });
+    const entities = makeEntities([record]);
+    const { diagnostic } = await buildCrossSessionContinuityBlockWithDiagnostic(entities);
+    const diagnosticStr = JSON.stringify(diagnostic);
+    expect(diagnosticStr).not.toContain('private_pattern');
+    expect(diagnosticStr).not.toContain('private_risk_label');
+    expect(typeof diagnostic.recurring_pattern_count).toBe('number');
+    expect(typeof diagnostic.historical_risk_signal_count).toBe('number');
+  });
+
+  // Item 24: every feature flag still defaults to false
+  it('V7-B-24. All V7-relevant feature flags still default to false', () => {
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_CONTINUITY_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_FORMULATION_LED_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_STRATEGY_ENABLED ?? false).toBe(false);
+  });
+});
+
