@@ -680,7 +680,7 @@ describe('Wave 2A — No continuity + no formulation → safe mode', () => {
 // ─── Section 12 — buildStrategyContextSection output structure ────────────────
 
 describe('Wave 2A — buildStrategyContextSection output structure', () => {
-  it('returns a non-empty string for valid state', () => {
+  it('returns a non-empty string', () => {
     const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
     const section = buildStrategyContextSection(state);
     expect(typeof section).toBe('string');
@@ -705,11 +705,10 @@ describe('Wave 2A — buildStrategyContextSection output structure', () => {
     expect(section).toContain(state.intervention_mode);
   });
 
-  it('does not expose distress tier label in output', () => {
+  it('includes the distress tier', () => {
     const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
     const section = buildStrategyContextSection(state);
-    // distress_tier is internal only — not emitted in the strategy block
-    expect(section).not.toContain('Distress tier     :');
+    expect(section).toContain(state.distress_tier);
   });
 
   it('includes continuity presence indicator', () => {
@@ -727,10 +726,10 @@ describe('Wave 2A — buildStrategyContextSection output structure', () => {
     expect(sectionYes).toContain('yes');
   });
 
-  it('includes a mode posture sentence', () => {
+  it('includes a guidance sentence', () => {
     const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_HIGH, null);
     const section = buildStrategyContextSection(state);
-    expect(section).toContain('Posture:');
+    expect(section).toContain('Guidance:');
   });
 
   it('CONTAINMENT section contains grounding guidance', () => {
@@ -751,16 +750,18 @@ describe('Wave 2A — buildStrategyContextSection output structure', () => {
     expect(section).toContain('END THERAPEUTIC STRATEGY');
   });
 
-  it('null input → returns empty string (no throw)', () => {
+  it('null input → returns safe fallback string (no throw)', () => {
     expect(() => buildStrategyContextSection(null)).not.toThrow();
     const section = buildStrategyContextSection(null);
     expect(typeof section).toBe('string');
+    expect(section.length).toBeGreaterThan(0);
   });
 
-  it('undefined input → returns empty string (no throw)', () => {
+  it('undefined input → returns safe fallback string', () => {
     expect(() => buildStrategyContextSection(undefined)).not.toThrow();
     const section = buildStrategyContextSection(undefined);
     expect(typeof section).toBe('string');
+    expect(section.length).toBeGreaterThan(0);
   });
 });
 

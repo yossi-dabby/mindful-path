@@ -287,8 +287,8 @@ describe('Wave 2B — Strategy section injected for V8 wiring', () => {
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain('THERAPEUTIC STRATEGY');
-    expect(result).toContain('END THERAPEUTIC STRATEGY');
+    expect(result).toContain('=== THERAPEUTIC STRATEGY');
+    expect(result).toContain('=== END THERAPEUTIC STRATEGY ===');
   });
 
   it('strategy section contains Intervention mode field', async () => {
@@ -297,7 +297,7 @@ describe('Wave 2B — Strategy section injected for V8 wiring', () => {
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain('Current posture');
+    expect(result).toContain('Intervention mode');
   });
 
   it('strategy section contains Guidance line', async () => {
@@ -306,7 +306,7 @@ describe('Wave 2B — Strategy section injected for V8 wiring', () => {
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain('Posture:');
+    expect(result).toContain('Guidance:');
   });
 });
 
@@ -322,38 +322,38 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
     expect(result).toContain(STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION);
   });
 
-  it('formulation present only → action blocked (posture preserved, no premature action)', async () => {
+  it('formulation present only → STABILISATION mode until readiness is explicit', async () => {
     const { entities } = makeEntitiesWithFormulation();
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    // Posture can be structured_exploration or formulation_deepening — action is blocked
-    expect(result).toContain('action_permitted  : no');
-    // Must not be containment
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
-  it('continuity present only → action blocked (planner-first: formulate before action)', async () => {
-    // Without a CaseFormulation, the precedence model blocks action but keeps the posture.
-    // The mode (structured_exploration) remains — only concrete exercises/techniques are blocked.
+  it('continuity present only → STABILISATION mode (planner-first: no formulation = stabilisation first)', async () => {
+    // Pre-enforcement behavior was STRUCTURED_EXPLORATION for "continuity only" sessions.
+    // Post-enforcement: without a CaseFormulation, the precedence model fires FORMULATION_FIRST
+    // (level 2) which overrides any action-capable mode to STABILISATION.
+    // This is the intended planner-first behavior: formulate before exploring.
     const { entities } = makeEntitiesWithContinuity();
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain('action_permitted  : no');
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
-  it('both formulation and continuity present → action blocked when readiness is not explicitly passed', async () => {
+  it('both formulation and continuity present → STABILISATION mode when readiness is not explicitly passed', async () => {
     const entities = makeEntitiesWithBothContexts();
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain('action_permitted  : no');
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
   });
 
   it('safety mode active (crisis_signal) → CONTAINMENT mode', async () => {
@@ -506,7 +506,7 @@ describe('Wave 2B — No raw transcript leakage in strategy section', () => {
     // The strategy SECTION itself (after V7 base) should not contain memory content.
     // The V7 base may contain a continuity block — that is expected.
     // Split on the strategy delimiter and check only the strategy section.
-    const strategyIdx = result.indexOf('INTERNAL THERAPEUTIC STRATEGY');
+    const strategyIdx = result.indexOf('=== THERAPEUTIC STRATEGY');
     if (strategyIdx !== -1) {
       const strategySection = result.slice(strategyIdx);
       // strategy section must not contain raw session content
@@ -525,7 +525,7 @@ describe('Wave 2B — No raw transcript leakage in strategy section', () => {
       baseClient,
     );
 
-    const strategyIdx = result.indexOf('INTERNAL THERAPEUTIC STRATEGY');
+    const strategyIdx = result.indexOf('=== THERAPEUTIC STRATEGY');
     if (strategyIdx !== -1) {
       const strategySection = result.slice(strategyIdx);
       expect(strategySection).not.toContain('Persistent work-related anxiety');
@@ -568,7 +568,7 @@ describe('Wave 2B — No role confusion', () => {
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
-    const strategyIdx = result.indexOf('INTERNAL THERAPEUTIC STRATEGY');
+    const strategyIdx = result.indexOf('=== THERAPEUTIC STRATEGY');
     if (strategyIdx !== -1) {
       const strategySection = result.slice(strategyIdx).toLowerCase();
       expect(strategySection).not.toContain('companion');
@@ -590,7 +590,7 @@ describe('Wave 2B — Safe coexistence with continuity + formulation blocks', ()
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    const strategyIdx = result.indexOf('INTERNAL THERAPEUTIC STRATEGY');
+    const strategyIdx = result.indexOf('=== THERAPEUTIC STRATEGY');
     const continuityIdx = result.indexOf('=== CROSS-SESSION CONTINUITY');
     const formulationIdx = result.indexOf('=== CASE FORMULATION CONTEXT');
 
@@ -636,9 +636,9 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
     );
 
     expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
-    expect(result).toContain('Posture:');
+    expect(result).toContain('Guidance:');
     // CONTAINMENT guidance must reference short/grounding
-    const strategyIdx = result.indexOf('INTERNAL THERAPEUTIC STRATEGY');
+    const strategyIdx = result.indexOf('=== THERAPEUTIC STRATEGY');
     if (strategyIdx !== -1) {
       const section = result.slice(strategyIdx);
       expect(section.toLowerCase()).toContain('grounding');
