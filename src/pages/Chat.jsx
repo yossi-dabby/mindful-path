@@ -39,6 +39,7 @@ import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters
 import {
   applyFormulationGuardToConversationMessages,
   buildPendingFormulationCorrectionBlock,
+  classifyFormulationGuardedTurn,
   hasFormulationCorrectionAlreadyBeenApplied,
 } from '../components/utils/formulationContractGuard.js';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
@@ -361,6 +362,8 @@ export default function Chat() {
   // Tracks whether the subscription already delivered a confirmed final response for
   // the current send cycle. When true, polling must not overwrite subscription content.
   const subscriptionSucceededRef = useRef(false);
+  const snapshotSequenceRef = useRef(0);
+  const guardedAssistantMemoryByConversationRef = useRef(new Map());
 
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
   const instrumentationRef = useRef({
@@ -628,6 +631,178 @@ export default function Chat() {
     return deduplicateMessages(validated);
   };
 
+  const isS2DebugEnabled = () => {
+    const value = new URLSearchParams(location.search).get('_s2debug');
+    if (!value) return false;
+    const normalized = String(value).trim().toLowerCase();
+    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+  };
+
+  const toBoundedReasonCodes = (value) =>
+  Array.isArray(value) ?
+  value.filter((code) => typeof code === 'string').slice(0, 8) :
+  [];
+
+  const getConversationGuardMemory = (conversationId) => {
+    if (!conversationId) return null;
+    const scoped = guardedAssistantMemoryByConversationRef.current;
+    if (!scoped.has(conversationId)) {
+      scoped.set(conversationId, new Map());
+    }
+    return scoped.get(conversationId);
+  };
+
+  const getAssistantIdentityKey = (msg, index) => {
+    if (!msg || msg.role !== 'assistant') return null;
+    if (msg.id) return `id:${msg.id}`;
+    const rawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : null;
+    const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
+    if (rawIndex !== null && createdAt) return `raw:${rawIndex}|created:${createdAt}`;
+    if (rawIndex !== null) return `raw:${rawIndex}`;
+    if (createdAt) return `created:${createdAt}|idx:${index}`;
+    return `idx:${index}|role:${msg.role}`;
+  };
+
+  const buildAssistantLookupByIdentity = (msgs) => {
+    const map = new Map();
+    (Array.isArray(msgs) ? msgs : []).forEach((msg, index) => {
+      if (!msg || msg.role !== 'assistant') return;
+      const key = getAssistantIdentityKey(msg, index);
+      if (!key) return;
+      map.set(key, msg);
+    });
+    return map;
+  };
+
+  const getLatestAssistantDebugInfo = (msgs) => {
+    const assistantEntries = (Array.isArray(msgs) ? msgs : [])
+      .map((msg, index) => ({ msg, index }))
+      .filter(({ msg }) => msg && msg.role === 'assistant');
+    const latest = assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
+    if (!latest) {
+      return {
+        assistantMessageStableId: null,
+        rawArrayIndex: null,
+        guardMode: null,
+        guardEvaluationPass: null,
+        formulationGuardReplaced: false,
+        reasonCodes: [],
+      };
+    }
+    const latestMsg = latest.msg;
+    const replaced = latestMsg.metadata?.formulation_guard_replaced === true;
+    const reasonCodes = toBoundedReasonCodes(latestMsg.metadata?.formulation_guard_reason_codes);
+    const guardMode = latestMsg.__guardMode ?? null;
+    const guardEvaluationPass = guardMode ? !replaced : null;
+    return {
+      assistantMessageStableId: latestMsg.id || getAssistantIdentityKey(latestMsg, latest.index),
+      rawArrayIndex: Number.isInteger(latestMsg.__rawIndex) ? latestMsg.__rawIndex : null,
+      guardMode,
+      guardEvaluationPass,
+      formulationGuardReplaced: replaced,
+      reasonCodes,
+    };
+  };
+
+  const logS2DebugStateUpdate = ({
+    source,
+    incomingMessages,
+    accepted,
+    rejectedReasonCode = null,
+    preservedExistingGuardedReplacement = false,
+    snapshotSequence,
+  }) => {
+    if (!isS2DebugEnabled()) return;
+    const latestAssistant = getLatestAssistantDebugInfo(incomingMessages);
+    const boundedConversationId =
+      typeof currentConversationId === 'string' ?
+      currentConversationId.slice(0, 64) :
+      null;
+    const payload = {
+      updateSource: source,
+      conversationId: boundedConversationId,
+      incomingMessageCount: Array.isArray(incomingMessages) ? incomingMessages.length : 0,
+      assistantMessageStableId: latestAssistant.assistantMessageStableId,
+      rawArrayIndex: latestAssistant.rawArrayIndex,
+      guardMode: latestAssistant.guardMode,
+      guardEvaluationPass: latestAssistant.guardEvaluationPass,
+      formulation_guard_replaced: latestAssistant.formulationGuardReplaced,
+      reasonCodes: latestAssistant.reasonCodes,
+      updateAccepted: accepted,
+      updateRejected: !accepted,
+      rejectedReasonCode,
+      preservedExistingGuardedReplacement,
+      subscriptionSucceededRef: subscriptionSucceededRef.current === true,
+      snapshotSequence,
+    };
+    console.log('[S2Debug] message-state-update', payload);
+  };
+
+  const applyMonotonicGuardedMerge = (incomingMessages) => {
+    const incoming = Array.isArray(incomingMessages) ? incomingMessages : [];
+    const confirmedLookup = buildAssistantLookupByIdentity(lastConfirmedMessagesRef.current);
+    const conversationGuardMemory = getConversationGuardMemory(currentConversationId);
+    let preservedExistingGuardedReplacement = false;
+
+    const merged = incoming.map((msg, index) => {
+      if (!msg || msg.role !== 'assistant') return msg;
+      const identityKey = getAssistantIdentityKey(msg, index);
+      if (!identityKey) return msg;
+
+      const incomingReplaced = msg.metadata?.formulation_guard_replaced === true;
+      const confirmedAssistant = confirmedLookup.get(identityKey);
+      const confirmedReplaced = confirmedAssistant?.metadata?.formulation_guard_replaced === true;
+      const storedGuarded = conversationGuardMemory?.get(identityKey) || null;
+      const storedReplaced = storedGuarded?.metadata?.formulation_guard_replaced === true;
+      const dominantGuarded = confirmedReplaced ?
+      confirmedAssistant :
+      storedReplaced ?
+      storedGuarded :
+      null;
+
+      if (!incomingReplaced && dominantGuarded) {
+        preservedExistingGuardedReplacement = true;
+        const dominantReasonCodes = toBoundedReasonCodes(dominantGuarded.metadata?.formulation_guard_reason_codes);
+        return {
+          ...msg,
+          content: dominantGuarded.content,
+          metadata: {
+            ...(msg.metadata || {}),
+            ...(dominantGuarded.metadata || {}),
+            formulation_guard_replaced: true,
+            formulation_guard_reason_codes: dominantReasonCodes,
+          },
+        };
+      }
+
+      return msg;
+    });
+
+    if (conversationGuardMemory) {
+      merged.forEach((msg, index) => {
+        if (!msg || msg.role !== 'assistant') return;
+        if (msg.metadata?.formulation_guard_replaced !== true) return;
+        const identityKey = getAssistantIdentityKey(msg, index);
+        if (!identityKey) return;
+        conversationGuardMemory.set(identityKey, {
+          id: msg.id || null,
+          role: 'assistant',
+          content: msg.content,
+          created_at: msg.created_at,
+          __rawIndex: msg.__rawIndex,
+          __guardMode: msg.__guardMode ?? null,
+          metadata: {
+            ...(msg.metadata || {}),
+            formulation_guard_replaced: true,
+            formulation_guard_reason_codes: toBoundedReasonCodes(msg.metadata?.formulation_guard_reason_codes),
+          },
+        });
+      });
+    }
+
+    return { merged, preservedExistingGuardedReplacement };
+  };
+
   /**
    * Phase 6 — Centralized visible-message transformation.
    *
@@ -654,6 +829,16 @@ export default function Chat() {
    */
   const buildVisibleConversationMessages = (rawMessages, sessionLang, transformAlignedMessage = null) => {
     const raw = Array.isArray(rawMessages) ? rawMessages : [];
+    const guardModesByRawIndex = raw.map((rawMsg, rawIndex) => {
+      if (!rawMsg || rawMsg.role !== 'assistant') return null;
+      const precedingUser = (() => {
+        for (let i = rawIndex - 1; i >= 0; i--) {
+          if (raw[i] && raw[i].role === 'user' && typeof raw[i].content === 'string') return raw[i];
+        }
+        return null;
+      })();
+      return precedingUser ? classifyFormulationGuardedTurn(precedingUser.content) : null;
+    });
     const sanitized = sanitizeConversationMessagesAligned(raw, sessionLang);
     const alignedProcessed = typeof transformAlignedMessage === 'function'
       ? sanitized.map((msg, index) => transformAlignedMessage(msg, index))
@@ -664,17 +849,36 @@ export default function Chat() {
       { locale: sessionLang }
     );
     pendingFormulationCorrectionRef.current = pendingCorrection;
-    return guarded.filter(Boolean);
+    const withRuntimeMetadata = guarded.map((msg, rawIndex) => {
+      if (!msg) return null;
+      const guardMode = guardModesByRawIndex[rawIndex] || null;
+      return {
+        ...msg,
+        __rawIndex: rawIndex,
+        __guardMode: guardMode,
+      };
+    });
+    return withRuntimeMetadata.filter(Boolean);
   };
 
   // CRITICAL: Safe state update with duplicate detection
   const safeUpdateMessages = (newMessages, source) => {
-    const sanitized = validateAndSanitizeMessages(newMessages);
+    const snapshotSequence = ++snapshotSequenceRef.current;
+    const { merged, preservedExistingGuardedReplacement } = applyMonotonicGuardedMerge(newMessages);
+    const sanitized = validateAndSanitizeMessages(merged);
     instrumentationRef.current.TOTAL_MESSAGES_PROCESSED += newMessages.length;
 
     // Compare with last confirmed state
     if (sanitized.length < lastConfirmedMessagesRef.current.length) {
       console.log(`[${source}] ⚠️ Rejecting update - fewer messages than confirmed state`);
+      logS2DebugStateUpdate({
+        source,
+        incomingMessages: sanitized,
+        accepted: false,
+        rejectedReasonCode: 'rejected_shorter_than_confirmed',
+        preservedExistingGuardedReplacement,
+        snapshotSequence,
+      });
       return false;
     }
 
@@ -704,6 +908,13 @@ export default function Chat() {
       lastConfirmedMessagesRef.current = fullyDeduplicated;
       setMessages(fullyDeduplicated);
       instrumentationRef.current.SAFE_UPDATES++;
+      logS2DebugStateUpdate({
+        source,
+        incomingMessages: fullyDeduplicated,
+        accepted: true,
+        preservedExistingGuardedReplacement,
+        snapshotSequence,
+      });
       return true;
     }
 
@@ -717,6 +928,14 @@ export default function Chat() {
 
       if (oldContent === newContent && sanitized.length === lastConfirmedMessagesRef.current.length) {
         console.log(`[${source}] ⚠️ Rejecting update - no new content detected`);
+        logS2DebugStateUpdate({
+          source,
+          incomingMessages: sanitized,
+          accepted: false,
+          rejectedReasonCode: 'rejected_no_new_content',
+          preservedExistingGuardedReplacement,
+          snapshotSequence,
+        });
         return false;
       }
 
@@ -745,6 +964,14 @@ export default function Chat() {
       const newLen = newContent.length;
       if (isSameTurn && oldLen > 80 && newLen < oldLen * 0.75) {
         console.warn(`[${source}] ⚠️ CONTENT REGRESSION BLOCKED: new(${newLen}) < old(${oldLen})*0.75 — rejecting`);
+        logS2DebugStateUpdate({
+          source,
+          incomingMessages: sanitized,
+          accepted: false,
+          rejectedReasonCode: 'rejected_content_regression_guard',
+          preservedExistingGuardedReplacement,
+          snapshotSequence,
+        });
         return false;
       }
     }
@@ -754,6 +981,13 @@ export default function Chat() {
     instrumentationRef.current.SAFE_UPDATES++;
     lastConfirmedMessagesRef.current = sanitized;
     setMessages(sanitized);
+    logS2DebugStateUpdate({
+      source,
+      incomingMessages: sanitized,
+      accepted: true,
+      preservedExistingGuardedReplacement,
+      snapshotSequence,
+    });
     return true;
   };
 
@@ -2526,6 +2760,7 @@ export default function Chat() {
       const previousConversationId = currentConversationId;
       const previousMessages = messages;
       queryClient.setQueryData(['conversations'], (old = []) => old.filter((conversation) => conversation.id !== conversationId));
+      guardedAssistantMemoryByConversationRef.current.delete(conversationId);
       if (currentConversationId === conversationId) {
         setAttachedFile(null);
         clearLocalAudioDraft();
@@ -2564,6 +2799,7 @@ export default function Chat() {
     queryClient.setQueryData(['conversations'], (old = []) =>
       old.filter((c) => !ids.includes(c.id))
     );
+    ids.forEach((id) => guardedAssistantMemoryByConversationRef.current.delete(id));
 
     if (ids.includes(currentConversationId)) {
       setAttachedFile(null);
