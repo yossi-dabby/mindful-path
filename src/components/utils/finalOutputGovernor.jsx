@@ -15,6 +15,23 @@
 
 import { sanitizeMessageContent } from './messageContentSanitizer';
 
+// ─── Canonical session-language normalizer ────────────────────────────────────
+
+/**
+ * Normalises an arbitrary language tag to one of the seven supported ISO codes.
+ * Any absent, empty, or unrecognised value falls back to English — never Hebrew.
+ *
+ * @param {*} lang - Raw value from opts.lang or sessionLanguageRef.current.
+ * @returns {'en'|'he'|'es'|'fr'|'de'|'it'|'pt'}
+ */
+const SUPPORTED_LANG_CODES = new Set(['en', 'he', 'es', 'fr', 'de', 'it', 'pt']);
+
+export function normalizeSessionLanguage(lang) {
+  if (typeof lang !== 'string' || !lang.trim()) return 'en';
+  const code = lang.trim().toLowerCase().split('-')[0]; // handle e.g. "he-IL"
+  return SUPPORTED_LANG_CODES.has(code) ? code : 'en';
+}
+
 // ─── Failsafes (all languages) ───────────────────────────────────────────────
 
 const FAILSAFE = {
@@ -799,13 +816,18 @@ function stripRoutingLeakage(text) {
  * @returns {string} - Governed, user-safe content
  */
 export function applyFinalOutputGovernor(text, opts = {}) {
-  if (!text || typeof text !== 'string') return getFailsafe(opts.lang || 'en');
+  // Normalise the caller-supplied session language before any use.
+  // An absent, empty, or unrecognised value fails safely to English — never Hebrew.
+  const rawLang = opts.lang;
+  const normalizedLang = rawLang !== undefined ? normalizeSessionLanguage(rawLang) : undefined;
+
+  if (!text || typeof text !== 'string') return getFailsafe(normalizedLang || 'en');
 
   let result = text;
-  // CRITICAL: opts.lang is the session-locked language (set at conversation start).
+  // CRITICAL: normalizedLang is the session-locked language (set at conversation start).
   // It is AUTHORITATIVE. detectLanguage() is ONLY used as last-resort when no
   // session language is known. UI locale must NEVER be passed here as opts.lang.
-  const lang = opts.lang || detectLanguage(result);
+  const lang = normalizedLang || detectLanguage(result);
 
   // Pass 0a: Language contamination check (Component F)
   // ONLY run contamination detection when the session language was NOT explicitly
@@ -814,10 +836,25 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   // for Romance languages (PT/IT/ES) that share high-frequency vocabulary.
   // Running contamination detection on known-language sessions was the root cause
   // of Portuguese and Italian sessions being misidentified as Spanish.
-  if (!opts.lang && hasLanguageContamination(result, lang)) {
+  if (normalizedLang === undefined && hasLanguageContamination(result, lang)) {
     console.warn('[CP12-F] Language contamination detected for lang:', lang);
     if (SECONDARY_LANG_REWRITES[lang]) return pickSecondaryLangRewrite(lang);
     return getFailsafe(lang);
+  }
+
+  // Pass 0b: Hebrew-script mismatch for locked non-Hebrew sessions.
+  // When the session language is explicitly locked to a Latin-script language and
+  // the response is predominantly Hebrew, the agent ignored the language directive.
+  // Hebrew and Latin scripts are mutually exclusive so this check is reliable.
+  // The 30 % threshold prevents triggering on a valid response that contains only
+  // a short Hebrew quotation or proper name.
+  if (normalizedLang !== undefined && normalizedLang !== 'he') {
+    const heChars = (result.match(/[\u05D0-\u05EA]/g) || []).length;
+    const nonSpaceChars = result.replace(/\s/g, '').length;
+    if (nonSpaceChars > 0 && heChars / nonSpaceChars > 0.3) {
+      console.warn('[CP12-F] Hebrew script in locked non-Hebrew session — failsafe');
+      return getFailsafe(normalizedLang);
+    }
   }
 
   // Pass 1: Leakage sanitization — Component A
