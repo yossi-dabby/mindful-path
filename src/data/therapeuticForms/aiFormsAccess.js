@@ -560,8 +560,12 @@ export function getFormsRegistryStats() {
  *  - Unrelated negations such as "I do not want to wait; send me the worksheet"
  *    are not suppressed because the form object and the negation are in separate
  *    clauses.
+ *  - Hebrew cross-line continuation: "ואל תציע\nאו תצרף תרגיל/טופס" is suppressed
+ *    even though the negation verb and form objects span a line break, because
+ *    "אל תציע" followed by "או תצרף" in the same message unambiguously continues
+ *    the same prohibition.
  */
-function hasExplicitFormSuppressionIntent(text) {
+export function hasExplicitFormSuppressionIntent(text) {
   if (!text || typeof text !== 'string') return false;
   const norm = String(text).toLowerCase().trim();
   if (!norm) return false;
@@ -577,6 +581,17 @@ function hasExplicitFormSuppressionIntent(text) {
   // Form object terms — Hebrew
   const FORM_OBJ_HE =
     /(?:טפסים|טופס(?:\s+טיפולי)?|דפי?\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
+
+  // Hebrew cross-line continuation pattern:
+  // "ואל תציע\nאו תצרף <form-object>" — the negation verb and the form objects
+  // span a line break with a Hebrew conjunction continuation ("או" = "or").
+  // Test the whole message (not per-clause) to catch this pattern.
+  if (
+    /(?:^|\s)(?:ו)?אל\s+(?:תציע|תשלח|תצרף)/.test(norm) &&
+    FORM_OBJ_HE.test(norm)
+  ) {
+    return true;
+  }
 
   // Split into clauses on sentence-ending punctuation and line breaks.
   // Commas are intentionally NOT used as clause separators so that a comma list
@@ -601,7 +616,7 @@ function hasExplicitFormSuppressionIntent(text) {
       /\bno\s+(?:(?:more|any|further|additional)\s+)?(?:forms?|worksheets?|exercises?|homework|workbooks?|handouts?)\b/i.test(clause) ||
       // English: "without <form-object>"
       /\bwithout\s+(?:\w+\s+){0,3}(?:forms?|worksheets?|exercises?|homework|workbooks?|handouts?)\b/i.test(clause) ||
-      // Hebrew: אל תציע / אל תשלח / אל תצרף
+      // Hebrew: אל תציע / אל תשלח / אל תצרף (within-clause)
       /אל\s+(?:תציע|תשלח|תצרף)/.test(clause) ||
       // Hebrew: לא רוצה / לא מבקש
       /לא\s+(?:רוצה|מבקש)/.test(clause) ||
