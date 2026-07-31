@@ -85,8 +85,10 @@ const LEGACY_VARIANT_PROFILES = Object.freeze([
 );
 
 // Maps ISO language codes to full names injected into the session-start directive.
-// English is intentionally absent — the agent defaults to English with no directive.
+// Every supported language, including English, must have an explicit entry so the
+// agent always receives a bounded session-language directive on every new session.
 const LANG_FULL_NAMES = {
+  en: 'English',
   he: 'Hebrew',
   es: 'Spanish',
   fr: 'French',
@@ -224,13 +226,14 @@ function hasUserAttachment(message) {
 
 /**
  * Appends a language directive to a session-start content string.
- * When the language is English (or unknown), returns the content unchanged.
- * This tells the agent which language to use for its opening turn.
+ * Every supported language, including English, emits an explicit bounded
+ * directive so the agent always knows which language to use for its opening
+ * turn and all subsequent turns in this session.
  */
 function addLangDirective(sessionContent, lang) {
   const name = LANG_FULL_NAMES[lang];
   if (!name) return sessionContent;
-  return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use English.]`;
+  return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use another language unless the user explicitly asks to change the session language.]`;
 }
 
 function resolveAttachmentType(fileName) {
