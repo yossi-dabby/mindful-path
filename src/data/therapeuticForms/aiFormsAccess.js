@@ -548,9 +548,80 @@ export function getFormsRegistryStats() {
   };
 }
 
+/**
+ * Returns true when the current user turn explicitly suppresses delivery of a
+ * therapeutic form, worksheet, exercise, or homework.
+ *
+ * Rules:
+ *  - An explicit replacement introduced by "instead", "but send", or "במקום"
+ *    cancels the suppression so the request remains positive.
+ *  - Only the current turn is examined; the result must not be persisted.
+ *  - Positive requests such as "Please attach a worksheet" are never suppressed.
+ *  - Unrelated negations such as "I do not want to wait; send me the worksheet"
+ *    are not suppressed because the form object and the negation are in separate
+ *    clauses.
+ */
+function hasExplicitFormSuppressionIntent(text) {
+  if (!text || typeof text !== 'string') return false;
+  const norm = String(text).toLowerCase().trim();
+  if (!norm) return false;
+
+  // An explicit replacement instruction cancels suppression in the same message.
+  if (/\binstead\b/.test(norm) || /\bbut\s+send\b/.test(norm) || /במקום/.test(norm)) {
+    return false;
+  }
+
+  // Form object terms — English
+  const FORM_OBJ_EN =
+    /\b(?:forms?|therapeutic\s+forms?|worksheets?|exercises?|homework|workbooks?|structured\s+exercises?|handouts?)\b/i;
+  // Form object terms — Hebrew
+  const FORM_OBJ_HE =
+    /(?:טפסים|טופס(?:\s+טיפולי)?|דפי?\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
+
+  // Split into clauses on sentence-ending punctuation and line breaks.
+  // Commas are intentionally NOT used as clause separators so that a comma list
+  // such as "exercise, worksheet, form" stays together in one clause.
+  const clauses = norm.split(/[;.?!\n]+/).map(s => s.trim()).filter(Boolean);
+
+  for (const clause of clauses) {
+    // Both a form object AND a suppression construction must appear in the same
+    // clause. This prevents "I do not want to wait; send me the worksheet" from
+    // being suppressed: the negation is in the first clause, the form object is
+    // only in the second clause.
+    if (!FORM_OBJ_EN.test(clause) && !FORM_OBJ_HE.test(clause)) continue;
+
+    const hasSuppression =
+      // English: "don't" / "do not" / "please don't" / "please do not"
+      /\b(?:don'?t|do\s+not|please\s+don'?t|please\s+do\s+not)\b/.test(clause) ||
+      // English: "I do not want" / "I don't want"
+      /\b(?:i\s+)?(?:don'?t|do\s+not)\s+want\b/.test(clause) ||
+      // English: "not asking for"
+      /\bnot\s+asking\s+for\b/.test(clause) ||
+      // English: "no <form-object>" — "no" immediately precedes the form term
+      /\bno\s+(?:(?:more|any|further|additional)\s+)?(?:forms?|worksheets?|exercises?|homework|workbooks?|handouts?)\b/i.test(clause) ||
+      // English: "without <form-object>"
+      /\bwithout\s+(?:\w+\s+){0,3}(?:forms?|worksheets?|exercises?|homework|workbooks?|handouts?)\b/i.test(clause) ||
+      // Hebrew: אל תציע / אל תשלח / אל תצרף
+      /אל\s+(?:תציע|תשלח|תצרף)/.test(clause) ||
+      // Hebrew: לא רוצה / לא מבקש
+      /לא\s+(?:רוצה|מבקש)/.test(clause) ||
+      // Hebrew: בלי (without)
+      /(?:^|\s)בלי(?:\s|$)/.test(clause) ||
+      // Hebrew: לא עכשיו / לא כרגע
+      /לא\s+(?:עכשיו|כרגע)/.test(clause);
+
+    if (hasSuppression) return true;
+  }
+
+  return false;
+}
+
 export function detectFormIntent(userMessage) {
   const text = normalizeText(userMessage);
   if (!text) return null;
+
+  // Guard: explicit suppression of form delivery in the current turn → no intent.
+  if (hasExplicitFormSuppressionIntent(userMessage)) return null;
 
   const requestedAudience = extractRequestedAudience(text);
   const requestedLanguage = extractRequestedLanguage(text);
