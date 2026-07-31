@@ -14,6 +14,7 @@
  */
 
 import { sanitizeMessageContent } from './messageContentSanitizer';
+import { normalizeSessionLanguage } from './validateAgentOutput.jsx';
 
 // ─── Failsafes (all languages) ───────────────────────────────────────────────
 
@@ -27,8 +28,12 @@ const FAILSAFE = {
   pt: 'Estou aqui com você. O que está em sua mente agora?',
 };
 
+export function resolveGovernorLanguage(lang) {
+  return normalizeSessionLanguage(lang);
+}
+
 function getFailsafe(lang) {
-  return FAILSAFE[lang] || FAILSAFE['en'];
+  return FAILSAFE[resolveGovernorLanguage(lang)] || FAILSAFE.en;
 }
 
 // ─── Secondary language quality floor (Component F) ──────────────────────────
@@ -799,22 +804,19 @@ function stripRoutingLeakage(text) {
  * @returns {string} - Governed, user-safe content
  */
 export function applyFinalOutputGovernor(text, opts = {}) {
-  if (!text || typeof text !== 'string') return getFailsafe(opts.lang || 'en');
+  const lang = resolveGovernorLanguage(opts.lang);
+  const hasExplicitSessionLanguage = typeof opts.lang === 'string' && opts.lang.trim().length > 0;
+  if (!text || typeof text !== 'string') return getFailsafe(lang);
 
   let result = text;
   // CRITICAL: opts.lang is the session-locked language (set at conversation start).
-  // It is AUTHORITATIVE. detectLanguage() is ONLY used as last-resort when no
-  // session language is known. UI locale must NEVER be passed here as opts.lang.
-  const lang = opts.lang || detectLanguage(result);
+  // It is AUTHORITATIVE. Missing or invalid language values fail closed to English;
+  // the governor never guesses a replacement fallback language from model text.
 
   // Pass 0a: Language contamination check (Component F)
-  // ONLY run contamination detection when the session language was NOT explicitly
-  // provided. When opts.lang is set (locked at conversation start), the session
-  // language is authoritative and content-based detection is unreliable — especially
-  // for Romance languages (PT/IT/ES) that share high-frequency vocabulary.
-  // Running contamination detection on known-language sessions was the root cause
-  // of Portuguese and Italian sessions being misidentified as Spanish.
-  if (!opts.lang && hasLanguageContamination(result, lang)) {
+  // ONLY run contamination detection when the session language was not explicitly
+  // provided. Missing language fails closed to English for fallback selection.
+  if (!hasExplicitSessionLanguage && hasLanguageContamination(result, detectLanguage(result))) {
     console.warn('[CP12-F] Language contamination detected for lang:', lang);
     if (SECONDARY_LANG_REWRITES[lang]) return pickSecondaryLangRewrite(lang);
     return getFailsafe(lang);

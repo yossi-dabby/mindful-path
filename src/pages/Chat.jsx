@@ -35,7 +35,7 @@ import { detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
+import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters, serializeAttachmentMetadataMarker, normalizeSessionLanguage } from '../components/utils/validateAgentOutput.jsx';
 import {
   applyFormulationGuardToConversationMessages,
   buildPendingFormulationCorrectionBlock,
@@ -55,6 +55,10 @@ import {
 import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
+import {
+  addLangDirective,
+  resolveLockedSessionLanguageFromMessages,
+} from '../components/utils/sessionLanguage.js';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
 import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
@@ -84,16 +88,6 @@ const LEGACY_VARIANT_PROFILES = Object.freeze([
 'cbt_therapist_lenient']
 );
 
-// Maps ISO language codes to full names injected into the session-start directive.
-// English is intentionally absent — the agent defaults to English with no directive.
-const LANG_FULL_NAMES = {
-  he: 'Hebrew',
-  es: 'Spanish',
-  fr: 'French',
-  de: 'German',
-  it: 'Italian',
-  pt: 'Portuguese'
-};
 const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
 const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -222,17 +216,6 @@ function hasUserAttachment(message) {
   return !!attachment;
 }
 
-/**
- * Appends a language directive to a session-start content string.
- * When the language is English (or unknown), returns the content unchanged.
- * This tells the agent which language to use for its opening turn.
- */
-function addLangDirective(sessionContent, lang) {
-  const name = LANG_FULL_NAMES[lang];
-  if (!name) return sessionContent;
-  return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use English.]`;
-}
-
 function resolveAttachmentType(fileName) {
   const extension = typeof fileName === 'string' ? fileName.split('.').pop()?.toLowerCase() : '';
   if (IMAGE_ATTACHMENT_EXTENSIONS.has(extension)) return 'image';
@@ -347,7 +330,7 @@ export default function Chat() {
   // Separate from i18n.language (UI locale) so that UI locale changes mid-session
   // do not corrupt the response language used by the Final Output Governor.
   // Stored as a ref so MessageBubble renders do not trigger on locale changes.
-  const sessionLanguageRef = useRef(i18n.language || 'en');
+  const sessionLanguageRef = useRef(normalizeSessionLanguage(i18n.language));
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const formsPolicyVersionCacheRef = useRef(new Map());
@@ -1064,7 +1047,8 @@ export default function Chat() {
             clearLocalAudioDraft();
             setShowSidebar(false);
             // Lock session language at conversation start (separate from UI locale).
-            sessionLanguageRef.current = i18n.language || 'en';
+            const lockedSessionLanguage = normalizeSessionLanguage(i18n.language);
+            sessionLanguageRef.current = lockedSessionLanguage;
             refetchConversations();
 
             // Trigger AI to send opening message based on intent (one-time only)
@@ -1085,11 +1069,11 @@ export default function Chat() {
                   ACTIVE_CBT_THERAPIST_WIRING,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language }
+                  { sessionLanguage: lockedSessionLanguage }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
+                  content: addLangDirective(sessionStartContent, lockedSessionLanguage)
                 });
                 emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
                 inFlightIntentRef.current = false;
@@ -1124,7 +1108,8 @@ export default function Chat() {
             clearLocalAudioDraft();
             setShowSidebar(false);
             // Lock session language at conversation start (separate from UI locale).
-            sessionLanguageRef.current = i18n.language || 'en';
+            const lockedSessionLanguage = normalizeSessionLanguage(i18n.language);
+            sessionLanguageRef.current = lockedSessionLanguage;
             refetchConversations();
 
             // Trigger AI to send opening message (one-time only)
@@ -1145,11 +1130,11 @@ export default function Chat() {
                   ACTIVE_CBT_THERAPIST_WIRING,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language }
+                  { sessionLanguage: lockedSessionLanguage }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
+                  content: addLangDirective(sessionStartContent, lockedSessionLanguage)
                 });
                 emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
                 inFlightIntentRef.current = false;
@@ -1488,9 +1473,10 @@ export default function Chat() {
     // updates remain authoritative for the active in-memory session.
     if (!currentConversationId || !currentConversationData || messages.length > 0) return;
 
-    const firstUserMsg = (currentConversationData.messages || []).find((m) => m.role === 'user' && m.content);
-    const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
-    sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
+    sessionLanguageRef.current = resolveLockedSessionLanguageFromMessages(
+      currentConversationData.messages || [],
+      i18n.language
+    );
 
     const guardedHydrate = buildVisibleConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
     safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
@@ -1593,7 +1579,8 @@ export default function Chat() {
       setShowSidebar(false);
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       // Lock session language at conversation start (separate from UI locale).
-      sessionLanguageRef.current = i18n.language || 'en';
+      const lockedSessionLanguage = normalizeSessionLanguage(i18n.language);
+      sessionLanguageRef.current = lockedSessionLanguage;
       refetchConversations();
 
       // Always send [START_SESSION] so the agent initialises correctly on all
@@ -1619,15 +1606,15 @@ export default function Chat() {
           base44.entities,
           base44,
           {
-            sessionLanguage: i18n.language,
+            sessionLanguage: lockedSessionLanguage,
             ...(initialMessage ? { message_text: initialMessage } : {}),
           }
         );
         await base44.agents.addMessage(conversation, {
           role: 'user',
           content: initialMessage ?
-          addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
-          addLangDirective(sessionStartContent, sessionLanguageRef.current)
+          addLangDirective(sessionStartContent, lockedSessionLanguage) + '\n\n' + initialMessage :
+          addLangDirective(sessionStartContent, lockedSessionLanguage)
         });
         emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
       }, 100);
@@ -1669,9 +1656,10 @@ export default function Chat() {
       //   "[SESSION_LANGUAGE: <iso2>. Open and respond entirely in <name> ...]"
       // Fall back to the current UI locale so the governor never defaults to English
       // for a non-English session loaded from history.
-      const firstUserMsg = (conversation.messages || []).find((m) => m.role === 'user' && m.content);
-      const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
-      sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
+      sessionLanguageRef.current = resolveLockedSessionLanguageFromMessages(
+        conversation.messages || [],
+        i18n.language
+      );
 
       const policyRefresh = await ensureTherapeuticFormsPolicyInjected({
         conversation,
@@ -2320,7 +2308,8 @@ export default function Chat() {
       let isNewConversation = false;
       if (!convId) {
         isNewConversation = true;
-        sessionLanguageRef.current = i18n.language || 'en';
+        const lockedSessionLanguage = normalizeSessionLanguage(i18n.language);
+        sessionLanguageRef.current = lockedSessionLanguage;
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
         const safetyProfile = user?.preferences?.safety_profile || 'standard';
@@ -2434,11 +2423,11 @@ export default function Chat() {
             base44.entities,
             base44,
             {
-              sessionLanguage: i18n.language,
+              sessionLanguage: lockedSessionLanguage,
               message_text: messageText,
             }
           ),
-          sessionLanguageRef.current
+          lockedSessionLanguage
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }

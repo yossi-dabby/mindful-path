@@ -13,6 +13,7 @@ import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { PDF_VIEWER_ROUTE_PATH } from './utils/formFileUrls';
 import { stripAgentOnlyRuntimeBlocksFromUserContent } from '../utils/validateAgentOutput.jsx';
+import { buildFinalOutputGovernorOptions } from '../utils/sessionLanguage.js';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
@@ -250,10 +251,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     // Auto-detection alone is unreliable for Latin-script languages that share vocabulary
     // (e.g. Portuguese/Spanish).  If sessionLanguage is not provided, the governor falls
     // back to content-based detection.
-    const sanitized = isUser ? contentStr : applyFinalOutputGovernor(contentStr, {
-      lang: sessionLanguage || undefined,
-      userMessage: userMessage || undefined,
-    });
+    const sanitized = isUser ? contentStr : applyFinalOutputGovernor(
+      contentStr,
+      buildFinalOutputGovernorOptions(sessionLanguage, userMessage)
+    );
     content = !isUser ? sanitizeAssistantContentForAttachmentSurfaces(sanitized, assistantAttachments) : sanitized;
     // Apply lightweight markdown normalization to assistant messages before render.
     // This repairs malformed bold/italic tokens (e.g. "** word **", "**("text")**")

@@ -20,6 +20,7 @@ import {
   detectLanguage,
   applyFinalOutputGovernor,
   auditCP12,
+  resolveGovernorLanguage,
 } from '../../src/components/utils/finalOutputGovernor.jsx';
 
 // ─── Constants used across tests ─────────────────────────────────────────────
@@ -227,6 +228,34 @@ describe('Governor failsafe correctness per language', () => {
       // Single question mark triggers the "pure-question" failsafe path
       const result = applyFinalOutputGovernor('?', { lang });
       expect(result).toBe(expectedFailsafe);
+    });
+  });
+
+  describe('Governor language normalization', () => {
+    it('treats English as an explicit supported session language', () => {
+      expect(resolveGovernorLanguage('en')).toBe('en');
+      expect(applyFinalOutputGovernor('?', { lang: 'en' })).toBe(FAILSAFE.en);
+    });
+
+    it('fails closed to English for missing or invalid session language', () => {
+      expect(resolveGovernorLanguage(undefined)).toBe('en');
+      expect(resolveGovernorLanguage('zz')).toBe('en');
+      expect(applyFinalOutputGovernor('?', { lang: undefined })).toBe(FAILSAFE.en);
+      expect(applyFinalOutputGovernor('?', { lang: 'zz' })).toBe(FAILSAFE.en);
+    });
+
+    it('never returns the Hebrew failsafe for a locked English session', () => {
+      expect(applyFinalOutputGovernor('?', { lang: 'en' })).toBe(FAILSAFE.en);
+      expect(applyFinalOutputGovernor('?', { lang: 'en' })).not.toBe(FAILSAFE.he);
+    });
+
+    it('keeps the Hebrew failsafe for a locked Hebrew session', () => {
+      expect(applyFinalOutputGovernor('?', { lang: 'he' })).toBe(FAILSAFE.he);
+    });
+
+    it('does not replace a valid English response with a Hebrew fallback because of a short foreign quotation', () => {
+      const response = 'You can hold onto the phrase "shalom" as a reminder of calm, and we can keep going in English.';
+      expect(applyFinalOutputGovernor(response, { lang: 'en' })).toBe(response);
     });
   });
 });
