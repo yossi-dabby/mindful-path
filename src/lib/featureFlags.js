@@ -449,6 +449,23 @@ export function getStage2DiagnosticPayload() {
     let routeHint;
     if (!masterGateOn) {
       routeHint = 'HYBRID (master gate off)';
+    } else if (computedFlags['THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED']) {
+      routeHint = 'STAGE2_V12 (planner-first)';
+    } else if (computedFlags['THERAPIST_UPGRADE_COMPETENCE_ENABLED']) {
+      routeHint = 'STAGE2_V11 (competence architecture)';
+    } else if (
+      computedFlags['THERAPIST_UPGRADE_STRATEGY_ENABLED'] &&
+      computedFlags['THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'] &&
+      computedFlags['THERAPIST_UPGRADE_KNOWLEDGE_ENABLED']
+    ) {
+      routeHint = 'STAGE2_V10 (knowledge retrieval)';
+    } else if (
+      computedFlags['THERAPIST_UPGRADE_STRATEGY_ENABLED'] &&
+      computedFlags['THERAPIST_UPGRADE_LONGITUDINAL_ENABLED']
+    ) {
+      routeHint = 'STAGE2_V9 (LTS injection)';
+    } else if (computedFlags['THERAPIST_UPGRADE_STRATEGY_ENABLED']) {
+      routeHint = 'STAGE2_V8 (strategy)';
     } else if (computedFlags['THERAPIST_UPGRADE_CONTINUITY_ENABLED']) {
       routeHint = 'STAGE2_V7 (continuity)';
     } else if (computedFlags['THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED']) {
@@ -588,6 +605,23 @@ export function getActivationDiagnostics() {
     let therapistRouteHint;
     if (!therapistMasterOn) {
       therapistRouteHint = 'HYBRID (master gate off)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V12 (planner-first)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_COMPETENCE_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V11 (competence architecture)';
+    } else if (
+      therapistComputedFlags['THERAPIST_UPGRADE_STRATEGY_ENABLED'] &&
+      therapistComputedFlags['THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'] &&
+      therapistComputedFlags['THERAPIST_UPGRADE_KNOWLEDGE_ENABLED']
+    ) {
+      therapistRouteHint = 'STAGE2_V10 (knowledge retrieval)';
+    } else if (
+      therapistComputedFlags['THERAPIST_UPGRADE_STRATEGY_ENABLED'] &&
+      therapistComputedFlags['THERAPIST_UPGRADE_LONGITUDINAL_ENABLED']
+    ) {
+      therapistRouteHint = 'STAGE2_V9 (LTS injection)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_STRATEGY_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V8 (strategy)';
     } else if (therapistComputedFlags['THERAPIST_UPGRADE_CONTINUITY_ENABLED']) {
       therapistRouteHint = 'STAGE2_V7 (continuity)';
     } else if (therapistComputedFlags['THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED']) {

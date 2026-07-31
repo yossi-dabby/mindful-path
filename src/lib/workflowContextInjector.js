@@ -1441,6 +1441,16 @@ export function applyStrategyPrecedenceGuard(strategyState, plannerContext) {
     // precedence_enforced is true when ANY gate is blocked (for enforcement block text)
     const precedenceEnforced = hasBlockedGates;
 
+    // Wave 2E (Fix 3) — action permission is separate from response posture.
+    // Readiness gates control ACTION (homework, forms, exposure, techniques), not
+    // the internal response posture (empathic holding, reflection, clarification,
+    // structured exploration, formulation, formulation deepening).  A concrete
+    // action is permitted ONLY when the mode is action-capable AND no readiness
+    // gate is blocked AND the mode was not overridden.  This never loosens the
+    // existing mode-override behavior — it only exposes an explicit boolean so
+    // downstream logic need not force STABILISATION merely to block an action.
+    const actionPermitted = modeIsActionCapable && !hasBlockedGates && !shouldEnforceMode;
+
     return Object.assign({}, ss, {
       intervention_mode: enforcedMode,
       precedence_enforced: precedenceEnforced,
@@ -1448,6 +1458,7 @@ export function applyStrategyPrecedenceGuard(strategyState, plannerContext) {
       active_precedence_name: precedence.name,
       precedence_rationale: precedence.reason,
       blocked_gates: Object.freeze(blockedGates),
+      action_permitted: actionPermitted,
     });
   } catch (_e) {
     // Fail-open: return original state unchanged
@@ -1848,7 +1859,7 @@ function _emitEvaluatorDiagnosticIfEnabled(evaluatorInputs) {
  * @param {object} strategyState - TherapistStrategyState from determineTherapistStrategy()
  * @param {object|null} [ltsInputs] - Optional LTSStrategyInputs from extractLTSStrategyInputs()
  */
-function _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs) {
+function _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs, extraMeta) {
   try {
     if (typeof window === 'undefined') return;
     const search = window.location?.search ?? '';
@@ -1871,6 +1882,17 @@ function _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs) {
     console.log('lts_trajectory           :', snapshot.lts_trajectory);
     console.log('strategy_version         :', snapshot.strategy_version);
     console.log('fail_safe                :', snapshot.fail_safe);
+    // Wave 2E (Fix 7) — bounded V8 readiness metadata.  Booleans / short codes
+    // only; never raw text, matched phrases, memory/formulation text, risk
+    // labels, or entity/user identifiers.
+    const currentMessageAvailable =
+      extraMeta && typeof extraMeta === 'object' ? extraMeta.current_message_available === true : false;
+    console.log('current_message_available:', currentMessageAvailable);
+    console.log('action_permitted         :', snapshot.action_permitted);
+    console.log('historical_safety_context_present:', snapshot.historical_safety_context_present);
+    console.log('precedence_enforced      :', snapshot.precedence_enforced);
+    console.log('active_precedence_level  :', snapshot.active_precedence_level);
+    console.log('failure_reason_code      :', snapshot.failure_reason_code);
     // Wave 3E — LTS signal group (emitted only when LTS inputs are available)
     if (ltsInputs != null) {
       const ltsSnap = buildLTSDiagnosticSnapshot(ltsInputs);
@@ -2058,7 +2080,11 @@ export async function buildV8SessionStartContentAsync(
     // Gated, additive, no effect on routing or therapeutic behavior.
     // Never logs raw message content — only the sanitized diagnostic snapshot.
     // Wave 3E: pass ltsInputs so the LTS signal group is also emitted.
-    _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs);
+    // Wave 2E: pass current_message_available (bounded boolean, never raw text).
+    _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs, {
+      current_message_available:
+        typeof options.message_text === 'string' && options.message_text.trim().length > 0,
+    });
 
     // Wave 5D — Emit Quality Evaluator diagnostic when _s2debug=true and
     // QUALITY_EVALUATOR_ENABLED is set.  Additive only; no effect on routing or

@@ -211,6 +211,11 @@ const _SHUTDOWN_PATTERNS = Object.freeze([
   /\bcan'?t\s+(function|cope|go\s+on|face)\b/i,
   /\btotally\s+(lost|numb|empty|broken)\b/i,
   /\bgiven\s+up\b/i,
+  // Hebrew — shutdown/collapse language (Wave 2E signal parity, Fix 6)
+  /מתפרק/,
+  /לא\s+מסוגל.{0,3}לתפקד/,
+  /(?:נשבר|מתמוטט)/,
+  /לא\s+(?:יכול|מסוגלת?)\s+להמשיך/,
 ]);
 
 /** @type {ReadonlyArray<RegExp>} */
@@ -221,6 +226,10 @@ const _CATASTROPHIC_PATTERNS = Object.freeze([
   /\birreversible\b/i,
   /\bnever\s+(recover|be\s+okay|be\s+normal|be\s+the\s+same)\b/i,
   /\bthis\s+is\s+(the\s+end|all\s+over)\b/i,
+  // Hebrew — catastrophic language (Wave 2E signal parity, Fix 6)
+  /הכל\s+(?:הרוס|נגמר|אבוד)/,
+  /החיים\s+(?:שלי\s+)?(?:הרוסים|נגמרו|נהרסו)/,
+  /(?:אין|לא)\s+(?:חזרה|דרך\s+חזרה)/,
 ]);
 
 /** @type {ReadonlyArray<RegExp>} */
@@ -231,6 +240,11 @@ const _HIGH_DISTRESS_PATTERNS = Object.freeze([
   /\bpanic(king|ked)?\b/i,
   /\bscreaming\s+inside\b/i,
   /\bcan'?t\s+stop\s+crying\b/i,
+  // Hebrew — elevated distress, not containment-level on its own (Wave 2E parity, Fix 6)
+  /מוצף/,
+  /לא\s+מצליח\s+לחשוב/,
+  /לא\s+(?:יכול|מסוגל)\s+לנשום/,
+  /בפאניקה/,
 ]);
 
 /** @type {ReadonlyArray<RegExp>} */
@@ -239,7 +253,48 @@ const _EMOTIONAL_LANGUAGE_PATTERNS = Object.freeze([
   /\b(sad|angry|anxious|worried|scared|afraid|frustrated|upset)\b/i,
   /\b(emotion|emotional)\b/i,
   /\b(stressed|stress)\b/i,
+  // Hebrew — general emotional language, mild tier (Wave 2E parity, Fix 6)
+  /(?:מרגיש|מרגישה)/,
+  /(?:עצוב|עצובה|לחוץ|לחוצה|מודאג|מודאגת|מפחד|מפחדת|כועס|כועסת|עצבני|עצבנית)/,
+  /(?:חרדה|פחד|כעס|עצב|מתח)\b/,
 ]);
+
+// ─── Wave 2E — Hebrew hopelessness with negation resistance (Fix 6) ────────────
+//
+// Hebrew hopelessness detection needs negation awareness because "לא" (not)
+// immediately before a hopelessness phrase inverts its meaning.
+// Example: "אני לא מרגיש חסר תקווה" ("I do not feel hopeless") must NOT trigger
+// hopelessness detection, while "אני חסר תקווה" ("I am hopeless") must.
+//
+// The helper checks bounded Hebrew hopelessness constructs and, for the
+// "חסר תקווה" construct specifically, verifies that "לא" does not appear within
+// 20 characters before the phrase.  Other constructs (e.g. "אין תקווה") embed
+// their own negation and do not need a secondary guard.
+//
+// Deterministic, bounded, no external calls, non-diagnostic.
+//
+// @private
+// @param {string} text
+// @returns {boolean}
+function _hebrewHopelessnessPresent(text) {
+  try {
+    // "אין תקווה" / "אין שום תקווה" — "there is no hope" (negation already embedded)
+    if (/אין\s+(?:שום\s+)?תקווה/.test(text)) return true;
+    // "שום דבר לא ישתפר" — "nothing will improve"
+    if (/שום\s+דבר\s+לא\s+ישתפר/.test(text)) return true;
+    // "כלום לא ישתנה/ישתפר" — "nothing will change/improve"
+    if (/כלום\s+לא\s+(?:ישתנה|ישתפר)/.test(text)) return true;
+    // "חסר תקווה" — "hopeless" — but NOT when preceded by "לא" within 20 chars
+    const m = text.match(/חסר\s*תקווה/);
+    if (m && typeof m.index === 'number') {
+      const windowBefore = text.slice(Math.max(0, m.index - 20), m.index);
+      if (!windowBefore.includes('לא')) return true;
+    }
+    return false;
+  } catch (_e) {
+    return false;
+  }
+}
 
 /** Minimum message length to not be considered empty/short. @type {number} */
 const _EMPTY_OR_SHORT_THRESHOLD = 10;
@@ -402,7 +457,7 @@ export function extractMessageSignals(messageText) {
     const text = typeof messageText === 'string' ? messageText : '';
     const isEmpty = text.trim().length < _EMPTY_OR_SHORT_THRESHOLD;
 
-    const hasHopelessness = _HOPELESSNESS_PATTERNS.some(p => p.test(text));
+    const hasHopelessness = _HOPELESSNESS_PATTERNS.some(p => p.test(text)) || _hebrewHopelessnessPresent(text);
     const hasShutdown = _SHUTDOWN_PATTERNS.some(p => p.test(text));
     const hasCatastrophic = _CATASTROPHIC_PATTERNS.some(p => p.test(text));
     const hasHighDistress = _HIGH_DISTRESS_PATTERNS.some(p => p.test(text));
@@ -1048,14 +1103,23 @@ export function buildStrategyContextSection(strategyState) {
     const hasOpenTasks = ss.has_open_tasks === true;
     const isSaturated = ss.intervention_saturated === true;
     const ltsTrajectory = typeof ss.lts_trajectory === 'string' ? ss.lts_trajectory : '';
+    const actionPermitted = ss.action_permitted === true;
 
     const lines = [
       `=== THERAPEUTIC STRATEGY — WAVE 2C v${version} ===`,
+      '',
+      // Wave 2E (Fix 4) — usage framing: this block is an internal, provisional
+      // response posture, never a diagnosis, and is never surfaced to the user.
+      'INTERNAL USE ONLY — do NOT reveal or describe this analysis to the user.',
+      'This is a provisional response posture for this turn only, not a diagnosis or fact.',
+      'Current user information always overrides prior formulation, continuity, and historical tasks.',
+      'Never expose internal labels; never say "The system selected...", "Your distress tier is...", or name a mode.',
       '',
       `Intervention mode : ${mode}`,
       `Distress tier     : ${tier}`,
       `Prior continuity  : ${contPresent ? 'yes' : 'no'}`,
       `Formulation active: ${formPresent ? 'yes' : 'no'}`,
+      `Action permitted  : ${actionPermitted ? 'yes' : 'no — holding/reflection/exploration/formulation only, no concrete technique'}`,
     ];
 
     // Context signals block — only emitted when there is meaningful session context.
@@ -1063,9 +1127,18 @@ export function buildStrategyContextSection(strategyState) {
       lines.push('');
       lines.push('Context signals:');
       if (sessionCount > 0) lines.push(`  Sessions         : ${sessionCount}`);
-      if (hasRiskFlags) lines.push('  Risk flags       : active');
+      if (hasRiskFlags) lines.push('  Risk flags       : historical context only — not currently active');
       if (hasOpenTasks) lines.push('  Open tasks       : pending');
       if (isSaturated) lines.push('  Intervention sat.: flagged');
+    }
+
+    // Wave 2E (Fix 1) — historical safety semantics. Historical risk is past
+    // context only: not proof of present danger, not a current diagnosis, and
+    // not independently sufficient for containment/stabilisation. Emit a bounded
+    // generic reminder; never treat it as currently active.
+    if (hasRiskFlags) {
+      lines.push('');
+      lines.push('Historical safety context is present. Do not infer current risk; verify the current state when clinically relevant.');
     }
 
     // Wave 3D: LTS trajectory line (emitted only when a meaningful signal is present).
@@ -1076,6 +1149,16 @@ export function buildStrategyContextSection(strategyState) {
 
     lines.push('');
     lines.push(_getModeGuidance(mode));
+    lines.push('');
+    // Wave 2E (Fix 4) — strategy usage contract. Bounded, non-diagnostic; never
+    // names an internal mode label so cross-mode word constraints are preserved.
+    lines.push('USAGE CONTRACT:');
+    lines.push('- This posture is provisional guidance, not a diagnosis or fact about the user.');
+    lines.push('- Current user information always overrides prior formulation, continuity, and historical tasks.');
+    lines.push('- Posture alone never authorises homework, forms, exposure, or techniques; that needs confirmed readiness.');
+    lines.push('- Reference at most one historical theme, and only when directly relevant to what is shared now.');
+    lines.push('- A theme the user has set aside must not be revived unless the user returns to it.');
+    lines.push('- Ask at most one focused question when needed; warm answers of 2-4 natural paragraphs are welcome.');
     lines.push('');
     lines.push('=== END THERAPEUTIC STRATEGY ===');
 
@@ -1113,6 +1196,12 @@ export const STRATEGY_DIAGNOSTIC_SAFE_FIELDS = Object.freeze([
   'continuity_richness_score',
   'formulation_strength_score',
   'lts_trajectory', // Wave 3D
+  // Wave 2E (Fix 3 / Fix 7) — bounded, non-diagnostic metadata.
+  'action_permitted',
+  'historical_safety_context_present',
+  'precedence_enforced',
+  'active_precedence_level',
+  'failure_reason_code',
 ]);
 
 // ─── Wave 3E — LTS diagnostic snapshot ───────────────────────────────────────
@@ -1269,6 +1358,13 @@ export function buildStrategyDiagnosticSnapshot(strategyState) {
       formulation_strength_score:
         typeof ss.formulation_strength_score === 'number' ? ss.formulation_strength_score : 0,
       lts_trajectory: typeof ss.lts_trajectory === 'string' ? ss.lts_trajectory : '', // Wave 3D
+      // Wave 2E (Fix 3 / Fix 7) — bounded, non-diagnostic metadata. No raw text.
+      action_permitted: ss.action_permitted === true,
+      historical_safety_context_present: ss.has_risk_flags === true,
+      precedence_enforced: ss.precedence_enforced === true,
+      active_precedence_level:
+        typeof ss.active_precedence_level === 'number' ? ss.active_precedence_level : null,
+      failure_reason_code: ss.fail_safe === true ? 'fail_safe' : '',
       // message_signals deliberately omitted — inferred from raw user text.
     });
   } catch (_e) {
@@ -1287,6 +1383,12 @@ export function buildStrategyDiagnosticSnapshot(strategyState) {
       continuity_richness_score: 0,
       formulation_strength_score: 0,
       lts_trajectory: '', // Wave 3D
+      // Wave 2E (Fix 3 / Fix 7) — bounded, non-diagnostic metadata.
+      action_permitted: false,
+      historical_safety_context_present: false,
+      precedence_enforced: false,
+      active_precedence_level: null,
+      failure_reason_code: 'diagnostic_error',
     });
   }
 }
@@ -1327,6 +1429,8 @@ export const STRATEGY_FAIL_SAFE_STATE = Object.freeze({
   formulation_strength_score: 0,
   // Wave 3D enrichment field
   lts_trajectory: '',
+  // Wave 2E — action permission (Fix 3): fail-safe never authorises action.
+  action_permitted: false,
 });
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
@@ -1455,6 +1559,11 @@ function _buildStrategyState(mode, meta) {
       typeof meta.formulation_strength_score === 'number' ? meta.formulation_strength_score : 0,
     // Wave 3D enrichment field — '' when LTS is absent or not active
     lts_trajectory: typeof meta.lts_trajectory === 'string' ? meta.lts_trajectory : '',
+    // Wave 2E — action permission (Fix 3). Response posture (intervention_mode)
+    // is separate from action permission. The engine never authorises concrete
+    // action on its own; action_permitted defaults to false and is only raised
+    // by the injector's precedence guard when clinical readiness is confirmed.
+    action_permitted: meta.action_permitted === true,
   });
 }
 
@@ -1498,17 +1607,17 @@ function _detectInterventionSaturation(continuitySignals) {
 function _getModeGuidance(mode) {
   switch (mode) {
     case STRATEGY_INTERVENTION_MODES.CONTAINMENT:
-      return 'Guidance: Short, grounding responses. One question at a time. No exploratory breadth while high distress is unresolved.';
+      return 'Guidance: Short, grounding responses. One question at a time. No exploratory breadth while high distress is unresolved. Only for current safety or high distress — do not infer current risk from historical context; assess the present. Preserve natural warmth in English and Hebrew.';
     case STRATEGY_INTERVENTION_MODES.STABILISATION:
-      return 'Guidance: Emotional stabilisation before any CBT work. Validate, orient, ground. Do not attempt formulation building, exercise assignment, or task discussion until the person has stabilised. Understanding the pattern can wait — emotional footing comes first.';
+      return 'Guidance: Emotional stabilisation before any CBT work. Validate, orient, ground. Do not attempt formulation building, exercise assignment, or task discussion until the person has stabilised. Understanding the pattern can wait — emotional footing comes first. Use for current moderate distress or genuine fail-safe uncertainty; do not imply crisis; hold no premature task. Preserve natural warmth in English and Hebrew.';
     case STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION:
-      return 'Guidance: Begin from understanding before selecting any intervention. Formulation-first sequence: check in and understand the current state → clarify what has been happening → update or confirm the formulation → only then determine what clinical move type fits this session. Thought records, cognitive restructuring, and behavioral tasks are tools to apply AFTER the formulation for this session is explicit — not as default opening moves. The maintaining cycle must be named or confirmed before any technique is proposed.';
+      return 'Guidance: Begin from understanding before selecting any intervention. Formulation-first sequence: check in and understand the current state → clarify what has been happening → update or confirm the formulation → only then determine what clinical move type fits this session. Thought records, cognitive restructuring, and behavioral tasks are tools to apply AFTER the formulation for this session is explicit — not as default opening moves. The maintaining cycle must be named or confirmed before any technique is proposed. Reflect accurately and explore one useful thread; name only grounded, tentative patterns; concrete action stays blocked until readiness is confirmed. Preserve natural warmth in English and Hebrew.';
     case STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING:
-      return 'Guidance: Begin by checking in with the person before advancing to new clinical material. Acknowledge what has happened since the last session before formulation deepening. Prioritise formulation hypotheses and longitudinal patterns. Confirm or update the formulation before introducing any new intervention. Reference prior session themes where clinically relevant. New action assignment is secondary to formulation update — the formulation moves first.';
+      return 'Guidance: Begin by checking in with the person before advancing to new clinical material. Acknowledge what has happened since the last session before formulation deepening. Prioritise formulation hypotheses and longitudinal patterns. Confirm or update the formulation before introducing any new intervention. Reference prior session themes where clinically relevant. New action assignment is secondary to formulation update — the formulation moves first. The formulation is a hypothesis: confirm current relevance, let current correction win, reference at most one prior theme, draw no unsupported identity conclusion, and never auto-return homework. Preserve natural warmth in English and Hebrew.';
     case STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION:
-      return 'Guidance: This is a first session or new clinical context — no prior formulation exists. Default reasoning sequence: listen → understand what is happening → acknowledge and hold → clarify the maintaining pattern → name the cognitive-behavioral cycle → only then consider whether any concrete next step is appropriate. Do NOT introduce exercises, homework, or CBT techniques before a working formulation has been explicitly stated and the person has felt genuinely understood. Psychoeducation about the CBT model, when needed, follows after the pattern has been named — not before.';
+      return 'Guidance: Listen and understand first — do not assume this is a first session merely because prior records are missing. Default reasoning sequence: listen → understand what is happening → acknowledge and hold → clarify the maintaining pattern → name the cognitive-behavioral cycle → only then consider whether any concrete next step is appropriate. Do NOT introduce exercises, homework, or CBT techniques before a working formulation has been explicitly stated and the person has felt genuinely understood. Explain only what concretely helps the current pattern; no generic CBT lecture. Preserve natural warmth in English and Hebrew.';
     default:
-      return 'Guidance: Apply standard CBT engagement with clinical judgment.';
+      return 'Guidance: Apply standard CBT engagement with clinical judgment. Listen first; understand before acting.';
   }
 }
 

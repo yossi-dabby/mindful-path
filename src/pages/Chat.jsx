@@ -1618,7 +1618,10 @@ export default function Chat() {
           ACTIVE_CBT_THERAPIST_WIRING,
           base44.entities,
           base44,
-          { sessionLanguage: i18n.language }
+          {
+            sessionLanguage: i18n.language,
+            ...(initialMessage ? { message_text: initialMessage } : {}),
+          }
         );
         await base44.agents.addMessage(conversation, {
           role: 'user',
@@ -2430,7 +2433,10 @@ export default function Chat() {
             ACTIVE_CBT_THERAPIST_WIRING,
             base44.entities,
             base44,
-            { sessionLanguage: i18n.language }
+            {
+              sessionLanguage: i18n.language,
+              message_text: messageText,
+            }
           ),
           sessionLanguageRef.current
         );
