@@ -671,7 +671,7 @@ function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMes
   return { content: shapePdfAssistantReply(shortContent), overflow };
 }
 
-function sanitizeAssistantMessage(message) {
+function sanitizeAssistantMessage(message, { preventFallback = false } = {}) {
   if (!message || typeof message !== 'string') return message;
   
   let sanitized = message;
@@ -700,9 +700,14 @@ function sanitizeAssistantMessage(message) {
   sanitized = cleanedLines.join('\n').trim();
   
   // Failsafe: If we removed everything, use safe fallback.
-  // Use English — this function has no language context and Hebrew is not appropriate
-  // as a session-agnostic fallback for non-Hebrew sessions.
+  // When preventFallback is true (e.g. for provisional session-start turns), return null
+  // so the caller can hide the turn instead of injecting an English placeholder into
+  // a potentially non-English session.
   if (!sanitized || sanitized.length < 10) {
+    if (preventFallback) {
+      console.log('[Reasoning Filter] Message empty after filtering — preventFallback: hiding turn');
+      return null;
+    }
     console.error('[Reasoning Filter] Message empty after filtering, using failsafe');
     return "I'm here with you. What's on your mind right now?";
   }
@@ -1377,9 +1382,44 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
       // Phase 3: extract [FORM:slug] markers from the original model content
       // before applying text sanitization.
       if (typeof msg.content === 'string') {
+        // V8-F: Strip <INTERNAL_PROCESS> blocks before any further processing.
+        // These are internal LLM session-start turn markers that must never
+        // appear in user-visible state.  If the entire content is internal-only
+        // (empty after stripping), hide the turn by returning null so it is
+        // excluded from the rendered message list without injecting an English
+        // placeholder into a potentially non-English session.
+        const INTERNAL_PROCESS_RE = /<INTERNAL_PROCESS\b[^>]*>[\s\S]*?<\/INTERNAL_PROCESS>/gi;
+        const strippedForInternal = msg.content.replace(INTERNAL_PROCESS_RE, '').trim();
+        if (!strippedForInternal) {
+          console.log('[sanitizeConversationMessagesAligned] Hiding internal-only assistant turn');
+          return null;
+        }
+        // If INTERNAL_PROCESS blocks were present but real content remains, use
+        // the stripped version for subsequent processing.
+        const contentToProcess = strippedForInternal.length < msg.content.trim().length
+          ? strippedForInternal
+          : msg.content;
+
+        // V8-F: Also hide session-injected turns whose content is empty or
+        // whitespace-only — these are provisional placeholders that should never
+        // reach the renderer.
+        if (isSessionInjectedTriggeringMessage && !contentToProcess.trim()) {
+          console.log('[sanitizeConversationMessagesAligned] Hiding empty session-injected assistant turn');
+          return null;
+        }
+
         const { cleanedContent: contentAfterFormExtract, generatedFile, generatedFiles, formSuppressed } =
-          extractAndResolveFormIntent(msg.content, effectiveLang, triggeringUserMsg, previousUserContext);
-        const cleaned = sanitizeAssistantMessage(contentAfterFormExtract);
+          extractAndResolveFormIntent(contentToProcess, effectiveLang, triggeringUserMsg, previousUserContext);
+        // V8-F: For session-injected turns (internal turn that follows [START_SESSION]),
+        // use preventFallback so that if all content is filtered as reasoning markers the
+        // turn is hidden (returns null) instead of injecting the hardcoded English failsafe
+        // string into a potentially non-English session.  For all other assistant messages
+        // keep the original behavior (English failsafe) so no regressions occur.
+        const cleaned = sanitizeAssistantMessage(contentAfterFormExtract, { preventFallback: isSessionInjectedTriggeringMessage });
+        if (isSessionInjectedTriggeringMessage && !cleaned) {
+          console.log('[sanitizeConversationMessagesAligned] Hiding session-injected assistant turn — all content filtered');
+          return null;
+        }
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
         const nextMetadata = { ...(msg.metadata || {}) };
         if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;

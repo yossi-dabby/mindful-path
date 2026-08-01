@@ -246,6 +246,17 @@ export function sanitizeMessageContent(text, language = 'en') {
     }
   }
 
+  // Strip <INTERNAL_PROCESS>...</INTERNAL_PROCESS> blocks (internal LLM session-start turns).
+  // These are provisional processing markers that must never appear in user-visible output.
+  if (/<INTERNAL_PROCESS\b/i.test(text)) {
+    text = text.replace(/<INTERNAL_PROCESS\b[^>]*>[\s\S]*?<\/INTERNAL_PROCESS>/gi, '').trim();
+    console.warn('[Sanitizer] ⚠️ Stripped <INTERNAL_PROCESS> block from assistant message');
+    if (!text || text.length < 5) {
+      console.error('[Sanitizer] ⚠️ All content removed after <INTERNAL_PROCESS> stripping - using failsafe');
+      return getLanguageFailsafe(language);
+    }
+  }
+
   // Strip raw agent tool-call markup blocks
   let strippedToolCallMarkup = false;
   for (const pattern of RAW_TOOL_CALL_BLOCK_PATTERNS) {
@@ -316,6 +327,7 @@ export function hasReasoningLeakage(text) {
   if (!text || typeof text !== 'string') return false;
   
   if (/<think>/i.test(text)) return true;
+  if (/<INTERNAL_PROCESS\b/i.test(text)) return true;
   if (FORBIDDEN_PATTERNS.some(pattern => pattern.test(text))) return true;
   // Also check inline patterns (tool names, entity names, meta-reasoning phrases)
   return FORBIDDEN_INLINE_PATTERNS.some(pattern => pattern.test(text));
