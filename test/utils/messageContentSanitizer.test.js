@@ -65,6 +65,57 @@ describe('hasReasoningLeakage – <think> detection', () => {
   });
 });
 
+describe('sanitizeMessageContent – <INTERNAL_PROCESS> block stripping', () => {
+  it('strips a single <INTERNAL_PROCESS>...</INTERNAL_PROCESS> block', () => {
+    const input = '<INTERNAL_PROCESS>session init</INTERNAL_PROCESS>Hello! How can I help?';
+    expect(sanitizeMessageContent(input, 'en')).toBe('Hello! How can I help?');
+  });
+
+  it('strips multiline <INTERNAL_PROCESS> blocks', () => {
+    const input =
+      '<INTERNAL_PROCESS>\nChecking context.\nSetting language.\n</INTERNAL_PROCESS>\nI am here with you.';
+    expect(sanitizeMessageContent(input, 'en')).toBe('I am here with you.');
+  });
+
+  it('is case-insensitive for <INTERNAL_PROCESS> tags', () => {
+    const input = '<internal_process>data</internal_process>Real response.';
+    expect(sanitizeMessageContent(input, 'en')).toBe('Real response.');
+  });
+
+  it('strips <INTERNAL_PROCESS> with attributes', () => {
+    const input = '<INTERNAL_PROCESS type="session-start">...</INTERNAL_PROCESS>Good to have you here.';
+    expect(sanitizeMessageContent(input, 'en')).toBe('Good to have you here.');
+  });
+
+  it('returns a failsafe (not empty) when stripping removes all content', () => {
+    const input = '<INTERNAL_PROCESS>everything internal</INTERNAL_PROCESS>';
+    const result = sanitizeMessageContent(input, 'en');
+    expect(result.length).toBeGreaterThan(0);
+    expect(result).not.toContain('<INTERNAL_PROCESS>');
+  });
+
+  it('returns a Hebrew failsafe (not empty) when session language is Hebrew', () => {
+    const input = '<INTERNAL_PROCESS>everything internal</INTERNAL_PROCESS>';
+    const result = sanitizeMessageContent(input, 'he');
+    expect(result.length).toBeGreaterThan(0);
+    expect(result).not.toContain('<INTERNAL_PROCESS>');
+  });
+});
+
+describe('hasReasoningLeakage – <INTERNAL_PROCESS> detection', () => {
+  it('detects an <INTERNAL_PROCESS> block as reasoning leakage', () => {
+    expect(hasReasoningLeakage('<INTERNAL_PROCESS>session init</INTERNAL_PROCESS>')).toBe(true);
+  });
+
+  it('detects a mixed message with <INTERNAL_PROCESS> as leakage', () => {
+    expect(hasReasoningLeakage('<INTERNAL_PROCESS>data</INTERNAL_PROCESS>Some reply.')).toBe(true);
+  });
+
+  it('returns false for a normal message without <INTERNAL_PROCESS>', () => {
+    expect(hasReasoningLeakage('טוב שאתה כאן. מה עולה עבורך היום?')).toBe(false);
+  });
+});
+
 describe('extractThinkingContent', () => {
   it('extracts content from a single <think> block', () => {
     const input = '<think>I should respond warmly.</think>Hello!';

@@ -242,6 +242,22 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
       thinkingContent = extractThinkingContent(contentStr);
     }
 
+    // V8-F PRE-GOVERNOR GATE: Strip <INTERNAL_PROCESS> blocks before the governor
+    // runs.  The governor always returns a failsafe for empty/short input — if the
+    // entire message is an internal session-start marker the failsafe would be an
+    // English string injected into a non-English session.  Catch it here first.
+    let contentForGovernor = contentStr;
+    if (!isUser && /<INTERNAL_PROCESS\b/i.test(contentForGovernor)) {
+      contentForGovernor = contentForGovernor
+        .replace(/<INTERNAL_PROCESS\b[^>]*>[\s\S]*?<\/INTERNAL_PROCESS>/gi, '')
+        .trim();
+      console.warn('[MessageBubble] ⚠️ Stripped <INTERNAL_PROCESS> block before governor');
+    }
+    if (!isUser && (!contentForGovernor || contentForGovernor.length < 1) && !hasRenderableAttachment) {
+      console.log('[MessageBubble] Hiding internal-only assistant turn (pre-governor gate)');
+      return null;
+    }
+
     // CRITICAL: Apply Final Output Governor (CP12) — last gate before render
     // For assistant messages: runs full leakage + ask-back + worksheet-drift + routing-leakage passes
     // For user messages: pass through unchanged
@@ -250,7 +266,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     // Auto-detection alone is unreliable for Latin-script languages that share vocabulary
     // (e.g. Portuguese/Spanish).  If sessionLanguage is not provided, the governor falls
     // back to content-based detection.
-    const sanitized = isUser ? contentStr : applyFinalOutputGovernor(contentStr, {
+    const sanitized = isUser ? contentForGovernor : applyFinalOutputGovernor(contentForGovernor, {
       lang: sessionLanguage || undefined,
       userMessage: userMessage || undefined,
     });

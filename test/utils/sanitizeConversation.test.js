@@ -1016,3 +1016,89 @@ describe('therapeutic forms policy refresh sanitization', () => {
     expect(sanitized[1].content).toBe('Of course, let us continue.');
   });
 });
+
+
+// ─── V8-F: SESSION-START INTERNAL TURN HIDING ────────────────────────────────
+
+describe('V8-F – session-start internal turn hiding', () => {
+  const sessionStartUser = { role: 'user', content: '[START_SESSION]' };
+
+  it('hides an assistant turn whose entire content is an <INTERNAL_PROCESS> block', () => {
+    const messages = [
+      sessionStartUser,
+      { role: 'assistant', content: '<INTERNAL_PROCESS>Initialising session context.</INTERNAL_PROCESS>' },
+      { role: 'assistant', content: 'טוב שאתה כאן. מה עולה עבורך היום?' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistantMsgs = result.filter((m) => m.role === 'assistant');
+    expect(assistantMsgs).toHaveLength(1);
+    expect(assistantMsgs[0].content).toBe('טוב שאתה כאן. מה עולה עבורך היום?');
+  });
+
+  it('hides an assistant turn that is empty or whitespace-only', () => {
+    const messages = [
+      sessionStartUser,
+      { role: 'assistant', content: '   ' },
+      { role: 'assistant', content: 'I am here with you.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistantMsgs = result.filter((m) => m.role === 'assistant');
+    expect(assistantMsgs).toHaveLength(1);
+    expect(assistantMsgs[0].content).toBe('I am here with you.');
+  });
+
+  it('hides an assistant turn made entirely of INTERNAL_PROCESS regardless of case', () => {
+    const messages = [
+      sessionStartUser,
+      { role: 'assistant', content: '<internal_process>data</internal_process>' },
+      { role: 'assistant', content: 'Here for you.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistantMsgs = result.filter((m) => m.role === 'assistant');
+    expect(assistantMsgs).toHaveLength(1);
+    expect(assistantMsgs[0].content).toBe('Here for you.');
+  });
+
+  it('does NOT inject an English failsafe for a hidden internal turn in a Hebrew session', () => {
+    const ENGLISH_FAILSAFE = "I'm here with you. What's on your mind right now?";
+    const messages = [
+      sessionStartUser,
+      { role: 'assistant', content: '<INTERNAL_PROCESS>session init</INTERNAL_PROCESS>' },
+      { role: 'assistant', content: 'טוב שאתה כאן. מה עולה עבורך היום?' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const contents = result.map((m) => m.content);
+    expect(contents).not.toContain(ENGLISH_FAILSAFE);
+    expect(result.filter((m) => m.role === 'assistant')).toHaveLength(1);
+  });
+
+  it('keeps a genuine assistant opener that starts with an INTERNAL_PROCESS block followed by real text', () => {
+    const messages = [
+      sessionStartUser,
+      {
+        role: 'assistant',
+        content: '<INTERNAL_PROCESS>context</INTERNAL_PROCESS>\nI am here with you.',
+      },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistantMsgs = result.filter((m) => m.role === 'assistant');
+    expect(assistantMsgs).toHaveLength(1);
+    expect(assistantMsgs[0].content).toContain('I am here with you.');
+    expect(assistantMsgs[0].content).not.toContain('<INTERNAL_PROCESS>');
+  });
+
+  it('preserves user messages unchanged when hiding internal assistant turns', () => {
+    // A pure [START_SESSION] user message with actual user text after it is
+    // kept; without user text it is intentionally hidden.  Use a real user
+    // message to verify user messages are unaffected by the internal-turn filter.
+    const messages = [
+      { role: 'user', content: 'Hello, I need some help.' },
+      { role: 'assistant', content: '<INTERNAL_PROCESS>init</INTERNAL_PROCESS>' },
+      { role: 'assistant', content: 'Welcome!' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const userMsgs = result.filter((m) => m.role === 'user');
+    expect(userMsgs).toHaveLength(1);
+    expect(userMsgs[0].content).toBe('Hello, I need some help.');
+  });
+});
