@@ -338,9 +338,11 @@ export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
 function getVisibleUserContentForIntent(rawContent) {
   if (typeof rawContent !== 'string') return '';
   let content = rawContent.trim();
+  let isSessionInjected = false;
   if (!content || content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)) return '';
 
   if (content.startsWith('[START_SESSION]')) {
+    isSessionInjected = true;
     const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
     let splitPos = -1;
 
@@ -350,8 +352,11 @@ function getVisibleUserContentForIntent(rawContent) {
       const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
       if (sepIdx !== -1) splitPos = sepIdx;
     } else {
-      const firstSep = content.indexOf('\n\n');
-      if (firstSep !== -1) splitPos = firstSep;
+      // [START_SESSION] blocks without an explicit "=== END ... ===" marker can
+      // still contain multiple "\n\n" separators inside the injected context.
+      // The final separator is the boundary before the user's visible text.
+      const lastSep = content.lastIndexOf('\n\n');
+      if (lastSep !== -1) splitPos = lastSep;
     }
 
     if (splitPos === -1) return '';
@@ -359,11 +364,28 @@ function getVisibleUserContentForIntent(rawContent) {
   }
 
   const { content: contentWithoutAttachmentMarker } = extractAttachmentMetadataFromUserContent(content);
-  return stripAgentOnlyRuntimeBlocksFromUserContent(
+  let visible = stripAgentOnlyRuntimeBlocksFromUserContent(
     stripFormRouterContextBlock(
       stripAttachmentContextBlock(contentWithoutAttachmentMarker)
     )
   );
+
+  // Session-injected turns can include additional agent-only policy blocks after
+  // the planner tail and before the real user text (for example
+  // [ATTACHMENT_HANDLING_POLICY] / [THERAPEUTIC_FORMS_POLICY]).
+  // In those cases the final paragraph after the last blank line is the user text.
+  if (
+    isSessionInjected &&
+    typeof visible === 'string' &&
+    (visible.includes('[ATTACHMENT_HANDLING_POLICY]') || visible.includes('[THERAPEUTIC_FORMS_POLICY]'))
+  ) {
+    const tailSep = visible.lastIndexOf('\n\n');
+    if (tailSep !== -1) {
+      visible = visible.substring(tailSep + 2).trim();
+    }
+  }
+
+  return visible;
 }
 
 function isLegacyPureTherapeuticFormsPolicyRefreshUserMessage(content) {
