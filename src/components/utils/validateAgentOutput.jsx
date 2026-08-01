@@ -21,6 +21,7 @@ import {
   resolveSpanishWorkbookIntentWithContext,
 } from '../../utils/resolveWorkbookIntent.js';
 import { getAllTherapeuticForms, SUPPORTED_LANGUAGES, MAX_GENERATED_FILES_PER_RESPONSE } from '../../data/therapeuticForms/index.js';
+import { hasExplicitFormSuppressionIntent } from '../../data/therapeuticForms/aiFormsAccess.js';
 import {
   THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
   THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
@@ -337,9 +338,11 @@ export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
 function getVisibleUserContentForIntent(rawContent) {
   if (typeof rawContent !== 'string') return '';
   let content = rawContent.trim();
+  let isSessionInjected = false;
   if (!content || content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)) return '';
 
   if (content.startsWith('[START_SESSION]')) {
+    isSessionInjected = true;
     const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
     let splitPos = -1;
 
@@ -349,8 +352,11 @@ function getVisibleUserContentForIntent(rawContent) {
       const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
       if (sepIdx !== -1) splitPos = sepIdx;
     } else {
-      const firstSep = content.indexOf('\n\n');
-      if (firstSep !== -1) splitPos = firstSep;
+      // [START_SESSION] blocks without an explicit "=== END ... ===" marker can
+      // still contain multiple "\n\n" separators inside the injected context.
+      // The final separator is the boundary before the user's visible text.
+      const lastSep = content.lastIndexOf('\n\n');
+      if (lastSep !== -1) splitPos = lastSep;
     }
 
     if (splitPos === -1) return '';
@@ -358,11 +364,28 @@ function getVisibleUserContentForIntent(rawContent) {
   }
 
   const { content: contentWithoutAttachmentMarker } = extractAttachmentMetadataFromUserContent(content);
-  return stripAgentOnlyRuntimeBlocksFromUserContent(
+  let visible = stripAgentOnlyRuntimeBlocksFromUserContent(
     stripFormRouterContextBlock(
       stripAttachmentContextBlock(contentWithoutAttachmentMarker)
     )
   );
+
+  // Session-injected turns can include additional agent-only policy blocks after
+  // the planner tail and before the real user text (for example
+  // [ATTACHMENT_HANDLING_POLICY] / [THERAPEUTIC_FORMS_POLICY]).
+  // In those cases the final paragraph after the last blank line is the user text.
+  if (
+    isSessionInjected &&
+    typeof visible === 'string' &&
+    (visible.includes('[ATTACHMENT_HANDLING_POLICY]') || visible.includes('[THERAPEUTIC_FORMS_POLICY]'))
+  ) {
+    const tailSep = visible.lastIndexOf('\n\n');
+    if (tailSep !== -1) {
+      visible = visible.substring(tailSep + 2).trim();
+    }
+  }
+
+  return visible;
 }
 
 function isLegacyPureTherapeuticFormsPolicyRefreshUserMessage(content) {
@@ -389,6 +412,58 @@ function normalizeGeneratedFilesList(files, maxItems = MAX_GENERATED_FILES_PER_R
     if (normalized.length >= maxItems) break;
   }
   return normalized;
+}
+
+/**
+ * Removes only therapeutic-form delivery metadata from an assistant message's
+ * metadata object when explicit no-form suppression is active.
+ *
+ * Removes:
+ *   - generated_file when it originates from the therapeutic_forms_registry
+ *     (identified by source === 'therapeutic_forms_registry', form_id, or form_slug).
+ *   - generated_files entries that originate from the therapeutic_forms_registry.
+ *   - Empty generated_files array after filtering.
+ *
+ * Preserves:
+ *   - User-uploaded files and ordinary PDF attachments (no form_id / form_slug).
+ *   - All non-form metadata (safety, formulation-guard, structured response data, etc.).
+ *
+ * @param {object} metadata - The current metadata object for an assistant message.
+ * @returns {object} A new metadata object with therapeutic-form entries removed.
+ */
+function removeGeneratedTherapeuticFormMetadata(metadata) {
+  if (!metadata || typeof metadata !== 'object') return metadata;
+
+  const isTherapeuticFormItem = (item) => {
+    if (!item || typeof item !== 'object') return false;
+    return (
+      item.source === 'therapeutic_forms_registry' ||
+      Boolean(item.form_id) ||
+      Boolean(item.form_slug)
+    );
+  };
+
+  const next = { ...metadata };
+
+  if (next.generated_file && isTherapeuticFormItem(next.generated_file)) {
+    delete next.generated_file;
+  }
+
+  if (Array.isArray(next.generated_files)) {
+    const filtered = next.generated_files.filter((item) => !isTherapeuticFormItem(item));
+    if (filtered.length === 0) {
+      delete next.generated_files;
+    } else {
+      next.generated_files = filtered;
+    }
+  }
+
+  // Remove the primary card alias if it now refers to a form that was removed
+  if (next.generated_file && isTherapeuticFormItem(next.generated_file)) {
+    delete next.generated_file;
+  }
+
+  return next;
 }
 
 function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }) {
@@ -910,22 +985,33 @@ export function extractAssistantMessage(rawContent) {
  *   - No URL or filename from the model is ever accepted.
  *   - Returns null for unknown intents, unapproved forms, or missing file_url.
  *   - Fail-open: any unexpected error returns { cleanedContent: content, generatedFile: null }.
+ *   - When the current-turn user message contains explicit no-form suppression,
+ *     all markers are stripped and no form metadata is generated (formSuppressed: true).
  *
  * @param {string}      content              - Raw assistant message content.
  * @param {string}      [lang]               - Session language code (ISO 639-1). Optional.
  * @param {string|null} [userQuery]          - The user message that triggered this response.
- *                                             Used for workbook routing priority override.
+ *                                             Used for workbook routing priority override and
+ *                                             explicit no-form suppression check.
  * @param {string|null} [previousUserContext] - Earlier user message text for anaphoric context.
- * @returns {{ cleanedContent: string, generatedFile: object|null, generatedFiles: object[] }}
+ * @returns {{ cleanedContent: string, generatedFile: object|null, generatedFiles: object[], formSuppressed: boolean }}
  */
 function extractAndResolveFormIntent(content, lang, userQuery, previousUserContext) {
   if (typeof content !== 'string' || !content) {
-    return { cleanedContent: content, generatedFile: null, generatedFiles: [] };
+    return { cleanedContent: content, generatedFile: null, generatedFiles: [], formSuppressed: false };
   }
 
   try {
     // Reset regex lastIndex before each use (global flag)
     FORM_INTENT_MARKER_PATTERN.lastIndex = 0;
+
+    // V8-D: check current-turn explicit no-form suppression before resolving any markers.
+    // Only the immediately preceding visible user message is examined (userQuery).
+    // Historical turns (previousUserContext) must never block a new positive request.
+    const currentTurnSuppressed =
+      typeof userQuery === 'string' && userQuery.trim()
+        ? hasExplicitFormSuppressionIntent(userQuery)
+        : false;
 
     const resolvedGeneratedFiles = [];
     let cleanedContent = content;
@@ -933,6 +1019,9 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     // Replace all [FORM:slug] / [FORM:slug:lang] markers found in the content.
     // Only the FIRST resolved marker becomes the generated_file (one card per message).
     cleanedContent = content.replace(FORM_INTENT_MARKER_PATTERN, (match, slug, markerLang) => {
+      // When current-turn suppression is active, strip every marker without resolving it.
+      if (currentTurnSuppressed) return '';
+
       // Prefer the language explicitly in the marker, then the session language
       const effectiveLang = markerLang || lang || 'en';
       const metadata = resolveFormIntent(slug, effectiveLang);
@@ -980,7 +1069,9 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     // Each language-specific resolver returns null when no workbook trigger is
     // present or when no workbook matches, so this is a safe no-op for all
     // plain worksheet requests.
+    // Skip when current-turn suppression is active — no forms should be resolved.
     if (
+      !currentTurnSuppressed &&
       resolvedGeneratedFiles[0] &&
       resolvedGeneratedFiles[0].category !== 'workbook_series' &&
       typeof userQuery === 'string' && userQuery.trim()
@@ -999,7 +1090,9 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     // When the model replies to an explicit "caderno" request without any
     // [FORM:...] marker, still attach the matching full workbook instead of
     // leaving the response without a generated_file.
+    // Skip when current-turn suppression is active — no forms should be resolved.
     if (
+      !currentTurnSuppressed &&
       resolvedGeneratedFiles.length === 0 &&
       lang === 'pt' &&
       typeof userQuery === 'string' && userQuery.trim()
@@ -1018,10 +1111,10 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     cleanedContent = cleanedContent.replace(/\n{3,}/g, '\n\n').trim();
 
     const generatedFiles = resolvedGeneratedFiles.slice(0, 5);
-    return { cleanedContent, generatedFile: generatedFiles[0] || null, generatedFiles };
+    return { cleanedContent, generatedFile: generatedFiles[0] || null, generatedFiles, formSuppressed: currentTurnSuppressed };
   } catch (_err) {
     // Fail-open: return original content unchanged, no generated file
-    return { cleanedContent: content, generatedFile: null, generatedFiles: [] };
+    return { cleanedContent: content, generatedFile: null, generatedFiles: [], formSuppressed: false };
   }
 }
 
@@ -1200,7 +1293,7 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
       if (validated) {
         // Phase 3: extract [FORM:] marker from the validated assistant_message
         // (the marker is placed inside the assistant_message field, not the JSON wrapper).
-        const { cleanedContent: cleanedAssistantMsg, generatedFile, generatedFiles } =
+        const { cleanedContent: cleanedAssistantMsg, generatedFile, generatedFiles, formSuppressed } =
           extractAndResolveFormIntent(validated.assistant_message || '', effectiveLang, triggeringUserMsg, previousUserContext);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
         const nextMetadata = {
@@ -1223,10 +1316,15 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
           metadata: nextMetadata,
           formRoute: deterministicFormRoute,
         });
+        // V8-D: final authority — explicit no-form suppression removes any form
+        // card that was attached by either the marker path or the deterministic route.
+        const finalMetadata = formSuppressed
+          ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
+          : deterministicApplied.metadata;
         return {
           ...msg,
           content: deterministicApplied.content,
-          metadata: deterministicApplied.metadata
+          metadata: finalMetadata
         };
       }
       
@@ -1235,7 +1333,7 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         try {
           const parsed = JSON.parse(msg.content);
           if (parsed.assistant_message) {
-            const { cleanedContent: cleanedAssistantMsg, generatedFile, generatedFiles } =
+            const { cleanedContent: cleanedAssistantMsg, generatedFile, generatedFiles, formSuppressed } =
               extractAndResolveFormIntent(parsed.assistant_message, effectiveLang, triggeringUserMsg, previousUserContext);
             const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
             const nextMetadata = {
@@ -1258,10 +1356,15 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
               metadata: nextMetadata,
               formRoute: deterministicFormRoute,
             });
+            // V8-D: final authority — explicit no-form suppression removes any form
+            // card that was attached by either the marker path or the deterministic route.
+            const finalMetadata = formSuppressed
+              ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
+              : deterministicApplied.metadata;
             return {
               ...msg,
               content: deterministicApplied.content,
-              metadata: deterministicApplied.metadata
+              metadata: finalMetadata
             };
           }
         } catch (e) {
@@ -1274,7 +1377,7 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
       // Phase 3: extract [FORM:slug] markers from the original model content
       // before applying text sanitization.
       if (typeof msg.content === 'string') {
-        const { cleanedContent: contentAfterFormExtract, generatedFile, generatedFiles } =
+        const { cleanedContent: contentAfterFormExtract, generatedFile, generatedFiles, formSuppressed } =
           extractAndResolveFormIntent(msg.content, effectiveLang, triggeringUserMsg, previousUserContext);
         const cleaned = sanitizeAssistantMessage(contentAfterFormExtract);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
@@ -1294,7 +1397,12 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
           metadata: nextMetadata,
           formRoute: deterministicFormRoute,
         });
-        return { ...msg, content: deterministicApplied.content, metadata: deterministicApplied.metadata };
+        // V8-D: final authority — explicit no-form suppression removes any form
+        // card that was attached by either the marker path or the deterministic route.
+        const finalMetadata = formSuppressed
+          ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
+          : deterministicApplied.metadata;
+        return { ...msg, content: deterministicApplied.content, metadata: finalMetadata };
       }
     }
     return msg;
