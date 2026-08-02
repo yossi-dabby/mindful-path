@@ -2111,11 +2111,13 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
     'formulation-first guidance\n' +
     '=== END THERAPIST PLANNER-FIRST POLICY ===\n\n' +
     PROD_USER_MSG;
+  const UNSUPPORTED_GROUNDED_REPLY =
+    'המחשבה גורמת למתח; המתח מוביל לעיכוב. זהות ומי שאתה כאדם הם השאלות העמוקות כאן.';
 
   it('creates a pending grounding correction after replacement', () => {
     const raw = [
       { role: 'user', content: PROD_USER_MSG },
-      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+      { role: 'assistant', content: UNSUPPORTED_GROUNDED_REPLY },
     ];
     const sanitized = sanitizeConversationMessagesAligned(raw, 'he');
     const { messages: guarded } = applyFormulationGuardToConversationMessages(raw, sanitized, { locale: 'he' });
@@ -2131,7 +2133,7 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
     const correction = buildPendingGroundingCorrectionBlock(CURRENT_TURN_HE_FALLBACK);
     const raw = [
       { role: 'user', content: PROD_USER_MSG },
-      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר.' },
+      { role: 'assistant', content: UNSUPPORTED_GROUNDED_REPLY },
       { role: 'user', content: `${correction}\n\n${PROD_USER_MSG}` },
     ];
     expect(hasGroundingCorrectionAlreadyBeenApplied(raw, 1)).toBe(true);
@@ -2140,7 +2142,7 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
   it('wrapped first-turn prompt still applies grounding guard deterministically', () => {
     const raw = [
       { role: 'user', content: SESSION_WRAPPED_PROMPT },
-      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+      { role: 'assistant', content: UNSUPPORTED_GROUNDED_REPLY },
     ];
     const visible = runChatVisiblePipeline(raw, 'he');
     expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
@@ -2151,9 +2153,9 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
     const correction = buildPendingGroundingCorrectionBlock(CURRENT_TURN_HE_FALLBACK);
     const raw = [
       { role: 'user', content: PROD_USER_MSG },
-      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+      { role: 'assistant', content: UNSUPPORTED_GROUNDED_REPLY },
       { role: 'user', content: `${correction}\n\n${PROD_USER_MSG}` },
-      { role: 'assistant', content: 'כמו שכבר ברור לנו, זה פחד מפגיעה בקשר שמחזיק את המעגל.' },
+      { role: 'assistant', content: UNSUPPORTED_GROUNDED_REPLY },
     ];
     const visible = runChatVisiblePipeline(raw, 'he');
     const assistantTurns = visible.filter((m) => m.role === 'assistant');
