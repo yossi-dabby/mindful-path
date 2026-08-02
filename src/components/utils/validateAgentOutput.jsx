@@ -1436,6 +1436,13 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
       // Phase 3: extract [FORM:slug] markers from the original model content
       // before applying text sanitization.
       if (typeof msg.content === 'string') {
+        // V8-I: connection_error is a non-assistant system status marker.
+        // Never render it as an AI bubble; hide it so the next valid message
+        // (e.g. a valid session opener) is the one the user sees.
+        if (msg.content.trim() === 'connection_error') {
+          console.log('[sanitizeConversationMessagesAligned] Hiding connection_error system status');
+          return null;
+        }
         // V8-F + V8-G: Strip internal leading tags before any further processing.
         // INTERNAL_PROCESS tags are removed entirely.
         // system_instruction tags are unwrapped (inner visible prose preserved).
