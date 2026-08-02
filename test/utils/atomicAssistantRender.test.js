@@ -94,7 +94,7 @@ function runChatVisiblePipeline(rawMessages, locale = 'en') {
   const { messages: guarded } = applyFormulationGuardToConversationMessages(
     raw, sanitized, { locale }
   );
-  const grounded = applyCurrentTurnGroundingGuardToConversationMessages(
+  const { messages: grounded } = applyCurrentTurnGroundingGuardToConversationMessages(
     raw, guarded, { locale }
   );
   return grounded
@@ -109,11 +109,10 @@ function runChatVisiblePipeline(rawMessages, locale = 'en') {
  */
 function getAssistantIdentityKey(msg, index) {
   if (!msg || msg.role !== 'assistant') return null;
-  if (msg.id) return `id:${msg.id}`;
   const rawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : null;
-  const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
-  if (rawIndex !== null && createdAt) return `raw:${rawIndex}|created:${createdAt}`;
   if (rawIndex !== null) return `raw:${rawIndex}`;
+  if (msg.id) return `id:${msg.id}`;
+  const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
   if (createdAt) return `created:${createdAt}|idx:${index}`;
   return `idx:${index}|role:${msg.role}`;
 }
@@ -194,6 +193,41 @@ function createAtomicGate() {
     getVisible: () => visibleMessages,
     getLastConfirmed: () => lastConfirmed,
     isFinalizedKey: (convId, key) => finalizedByConv.get(convId)?.has(key) ?? false,
+  };
+}
+
+function createPollingFinalityTracker() {
+  let state = { assistantKey: null, content: null, stableCount: 0 };
+
+  const isExplicitlyFinal = (assistantMsg) => {
+    const status = typeof assistantMsg?.status === 'string' ? assistantMsg.status.toLowerCase() : '';
+    const metadataStatus = typeof assistantMsg?.metadata?.status === 'string'
+      ? assistantMsg.metadata.status.toLowerCase()
+      : '';
+    return (
+      ['done', 'completed', 'complete', 'final', 'finished'].includes(status) ||
+      ['done', 'completed', 'complete', 'final', 'finished'].includes(metadataStatus) ||
+      assistantMsg?.metadata?.is_final === true ||
+      assistantMsg?.metadata?.final === true ||
+      assistantMsg?.metadata?.completed === true
+    );
+  };
+
+  return (messages) => {
+    const assistantEntries = (messages || [])
+      .map((msg, index) => ({ msg, index }))
+      .filter(({ msg }) => msg?.role === 'assistant');
+    const latest = assistantEntries.at(-1);
+    if (!latest || typeof latest.msg.content !== 'string') {
+      state = { assistantKey: null, content: null, stableCount: 0 };
+      return false;
+    }
+    const key = getAssistantIdentityKey(latest.msg, latest.index);
+    const content = String(latest.msg.content);
+    const unchanged = state.assistantKey === key && state.content === content;
+    const stableCount = unchanged ? state.stableCount + 1 : 1;
+    state = { assistantKey: key, content, stableCount };
+    return isExplicitlyFinal(latest.msg) || stableCount >= 2;
   };
 }
 
@@ -320,6 +354,26 @@ describe('V8-K B: atomic gate — subscription discarded while loading', () => {
   });
 });
 
+describe('V8-L: polling finality gate', () => {
+  it('L1: does not commit on first in-progress polling snapshot even when expected count is reached', () => {
+    const isFinal = createPollingFinalityTracker();
+    const partial = [user('Hi', 'u1'), assistant('Draft answer', 'temp-a1')];
+    expect(isFinal(partial)).toBe(false);
+  });
+
+  it('L2: finality requires either explicit final marker or stable repeated snapshot', () => {
+    const isFinal = createPollingFinalityTracker();
+    const partial = [user('Hi', 'u1'), assistant('Draft answer', 'temp-a1')];
+    const stable = [user('Hi', 'u1'), assistant('Draft answer', 'temp-a1')];
+    expect(isFinal(partial)).toBe(false);
+    expect(isFinal(stable)).toBe(true);
+
+    const explicitFinal = [user('Hi', 'u1'), { ...assistant('Final answer', 'a1'), metadata: { status: 'completed' } }];
+    const secondTracker = createPollingFinalityTracker();
+    expect(secondTracker(explicitFinal)).toBe(true);
+  });
+});
+
 // ─── C. Immutability guard ────────────────────────────────────────────────────
 
 describe('V8-K C: immutability guard', () => {
@@ -389,6 +443,17 @@ describe('V8-K C: immutability guard', () => {
     const updated = gate.handleSubscription(CONV_B, snapB);
     expect(updated).toBe(true);
     expect(gate.getVisible()[1].content).toBe('Different response for B.');
+  });
+
+  it('C11: temp-id to final-id churn is treated as the same assistant turn when raw index is stable', () => {
+    const gate = createAtomicGate();
+    const committed = [{ role: 'user', content: 'Hi' }, { role: 'assistant', content: 'Stable final', id: 'temp-id', __rawIndex: 1 }];
+    gate.handlePolling(CONV, committed);
+    gate.setLoading(false);
+    const churned = [{ role: 'user', content: 'Hi' }, { role: 'assistant', content: 'Stable final with extra text', id: 'final-id', __rawIndex: 1 }];
+    const updated = gate.handleSubscription(CONV, churned);
+    expect(updated).toBe(false);
+    expect(gate.getVisible()[1].content).toBe('Stable final');
   });
 });
 
@@ -532,9 +597,9 @@ describe('V8-K E: assistant identity key stability', () => {
   it('E2: messages with __rawIndex + created_at produce stable raw-based key', () => {
     const m = { role: 'assistant', content: 'hello', __rawIndex: 2, created_at: '2024-01-01T00:00:00Z' };
     const key = getAssistantIdentityKey(m, 0);
-    expect(key).toBe('raw:2|created:2024-01-01T00:00:00Z');
+    expect(key).toBe('raw:2');
     // Key is index-invariant when rawIndex is present
-    expect(getAssistantIdentityKey(m, 99)).toBe('raw:2|created:2024-01-01T00:00:00Z');
+    expect(getAssistantIdentityKey(m, 99)).toBe('raw:2');
   });
 
   it('E3: two different message ids produce different keys', () => {
@@ -546,5 +611,12 @@ describe('V8-K E: assistant identity key stability', () => {
   it('E4: non-assistant messages return null', () => {
     expect(getAssistantIdentityKey({ role: 'user', content: 'hi' }, 0)).toBeNull();
     expect(getAssistantIdentityKey(null, 0)).toBeNull();
+  });
+
+  it('E5: __rawIndex key has priority over transient id to survive id churn', () => {
+    const temp = { role: 'assistant', id: 'temp-1', __rawIndex: 3, content: 'x' };
+    const final = { role: 'assistant', id: 'final-1', __rawIndex: 3, content: 'x' };
+    expect(getAssistantIdentityKey(temp, 0)).toBe('raw:3');
+    expect(getAssistantIdentityKey(final, 0)).toBe('raw:3');
   });
 });

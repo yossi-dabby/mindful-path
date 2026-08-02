@@ -39,8 +39,10 @@ import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters
 import {
   applyFormulationGuardToConversationMessages,
   applyCurrentTurnGroundingGuardToConversationMessages,
+  buildPendingGroundingCorrectionBlock,
   buildPendingFormulationCorrectionBlock,
   classifyFormulationGuardedTurn,
+  hasGroundingCorrectionAlreadyBeenApplied,
   hasFormulationCorrectionAlreadyBeenApplied,
 } from '../components/utils/formulationContractGuard.js';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
@@ -416,6 +418,12 @@ export default function Chat() {
   // correction.  Set by buildVisibleConversationMessages after each guard pass;
   // consumed and cleared by handleSendMessage when the next user message is sent.
   const pendingFormulationCorrectionRef = useRef(null);
+  const pendingGroundingCorrectionRef = useRef(null);
+  const pollingFinalityStateRef = useRef({
+    assistantKey: null,
+    content: null,
+    stableCount: 0,
+  });
 
   const emitTherapeuticFormsSessionStartDiagnostic = (conversationId) => {
     const { policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload({
@@ -452,6 +460,12 @@ export default function Chat() {
     speechTranscriptRef.current = '';
     setIsTranscribingAudio(false);
     pendingFormulationCorrectionRef.current = null;
+    pendingGroundingCorrectionRef.current = null;
+    pollingFinalityStateRef.current = {
+      assistantKey: null,
+      content: null,
+      stableCount: 0,
+    };
     setAudioDraftUrl((prevUrl) => {
       if (prevUrl) {
         URL.revokeObjectURL(prevUrl);
@@ -678,13 +692,63 @@ export default function Chat() {
 
   const getAssistantIdentityKey = (msg, index) => {
     if (!msg || msg.role !== 'assistant') return null;
-    if (msg.id) return `id:${msg.id}`;
     const rawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : null;
-    const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
-    if (rawIndex !== null && createdAt) return `raw:${rawIndex}|created:${createdAt}`;
     if (rawIndex !== null) return `raw:${rawIndex}`;
+    if (msg.id) return `id:${msg.id}`;
+    const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
     if (createdAt) return `created:${createdAt}|idx:${index}`;
     return `idx:${index}|role:${msg.role}`;
+  };
+
+  const isExplicitlyFinalAssistantMessage = (assistantMsg) => {
+    const statusValue = typeof assistantMsg?.status === 'string'
+      ? assistantMsg.status.trim().toLowerCase()
+      : '';
+    const metadataStatusValue = typeof assistantMsg?.metadata?.status === 'string'
+      ? assistantMsg.metadata.status.trim().toLowerCase()
+      : '';
+    const finalStatuses = new Set(['done', 'completed', 'complete', 'final', 'finished']);
+    if (statusValue && finalStatuses.has(statusValue)) return true;
+    if (metadataStatusValue && finalStatuses.has(metadataStatusValue)) return true;
+    if (assistantMsg?.metadata?.is_final === true) return true;
+    if (assistantMsg?.metadata?.final === true) return true;
+    if (assistantMsg?.metadata?.completed === true) return true;
+    return false;
+  };
+
+  const evaluatePollingAssistantFinality = (msgs) => {
+    const assistantEntries = (Array.isArray(msgs) ? msgs : [])
+      .map((msg, index) => ({ msg, index }))
+      .filter(({ msg }) => msg && msg.role === 'assistant');
+    const latest = assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
+
+    if (!latest || typeof latest.msg.content !== 'string') {
+      pollingFinalityStateRef.current = {
+        assistantKey: null,
+        content: null,
+        stableCount: 0,
+      };
+      return { isFinal: false, reason: 'missing_assistant_message' };
+    }
+
+    const key = getAssistantIdentityKey(latest.msg, latest.index);
+    const content = String(latest.msg.content);
+    const previous = pollingFinalityStateRef.current || {
+      assistantKey: null,
+      content: null,
+      stableCount: 0,
+    };
+    const unchanged = previous.assistantKey === key && previous.content === content;
+    const stableCount = unchanged ? previous.stableCount + 1 : 1;
+    pollingFinalityStateRef.current = { assistantKey: key, content, stableCount };
+
+    if (isExplicitlyFinalAssistantMessage(latest.msg)) {
+      return { isFinal: true, reason: 'explicit_final_status' };
+    }
+    if (stableCount >= 2) {
+      return { isFinal: true, reason: 'stable_across_poll_snapshots' };
+    }
+    return { isFinal: false, reason: 'assistant_still_mutating' };
   };
 
   const buildAssistantLookupByIdentity = (msgs) => {
@@ -906,12 +970,14 @@ export default function Chat() {
       alignedProcessed,
       { locale: sessionLang }
     );
-    const grounded = applyCurrentTurnGroundingGuardToConversationMessages(
+    const { messages: grounded, pendingCorrection: pendingGroundingCorrection } =
+      applyCurrentTurnGroundingGuardToConversationMessages(
       raw,
       guarded,
       { locale: sessionLang }
     );
     pendingFormulationCorrectionRef.current = pendingCorrection;
+    pendingGroundingCorrectionRef.current = pendingGroundingCorrection;
     const withRuntimeMetadata = grounded.map((msg, rawIndex) => {
       if (!msg) return null;
       const guardMode = guardModesByRawIndex[rawIndex] || null;
@@ -2336,6 +2402,11 @@ export default function Chat() {
 
     // Track expected message count for deterministic verification
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
+    pollingFinalityStateRef.current = {
+      assistantKey: null,
+      content: null,
+      stableCount: 0,
+    };
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
     const reasonCode = detectCrisisWithReason(inputMessage);
@@ -2515,7 +2586,7 @@ export default function Chat() {
       // Phase 7: Build pending correction block if needed.
       // Uses the current conversation's persisted messages (already fetched above) to
       // determine whether the correction was already sent.
-      let pendingCorrectionBlock = null;
+      const pendingCorrectionBlocks = [];
       if (pendingFormulationCorrectionRef.current) {
         const alreadySent = hasFormulationCorrectionAlreadyBeenApplied(
           conversation.messages || [],
@@ -2523,25 +2594,40 @@ export default function Chat() {
           -1
         );
         if (!alreadySent) {
-          pendingCorrectionBlock = buildPendingFormulationCorrectionBlock(
+          pendingCorrectionBlocks.push(buildPendingFormulationCorrectionBlock(
             pendingFormulationCorrectionRef.current.fallbackText
-          );
+          ));
         }
         // Clear the pending state after consuming it (send-once guarantee).
         pendingFormulationCorrectionRef.current = null;
       }
+      if (pendingGroundingCorrectionRef.current) {
+        const alreadySent = hasGroundingCorrectionAlreadyBeenApplied(
+          conversation.messages || [],
+          -1
+        );
+        if (!alreadySent) {
+          pendingCorrectionBlocks.push(buildPendingGroundingCorrectionBlock(
+            pendingGroundingCorrectionRef.current.fallbackText
+          ));
+        }
+        pendingGroundingCorrectionRef.current = null;
+      }
+      const pendingCorrectionPrefix = pendingCorrectionBlocks.length > 0
+        ? `${pendingCorrectionBlocks.join('\n\n')}\n\n`
+        : '';
 
       let messageContent;
       if (runtimeSupplement) {
         messageContent = runtimeSupplement + '\n\n' +
-          (pendingCorrectionBlock ? pendingCorrectionBlock + '\n\n' : '') +
+          pendingCorrectionPrefix +
           messageText;
       } else if (formulationSupplement) {
         messageContent = formulationSupplement + '\n\n' +
-          (pendingCorrectionBlock ? pendingCorrectionBlock + '\n\n' : '') +
+          pendingCorrectionPrefix +
           messageText;
       } else {
-        messageContent = (pendingCorrectionBlock ? pendingCorrectionBlock + '\n\n' : '') + messageText;
+        messageContent = pendingCorrectionPrefix + messageText;
       }
       const deterministicFormRoute = resolveFormIntentRequest(messageText, {
         language: sessionLanguageRef.current,
@@ -2708,12 +2794,16 @@ export default function Chat() {
           try {
             const updatedConv = await base44.agents.getConversation(convId);
             const guardedPoll = buildVisibleConversationMessages(updatedConv.messages || [], sessionLanguageRef.current);
+            const pollFinality = evaluatePollingAssistantFinality(guardedPoll);
+            const hasExpectedReplyCount = guardedPoll.length >= expectedReplyCountRef.current;
 
-            console.log(`[Polling] Retrieved ${guardedPoll.length} messages, expected ${expectedReplyCountRef.current}`);
+            console.log(
+              `[Polling] Retrieved ${guardedPoll.length} messages, expected ${expectedReplyCountRef.current}, finality=${pollFinality.reason}`
+            );
 
-            // Check if we have the expected reply
-            if (guardedPoll.length >= expectedReplyCountRef.current) {
-              console.log('[Polling] ✅ Reply found - stopping polling');
+            // Final-only commit: expected count alone is not sufficient.
+            if (hasExpectedReplyCount && pollFinality.isFinal) {
+              console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}) - stopping polling`);
 
               // CRITICAL: Safe update with validation
               // Skip overwrite if subscription already confirmed content — polling
@@ -2738,18 +2828,8 @@ export default function Chat() {
                 emitStabilitySummary();
               }
 
-              // Phase 2 fix: always clear loading when polling confirms enough messages
-              // exist, even if safeUpdateMessages rejected the update (e.g. because a
-              // JSON-shaped agent reply was blocked by the hard render gate and the
-              // refetch already advanced lastConfirmedMessagesRef).  Without this guard
-              // the loading timeout is cleared below while isLoading stays true, causing
-              // a perpetual stall until the 60-second subscription timeout fires.
-              //
-              // setIsLoading(false) is intentionally OUTSIDE `if (updated)`: clearing
-              // the loading spinner is a UX concern, not a data-integrity concern.
-              // The server has confirmed enough messages exist — the user's message was
-              // received and the agent responded.  We must unblock the input regardless
-              // of whether the reply could be rendered (it may be retried or shown later).
+              // Clear loading once finality is verified. setIsLoading(false) remains
+              // outside `if (updated)` so guard-driven update rejection cannot stall UX.
               setIsLoading(false);
 
               if (pollingIntervalRef.current) {
@@ -2759,6 +2839,25 @@ export default function Chat() {
               if (loadingTimeoutRef.current) {
                 clearTimeout(loadingTimeoutRef.current);
                 loadingTimeoutRef.current = null;
+              }
+            } else if (hasExpectedReplyCount && !pollFinality.isFinal) {
+              console.log(`[Polling] ⏳ Awaiting final snapshot (${pollFinality.reason})`);
+              if (pollAttempts >= maxPollAttempts) {
+                console.warn('[Polling] Finality not confirmed before max attempts - falling back to timeout path');
+                instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+                safeUpdateMessages(guardedPoll, 'Polling-Timeout');
+                setIsLoading(false);
+                emitStabilitySummary();
+                if (pollingIntervalRef.current) {
+                  clearTimeout(pollingIntervalRef.current);
+                  pollingIntervalRef.current = null;
+                }
+                if (loadingTimeoutRef.current) {
+                  clearTimeout(loadingTimeoutRef.current);
+                  loadingTimeoutRef.current = null;
+                }
+              } else {
+                pollWithBackoff(pollAttempts);
               }
             } else if (pollAttempts >= maxPollAttempts) {
               console.error('[Polling] ⏱️ Timeout - no reply after max attempts');
