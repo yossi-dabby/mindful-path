@@ -371,6 +371,16 @@ export default function Chat() {
   const subscriptionSucceededRef = useRef(false);
   const snapshotSequenceRef = useRef(0);
   const guardedAssistantMemoryByConversationRef = useRef(new Map());
+  // V8-K: mirrors isLoading for subscription closures that cannot safely close over
+  // the React state variable (the closure is created once when the effect runs and
+  // would capture a stale false value otherwise).
+  const isLoadingRef = useRef(false);
+  // V8-K: tracks assistant messages that have been atomically committed to visible
+  // state by the authoritative polling / visibility-refetch / load-conversation path.
+  // Keyed by conversationId → Set of assistant identity keys.  Once an identity key
+  // is present here, safeUpdateMessages will reject any incoming snapshot that would
+  // change the content of that message.
+  const finalizedAssistantsByConvRef = useRef(new Map());
 
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
   const instrumentationRef = useRef({
@@ -530,6 +540,13 @@ export default function Chat() {
     console.log(`  DUPLICATE_BLOCKED: ${counters.DUPLICATE_BLOCKED}`);
     console.log('═══════════════════════════════════════════════════\n');
   };
+
+  // V8-K: Keep isLoadingRef in sync so subscription closures can safely read it.
+  // The subscription effect runs once per conversationId; closing over `isLoading`
+  // directly would capture a stale false and never see subsequent true values.
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
@@ -811,6 +828,36 @@ export default function Chat() {
   };
 
   /**
+   * V8-K: Records every assistant message in `msgs` as finalized for `convId`.
+   *
+   * Once finalized, safeUpdateMessages will refuse any incoming snapshot that
+   * would mutate the content of a finalized message — preventing post-stream
+   * subscription callbacks or stale polling retries from overwriting an already-
+   * committed final bubble.
+   *
+   * This must be called after every authoritative commit path:
+   *   - polling (getConversation after expected reply count is met)
+   *   - visibility-refetch (page-becoming-visible fetch during loading)
+   *   - load-conversation / conversation-switch (initial load from backend)
+   *
+   * @param {string} convId   Conversation identifier.
+   * @param {Array}  msgs     The already-processed visible messages array.
+   */
+  const markAssistantMessagesFinalized = (convId, msgs) => {
+    if (!convId || !Array.isArray(msgs)) return;
+    let bucket = finalizedAssistantsByConvRef.current.get(convId);
+    if (!bucket) {
+      bucket = new Set();
+      finalizedAssistantsByConvRef.current.set(convId, bucket);
+    }
+    msgs.forEach((msg, index) => {
+      if (!msg || msg.role !== 'assistant') return;
+      const key = getAssistantIdentityKey(msg, index);
+      if (key) bucket.add(key);
+    });
+  };
+
+  /**
    * Phase 6 — Centralized visible-message transformation.
    *
    * Transforms raw Base44 conversation messages into the final array that may
@@ -985,6 +1032,39 @@ export default function Chat() {
           incomingMessages: sanitized,
           accepted: false,
           rejectedReasonCode: 'rejected_content_regression_guard',
+          preservedExistingGuardedReplacement,
+          snapshotSequence,
+        });
+        return false;
+      }
+    }
+
+    // V8-K: Immutability guard — once an assistant message has been atomically
+    // committed by the authoritative polling / visibility-refetch / load path its
+    // content must never change, regardless of whether the incoming snapshot is
+    // longer (late streaming chunk) or shorter (stale refetch).  Only triggers
+    // when the identity key matches AND the content differs.
+    const finalizedBucket = finalizedAssistantsByConvRef.current.get(currentConversationId);
+    if (finalizedBucket && finalizedBucket.size > 0) {
+      const confirmedAssistants = lastConfirmedMessagesRef.current.filter(
+        (m) => m && m.role === 'assistant'
+      );
+      const wouldModifyFinalized = sanitized.some((msg, idx) => {
+        if (!msg || msg.role !== 'assistant') return false;
+        const key = getAssistantIdentityKey(msg, idx);
+        if (!key || !finalizedBucket.has(key)) return false;
+        const confirmed = confirmedAssistants.find(
+          (cm, ci) => getAssistantIdentityKey(cm, ci) === key
+        );
+        return confirmed ? String(msg.content) !== String(confirmed.content) : false;
+      });
+      if (wouldModifyFinalized) {
+        console.warn(`[${source}] ⛔ IMMUTABILITY: blocked modification of finalized assistant message`);
+        logS2DebugStateUpdate({
+          source,
+          incomingMessages: sanitized,
+          accepted: false,
+          rejectedReasonCode: 'rejected_immutability_guard',
           preservedExistingGuardedReplacement,
           snapshotSequence,
         });
@@ -1198,6 +1278,8 @@ export default function Chat() {
             const guarded = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
             const updated = safeUpdateMessages(guarded, 'VisibilityRefetch');
             if (updated) {
+              // V8-K: finalize — this is an authoritative REST fetch during loading
+              markAssistantMessagesFinalized(currentConversationId, guarded);
               setIsLoading(false);
               emitStabilitySummary();
             }
@@ -1251,6 +1333,26 @@ export default function Chat() {
       (data) => {
         if (!isSubscribed || !mountedRef.current) {
           console.log('[Subscription] Ignoring update - unsubscribed or unmounted');
+          return;
+        }
+
+        // V8-K: Never render streaming partial drafts to visible state.
+        //
+        // subscribeToConversation fires once per streaming chunk (the Base44 SDK
+        // delivers each individual _message event as a separate onUpdate call).
+        // During an active send cycle (isLoading is true) the chunks arrive while
+        // the backend is still generating; they are progressively longer but never
+        // "final" until streaming ends.  Committing partial snapshots here causes
+        // the visible message to flash / be replaced once guards (formulation,
+        // grounding, governor) later see the completed text.
+        //
+        // Fix: while generation is in progress the polling path
+        // (pollWithBackoff → getConversation) is the authoritative completion
+        // mechanism.  It fetches the stored, complete message from the backend
+        // REST API and runs the guard pipeline exactly once before committing.
+        // Subscription callbacks during that window are silently discarded here.
+        if (isLoadingRef.current) {
+          console.log('[Subscription] ⏸ Skipping partial streaming draft — polling is authoritative during generation');
           return;
         }
 
@@ -1353,6 +1455,9 @@ export default function Chat() {
             // cycle. Polling must not overwrite subscription-confirmed content.
             subscriptionSucceededRef.current = true;
             setIsLoading(false);
+            // V8-K: finalize the committed messages so subsequent subscription
+            // callbacks (e.g. reconnect replays) cannot overwrite the bubble.
+            markAssistantMessagesFinalized(currentConversationId, processedMessages);
 
             // Emit FINAL STABILITY SUMMARY for this send cycle
             emitStabilitySummary();
@@ -1507,6 +1612,9 @@ export default function Chat() {
 
     const guardedHydrate = buildVisibleConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
     safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
+    // V8-K: finalize hydrated messages so subsequent subscription replays do not
+    // overwrite them (e.g. on socket reconnect after initial page load).
+    markAssistantMessagesFinalized(currentConversationId, guardedHydrate);
   }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
 
   useEffect(() => {
@@ -1698,6 +1806,8 @@ export default function Chat() {
       // Process and sanitize messages before setting
       const guardedLoad = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
       safeUpdateMessages(guardedLoad, 'LoadConversation');
+      // V8-K: finalize existing messages so subscription replays cannot overwrite them
+      markAssistantMessagesFinalized(conversationId, guardedLoad);
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);
@@ -2621,6 +2731,10 @@ export default function Chat() {
               // UI).  If the update was rejected (safeUpdateMessages returned false),
               // there is nothing meaningful to report for this cycle.
               if (updated) {
+                // V8-K: Finalize all committed assistant messages so that subsequent
+                // subscription callbacks (late streaming chunks or socket reconnects)
+                // cannot overwrite the bubble that was just atomically rendered.
+                markAssistantMessagesFinalized(convId, guardedPoll);
                 emitStabilitySummary();
               }
 
