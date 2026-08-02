@@ -1841,3 +1841,113 @@ describe('V8-H: context-aware grounding — false-pass fixes', () => {
     expect(applyFinalOutputGovernor(enFallback, { lang: 'en' })).toBe(enFallback);
   });
 });
+
+// ─── V8-I: current-turn evidence grounding ────────────────────────────────────
+
+describe('V8-I: allow explanations grounded in explicit current-turn facts', () => {
+  const CURRENT_TURN_HE_FALLBACK =
+    'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+
+  // ─── Exact production prompts used throughout ────────────────────────────
+
+  // User who explicitly states thought + body tension + delay + repeated checking
+  const FULL_EVIDENCE_USER_MSG =
+    'המחשבה: "מה הוא יחשוב עליי אם אכתוב משהו לא נכון?" ' +
+    'אני מרגיש מתח בגוף. ' +
+    'אני מתעכב ובודק שוב ושוב לפני שאני שולח. ' +
+    'תסביר לי מה הקשר.';
+
+  // Valid assistant explanation grounded only in the stated facts
+  const VALID_EXPLANATION =
+    "המחשבה \"מה הוא יחשוב עליי\" מעוררת מתח, " +
+    "וזה מוביל לעיכוב ובדיקה חוזרת של מה שכתבת — " +
+    "הימנעות מלשלוח עד שזה ייראה נכון.";
+
+  it('missing-information prompt produces grounding fallback', () => {
+    const raw = [
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה.' },
+      { role: 'assistant', content: 'הימנעות מוגדרת שומרת על המעגל ומונעת ממך להתקדם.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('repeated identical prompt continues to return grounding fallback', () => {
+    const raw = [
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה.' },
+      { role: 'assistant', content: 'הימנעות שומרת על המעגל.' },
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה.' },
+      { role: 'assistant', content: 'הימנעות שומרת על המעגל.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const assistantTurns = visible.filter((m) => m.role === 'assistant');
+    expect(assistantTurns).toHaveLength(2);
+    for (const turn of assistantTurns) {
+      expect(turn.content).toBe(CURRENT_TURN_HE_FALLBACK);
+      expect(turn.metadata?.current_turn_grounding_guard_replaced).toBe(true);
+    }
+  });
+
+  it('explicit thought + tension + delay prompt allows valid explanation through', () => {
+    const raw = [
+      { role: 'user', content: FULL_EVIDENCE_USER_MSG },
+      { role: 'assistant', content: VALID_EXPLANATION },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('explanation that uses only user-stated facts is not replaced', () => {
+    // All assistant terms in this response (הימנעות, עיכוב, בדיקה חוזרת) are
+    // grounded by the user explicitly mentioning מתעכב / בודק שוב ושוב.
+    const raw = [
+      { role: 'user', content: FULL_EVIDENCE_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'כשעולה המחשבה על מה שיחשבו, הגוף מגיב במתח. ' +
+          'המתח מוביל לעיכוב ולבדיקה חוזרת — הימנעות מסיום הכתיבה.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('unsupported identity theme added to the explanation is still blocked', () => {
+    const raw = [
+      { role: 'user', content: FULL_EVIDENCE_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          VALID_EXPLANATION + ' זהות ומי שאתה כאדם הם השאלות העמוקות כאן.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('connection_error content is never rendered as an AI bubble', () => {
+    const raw = [
+      { role: 'user', content: 'שלום.' },
+      { role: 'assistant', content: 'connection_error' },
+    ];
+    const sanitized = sanitizeConversationMessagesAligned(raw, 'he');
+    // connection_error message must be suppressed (null)
+    expect(sanitized[1]).toBeNull();
+  });
+
+  it('connection_error suppression preserves the later valid opener', () => {
+    const raw = [
+      { role: 'user', content: 'שלום.' },
+      { role: 'assistant', content: 'connection_error' },
+      { role: 'assistant', content: 'שלום, אני כאן בשבילך. איך אתה מרגיש היום?' },
+    ];
+    const sanitized = sanitizeConversationMessagesAligned(raw, 'he');
+    expect(sanitized[1]).toBeNull();
+    expect(sanitized[2]).not.toBeNull();
+    expect(sanitized[2].content).toContain('שלום');
+  });
+});
