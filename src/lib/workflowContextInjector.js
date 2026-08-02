@@ -875,62 +875,27 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
  * Does NOT attempt sentiment classification or broad NLP pattern matching.
  * Each entry must match an explicit, unambiguous formulation-deepening intent.
  *
- * Signals are divided into two semantic groups:
- *   (a) Epistemic-gap signals — person notes the therapist does not understand
- *       the personal meaning, or asks what is still unknown.
- *   (b) Pacing signals — person explicitly requests no exercise yet, or asks
- *       to understand before any action is proposed.
+ * Signals intentionally cover only explicit requests for formulation-level
+ * deepening. Generic understanding requests, tension questions, and no-exercise
+ * pacing requests do not activate this supplement by themselves.
  *
  * @private
  */
 const _FORMULATION_DEEPENING_SIGNALS = Object.freeze([
   // Hebrew — what is missing from the formulation
-  /חסר.*פורמולצי/i,
+  /מה.*חסר.*בפורמולצי/i,
+  /חסר.*בפורמולצי/i,
   /פורמולצי.*חסר/i,
-  // Hebrew — why is this so threatening / personal meaning
-  /כל\s*כך\s*מאיים/i,
-  /למה.*מאיים/i,
-  // Hebrew — you know the story but don't understand
-  /יודע.*סיפור/i,
-  /סיפור.*לא.*מבין/i,
-  // Hebrew — don't understand me / the personal meaning
-  /לא.*מבין.*אותי/i,
-  /לא.*מבין.*למה/i,
-  // Hebrew — what does this mean about me
-  /מה.*זה.*אומר.*עלי/i,
-  // Hebrew — help understand the deeper meaning
-  /להבין.*משמעות/i,
-  /משמעות.*עמוק/i,
-  // Hebrew — don't give/suggest an exercise yet
-  /אל.*(?:תתן|תציע|תיתן).*תרגיל/i,
-  /תרגיל.*עדיין/i,
-  /עדיין.*(?:לא|אל).*תרגיל/i,
-  // Hebrew — understand before intervening
-  /להבין.*לפני/i,
-  /קודם.*להבין/i,
+  // Hebrew — explicit deeper-pattern examination request
+  /(?:תעזור|תעזרי|עזור|עזרי|בוא|בואי).*(?:לבחון|נבחן).*(?:הדפוס|דפוס).*(?:העמוק|עמוק)/i,
+  /(?:דפוס|הדפוס).*(?:העמוק|עמוק).*(?:לבחון|נבחן)/i,
 
   // English — what is missing from the formulation
-  /what\s+(?:is|'?s)\s+missing/i,
+  /what\s+(?:is|'?s)\s+missing\s+from\s+(?:the\s+)?formulation/i,
   /missing\s+from\s+(?:the\s+)?formulation/i,
-  // English — why is this so threatening
-  /why\s+(?:is\s+)?(?:this|it)\s+(?:so\s+)?threatening/i,
-  // English — you know the story
-  /you\s+know\s+(?:my\s+|the\s+)?story/i,
-  /know\s+(?:my\s+|the\s+)?story\s+but/i,
-  // English — don't understand me / the personal meaning
-  /don'?t\s+(?:really\s+)?understand\s+me/i,
-  /don'?t\s+understand\s+(?:the\s+)?(?:deeper\s+)?meaning/i,
-  // English — what does this mean about me
-  /what\s+does\s+this\s+(?:say|mean)\s+about\s+me/i,
-  // English — help me understand the deeper meaning
-  /help\s+me\s+understand\s+(?:the\s+)?deeper/i,
-  /deeper\s+meaning/i,
-  // English — don't give/suggest an exercise yet
-  /don'?t\s+(?:give|suggest|provide)\s+(?:me\s+)?(?:an?\s+)?exercise/i,
-  /no\s+exercise\s+yet/i,
-  // English — understand before intervening / acting
-  /understand\s+(?:me\s+|first\s+)?before/i,
-  /understand\s+before\s+(?:you\s+)?interven/i,
+  // English — explicit deeper-pattern examination request
+  /help\s+me\s+examin(?:e|ing)\s+(?:the\s+)?deeper\s+pattern/i,
+  /let'?s\s+examin(?:e|ing)\s+(?:the\s+)?deeper\s+pattern/i,
 ]);
 
 /**
@@ -984,12 +949,12 @@ function _buildFormulationDeepeningInstruction(noExercise) {
     '',
     'The person is explicitly asking for deeper formulation insight. Apply the following for this response only:',
     '',
-    '1. Do not repeat the already-known maintaining cycle unless one brief clause is necessary for coherence.',
-    '2. Clearly distinguish: (a) established information from the supplied formulation context; (b) supported inference; (c) unverified deeper hypothesis; (d) what still requires clarification.',
-    '3. Any new identity-level, value-level, existential, shame-level, or meaning-level interpretation that is not explicitly present in the person\'s own words or supplied structured context MUST be labeled as an unverified hypothesis. Use tentative language, for example: "ייתכן ש...", "אני תוהה אם...", "אחת האפשרויות היא...", "זו עדיין השערה שצריך לבדוק...", "I wonder whether...", "One possibility is...", "This is still a hypothesis...".',
-    '4. Do NOT use unsupported certainty language. Prohibited framings include: "the real threat is...", "the true reason is...", "this means that...", "this is where the real threat lies...", "your value as a person depends on..." — unless that exact meaning was explicitly established in the supplied context. CRITICAL ADDITION: The literal phrases "the real threat", "the true threat", "האיום האמיתי" ("the real threat" in Hebrew), and equivalent certainty framings are PROHIBITED even when preceded by a tentative marker such as "perhaps", "possibly", "ייתכן ש", or "אולי". A tentative prefix does not make a certainty framing acceptable. Instead use: "One possibility is that the threat may be connected to...", "ייתכן שהאיום קשור ל...", "אחת האפשרויות היא...".',
-    '5. If a new deeper hypothesis is introduced, end with exactly one precise collaborative verification question that tests — rather than assumes — the hypothesis. Example: "כשאתה מדמיין שהתוצאה לא תהיה מספיק טובה, מה הדבר הקשה ביותר שזה היה אומר עליך?"',
-    '6. If there is insufficient evidence for a deeper hypothesis, say plainly that the personal meaning is still unknown rather than inventing depth.',
+    '1. The current user message is the primary semantic anchor for this turn.',
+    '2. Prior formulation or historical context may be used only as a tentative hypothesis, never as established fact for this turn.',
+    '3. Never present an inference as something the user already said. Keep observed facts and interpretations explicitly separate.',
+    '4. Do not move from the current event-level problem to identity, worth, relationship meaning, or deeper personal meaning unless there is clear current-turn evidence.',
+    '5. If a deeper hypothesis is introduced, keep it tentative and ask at most one collaborative question grounded in the concrete event described in the current message.',
+    '6. If current-turn evidence is insufficient, state that the meaning is still unknown instead of filling gaps from history.',
   ];
 
   if (noExercise) {
