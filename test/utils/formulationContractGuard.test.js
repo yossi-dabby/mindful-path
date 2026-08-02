@@ -15,6 +15,7 @@ import {
   isGuardedTurn,
   evaluateFormulationResponseContract,
   buildFormulationSafeFallback,
+  buildCurrentTurnGroundingFallback,
   buildPendingFormulationCorrectionBlock,
   hasFormulationCorrectionAlreadyBeenApplied,
   applyFormulationGuardToConversationMessages,
@@ -23,6 +24,7 @@ import {
   FORMULATION_CORRECTION_END,
 } from '../../src/components/utils/formulationContractGuard.js';
 import { sanitizeConversationMessagesAligned } from '../../src/components/utils/validateAgentOutput.jsx';
+import { applyFinalOutputGovernor } from '../../src/components/utils/finalOutputGovernor.jsx';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -1219,9 +1221,9 @@ describe('formulationContractGuard — raw-index alignment regressions', () => {
 
 describe('current-turn grounding guard', () => {
   const CURRENT_TURN_HE_FALLBACK =
-    'כדי לא להניח סיבה שלא תיארת, מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+    'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
   const CURRENT_TURN_EN_FALLBACK =
-    'To avoid assuming a reason you did not describe, what is the first thing that goes through your mind or body at the moment the tension starts?';
+    'There is not yet enough information to determine what is causing this tension. What is the first thing that goes through your mind or body at the moment the tension starts?';
 
   it('replaces unsupported inferred relationship/perfection claims with deterministic fallback', () => {
     const raw = [
@@ -1527,7 +1529,7 @@ describe('Chat monotonic guarded-message merge regressions', () => {
       scopedMemory,
     });
     expect(convBVisible[1].content).toBe(
-      'כדי לא להניח סיבה שלא תיארת, מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?'
+      'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?'
     );
     expect(convBVisible[1].metadata?.formulation_guard_replaced).toBeUndefined();
     expect(convBVisible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
@@ -1707,5 +1709,135 @@ describe('hasFormulationCorrectionAlreadyBeenApplied', () => {
       { id: 'a1', role: 'assistant', content: 'some content' },
     ];
     expect(hasFormulationCorrectionAlreadyBeenApplied(msgs, -1)).toBe(true);
+  });
+});
+
+// ─── V8-H: context-aware grounding fixes ──────────────────────────────────────
+
+describe('V8-H: context-aware grounding — false-pass fixes', () => {
+  const CURRENT_TURN_HE_FALLBACK =
+    'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+  const CURRENT_TURN_EN_FALLBACK =
+    'There is not yet enough information to determine what is causing this tension. What is the first thing that goes through your mind or body at the moment the tension starts?';
+
+  it('question word "למה" in user message does not ground a causal assistant claim', () => {
+    const raw = [
+      { role: 'user', content: 'אני לא יודע למה זה קורה לי.' },
+      { role: 'assistant', content: 'זה נובע מ-חוויות ילדות שגרמו לך לפחד מדחייה.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('negated instruction "אל תציג כסכנה" does not ground a danger assistant claim', () => {
+    const raw = [
+      { role: 'user', content: 'אל תציג את זה כסכנה.' },
+      { role: 'assistant', content: 'המצב הוא סיכון אמיתי עבורך.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('tentative marker in sentence 1 does not exempt an unsupported claim in sentence 2', () => {
+    const raw = [
+      { role: 'user', content: 'I feel tense.' },
+      {
+        role: 'assistant',
+        content:
+          'Maybe I am not sure about this. You fear rejection in the relationship and this explains the tension.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'en');
+    expect(visible[1].content).toBe(CURRENT_TURN_EN_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('strict grounding mode ("current information only") blocks even tentative causal claims', () => {
+    const raw = [
+      { role: 'user', content: 'I feel tense. Current information only.' },
+      { role: 'assistant', content: 'Maybe this is because of past relationship issues.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'en');
+    expect(visible[1].content).toBe(CURRENT_TURN_EN_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('Hebrew strict trigger "התייחס למה שקורה עכשיו בלבד" blocks tentative causal claims', () => {
+    const raw = [
+      { role: 'user', content: 'אני מרגיש לחץ. התייחס למה שקורה עכשיו בלבד.' },
+      { role: 'assistant', content: 'ייתכן שזה נובע מ-חוויות ילדות.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('question form "מה הוא יחשוב" does not ground a relationship meaning claim', () => {
+    const raw = [
+      { role: 'user', content: 'אני חושב מה הוא יחשוב עלי.' },
+      { role: 'assistant', content: 'הפחד מדחייה מסביר את החרדה שלך.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('"תגובה נכונה" correctness claim blocked when user has not confirmed it', () => {
+    const raw = [
+      { role: 'user', content: 'אני מרגיש לחץ לפני תגובה.' },
+      { role: 'assistant', content: 'אתה מחפש את התגובה הנכונה ורוצה להיות מושלם.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('avoidance, delay and cycle claims are blocked without user mention', () => {
+    const raw = [
+      { role: 'user', content: 'I feel nervous before responding.' },
+      {
+        role: 'assistant',
+        content: 'Delaying your response maintains the avoidance pattern and keeps the cycle going.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'en');
+    expect(visible[1].content).toBe(CURRENT_TURN_EN_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('user-confirmed relationship theme allows assistant relationship claims', () => {
+    const raw = [
+      { role: 'user', content: 'I am afraid this will damage our relationship.' },
+      {
+        role: 'assistant',
+        content: 'You mentioned fear of harming the relationship — that is what we should explore.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'en');
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('repeated identical prompt returns grounding fallback — never the generic failsafe', () => {
+    const raw = [
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה לאדם קרוב.' },
+      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה לאדם קרוב.' },
+      { role: 'assistant', content: 'כמו שכבר ברור לנו, זה פחד מפגיעה בקשר שמחזיק את המעגל.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const assistantTurns = visible.filter(m => m.role === 'assistant');
+    for (const turn of assistantTurns) {
+      expect(turn.content).toBe(CURRENT_TURN_HE_FALLBACK);
+      expect(turn.content).not.toBe('אני כאן איתך. מה הכי מטריד אותך כרגע?');
+    }
+  });
+
+  it('FinalOutputGovernor preserves the grounding fallback without replacing it', () => {
+    const heFallback = buildCurrentTurnGroundingFallback('he');
+    const enFallback = buildCurrentTurnGroundingFallback('en');
+    expect(applyFinalOutputGovernor(heFallback, { lang: 'he' })).toBe(heFallback);
+    expect(applyFinalOutputGovernor(enFallback, { lang: 'en' })).toBe(enFallback);
   });
 });
