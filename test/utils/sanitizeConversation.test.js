@@ -32,6 +32,7 @@ import {
   extractAttachmentMetadataFromUserContent,
   ATTACHMENT_METADATA_MARKER_PREFIX,
   stripAgentOnlyRuntimeBlocksFromUserContent,
+  stripLeadingInternalAssistantTags,
 } from '../../src/components/utils/validateAgentOutput.jsx';
 import {
   THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
@@ -1100,5 +1101,65 @@ describe('V8-F – session-start internal turn hiding', () => {
     const userMsgs = result.filter((m) => m.role === 'user');
     expect(userMsgs).toHaveLength(1);
     expect(userMsgs[0].content).toBe('Hello, I need some help.');
+  });
+});
+
+describe('V8-G – system_instruction internal-tag sanitization', () => {
+  it('unwraps system_instruction and preserves inner visible prose', () => {
+    const result = sanitizeConversationMessages([
+      {
+        role: 'assistant',
+        content: '<system_instruction>Take one slow breath with me.</system_instruction>',
+      },
+    ], 'en');
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('Take one slow breath with me.');
+  });
+
+  it('hides assistant turn when system_instruction inner content is empty/internal only', () => {
+    const result = sanitizeConversationMessages([
+      {
+        role: 'assistant',
+        content: '<system_instruction>THOUGHT: internal only</system_instruction>',
+      },
+    ], 'en');
+    expect(result).toHaveLength(0);
+  });
+
+  it('handles case-insensitive system_instruction tags', () => {
+    const result = sanitizeConversationMessages([
+      {
+        role: 'assistant',
+        content: '<SyStEm_InStRuCtIoN>הנה אני איתך.</SyStEm_InStRuCtIoN>',
+      },
+    ], 'he');
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('הנה אני איתך.');
+  });
+
+  it('fails closed for unterminated leading system_instruction tag', () => {
+    const result = sanitizeConversationMessages([
+      { role: 'assistant', content: '<system_instruction>internal start with no closing tag' },
+      { role: 'assistant', content: 'Visible follow-up' },
+    ], 'en');
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('Visible follow-up');
+  });
+
+  it('keeps INTERNAL_PROCESS handling and unwraps following system_instruction', () => {
+    const stripped = stripLeadingInternalAssistantTags(
+      '<INTERNAL_PROCESS>ctx</INTERNAL_PROCESS><system_instruction>Visible text</system_instruction>'
+    );
+    expect(stripped.hidden).toBe(false);
+    expect(stripped.content.trim()).toBe('Visible text');
+    const result = sanitizeConversationMessages([
+      {
+        role: 'assistant',
+        content:
+          '<INTERNAL_PROCESS>ctx</INTERNAL_PROCESS><system_instruction>Visible text</system_instruction>',
+      },
+    ], 'en');
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('Visible text');
   });
 });
