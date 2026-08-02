@@ -868,6 +868,45 @@ export default function Chat() {
     return summarizeText(typeof msg.content === 'string' ? msg.content : '');
   };
 
+  const evaluateAssistantSnapshotFinality = (msgs, source, explicitPollFinality = null) => {
+    if (explicitPollFinality && typeof explicitPollFinality.isFinal === 'boolean') {
+      return explicitPollFinality;
+    }
+    const latestAssistantEntry = getLatestAssistantEntry(msgs);
+    if (!latestAssistantEntry) {
+      return { isFinal: true, reason: 'no_assistant_in_snapshot' };
+    }
+    const explicitFinal = isExplicitlyFinalAssistantMessage(latestAssistantEntry.msg);
+    if (explicitFinal) {
+      return { isFinal: true, reason: 'explicit_final_status' };
+    }
+    return {
+      isFinal: false,
+      reason: `non_final_${normalizeTraceSource(source) || 'unknown'}_snapshot`,
+    };
+  };
+
+  const isNonFinalAssistantPopulationAllowed = (source, previousMessages) => {
+    const normalizedSource = normalizeTraceSource(source);
+    if (normalizedSource !== 'hydration') return false;
+    const hadVisibleAssistant = (Array.isArray(previousMessages) ? previousMessages : [])
+      .some((msg) => msg && msg.role === 'assistant' && typeof msg.content === 'string' && msg.content.trim().length > 0);
+    return !hadVisibleAssistant;
+  };
+
+  const applyAssistantFeedbackFinalityMetadata = (msgs, decisionIsFinal) => (
+    (Array.isArray(msgs) ? msgs : []).map((msg) => {
+      if (!msg || msg.role !== 'assistant') return msg;
+      return {
+        ...msg,
+        metadata: {
+          ...(msg.metadata || {}),
+          feedback_finality_verified: decisionIsFinal === true,
+        },
+      };
+    })
+  );
+
   const buildAssistantFinalitySnapshot = (assistantMsg, pollFinality = null) => {
     const status = typeof assistantMsg?.status === 'string' ? assistantMsg.status : null;
     const metadataStatus =
@@ -877,45 +916,6 @@ export default function Chat() {
       final: assistantMsg?.metadata?.final === true,
       completed: assistantMsg?.metadata?.completed === true,
     };
-
-    const evaluateAssistantSnapshotFinality = (msgs, source, explicitPollFinality = null) => {
-      if (explicitPollFinality && typeof explicitPollFinality.isFinal === 'boolean') {
-        return explicitPollFinality;
-      }
-      const latestAssistantEntry = getLatestAssistantEntry(msgs);
-      if (!latestAssistantEntry) {
-        return { isFinal: true, reason: 'no_assistant_in_snapshot' };
-      }
-      const explicitFinal = isExplicitlyFinalAssistantMessage(latestAssistantEntry.msg);
-      if (explicitFinal) {
-        return { isFinal: true, reason: 'explicit_final_status' };
-      }
-      return {
-        isFinal: false,
-        reason: `non_final_${normalizeTraceSource(source) || 'unknown'}_snapshot`,
-      };
-    };
-
-    const isNonFinalAssistantPopulationAllowed = (source, previousMessages) => {
-      const normalizedSource = normalizeTraceSource(source);
-      if (normalizedSource !== 'hydration') return false;
-      const hadVisibleAssistant = (Array.isArray(previousMessages) ? previousMessages : [])
-        .some((msg) => msg && msg.role === 'assistant' && typeof msg.content === 'string' && msg.content.trim().length > 0);
-      return !hadVisibleAssistant;
-    };
-
-    const applyAssistantFeedbackFinalityMetadata = (msgs, decisionIsFinal) => (
-      (Array.isArray(msgs) ? msgs : []).map((msg) => {
-        if (!msg || msg.role !== 'assistant') return msg;
-        return {
-          ...msg,
-          metadata: {
-            ...(msg.metadata || {}),
-            feedback_finality_verified: decisionIsFinal === true,
-          },
-        };
-      })
-    );
     const explicitFinal = isExplicitlyFinalAssistantMessage(assistantMsg);
     return {
       status,
