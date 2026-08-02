@@ -695,16 +695,35 @@ function _hasCurrentTurnTentativeMarker(content) {
   return false;
 }
 
-function _containsAnyTerm(content, terms) {
-  if (typeof content !== 'string') return false;
+function _findFirstMatchedTerm(content, terms) {
+  if (typeof content !== 'string') return null;
   const lower = content.toLowerCase();
   for (const term of terms) {
     const normalized = String(term || '');
     if (!normalized) continue;
-    if (content.includes(normalized)) return true;
-    if (lower.includes(normalized.toLowerCase())) return true;
+    if (content.includes(normalized)) return normalized;
+    if (lower.includes(normalized.toLowerCase())) return normalized;
   }
-  return false;
+  return null;
+}
+
+function _hashDiagnosticText(value) {
+  if (typeof value !== 'string' || value.length === 0) return null;
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a32:${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
+
+function _normalizeSnippet(value, maxLen = 160) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const normalized = value
+    .replace(/\s+/g, ' ')
+    .replace(/\u200e|\u200f/g, '')
+    .trim();
+  return normalized.length > maxLen ? normalized.slice(0, maxLen) : normalized;
 }
 
 // ─── Current-turn grounding: context-aware helpers ────────────────────────────
@@ -732,18 +751,8 @@ function _splitSentences(text) {
 const _USER_NEGATION_PHRASES_HE = ['אל ', 'בלי '];
 const _USER_NEGATION_PHRASES_EN = ["don't ", "do not ", 'without '];
 
-/**
- * Returns true only when `content` contains at least one term from `terms` and
- * that occurrence is NOT preceded by a negation phrase within the negation window.
- * This ensures instructions like "אל תציג X כסכנה" are not treated as affirmative
- * user evidence for the claim.
- *
- * @param {string} content
- * @param {string[]} terms
- * @returns {boolean}
- */
-function _containsAnyTermAffirmative(content, terms) {
-  if (typeof content !== 'string') return false;
+function _findAffirmativeUserTerm(content, terms) {
+  if (typeof content !== 'string') return null;
   const lower = content.toLowerCase();
   for (const term of terms) {
     const normalized = String(term || '');
@@ -754,13 +763,13 @@ function _containsAnyTermAffirmative(content, terms) {
       const windowStart = Math.max(0, idx - NEGATION_WINDOW_CHARS);
       const windowBefore = lower.slice(windowStart, idx);
       const negated =
-        _USER_NEGATION_PHRASES_HE.some(n => windowBefore.includes(n)) ||
-        _USER_NEGATION_PHRASES_EN.some(n => windowBefore.includes(n));
-      if (!negated) return true;
+        _USER_NEGATION_PHRASES_HE.some((n) => windowBefore.includes(n)) ||
+        _USER_NEGATION_PHRASES_EN.some((n) => windowBefore.includes(n));
+      if (!negated) return normalized;
       idx = lower.indexOf(normLower, idx + 1);
     }
   }
-  return false;
+  return null;
 }
 
 /**
@@ -785,36 +794,76 @@ function _isStrictGroundingMode(rawUserContent) {
   return STRICT_GROUNDING_TRIGGERS_EN.some(t => lower.includes(t));
 }
 
-function _hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent, strictMode) {
-  if (typeof assistantContent !== 'string' || !assistantContent.trim()) return false;
+export function evaluateCurrentTurnGroundingContract(assistantContent, rawUserContent) {
+  const detailed = evaluateCurrentTurnGroundingContractDetailed(assistantContent, rawUserContent);
+  return { pass: detailed.pass, reasonCodes: detailed.reasonCodes };
+}
+
+export function evaluateCurrentTurnGroundingContractDetailed(assistantContent, rawUserContent) {
   const visibleUser = _getVisibleUserContent(rawUserContent);
-  if (!visibleUser) return false;
+  const strictMode = _isStrictGroundingMode(rawUserContent);
+  const correctionBlockDetected = _hasCompleteBlock(
+    rawUserContent,
+    CURRENT_TURN_GROUNDING_CORRECTION_START,
+    CURRENT_TURN_GROUNDING_CORRECTION_END
+  );
+
+  if (typeof assistantContent !== 'string' || !assistantContent.trim()) {
+    return {
+      pass: true,
+      reasonCodes: [],
+      strictMode,
+      visibleUserLength: visibleUser.length,
+      visibleUserHash: _hashDiagnosticText(visibleUser),
+      sentenceIndex: null,
+      matchedClaimGroup: null,
+      matchedAssistantTerm: null,
+      matchedAffirmativeUserTerm: 'none',
+      rejectedSentenceSnippet: null,
+      correctionBlockDetected,
+    };
+  }
 
   const sentences = _splitSentences(assistantContent);
+  for (let groupIndex = 0; groupIndex < CURRENT_TURN_GROUNDING_CLAIM_GROUPS.length; groupIndex++) {
+    const group = CURRENT_TURN_GROUNDING_CLAIM_GROUPS[groupIndex];
+    const matchedAffirmativeUserTerm = _findAffirmativeUserTerm(visibleUser, group.userTerms);
+    if (matchedAffirmativeUserTerm) continue;
 
-  for (const group of CURRENT_TURN_GROUNDING_CLAIM_GROUPS) {
-    if (_containsAnyTermAffirmative(visibleUser, group.userTerms)) continue;
-    for (const sentence of sentences) {
-      if (!_containsAnyTerm(sentence, group.assistantTerms)) continue;
+    for (let sentenceIndex = 0; sentenceIndex < sentences.length; sentenceIndex++) {
+      const sentence = sentences[sentenceIndex];
+      const matchedAssistantTerm = _findFirstMatchedTerm(sentence, group.assistantTerms);
+      if (!matchedAssistantTerm) continue;
       if (!strictMode && _hasCurrentTurnTentativeMarker(sentence)) continue;
-      return true;
+      return {
+        pass: false,
+        reasonCodes: ['unsupported_current_turn_grounding_claim'],
+        strictMode,
+        visibleUserLength: visibleUser.length,
+        visibleUserHash: _hashDiagnosticText(visibleUser),
+        sentenceIndex,
+        matchedClaimGroup: group.id,
+        matchedAssistantTerm,
+        matchedAffirmativeUserTerm: 'none',
+        rejectedSentenceSnippet: _normalizeSnippet(sentence, 160),
+        correctionBlockDetected,
+      };
     }
   }
 
-  return false;
-}
-
-export function evaluateCurrentTurnGroundingContract(assistantContent, rawUserContent) {
-  if (typeof assistantContent !== 'string' || !assistantContent.trim()) {
-    return { pass: true, reasonCodes: [] };
-  }
-
-  const strictMode = _isStrictGroundingMode(rawUserContent);
-  if (_hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent, strictMode)) {
-    return { pass: false, reasonCodes: ['unsupported_current_turn_grounding_claim'] };
-  }
-
-  return { pass: true, reasonCodes: [] };
+  return {
+    pass: true,
+    reasonCodes: [],
+    strictMode,
+    visibleUserLength: visibleUser.length,
+    visibleUserHash: _hashDiagnosticText(visibleUser),
+    sentenceIndex: null,
+    matchedClaimGroup: null,
+    matchedAssistantTerm: null,
+    matchedAffirmativeUserTerm: 'none',
+    rejectedSentenceSnippet: null,
+    correctionBlockDetected,
+  };
 }
 
 /**

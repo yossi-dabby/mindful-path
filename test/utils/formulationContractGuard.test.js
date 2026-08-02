@@ -22,6 +22,8 @@ import {
   hasFormulationCorrectionAlreadyBeenApplied,
   applyFormulationGuardToConversationMessages,
   applyCurrentTurnGroundingGuardToConversationMessages,
+  evaluateCurrentTurnGroundingContract,
+  evaluateCurrentTurnGroundingContractDetailed,
   CURRENT_TURN_GROUNDING_CORRECTION_START,
   CURRENT_TURN_GROUNDING_CORRECTION_END,
   FORMULATION_CORRECTION_START,
@@ -1249,6 +1251,30 @@ describe('current-turn grounding guard', () => {
     expect(visible[1].metadata?.current_turn_grounding_guard_reason_codes).toEqual([
       'unsupported_current_turn_grounding_claim',
     ]);
+  });
+
+  it('records exact grounding diagnostic group/term/reason for replacement path', () => {
+    const detail = evaluateCurrentTurnGroundingContractDetailed(
+      'Closeness raises the stakes and you fear damaging the relationship.',
+      'I become tense before replying to a close person.'
+    );
+    expect(detail.pass).toBe(false);
+    expect(detail.reasonCodes).toEqual(['unsupported_current_turn_grounding_claim']);
+    expect(detail.matchedClaimGroup).toBe('relationship_meaning');
+    expect(detail.matchedAssistantTerm).toBe('closeness raises the stakes');
+    expect(detail.matchedAffirmativeUserTerm).toBe('none');
+    expect(typeof detail.rejectedSentenceSnippet).toBe('string');
+    expect(detail.rejectedSentenceSnippet.length).toBeLessThanOrEqual(160);
+  });
+
+  it('detailed evaluator preserves base pass/reason behavior', () => {
+    const assistant =
+      'Maybe one possibility is that this feels high-stakes for a reason not yet clear, and I want to check rather than assume. What is the first thought or body sensation you notice when the tension starts?';
+    const user = 'I become tense before replying to a close person.';
+    const base = evaluateCurrentTurnGroundingContract(assistant, user);
+    const detailed = evaluateCurrentTurnGroundingContractDetailed(assistant, user);
+    expect(detailed.pass).toBe(base.pass);
+    expect(detailed.reasonCodes).toEqual(base.reasonCodes);
   });
 
   it('allows tentative possibilities only with one verification question', () => {
