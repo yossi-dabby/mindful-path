@@ -1526,8 +1526,11 @@ describe('Chat monotonic guarded-message merge regressions', () => {
       lastConfirmedMessages: [],
       scopedMemory,
     });
-    expect(convBVisible[1].content).toBe(TEST_A_FAILING_ASSISTANT);
+    expect(convBVisible[1].content).toBe(
+      'כדי לא להניח סיבה שלא תיארת, מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?'
+    );
     expect(convBVisible[1].metadata?.formulation_guard_replaced).toBeUndefined();
+    expect(convBVisible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
   });
 
   it('13. later genuine assistant turn with different identity is not blocked', () => {
