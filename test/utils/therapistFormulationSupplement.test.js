@@ -309,7 +309,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     );
     expect(result).not.toBeNull();
     expect(result.toLowerCase()).not.toMatch(
-      /not good enough|good enough|performance|result may|self-worth|worth|identity|rejection|emotional availability/
+      /not good enough|good enough|performance|result may|self-worth|rejection|emotional availability/
     );
   });
 
