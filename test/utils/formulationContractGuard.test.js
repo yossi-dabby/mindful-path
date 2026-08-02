@@ -1951,3 +1951,145 @@ describe('V8-I: allow explanations grounded in explicit current-turn facts', () 
     expect(sanitized[2].content).toContain('שלום');
   });
 });
+
+// ─── V8-J: exact production-prompt evidence mismatch fix ──────────────────────
+
+describe('V8-J: exact production prompt — explicit connection request without body-tension statement', () => {
+  const CURRENT_TURN_HE_FALLBACK =
+    'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+
+  // ─── Exact production prompt used throughout ─────────────────────────────
+  // Explicitly names: thought, delay, repeated checking, and the connection
+  // between thought / tension / delay.  Does NOT contain "אני מרגיש מתח בגוף".
+  const PROD_USER_MSG =
+    'המחשבה: "מה הוא יחשוב עליי אם אכתוב משהו לא נכון?" ' +
+    'אני מתעכב ובודק שוב ושוב לפני שאני שולח. ' +
+    'תסביר לי את הקשר בין המחשבה, המתח והעיכוב.';
+
+  it('valid explanation using גורמת למתח passes through unchanged', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'המחשבה "מה הוא יחשוב עליי" גורמת למתח; ' +
+          'המתח מוביל לעיכוב ולבדיקה חוזרת של הכתיבה.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('valid explanation using המתח מוביל לעיכוב passes through unchanged', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content: 'המתח מוביל לעיכוב ולבדיקה חוזרת — הימנעות מסיום הכתיבה.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('valid explanation using לכן מתרחשת בדיקה חוזרת passes through unchanged', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'המחשבה על מה שיחשב גורמת למתח; לכן מתרחשת בדיקה חוזרת לפני שליחה.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('combined realistic response with גורמת, מוביל and לכן all passes unchanged', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'המחשבה "מה הוא יחשוב עליי" גורמת למתח; ' +
+          'המתח מוביל לעיכוב ולבדיקה חוזרת, ' +
+          'לכן מתרחשת דחיית השליחה שוב ושוב.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('valid response with added unsupported identity sentence is replaced', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'המחשבה גורמת למתח; המתח מוביל לעיכוב. ' +
+          'זהות ומי שאתה כאדם הם השאלות העמוקות כאן.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('valid response with added unsupported worth sentence is replaced', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'המחשבה גורמת למתח; המתח מוביל לעיכוב. ' +
+          'ערך עצמי ותחושת מסוגלות הם שורש הקושי.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('prompt without explicit connection request still produces grounding fallback', () => {
+    // Thought alone, no "הקשר בין" — assistant uses causal terms → blocked.
+    const raw = [
+      {
+        role: 'user',
+        content: 'המחשבה: "מה הוא יחשוב עליי אם אכתוב משהו לא נכון?"',
+      },
+      {
+        role: 'assistant',
+        content: 'המחשבה גורמת למתח שמוביל לעיכוב ולבדיקה חוזרת.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('repeated exact production prompt continues to allow valid causal explanation', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content: 'המחשבה גורמת למתח; המתח מוביל לעיכוב ולבדיקה חוזרת.',
+      },
+      { role: 'user', content: PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content: 'גורמת למתח, מוביל לעיכוב, לכן בדיקה חוזרת.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const assistantTurns = visible.filter((m) => m.role === 'assistant');
+    expect(assistantTurns).toHaveLength(2);
+    for (const turn of assistantTurns) {
+      expect(turn.content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+      expect(turn.metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+    }
+  });
+});
