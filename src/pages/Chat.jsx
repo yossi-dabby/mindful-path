@@ -39,6 +39,7 @@ import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters
 import {
   applyFormulationGuardToConversationMessages,
   applyCurrentTurnGroundingGuardToConversationMessages,
+  evaluateCurrentTurnGroundingContractDetailed,
   buildPendingGroundingCorrectionBlock,
   buildPendingFormulationCorrectionBlock,
   classifyFormulationGuardedTurn,
@@ -77,6 +78,13 @@ import {
   decodeAudioDataAsync,
   audioBufferToMonoWavBlob,
 } from '@/utils/androidAudioTranscoder.js';
+import {
+  createS2V8TraceCollector,
+  isS2DebugEnabledFromSearch,
+  normalizeSnippet,
+  normalizeTraceSource,
+  summarizeText,
+} from '@/lib/s2V8TraceDiagnostics.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -424,6 +432,12 @@ export default function Chat() {
     content: null,
     stableCount: 0,
   });
+  const latestPipelineDiagnosticsRef = useRef(null);
+  const s2DebugEnabledRef = useRef(isS2DebugEnabledFromSearch(location.search));
+  const s2V8TraceCollectorRef = useRef(
+    createS2V8TraceCollector({ enabled: s2DebugEnabledRef.current })
+  );
+  const [s2DebugActiveStage, setS2DebugActiveStage] = useState('idle');
 
   const emitTherapeuticFormsSessionStartDiagnostic = (conversationId) => {
     const { policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload({
@@ -439,6 +453,18 @@ export default function Chat() {
       wasExistingConversation: false,
     });
   };
+
+  useEffect(() => {
+    const debugEnabled = isS2DebugEnabledFromSearch(location.search);
+    s2DebugEnabledRef.current = debugEnabled;
+    s2V8TraceCollectorRef.current = createS2V8TraceCollector({ enabled: debugEnabled });
+    setS2DebugActiveStage('idle');
+    s2V8TraceCollectorRef.current.expose(window);
+    return () => {
+      delete window.__S2_V8_TRACE__;
+      delete window.copyS2V8Trace;
+    };
+  }, [location.search]);
 
   // Reset visible window when conversation changes
   useEffect(() => {
@@ -670,10 +696,7 @@ export default function Chat() {
   };
 
   const isS2DebugEnabled = () => {
-    const value = new URLSearchParams(location.search).get('_s2debug');
-    if (!value) return false;
-    const normalized = String(value).trim().toLowerCase();
-    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+    return s2DebugEnabledRef.current === true;
   };
 
   const toBoundedReasonCodes = (value) =>
@@ -792,6 +815,112 @@ export default function Chat() {
     };
   };
 
+  const getLatestAssistantEntry = (msgs) => {
+    const assistantEntries = (Array.isArray(msgs) ? msgs : [])
+      .map((msg, index) => ({ msg, index }))
+      .filter(({ msg }) => msg && msg.role === 'assistant');
+    return assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
+  };
+
+  const getAssistantContentSummary = (msg) => {
+    if (!msg || msg.role !== 'assistant') return { length: 0, hash: null };
+    return summarizeText(typeof msg.content === 'string' ? msg.content : '');
+  };
+
+  const buildAssistantFinalitySnapshot = (assistantMsg, pollFinality = null) => {
+    const status = typeof assistantMsg?.status === 'string' ? assistantMsg.status : null;
+    const metadataStatus =
+      typeof assistantMsg?.metadata?.status === 'string' ? assistantMsg.metadata.status : null;
+    const metadataFinalFlags = {
+      is_final: assistantMsg?.metadata?.is_final === true,
+      final: assistantMsg?.metadata?.final === true,
+      completed: assistantMsg?.metadata?.completed === true,
+    };
+    const explicitFinal = isExplicitlyFinalAssistantMessage(assistantMsg);
+    return {
+      status,
+      metadataStatus,
+      metadataFinalFlags,
+      explicitFinal,
+      decisionIsFinal: pollFinality?.isFinal ?? explicitFinal,
+      decisionReason: pollFinality?.reason || (explicitFinal ? 'explicit_final_status' : 'not_final_or_unknown'),
+    };
+  };
+
+  const buildSourceVisibilityCounts = (incomingMessages) => {
+    const list = Array.isArray(incomingMessages) ? incomingMessages : [];
+    const visibleAssistantBubbles = list.filter((msg) => msg?.role === 'assistant').length;
+    const visibleFeedbackCount = visibleAssistantBubbles;
+    return {
+      visibleAssistantBubbles,
+      visibleFeedbackCount,
+    };
+  };
+
+  const recordS2V8TraceEvent = ({
+    source,
+    incomingMessages,
+    accepted,
+    rejectedReasonCode,
+    snapshotSequence,
+    pollFinality = null,
+  }) => {
+    if (!isS2DebugEnabled()) return;
+    const latestAssistantEntry = getLatestAssistantEntry(incomingMessages);
+    if (!latestAssistantEntry) return;
+    const latestAssistant = latestAssistantEntry.msg;
+    const assistantIdentityKey = getAssistantIdentityKey(latestAssistant, latestAssistantEntry.index);
+    if (!assistantIdentityKey) return;
+    const sourceNormalized = normalizeTraceSource(source);
+    const boundedPollFinality = sourceNormalized === 'polling' ? pollFinality : null;
+    const finalizedBucket = finalizedAssistantsByConvRef.current.get(currentConversationId);
+    const sourceLabelLower = String(source || '').toLowerCase();
+    const finalizedByCommitPath =
+      accepted === true &&
+      (
+        sourceNormalized === 'subscription' ||
+        sourceNormalized === 'polling' ||
+        sourceLabelLower.includes('visibilityrefetch') ||
+        sourceLabelLower.includes('loadconversation') ||
+        sourceLabelLower.includes('currentconversationhydrate')
+      );
+    const finalizedIdentity =
+      (finalizedBucket && finalizedBucket.has(assistantIdentityKey)) || finalizedByCommitPath
+        ? assistantIdentityKey
+        : null;
+    const pipelineDiagnostics = latestPipelineDiagnosticsRef.current;
+    const pipelineForAssistant = pipelineDiagnostics?.assistantIdentity?.key === assistantIdentityKey
+      ? pipelineDiagnostics
+      : null;
+    s2V8TraceCollectorRef.current.recordEvent({
+      at: new Date().toISOString(),
+      source,
+      assistantIdentity: {
+        id: latestAssistant.id || null,
+        rawIndex: Number.isInteger(latestAssistant.__rawIndex) ? latestAssistant.__rawIndex : null,
+        created_at: typeof latestAssistant.created_at === 'string' ? latestAssistant.created_at : null,
+        key: assistantIdentityKey,
+      },
+      finality: buildAssistantFinalitySnapshot(latestAssistant, boundedPollFinality),
+      pipeline: pipelineForAssistant ? {
+        stageTransitions: pipelineForAssistant.stageTransitions,
+      } : null,
+      groundingGuard: pipelineForAssistant?.groundingGuard || null,
+      pendingGroundingCorrection:
+        pipelineForAssistant?.pendingGroundingCorrection === true ||
+        pendingGroundingCorrectionRef.current !== null,
+      safeUpdate: {
+        accepted,
+        rejectedReasonCode: accepted ? null : rejectedReasonCode || null,
+        snapshotSequence,
+      },
+      finalizedIdentity,
+      visibleCounts: buildSourceVisibilityCounts(incomingMessages),
+    });
+    setS2DebugActiveStage(`${source}:${accepted ? 'accepted' : 'rejected'}`);
+    s2V8TraceCollectorRef.current.expose(window);
+  };
+
   const logS2DebugStateUpdate = ({
     source,
     incomingMessages,
@@ -799,6 +928,7 @@ export default function Chat() {
     rejectedReasonCode = null,
     preservedExistingGuardedReplacement = false,
     snapshotSequence,
+    pollFinality = null,
   }) => {
     if (!isS2DebugEnabled()) return;
     const latestAssistant = getLatestAssistantDebugInfo(incomingMessages);
@@ -824,6 +954,14 @@ export default function Chat() {
       snapshotSequence,
     };
     console.log('[S2Debug] message-state-update', payload);
+    recordS2V8TraceEvent({
+      source,
+      incomingMessages,
+      accepted,
+      rejectedReasonCode,
+      snapshotSequence,
+      pollFinality,
+    });
   };
 
   const applyMonotonicGuardedMerge = (incomingMessages) => {
@@ -987,11 +1125,82 @@ export default function Chat() {
         __guardMode: guardMode,
       };
     });
-    return withRuntimeMetadata.filter(Boolean);
+    const finalMessages = withRuntimeMetadata.filter(Boolean);
+    if (isS2DebugEnabled()) {
+      const latestAssistant = getLatestAssistantEntry(finalMessages);
+      const assistantRawIndex =
+        latestAssistant && Number.isInteger(latestAssistant.msg.__rawIndex)
+          ? latestAssistant.msg.__rawIndex
+          : null;
+      const rawAssistant = assistantRawIndex !== null ? raw[assistantRawIndex] : null;
+      const sanitizedAssistant = assistantRawIndex !== null ? sanitized[assistantRawIndex] : null;
+      const alignedAssistant = assistantRawIndex !== null ? alignedProcessed[assistantRawIndex] : null;
+      const guardedAssistant = assistantRawIndex !== null ? guarded[assistantRawIndex] : null;
+      const groundedAssistant = assistantRawIndex !== null ? grounded[assistantRawIndex] : null;
+      const finalAssistant = latestAssistant ? latestAssistant.msg : null;
+      const precedingRawUser = (() => {
+        if (assistantRawIndex === null) return null;
+        for (let i = assistantRawIndex - 1; i >= 0; i--) {
+          if (raw[i]?.role === 'user') return raw[i];
+        }
+        return null;
+      })();
+      const groundingEvaluation = evaluateCurrentTurnGroundingContractDetailed(
+        typeof guardedAssistant?.content === 'string' ? guardedAssistant.content : '',
+        precedingRawUser?.content || null
+      );
+      latestPipelineDiagnosticsRef.current = {
+        assistantIdentity: finalAssistant ? {
+          id: finalAssistant.id || null,
+          rawIndex: assistantRawIndex,
+          created_at: typeof finalAssistant.created_at === 'string' ? finalAssistant.created_at : null,
+          key: getAssistantIdentityKey(finalAssistant, latestAssistant.index),
+        } : null,
+        stageTransitions: {
+          sanitize: {
+            before: getAssistantContentSummary(rawAssistant),
+            after: getAssistantContentSummary(sanitizedAssistant),
+          },
+          alignedTransform: {
+            before: getAssistantContentSummary(sanitizedAssistant),
+            after: getAssistantContentSummary(alignedAssistant),
+          },
+          formulationGuard: {
+            before: getAssistantContentSummary(alignedAssistant),
+            after: getAssistantContentSummary(guardedAssistant),
+          },
+          groundingGuard: {
+            before: getAssistantContentSummary(guardedAssistant),
+            after: getAssistantContentSummary(groundedAssistant),
+          },
+          finalFilter: {
+            before: getAssistantContentSummary(groundedAssistant),
+            after: getAssistantContentSummary(finalAssistant),
+          },
+        },
+        groundingGuard: {
+          visibleUserLength: groundingEvaluation.visibleUserLength,
+          visibleUserHash: groundingEvaluation.visibleUserHash || null,
+          strictMode: groundingEvaluation.strictMode === true,
+          sentenceIndex: groundingEvaluation.sentenceIndex,
+          matchedClaimGroup: groundingEvaluation.matchedClaimGroup,
+          matchedAssistantTerm: groundingEvaluation.matchedAssistantTerm,
+          matchedAffirmativeUserTerm: groundingEvaluation.matchedAffirmativeUserTerm || 'none',
+          reasonCodes: Array.isArray(groundingEvaluation.reasonCodes) ? groundingEvaluation.reasonCodes : [],
+          replacementApplied: groundedAssistant?.metadata?.current_turn_grounding_guard_replaced === true,
+          rejectedSentenceSnippet: normalizeSnippet(groundingEvaluation.rejectedSentenceSnippet, 160),
+          correctionBlockDetected: groundingEvaluation.correctionBlockDetected === true,
+        },
+        pendingGroundingCorrection: pendingGroundingCorrection !== null,
+      };
+    } else {
+      latestPipelineDiagnosticsRef.current = null;
+    }
+    return finalMessages;
   };
 
   // CRITICAL: Safe state update with duplicate detection
-  const safeUpdateMessages = (newMessages, source) => {
+  const safeUpdateMessages = (newMessages, source, options = {}) => {
     const snapshotSequence = ++snapshotSequenceRef.current;
     const { merged, preservedExistingGuardedReplacement } = applyMonotonicGuardedMerge(newMessages);
     const sanitized = validateAndSanitizeMessages(merged);
@@ -1007,6 +1216,7 @@ export default function Chat() {
         rejectedReasonCode: 'rejected_shorter_than_confirmed',
         preservedExistingGuardedReplacement,
         snapshotSequence,
+        pollFinality: options?.pollFinality || null,
       });
       return false;
     }
@@ -1043,6 +1253,7 @@ export default function Chat() {
         accepted: true,
         preservedExistingGuardedReplacement,
         snapshotSequence,
+        pollFinality: options?.pollFinality || null,
       });
       return true;
     }
@@ -1064,6 +1275,7 @@ export default function Chat() {
           rejectedReasonCode: 'rejected_no_new_content',
           preservedExistingGuardedReplacement,
           snapshotSequence,
+          pollFinality: options?.pollFinality || null,
         });
         return false;
       }
@@ -1100,6 +1312,7 @@ export default function Chat() {
           rejectedReasonCode: 'rejected_content_regression_guard',
           preservedExistingGuardedReplacement,
           snapshotSequence,
+          pollFinality: options?.pollFinality || null,
         });
         return false;
       }
@@ -1133,6 +1346,7 @@ export default function Chat() {
           rejectedReasonCode: 'rejected_immutability_guard',
           preservedExistingGuardedReplacement,
           snapshotSequence,
+          pollFinality: options?.pollFinality || null,
         });
         return false;
       }
@@ -1149,6 +1363,7 @@ export default function Chat() {
       accepted: true,
       preservedExistingGuardedReplacement,
       snapshotSequence,
+      pollFinality: options?.pollFinality || null,
     });
     return true;
   };
@@ -2810,7 +3025,7 @@ export default function Chat() {
               // snapshot can be shorter than the streamed response and must not win.
               const updated = subscriptionSucceededRef.current ?
               false :
-              safeUpdateMessages(guardedPoll, 'Polling');
+              safeUpdateMessages(guardedPoll, 'Polling', { pollFinality });
               if (subscriptionSucceededRef.current) {
                 console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
               }
@@ -2845,7 +3060,7 @@ export default function Chat() {
               if (pollAttempts >= maxPollAttempts) {
                 console.warn('[Polling] Finality not confirmed before max attempts - falling back to timeout path');
                 instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
-                safeUpdateMessages(guardedPoll, 'Polling-Timeout');
+                safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
                 setIsLoading(false);
                 emitStabilitySummary();
                 if (pollingIntervalRef.current) {
@@ -2864,7 +3079,7 @@ export default function Chat() {
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
 
               // CRITICAL: Safe update with validation
-              safeUpdateMessages(guardedPoll, 'Polling-Timeout');
+              safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
               setIsLoading(false);
               emitStabilitySummary();
 
@@ -3160,6 +3375,10 @@ export default function Chat() {
     setIsAgeRestricted(true);
   };
 
+  const s2DebugBadgeBuildSha = isS2DebugEnabled()
+    ? s2V8TraceCollectorRef.current.getSnapshot().build.sha
+    : null;
+
   // Show age restriction message if user is under 18
   if (isAgeRestricted) {
     return <AgeRestrictedMessage />;
@@ -3251,6 +3470,14 @@ export default function Chat() {
           <div className="flex-1">
             <h1 className="text-teal-600 text-xl font-semibold">{t('chat.title')}</h1>
             <p className="text-teal-600 text-sm">{t('chat.subtitle')}</p>
+            {isS2DebugEnabled() && (
+              <span
+                data-testid="s2-v8-debug-badge"
+                className="mt-1 inline-flex rounded-full border border-teal-300 bg-teal-100 px-2 py-0.5 text-[10px] font-medium text-teal-700"
+              >
+                {`v8 ${s2DebugBadgeBuildSha || 'unknown'} • ${s2DebugActiveStage}`}
+              </span>
+            )}
           </div>
         </div>
 

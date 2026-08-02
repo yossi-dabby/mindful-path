@@ -2,6 +2,10 @@ import base44 from "@base44/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+const buildSha =
+  (process.env.GITHUB_SHA || process.env.VITE_BUILD_SHA || "unknown").slice(0, 12);
+const buildTimestamp = new Date().toISOString();
+
 export default defineConfig({
   appType: "spa",
   logLevel: "error",
@@ -19,6 +23,8 @@ export default defineConfig({
   // bundle is loaded on Android Production via [PDF_VIEWER_MOUNTED] log).
   define: {
     __PDF_VIEWER_BUILD__: JSON.stringify(new Date().toISOString()),
+    __S2_V8_BUILD_SHA__: JSON.stringify(buildSha),
+    __S2_V8_BUILD_TIMESTAMP__: JSON.stringify(buildTimestamp),
   },
 
   server: {
