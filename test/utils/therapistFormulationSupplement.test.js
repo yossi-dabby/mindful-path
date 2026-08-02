@@ -91,6 +91,8 @@ const HEBREW_PRODUCTION_MSG =
 const GREETING_MSG = 'Hello, how are you today?';
 const GREETING_HE = '\u05E9\u05DC\u05D5\u05DD, \u05DE\u05D4 \u05E9\u05DC\u05D5\u05DE\u05DA?';
 const NORMAL_CBT_MSG = 'I completed the thought record we discussed last week.';
+const HISTORICAL_SAFETY_PROMPT =
+  'Historical safety context: one or more prior sessions contained safety-relevant information. Conduct a present-session safety check when clinically relevant.';
 
 describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
 
@@ -208,7 +210,61 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(result).toBeNull();
   });
 
-  it('13. A greeting does not activate the supplement', () => {
+  it('13. Historical-safety prompt text does not activate formulation deepening', () => {
+    const result = buildRuntimeFormulationSupplement(
+      CBT_THERAPIST_WIRING_STAGE2_V6_LED,
+      HISTORICAL_SAFETY_PROMPT,
+      'en'
+    );
+    expect(result).toBeNull();
+  });
+
+  it('14. Generic understanding requests do not activate formulation deepening', () => {
+    const genericEn = 'Help me understand this.';
+    const genericHe = '\u05EA\u05E2\u05D6\u05D5\u05E8 \u05DC\u05D9 \u05DC\u05D4\u05D1\u05D9\u05DF \u05D0\u05EA \u05D6\u05D4.';
+    expect(
+      buildRuntimeFormulationSupplement(CBT_THERAPIST_WIRING_STAGE2_V6_LED, genericEn, 'en')
+    ).toBeNull();
+    expect(
+      buildRuntimeFormulationSupplement(CBT_THERAPIST_WIRING_STAGE2_V6_LED, genericHe, 'he')
+    ).toBeNull();
+  });
+
+  it('15. "Why am I tense?" messages do not activate formulation deepening', () => {
+    expect(
+      buildRuntimeFormulationSupplement(CBT_THERAPIST_WIRING_STAGE2_V6_LED, 'Why am I tense?', 'en')
+    ).toBeNull();
+    expect(
+      buildRuntimeFormulationSupplement(
+        CBT_THERAPIST_WIRING_STAGE2_V6_LED,
+        '\u05DC\u05DE\u05D4 \u05D0\u05E0\u05D9 \u05DE\u05EA\u05D5\u05D7?',
+        'he'
+      )
+    ).toBeNull();
+  });
+
+  it('16. A no-exercise-only request does not activate formulation deepening', () => {
+    const noExerciseOnly = "Don't give me an exercise yet.";
+    const result = buildRuntimeFormulationSupplement(
+      CBT_THERAPIST_WIRING_STAGE2_V6_LED,
+      noExerciseOnly,
+      'en'
+    );
+    expect(result).toBeNull();
+  });
+
+  it('17. Explicit deeper-pattern request activates the supplement', () => {
+    const explicitRequest = 'Help me examine the deeper pattern here before we move on.';
+    const result = buildRuntimeFormulationSupplement(
+      CBT_THERAPIST_WIRING_STAGE2_V6_LED,
+      explicitRequest,
+      'en'
+    );
+    expect(result).not.toBeNull();
+    expect(typeof result).toBe('string');
+  });
+
+  it('18. A greeting does not activate the supplement', () => {
     expect(
       buildRuntimeFormulationSupplement(CBT_THERAPIST_WIRING_STAGE2_V6_LED, GREETING_MSG, 'en')
     ).toBeNull();
@@ -217,13 +273,13 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     ).toBeNull();
   });
 
-  it('14. Null message returns null', () => {
+  it('19. Null message returns null', () => {
     expect(
       buildRuntimeFormulationSupplement(CBT_THERAPIST_WIRING_STAGE2_V6_LED, null, 'he')
     ).toBeNull();
   });
 
-  it('15. Empty string message returns null', () => {
+  it('20. Empty string message returns null', () => {
     expect(
       buildRuntimeFormulationSupplement(CBT_THERAPIST_WIRING_STAGE2_V6_LED, '', 'he')
     ).toBeNull();
@@ -231,85 +287,65 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
 
   // ── SECTION B — SUPPLEMENT CONTENT CONTRACT ───────────────────────────────────
 
-  it('16. Supplement explicitly requires tentative hypothesis language markers', () => {
+  it('21. Supplement sets current-message anchoring and event-level boundaries', () => {
     const result = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
       'he'
     );
     expect(result).not.toBeNull();
-    // Must mention at least one Hebrew tentative marker
-    const hasTentativeHe = (
-      result.includes('\u05D9\u05D9\u05EA\u05DB\u05DF \u05E9') || // ייתכן ש
-      result.includes('\u05D0\u05E0\u05D9 \u05EA\u05D5\u05D4\u05D4 \u05D0\u05DD') || // אני תוהה אם
-      result.includes('\u05D0\u05D7\u05EA \u05D4\u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA') // אחת האפשרויות
-    );
-    // Must mention at least one English tentative marker
-    const hasTentativeEn = (
-      result.includes('I wonder whether') ||
-      result.includes('One possibility is') ||
-      result.includes('This is still a hypothesis')
-    );
-    expect(hasTentativeHe || hasTentativeEn).toBe(true);
-    // Supplement must require labeling hypotheses as unverified
-    expect(result).toMatch(/hypothesis|unverified|tentative|\u05D4\u05E9\u05E2\u05E8\u05D4/i);
+    expect(result).toContain('primary semantic anchor');
+    expect(result).toContain('tentative hypothesis');
+    expect(result).toContain('Never present an inference as something the user already said');
+    expect(result).toContain('Do not move from the current event-level problem');
+    expect(result).toContain('ask at most one collaborative question grounded in the concrete event');
   });
 
-  it('17. Supplement explicitly prohibits certainty language ("the real threat is" etc.) including tentatively-prefaced Hebrew framing', () => {
+  it('22. Supplement contains no content-bearing worth/performance/identity examples', () => {
     const result = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
       'he'
     );
     expect(result).not.toBeNull();
-    // Must contain explicit prohibition against certainty framing
-    expect(result).toMatch(/the real threat is|prohibited|Do NOT use/i);
-    // Must specifically name at least one of the prohibited English phrases
-    const hasCertaintyProhibition =
-      result.includes('the real threat is') ||
-      result.includes('the true reason is') ||
-      result.includes('this means that') ||
-      result.includes('this is where the real threat lies') ||
-      result.includes('your value as a person depends on');
-    expect(hasCertaintyProhibition).toBe(true);
-    // Must also explicitly name the Hebrew phrase "האיום האמיתי" as prohibited
-    expect(result).toContain('\u05D4\u05D0\u05D9\u05D5\u05DD \u05D4\u05D0\u05DE\u05D9\u05EA\u05D9'); // האיום האמיתי
-    // Must state that a tentative prefix does not make the framing acceptable
-    const hasTentativePrefixProhibition =
-      result.includes('\u05D9\u05D9\u05EA\u05DB\u05DF \u05E9') || // ייתכן ש (in prohibition context)
-      result.includes('tentative') ||
-      result.includes('even when preceded') ||
-      result.includes('CRITICAL ADDITION');
-    expect(hasTentativePrefixProhibition).toBe(true);
+    expect(result.toLowerCase()).not.toMatch(
+      /not good enough|good enough|performance|result may|self-worth|worth|identity|rejection|emotional availability/
+    );
   });
 
-  it('18. Supplement requires exactly one collaborative verification question when hypothesis is introduced', () => {
+  it('23. Supplement does not revive rejected historical certainty themes', () => {
     const result = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
       'he'
     );
     expect(result).not.toBeNull();
-    // Must instruct to end with exactly one question
-    expect(result).toMatch(/exactly one|one precise/i);
-    // Must include the word "verification" or "collaborative" or "tests"
-    expect(result).toMatch(/collaborative|verification|tests.*hypothesis|hypothesis.*tests/i);
+    expect(result).toContain('state that the meaning is still unknown instead of filling gaps from history');
+    expect(result.toLowerCase()).not.toMatch(/the real threat|the true reason|this means that/);
   });
 
-  it('19. Supplement prohibits exercises when the user asks to understand first', () => {
+  it('24. Supplement keeps question guidance event-grounded and limited to one question', () => {
     const result = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
       'he'
     );
     expect(result).not.toBeNull();
-    // HEBREW_PRODUCTION_MSG contains "אל תציע לי עדיין תרגיל" — no-exercise signal
-    // Supplement must include explicit prohibition
-    expect(result).toMatch(/NO exercise|no.*exercise|NO homework|no.*homework/i);
-    expect(result).toMatch(/NO behavioral experiment|no.*behavioral/i);
+    expect(result).toMatch(/at most one collaborative question grounded in the concrete event/i);
   });
 
-  it('20. No-exercise rule is absent when the user does not ask to avoid exercises', () => {
+  it('25. Supplement prohibits exercises when the user asks to avoid them in an explicit formulation request', () => {
+    const msg = 'What is missing from the formulation? Don\'t give me an exercise yet.';
+    const result = buildRuntimeFormulationSupplement(
+      CBT_THERAPIST_WIRING_STAGE2_V6_LED,
+      msg,
+      'en'
+    );
+    expect(result).not.toBeNull();
+    expect(result).toMatch(/NO exercise|NO homework|NO behavioral experiment/i);
+  });
+
+  it('26. No-exercise rule is absent when the user does not ask to avoid exercises', () => {
     // Message has formulation-deepening signal but no no-exercise signal
     const msgNoExerciseRequest = "What is missing from the formulation? Why is this so threatening?";
     const result = buildRuntimeFormulationSupplement(
@@ -324,7 +360,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
 
   // ── SECTION C — SAFETY PRECEDENCE AND COMPOSITION ────────────────────────────
 
-  it('21. Safety Mode supplement supersedes formulation supplement', () => {
+  it('27. Safety Mode supplement supersedes formulation supplement', () => {
     // Construct a message that would trigger BOTH safety and formulation signals.
     // V6-LED has safety_mode_enabled:true so distress can activate the safety supplement.
     // We verify the composition rule: if safety is non-null, formulation is not added.
@@ -359,7 +395,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(activeCount).toBeLessThanOrEqual(1);
   });
 
-  it('22. Existing-conversation composition: formulation supplement immediately before user message', () => {
+  it('28. Existing-conversation composition: formulation supplement immediately before user message', () => {
     const formulationSupp = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
@@ -378,7 +414,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(composed).toBe(formulationSupp + '\n\n' + HEBREW_PRODUCTION_MSG);
   });
 
-  it('23. New-conversation composition: session-start → formulation supplement → user message', () => {
+  it('29. New-conversation composition: session-start → formulation supplement → user message', () => {
     const sessionStart = '[START_SESSION]';
     const formulationSupp = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
@@ -400,7 +436,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     );
   });
 
-  it('24. Formulation supplement is never inserted twice in the same message', () => {
+  it('30. Formulation supplement is never inserted twice in the same message', () => {
     const formulationSupp = buildRuntimeFormulationSupplement(
       CBT_THERAPIST_WIRING_STAGE2_V6_LED,
       HEBREW_PRODUCTION_MSG,
@@ -416,7 +452,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(occurrences).toBe(1);
   });
 
-  it('25. buildRuntimeFormulationSupplement never throws for any input combination', () => {
+  it('31. buildRuntimeFormulationSupplement never throws for any input combination', () => {
     const wirings = [
       null, undefined,
       CBT_THERAPIST_WIRING_HYBRID,
@@ -437,7 +473,7 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     }
   });
 
-  it('26. buildRuntimeFormulationSupplement does not log the raw message text (privacy)', () => {
+  it('32. buildRuntimeFormulationSupplement does not log the raw message text (privacy)', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
