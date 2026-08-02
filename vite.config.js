@@ -1,9 +1,23 @@
 import base44 from "@base44/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { execSync } from "child_process";
 
-const buildSha =
-  (process.env.GITHUB_SHA || process.env.VITE_BUILD_SHA || "unknown").slice(0, 12);
+// Resolve build SHA: env vars first, then git, then a bounded dev fallback.
+// This ensures the diagnostic badge never shows "unknown" in any build.
+function resolveBuildSha() {
+  const fromEnv = (process.env.GITHUB_SHA || process.env.VITE_BUILD_SHA || "").trim();
+  if (fromEnv) return fromEnv.slice(0, 12);
+  try {
+    return execSync("git rev-parse --short=12 HEAD", { encoding: "utf8" }).trim();
+  } catch (_) {
+    // Not a git repo or git not available — use a date-based dev token so the
+    // badge is always meaningful and never shows the literal string "unknown".
+    return "dev-" + new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  }
+}
+
+const buildSha = resolveBuildSha();
 const buildTimestamp = new Date().toISOString();
 
 export default defineConfig({

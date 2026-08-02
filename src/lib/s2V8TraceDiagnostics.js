@@ -10,6 +10,31 @@ export function isS2DebugEnabledFromSearch(search) {
   return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
 }
 
+/**
+ * Merges the `_s2` and `_s2debug` params from an entry search string into a
+ * (possibly modified) current search string, returning the merged `?...` string.
+ *
+ * Called by Chat before every internal replace-navigation so that the diagnostic
+ * query params survive pdfViewerReturn, intent cleanup, and Base44 SDK routing.
+ *
+ * Rules:
+ *  - Only `_s2` and `_s2debug` are ever copied from `entrySearch`.
+ *  - If a key already exists in `currentSearch`, it is NOT overwritten.
+ *  - If neither search has any params the result is `''`.
+ *  - Never persists across browser sessions — only merges within one URL string.
+ */
+export function mergeEntryDiagnosticParams(currentSearch, entrySearch) {
+  const current = new URLSearchParams(currentSearch || '');
+  const entry = new URLSearchParams(entrySearch || '');
+  for (const key of ['_s2', '_s2debug']) {
+    if (entry.has(key) && !current.has(key)) {
+      current.set(key, entry.get(key));
+    }
+  }
+  const str = current.toString();
+  return str ? `?${str}` : '';
+}
+
 export function hashBoundedText(value) {
   if (typeof value !== 'string' || value.length === 0) return null;
   let hash = 2166136261;
