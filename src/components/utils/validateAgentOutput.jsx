@@ -671,10 +671,64 @@ function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMes
   return { content: shapePdfAssistantReply(shortContent), overflow };
 }
 
+export function stripLeadingInternalAssistantTags(content) {
+  if (typeof content !== 'string') {
+    return { content, removedAny: false, hidden: false };
+  }
+
+  let remaining = content;
+  let removedAny = false;
+
+  while (true) {
+    const trimmedStart = remaining.trimStart();
+    const leadingWhitespaceLength = remaining.length - trimmedStart.length;
+    const leadingWhitespace = remaining.slice(0, leadingWhitespaceLength);
+    const openTagMatch = trimmedStart.match(/^<\s*(internal_process|system_instruction)\b[^>]*>/i);
+    if (!openTagMatch) break;
+
+    const tagName = openTagMatch[1].toLowerCase();
+    const openTag = openTagMatch[0];
+    const openTagStart = leadingWhitespaceLength;
+    const afterOpenTagPos = openTagStart + openTag.length;
+    const closeRe = new RegExp(`<\\s*/\\s*${tagName}\\s*>`, 'i');
+    const tail = remaining.slice(afterOpenTagPos);
+    const closeMatch = tail.match(closeRe);
+
+    removedAny = true;
+    if (!closeMatch) {
+      return { content: '', removedAny: true, hidden: true };
+    }
+
+    const closeStartInTail = closeMatch.index ?? -1;
+    if (closeStartInTail < 0) {
+      return { content: '', removedAny: true, hidden: true };
+    }
+
+    const closeEndInTail = closeStartInTail + closeMatch[0].length;
+    const innerContent = tail.slice(0, closeStartInTail);
+    const suffix = tail.slice(closeEndInTail);
+
+    if (tagName === 'internal_process') {
+      remaining = `${leadingWhitespace}${suffix}`;
+      continue;
+    }
+
+    // system_instruction: unwrap and keep inner visible prose.
+    remaining = `${leadingWhitespace}${innerContent}${suffix}`;
+  }
+
+  return { content: remaining, removedAny, hidden: false };
+}
+
 function sanitizeAssistantMessage(message, { preventFallback = false } = {}) {
   if (!message || typeof message !== 'string') return message;
   
-  let sanitized = message;
+  const strippedInternal = stripLeadingInternalAssistantTags(message);
+  if (strippedInternal.hidden) {
+    return null;
+  }
+
+  let sanitized = strippedInternal.content;
   
   // CRITICAL: Strip forbidden reasoning patterns line-by-line (start-pattern + inline)
   const lines = sanitized.split('\n');
@@ -704,7 +758,7 @@ function sanitizeAssistantMessage(message, { preventFallback = false } = {}) {
   // so the caller can hide the turn instead of injecting an English placeholder into
   // a potentially non-English session.
   if (!sanitized || sanitized.length < 10) {
-    if (preventFallback) {
+    if (preventFallback || strippedInternal.removedAny) {
       console.log('[Reasoning Filter] Message empty after filtering — preventFallback: hiding turn');
       return null;
     }
@@ -1382,23 +1436,25 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
       // Phase 3: extract [FORM:slug] markers from the original model content
       // before applying text sanitization.
       if (typeof msg.content === 'string') {
-        // V8-F: Strip <INTERNAL_PROCESS> blocks before any further processing.
-        // These are internal LLM session-start turn markers that must never
-        // appear in user-visible state.  If the entire content is internal-only
-        // (empty after stripping), hide the turn by returning null so it is
-        // excluded from the rendered message list without injecting an English
-        // placeholder into a potentially non-English session.
-        const INTERNAL_PROCESS_RE = /<INTERNAL_PROCESS\b[^>]*>[\s\S]*?<\/INTERNAL_PROCESS>/gi;
-        const strippedForInternal = msg.content.replace(INTERNAL_PROCESS_RE, '').trim();
+        // V8-F + V8-G: Strip internal leading tags before any further processing.
+        // INTERNAL_PROCESS tags are removed entirely.
+        // system_instruction tags are unwrapped (inner visible prose preserved).
+        // Unterminated leading internal tags fail-closed and hide the turn.
+        const strippedInternalTags = stripLeadingInternalAssistantTags(msg.content);
+        if (strippedInternalTags.hidden) {
+          console.log('[sanitizeConversationMessagesAligned] Hiding internal-only assistant turn');
+          return null;
+        }
+        const strippedForInternal = typeof strippedInternalTags.content === 'string'
+          ? strippedInternalTags.content.trim()
+          : '';
         if (!strippedForInternal) {
           console.log('[sanitizeConversationMessagesAligned] Hiding internal-only assistant turn');
           return null;
         }
-        // If INTERNAL_PROCESS blocks were present but real content remains, use
-        // the stripped version for subsequent processing.
-        const contentToProcess = strippedForInternal.length < msg.content.trim().length
-          ? strippedForInternal
-          : msg.content;
+        // If internal leading tags were present but real content remains, use
+        // the cleaned version for subsequent processing.
+        const contentToProcess = strippedInternalTags.removedAny ? strippedForInternal : msg.content;
 
         // V8-F: Also hide session-injected turns whose content is empty or
         // whitespace-only — these are provisional placeholders that should never
@@ -1415,9 +1471,11 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         // turn is hidden (returns null) instead of injecting the hardcoded English failsafe
         // string into a potentially non-English session.  For all other assistant messages
         // keep the original behavior (English failsafe) so no regressions occur.
-        const cleaned = sanitizeAssistantMessage(contentAfterFormExtract, { preventFallback: isSessionInjectedTriggeringMessage });
-        if (isSessionInjectedTriggeringMessage && !cleaned) {
-          console.log('[sanitizeConversationMessagesAligned] Hiding session-injected assistant turn — all content filtered');
+        const cleaned = sanitizeAssistantMessage(contentAfterFormExtract, {
+          preventFallback: isSessionInjectedTriggeringMessage || strippedInternalTags.removedAny,
+        });
+        if (!cleaned) {
+          console.log('[sanitizeConversationMessagesAligned] Hiding assistant turn — all content filtered');
           return null;
         }
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);

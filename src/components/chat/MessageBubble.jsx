@@ -12,7 +12,10 @@ import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown'
 import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { PDF_VIEWER_ROUTE_PATH } from './utils/formFileUrls';
-import { stripAgentOnlyRuntimeBlocksFromUserContent } from '../utils/validateAgentOutput.jsx';
+import {
+  stripAgentOnlyRuntimeBlocksFromUserContent,
+  stripLeadingInternalAssistantTags,
+} from '../utils/validateAgentOutput.jsx';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
@@ -242,16 +245,20 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
       thinkingContent = extractThinkingContent(contentStr);
     }
 
-    // V8-F PRE-GOVERNOR GATE: Strip <INTERNAL_PROCESS> blocks before the governor
-    // runs.  The governor always returns a failsafe for empty/short input — if the
-    // entire message is an internal session-start marker the failsafe would be an
-    // English string injected into a non-English session.  Catch it here first.
+    // V8-F + V8-G PRE-GOVERNOR GATE: Strip internal leading tags before the governor
+    // runs. INTERNAL_PROCESS tags are removed; system_instruction tags are unwrapped.
+    // Unterminated leading tags fail-closed so no internal tag text leaks to UI.
     let contentForGovernor = contentStr;
-    if (!isUser && /<INTERNAL_PROCESS\b/i.test(contentForGovernor)) {
-      contentForGovernor = contentForGovernor
-        .replace(/<INTERNAL_PROCESS\b[^>]*>[\s\S]*?<\/INTERNAL_PROCESS>/gi, '')
-        .trim();
-      console.warn('[MessageBubble] ⚠️ Stripped <INTERNAL_PROCESS> block before governor');
+    if (!isUser) {
+      const strippedInternalTags = stripLeadingInternalAssistantTags(contentForGovernor);
+      if (strippedInternalTags.hidden) {
+        console.log('[MessageBubble] Hiding internal-only assistant turn (pre-governor gate)');
+        return null;
+      }
+      if (strippedInternalTags.removedAny) {
+        contentForGovernor = String(strippedInternalTags.content || '').trim();
+        console.warn('[MessageBubble] ⚠️ Stripped internal leading tag block before governor');
+      }
     }
     if (!isUser && (!contentForGovernor || contentForGovernor.length < 1) && !hasRenderableAttachment) {
       console.log('[MessageBubble] Hiding internal-only assistant turn (pre-governor gate)');

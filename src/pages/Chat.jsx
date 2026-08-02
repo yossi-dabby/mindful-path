@@ -38,6 +38,7 @@ import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import {
   applyFormulationGuardToConversationMessages,
+  applyCurrentTurnGroundingGuardToConversationMessages,
   buildPendingFormulationCorrectionBlock,
   classifyFormulationGuardedTurn,
   hasFormulationCorrectionAlreadyBeenApplied,
@@ -824,7 +825,11 @@ export default function Chat() {
    *   3. applyFormulationGuardToConversationMessages
    *                                     — replaces violating guarded responses with
    *                                        the deterministic fallback
-   *   4. null filtering                  — removes messages hidden by the sanitizer
+   *   4. applyCurrentTurnGroundingGuardToConversationMessages
+   *                                     — enforces immediate-message grounding and
+   *                                        replaces unsupported inferred claims with
+   *                                        a localized neutral fallback
+   *   5. null filtering                  — removes messages hidden by the sanitizer
    *
    * Also updates pendingFormulationCorrectionRef for the next outbound send.
    *
@@ -854,8 +859,13 @@ export default function Chat() {
       alignedProcessed,
       { locale: sessionLang }
     );
+    const grounded = applyCurrentTurnGroundingGuardToConversationMessages(
+      raw,
+      guarded,
+      { locale: sessionLang }
+    );
     pendingFormulationCorrectionRef.current = pendingCorrection;
-    const withRuntimeMetadata = guarded.map((msg, rawIndex) => {
+    const withRuntimeMetadata = grounded.map((msg, rawIndex) => {
       if (!msg) return null;
       const guardMode = guardModesByRawIndex[rawIndex] || null;
       return {

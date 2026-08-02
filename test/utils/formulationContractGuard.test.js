@@ -18,6 +18,7 @@ import {
   buildPendingFormulationCorrectionBlock,
   hasFormulationCorrectionAlreadyBeenApplied,
   applyFormulationGuardToConversationMessages,
+  applyCurrentTurnGroundingGuardToConversationMessages,
   FORMULATION_CORRECTION_START,
   FORMULATION_CORRECTION_END,
 } from '../../src/components/utils/formulationContractGuard.js';
@@ -215,7 +216,8 @@ function runChatVisiblePipeline(rawMessages, locale = 'en') {
   const guardModes = buildGuardModesByRawIndex(raw);
   const sanitizedAligned = sanitizeConversationMessagesAligned(raw, locale);
   const { messages: guardedAligned } = applyFormulationGuardToConversationMessages(raw, sanitizedAligned, { locale });
-  return guardedAligned
+  const groundedAligned = applyCurrentTurnGroundingGuardToConversationMessages(raw, guardedAligned, { locale });
+  return groundedAligned
     .map((msg, rawIndex) => (msg ? { ...msg, __rawIndex: rawIndex, __guardMode: guardModes[rawIndex] || null } : null))
     .filter(Boolean);
 }
@@ -1212,6 +1214,77 @@ describe('formulationContractGuard — raw-index alignment regressions', () => {
     logSpy.mockRestore();
     warnSpy.mockRestore();
     errorSpy.mockRestore();
+  });
+});
+
+describe('current-turn grounding guard', () => {
+  const CURRENT_TURN_HE_FALLBACK =
+    'כדי לא להניח סיבה שלא תיארת, מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+  const CURRENT_TURN_EN_FALLBACK =
+    'To avoid assuming a reason you did not describe, what is the first thing that goes through your mind or body at the moment the tension starts?';
+
+  it('replaces unsupported inferred relationship/perfection claims with deterministic fallback', () => {
+    const raw = [
+      {
+        role: 'user',
+        content: 'I become tense before replying to a close person.',
+      },
+      {
+        role: 'assistant',
+        content:
+          'You need to find the right response because closeness raises the stakes and you fear damaging the relationship.',
+      },
+    ];
+
+    const visible = runChatVisiblePipeline(raw, 'en');
+    expect(visible).toHaveLength(2);
+    expect(visible[1].content).toBe(CURRENT_TURN_EN_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+    expect(visible[1].metadata?.current_turn_grounding_guard_reason_codes).toEqual([
+      'unsupported_current_turn_grounding_claim',
+    ]);
+  });
+
+  it('allows tentative possibilities only with one verification question', () => {
+    const raw = [
+      {
+        role: 'user',
+        content: 'I become tense before replying to a close person.',
+      },
+      {
+        role: 'assistant',
+        content:
+          'Maybe one possibility is that this feels high-stakes for a reason not yet clear, and I want to check rather than assume. What is the first thought or body sensation you notice when the tension starts?',
+      },
+    ];
+
+    const visible = runChatVisiblePipeline(raw, 'en');
+    expect(visible).toHaveLength(2);
+    expect(visible[1].content).toContain('Maybe one possibility');
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('keeps current-message facts authoritative across repeated identical prompts', () => {
+    const raw = [
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה לאדם קרוב.' },
+      {
+        role: 'assistant',
+        content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.',
+      },
+      { role: 'user', content: 'אני נהיה מתוח לפני שאני עונה לאדם קרוב.' },
+      {
+        role: 'assistant',
+        content: 'כמו שכבר ברור לנו, זה פחד מפגיעה בקשר שמחזיק את המעגל.',
+      },
+    ];
+
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const assistantTurns = visible.filter((msg) => msg.role === 'assistant');
+    expect(assistantTurns).toHaveLength(2);
+    expect(assistantTurns[0].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(assistantTurns[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(assistantTurns[0].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+    expect(assistantTurns[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
   });
 });
 

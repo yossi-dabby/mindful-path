@@ -35,6 +35,7 @@
  * exercise_proposed_when_blocked
  * internal_instruction_leak
  * conclusion_drawn_when_explicitly_blocked
+ * unsupported_current_turn_grounding_claim
  *
  * LOCALE SUPPORT
  * --------------
@@ -82,6 +83,12 @@ const HEBREW_CONTINUATION_FALLBACK =
 
 const ENGLISH_CONTINUATION_FALLBACK =
   'I hear that the hardest part is the thought, "I am not good enough." What is\nalready clear is that this thought is painful; what remains unclear is whether\nit appears mainly around performance and tasks or reflects something broader,\nand I do not want to decide that without checking with you. Does this thought\ncome up mainly when you have to prove your ability, or in other situations\ntoo?';
+
+const HEBREW_CURRENT_TURN_GROUNDING_FALLBACK =
+  'כדי לא להניח סיבה שלא תיארת, מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+
+const ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK =
+  'To avoid assuming a reason you did not describe, what is the first thing that goes through your mind or body at the moment the tension starts?';
 
 // ─── Phase A: Prohibited certainty phrases ────────────────────────────────────
 
@@ -218,6 +225,182 @@ const TENTATIVE_MARKERS_EN = [
   'it is not yet clear',
   'may be connected to',
   'needs to be checked',
+];
+
+const CURRENT_TURN_TENTATIVE_EXTRA_HE = ['אולי', 'יכול להיות', 'ייתכן'];
+const CURRENT_TURN_TENTATIVE_EXTRA_EN = ['maybe', 'perhaps', 'might', 'could it be', 'it may be'];
+
+const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
+  {
+    id: 'causal',
+    assistantTerms: [
+      'because',
+      'this explains',
+      'that explains',
+      'therefore',
+      'that is why',
+      'נובע מ',
+      'בגלל ש',
+      'לכן',
+      'זה מסביר',
+      'הסיבה היא',
+    ],
+    userTerms: ['because', 'why', 'בגלל', 'למה', 'הסיבה'],
+  },
+  {
+    id: 'identity',
+    assistantTerms: [
+      'identity',
+      'who you are',
+      'self-worth',
+      'value as a person',
+      'זהות',
+      'ערך עצמי',
+      'מי שאתה',
+      'מי אתה',
+    ],
+    userTerms: [
+      'identity',
+      'who i am',
+      'who you are',
+      'self-worth',
+      'value as a person',
+      'זהות',
+      'ערך עצמי',
+      'מי אני',
+      'מי אתה',
+    ],
+  },
+  {
+    id: 'relationship_meaning',
+    assistantTerms: [
+      'damage the relationship',
+      'harm the relationship',
+      'closeness raises the stakes',
+      'higher stakes',
+      'emotional availability',
+      'rejection',
+      'relationship',
+      'לפגוע בקשר',
+      'לפגוע במערכת היחסים',
+      'הקשר ייפגע',
+      'הקרבה מעלה את המחיר',
+      'זמינות רגשית',
+      'דחייה',
+      'מערכת היחסים',
+      'הקשר',
+    ],
+    userTerms: [
+      'relationship',
+      'partner',
+      'spouse',
+      'marriage',
+      'boyfriend',
+      'girlfriend',
+      'husband',
+      'wife',
+      'rejection',
+      'system of relationship',
+      'מערכת יחסים',
+      'בן זוג',
+      'בת זוג',
+      'זוגיות',
+      'נישואים',
+      'דחייה',
+      'הקשר',
+      'לפגוע בקשר',
+    ],
+  },
+  {
+    id: 'danger',
+    assistantTerms: [
+      'danger',
+      'threat',
+      'unsafe',
+      'risk',
+      'catastrophe',
+      'סכנה',
+      'איום',
+      'מסוכן',
+      'סיכון',
+      'קטסטרופה',
+    ],
+    userTerms: [
+      'danger',
+      'threat',
+      'unsafe',
+      'risk',
+      'afraid',
+      'fear',
+      'סכנה',
+      'איום',
+      'מסוכן',
+      'סיכון',
+      'מפחד',
+      'פחד',
+    ],
+  },
+  {
+    id: 'perfection_correctness',
+    assistantTerms: [
+      'right response',
+      'right answer',
+      'perfect',
+      'perfection',
+      'correctness',
+      'good enough',
+      'must be right',
+      'תגובה נכונה',
+      'תשובה נכונה',
+      'מושלם',
+      'פרפקציוניזם',
+      'לא מספיק טוב',
+      'חייב להיות נכון',
+    ],
+    userTerms: [
+      'right response',
+      'right answer',
+      'perfect',
+      'perfection',
+      'correct',
+      'good enough',
+      'תגובה נכונה',
+      'תשובה נכונה',
+      'מושלם',
+      'פרפקציוניזם',
+      'לא מספיק טוב',
+      'נכון',
+    ],
+  },
+  {
+    id: 'maintaining_cycle',
+    assistantTerms: [
+      'maintaining cycle',
+      'vicious cycle',
+      'cycle',
+      'loop',
+      'avoidance keeps',
+      'pattern lives',
+      'דפוס משמר',
+      'מעגל',
+      'לופ',
+      'הדפוס עובד כך',
+      'זה משמר',
+      'הימנעות משמרת',
+    ],
+    userTerms: [
+      'cycle',
+      'loop',
+      'pattern',
+      'avoidance',
+      'maintain',
+      'מעגל',
+      'לופ',
+      'דפוס',
+      'הימנעות',
+      'משמר',
+    ],
+  },
 ];
 
 // ─── Phase D: Exercise terms ──────────────────────────────────────────────────
@@ -458,6 +641,67 @@ function _hasAnyTentativeMarker(content) {
     if (lower.includes(marker)) return true;
   }
   return false;
+}
+
+function _hasCurrentTurnTentativeMarker(content) {
+  if (_hasAnyTentativeMarker(content)) return true;
+  if (typeof content !== 'string') return false;
+
+  for (const marker of CURRENT_TURN_TENTATIVE_EXTRA_HE) {
+    if (content.includes(marker)) return true;
+  }
+
+  const lower = content.toLowerCase();
+  for (const marker of CURRENT_TURN_TENTATIVE_EXTRA_EN) {
+    if (lower.includes(marker)) return true;
+  }
+  return false;
+}
+
+function _containsAnyTerm(content, terms) {
+  if (typeof content !== 'string') return false;
+  const lower = content.toLowerCase();
+  for (const term of terms) {
+    const normalized = String(term || '');
+    if (!normalized) continue;
+    if (content.includes(normalized)) return true;
+    if (lower.includes(normalized.toLowerCase())) return true;
+  }
+  return false;
+}
+
+function _hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent) {
+  if (typeof assistantContent !== 'string' || !assistantContent.trim()) return false;
+  const visibleUser = _getVisibleUserContent(rawUserContent);
+  if (!visibleUser) return false;
+
+  for (const group of CURRENT_TURN_GROUNDING_CLAIM_GROUPS) {
+    const assistantHasClaim = _containsAnyTerm(assistantContent, group.assistantTerms);
+    if (!assistantHasClaim) continue;
+    const userHasGrounding = _containsAnyTerm(visibleUser, group.userTerms);
+    if (!userHasGrounding) return true;
+  }
+
+  return false;
+}
+
+export function evaluateCurrentTurnGroundingContract(assistantContent, rawUserContent) {
+  if (typeof assistantContent !== 'string' || !assistantContent.trim()) {
+    return { pass: true, reasonCodes: [] };
+  }
+
+  if (!_hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent)) {
+    return { pass: true, reasonCodes: [] };
+  }
+
+  const hasTentative = _hasCurrentTurnTentativeMarker(assistantContent);
+  const questionCount = _countQuestions(assistantContent);
+
+  if (hasTentative && questionCount === 1) {
+    return { pass: true, reasonCodes: [] };
+  }
+
+  return { pass: false, reasonCodes: ['unsupported_current_turn_grounding_claim'] };
 }
 
 /**
@@ -703,6 +947,12 @@ export function buildFormulationSafeFallback(
   return locale === 'he' ? HEBREW_FALLBACK : ENGLISH_FALLBACK;
 }
 
+export function buildCurrentTurnGroundingFallback(locale) {
+  return locale === 'he'
+    ? HEBREW_CURRENT_TURN_GROUNDING_FALLBACK
+    : ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK;
+}
+
 // ─── Phase 7: Next-turn correction block ────────────────────────────────────
 
 /**
@@ -907,4 +1157,70 @@ export function applyFormulationGuardToConversationMessages(
   }
 
   return { messages: result, pendingCorrection };
+}
+
+/**
+ * Applies deterministic current-turn grounding validation using only the
+ * immediate preceding user message for each assistant turn.
+ *
+ * If an unsupported causal/identity/relationship/danger/perfection/cycle claim
+ * is presented as known fact, the message is replaced with a localized neutral
+ * fallback that keeps uncertainty explicit and asks at most one event-level
+ * question.
+ *
+ * @param {Array<object>} rawMessages
+ * @param {Array<object>} finalMessages
+ * @param {object} [options]
+ * @param {'he'|'en'|string} [options.locale='en']
+ * @returns {Array<object>}
+ */
+export function applyCurrentTurnGroundingGuardToConversationMessages(
+  rawMessages,
+  finalMessages,
+  options
+) {
+  const locale = (typeof options?.locale === 'string' ? options.locale : 'en');
+  const effectiveLocale = locale.startsWith('he') ? 'he' : 'en';
+
+  if (!Array.isArray(rawMessages) || !Array.isArray(finalMessages)) {
+    return Array.isArray(finalMessages) ? finalMessages : [];
+  }
+
+  const result = [];
+  for (let fi = 0; fi < finalMessages.length; fi++) {
+    const msg = finalMessages[fi];
+
+    if (!msg || msg.role !== 'assistant' || typeof msg.content !== 'string') {
+      result.push(msg);
+      continue;
+    }
+
+    if (msg.metadata?.current_turn_grounding_guard_replaced === true) {
+      result.push(msg);
+      continue;
+    }
+
+    const rawIdx = fi >= 0 && fi < rawMessages.length ? fi : -1;
+    const precedingRawUser = rawIdx !== -1 ? _findPrecedingRawUser(rawMessages, rawIdx) : null;
+    const rawUserContent = precedingRawUser ? precedingRawUser.content : null;
+    const evaluation = evaluateCurrentTurnGroundingContract(msg.content, rawUserContent);
+
+    if (evaluation.pass) {
+      result.push(msg);
+      continue;
+    }
+
+    const fallbackText = buildCurrentTurnGroundingFallback(effectiveLocale);
+    result.push({
+      ...msg,
+      content: fallbackText,
+      metadata: {
+        ...(msg.metadata || {}),
+        current_turn_grounding_guard_replaced: true,
+        current_turn_grounding_guard_reason_codes: evaluation.reasonCodes,
+      },
+    });
+  }
+
+  return result;
 }
