@@ -548,7 +548,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
           }
 
                   {/* Feedback for assistant messages */}
-                  {!isUser && conversationId && messageIndex !== undefined &&
+                  {!isUser &&
+          conversationId &&
+          messageIndex !== undefined &&
+          message?.metadata?.feedback_finality_verified === true &&
           <MessageFeedback
             conversationId={conversationId}
             messageIndex={messageIndex}
