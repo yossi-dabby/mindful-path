@@ -81,6 +81,7 @@ import {
 import {
   createS2V8TraceCollector,
   isS2DebugEnabledFromSearch,
+  mergeEntryDiagnosticParams,
   normalizeSnippet,
   normalizeTraceSource,
   summarizeText,
@@ -433,7 +434,13 @@ export default function Chat() {
     stableCount: 0,
   });
   const latestPipelineDiagnosticsRef = useRef(null);
-  const s2DebugEnabledRef = useRef(isS2DebugEnabledFromSearch(location.search));
+  // Capture the entry URL search ONCE so internal Chat navigations (pdfViewerReturn,
+  // intent cleanup, Base44 SDK routing) cannot silently change the active _s2 stage
+  // or disable diagnostics mid-session.
+  const entrySearchRef = useRef(
+    typeof window !== 'undefined' ? window.location.search : location.search
+  );
+  const s2DebugEnabledRef = useRef(isS2DebugEnabledFromSearch(entrySearchRef.current));
   const s2V8TraceCollectorRef = useRef(
     createS2V8TraceCollector({ enabled: s2DebugEnabledRef.current })
   );
@@ -454,17 +461,18 @@ export default function Chat() {
     });
   };
 
+  // Mount-only: expose the trace collector and clean up only when Chat unmounts.
+  // Do NOT depend on location.search — internal Chat navigations must not recreate
+  // or destroy the collector; the entry-URL debug flag is the authoritative source.
+  // window.__S2_V8_TRACE__ and window.copyS2V8Trace are deleted only on unmount
+  // (or when debug was never enabled on entry).
   useEffect(() => {
-    const debugEnabled = isS2DebugEnabledFromSearch(location.search);
-    s2DebugEnabledRef.current = debugEnabled;
-    s2V8TraceCollectorRef.current = createS2V8TraceCollector({ enabled: debugEnabled });
-    setS2DebugActiveStage('idle');
     s2V8TraceCollectorRef.current.expose(window);
     return () => {
       delete window.__S2_V8_TRACE__;
       delete window.copyS2V8Trace;
     };
-  }, [location.search]);
+  }, []); // intentional empty deps — mount/unmount only
 
   // Reset visible window when conversation changes
   useEffect(() => {
@@ -1916,7 +1924,7 @@ export default function Chat() {
       delete nextLocationState.pdfViewerReturn;
     }
 
-    navigate(`${location.pathname}${location.search}${location.hash}`, {
+    navigate(`${location.pathname}${mergeEntryDiagnosticParams(location.search, entrySearchRef.current)}${location.hash}`, {
       replace: true,
       state: nextLocationState,
     });
@@ -3378,6 +3386,9 @@ export default function Chat() {
   const s2DebugBadgeBuildSha = isS2DebugEnabled()
     ? s2V8TraceCollectorRef.current.getSnapshot().build.sha
     : null;
+  const s2DebugLatestTraceSource = isS2DebugEnabled()
+    ? s2V8TraceCollectorRef.current.getSnapshot().activeStage
+    : null;
 
   // Show age restriction message if user is under 18
   if (isAgeRestricted) {
@@ -3475,7 +3486,7 @@ export default function Chat() {
                 data-testid="s2-v8-debug-badge"
                 className="mt-1 inline-flex rounded-full border border-teal-300 bg-teal-100 px-2 py-0.5 text-[10px] font-medium text-teal-700"
               >
-                {`v8 ${s2DebugBadgeBuildSha || 'unknown'} • ${s2DebugActiveStage}`}
+                {`v8 ${s2DebugBadgeBuildSha || 'dev'} • ${s2DebugActiveStage}${s2DebugLatestTraceSource ? ` • src:${s2DebugLatestTraceSource}` : ''}`}
               </span>
             )}
           </div>
