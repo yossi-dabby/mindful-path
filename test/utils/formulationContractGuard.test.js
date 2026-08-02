@@ -2045,6 +2045,7 @@ describe('V8-J: exact production prompt — explicit connection request without 
     'המחשבה: "מה הוא יחשוב עליי אם אכתוב משהו לא נכון?" ' +
     'אני מתעכב ובודק שוב ושוב לפני שאני שולח. ' +
     'תסביר לי את הקשר בין המחשבה, המתח והעיכוב.';
+  const STRICT_PROD_USER_MSG = `${PROD_USER_MSG} התייחס רק למה שתיארתי עכשיו.`;
 
   it('valid explanation using גורמת למתח passes through unchanged', () => {
     const raw = [
@@ -2102,6 +2103,67 @@ describe('V8-J: exact production prompt — explicit connection request without 
     const visible = runChatVisiblePipeline(raw, 'he');
     expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
     expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('strict grounding exact production prompt still allows thought → tension → checking → delay explanation', () => {
+    const raw = [
+      { role: 'user', content: STRICT_PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'מה שתיארת עכשיו נשמע כמו רצף נקודתי: המחשבה "מה הוא יחשוב עליי אם אכתוב משהו לא נכון?" מעלה מתח, ' +
+          'והמתח מוביל לעיכוב, בדיקה חוזרת ודחייה של השליחה. ' +
+          'ברמה של האירוע הזה, זה נראה כמו ניסיון לוודא שוב לפני ששולחים.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('strict grounding blocks unsupported relief, reinforcement, and future-worsening claims in long Hebrew output', () => {
+    const raw = [
+      { role: 'user', content: STRICT_PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'מה שתיארת עכשיו יכול להישמע כך: המחשבה מעלה מתח, והמתח מוביל לעיכוב ולבדיקה חוזרת לפני שליחה. ' +
+          'אבל הבדיקה גם מרגיעה אותך מיד, מחזקת אצלך את תחושת הסכנה, ועם הזמן החרדה רק תחמיר.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('strict grounding blocks unsupported relationship, image, and causal-exclusion claims in long Hebrew output', () => {
+    const raw = [
+      { role: 'user', content: STRICT_PROD_USER_MSG },
+      {
+        role: 'assistant',
+        content:
+          'ברגע הזה המחשבה מעלה מתח, והמתח מתחבר לעיכוב ולבדיקה חוזרת. ' +
+          'זה מראה שהמסר עלול לפגוע בקשר או בתדמית שלך, ושזה לא באמת קשור לכתיבה טובה יותר.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('strict grounding missing-information fallback still asks one neutral question', () => {
+    const raw = [
+      { role: 'user', content: 'אני מתעכב לפני שאני שולח. התייחס רק למה שתיארתי עכשיו.' },
+      {
+        role: 'assistant',
+        content:
+          'העיכוב מחזק את תחושת הסכנה, יוצר הקלה מיידית, ובהמשך רק יחמיר את החרדה.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect((visible[1].content.match(/\?/g) || [])).toHaveLength(1);
+    expect(visible[1].content).not.toMatch(/סכנה|הקלה|יחמיר|קשר|תדמית/);
   });
 
   it('valid response with added unsupported identity sentence is replaced', () => {

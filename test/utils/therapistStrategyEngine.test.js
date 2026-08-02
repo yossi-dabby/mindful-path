@@ -744,6 +744,17 @@ describe('Wave 2A — buildStrategyContextSection output structure', () => {
     expect(section).toContain('psychoeducation');
   });
 
+  it('STRUCTURED_EXPLORATION guidance includes strict-grounding evidence bounds', () => {
+    const state = {
+      ...determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_MODERATE, null),
+      intervention_mode: STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION,
+    };
+    const section = buildStrategyContextSection(state);
+    expect(section).toContain('strict-grounding requests event-level and limited to explicitly stated links');
+    expect(section).toContain('thought → tension → checking/delay');
+    expect(section).toContain('at most one neutral verification question');
+  });
+
   it('includes END THERAPEUTIC STRATEGY footer', () => {
     const state = determineTherapistStrategy(null, null, DISTRESS_TIERS.TIER_LOW, null);
     const section = buildStrategyContextSection(state);

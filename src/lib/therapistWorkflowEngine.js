@@ -1149,7 +1149,16 @@ export const THERAPIST_FORMULATION_RESPONSE_RULES = Object.freeze({
     'is present in structured formulation context. When the person explicitly ' +
     'asks what is still missing and you introduce a new hypothesis, ask at ' +
     'most one precise collaborative verification question that tests the ' +
-    'hypothesis rather than assumes it. Preserve concise, natural phrasing and ' +
+    'hypothesis rather than assumes it. When the person says to address only ' +
+    'what was described now or to use current information only, explain only ' +
+    'links explicitly stated in the current message. In that strict-grounding ' +
+    'mode, event-level explanations may connect a thought with tension and ' +
+    'tension with checking or delay only when those elements were stated by ' +
+    'the person. Do not assert immediate relief, reinforcement of danger, ' +
+    'future worsening, relationship stakes, identity meaning, or causal ' +
+    'exclusions unless the person explicitly stated that mechanism now. If one ' +
+    'additional link still needs checking, use tentative language and ask at ' +
+    'most one neutral verification question. Preserve concise, natural phrasing and ' +
     'apply this contract consistently across languages. Honest uncertainty ' +
     'builds more trust than authoritative-sounding but unverifiable lists.',
 });
