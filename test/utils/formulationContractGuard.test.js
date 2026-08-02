@@ -16,10 +16,14 @@ import {
   evaluateFormulationResponseContract,
   buildFormulationSafeFallback,
   buildCurrentTurnGroundingFallback,
+  buildPendingGroundingCorrectionBlock,
   buildPendingFormulationCorrectionBlock,
+  hasGroundingCorrectionAlreadyBeenApplied,
   hasFormulationCorrectionAlreadyBeenApplied,
   applyFormulationGuardToConversationMessages,
   applyCurrentTurnGroundingGuardToConversationMessages,
+  CURRENT_TURN_GROUNDING_CORRECTION_START,
+  CURRENT_TURN_GROUNDING_CORRECTION_END,
   FORMULATION_CORRECTION_START,
   FORMULATION_CORRECTION_END,
 } from '../../src/components/utils/formulationContractGuard.js';
@@ -218,7 +222,7 @@ function runChatVisiblePipeline(rawMessages, locale = 'en') {
   const guardModes = buildGuardModesByRawIndex(raw);
   const sanitizedAligned = sanitizeConversationMessagesAligned(raw, locale);
   const { messages: guardedAligned } = applyFormulationGuardToConversationMessages(raw, sanitizedAligned, { locale });
-  const groundedAligned = applyCurrentTurnGroundingGuardToConversationMessages(raw, guardedAligned, { locale });
+  const { messages: groundedAligned } = applyCurrentTurnGroundingGuardToConversationMessages(raw, guardedAligned, { locale });
   return groundedAligned
     .map((msg, rawIndex) => (msg ? { ...msg, __rawIndex: rawIndex, __guardMode: guardModes[rawIndex] || null } : null))
     .filter(Boolean);
@@ -2091,5 +2095,72 @@ describe('V8-J: exact production prompt — explicit connection request without 
       expect(turn.content).not.toBe(CURRENT_TURN_HE_FALLBACK);
       expect(turn.metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
     }
+  });
+});
+
+describe('V8-M: grounding correction parity and wrapped first-turn path', () => {
+  const CURRENT_TURN_HE_FALLBACK =
+    'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+  const PROD_USER_MSG =
+    'המחשבה: "מה הוא יחשוב עליי אם אכתוב משהו לא נכון?" ' +
+    'אני מתעכב ובודק שוב ושוב לפני שאני שולח. ' +
+    'תסביר לי את הקשר בין המחשבה, המתח והעיכוב.';
+  const SESSION_WRAPPED_PROMPT =
+    '[START_SESSION]\n\n' +
+    '=== THERAPIST PLANNER-FIRST POLICY ===\n' +
+    'formulation-first guidance\n' +
+    '=== END THERAPIST PLANNER-FIRST POLICY ===\n\n' +
+    PROD_USER_MSG;
+
+  it('creates a pending grounding correction after replacement', () => {
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+    ];
+    const sanitized = sanitizeConversationMessagesAligned(raw, 'he');
+    const { messages: guarded } = applyFormulationGuardToConversationMessages(raw, sanitized, { locale: 'he' });
+    const grounded = applyCurrentTurnGroundingGuardToConversationMessages(raw, guarded, { locale: 'he' });
+    expect(grounded.messages[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(grounded.pendingCorrection).not.toBeNull();
+    const correctionBlock = buildPendingGroundingCorrectionBlock(grounded.pendingCorrection.fallbackText);
+    expect(correctionBlock).toContain(CURRENT_TURN_GROUNDING_CORRECTION_START);
+    expect(correctionBlock).toContain(CURRENT_TURN_GROUNDING_CORRECTION_END);
+  });
+
+  it('detects when a grounding correction block was already persisted', () => {
+    const correction = buildPendingGroundingCorrectionBlock(CURRENT_TURN_HE_FALLBACK);
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר.' },
+      { role: 'user', content: `${correction}\n\n${PROD_USER_MSG}` },
+    ];
+    expect(hasGroundingCorrectionAlreadyBeenApplied(raw, 1)).toBe(true);
+  });
+
+  it('wrapped first-turn prompt still applies grounding guard deterministically', () => {
+    const raw = [
+      { role: 'user', content: SESSION_WRAPPED_PROMPT },
+      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('repeated identical prompt after grounding correction still rejects unsupported inference', () => {
+    const correction = buildPendingGroundingCorrectionBlock(CURRENT_TURN_HE_FALLBACK);
+    const raw = [
+      { role: 'user', content: PROD_USER_MSG },
+      { role: 'assistant', content: 'זה אומר שאתה מפחד לפגוע בקשר, ולכן אתה חייב תשובה נכונה.' },
+      { role: 'user', content: `${correction}\n\n${PROD_USER_MSG}` },
+      { role: 'assistant', content: 'כמו שכבר ברור לנו, זה פחד מפגיעה בקשר שמחזיק את המעגל.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const assistantTurns = visible.filter((m) => m.role === 'assistant');
+    expect(assistantTurns).toHaveLength(2);
+    assistantTurns.forEach((turn) => {
+      expect(turn.content).toBe(CURRENT_TURN_HE_FALLBACK);
+      expect(turn.metadata?.current_turn_grounding_guard_replaced).toBe(true);
+    });
   });
 });

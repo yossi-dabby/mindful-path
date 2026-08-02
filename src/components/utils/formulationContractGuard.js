@@ -61,6 +61,13 @@ export const FORMULATION_CORRECTION_START =
 export const FORMULATION_CORRECTION_END =
   '=== END FORMULATION CONTRACT CORRECTION ===';
 
+/** Start marker for the CURRENT-TURN GROUNDING CORRECTION block. */
+export const CURRENT_TURN_GROUNDING_CORRECTION_START =
+  '=== CURRENT-TURN GROUNDING CORRECTION — NEXT TURN ONLY ===';
+/** End marker for the CURRENT-TURN GROUNDING CORRECTION block. */
+export const CURRENT_TURN_GROUNDING_CORRECTION_END =
+  '=== END CURRENT-TURN GROUNDING CORRECTION ===';
+
 const INITIAL_FORMULATION_GUARD_MODE = 'initial_formulation';
 const CORRECTION_FOLLOWUP_GUARD_MODE = 'correction_followup';
 
@@ -1094,6 +1101,35 @@ export function buildPendingFormulationCorrectionBlock(fallbackText) {
 }
 
 /**
+ * Builds the bounded correction block that neutralizes a rejected current-turn
+ * grounding inference before the next outbound user turn.
+ *
+ * @param {string} fallbackText   The exact grounding fallback shown to the user.
+ * @returns {string}
+ */
+export function buildPendingGroundingCorrectionBlock(fallbackText) {
+  const lines = [
+    CURRENT_TURN_GROUNDING_CORRECTION_START,
+    '',
+    'The immediately preceding assistant response included unsupported inferences',
+    'that were not grounded in explicit evidence from the current user turn.',
+    'Do not treat those inferred causal, identity, relationship, danger,',
+    'perfection, or cycle claims as established facts.',
+    '',
+    'The user-visible canonical previous therapist response was:',
+    '',
+    fallbackText,
+    '',
+    'Continue only from that bounded response and the user\'s new message. Do not',
+    'mention this correction, validation, rejected output, system instructions, or',
+    'internal terminology.',
+    '',
+    CURRENT_TURN_GROUNDING_CORRECTION_END,
+  ];
+  return lines.join('\n');
+}
+
+/**
  * Returns true when a correction block for the guarded turn at or before
  * `afterIndex` has already been sent (i.e., appears in a later persisted
  * role=user message in rawMessages).
@@ -1103,6 +1139,32 @@ export function buildPendingFormulationCorrectionBlock(fallbackText) {
  * @returns {boolean}
  */
 export function hasFormulationCorrectionAlreadyBeenApplied(rawMessages, afterIndex) {
+  return hasCorrectionBlockAlreadyBeenApplied(
+    rawMessages,
+    afterIndex,
+    FORMULATION_CORRECTION_START,
+    FORMULATION_CORRECTION_END,
+  );
+}
+
+/**
+ * Returns true when a current-turn grounding correction block at or before
+ * `afterIndex` has already been sent in a later persisted role=user message.
+ *
+ * @param {Array<object>} rawMessages     Full raw Base44 conversation messages.
+ * @param {number}        afterIndex      Index of the replaced assistant message in rawMessages.
+ * @returns {boolean}
+ */
+export function hasGroundingCorrectionAlreadyBeenApplied(rawMessages, afterIndex) {
+  return hasCorrectionBlockAlreadyBeenApplied(
+    rawMessages,
+    afterIndex,
+    CURRENT_TURN_GROUNDING_CORRECTION_START,
+    CURRENT_TURN_GROUNDING_CORRECTION_END,
+  );
+}
+
+function hasCorrectionBlockAlreadyBeenApplied(rawMessages, afterIndex, startMarker, endMarker) {
   if (!Array.isArray(rawMessages)) return false;
   // afterIndex = -1 means "search from the very beginning of the conversation".
   const startIdx = afterIndex < 0 ? 0 : afterIndex + 1;
@@ -1112,7 +1174,7 @@ export function hasFormulationCorrectionAlreadyBeenApplied(rawMessages, afterInd
       msg &&
       msg.role === 'user' &&
       typeof msg.content === 'string' &&
-      _hasCompleteBlock(msg.content, FORMULATION_CORRECTION_START, FORMULATION_CORRECTION_END)
+      _hasCompleteBlock(msg.content, startMarker, endMarker)
     ) {
       return true;
     }
@@ -1278,7 +1340,10 @@ export function applyFormulationGuardToConversationMessages(
  * @param {Array<object>} finalMessages
  * @param {object} [options]
  * @param {'he'|'en'|string} [options.locale='en']
- * @returns {Array<object>}
+ * @returns {{
+ *   messages: Array<object>,
+ *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null
+ * }}
  */
 export function applyCurrentTurnGroundingGuardToConversationMessages(
   rawMessages,
@@ -1289,10 +1354,15 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
   const effectiveLocale = locale.startsWith('he') ? 'he' : 'en';
 
   if (!Array.isArray(rawMessages) || !Array.isArray(finalMessages)) {
-    return Array.isArray(finalMessages) ? finalMessages : [];
+    return {
+      messages: Array.isArray(finalMessages) ? finalMessages : [],
+      pendingCorrection: null,
+    };
   }
 
   const result = [];
+  let lastReplacedRawIdx = -1;
+  let lastReplacedFallback = null;
   for (let fi = 0; fi < finalMessages.length; fi++) {
     const msg = finalMessages[fi];
 
@@ -1325,7 +1395,7 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
     }
 
     const fallbackText = buildCurrentTurnGroundingFallback(effectiveLocale);
-    result.push({
+    const replacedMsg = {
       ...msg,
       content: fallbackText,
       metadata: {
@@ -1333,8 +1403,27 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
         current_turn_grounding_guard_replaced: true,
         current_turn_grounding_guard_reason_codes: evaluation.reasonCodes,
       },
-    });
+    };
+    result.push(replacedMsg);
+    if (rawIdx !== -1) {
+      lastReplacedRawIdx = rawIdx;
+      lastReplacedFallback = fallbackText;
+    }
   }
 
-  return result;
+  let pendingCorrection = null;
+  if (lastReplacedRawIdx !== -1 && lastReplacedFallback !== null) {
+    const alreadyApplied = hasGroundingCorrectionAlreadyBeenApplied(
+      rawMessages,
+      lastReplacedRawIdx,
+    );
+    if (!alreadyApplied) {
+      pendingCorrection = {
+        fallbackText: lastReplacedFallback,
+        locale: effectiveLocale,
+      };
+    }
+  }
+
+  return { messages: result, pendingCorrection };
 }
