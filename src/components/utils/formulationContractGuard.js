@@ -337,16 +337,26 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
   {
     id: 'danger',
     assistantTerms: [
-      'danger',
-      'threat',
-      'unsafe',
-      'risk',
-      'catastrophe',
-      'סכנה',
-      'איום',
-      'מסוכן',
-      'סיכון',
-      'קטסטרופה',
+      'you are in danger',
+      'there is danger',
+      'this is dangerous',
+      'real threat',
+      'immediate threat',
+      'imminent threat',
+      'real danger',
+      'immediate danger',
+      'imminent danger',
+      'real risk',
+      'you are unsafe',
+      'אתה בסכנה',
+      'את בסכנה',
+      'יש סכנה',
+      'זה מסוכן',
+      'איום ממשי',
+      'איום מיידי',
+      'סכנה ממשית',
+      'סכנה מיידית',
+      'סיכון אמיתי',
     ],
     userTerms: [
       'danger',
@@ -534,9 +544,13 @@ function _getVisibleUserContent(rawUserContent) {
 
   return _stripCompleteBlock(
     _stripCompleteBlock(
-      _stripCompleteBlock(rawUserContent, FD_START, FD_END),
-      FORMULATION_CORRECTION_START,
-      FORMULATION_CORRECTION_END
+      _stripCompleteBlock(
+        _stripCompleteBlock(rawUserContent, FD_START, FD_END),
+        FORMULATION_CORRECTION_START,
+        FORMULATION_CORRECTION_END
+      ),
+      CURRENT_TURN_GROUNDING_CORRECTION_START,
+      CURRENT_TURN_GROUNDING_CORRECTION_END
     ),
     SM_START,
     SM_END
@@ -777,8 +791,25 @@ function _findAffirmativeUserTerm(content, terms) {
  * When the user explicitly asks for current-information-only analysis, tentative
  * language does not exempt unsupported causal or relational claims.
  */
-const STRICT_GROUNDING_TRIGGERS_HE = ['התייחס למה שקורה עכשיו בלבד'];
+const STRICT_GROUNDING_TRIGGERS_HE = ['התייחס למה שקורה עכשיו בלבד', 'התייחס רק למה שתיארתי עכשיו'];
 const STRICT_GROUNDING_TRIGGERS_EN = ['current information only'];
+const THREAT_APPRAISAL_TERMS_HE = ['הערכת איום', 'תחושת איום', 'המוח מפרש', 'מתפרש כאיום'];
+const THREAT_APPRAISAL_TERMS_EN = ['threat appraisal', 'sense of threat', 'brain interprets', 'interprets as threat'];
+const CURRENT_TURN_EXPLANATION_TERMS_HE = ['מחשבה', 'מתח', 'לחץ', 'עיכוב', 'התנהגות', 'תגובה', 'הימנעות'];
+const CURRENT_TURN_EXPLANATION_TERMS_EN = ['thought', 'tension', 'stress', 'behavior', 'response', 'avoidance', 'delay'];
+const HARD_DANGER_CLAIMS_HE = ['אתה בסכנה', 'את בסכנה', 'יש סכנה', 'זה מסוכן', 'איום ממשי', 'איום מיידי', 'סכנה ממשית', 'סכנה מיידית', 'סיכון אמיתי'];
+const HARD_DANGER_CLAIMS_EN = [
+  'you are in danger',
+  'there is danger',
+  'this is dangerous',
+  'real threat',
+  'immediate threat',
+  'imminent threat',
+  'real danger',
+  'immediate danger',
+  'imminent danger',
+  'real risk',
+];
 
 /**
  * Returns true when the raw user content contains a strict-grounding trigger.
@@ -792,6 +823,25 @@ function _isStrictGroundingMode(rawUserContent) {
   if (STRICT_GROUNDING_TRIGGERS_HE.some(t => visible.includes(t))) return true;
   const lower = visible.toLowerCase();
   return STRICT_GROUNDING_TRIGGERS_EN.some(t => lower.includes(t));
+}
+
+function _hasThreatAppraisalTerminology(sentence, visibleUser) {
+  const sentenceLower = String(sentence || '').toLowerCase();
+  const userLower = String(visibleUser || '').toLowerCase();
+  const hasAppraisalHe = THREAT_APPRAISAL_TERMS_HE.some((term) => sentence.includes(term));
+  const hasAppraisalEn = THREAT_APPRAISAL_TERMS_EN.some((term) => sentenceLower.includes(term));
+  if (!hasAppraisalHe && !hasAppraisalEn) return false;
+  const hasCurrentTurnInSentence =
+    CURRENT_TURN_EXPLANATION_TERMS_HE.some((term) => sentence.includes(term)) ||
+    CURRENT_TURN_EXPLANATION_TERMS_EN.some((term) => sentenceLower.includes(term));
+  const hasCurrentTurnInUser =
+    CURRENT_TURN_EXPLANATION_TERMS_HE.some((term) => visibleUser.includes(term)) ||
+    CURRENT_TURN_EXPLANATION_TERMS_EN.some((term) => userLower.includes(term));
+  if (!hasCurrentTurnInSentence || !hasCurrentTurnInUser) return false;
+  const hasHardDangerClaim =
+    HARD_DANGER_CLAIMS_HE.some((term) => sentence.includes(term)) ||
+    HARD_DANGER_CLAIMS_EN.some((term) => sentenceLower.includes(term));
+  return !hasHardDangerClaim;
 }
 
 export function evaluateCurrentTurnGroundingContract(assistantContent, rawUserContent) {
@@ -834,6 +884,7 @@ export function evaluateCurrentTurnGroundingContractDetailed(assistantContent, r
       const sentence = sentences[sentenceIndex];
       const matchedAssistantTerm = _findFirstMatchedTerm(sentence, group.assistantTerms);
       if (!matchedAssistantTerm) continue;
+      if (group.id === 'danger' && _hasThreatAppraisalTerminology(sentence, visibleUser)) continue;
       if (!strictMode && _hasCurrentTurnTentativeMarker(sentence)) continue;
       return {
         pass: false,

@@ -1804,6 +1804,16 @@ describe('V8-H: context-aware grounding — false-pass fixes', () => {
     expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
   });
 
+  it('Hebrew strict trigger "התייחס רק למה שתיארתי עכשיו" blocks tentative causal claims', () => {
+    const raw = [
+      { role: 'user', content: 'אני מרגיש לחץ. התייחס רק למה שתיארתי עכשיו.' },
+      { role: 'assistant', content: 'ייתכן שזה נובע מ-חוויות ילדות.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
   it('question form "מה הוא יחשוב" does not ground a relationship meaning claim', () => {
     const raw = [
       { role: 'user', content: 'אני חושב מה הוא יחשוב עלי.' },
@@ -1847,6 +1857,46 @@ describe('V8-H: context-aware grounding — false-pass fixes', () => {
     ];
     const visible = runChatVisiblePipeline(raw, 'en');
     expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('allows CBT threat-appraisal terminology when grounded in current-turn thought/tension terms', () => {
+    const raw = [
+      { role: 'user', content: 'יש לי מחשבה מלחיצה ואני מרגיש מתח חזק בגוף.' },
+      {
+        role: 'assistant',
+        content: 'המחשבה הזאת נחווית כהערכת איום, והמוח מפרש אותה כאיום שמורגשת כמתח בגוף ברגע הזה.',
+      },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
+  });
+
+  it('still blocks unsupported direct current danger claims', () => {
+    const raw = [
+      { role: 'user', content: 'אני מרגיש מתח עכשיו.' },
+      { role: 'assistant', content: 'אתה בסכנה כרגע.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('strips CURRENT_TURN_GROUNDING_CORRECTION blocks before user-evidence extraction', () => {
+    const correctionBlock = [
+      CURRENT_TURN_GROUNDING_CORRECTION_START,
+      'Do not treat inferred danger language as established fact.',
+      CURRENT_TURN_GROUNDING_CORRECTION_END,
+    ].join('\n');
+    const raw = [
+      {
+        role: 'user',
+        content: `${correctionBlock}\n\nאני מרגיש מתח לפני שאני שולח הודעה.`,
+      },
+      { role: 'assistant', content: 'זה מסוכן עבורך.' },
+    ];
+    const visible = runChatVisiblePipeline(raw, 'he');
+    expect(visible[1].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(visible[1].metadata?.current_turn_grounding_guard_replaced).toBe(true);
   });
 
   it('repeated identical prompt returns grounding fallback — never the generic failsafe', () => {

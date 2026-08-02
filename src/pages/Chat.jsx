@@ -793,6 +793,39 @@ export default function Chat() {
     return map;
   };
 
+  const buildAssistantContentMapByIdentity = (msgs) => {
+    const map = new Map();
+    (Array.isArray(msgs) ? msgs : []).forEach((msg, index) => {
+      if (!msg || msg.role !== 'assistant') return;
+      const key = getAssistantIdentityKey(msg, index);
+      if (!key) return;
+      map.set(key, typeof msg.content === 'string' ? msg.content : '');
+    });
+    return map;
+  };
+
+  const hasAssistantSnapshotContentChange = (prevMessages, nextMessages) => {
+    const prevMap = buildAssistantContentMapByIdentity(prevMessages);
+    const nextMap = buildAssistantContentMapByIdentity(nextMessages);
+    if (prevMap.size !== nextMap.size) return true;
+    for (const [key, content] of prevMap.entries()) {
+      if (!nextMap.has(key)) return true;
+      if (nextMap.get(key) !== content) return true;
+    }
+    return false;
+  };
+
+  const hasVisibleAssistantMutation = (prevMessages, nextMessages) => {
+    const prevMap = buildAssistantContentMapByIdentity(prevMessages);
+    if (prevMap.size === 0) return false;
+    const nextMap = buildAssistantContentMapByIdentity(nextMessages);
+    for (const [key, prevContent] of prevMap.entries()) {
+      if (!nextMap.has(key)) continue;
+      if (nextMap.get(key) !== prevContent) return true;
+    }
+    return false;
+  };
+
   const getLatestAssistantDebugInfo = (msgs) => {
     const assistantEntries = (Array.isArray(msgs) ? msgs : [])
       .map((msg, index) => ({ msg, index }))
@@ -834,6 +867,45 @@ export default function Chat() {
     if (!msg || msg.role !== 'assistant') return { length: 0, hash: null };
     return summarizeText(typeof msg.content === 'string' ? msg.content : '');
   };
+
+  const evaluateAssistantSnapshotFinality = (msgs, source, explicitPollFinality = null) => {
+    if (explicitPollFinality && typeof explicitPollFinality.isFinal === 'boolean') {
+      return explicitPollFinality;
+    }
+    const latestAssistantEntry = getLatestAssistantEntry(msgs);
+    if (!latestAssistantEntry) {
+      return { isFinal: true, reason: 'no_assistant_in_snapshot' };
+    }
+    const explicitFinal = isExplicitlyFinalAssistantMessage(latestAssistantEntry.msg);
+    if (explicitFinal) {
+      return { isFinal: true, reason: 'explicit_final_status' };
+    }
+    return {
+      isFinal: false,
+      reason: `non_final_${normalizeTraceSource(source) || 'unknown'}_snapshot`,
+    };
+  };
+
+  const isNonFinalAssistantPopulationAllowed = (source, previousMessages) => {
+    const normalizedSource = normalizeTraceSource(source);
+    if (normalizedSource !== 'hydration') return false;
+    const hadVisibleAssistant = (Array.isArray(previousMessages) ? previousMessages : [])
+      .some((msg) => msg && msg.role === 'assistant' && typeof msg.content === 'string' && msg.content.trim().length > 0);
+    return !hadVisibleAssistant;
+  };
+
+  const applyAssistantFeedbackFinalityMetadata = (msgs, decisionIsFinal) => (
+    (Array.isArray(msgs) ? msgs : []).map((msg) => {
+      if (!msg || msg.role !== 'assistant') return msg;
+      return {
+        ...msg,
+        metadata: {
+          ...(msg.metadata || {}),
+          feedback_finality_verified: decisionIsFinal === true,
+        },
+      };
+    })
+  );
 
   const buildAssistantFinalitySnapshot = (assistantMsg, pollFinality = null) => {
     const status = typeof assistantMsg?.status === 'string' ? assistantMsg.status : null;
@@ -1212,6 +1284,8 @@ export default function Chat() {
     const snapshotSequence = ++snapshotSequenceRef.current;
     const { merged, preservedExistingGuardedReplacement } = applyMonotonicGuardedMerge(newMessages);
     const sanitized = validateAndSanitizeMessages(merged);
+    const pollFinality = options?.pollFinality || null;
+    const finalityDecision = evaluateAssistantSnapshotFinality(sanitized, source, pollFinality);
     instrumentationRef.current.TOTAL_MESSAGES_PROCESSED += newMessages.length;
 
     // Compare with last confirmed state
@@ -1224,9 +1298,51 @@ export default function Chat() {
         rejectedReasonCode: 'rejected_shorter_than_confirmed',
         preservedExistingGuardedReplacement,
         snapshotSequence,
-        pollFinality: options?.pollFinality || null,
+        pollFinality,
       });
       return false;
+    }
+
+    const assistantContentChanged = hasAssistantSnapshotContentChange(
+      lastConfirmedMessagesRef.current,
+      sanitized
+    );
+    const visibleAssistantMutation = hasVisibleAssistantMutation(
+      lastConfirmedMessagesRef.current,
+      sanitized
+    );
+    if (visibleAssistantMutation) {
+      console.warn(`[${source}] ⛔ IMMUTABLE ASSISTANT CONTENT: blocked mutation of visible assistant prose`);
+      logS2DebugStateUpdate({
+      source,
+      incomingMessages: sanitized,
+      accepted: false,
+      rejectedReasonCode: 'rejected_visible_assistant_immutable',
+      preservedExistingGuardedReplacement,
+      snapshotSequence,
+      pollFinality,
+      });
+      return false;
+    }
+
+    if (assistantContentChanged && finalityDecision.isFinal !== true) {
+      const allowNonFinalPopulation = isNonFinalAssistantPopulationAllowed(
+      source,
+      lastConfirmedMessagesRef.current
+      );
+      if (!allowNonFinalPopulation) {
+      console.warn(`[${source}] ⛔ NON-FINAL ASSISTANT SNAPSHOT: blocked assistant content change`);
+      logS2DebugStateUpdate({
+        source,
+        incomingMessages: sanitized,
+        accepted: false,
+        rejectedReasonCode: finalityDecision.reason || 'rejected_non_final_assistant_change',
+        preservedExistingGuardedReplacement,
+        snapshotSequence,
+        pollFinality: finalityDecision,
+      });
+      return false;
+      }
     }
 
     // CRITICAL: Check for duplicate assistant messages in new batch
@@ -1252,16 +1368,20 @@ export default function Chat() {
       });
 
       // Update with fully deduplicated version
-      lastConfirmedMessagesRef.current = fullyDeduplicated;
-      setMessages(fullyDeduplicated);
+      const finalityTaggedMessages = applyAssistantFeedbackFinalityMetadata(
+        fullyDeduplicated,
+        finalityDecision.isFinal === true
+      );
+      lastConfirmedMessagesRef.current = finalityTaggedMessages;
+      setMessages(finalityTaggedMessages);
       instrumentationRef.current.SAFE_UPDATES++;
       logS2DebugStateUpdate({
         source,
-        incomingMessages: fullyDeduplicated,
+        incomingMessages: finalityTaggedMessages,
         accepted: true,
         preservedExistingGuardedReplacement,
         snapshotSequence,
-        pollFinality: options?.pollFinality || null,
+        pollFinality: finalityDecision,
       });
       return true;
     }
@@ -1283,7 +1403,7 @@ export default function Chat() {
           rejectedReasonCode: 'rejected_no_new_content',
           preservedExistingGuardedReplacement,
           snapshotSequence,
-          pollFinality: options?.pollFinality || null,
+          pollFinality: finalityDecision,
         });
         return false;
       }
@@ -1320,7 +1440,7 @@ export default function Chat() {
           rejectedReasonCode: 'rejected_content_regression_guard',
           preservedExistingGuardedReplacement,
           snapshotSequence,
-          pollFinality: options?.pollFinality || null,
+          pollFinality: finalityDecision,
         });
         return false;
       }
@@ -1354,7 +1474,7 @@ export default function Chat() {
           rejectedReasonCode: 'rejected_immutability_guard',
           preservedExistingGuardedReplacement,
           snapshotSequence,
-          pollFinality: options?.pollFinality || null,
+          pollFinality: finalityDecision,
         });
         return false;
       }
@@ -1363,15 +1483,19 @@ export default function Chat() {
     // Update is safe - commit to state
     console.log(`[${source}] ✅ SAFE UPDATE: ${sanitized.length} messages`);
     instrumentationRef.current.SAFE_UPDATES++;
-    lastConfirmedMessagesRef.current = sanitized;
-    setMessages(sanitized);
+    const finalityTaggedMessages = applyAssistantFeedbackFinalityMetadata(
+      sanitized,
+      finalityDecision.isFinal === true
+    );
+    lastConfirmedMessagesRef.current = finalityTaggedMessages;
+    setMessages(finalityTaggedMessages);
     logS2DebugStateUpdate({
       source,
-      incomingMessages: sanitized,
+      incomingMessages: finalityTaggedMessages,
       accepted: true,
       preservedExistingGuardedReplacement,
       snapshotSequence,
-      pollFinality: options?.pollFinality || null,
+      pollFinality: finalityDecision,
     });
     return true;
   };
@@ -1565,10 +1689,13 @@ export default function Chat() {
           try {
             const conversation = await base44.agents.getConversation(currentConversationId);
             const guarded = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
+            const visibilityFinality = evaluateAssistantSnapshotFinality(guarded, 'VisibilityRefetch');
             const updated = safeUpdateMessages(guarded, 'VisibilityRefetch');
             if (updated) {
-              // V8-K: finalize — this is an authoritative REST fetch during loading
-              markAssistantMessagesFinalized(currentConversationId, guarded);
+              // V8-K: finalize only when finality is verified.
+              if (visibilityFinality.isFinal) {
+                markAssistantMessagesFinalized(currentConversationId, guarded);
+              }
               setIsLoading(false);
               emitStabilitySummary();
             }
@@ -1735,6 +1862,7 @@ export default function Chat() {
           );
 
           // CRITICAL: Safe update with validation + deduplication
+          const subscriptionFinality = evaluateAssistantSnapshotFinality(processedMessages, 'Subscription');
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
 
           if (updated) {
@@ -1742,11 +1870,13 @@ export default function Chat() {
             console.log('[Subscription] ✅ Loading OFF');
             // Mark subscription as having delivered confirmed content for this send
             // cycle. Polling must not overwrite subscription-confirmed content.
-            subscriptionSucceededRef.current = true;
+            subscriptionSucceededRef.current = subscriptionFinality.isFinal === true;
             setIsLoading(false);
             // V8-K: finalize the committed messages so subsequent subscription
             // callbacks (e.g. reconnect replays) cannot overwrite the bubble.
-            markAssistantMessagesFinalized(currentConversationId, processedMessages);
+            if (subscriptionFinality.isFinal) {
+              markAssistantMessagesFinalized(currentConversationId, processedMessages);
+            }
 
             // Emit FINAL STABILITY SUMMARY for this send cycle
             emitStabilitySummary();
@@ -1900,10 +2030,13 @@ export default function Chat() {
     sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
     const guardedHydrate = buildVisibleConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
-    safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
+    const hydrateFinality = evaluateAssistantSnapshotFinality(guardedHydrate, 'CurrentConversationHydrate');
+    const hydrated = safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
     // V8-K: finalize hydrated messages so subsequent subscription replays do not
     // overwrite them (e.g. on socket reconnect after initial page load).
-    markAssistantMessagesFinalized(currentConversationId, guardedHydrate);
+    if (hydrated && hydrateFinality.isFinal) {
+      markAssistantMessagesFinalized(currentConversationId, guardedHydrate);
+    }
   }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
 
   useEffect(() => {
@@ -2065,13 +2198,16 @@ export default function Chat() {
       clearLocalAudioDraft();
 
       let conversation = await base44.agents.getConversation(conversationId);
+      const isSameConversation = conversationId === currentConversationId;
       setCurrentConversationId(conversationId);
 
       // CRITICAL: Reset confirmed-messages baseline when switching conversations.
       // Without this reset, safeUpdateMessages rejects the new conversation's messages
       // if it has fewer messages than the previous conversation, causing replies to
       // appear invisible (never rendered) on the newly loaded conversation.
-      lastConfirmedMessagesRef.current = [];
+      if (!isSameConversation) {
+        lastConfirmedMessagesRef.current = [];
+      }
 
       // Lock session language for this conversation.
       // Prefer the SESSION_LANGUAGE directive embedded in the first user message.
@@ -2094,9 +2230,12 @@ export default function Chat() {
 
       // Process and sanitize messages before setting
       const guardedLoad = buildVisibleConversationMessages(conversation.messages || [], sessionLanguageRef.current);
-      safeUpdateMessages(guardedLoad, 'LoadConversation');
+      const loadFinality = evaluateAssistantSnapshotFinality(guardedLoad, 'LoadConversation');
+      const updated = safeUpdateMessages(guardedLoad, 'LoadConversation');
       // V8-K: finalize existing messages so subscription replays cannot overwrite them
-      markAssistantMessagesFinalized(conversationId, guardedLoad);
+      if (updated && loadFinality.isFinal) {
+        markAssistantMessagesFinalized(conversationId, guardedLoad);
+      }
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);

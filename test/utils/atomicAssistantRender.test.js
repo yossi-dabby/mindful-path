@@ -196,6 +196,88 @@ function createAtomicGate() {
   };
 }
 
+function createFinalityAwareGate() {
+  let visibleMessages = [];
+  let lastConfirmed = [];
+  const finalizedKeys = new Set();
+
+  const contentByAssistantKey = (msgs) => {
+    const map = new Map();
+    (Array.isArray(msgs) ? msgs : []).forEach((msg, index) => {
+      if (!msg || msg.role !== 'assistant') return;
+      const key = getAssistantIdentityKey(msg, index);
+      if (!key) return;
+      map.set(key, typeof msg.content === 'string' ? msg.content : '');
+    });
+    return map;
+  };
+
+  const hasAssistantChange = (prev, next) => {
+    const prevMap = contentByAssistantKey(prev);
+    const nextMap = contentByAssistantKey(next);
+    if (prevMap.size !== nextMap.size) return true;
+    for (const [key, content] of prevMap.entries()) {
+      if (!nextMap.has(key)) return true;
+      if (nextMap.get(key) !== content) return true;
+    }
+    return false;
+  };
+
+  const hasVisibleMutation = (prev, next) => {
+    const prevMap = contentByAssistantKey(prev);
+    const nextMap = contentByAssistantKey(next);
+    for (const [key, content] of prevMap.entries()) {
+      if (!nextMap.has(key)) continue;
+      if (nextMap.get(key) !== content) return true;
+    }
+    return false;
+  };
+
+  const applyFeedbackFinality = (msgs, isFinal) =>
+    msgs.map((msg) => {
+      if (!msg || msg.role !== 'assistant') return msg;
+      return {
+        ...msg,
+        metadata: {
+          ...(msg.metadata || {}),
+          feedback_finality_verified: isFinal === true,
+        },
+      };
+    });
+
+  const commit = (snapshot, { source, isFinal }) => {
+    const next = Array.isArray(snapshot) ? snapshot : [];
+    const assistantChanged = hasAssistantChange(lastConfirmed, next);
+    if (hasVisibleMutation(lastConfirmed, next)) {
+      return { accepted: false, reason: 'rejected_visible_assistant_immutable' };
+    }
+    const hadAssistant = lastConfirmed.some((msg) => msg?.role === 'assistant');
+    const allowPopulation = (source === 'LoadConversation' || source === 'CurrentConversationHydrate') && !hadAssistant;
+    if (assistantChanged && isFinal !== true && !allowPopulation) {
+      return { accepted: false, reason: 'rejected_non_final_hydration_snapshot' };
+    }
+    const committed = applyFeedbackFinality(next, isFinal === true);
+    lastConfirmed = committed;
+    visibleMessages = committed;
+    if (isFinal === true) {
+      committed.forEach((msg, index) => {
+        if (!msg || msg.role !== 'assistant') return;
+        const key = getAssistantIdentityKey(msg, index);
+        if (key) finalizedKeys.add(key);
+      });
+    }
+    return { accepted: true, reason: 'accepted' };
+  };
+
+  return {
+    commit,
+    getVisible: () => visibleMessages,
+    isFinalized: (key) => finalizedKeys.has(key),
+    hasVisibleFeedback: () =>
+      visibleMessages.some((msg) => msg?.role === 'assistant' && msg?.metadata?.feedback_finality_verified === true),
+  };
+}
+
 function createPollingFinalityTracker() {
   let state = { assistantKey: null, content: null, stableCount: 0 };
 
@@ -454,6 +536,39 @@ describe('V8-K C: immutability guard', () => {
     const updated = gate.handleSubscription(CONV, churned);
     expect(updated).toBe(false);
     expect(gate.getVisible()[1].content).toBe('Stable final');
+  });
+});
+
+describe('V8-O: finality gate + immutable visible prose regression trace', () => {
+  const LONG_RESPONSE = 'א'.repeat(1015);
+  const SHORT_RESPONSE = 'ב'.repeat(106);
+
+  it('rejects non-final hydration snapshot and keeps visible assistant content unchanged', () => {
+    const gate = createFinalityAwareGate();
+    const initial = [
+      { role: 'user', content: 'אני מרגיש מתח' },
+      { role: 'assistant', id: 'a4', __rawIndex: 4, content: LONG_RESPONSE },
+    ];
+    const seeded = gate.commit(initial, { source: 'CurrentConversationHydrate', isFinal: false });
+    expect(seeded.accepted).toBe(true);
+    expect(gate.hasVisibleFeedback()).toBe(false);
+    expect(gate.isFinalized('raw:4')).toBe(false);
+
+    const lateLoadSnapshot = [
+      { role: 'user', content: 'אני מרגיש מתח' },
+      { role: 'assistant', id: 'a4', __rawIndex: 4, content: SHORT_RESPONSE },
+    ];
+    const hydration = gate.commit(lateLoadSnapshot, {
+      source: 'LoadConversation',
+      isFinal: false,
+    });
+
+    expect(hydration.accepted).toBe(false);
+    expect(hydration.reason).toBe('rejected_visible_assistant_immutable');
+    expect(gate.getVisible()[1].content.length).toBe(1015);
+    expect(gate.getVisible()[1].content).toBe(LONG_RESPONSE);
+    expect(gate.isFinalized('raw:4')).toBe(false);
+    expect(gate.hasVisibleFeedback()).toBe(false);
   });
 });
 
