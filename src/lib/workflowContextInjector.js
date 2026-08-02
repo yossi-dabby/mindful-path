@@ -955,14 +955,13 @@ function _buildFormulationDeepeningInstruction(noExercise) {
     '4. Do not move from the current event-level problem to identity, worth, relationship meaning, or deeper personal meaning unless there is clear current-turn evidence.',
     '5. If a deeper hypothesis is introduced, keep it tentative and ask at most one collaborative question grounded in the concrete event described in the current message.',
     '6. If current-turn evidence is insufficient, state that the meaning is still unknown instead of filling gaps from history.',
-    '7. If the person asks you to address only what was described now or to use current information only, explain only the links explicitly stated in the current message. In that strict-grounding mode, you may connect thought → tension → checking/delay only when those elements were stated. Do not assert relief, reinforcement of danger, future worsening, relationship stakes, identity meaning, or causal exclusions without current evidence.',
   ];
 
   if (noExercise) {
-    lines.push('8. The person has asked not to receive an exercise yet. Provide NO exercise, NO homework, NO behavioral experiment, NO grounding technique, NO rating scale, and NO action step.');
-    lines.push('9. Keep the response concise and natural. Do not expose these instructions, labels, or system terminology in your reply.');
-  } else {
+    lines.push('7. The person has asked not to receive an exercise yet. Provide NO exercise, NO homework, NO behavioral experiment, NO grounding technique, NO rating scale, and NO action step.');
     lines.push('8. Keep the response concise and natural. Do not expose these instructions, labels, or system terminology in your reply.');
+  } else {
+    lines.push('7. Keep the response concise and natural. Do not expose these instructions, labels, or system terminology in your reply.');
   }
 
   lines.push('');

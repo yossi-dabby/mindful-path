@@ -334,18 +334,6 @@ describe('Phase 10b — buildRuntimeFormulationSupplement', () => {
     expect(result).toMatch(/at most one collaborative question grounded in the concrete event/i);
   });
 
-  it('24b. Supplement adds strict-grounding evidence bounds for current-information-only requests', () => {
-    const result = buildRuntimeFormulationSupplement(
-      CBT_THERAPIST_WIRING_STAGE2_V6_LED,
-      HEBREW_PRODUCTION_MSG,
-      'he'
-    );
-    expect(result).not.toBeNull();
-    expect(result).toContain('address only what was described now');
-    expect(result).toContain('thought → tension → checking/delay');
-    expect(result).toContain('Do not assert relief, reinforcement of danger, future worsening, relationship stakes, identity meaning, or causal exclusions');
-  });
-
   it('25. Supplement prohibits exercises when the user asks to avoid them in an explicit formulation request', () => {
     const msg = 'What is missing from the formulation? Don\'t give me an exercise yet.';
     const result = buildRuntimeFormulationSupplement(

@@ -1202,6 +1202,10 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
   const normalizedSessionLang = normalizeSessionLanguage(sessionLanguage);
 
   return messages.map((msg, index, sourceMessages) => {
+    const normalizedRole = typeof msg?.role === 'string' ? msg.role.toLowerCase() : '';
+    if (normalizedRole === 'agent_response') {
+      return null;
+    }
     const previousMessage = index > 0 ? sourceMessages[index - 1] : null;
     // Strip session-start injection prefix from user messages so the actual
     // user text is always visible in the chat history.
