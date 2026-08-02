@@ -85,10 +85,10 @@ const ENGLISH_CONTINUATION_FALLBACK =
   'I hear that the hardest part is the thought, "I am not good enough." What is\nalready clear is that this thought is painful; what remains unclear is whether\nit appears mainly around performance and tasks or reflects something broader,\nand I do not want to decide that without checking with you. Does this thought\ncome up mainly when you have to prove your ability, or in other situations\ntoo?';
 
 const HEBREW_CURRENT_TURN_GROUNDING_FALLBACK =
-  'כדי לא להניח סיבה שלא תיארת, מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
+  'אין עדיין מספיק מידע כדי לקבוע מה גורם למתח הזה. מה הדבר הראשון שעובר לך בראש או בגוף ברגע שבו המתח מתחיל?';
 
 const ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK =
-  'To avoid assuming a reason you did not describe, what is the first thing that goes through your mind or body at the moment the tension starts?';
+  'There is not yet enough information to determine what is causing this tension. What is the first thing that goes through your mind or body at the moment the tension starts?';
 
 // ─── Phase A: Prohibited certainty phrases ────────────────────────────────────
 
@@ -245,7 +245,7 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'זה מסביר',
       'הסיבה היא',
     ],
-    userTerms: ['because', 'why', 'בגלל', 'למה', 'הסיבה'],
+    userTerms: ['because', 'בגלל', 'הסיבה'],
   },
   {
     id: 'identity',
@@ -380,6 +380,9 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'cycle',
       'loop',
       'avoidance keeps',
+      'avoidance',
+      'delay',
+      'delaying',
       'pattern lives',
       'דפוס משמר',
       'מעגל',
@@ -387,6 +390,7 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'הדפוס עובד כך',
       'זה משמר',
       'הימנעות משמרת',
+      'הימנעות',
     ],
     userTerms: [
       'cycle',
@@ -670,16 +674,98 @@ function _containsAnyTerm(content, terms) {
   return false;
 }
 
-function _hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent) {
+// ─── Current-turn grounding: context-aware helpers ────────────────────────────
+
+/**
+ * Splits text into individual sentences on sentence-ending punctuation + whitespace.
+ * When no sentence boundary is found the whole text is returned as one element.
+ *
+ * @param {string} text
+ * @returns {string[]}
+ */
+function _splitSentences(text) {
+  if (typeof text !== 'string' || !text.trim()) return [];
+  const parts = text.split(/[.!?]+\s+/);
+  return parts.filter(s => s.trim().length > 0);
+}
+
+/**
+ * Extended negation prefixes used when checking user-supplied content.
+ * Only imperative/instructional negations are used to avoid treating
+ * negative self-descriptions like "I am not good enough" as un-grounded.
+ * Hebrew: אל (imperative don't), בלי (without)
+ * English: don't, do not, without — but NOT bare "not" (too broad).
+ */
+const _USER_NEGATION_PHRASES_HE = ['אל ', 'בלי '];
+const _USER_NEGATION_PHRASES_EN = ["don't ", "do not ", 'without '];
+
+/**
+ * Returns true only when `content` contains at least one term from `terms` and
+ * that occurrence is NOT preceded by a negation phrase within the negation window.
+ * This ensures instructions like "אל תציג X כסכנה" are not treated as affirmative
+ * user evidence for the claim.
+ *
+ * @param {string} content
+ * @param {string[]} terms
+ * @returns {boolean}
+ */
+function _containsAnyTermAffirmative(content, terms) {
+  if (typeof content !== 'string') return false;
+  const lower = content.toLowerCase();
+  for (const term of terms) {
+    const normalized = String(term || '');
+    if (!normalized) continue;
+    const normLower = normalized.toLowerCase();
+    let idx = lower.indexOf(normLower);
+    while (idx !== -1) {
+      const windowStart = Math.max(0, idx - NEGATION_WINDOW_CHARS);
+      const windowBefore = lower.slice(windowStart, idx);
+      const negated =
+        _USER_NEGATION_PHRASES_HE.some(n => windowBefore.includes(n)) ||
+        _USER_NEGATION_PHRASES_EN.some(n => windowBefore.includes(n));
+      if (!negated) return true;
+      idx = lower.indexOf(normLower, idx + 1);
+    }
+  }
+  return false;
+}
+
+/**
+ * Trigger phrases that activate strict grounding mode.
+ * When the user explicitly asks for current-information-only analysis, tentative
+ * language does not exempt unsupported causal or relational claims.
+ */
+const STRICT_GROUNDING_TRIGGERS_HE = ['התייחס למה שקורה עכשיו בלבד'];
+const STRICT_GROUNDING_TRIGGERS_EN = ['current information only'];
+
+/**
+ * Returns true when the raw user content contains a strict-grounding trigger.
+ *
+ * @param {string|null|undefined} rawUserContent
+ * @returns {boolean}
+ */
+function _isStrictGroundingMode(rawUserContent) {
+  const visible = _getVisibleUserContent(rawUserContent);
+  if (!visible) return false;
+  if (STRICT_GROUNDING_TRIGGERS_HE.some(t => visible.includes(t))) return true;
+  const lower = visible.toLowerCase();
+  return STRICT_GROUNDING_TRIGGERS_EN.some(t => lower.includes(t));
+}
+
+function _hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent, strictMode) {
   if (typeof assistantContent !== 'string' || !assistantContent.trim()) return false;
   const visibleUser = _getVisibleUserContent(rawUserContent);
   if (!visibleUser) return false;
 
+  const sentences = _splitSentences(assistantContent);
+
   for (const group of CURRENT_TURN_GROUNDING_CLAIM_GROUPS) {
-    const assistantHasClaim = _containsAnyTerm(assistantContent, group.assistantTerms);
-    if (!assistantHasClaim) continue;
-    const userHasGrounding = _containsAnyTerm(visibleUser, group.userTerms);
-    if (!userHasGrounding) return true;
+    if (_containsAnyTermAffirmative(visibleUser, group.userTerms)) continue;
+    for (const sentence of sentences) {
+      if (!_containsAnyTerm(sentence, group.assistantTerms)) continue;
+      if (!strictMode && _hasCurrentTurnTentativeMarker(sentence)) continue;
+      return true;
+    }
   }
 
   return false;
@@ -690,18 +776,12 @@ export function evaluateCurrentTurnGroundingContract(assistantContent, rawUserCo
     return { pass: true, reasonCodes: [] };
   }
 
-  if (!_hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent)) {
-    return { pass: true, reasonCodes: [] };
+  const strictMode = _isStrictGroundingMode(rawUserContent);
+  if (_hasUnsupportedCurrentTurnGroundingClaim(assistantContent, rawUserContent, strictMode)) {
+    return { pass: false, reasonCodes: ['unsupported_current_turn_grounding_claim'] };
   }
 
-  const hasTentative = _hasCurrentTurnTentativeMarker(assistantContent);
-  const questionCount = _countQuestions(assistantContent);
-
-  if (hasTentative && questionCount === 1) {
-    return { pass: true, reasonCodes: [] };
-  }
-
-  return { pass: false, reasonCodes: ['unsupported_current_turn_grounding_claim'] };
+  return { pass: true, reasonCodes: [] };
 }
 
 /**
@@ -1196,6 +1276,14 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
     }
 
     if (msg.metadata?.current_turn_grounding_guard_replaced === true) {
+      result.push(msg);
+      continue;
+    }
+
+    // Skip messages already replaced by the formulation guard — those
+    // fallbacks are carefully crafted clinical responses that must not
+    // be re-evaluated by the grounding guard.
+    if (msg.metadata?.formulation_guard_replaced === true) {
       result.push(msg);
       continue;
     }
