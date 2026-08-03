@@ -74,8 +74,8 @@ All flags default to `false` when the variable is absent or any value other than
 | `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`              | 7                | Safety mode + emergency resource layer               | `false`         |
 | `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`      | Phase 1 Quality  | Case formulation context injection at session start (V6 wiring) | `false` |
 | `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`               | Phase 3 Deep     | Cross-session memory continuity injection at session start (V7 wiring, superset of V6) | `false` |
-| `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2A scaffold | Therapeutic Strategy Layer — registered for future wiring (Wave 2B). **No runtime effect in current codebase.** | `false` |
-| `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`             | Wave 3B          | Longitudinal Therapeutic State (LTS) write path — recomputes and upserts LTS snapshot after each session memory write. **No LTS read path or session-start wiring yet.** Requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` to also be `true`. | `false` |
+| `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2B          | Therapeutic Strategy Layer — V8 route prerequisite. Required together with the master gate before V8+ can activate. | `false` |
+| `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`             | Wave 3C / V9     | Longitudinal Therapeutic State (LTS) write + read path. With master + strategy + longitudinal flags on, V9 reads the latest valid LTS at session start, passes bounded signals into the strategy engine, and injects the bounded LTS context block. Weak, missing, invalid, or unreadable LTS preserves exact V8 behavior. Requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` plus matching backend secrets for the write path. | `false` |
 | `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED`                | Wave 4A scaffold | CBT Knowledge Planner scaffold — gates the pure deterministic planner contract (`src/lib/cbtKnowledgePlanner.js`). **Frontend VITE env only. No backend secret required. No runtime retrieval, no schema changes, no Chat.jsx changes. Zero effect on any live session.** | `false` |
 | `VITE_QUALITY_EVALUATOR_ENABLED`                          | Wave 5A scaffold | Quality Evaluator scaffold — gates the pure deterministic evaluator contract (`src/lib/therapistQualityEvaluator.js`). **Isolated registry (QUALITY_EVALUATOR_FLAGS), NOT part of THERAPIST_UPGRADE_FLAGS or COMPANION_UPGRADE_FLAGS. Frontend VITE env only. No runtime wiring, no session-start changes, no diagnostics emission, no Chat.jsx changes. Zero effect on any live session.** | `false` |
 
@@ -94,15 +94,23 @@ All flags default to `false` when the variable is absent or any value other than
 > No additional flag is required — the enrichment reuses the two existing flags.
 > Enrichment is fail-closed: any entity read failure leaves the base payload unchanged.
 
-> **Wave 3B — LTS write path:**
-> `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` activates the **LTS write path** (fire-and-forget after each
-> session memory write). It requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` as a prerequisite (the
-> session memory write must run before the LTS can be computed from existing records).
-> The matching backend secret (`THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true` in Base44 Application Secrets)
-> must also be set or the `writeLTSSnapshot` Deno function will gate the write with a 503.
-> For `retrieveTherapistMemory` to return session records for LTS computation, `THERAPIST_UPGRADE_MEMORY_ENABLED`
-> must also be set in Base44 Application Secrets.
-> **This flag does not activate any LTS read path or session-start wiring.** Those are deferred to Wave 3C.
+> **Wave 3C / V9 — LTS write + read path:**
+> `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` is the V9 flag, but V9 activates only when ALL of the following
+> frontend flags are true together: `VITE_THERAPIST_UPGRADE_ENABLED`,
+> `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`, and `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`.
+> `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` remains the write-path prerequisite because the structured
+> session memory write must succeed before the fire-and-forget LTS recompute can run.
+> When active, V9 does two additive things:
+> 1. After each successful structured session-memory write, it recomputes and upserts one canonical per-user
+>    LTS snapshot (`writeLTSSnapshot`).
+> 2. At the next session start, it reads the latest valid LTS snapshot, passes only bounded approved signals to
+>    the strategy engine, and injects a bounded LTS context block.
+>
+> The matching backend secrets (`THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true`,
+> `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED=true`, and `THERAPIST_UPGRADE_MEMORY_ENABLED=true`) must also be set in
+> Base44 Application Secrets for the full write/recompute chain to succeed. If the read fails, no valid LTS exists,
+> or the LTS is weak (`trajectory=unknown|insufficient_data` or `session_count` below threshold), V9 fails open to
+> exact V8 behavior.
 
 > **Wave 4A — CBT Knowledge Planner scaffold:**
 > `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` gates the pure deterministic CBT knowledge planner

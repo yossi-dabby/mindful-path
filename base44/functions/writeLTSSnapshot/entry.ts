@@ -235,14 +235,13 @@ Deno.serve(async (req) => {
     }
 
     // ── Find existing LTS record for this user ────────────────────────────────
-    // Scan the most recent CompanionMemory records to find an existing LTS
-    // snapshot (memory_type='lts' in the content JSON).
-    // We scan a small number of records — LTS records are rare (at most one per
-    // user in steady state).
+    // Scan only the user's existing outer memory_type='lts' records so an older
+    // canonical snapshot is still found even after many newer therapist_session
+    // writes. This preserves the one-snapshot-per-user upsert contract.
     let existingLTSId: string | null = null;
     try {
       const rawRecords = await base44.entities.CompanionMemory.filter(
-        { created_by: user.email },
+        { created_by: user.email, memory_type: LTS_MEMORY_TYPE },
         '-created_date',
         LTS_UPSERT_SCAN_LIMIT,
       );

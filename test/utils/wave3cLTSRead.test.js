@@ -131,18 +131,34 @@ function wrapInCompanionRecord(ltsRecord, jsonStringContent = false) {
  * @param {boolean} [shouldThrow] - If true, list throws an error.
  * @returns {object}
  */
-function makeEntities(records = [], shouldThrow = false) {
+function makeEntities(records = [], shouldThrow = false, { includeFilter = true } = {}) {
+  const list = vi.fn(async (_order, _limit) => {
+    if (shouldThrow) throw new Error('CompanionMemory.list error');
+    return records;
+  });
+  const filter = vi.fn(async (_query, _order, _limit) => {
+    if (shouldThrow) throw new Error('CompanionMemory.filter error');
+    return records.filter((record) => record?.memory_type === LTS_MEMORY_TYPE);
+  });
+
   return {
     CompanionMemory: {
-      list: vi.fn(async (_order, _limit) => {
-        if (shouldThrow) throw new Error('CompanionMemory.list error');
-        return records;
-      }),
+      list,
+      ...(includeFilter ? { filter } : {}),
     },
     CaseFormulation: {
       list: vi.fn(async () => []),
     },
   };
+}
+
+function withWindow(search, fn, hostname = 'localhost') {
+  vi.stubGlobal('window', { location: { search, hostname } });
+  try {
+    return fn();
+  } finally {
+    vi.unstubAllGlobals();
+  }
 }
 
 /**
@@ -178,6 +194,11 @@ const STUB_V9_WIRING = {
 const STUB_BASE44 = {};
 
 // ─── Test suites ──────────────────────────────────────────────────────────────
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 // ─── S. Exported constants ────────────────────────────────────────────────────
 
@@ -850,8 +871,19 @@ describe('Wave 3C — resolveTherapistWiring V9 routing', () => {
 // ─── L/M. readLTSSnapshot edge cases (via buildV9SessionStartContentAsync) ────
 
 describe('Wave 3C — readLTSSnapshot edge cases', () => {
-  it('L1. CompanionMemory.list receives "-created_date" ordering argument', async () => {
+  it('L1. CompanionMemory.filter prefers outer memory_type="lts" with "-created_date" ordering', async () => {
     const entities = makeEntities([]);
+    await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    expect(entities.CompanionMemory.filter).toHaveBeenCalledWith(
+      { memory_type: LTS_MEMORY_TYPE },
+      '-created_date',
+      expect.any(Number),
+    );
+    expect(entities.CompanionMemory.list).not.toHaveBeenCalled();
+  });
+
+  it('L2. falls back to CompanionMemory.list when filter is unavailable', async () => {
+    const entities = makeEntities([], false, { includeFilter: false });
     await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
     expect(entities.CompanionMemory.list).toHaveBeenCalledWith(
       '-created_date',
@@ -859,9 +891,12 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
     );
   });
 
-  it('L2. non-array response from CompanionMemory.list → null (V8 output returned)', async () => {
+  it('L3. non-array response from CompanionMemory reader → null (V8 output returned)', async () => {
     const entities = {
-      CompanionMemory: { list: vi.fn(async () => null) },
+      CompanionMemory: {
+        filter: vi.fn(async () => null),
+        list: vi.fn(async () => null),
+      },
       CaseFormulation: { list: vi.fn(async () => []) },
     };
     const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
@@ -888,5 +923,62 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
     const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
     const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
     expect(v9Result).toBe(v8Base);
+  });
+
+  it('M3. filtered LTS read still finds the canonical snapshot even when mixed records are newer', async () => {
+    const validLTS = makeLTSRecord({ trajectory: LTS_TRAJECTORIES.STAGNATING });
+    const entities = {
+      CompanionMemory: {
+        filter: vi.fn(async () => [wrapInCompanionRecord(validLTS)]),
+        list: vi.fn(async () => [
+          { id: 'cm-session-1', memory_type: 'therapist_session', content: '{}' },
+          { id: 'cm-session-2', memory_type: 'therapist_session', content: '{}' },
+          { id: 'cm-session-3', memory_type: 'therapist_session', content: '{}' },
+        ]),
+      },
+      CaseFormulation: { list: vi.fn(async () => []) },
+    };
+
+    const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    expect(v9Result).toContain('stagnating');
+    expect(entities.CompanionMemory.filter).toHaveBeenCalledTimes(1);
+    expect(entities.CompanionMemory.list).not.toHaveBeenCalled();
+  });
+});
+
+describe('Wave 3C — safe read diagnostics', () => {
+  it('emits a bounded valid-read diagnostic when _s2debug=true', async () => {
+    const lts = makeLTSRecord({ trajectory: LTS_TRAJECTORIES.PROGRESSING, session_count: 4 });
+    const entities = makeEntities([wrapInCompanionRecord(lts)]);
+    const groupSpy = vi.spyOn(console, 'group').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const endSpy = vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    await withWindow('?_s2debug=true', async () => {
+      await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    });
+
+    expect(groupSpy).toHaveBeenCalledWith('[Wave 3C] LTS read diagnostic');
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', 'valid');
+    expect(logSpy).toHaveBeenCalledWith('lts_valid                :', true);
+    expect(logSpy).toHaveBeenCalledWith('lts_session_count        :', 4);
+    expect(logSpy).toHaveBeenCalledWith('lts_trajectory           :', 'progressing');
+    expect(endSpy).toHaveBeenCalled();
+  });
+
+  it('emits a bounded fallback diagnostic when no valid LTS is available', async () => {
+    const entities = makeEntities([]);
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'group').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    await withWindow('?_s2debug=true', async () => {
+      await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    });
+
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', 'absent_or_invalid');
+    expect(logSpy).toHaveBeenCalledWith('lts_valid                :', false);
+    expect(logSpy).toHaveBeenCalledWith('lts_session_count        :', 0);
+    expect(logSpy).toHaveBeenCalledWith('lts_trajectory           :', '');
   });
 });
