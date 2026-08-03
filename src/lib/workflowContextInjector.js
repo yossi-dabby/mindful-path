@@ -2099,13 +2099,6 @@ export const LTS_SNAPSHOT_OVERFETCH_BOUND = 15;
  */
 export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
 
-const _LTS_READ_DIAGNOSTIC_RESULTS = Object.freeze({
-  VALID: 'valid',
-  WEAK: 'weak',
-  ABSENT_OR_INVALID: 'absent_or_invalid',
-  READ_ERROR: 'read_error',
-});
-
 function _isS2DebugEnabled() {
   try {
     if (typeof window === 'undefined') return false;
@@ -2441,20 +2434,17 @@ export async function buildV9SessionStartContentAsync(
   // ── V9 path ────────────────────────────────────────────────────────────────
 
   // Wave 3C+3D: Read the LTS snapshot first so it can be passed both to the
-  // strategy engine (Wave 3D) and used for context block injection (Wave 3C).
-  // Fail-open: null on any error.
+  // strategy engine (Wave 3D) and used for context block injection (Wave 3C),
+  // while preserving the bounded read diagnostic classification.
   let ltsRecord = null;
-  let ltsReadResult = _LTS_READ_DIAGNOSTIC_RESULTS.ABSENT_OR_INVALID;
+  let ltsReadResult = LTS_READ_RESULTS.read_error;
   try {
-    ltsRecord = await readLTSSnapshot(entities);
-    ltsReadResult = !ltsRecord
-      ? _LTS_READ_DIAGNOSTIC_RESULTS.ABSENT_OR_INVALID
-      : isLTSWeak(ltsRecord)
-        ? _LTS_READ_DIAGNOSTIC_RESULTS.WEAK
-        : _LTS_READ_DIAGNOSTIC_RESULTS.VALID;
+    const result = await readLTSSnapshotWithDiagnostic(entities);
+    ltsRecord = result?.ltsRecord ?? null;
+    ltsReadResult = result?.diagnostic?.read_result ?? LTS_READ_RESULTS.read_error;
   } catch {
     ltsRecord = null;
-    ltsReadResult = _LTS_READ_DIAGNOSTIC_RESULTS.READ_ERROR;
+    ltsReadResult = LTS_READ_RESULTS.read_error;
   }
   _emitV9LTSReadDiagnosticIfEnabled(ltsReadResult, ltsRecord);
 

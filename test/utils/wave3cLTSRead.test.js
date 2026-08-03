@@ -992,16 +992,23 @@ describe('Wave 3C — safe read diagnostics', () => {
 });
 
 describe('Wave 3C — LTS read diagnostic classification', () => {
-  it('list rejection emits read_error and V9 still returns exact V8 output', async () => {
+  it('filter/list rejection emits read_error and V9 still returns exact V8 output', async () => {
     const entities = makeEntities([], true);
     const diag = await readLTSSnapshotWithDiagnostic(entities);
     expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.read_error);
     expect(diag.diagnostic.lts_valid).toBe(false);
     expect(diag.ltsRecord).toBeNull();
 
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'group').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
     const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
-    const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    const v9Result = await withWindow('?_s2debug=true', async () => (
+      buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44)
+    ));
     expect(v9Result).toBe(v8Base);
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', LTS_READ_RESULTS.read_error);
   });
 
   it('empty or invalid data emits absent_or_invalid', async () => {
@@ -1009,11 +1016,24 @@ describe('Wave 3C — LTS read diagnostic classification', () => {
     const emptyDiag = await readLTSSnapshotWithDiagnostic(entitiesEmpty);
     expect(emptyDiag.diagnostic.read_result).toBe(LTS_READ_RESULTS.absent_or_invalid);
     expect(emptyDiag.ltsRecord).toBeNull();
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'group').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    const emptyV8 = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entitiesEmpty, STUB_BASE44);
+    const emptyV9 = await withWindow('?_s2debug=true', async () => (
+      buildV9SessionStartContentAsync(STUB_V9_WIRING, entitiesEmpty, STUB_BASE44)
+    ));
+    expect(emptyV9).toBe(emptyV8);
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', LTS_READ_RESULTS.absent_or_invalid);
 
     const entitiesInvalid = makeEntities([{ memory_type: LTS_MEMORY_TYPE, content: '{bad json' }]);
     const invalidDiag = await readLTSSnapshotWithDiagnostic(entitiesInvalid);
     expect(invalidDiag.diagnostic.read_result).toBe(LTS_READ_RESULTS.absent_or_invalid);
     expect(invalidDiag.ltsRecord).toBeNull();
+    const invalidV8 = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entitiesInvalid, STUB_BASE44);
+    const invalidV9 = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entitiesInvalid, STUB_BASE44);
+    expect(invalidV9).toBe(invalidV8);
   });
 
   it('weak LTS emits weak', async () => {

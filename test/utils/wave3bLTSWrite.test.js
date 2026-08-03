@@ -43,6 +43,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import {
   isLongitudinalEnabled,
+  triggerSessionEndSummarization,
   LTS_SESSION_RECORDS_FETCH_CAP,
   LTS_WRITE_INVOKER,
   LTS_WRITE_RESULTS,
@@ -66,6 +67,8 @@ import {
 import {
   buildLongitudinalState,
 } from '../../src/lib/longitudinalStateBuilder.js';
+import * as longitudinalStateBuilder from '../../src/lib/longitudinalStateBuilder.js';
+import { base44 } from '../../src/api/base44Client.js';
 
 // ─── Feature flag helpers ─────────────────────────────────────────────────────
 
@@ -124,6 +127,15 @@ function makeMockBase44({
  */
 async function flushAsync() {
   await new Promise(resolve => setTimeout(resolve, 10));
+}
+
+async function withWindow(search, fn, hostname = 'localhost') {
+  vi.stubGlobal('window', { location: { search, hostname } });
+  try {
+    return await fn();
+  } finally {
+    vi.unstubAllGlobals();
+  }
 }
 
 /**
@@ -911,5 +923,42 @@ describe('Wave 3B — LTS write diagnostics contract', () => {
     expect(serialized).not.toContain('transcript');
     expect(serialized).not.toContain('quote');
     expect(serialized).not.toContain('session_summary');
+  });
+
+  it('runtime _s2debug write diagnostic logs lts_valid:true for stable session_count:2', async () => {
+    const lts = createEmptyLTSRecord();
+    lts.session_count = 2;
+    lts.trajectory = 'stable';
+
+    const invokeSpy = vi.spyOn(base44.functions, 'invoke').mockImplementation(async (fnName) => {
+      if (fnName === 'generateSessionSummary') return { success: true, id: 'mem-001' };
+      if (fnName === 'retrieveTherapistMemory') return { memories: [makeSessionRecord()], count: 1 };
+      if (fnName === 'writeLTSSnapshot') return { success: true, id: 'lts-001', upserted: 'created' };
+      throw new Error(`Unknown function: ${fnName}`);
+    });
+    const ltsBuilderSpy = vi
+      .spyOn(longitudinalStateBuilder, 'buildLongitudinalState')
+      .mockReturnValue(lts);
+    const groupSpy = vi.spyOn(console, 'group').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const endSpy = vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    await withWindow(
+      '?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_SUMMARIZATION_ENABLED,THERAPIST_UPGRADE_LONGITUDINAL_ENABLED',
+      async () => {
+        triggerSessionEndSummarization({ id: 'sess-runtime', stage: 'completed' }, [], 'vitest-runtime');
+        await flushAsync();
+        await flushAsync();
+      },
+    );
+
+    expect(groupSpy).toHaveBeenCalledWith('[Wave 3B] LTS write diagnostic');
+    expect(logSpy).toHaveBeenCalledWith('write_result             :', LTS_WRITE_RESULTS.created);
+    expect(logSpy).toHaveBeenCalledWith('lts_valid                :', true);
+    expect(logSpy).toHaveBeenCalledWith('lts_session_count        :', 2);
+    expect(logSpy).toHaveBeenCalledWith('lts_trajectory           :', 'stable');
+    expect(endSpy).toHaveBeenCalled();
+    expect(ltsBuilderSpy).toHaveBeenCalled();
+    expect(invokeSpy).toHaveBeenCalledWith('writeLTSSnapshot', lts);
   });
 });

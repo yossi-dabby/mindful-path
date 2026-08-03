@@ -754,17 +754,13 @@ function _isS2DebugEnabled() {
   }
 }
 
-function _emitLTSWriteDiagnosticIfEnabled(writeResult, ltsSnapshot) {
+function _emitLTSWriteDiagnosticIfEnabled(writeResult, ltsSnapshot, ltsValid) {
   try {
     if (!_isS2DebugEnabled()) return;
     const valid =
-      ltsSnapshot &&
-      typeof ltsSnapshot === 'object' &&
-      typeof ltsSnapshot.trajectory === 'string' &&
-      ltsSnapshot.trajectory !== 'unknown' &&
-      ltsSnapshot.trajectory !== 'insufficient_data' &&
-      typeof ltsSnapshot.session_count === 'number' &&
-      ltsSnapshot.session_count >= 3;
+      typeof ltsValid === 'boolean'
+        ? ltsValid
+        : isLTSValidForDiagnostics(ltsSnapshot);
     const sessionCount =
       ltsSnapshot && typeof ltsSnapshot.session_count === 'number'
         ? ltsSnapshot.session_count
@@ -937,11 +933,16 @@ function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
       // 4. Upsert the LTS snapshot via the writeLTSSnapshot backend function.
       //    Failure remains non-blocking (diagnostic classification is bounded).
       const diagResult = await invokeLTSSnapshotWriteWithDiagnostic(base44, ltsSnapshot);
-      _emitLTSWriteDiagnosticIfEnabled(diagResult.write_result, ltsSnapshot);
+      _emitLTSWriteDiagnosticIfEnabled(
+        diagResult.write_result,
+        ltsSnapshot,
+        diagResult.lts_valid,
+      );
     } catch (error) {
       _emitLTSWriteDiagnosticIfEnabled(
         _LTS_WRITE_DIAGNOSTIC_RESULTS.WRITE_ERROR,
         ltsSnapshot,
+        isLTSValidForDiagnostics(ltsSnapshot),
       );
       // LTS write failure must never propagate to or affect the session memory write.
       console.warn(
