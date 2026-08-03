@@ -152,10 +152,10 @@ function makeEntities(records = [], shouldThrow = false, { includeFilter = true 
   };
 }
 
-function withWindow(search, fn, hostname = 'localhost') {
+async function withWindow(search, fn, hostname = 'localhost') {
   vi.stubGlobal('window', { location: { search, hostname } });
   try {
-    return fn();
+    return await fn();
   } finally {
     vi.unstubAllGlobals();
   }
@@ -687,12 +687,12 @@ describe('Wave 3C — buildV9SessionStartContentAsync()', () => {
 
   // ─── H. No cross-user / private-entity leakage ────────────────────────────
 
-  it('H1. CompanionMemory.list is called with the expected overfetch bound when V9 path is active', async () => {
+  it('H1. V9 path reads LTS through the dedicated overfetch bound', async () => {
     const lts = makeLTSRecord({ trajectory: LTS_TRAJECTORIES.STABLE });
     const entities = makeEntities([wrapInCompanionRecord(lts)]);
     await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
-    // Should be called once with the overfetch bound
-    expect(entities.CompanionMemory.list).toHaveBeenCalledWith(
+    expect(entities.CompanionMemory.filter).toHaveBeenCalledWith(
+      { memory_type: LTS_MEMORY_TYPE },
       '-created_date',
       LTS_SNAPSHOT_OVERFETCH_BOUND,
     );
@@ -879,7 +879,10 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
       '-created_date',
       expect.any(Number),
     );
-    expect(entities.CompanionMemory.list).not.toHaveBeenCalled();
+    const ltsListCalls = entities.CompanionMemory.list.mock.calls.filter(
+      ([, limit]) => limit === LTS_SNAPSHOT_OVERFETCH_BOUND,
+    );
+    expect(ltsListCalls).toHaveLength(0);
   });
 
   it('L2. falls back to CompanionMemory.list when filter is unavailable', async () => {
@@ -942,7 +945,10 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
     const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
     expect(v9Result).toContain('stagnating');
     expect(entities.CompanionMemory.filter).toHaveBeenCalledTimes(1);
-    expect(entities.CompanionMemory.list).not.toHaveBeenCalled();
+    const ltsListCalls = entities.CompanionMemory.list.mock.calls.filter(
+      ([, limit]) => limit === LTS_SNAPSHOT_OVERFETCH_BOUND,
+    );
+    expect(ltsListCalls).toHaveLength(0);
   });
 });
 
