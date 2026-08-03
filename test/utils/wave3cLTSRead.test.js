@@ -54,6 +54,8 @@ import {
   isLTSWeak,
   buildLTSContextBlock,
   buildV9SessionStartContentAsync,
+  readLTSSnapshotWithDiagnostic,
+  LTS_READ_RESULTS,
   LTS_SNAPSHOT_OVERFETCH_BOUND,
   LTS_BLOCK_MAX_ARRAY_ITEMS,
 } from '../../src/lib/workflowContextInjector.js';
@@ -888,5 +890,63 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
     const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
     const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
     expect(v9Result).toBe(v8Base);
+  });
+});
+
+describe('Wave 3C — LTS read diagnostic classification', () => {
+  it('list rejection emits read_error and V9 still returns exact V8 output', async () => {
+    const entities = makeEntities([], true);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.read_error);
+    expect(diag.diagnostic.lts_valid).toBe(false);
+    expect(diag.ltsRecord).toBeNull();
+
+    const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
+    const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    expect(v9Result).toBe(v8Base);
+  });
+
+  it('empty or invalid data emits absent_or_invalid', async () => {
+    const entitiesEmpty = makeEntities([]);
+    const emptyDiag = await readLTSSnapshotWithDiagnostic(entitiesEmpty);
+    expect(emptyDiag.diagnostic.read_result).toBe(LTS_READ_RESULTS.absent_or_invalid);
+    expect(emptyDiag.ltsRecord).toBeNull();
+
+    const entitiesInvalid = makeEntities([{ memory_type: LTS_MEMORY_TYPE, content: '{bad json' }]);
+    const invalidDiag = await readLTSSnapshotWithDiagnostic(entitiesInvalid);
+    expect(invalidDiag.diagnostic.read_result).toBe(LTS_READ_RESULTS.absent_or_invalid);
+    expect(invalidDiag.ltsRecord).toBeNull();
+  });
+
+  it('weak LTS emits weak', async () => {
+    const weak = makeLTSRecord({
+      trajectory: LTS_TRAJECTORIES.INSUFFICIENT_DATA,
+      session_count: LTS_MIN_SESSIONS_FOR_SIGNALS - 1,
+    });
+    const entities = makeEntities([wrapInCompanionRecord(weak)]);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.weak);
+    expect(diag.diagnostic.lts_valid).toBe(false);
+    expect(diag.ltsRecord).toEqual(weak);
+  });
+
+  it('valid stable session_count:2 emits valid', async () => {
+    const valid = makeLTSRecord({ session_count: 2, trajectory: LTS_TRAJECTORIES.STABLE });
+    const entities = makeEntities([wrapInCompanionRecord(valid)]);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.valid);
+    expect(diag.diagnostic.lts_valid).toBe(true);
+    expect(diag.ltsRecord).toEqual(valid);
+  });
+
+  it('diagnostic payload excludes transcript and free-text fields', async () => {
+    const valid = makeLTSRecord({ session_count: 2, trajectory: LTS_TRAJECTORIES.STABLE });
+    const entities = makeEntities([wrapInCompanionRecord(valid)]);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(Object.keys(diag.diagnostic).sort()).toEqual(['lts_valid', 'read_result']);
+    const serialized = JSON.stringify(diag.diagnostic);
+    expect(serialized).not.toContain('transcript');
+    expect(serialized).not.toContain('quote');
+    expect(serialized).not.toContain('session_summary');
   });
 });

@@ -2100,6 +2100,18 @@ export const LTS_SNAPSHOT_OVERFETCH_BOUND = 15;
 export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
 
 /**
+ * Bounded LTS read-result enum for V9 diagnostics.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const LTS_READ_RESULTS = Object.freeze({
+  valid: 'valid',
+  weak: 'weak',
+  absent_or_invalid: 'absent_or_invalid',
+  read_error: 'read_error',
+});
+
+/**
  * Reads the single canonical LTS snapshot from CompanionMemory.
  *
  * Fetches up to LTS_SNAPSHOT_OVERFETCH_BOUND CompanionMemory records (newest
@@ -2120,15 +2132,40 @@ export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
  *
  * @private
  * @param {object} entities - Base44 entity client map
- * @returns {Promise<object|null>} Parsed LTS record, or null
+ * @returns {Promise<{
+ *   ltsRecord: object|null,
+ *   diagnostic: {
+ *     lts_valid: boolean,
+ *     read_result: string,
+ *   },
+ * }>} Parsed LTS record + bounded read_result classification
  */
-async function readLTSSnapshot(entities) {
-  try {
-    if (!entities || typeof entities !== 'object') return null;
-    if (!entities.CompanionMemory || typeof entities.CompanionMemory.list !== 'function') return null;
+export async function readLTSSnapshotWithDiagnostic(entities) {
+  const makeResult = (ltsRecord, read_result) => Object.freeze({
+    ltsRecord,
+    diagnostic: Object.freeze({
+      lts_valid: read_result === LTS_READ_RESULTS.valid,
+      read_result,
+    }),
+  });
 
-    const rawRecords = await entities.CompanionMemory.list('-created_date', LTS_SNAPSHOT_OVERFETCH_BOUND);
-    if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
+  try {
+    if (!entities || typeof entities !== 'object') {
+      return makeResult(null, LTS_READ_RESULTS.read_error);
+    }
+    if (!entities.CompanionMemory || typeof entities.CompanionMemory.list !== 'function') {
+      return makeResult(null, LTS_READ_RESULTS.read_error);
+    }
+
+    let rawRecords;
+    try {
+      rawRecords = await entities.CompanionMemory.list('-created_date', LTS_SNAPSHOT_OVERFETCH_BOUND);
+    } catch {
+      return makeResult(null, LTS_READ_RESULTS.read_error);
+    }
+    if (!Array.isArray(rawRecords) || rawRecords.length === 0) {
+      return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
+    }
 
     for (const raw of rawRecords) {
       if (!raw || typeof raw !== 'object') continue;
@@ -2146,13 +2183,33 @@ async function readLTSSnapshot(entities) {
         continue;
       }
 
-      if (isLTSRecord(parsed)) return parsed;
+      if (isLTSRecord(parsed)) {
+        return makeResult(
+          parsed,
+          isLTSWeak(parsed)
+            ? LTS_READ_RESULTS.weak
+            : LTS_READ_RESULTS.valid,
+        );
+      }
     }
 
-    return null;
+    return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
   } catch {
-    return null;
+    return makeResult(null, LTS_READ_RESULTS.read_error);
   }
+}
+
+/**
+ * Internal compatibility wrapper used by the V9/V10 runtime paths.
+ * Keeps the historical fail-open contract (null on any failure/absence).
+ *
+ * @private
+ * @param {object} entities
+ * @returns {Promise<object|null>}
+ */
+async function readLTSSnapshot(entities) {
+  const result = await readLTSSnapshotWithDiagnostic(entities);
+  return result.ltsRecord;
 }
 
 /**

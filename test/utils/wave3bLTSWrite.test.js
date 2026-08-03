@@ -45,6 +45,10 @@ import {
   isLongitudinalEnabled,
   LTS_SESSION_RECORDS_FETCH_CAP,
   LTS_WRITE_INVOKER,
+  LTS_WRITE_RESULTS,
+  isLTSValidForDiagnostics,
+  classifyLTSWriteResult,
+  invokeLTSSnapshotWriteWithDiagnostic,
   isContinuityEnrichmentEnabled,
   deriveSessionSummaryPayload,
   deriveConversationMemoryPayload,
@@ -829,5 +833,83 @@ describe('Effective LTS record window (Wave 3B validation)', () => {
     expect(isTherapistMemoryRecord(crossUserCandidate)).toBe(false);
     const filtered = [crossUserCandidate].filter(r => isTherapistMemoryRecord(r));
     expect(filtered).toHaveLength(0);
+  });
+});
+
+describe('Wave 3B — LTS write diagnostics contract', () => {
+  it('valid stable LTS with session_count:2 is lts_valid:true for write diagnostics', () => {
+    const lts = createEmptyLTSRecord();
+    lts.session_count = 2;
+    lts.trajectory = 'stable';
+    expect(isLTSValidForDiagnostics(lts)).toBe(true);
+  });
+
+  it('invoke diagnostic keeps lts_valid:true for stable session_count:2', async () => {
+    const lts = createEmptyLTSRecord();
+    lts.session_count = 2;
+    lts.trajectory = 'stable';
+    const base44 = {
+      functions: {
+        invoke: vi.fn(async () => ({ success: true, upserted: 'created' })),
+      },
+    };
+    const result = await invokeLTSSnapshotWriteWithDiagnostic(base44, lts);
+    expect(result.lts_valid).toBe(true);
+    expect(result.write_result).toBe(LTS_WRITE_RESULTS.created);
+  });
+
+  it('write_result is created when success:true + upserted:"created"', () => {
+    expect(
+      classifyLTSWriteResult({ success: true, id: 'lts-001', upserted: 'created' }),
+    ).toBe(LTS_WRITE_RESULTS.created);
+  });
+
+  it('write_result is updated when success:true + upserted:"updated"', () => {
+    expect(
+      classifyLTSWriteResult({ success: true, id: 'lts-001', upserted: 'updated' }),
+    ).toBe(LTS_WRITE_RESULTS.updated);
+  });
+
+  it('write_result is write_error for structured failure', () => {
+    expect(
+      classifyLTSWriteResult({ success: false, id: 'lts-001', error: 'write failed' }),
+    ).toBe(LTS_WRITE_RESULTS.write_error);
+  });
+
+  it('write_result is write_error for malformed success response', () => {
+    expect(classifyLTSWriteResult({ success: true, id: 'lts-001' })).toBe(
+      LTS_WRITE_RESULTS.write_error,
+    );
+    expect(classifyLTSWriteResult({ success: true, upserted: 'noop' })).toBe(
+      LTS_WRITE_RESULTS.write_error,
+    );
+  });
+
+  it('write_result is write_error when invoke throws', async () => {
+    const base44Throw = {
+      functions: {
+        invoke: vi.fn(async () => {
+          throw new Error('boom');
+        }),
+      },
+    };
+    const result = await invokeLTSSnapshotWriteWithDiagnostic(base44Throw, createEmptyLTSRecord());
+    expect(result.write_result).toBe(LTS_WRITE_RESULTS.write_error);
+    expect(result.lts_valid).toBe(false);
+  });
+
+  it('diagnostic output contains no transcript or clinical free text fields', async () => {
+    const lts = createEmptyLTSRecord();
+    const base44 = {
+      functions: {
+        invoke: vi.fn(async () => ({ success: true, upserted: 'updated' })),
+      },
+    };
+    const result = await invokeLTSSnapshotWriteWithDiagnostic(base44, lts);
+    expect(Object.keys(result).sort()).toEqual(['lts_valid', 'write_result']);
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain('transcript');
+    expect(serialized).not.toContain('quote');
+    expect(serialized).not.toContain('session_summary');
   });
 });
