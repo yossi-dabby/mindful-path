@@ -1072,3 +1072,100 @@ export function isQualityEvaluatorEnabled(flagName = 'QUALITY_EVALUATOR_ENABLED'
   if (!(flagName in QUALITY_EVALUATOR_FLAGS)) return false;
   return QUALITY_EVALUATOR_FLAGS[flagName] === true;
 }
+
+// ─── Phase 1 — Chat Orchestrator V2 Feature Flag Registry ─────────────────────
+
+/**
+ * Chat Orchestrator V2 feature flags.
+ *
+ * Kept in a separate registry so the chat orchestrator lifecycle can be
+ * deployed, tested, and rolled back independently of agent upgrade rollouts
+ * and the quality evaluator.
+ *
+ * Phase 1: Only VITE_CHAT_ORCHESTRATOR_V2_ENABLED is present.
+ * The flag gates the canonical turn coordinator introduced in Phase 1.
+ * When false (the default), Chat.jsx follows the exact Phase 0 legacy path.
+ * When true, Chat.jsx uses the canonical V2 turn coordinator.
+ *
+ * Frozen at module load to prevent accidental runtime mutation.
+ * All flags default to false.
+ *
+ * @type {Readonly<Record<string, boolean>>}
+ */
+export const CHAT_ORCHESTRATOR_FLAGS = Object.freeze({
+  /**
+   * Phase 1 — Chat Orchestrator V2 master gate.
+   *
+   * When false (the default), Chat.jsx follows the exact Phase 0 legacy path.
+   * When true, Chat.jsx uses the canonical turn coordinator (chatOrchestratorV2.js).
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_CHAT_ORCHESTRATOR_V2_ENABLED=true
+   * in a staging build.  Defaults to false when the variable is absent or
+   * set to any other value.
+   *
+   * Rollback: set VITE_CHAT_ORCHESTRATOR_V2_ENABLED=false (or leave unset).
+   *
+   * The ?_s2=CHAT_ORCHESTRATOR_V2_ENABLED URL override is supported on preview
+   * and staging hosts only (same isolation rules as THERAPIST_UPGRADE_FLAGS).
+   */
+  CHAT_ORCHESTRATOR_V2_ENABLED: import.meta.env?.VITE_CHAT_ORCHESTRATOR_V2_ENABLED === 'true',
+});
+
+/**
+ * Reads staging-only runtime overrides for Chat Orchestrator flags from the
+ * URL query string (?_s2=...).
+ *
+ * Applies the same isolation rules as _readStagingRuntimeOverrides():
+ *   - Only active on explicitly recognised preview/staging hosts.
+ *   - Only accepts keys that are recognised CHAT_ORCHESTRATOR_FLAGS names.
+ *   - Fail-closed on any error or unrecognised host.
+ *
+ * @returns {Record<string, boolean>}
+ */
+function _readChatOrchestratorStagingOverrides() {
+  try {
+    if (typeof window === 'undefined') return {};
+    const hostname = window.location?.hostname ?? '';
+    if (!_isPreviewStagingHost(hostname)) return {};
+    const search = window.location?.search ?? '';
+    if (!search) return {};
+    const raw = new URLSearchParams(search).get('_s2');
+    if (!raw) return {};
+    const overrides = {};
+    for (const key of raw.split(',')) {
+      const trimmed = key.trim();
+      if (trimmed && trimmed in CHAT_ORCHESTRATOR_FLAGS) {
+        overrides[trimmed] = true;
+      }
+    }
+    return overrides;
+  } catch (_e) {
+    return {};
+  }
+}
+
+const _chatOrchestratorStagingOverrides = _readChatOrchestratorStagingOverrides();
+
+/**
+ * Evaluates a Chat Orchestrator feature flag by name.
+ *
+ * Evaluation order (first truthy wins):
+ *   1. Build-time env var (VITE_CHAT_ORCHESTRATOR_V2_ENABLED).
+ *   2. Staging runtime URL override (?_s2=CHAT_ORCHESTRATOR_V2_ENABLED) —
+ *      preview/staging hosts only.
+ *
+ * Returns false (Phase 0 legacy path) when:
+ *   - flagName is not a key in CHAT_ORCHESTRATOR_FLAGS
+ *   - The build-time env var is absent or not 'true'
+ *   - The staging override is absent or the host is not a preview/staging host
+ *
+ * @param {string} [flagName='CHAT_ORCHESTRATOR_V2_ENABLED']
+ * @returns {boolean}
+ */
+export function isChatOrchestratorV2Enabled(flagName = 'CHAT_ORCHESTRATOR_V2_ENABLED') {
+  if (!(flagName in CHAT_ORCHESTRATOR_FLAGS)) return false;
+  if (CHAT_ORCHESTRATOR_FLAGS[flagName] === true) return true;
+  if (_chatOrchestratorStagingOverrides[flagName] === true) return true;
+  return false;
+}
