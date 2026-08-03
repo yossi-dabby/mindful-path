@@ -43,7 +43,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import {
   isLongitudinalEnabled,
-  triggerSessionEndSummarization,
   LTS_SESSION_RECORDS_FETCH_CAP,
   LTS_WRITE_INVOKER,
   LTS_WRITE_RESULTS,
@@ -67,8 +66,6 @@ import {
 import {
   buildLongitudinalState,
 } from '../../src/lib/longitudinalStateBuilder.js';
-import * as longitudinalStateBuilder from '../../src/lib/longitudinalStateBuilder.js';
-import { base44 } from '../../src/api/base44Client.js';
 
 // ─── Feature flag helpers ─────────────────────────────────────────────────────
 
@@ -930,15 +927,31 @@ describe('Wave 3B — LTS write diagnostics contract', () => {
     lts.session_count = 2;
     lts.trajectory = 'stable';
 
-    const invokeSpy = vi.spyOn(base44.functions, 'invoke').mockImplementation(async (fnName) => {
+    const invokeSpy = vi.fn(async (fnName) => {
       if (fnName === 'generateSessionSummary') return { success: true, id: 'mem-001' };
       if (fnName === 'retrieveTherapistMemory') return { memories: [makeSessionRecord()], count: 1 };
       if (fnName === 'writeLTSSnapshot') return { success: true, id: 'lts-001', upserted: 'created' };
       throw new Error(`Unknown function: ${fnName}`);
     });
-    const ltsBuilderSpy = vi
-      .spyOn(longitudinalStateBuilder, 'buildLongitudinalState')
-      .mockReturnValue(lts);
+    const ltsBuilderSpy = vi.fn(() => lts);
+
+    vi.resetModules();
+    vi.doMock('../../src/api/base44Client.js', () => ({
+      base44: {
+        functions: {
+          invoke: invokeSpy,
+        },
+      },
+    }));
+    vi.doMock('../../src/lib/longitudinalStateBuilder.js', async () => {
+      const actual = await vi.importActual('../../src/lib/longitudinalStateBuilder.js');
+      return {
+        ...actual,
+        buildLongitudinalState: ltsBuilderSpy,
+      };
+    });
+    const { triggerSessionEndSummarization } = await import('../../src/lib/sessionEndSummarization.js');
+
     const groupSpy = vi.spyOn(console, 'group').mockImplementation(() => {});
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const endSpy = vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
@@ -960,5 +973,9 @@ describe('Wave 3B — LTS write diagnostics contract', () => {
     expect(endSpy).toHaveBeenCalled();
     expect(ltsBuilderSpy).toHaveBeenCalled();
     expect(invokeSpy).toHaveBeenCalledWith('writeLTSSnapshot', lts);
+
+    vi.doUnmock('../../src/api/base44Client.js');
+    vi.doUnmock('../../src/lib/longitudinalStateBuilder.js');
+    vi.resetModules();
   });
 });
