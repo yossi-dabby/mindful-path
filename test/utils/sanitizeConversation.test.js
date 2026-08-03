@@ -1163,3 +1163,31 @@ describe('V8-G – system_instruction internal-tag sanitization', () => {
     expect(result[0].content).toBe('Visible text');
   });
 });
+
+describe('V8-H – hide agent_response turns', () => {
+  it('hides agent_response turns and keeps assistant opener only once', () => {
+    const result = sanitizeConversationMessages([
+      { role: 'user', content: 'Hi' },
+      { role: 'agent_response', content: 'Internal transport turn' },
+      { role: 'assistant', content: 'I am here with you.' },
+    ], 'en');
+
+    expect(result.map((msg) => msg.role)).toEqual(['user', 'assistant']);
+    expect(result.filter((msg) => msg.role === 'assistant')).toHaveLength(1);
+    expect(result[1].content).toBe('I am here with you.');
+  });
+
+  it('does not inject fallback bubble when hidden agent_response turn is empty/internal-only', () => {
+    const ENGLISH_FAILSAFE = "I'm here with you. What's on your mind right now?";
+    const result = sanitizeConversationMessages([
+      { role: 'user', content: '[START_SESSION]' },
+      { role: 'agent_response', content: '<SYSTEM_INSTRUCTION>internal only</SYSTEM_INSTRUCTION>' },
+      { role: 'assistant', content: 'Visible follow-up opener.' },
+    ], 'en');
+
+    const contents = result.map((msg) => msg.content);
+    expect(contents).not.toContain(ENGLISH_FAILSAFE);
+    expect(result.filter((msg) => msg.role === 'assistant')).toHaveLength(1);
+    expect(result.at(-1)?.content).toBe('Visible follow-up opener.');
+  });
+});

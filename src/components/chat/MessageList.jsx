@@ -11,7 +11,7 @@ import { getMessageRenderKey } from './utils/messageRenderKey';
 export default function MessageList({ messages, visibleCount, conversationId, sessionLanguage }) {
   return messages
     .slice(Math.max(0, messages.length - visibleCount))
-    .filter((m) => m && m.role && (m.content || hasUserAttachment(m)))
+    .filter((m) => m && isRenderableChatRole(m.role) && (m.content || hasUserAttachment(m)))
     .map((message, index, arr) => {
       const prevMsg = arr[index - 1];
       const prevUserMessage =
@@ -31,6 +31,10 @@ export default function MessageList({ messages, visibleCount, conversationId, se
         />
       );
     });
+}
+
+function isRenderableChatRole(role) {
+  return role === 'user' || role === 'assistant';
 }
 
 function hasUserAttachment(message) {

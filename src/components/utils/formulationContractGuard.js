@@ -299,12 +299,6 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
     assistantTerms: [
       'damage the relationship',
       'harm the relationship',
-      'damage your image',
-      'harm your image',
-      'damage how they see you',
-      'harm how they see you',
-      'reputation',
-      'image',
       'closeness raises the stakes',
       'higher stakes',
       'emotional availability',
@@ -313,12 +307,6 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'לפגוע בקשר',
       'לפגוע במערכת היחסים',
       'הקשר ייפגע',
-      'תפגע בתדמית',
-      'יפגע בתדמית',
-      'פגיעה בתדמית',
-      'איך יראו אותך',
-      'מוניטין',
-      'תדמית',
       'הקרבה מעלה את המחיר',
       'זמינות רגשית',
       'דחייה',
@@ -335,10 +323,6 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'husband',
       'wife',
       'rejection',
-      'reputation',
-      'image',
-      'damage my image',
-      'damage how they see me',
       'system of relationship',
       'מערכת יחסים',
       'בן זוג',
@@ -346,9 +330,6 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'זוגיות',
       'נישואים',
       'דחייה',
-      'תדמית',
-      'מוניטין',
-      'פגיעה בתדמית',
       'הקשר',
       'לפגוע בקשר',
     ],
@@ -390,124 +371,6 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'סיכון',
       'מפחד',
       'פחד',
-    ],
-  },
-  {
-    id: 'relief',
-    assistantTerms: [
-      'immediate relief',
-      'instant relief',
-      'relief right away',
-      'calms you right away',
-      'soothes you immediately',
-      'relieves you immediately',
-      'מרגיע מיד',
-      'מרגיעה מיד',
-      'מרגיעה אותך מיד',
-      'הקלה מיידית',
-      'הקלה מידית',
-      'נותנת הקלה מיידית',
-      'נותנת הקלה מידית',
-      'נרגע מיד',
-      'נרגעת מיד',
-    ],
-    userTerms: [
-      'immediate relief',
-      'instant relief',
-      'relief right away',
-      'calms me right away',
-      'soothes me immediately',
-      'מרגיע מיד',
-      'מרגיעה מיד',
-      'הקלה מיידית',
-      'הקלה מידית',
-      'נרגע מיד',
-      'נרגעת מיד',
-    ],
-  },
-  {
-    id: 'danger_reinforcement',
-    assistantTerms: [
-      'reinforces danger',
-      'reinforces the danger',
-      'confirms danger',
-      'teaches your brain there is danger',
-      'keeps the sense of threat',
-      'reinforces your sense of danger',
-      'מחזק את תחושת הסכנה',
-      'מחזקת את תחושת הסכנה',
-      'מחזק אצלך את תחושת הסכנה',
-      'מחזקת אצלך את תחושת הסכנה',
-      'מחזק את הסכנה',
-      'מחזק את האיום',
-      'מלמד את המוח שיש סכנה',
-      'משאיר את תחושת האיום',
-    ],
-    userTerms: [
-      'reinforces danger',
-      'reinforces the danger',
-      'confirms danger',
-      'teaches my brain there is danger',
-      'keeps the sense of threat',
-      'מחזק את תחושת הסכנה',
-      'מחזק את הסכנה',
-      'מחזק את האיום',
-      'מלמד את המוח שיש סכנה',
-      'משאיר את תחושת האיום',
-    ],
-  },
-  {
-    id: 'future_worsening',
-    assistantTerms: [
-      'will get worse',
-      'will worsen',
-      'anxiety will grow',
-      'anxiety will worsen',
-      'you will become more anxious',
-      'it will get worse over time',
-      'החרדה תגדל',
-      'החרדה תחמיר',
-      'החרדה רק תחמיר',
-      'זה יחמיר',
-      'בעתיד זה יגבר',
-      'בהמשך זה יחמיר',
-      'עם הזמן החרדה תחמיר',
-      'ועם הזמן החרדה תחמיר',
-      'ועם הזמן החרדה רק תחמיר',
-    ],
-    userTerms: [
-      'will get worse',
-      'will worsen',
-      'anxiety will grow',
-      'anxiety will worsen',
-      'become more anxious',
-      'יחמיר',
-      'תחמיר',
-      'החרדה תגדל',
-      'החרדה תחמיר',
-      'בהמשך זה יחמיר',
-    ],
-  },
-  {
-    id: 'causal_exclusion',
-    assistantTerms: [
-      'not about writing better',
-      'not really about writing better',
-      'not actually about writing better',
-      'is not about writing better',
-      'זה לא באמת קשור לכתיבה טובה יותר',
-      'זה לא קשור לכתיבה טובה יותר',
-      'זה לא על לכתוב טוב יותר',
-      'לא מדובר בלכתוב טוב יותר',
-    ],
-    userTerms: [
-      'not about writing better',
-      'not really about writing better',
-      'not actually about writing better',
-      'זה לא באמת קשור לכתיבה טובה יותר',
-      'זה לא קשור לכתיבה טובה יותר',
-      'זה לא על לכתוב טוב יותר',
-      'לא מדובר בלכתוב טוב יותר',
     ],
   },
   {
@@ -934,12 +797,6 @@ const THREAT_APPRAISAL_TERMS_HE = ['הערכת איום', 'תחושת איום',
 const THREAT_APPRAISAL_TERMS_EN = ['threat appraisal', 'sense of threat', 'brain interprets', 'interprets as threat'];
 const CURRENT_TURN_EXPLANATION_TERMS_HE = ['מחשבה', 'מתח', 'לחץ', 'עיכוב', 'התנהגות', 'תגובה', 'הימנעות'];
 const CURRENT_TURN_EXPLANATION_TERMS_EN = ['thought', 'tension', 'stress', 'behavior', 'response', 'avoidance', 'delay'];
-const STRICT_LINK_THOUGHT_TERMS_HE = ['מחשבה', 'מה הוא יחשוב', 'מה יחשבו', 'מה יחשוב'];
-const STRICT_LINK_THOUGHT_TERMS_EN = ['thought', 'what will he think', 'what will they think'];
-const STRICT_LINK_TENSION_TERMS_HE = ['מתח', 'לחץ'];
-const STRICT_LINK_TENSION_TERMS_EN = ['tension', 'stress'];
-const STRICT_LINK_CHECKING_DELAY_TERMS_HE = ['עיכוב', 'מתעכב', 'מתעכבת', 'בדיקה חוזרת', 'בודק שוב', 'בודקת שוב', 'שוב ושוב'];
-const STRICT_LINK_CHECKING_DELAY_TERMS_EN = ['delay', 'delaying', 'checking again', 'repeated checking', 'check again'];
 const HARD_DANGER_CLAIMS_HE = ['אתה בסכנה', 'את בסכנה', 'יש סכנה', 'זה מסוכן', 'איום ממשי', 'איום מיידי', 'סכנה ממשית', 'סכנה מיידית', 'סיכון אמיתי'];
 const HARD_DANGER_CLAIMS_EN = [
   'you are in danger',
@@ -987,31 +844,6 @@ function _hasThreatAppraisalTerminology(sentence, visibleUser) {
   return !hasHardDangerClaim;
 }
 
-function _hasAnyTerm(text, heTerms, enTerms) {
-  if (typeof text !== 'string') return false;
-  const lower = text.toLowerCase();
-  return heTerms.some((term) => text.includes(term)) || enTerms.some((term) => lower.includes(term));
-}
-
-function _isAllowedStrictGroundingLink(groupId, sentence, visibleUser) {
-  if (groupId !== 'causal' && groupId !== 'maintaining_cycle') return false;
-
-  const userHasThought = _hasAnyTerm(visibleUser, STRICT_LINK_THOUGHT_TERMS_HE, STRICT_LINK_THOUGHT_TERMS_EN);
-  const userHasTension = _hasAnyTerm(visibleUser, STRICT_LINK_TENSION_TERMS_HE, STRICT_LINK_TENSION_TERMS_EN);
-  const userHasCheckingDelay = _hasAnyTerm(visibleUser, STRICT_LINK_CHECKING_DELAY_TERMS_HE, STRICT_LINK_CHECKING_DELAY_TERMS_EN);
-
-  const sentenceHasThought = _hasAnyTerm(sentence, STRICT_LINK_THOUGHT_TERMS_HE, STRICT_LINK_THOUGHT_TERMS_EN);
-  const sentenceHasTension = _hasAnyTerm(sentence, STRICT_LINK_TENSION_TERMS_HE, STRICT_LINK_TENSION_TERMS_EN);
-  const sentenceHasCheckingDelay = _hasAnyTerm(sentence, STRICT_LINK_CHECKING_DELAY_TERMS_HE, STRICT_LINK_CHECKING_DELAY_TERMS_EN);
-
-  const thoughtToTensionGrounded =
-    userHasThought && userHasTension && sentenceHasThought && sentenceHasTension;
-  const tensionToCheckingDelayGrounded =
-    userHasTension && userHasCheckingDelay && sentenceHasTension && sentenceHasCheckingDelay;
-
-  return thoughtToTensionGrounded || tensionToCheckingDelayGrounded;
-}
-
 export function evaluateCurrentTurnGroundingContract(assistantContent, rawUserContent) {
   const detailed = evaluateCurrentTurnGroundingContractDetailed(assistantContent, rawUserContent);
   return { pass: detailed.pass, reasonCodes: detailed.reasonCodes };
@@ -1046,14 +878,13 @@ export function evaluateCurrentTurnGroundingContractDetailed(assistantContent, r
   for (let groupIndex = 0; groupIndex < CURRENT_TURN_GROUNDING_CLAIM_GROUPS.length; groupIndex++) {
     const group = CURRENT_TURN_GROUNDING_CLAIM_GROUPS[groupIndex];
     const matchedAffirmativeUserTerm = _findAffirmativeUserTerm(visibleUser, group.userTerms);
-    if (matchedAffirmativeUserTerm && !strictMode) continue;
+    if (matchedAffirmativeUserTerm) continue;
 
     for (let sentenceIndex = 0; sentenceIndex < sentences.length; sentenceIndex++) {
       const sentence = sentences[sentenceIndex];
       const matchedAssistantTerm = _findFirstMatchedTerm(sentence, group.assistantTerms);
       if (!matchedAssistantTerm) continue;
       if (group.id === 'danger' && _hasThreatAppraisalTerminology(sentence, visibleUser)) continue;
-      if (strictMode && _isAllowedStrictGroundingLink(group.id, sentence, visibleUser)) continue;
       if (!strictMode && _hasCurrentTurnTentativeMarker(sentence)) continue;
       return {
         pass: false,
