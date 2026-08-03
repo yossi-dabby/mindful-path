@@ -2183,7 +2183,6 @@ export const LTS_READ_RESULTS = Object.freeze({
  *   },
  * }>} Parsed LTS record + bounded read_result classification
  */
-<<<<<<< HEAD
 export async function readLTSSnapshotWithDiagnostic(entities) {
   const makeResult = (ltsRecord, read_result) => Object.freeze({
     ltsRecord,
@@ -2197,42 +2196,32 @@ export async function readLTSSnapshotWithDiagnostic(entities) {
     if (!entities || typeof entities !== 'object') {
       return makeResult(null, LTS_READ_RESULTS.read_error);
     }
-    if (!entities.CompanionMemory || typeof entities.CompanionMemory.list !== 'function') {
+    if (!entities.CompanionMemory) {
       return makeResult(null, LTS_READ_RESULTS.read_error);
     }
 
     let rawRecords;
     try {
-      rawRecords = await entities.CompanionMemory.list('-created_date', LTS_SNAPSHOT_OVERFETCH_BOUND);
+      if (typeof entities.CompanionMemory.filter === 'function') {
+        rawRecords = await entities.CompanionMemory.filter(
+          { memory_type: LTS_MEMORY_TYPE },
+          '-created_date',
+          LTS_SNAPSHOT_OVERFETCH_BOUND,
+        );
+      } else if (typeof entities.CompanionMemory.list === 'function') {
+        rawRecords = await entities.CompanionMemory.list(
+          '-created_date',
+          LTS_SNAPSHOT_OVERFETCH_BOUND,
+        );
+      } else {
+        return makeResult(null, LTS_READ_RESULTS.read_error);
+      }
     } catch {
       return makeResult(null, LTS_READ_RESULTS.read_error);
     }
     if (!Array.isArray(rawRecords) || rawRecords.length === 0) {
       return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
     }
-=======
-async function readLTSSnapshot(entities) {
-  try {
-    if (!entities || typeof entities !== 'object') return null;
-    if (!entities.CompanionMemory) return null;
-
-    let rawRecords;
-    if (typeof entities.CompanionMemory.filter === 'function') {
-      rawRecords = await entities.CompanionMemory.filter(
-        { memory_type: LTS_MEMORY_TYPE },
-        '-created_date',
-        LTS_SNAPSHOT_OVERFETCH_BOUND,
-      );
-    } else if (typeof entities.CompanionMemory.list === 'function') {
-      rawRecords = await entities.CompanionMemory.list(
-        '-created_date',
-        LTS_SNAPSHOT_OVERFETCH_BOUND,
-      );
-    } else {
-      return null;
-    }
-    if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
->>>>>>> origin/pr/878
 
     for (const raw of rawRecords) {
       if (!raw || typeof raw !== 'object') continue;

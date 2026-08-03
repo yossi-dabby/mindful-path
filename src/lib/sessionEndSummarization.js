@@ -935,18 +935,9 @@ function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
       ltsSnapshot = buildLongitudinalState(sessionRecords, [], null);
 
       // 4. Upsert the LTS snapshot via the writeLTSSnapshot backend function.
-<<<<<<< HEAD
       //    Failure remains non-blocking (diagnostic classification is bounded).
-      await invokeLTSSnapshotWriteWithDiagnostic(base44, ltsSnapshot);
-=======
-      const writeResult = await base44.functions.invoke('writeLTSSnapshot', ltsSnapshot);
-      _emitLTSWriteDiagnosticIfEnabled(
-        writeResult?.upserted === 'updated'
-          ? _LTS_WRITE_DIAGNOSTIC_RESULTS.UPDATED
-          : _LTS_WRITE_DIAGNOSTIC_RESULTS.CREATED,
-        ltsSnapshot,
-      );
->>>>>>> origin/pr/878
+      const diagResult = await invokeLTSSnapshotWriteWithDiagnostic(base44, ltsSnapshot);
+      _emitLTSWriteDiagnosticIfEnabled(diagResult.write_result, ltsSnapshot);
     } catch (error) {
       _emitLTSWriteDiagnosticIfEnabled(
         _LTS_WRITE_DIAGNOSTIC_RESULTS.WRITE_ERROR,
