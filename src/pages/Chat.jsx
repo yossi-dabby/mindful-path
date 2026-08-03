@@ -86,6 +86,22 @@ import {
   normalizeTraceSource,
   summarizeText,
 } from '@/lib/s2V8TraceDiagnostics.js';
+import {
+  buildOutboundUserMessageContent,
+  buildPendingCorrectionPrefix,
+  buildS2DebugLifecycleDiagnostic,
+  calculateExpectedReplyCount,
+  deduplicateMessagesByLifecycleKeys,
+  getAssistantIdentityKey,
+  getAssistantIdentitySource,
+  getDefaultPollingLifecycle,
+  getPollingDelayForAttempt,
+  hasCorrectionBlockAttached,
+  hasPollingAttemptTimedOut,
+  selectLatestAssistantResponse,
+  shouldSuppressSubscriptionEventWhileLoading,
+  wasCorrectionBlockSanitized,
+} from '@/lib/chatRuntimeLifecycle.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -653,39 +669,22 @@ export default function Chat() {
 
   // CRITICAL: Deduplicate using stable message IDs (no content hashing)
   const deduplicateMessages = (newMessages) => {
-    const seen = new Set();
-    const deduplicated = [];
-    let duplicatesBlocked = 0;
+    const {
+      deduplicated,
+      duplicateKeys,
+      duplicatesBlocked,
+      nextTurnId,
+    } = deduplicateMessagesByLifecycleKeys(newMessages, {
+      startingTurnId: currentTurnIdRef.current,
+    });
 
-    for (let i = 0; i < newMessages.length; i++) {
-      const msg = newMessages[i];
-
-      // Use deterministic key: msg.id > created_at+role+index > generated turn_id
-      let msgKey;
-      if (msg.id) {
-        msgKey = msg.id;
-      } else if (msg.created_at) {
-        msgKey = `${msg.role}-${msg.created_at}-${i}`;
-      } else {
-        // Generate stable turn_id for this conversation turn
-        if (msg.role === 'assistant' && !msg._turn_id) {
-          currentTurnIdRef.current++;
-          msg._turn_id = currentTurnIdRef.current;
-        }
-        msgKey = msg._turn_id ? `turn-${msg._turn_id}` : `idx-${i}-${msg.role}`;
-      }
-
-      if (!seen.has(msgKey)) {
-        seen.add(msgKey);
-        deduplicated.push(msg);
-      } else {
-        console.warn(`[Dedup] BLOCKED duplicate:`, msgKey);
-        duplicatesBlocked++;
-        instrumentationRef.current.DUPLICATE_BLOCKED++;
-      }
-    }
+    currentTurnIdRef.current = nextTurnId;
 
     if (duplicatesBlocked > 0) {
+      duplicateKeys.forEach((msgKey) => {
+        console.warn('[Dedup] BLOCKED duplicate:', msgKey);
+        instrumentationRef.current.DUPLICATE_BLOCKED++;
+      });
       console.log(`[Dedup] ✅ Duplicates blocked: ${duplicatesBlocked}`);
     }
 
@@ -707,6 +706,11 @@ export default function Chat() {
     return s2DebugEnabledRef.current === true;
   };
 
+  const logS2DebugLifecycle = (fields) => {
+    if (!isS2DebugEnabled()) return;
+    console.log('[S2Debug] chat-runtime-lifecycle', buildS2DebugLifecycleDiagnostic(fields));
+  };
+
   const toBoundedReasonCodes = (value) =>
   Array.isArray(value) ?
   value.filter((code) => typeof code === 'string').slice(0, 8) :
@@ -719,16 +723,6 @@ export default function Chat() {
       scoped.set(conversationId, new Map());
     }
     return scoped.get(conversationId);
-  };
-
-  const getAssistantIdentityKey = (msg, index) => {
-    if (!msg || msg.role !== 'assistant') return null;
-    const rawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : null;
-    if (rawIndex !== null) return `raw:${rawIndex}`;
-    if (msg.id) return `id:${msg.id}`;
-    const createdAt = typeof msg.created_at === 'string' ? msg.created_at : null;
-    if (createdAt) return `created:${createdAt}|idx:${index}`;
-    return `idx:${index}|role:${msg.role}`;
   };
 
   const isExplicitlyFinalAssistantMessage = (assistantMsg) => {
@@ -856,13 +850,6 @@ export default function Chat() {
     };
   };
 
-  const getLatestAssistantEntry = (msgs) => {
-    const assistantEntries = (Array.isArray(msgs) ? msgs : [])
-      .map((msg, index) => ({ msg, index }))
-      .filter(({ msg }) => msg && msg.role === 'assistant');
-    return assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
-  };
-
   const getAssistantContentSummary = (msg) => {
     if (!msg || msg.role !== 'assistant') return { length: 0, hash: null };
     return summarizeText(typeof msg.content === 'string' ? msg.content : '');
@@ -872,7 +859,7 @@ export default function Chat() {
     if (explicitPollFinality && typeof explicitPollFinality.isFinal === 'boolean') {
       return explicitPollFinality;
     }
-    const latestAssistantEntry = getLatestAssistantEntry(msgs);
+    const latestAssistantEntry = selectLatestAssistantResponse(msgs);
     if (!latestAssistantEntry) {
       return { isFinal: true, reason: 'no_assistant_in_snapshot' };
     }
@@ -946,7 +933,7 @@ export default function Chat() {
     pollFinality = null,
   }) => {
     if (!isS2DebugEnabled()) return;
-    const latestAssistantEntry = getLatestAssistantEntry(incomingMessages);
+    const latestAssistantEntry = selectLatestAssistantResponse(incomingMessages);
     if (!latestAssistantEntry) return;
     const latestAssistant = latestAssistantEntry.msg;
     const assistantIdentityKey = getAssistantIdentityKey(latestAssistant, latestAssistantEntry.index);
@@ -1012,6 +999,11 @@ export default function Chat() {
   }) => {
     if (!isS2DebugEnabled()) return;
     const latestAssistant = getLatestAssistantDebugInfo(incomingMessages);
+    const latestAssistantEntry = selectLatestAssistantResponse(incomingMessages);
+    const actionPermittedRaw =
+      latestAssistantEntry?.msg?.metadata?.structured_data?.strategy_state?.action_permitted;
+    const actionPermitted =
+      typeof actionPermittedRaw === 'boolean' ? actionPermittedRaw : null;
     const boundedConversationId =
       typeof currentConversationId === 'string' ?
       currentConversationId.slice(0, 64) :
@@ -1032,6 +1024,8 @@ export default function Chat() {
       preservedExistingGuardedReplacement,
       subscriptionSucceededRef: subscriptionSucceededRef.current === true,
       snapshotSequence,
+      action_permitted: actionPermitted,
+      response_policy_enforced: false,
     };
     console.log('[S2Debug] message-state-update', payload);
     recordS2V8TraceEvent({
@@ -1207,7 +1201,7 @@ export default function Chat() {
     });
     const finalMessages = withRuntimeMetadata.filter(Boolean);
     if (isS2DebugEnabled()) {
-      const latestAssistant = getLatestAssistantEntry(finalMessages);
+      const latestAssistant = selectLatestAssistantResponse(finalMessages);
       const assistantRawIndex =
         latestAssistant && Number.isInteger(latestAssistant.msg.__rawIndex)
           ? latestAssistant.msg.__rawIndex
@@ -1229,6 +1223,7 @@ export default function Chat() {
         typeof guardedAssistant?.content === 'string' ? guardedAssistant.content : '',
         precedingRawUser?.content || null
       );
+      const correctionBlockSanitized = wasCorrectionBlockSanitized(raw, sanitized);
       latestPipelineDiagnosticsRef.current = {
         assistantIdentity: finalAssistant ? {
           id: finalAssistant.id || null,
@@ -1273,6 +1268,11 @@ export default function Chat() {
         },
         pendingGroundingCorrection: pendingGroundingCorrection !== null,
       };
+      logS2DebugLifecycle({
+        delivery_source: 'pipeline',
+        assistant_identity_source: finalAssistant ? getAssistantIdentitySource(finalAssistant) : null,
+        correction_block_sanitized: correctionBlockSanitized,
+      });
     } else {
       latestPipelineDiagnosticsRef.current = null;
     }
@@ -1767,7 +1767,13 @@ export default function Chat() {
         // mechanism.  It fetches the stored, complete message from the backend
         // REST API and runs the guard pipeline exactly once before committing.
         // Subscription callbacks during that window are silently discarded here.
-        if (isLoadingRef.current) {
+        if (shouldSuppressSubscriptionEventWhileLoading(isLoadingRef.current)) {
+          logS2DebugLifecycle({
+            delivery_source: 'subscription',
+            active_request_count: isLoadingRef.current ? 1 : 0,
+            expected_reply_count: expectedReplyCountRef.current,
+            subscription_event_suppressed: true,
+          });
           console.log('[Subscription] ⏸ Skipping partial streaming draft — polling is authoritative during generation');
           return;
         }
@@ -2763,12 +2769,18 @@ export default function Chat() {
     subscriptionSucceededRef.current = false;
 
     // Track expected message count for deterministic verification
-    expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
+    expectedReplyCountRef.current = calculateExpectedReplyCount(messages.length); // user message + assistant reply
     pollingFinalityStateRef.current = {
       assistantKey: null,
       content: null,
       stableCount: 0,
     };
+    logS2DebugLifecycle({
+      correlation_mode: 'array_position_expected_reply_count',
+      active_request_count: 1,
+      expected_reply_count: expectedReplyCountRef.current,
+      delivery_source: 'send',
+    });
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
     const reasonCode = detectCrisisWithReason(inputMessage);
@@ -2975,22 +2987,18 @@ export default function Chat() {
         }
         pendingGroundingCorrectionRef.current = null;
       }
-      const pendingCorrectionPrefix = pendingCorrectionBlocks.length > 0
-        ? `${pendingCorrectionBlocks.join('\n\n')}\n\n`
-        : '';
+      const pendingCorrectionPrefix = buildPendingCorrectionPrefix(pendingCorrectionBlocks);
+      logS2DebugLifecycle({
+        delivery_source: 'send',
+        correction_block_attached: hasCorrectionBlockAttached(pendingCorrectionPrefix),
+      });
 
-      let messageContent;
-      if (runtimeSupplement) {
-        messageContent = runtimeSupplement + '\n\n' +
-          pendingCorrectionPrefix +
-          messageText;
-      } else if (formulationSupplement) {
-        messageContent = formulationSupplement + '\n\n' +
-          pendingCorrectionPrefix +
-          messageText;
-      } else {
-        messageContent = pendingCorrectionPrefix + messageText;
-      }
+      let messageContent = buildOutboundUserMessageContent({
+        runtimeSupplement,
+        formulationSupplement,
+        pendingCorrectionPrefix,
+        messageText,
+      });
       const deterministicFormRoute = resolveFormIntentRequest(messageText, {
         language: sessionLanguageRef.current,
       });
@@ -3143,14 +3151,20 @@ export default function Chat() {
       // CRITICAL: Start authoritative polling with exponential backoff
       // This ensures we get the reply even if subscription fails
       let pollAttempts = 0;
-      const maxPollAttempts = 5;
-      const pollDelays = [500, 1000, 2000, 4000, 8000]; // Exponential backoff
+      const { pollDelays, maxPollAttempts } = getDefaultPollingLifecycle();
 
       const pollWithBackoff = (attemptIndex) => {
-        const delay = pollDelays[Math.min(attemptIndex, pollDelays.length - 1)];
+        const delay = getPollingDelayForAttempt(attemptIndex, pollDelays);
 
         pollingIntervalRef.current = setTimeout(async () => {
           pollAttempts++;
+          const pollingExhausted = hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts);
+          logS2DebugLifecycle({
+            delivery_source: 'polling',
+            polling_attempt: pollAttempts,
+            polling_exhausted: pollingExhausted,
+            expected_reply_count: expectedReplyCountRef.current,
+          });
           console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms, hidden: ${document.hidden})`);
 
           try {
@@ -3204,7 +3218,7 @@ export default function Chat() {
               }
             } else if (hasExpectedReplyCount && !pollFinality.isFinal) {
               console.log(`[Polling] ⏳ Awaiting final snapshot (${pollFinality.reason})`);
-              if (pollAttempts >= maxPollAttempts) {
+              if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
                 console.warn('[Polling] Finality not confirmed before max attempts - falling back to timeout path');
                 instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
                 safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
@@ -3221,7 +3235,7 @@ export default function Chat() {
               } else {
                 pollWithBackoff(pollAttempts);
               }
-            } else if (pollAttempts >= maxPollAttempts) {
+            } else if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
               console.error('[Polling] ⏱️ Timeout - no reply after max attempts');
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
 
@@ -3244,7 +3258,7 @@ export default function Chat() {
             }
           } catch (err) {
             console.error('[Polling] ❌ Error:', err);
-            if (pollAttempts >= maxPollAttempts) {
+            if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
               instrumentationRef.current.THINKING_OVER_10S++;
               setIsLoading(false);
               emitStabilitySummary();
