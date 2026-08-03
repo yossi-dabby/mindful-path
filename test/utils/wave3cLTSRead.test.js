@@ -54,6 +54,8 @@ import {
   isLTSWeak,
   buildLTSContextBlock,
   buildV9SessionStartContentAsync,
+  readLTSSnapshotWithDiagnostic,
+  LTS_READ_RESULTS,
   LTS_SNAPSHOT_OVERFETCH_BOUND,
   LTS_BLOCK_MAX_ARRAY_ITEMS,
 } from '../../src/lib/workflowContextInjector.js';
@@ -131,18 +133,34 @@ function wrapInCompanionRecord(ltsRecord, jsonStringContent = false) {
  * @param {boolean} [shouldThrow] - If true, list throws an error.
  * @returns {object}
  */
-function makeEntities(records = [], shouldThrow = false) {
+function makeEntities(records = [], shouldThrow = false, { includeFilter = true } = {}) {
+  const list = vi.fn(async (_order, _limit) => {
+    if (shouldThrow) throw new Error('CompanionMemory.list error');
+    return records;
+  });
+  const filter = vi.fn(async (_query, _order, _limit) => {
+    if (shouldThrow) throw new Error('CompanionMemory.filter error');
+    return records.filter((record) => record?.memory_type === LTS_MEMORY_TYPE);
+  });
+
   return {
     CompanionMemory: {
-      list: vi.fn(async (_order, _limit) => {
-        if (shouldThrow) throw new Error('CompanionMemory.list error');
-        return records;
-      }),
+      list,
+      ...(includeFilter ? { filter } : {}),
     },
     CaseFormulation: {
       list: vi.fn(async () => []),
     },
   };
+}
+
+async function withWindow(search, fn, hostname = 'localhost') {
+  vi.stubGlobal('window', { location: { search, hostname } });
+  try {
+    return await fn();
+  } finally {
+    vi.unstubAllGlobals();
+  }
 }
 
 /**
@@ -178,6 +196,11 @@ const STUB_V9_WIRING = {
 const STUB_BASE44 = {};
 
 // ─── Test suites ──────────────────────────────────────────────────────────────
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 // ─── S. Exported constants ────────────────────────────────────────────────────
 
@@ -666,12 +689,12 @@ describe('Wave 3C — buildV9SessionStartContentAsync()', () => {
 
   // ─── H. No cross-user / private-entity leakage ────────────────────────────
 
-  it('H1. CompanionMemory.list is called with the expected overfetch bound when V9 path is active', async () => {
+  it('H1. V9 path reads LTS through the dedicated overfetch bound', async () => {
     const lts = makeLTSRecord({ trajectory: LTS_TRAJECTORIES.STABLE });
     const entities = makeEntities([wrapInCompanionRecord(lts)]);
     await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
-    // Should be called once with the overfetch bound
-    expect(entities.CompanionMemory.list).toHaveBeenCalledWith(
+    expect(entities.CompanionMemory.filter).toHaveBeenCalledWith(
+      { memory_type: LTS_MEMORY_TYPE },
       '-created_date',
       LTS_SNAPSHOT_OVERFETCH_BOUND,
     );
@@ -850,8 +873,22 @@ describe('Wave 3C — resolveTherapistWiring V9 routing', () => {
 // ─── L/M. readLTSSnapshot edge cases (via buildV9SessionStartContentAsync) ────
 
 describe('Wave 3C — readLTSSnapshot edge cases', () => {
-  it('L1. CompanionMemory.list receives "-created_date" ordering argument', async () => {
+  it('L1. CompanionMemory.filter prefers outer memory_type="lts" with "-created_date" ordering', async () => {
     const entities = makeEntities([]);
+    await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    expect(entities.CompanionMemory.filter).toHaveBeenCalledWith(
+      { memory_type: LTS_MEMORY_TYPE },
+      '-created_date',
+      expect.any(Number),
+    );
+    const ltsListCalls = entities.CompanionMemory.list.mock.calls.filter(
+      ([, limit]) => limit === LTS_SNAPSHOT_OVERFETCH_BOUND,
+    );
+    expect(ltsListCalls).toHaveLength(0);
+  });
+
+  it('L2. falls back to CompanionMemory.list when filter is unavailable', async () => {
+    const entities = makeEntities([], false, { includeFilter: false });
     await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
     expect(entities.CompanionMemory.list).toHaveBeenCalledWith(
       '-created_date',
@@ -859,9 +896,12 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
     );
   });
 
-  it('L2. non-array response from CompanionMemory.list → null (V8 output returned)', async () => {
+  it('L3. non-array response from CompanionMemory reader → null (V8 output returned)', async () => {
     const entities = {
-      CompanionMemory: { list: vi.fn(async () => null) },
+      CompanionMemory: {
+        filter: vi.fn(async () => null),
+        list: vi.fn(async () => null),
+      },
       CaseFormulation: { list: vi.fn(async () => []) },
     };
     const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
@@ -888,5 +928,143 @@ describe('Wave 3C — readLTSSnapshot edge cases', () => {
     const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
     const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
     expect(v9Result).toBe(v8Base);
+  });
+
+  it('M3. filtered LTS read still finds the canonical snapshot even when mixed records are newer', async () => {
+    const validLTS = makeLTSRecord({ trajectory: LTS_TRAJECTORIES.STAGNATING });
+    const entities = {
+      CompanionMemory: {
+        filter: vi.fn(async () => [wrapInCompanionRecord(validLTS)]),
+        list: vi.fn(async () => [
+          { id: 'cm-session-1', memory_type: 'therapist_session', content: '{}' },
+          { id: 'cm-session-2', memory_type: 'therapist_session', content: '{}' },
+          { id: 'cm-session-3', memory_type: 'therapist_session', content: '{}' },
+        ]),
+      },
+      CaseFormulation: { list: vi.fn(async () => []) },
+    };
+
+    const v9Result = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    expect(v9Result).toContain('stagnating');
+    expect(entities.CompanionMemory.filter).toHaveBeenCalledTimes(1);
+    const ltsListCalls = entities.CompanionMemory.list.mock.calls.filter(
+      ([, limit]) => limit === LTS_SNAPSHOT_OVERFETCH_BOUND,
+    );
+    expect(ltsListCalls).toHaveLength(0);
+  });
+});
+
+describe('Wave 3C — safe read diagnostics', () => {
+  it('emits a bounded valid-read diagnostic when _s2debug=true', async () => {
+    const lts = makeLTSRecord({ trajectory: LTS_TRAJECTORIES.PROGRESSING, session_count: 4 });
+    const entities = makeEntities([wrapInCompanionRecord(lts)]);
+    const groupSpy = vi.spyOn(console, 'group').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const endSpy = vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    await withWindow('?_s2debug=true', async () => {
+      await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    });
+
+    expect(groupSpy).toHaveBeenCalledWith('[Wave 3C] LTS read diagnostic');
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', 'valid');
+    expect(logSpy).toHaveBeenCalledWith('lts_valid                :', true);
+    expect(logSpy).toHaveBeenCalledWith('lts_session_count        :', 4);
+    expect(logSpy).toHaveBeenCalledWith('lts_trajectory           :', 'progressing');
+    expect(endSpy).toHaveBeenCalled();
+  });
+
+  it('emits a bounded fallback diagnostic when no valid LTS is available', async () => {
+    const entities = makeEntities([]);
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'group').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    await withWindow('?_s2debug=true', async () => {
+      await buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44);
+    });
+
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', 'absent_or_invalid');
+    expect(logSpy).toHaveBeenCalledWith('lts_valid                :', false);
+    expect(logSpy).toHaveBeenCalledWith('lts_session_count        :', 0);
+    expect(logSpy).toHaveBeenCalledWith('lts_trajectory           :', '');
+  });
+});
+
+describe('Wave 3C — LTS read diagnostic classification', () => {
+  it('filter/list rejection emits read_error and V9 still returns exact V8 output', async () => {
+    const entities = makeEntities([], true);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.read_error);
+    expect(diag.diagnostic.lts_valid).toBe(false);
+    expect(diag.ltsRecord).toBeNull();
+
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'group').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    const v8Base = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entities, STUB_BASE44);
+    const v9Result = await withWindow('?_s2debug=true', async () => (
+      buildV9SessionStartContentAsync(STUB_V9_WIRING, entities, STUB_BASE44)
+    ));
+    expect(v9Result).toBe(v8Base);
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', LTS_READ_RESULTS.read_error);
+  });
+
+  it('empty or invalid data emits absent_or_invalid', async () => {
+    const entitiesEmpty = makeEntities([]);
+    const emptyDiag = await readLTSSnapshotWithDiagnostic(entitiesEmpty);
+    expect(emptyDiag.diagnostic.read_result).toBe(LTS_READ_RESULTS.absent_or_invalid);
+    expect(emptyDiag.ltsRecord).toBeNull();
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'group').mockImplementation(() => {});
+    vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    const emptyV8 = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entitiesEmpty, STUB_BASE44);
+    const emptyV9 = await withWindow('?_s2debug=true', async () => (
+      buildV9SessionStartContentAsync(STUB_V9_WIRING, entitiesEmpty, STUB_BASE44)
+    ));
+    expect(emptyV9).toBe(emptyV8);
+    expect(logSpy).toHaveBeenCalledWith('read_result              :', LTS_READ_RESULTS.absent_or_invalid);
+
+    const entitiesInvalid = makeEntities([{ memory_type: LTS_MEMORY_TYPE, content: '{bad json' }]);
+    const invalidDiag = await readLTSSnapshotWithDiagnostic(entitiesInvalid);
+    expect(invalidDiag.diagnostic.read_result).toBe(LTS_READ_RESULTS.absent_or_invalid);
+    expect(invalidDiag.ltsRecord).toBeNull();
+    const invalidV8 = await buildV9SessionStartContentAsync(STUB_V8_WIRING, entitiesInvalid, STUB_BASE44);
+    const invalidV9 = await buildV9SessionStartContentAsync(STUB_V9_WIRING, entitiesInvalid, STUB_BASE44);
+    expect(invalidV9).toBe(invalidV8);
+  });
+
+  it('weak LTS emits weak', async () => {
+    const weak = makeLTSRecord({
+      trajectory: LTS_TRAJECTORIES.INSUFFICIENT_DATA,
+      session_count: LTS_MIN_SESSIONS_FOR_SIGNALS - 1,
+    });
+    const entities = makeEntities([wrapInCompanionRecord(weak)]);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.weak);
+    expect(diag.diagnostic.lts_valid).toBe(false);
+    expect(diag.ltsRecord).toEqual(weak);
+  });
+
+  it('valid stable session_count:2 emits valid', async () => {
+    const valid = makeLTSRecord({ session_count: 2, trajectory: LTS_TRAJECTORIES.STABLE });
+    const entities = makeEntities([wrapInCompanionRecord(valid)]);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(diag.diagnostic.read_result).toBe(LTS_READ_RESULTS.valid);
+    expect(diag.diagnostic.lts_valid).toBe(true);
+    expect(diag.ltsRecord).toEqual(valid);
+  });
+
+  it('diagnostic payload excludes transcript and free-text fields', async () => {
+    const valid = makeLTSRecord({ session_count: 2, trajectory: LTS_TRAJECTORIES.STABLE });
+    const entities = makeEntities([wrapInCompanionRecord(valid)]);
+    const diag = await readLTSSnapshotWithDiagnostic(entities);
+    expect(Object.keys(diag.diagnostic).sort()).toEqual(['lts_valid', 'read_result']);
+    const serialized = JSON.stringify(diag.diagnostic);
+    expect(serialized).not.toContain('transcript');
+    expect(serialized).not.toContain('quote');
+    expect(serialized).not.toContain('session_summary');
   });
 });

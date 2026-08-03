@@ -45,6 +45,10 @@ import {
   isLongitudinalEnabled,
   LTS_SESSION_RECORDS_FETCH_CAP,
   LTS_WRITE_INVOKER,
+  LTS_WRITE_RESULTS,
+  isLTSValidForDiagnostics,
+  classifyLTSWriteResult,
+  invokeLTSSnapshotWriteWithDiagnostic,
   isContinuityEnrichmentEnabled,
   deriveSessionSummaryPayload,
   deriveConversationMemoryPayload,
@@ -120,6 +124,15 @@ function makeMockBase44({
  */
 async function flushAsync() {
   await new Promise(resolve => setTimeout(resolve, 10));
+}
+
+async function withWindow(search, fn, hostname = 'localhost') {
+  vi.stubGlobal('window', { location: { search, hostname } });
+  try {
+    return await fn();
+  } finally {
+    vi.unstubAllGlobals();
+  }
 }
 
 /**
@@ -829,5 +842,140 @@ describe('Effective LTS record window (Wave 3B validation)', () => {
     expect(isTherapistMemoryRecord(crossUserCandidate)).toBe(false);
     const filtered = [crossUserCandidate].filter(r => isTherapistMemoryRecord(r));
     expect(filtered).toHaveLength(0);
+  });
+});
+
+describe('Wave 3B — LTS write diagnostics contract', () => {
+  it('valid stable LTS with session_count:2 is lts_valid:true for write diagnostics', () => {
+    const lts = createEmptyLTSRecord();
+    lts.session_count = 2;
+    lts.trajectory = 'stable';
+    expect(isLTSValidForDiagnostics(lts)).toBe(true);
+  });
+
+  it('invoke diagnostic keeps lts_valid:true for stable session_count:2', async () => {
+    const lts = createEmptyLTSRecord();
+    lts.session_count = 2;
+    lts.trajectory = 'stable';
+    const base44 = {
+      functions: {
+        invoke: vi.fn(async () => ({ success: true, upserted: 'created' })),
+      },
+    };
+    const result = await invokeLTSSnapshotWriteWithDiagnostic(base44, lts);
+    expect(result.lts_valid).toBe(true);
+    expect(result.write_result).toBe(LTS_WRITE_RESULTS.created);
+  });
+
+  it('write_result is created when success:true + upserted:"created"', () => {
+    expect(
+      classifyLTSWriteResult({ success: true, id: 'lts-001', upserted: 'created' }),
+    ).toBe(LTS_WRITE_RESULTS.created);
+  });
+
+  it('write_result is updated when success:true + upserted:"updated"', () => {
+    expect(
+      classifyLTSWriteResult({ success: true, id: 'lts-001', upserted: 'updated' }),
+    ).toBe(LTS_WRITE_RESULTS.updated);
+  });
+
+  it('write_result is write_error for structured failure', () => {
+    expect(
+      classifyLTSWriteResult({ success: false, id: 'lts-001', error: 'write failed' }),
+    ).toBe(LTS_WRITE_RESULTS.write_error);
+  });
+
+  it('write_result is write_error for malformed success response', () => {
+    expect(classifyLTSWriteResult({ success: true, id: 'lts-001' })).toBe(
+      LTS_WRITE_RESULTS.write_error,
+    );
+    expect(classifyLTSWriteResult({ success: true, upserted: 'noop' })).toBe(
+      LTS_WRITE_RESULTS.write_error,
+    );
+  });
+
+  it('write_result is write_error when invoke throws', async () => {
+    const base44Throw = {
+      functions: {
+        invoke: vi.fn(async () => {
+          throw new Error('boom');
+        }),
+      },
+    };
+    const result = await invokeLTSSnapshotWriteWithDiagnostic(base44Throw, createEmptyLTSRecord());
+    expect(result.write_result).toBe(LTS_WRITE_RESULTS.write_error);
+    expect(result.lts_valid).toBe(false);
+  });
+
+  it('diagnostic output contains no transcript or clinical free text fields', async () => {
+    const lts = createEmptyLTSRecord();
+    const base44 = {
+      functions: {
+        invoke: vi.fn(async () => ({ success: true, upserted: 'updated' })),
+      },
+    };
+    const result = await invokeLTSSnapshotWriteWithDiagnostic(base44, lts);
+    expect(Object.keys(result).sort()).toEqual(['lts_valid', 'write_result']);
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain('transcript');
+    expect(serialized).not.toContain('quote');
+    expect(serialized).not.toContain('session_summary');
+  });
+
+  it('runtime _s2debug write diagnostic logs lts_valid:true for stable session_count:2', async () => {
+    const lts = createEmptyLTSRecord();
+    lts.session_count = 2;
+    lts.trajectory = 'stable';
+
+    const invokeSpy = vi.fn(async (fnName) => {
+      if (fnName === 'generateSessionSummary') return { success: true, id: 'mem-001' };
+      if (fnName === 'retrieveTherapistMemory') return { memories: [makeSessionRecord()], count: 1 };
+      if (fnName === 'writeLTSSnapshot') return { success: true, id: 'lts-001', upserted: 'created' };
+      throw new Error(`Unknown function: ${fnName}`);
+    });
+    const ltsBuilderSpy = vi.fn(() => lts);
+
+    vi.resetModules();
+    vi.doMock('../../src/api/base44Client.js', () => ({
+      base44: {
+        functions: {
+          invoke: invokeSpy,
+        },
+      },
+    }));
+    vi.doMock('../../src/lib/longitudinalStateBuilder.js', async () => {
+      const actual = await vi.importActual('../../src/lib/longitudinalStateBuilder.js');
+      return {
+        ...actual,
+        buildLongitudinalState: ltsBuilderSpy,
+      };
+    });
+    const { triggerSessionEndSummarization } = await import('../../src/lib/sessionEndSummarization.js');
+
+    const groupSpy = vi.spyOn(console, 'group').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const endSpy = vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
+
+    await withWindow(
+      '?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_SUMMARIZATION_ENABLED,THERAPIST_UPGRADE_LONGITUDINAL_ENABLED',
+      async () => {
+        triggerSessionEndSummarization({ id: 'sess-runtime', stage: 'completed' }, [], 'vitest-runtime');
+        await flushAsync();
+        await flushAsync();
+      },
+    );
+
+    expect(groupSpy).toHaveBeenCalledWith('[Wave 3B] LTS write diagnostic');
+    expect(logSpy).toHaveBeenCalledWith('write_result             :', LTS_WRITE_RESULTS.created);
+    expect(logSpy).toHaveBeenCalledWith('lts_valid                :', true);
+    expect(logSpy).toHaveBeenCalledWith('lts_session_count        :', 2);
+    expect(logSpy).toHaveBeenCalledWith('lts_trajectory           :', 'stable');
+    expect(endSpy).toHaveBeenCalled();
+    expect(ltsBuilderSpy).toHaveBeenCalled();
+    expect(invokeSpy).toHaveBeenCalledWith('writeLTSSnapshot', lts);
+
+    vi.doUnmock('../../src/api/base44Client.js');
+    vi.doUnmock('../../src/lib/longitudinalStateBuilder.js');
+    vi.resetModules();
   });
 });

@@ -2099,6 +2099,54 @@ export const LTS_SNAPSHOT_OVERFETCH_BOUND = 15;
  */
 export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
 
+function _isS2DebugEnabled() {
+  try {
+    if (typeof window === 'undefined') return false;
+    const search = window.location?.search ?? '';
+    if (!search) return false;
+    const params = new URLSearchParams(search);
+    return params.get('_s2debug') === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function _emitV9LTSReadDiagnosticIfEnabled(readResult, ltsRecord) {
+  try {
+    if (!_isS2DebugEnabled()) return;
+    const valid = !isLTSWeak(ltsRecord);
+    const sessionCount =
+      ltsRecord && typeof ltsRecord.session_count === 'number'
+        ? ltsRecord.session_count
+        : 0;
+    const trajectory =
+      ltsRecord && typeof ltsRecord.trajectory === 'string'
+        ? ltsRecord.trajectory
+        : '';
+
+    console.group('[Wave 3C] LTS read diagnostic');
+    console.log('read_result              :', readResult);
+    console.log('lts_valid                :', valid);
+    console.log('lts_session_count        :', sessionCount);
+    console.log('lts_trajectory           :', trajectory);
+    console.groupEnd();
+  } catch {
+    // Diagnostic emission must never propagate.
+  }
+}
+
+/**
+ * Bounded LTS read-result enum for V9 diagnostics.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const LTS_READ_RESULTS = Object.freeze({
+  valid: 'valid',
+  weak: 'weak',
+  absent_or_invalid: 'absent_or_invalid',
+  read_error: 'read_error',
+});
+
 /**
  * Reads the single canonical LTS snapshot from CompanionMemory.
  *
@@ -2120,15 +2168,53 @@ export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
  *
  * @private
  * @param {object} entities - Base44 entity client map
- * @returns {Promise<object|null>} Parsed LTS record, or null
+ * @returns {Promise<{
+ *   ltsRecord: object|null,
+ *   diagnostic: {
+ *     lts_valid: boolean,
+ *     read_result: string,
+ *   },
+ * }>} Parsed LTS record + bounded read_result classification
  */
-async function readLTSSnapshot(entities) {
-  try {
-    if (!entities || typeof entities !== 'object') return null;
-    if (!entities.CompanionMemory || typeof entities.CompanionMemory.list !== 'function') return null;
+export async function readLTSSnapshotWithDiagnostic(entities) {
+  const makeResult = (ltsRecord, read_result) => Object.freeze({
+    ltsRecord,
+    diagnostic: Object.freeze({
+      lts_valid: read_result === LTS_READ_RESULTS.valid,
+      read_result,
+    }),
+  });
 
-    const rawRecords = await entities.CompanionMemory.list('-created_date', LTS_SNAPSHOT_OVERFETCH_BOUND);
-    if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
+  try {
+    if (!entities || typeof entities !== 'object') {
+      return makeResult(null, LTS_READ_RESULTS.read_error);
+    }
+    if (!entities.CompanionMemory) {
+      return makeResult(null, LTS_READ_RESULTS.read_error);
+    }
+
+    let rawRecords;
+    try {
+      if (typeof entities.CompanionMemory.filter === 'function') {
+        rawRecords = await entities.CompanionMemory.filter(
+          { memory_type: LTS_MEMORY_TYPE },
+          '-created_date',
+          LTS_SNAPSHOT_OVERFETCH_BOUND,
+        );
+      } else if (typeof entities.CompanionMemory.list === 'function') {
+        rawRecords = await entities.CompanionMemory.list(
+          '-created_date',
+          LTS_SNAPSHOT_OVERFETCH_BOUND,
+        );
+      } else {
+        return makeResult(null, LTS_READ_RESULTS.read_error);
+      }
+    } catch {
+      return makeResult(null, LTS_READ_RESULTS.read_error);
+    }
+    if (!Array.isArray(rawRecords) || rawRecords.length === 0) {
+      return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
+    }
 
     for (const raw of rawRecords) {
       if (!raw || typeof raw !== 'object') continue;
@@ -2146,13 +2232,33 @@ async function readLTSSnapshot(entities) {
         continue;
       }
 
-      if (isLTSRecord(parsed)) return parsed;
+      if (isLTSRecord(parsed)) {
+        return makeResult(
+          parsed,
+          isLTSWeak(parsed)
+            ? LTS_READ_RESULTS.weak
+            : LTS_READ_RESULTS.valid,
+        );
+      }
     }
 
-    return null;
+    return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
   } catch {
-    return null;
+    return makeResult(null, LTS_READ_RESULTS.read_error);
   }
+}
+
+/**
+ * Internal compatibility wrapper used by the V9/V10 runtime paths.
+ * Keeps the historical fail-open contract (null on any failure/absence).
+ *
+ * @private
+ * @param {object} entities
+ * @returns {Promise<object|null>}
+ */
+async function readLTSSnapshot(entities) {
+  const result = await readLTSSnapshotWithDiagnostic(entities);
+  return result.ltsRecord;
 }
 
 /**
@@ -2328,14 +2434,19 @@ export async function buildV9SessionStartContentAsync(
   // ── V9 path ────────────────────────────────────────────────────────────────
 
   // Wave 3C+3D: Read the LTS snapshot first so it can be passed both to the
-  // strategy engine (Wave 3D) and used for context block injection (Wave 3C).
-  // Fail-open: null on any error.
+  // strategy engine (Wave 3D) and used for context block injection (Wave 3C),
+  // while preserving the bounded read diagnostic classification.
   let ltsRecord = null;
+  let ltsReadResult = LTS_READ_RESULTS.read_error;
   try {
-    ltsRecord = await readLTSSnapshot(entities);
+    const result = await readLTSSnapshotWithDiagnostic(entities);
+    ltsRecord = result?.ltsRecord ?? null;
+    ltsReadResult = result?.diagnostic?.read_result ?? LTS_READ_RESULTS.read_error;
   } catch {
     ltsRecord = null;
+    ltsReadResult = LTS_READ_RESULTS.read_error;
   }
+  _emitV9LTSReadDiagnosticIfEnabled(ltsReadResult, ltsRecord);
 
   // Wave 3D: Pass a valid (non-weak) LTS record to the V8 strategy engine via
   // the options bag.  buildV8SessionStartContentAsync extracts LTS strategy
