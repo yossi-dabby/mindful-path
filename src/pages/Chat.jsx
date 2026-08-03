@@ -103,6 +103,12 @@ import {
   wasCorrectionBlockSanitized,
 } from '@/lib/chatRuntimeLifecycle.js';
 
+// ─── Phase 1 — V2 Orchestrator (feature-flagged; off by default) ───────────────
+import { isChatOrchestratorV2Enabled } from '@/lib/featureFlags.js';
+import { createChatOrchestratorV2, buildV2DebugDiagnostic } from '@/lib/chatOrchestratorV2.js';
+
+const _V2_ORCHESTRATOR_ENABLED = isChatOrchestratorV2Enabled();
+
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
 // Do NOT derive this list dynamically. Do NOT infer from safetyProfile metadata.
@@ -409,7 +415,14 @@ export default function Chat() {
   // change the content of that message.
   const finalizedAssistantsByConvRef = useRef(new Map());
 
-  // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
+  // ─── Phase 1: V2 orchestrator ref (created once per component mount; reset on conversation change)
+  // When _V2_ORCHESTRATOR_ENABLED is false this ref is null and every V2 code path is skipped,
+  // preserving the exact Phase 0 legacy behavior.
+  const v2OrchestratorRef = useRef(
+    _V2_ORCHESTRATOR_ENABLED ? createChatOrchestratorV2() : null
+  );
+
+
   const instrumentationRef = useRef({
     SEND_COUNT: 0,
     WEB_SENDS_PASS: 0,
@@ -522,6 +535,12 @@ export default function Chat() {
       }
       return null;
     });
+    // Phase 1 — V2: reset orchestrator on conversation change so the new
+    // conversation starts with a clean baseline. initializeBaseline() will be
+    // called once the hydration query resolves.
+    if (v2OrchestratorRef.current) {
+      v2OrchestratorRef.current.reset();
+    }
   }, [currentConversationId]);
 
   useEffect(() => {
@@ -1767,7 +1786,13 @@ export default function Chat() {
         // mechanism.  It fetches the stored, complete message from the backend
         // REST API and runs the guard pipeline exactly once before committing.
         // Subscription callbacks during that window are silently discarded here.
-        if (shouldSuppressSubscriptionEventWhileLoading(isLoadingRef.current)) {
+        // Phase 1 — V2: When the V2 orchestrator is active, subscription events
+        // must NOT be suppressed during loading. The coordinator's reconcileSnapshot()
+        // handles ordering, deduplication, and one-response-per-turn invariants.
+        const _suppressSubscription = _V2_ORCHESTRATOR_ENABLED
+          ? false
+          : shouldSuppressSubscriptionEventWhileLoading(isLoadingRef.current);
+        if (_suppressSubscription) {
           logS2DebugLifecycle({
             delivery_source: 'subscription',
             active_request_count: isLoadingRef.current ? 1 : 0,
@@ -1870,6 +1895,30 @@ export default function Chat() {
           // CRITICAL: Safe update with validation + deduplication
           const subscriptionFinality = evaluateAssistantSnapshotFinality(processedMessages, 'Subscription');
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
+
+          // Phase 1 — V2: route the subscription snapshot through reconcileSnapshot
+          // regardless of whether safeUpdateMessages accepted it (V2 handles its own
+          // dedup and one-response-per-turn guards independently).
+          if (v2OrchestratorRef.current) {
+            const v2Result = v2OrchestratorRef.current.reconcileSnapshot({
+              snapshot: processedMessages,
+              deliverySource: 'subscription',
+            });
+            logS2DebugLifecycle(buildV2DebugDiagnostic({
+              ...v2OrchestratorRef.current.getDiagnosticState(),
+              delivery_source: 'subscription',
+              snapshot_accepted: v2Result.accepted,
+              snapshot_rejected_reason: v2Result.rejected_reason,
+              response_correlated: v2Result.response_correlated,
+              response_deduplicated: v2Result.response_deduplicated,
+              late_response_recovered: v2Result.accepted && v2Result.response_correlated &&
+                v2OrchestratorRef.current.getActiveTurn()?.status === 'timed_out',
+            }));
+            // Drain next queued send if the V2 turn just completed.
+            if (v2Result._nextQueuedSend && typeof v2Result._nextQueuedSend === 'function') {
+              setTimeout(() => v2Result._nextQueuedSend(), 0);
+            }
+          }
 
           if (updated) {
             // CRITICAL: Always reset loading when safe update succeeds
@@ -2042,6 +2091,11 @@ export default function Chat() {
     // overwrite them (e.g. on socket reconnect after initial page load).
     if (hydrated && hydrateFinality.isFinal) {
       markAssistantMessagesFinalized(currentConversationId, guardedHydrate);
+    }
+    // Phase 1 — V2: set the historical baseline so assistant messages that existed
+    // before the next send can never be committed as the response to a new turn.
+    if (v2OrchestratorRef.current) {
+      v2OrchestratorRef.current.initializeBaseline(guardedHydrate);
     }
   }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
 
@@ -2762,6 +2816,31 @@ export default function Chat() {
       return;
     }
 
+    // Phase 1 — V2: register send with the orchestrator.
+    // When the flag is off, v2OrchestratorRef.current is null and this block is skipped.
+    // When the flag is on and a turn is already active, the send is queued (single-flight).
+    if (v2OrchestratorRef.current) {
+      const convId = currentConversationId;
+      const { turn, queued, queue_full } = v2OrchestratorRef.current.registerSend({
+        conversationId: convId,
+        executeSend: () => handleSendMessage(),
+      });
+      if (queue_full) {
+        console.warn('[V2] ⚠️ Send queue is full — rejecting send');
+        return;
+      }
+      if (queued) {
+        console.log('[V2] 📋 Send queued (single-flight active turn in progress)');
+        return;
+      }
+      // Turn created — proceed with the send. Log correlation method accurately.
+      logS2DebugLifecycle({
+        correlation_mode: 'client_request_id_snapshot_delta',
+        client_request_id: turn.client_request_id,
+        active_request_count: 1,
+        delivery_source: 'send',
+      });
+    }
     // Increment send counter for this cycle
     instrumentationRef.current.SEND_COUNT++;
     console.log('[Send] 📤 Starting send #', instrumentationRef.current.SEND_COUNT);
@@ -3148,6 +3227,14 @@ export default function Chat() {
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
 
+      // Phase 1 — V2: advance active turn to generating now that the message is sent.
+      if (v2OrchestratorRef.current) {
+        const activeTurn = v2OrchestratorRef.current.getActiveTurn();
+        if (activeTurn) {
+          v2OrchestratorRef.current.markGenerating(activeTurn.client_request_id);
+        }
+      }
+
       // CRITICAL: Start authoritative polling with exponential backoff
       // This ensures we get the reply even if subscription fails
       let pollAttempts = 0;
@@ -3191,6 +3278,26 @@ export default function Chat() {
                 console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
               }
 
+              // Phase 1 — V2: route the polling snapshot through reconcileSnapshot.
+              // Called regardless of whether safeUpdateMessages accepted it.
+              if (v2OrchestratorRef.current) {
+                const v2Result = v2OrchestratorRef.current.reconcileSnapshot({
+                  snapshot: guardedPoll,
+                  deliverySource: 'polling',
+                });
+                logS2DebugLifecycle(buildV2DebugDiagnostic({
+                  ...v2OrchestratorRef.current.getDiagnosticState(),
+                  delivery_source: 'polling',
+                  snapshot_accepted: v2Result.accepted,
+                  snapshot_rejected_reason: v2Result.rejected_reason,
+                  response_correlated: v2Result.response_correlated,
+                  response_deduplicated: v2Result.response_deduplicated,
+                }));
+                if (v2Result._nextQueuedSend && typeof v2Result._nextQueuedSend === 'function') {
+                  setTimeout(() => v2Result._nextQueuedSend(), 0);
+                }
+              }
+
               // emitStabilitySummary is intentionally inside `if (updated)`: it
               // reports a SUCCESSFUL message delivery cycle and should only fire
               // when the state was actually updated (i.e., new content reached the
@@ -3222,6 +3329,13 @@ export default function Chat() {
                 console.warn('[Polling] Finality not confirmed before max attempts - falling back to timeout path');
                 instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
                 safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
+                // Phase 1 — V2: mark timed_out (recoverable) when polling exhausts.
+                if (v2OrchestratorRef.current) {
+                  const activeTurn = v2OrchestratorRef.current.getActiveTurn();
+                  if (activeTurn) {
+                    v2OrchestratorRef.current.markTimedOut(activeTurn.client_request_id);
+                  }
+                }
                 setIsLoading(false);
                 emitStabilitySummary();
                 if (pollingIntervalRef.current) {
@@ -3241,6 +3355,13 @@ export default function Chat() {
 
               // CRITICAL: Safe update with validation
               safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
+              // Phase 1 — V2: mark timed_out (recoverable) when polling exhausts.
+              if (v2OrchestratorRef.current) {
+                const activeTurn = v2OrchestratorRef.current.getActiveTurn();
+                if (activeTurn) {
+                  v2OrchestratorRef.current.markTimedOut(activeTurn.client_request_id);
+                }
+              }
               setIsLoading(false);
               emitStabilitySummary();
 
