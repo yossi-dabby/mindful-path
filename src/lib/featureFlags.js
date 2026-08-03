@@ -152,17 +152,20 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    *   2. buildLongitudinalState() recomputes the LTS from those records.
    *   3. writeLTSSnapshot upserts one canonical LTS snapshot record.
    *
-   * The LTS write is fully additive and fail-closed:
+   * The LTS write/read chain is fully additive and fail-open for session start:
    *   - It never runs before the session memory write.
    *   - Failure of the LTS write never affects the session memory write result.
    *   - When this flag is off, no LTS records are read or written.
-   *   - No LTS read path, no session-start wiring, and no strategy-engine
-   *     integration is activated by this flag.
+   *   - The LTS read path is active only when STRATEGY_ENABLED is also true,
+   *     which routes therapist session-start through V9.
+   *   - Missing, invalid, weak, or unreadable LTS snapshots preserve exact V8
+   *     behavior (no strategy or context change).
    *
    * Prerequisite: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED must also be true
    * for the session memory write to run (and thus for the LTS to have data).
-   * Enabling this flag alone without SUMMARIZATION_ENABLED is safe (LTS will
-   * compute from whatever records exist) but unlikely to produce useful output.
+   * Enabling this flag alone without SUMMARIZATION_ENABLED is safe but only
+   * affects the read gate.  Useful V9 behavior still requires the master gate,
+   * STRATEGY_ENABLED, and enough prior structured session records.
    *
    * Backend: also requires the THERAPIST_UPGRADE_LONGITUDINAL_ENABLED Deno
    * secret to be set to 'true' in Base44 Application Secrets for the

@@ -2099,6 +2099,49 @@ export const LTS_SNAPSHOT_OVERFETCH_BOUND = 15;
  */
 export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
 
+const _LTS_READ_DIAGNOSTIC_RESULTS = Object.freeze({
+  VALID: 'valid',
+  WEAK: 'weak',
+  ABSENT_OR_INVALID: 'absent_or_invalid',
+  READ_ERROR: 'read_error',
+});
+
+function _isS2DebugEnabled() {
+  try {
+    if (typeof window === 'undefined') return false;
+    const search = window.location?.search ?? '';
+    if (!search) return false;
+    const params = new URLSearchParams(search);
+    return params.get('_s2debug') === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function _emitV9LTSReadDiagnosticIfEnabled(readResult, ltsRecord) {
+  try {
+    if (!_isS2DebugEnabled()) return;
+    const valid = !isLTSWeak(ltsRecord);
+    const sessionCount =
+      ltsRecord && typeof ltsRecord.session_count === 'number'
+        ? ltsRecord.session_count
+        : 0;
+    const trajectory =
+      ltsRecord && typeof ltsRecord.trajectory === 'string'
+        ? ltsRecord.trajectory
+        : '';
+
+    console.group('[Wave 3C] LTS read diagnostic');
+    console.log('read_result              :', readResult);
+    console.log('lts_valid                :', valid);
+    console.log('lts_session_count        :', sessionCount);
+    console.log('lts_trajectory           :', trajectory);
+    console.groupEnd();
+  } catch {
+    // Diagnostic emission must never propagate.
+  }
+}
+
 /**
  * Bounded LTS read-result enum for V9 diagnostics.
  *
@@ -2140,6 +2183,7 @@ export const LTS_READ_RESULTS = Object.freeze({
  *   },
  * }>} Parsed LTS record + bounded read_result classification
  */
+<<<<<<< HEAD
 export async function readLTSSnapshotWithDiagnostic(entities) {
   const makeResult = (ltsRecord, read_result) => Object.freeze({
     ltsRecord,
@@ -2166,6 +2210,29 @@ export async function readLTSSnapshotWithDiagnostic(entities) {
     if (!Array.isArray(rawRecords) || rawRecords.length === 0) {
       return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
     }
+=======
+async function readLTSSnapshot(entities) {
+  try {
+    if (!entities || typeof entities !== 'object') return null;
+    if (!entities.CompanionMemory) return null;
+
+    let rawRecords;
+    if (typeof entities.CompanionMemory.filter === 'function') {
+      rawRecords = await entities.CompanionMemory.filter(
+        { memory_type: LTS_MEMORY_TYPE },
+        '-created_date',
+        LTS_SNAPSHOT_OVERFETCH_BOUND,
+      );
+    } else if (typeof entities.CompanionMemory.list === 'function') {
+      rawRecords = await entities.CompanionMemory.list(
+        '-created_date',
+        LTS_SNAPSHOT_OVERFETCH_BOUND,
+      );
+    } else {
+      return null;
+    }
+    if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
+>>>>>>> origin/pr/878
 
     for (const raw of rawRecords) {
       if (!raw || typeof raw !== 'object') continue;
@@ -2388,11 +2455,19 @@ export async function buildV9SessionStartContentAsync(
   // strategy engine (Wave 3D) and used for context block injection (Wave 3C).
   // Fail-open: null on any error.
   let ltsRecord = null;
+  let ltsReadResult = _LTS_READ_DIAGNOSTIC_RESULTS.ABSENT_OR_INVALID;
   try {
     ltsRecord = await readLTSSnapshot(entities);
+    ltsReadResult = !ltsRecord
+      ? _LTS_READ_DIAGNOSTIC_RESULTS.ABSENT_OR_INVALID
+      : isLTSWeak(ltsRecord)
+        ? _LTS_READ_DIAGNOSTIC_RESULTS.WEAK
+        : _LTS_READ_DIAGNOSTIC_RESULTS.VALID;
   } catch {
     ltsRecord = null;
+    ltsReadResult = _LTS_READ_DIAGNOSTIC_RESULTS.READ_ERROR;
   }
+  _emitV9LTSReadDiagnosticIfEnabled(ltsReadResult, ltsRecord);
 
   // Wave 3D: Pass a valid (non-weak) LTS record to the V8 strategy engine via
   // the options bag.  buildV8SessionStartContentAsync extracts LTS strategy
