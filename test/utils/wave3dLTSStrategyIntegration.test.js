@@ -155,6 +155,14 @@ describe('extractLTSStrategyInputs — valid LTS record', () => {
     expect(inputs.lts_valid).toBe(true);
   });
 
+  it('returns lts_valid: true for stable session_count at canonical minimum (2)', () => {
+    const inputs = extractLTSStrategyInputs(
+      makeLTSRecord({ session_count: LTS_MIN_SESSIONS_FOR_SIGNALS }),
+    );
+    expect(inputs.lts_valid).toBe(true);
+    expect(inputs.lts_session_count).toBe(LTS_MIN_SESSIONS_FOR_SIGNALS);
+  });
+
   it('returns correct lts_session_count from record', () => {
     const inputs = extractLTSStrategyInputs(makeLTSRecord({ session_count: 7 }));
     expect(inputs.lts_session_count).toBe(7);

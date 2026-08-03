@@ -211,6 +211,12 @@ describe('Wave 3E — buildLTSDiagnosticSnapshot — valid LTS inputs (G–M)', 
     expect(snap.lts_valid).toBe(true);
   });
 
+  it('G.2 valid stable session_count:2 still yields lts_valid: true', () => {
+    const snap = buildLTSDiagnosticSnapshot(validLTSInputs({ session_count: 2 }));
+    expect(snap.lts_valid).toBe(true);
+    expect(snap.lts_session_count).toBe(2);
+  });
+
   it('H. correct lts_session_count forwarded from inputs', () => {
     const snap = buildLTSDiagnosticSnapshot(validLTSInputs({ session_count: 7 }));
     expect(snap.lts_session_count).toBe(7);

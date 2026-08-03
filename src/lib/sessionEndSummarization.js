@@ -109,7 +109,12 @@
 import { isSummarizationEnabled } from './summarizationGate.js';
 import { sanitizeSummaryRecord, buildSafeStubRecord } from './summarizationGate.js';
 import { isUpgradeEnabled } from './featureFlags.js';
-import { isTherapistMemoryRecord } from './therapistMemoryModel.js';
+import {
+  isTherapistMemoryRecord,
+  isLTSRecord,
+  LTS_MIN_SESSIONS_FOR_SIGNALS,
+  LTS_TRAJECTORIES,
+} from './therapistMemoryModel.js';
 
 // ─── Bounded input constants ──────────────────────────────────────────────────
 
@@ -731,6 +736,137 @@ export const LTS_SESSION_RECORDS_FETCH_CAP = 20;
  */
 export const LTS_WRITE_INVOKER = 'lts_write_after_session_memory';
 
+const _LTS_WRITE_DIAGNOSTIC_RESULTS = Object.freeze({
+  CREATED: 'created',
+  UPDATED: 'updated',
+  WRITE_ERROR: 'write_error',
+});
+
+function _isS2DebugEnabled() {
+  try {
+    if (typeof window === 'undefined') return false;
+    const search = window.location?.search ?? '';
+    if (!search) return false;
+    const params = new URLSearchParams(search);
+    return params.get('_s2debug') === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function _emitLTSWriteDiagnosticIfEnabled(writeResult, ltsSnapshot) {
+  try {
+    if (!_isS2DebugEnabled()) return;
+    const valid =
+      ltsSnapshot &&
+      typeof ltsSnapshot === 'object' &&
+      typeof ltsSnapshot.trajectory === 'string' &&
+      ltsSnapshot.trajectory !== 'unknown' &&
+      ltsSnapshot.trajectory !== 'insufficient_data' &&
+      typeof ltsSnapshot.session_count === 'number' &&
+      ltsSnapshot.session_count >= 3;
+    const sessionCount =
+      ltsSnapshot && typeof ltsSnapshot.session_count === 'number'
+        ? ltsSnapshot.session_count
+        : 0;
+    const trajectory =
+      ltsSnapshot && typeof ltsSnapshot.trajectory === 'string'
+        ? ltsSnapshot.trajectory
+        : '';
+
+    console.group('[Wave 3B] LTS write diagnostic');
+    console.log('write_result             :', writeResult);
+    console.log('lts_valid                :', valid);
+    console.log('lts_session_count        :', sessionCount);
+    console.log('lts_trajectory           :', trajectory);
+    console.groupEnd();
+  } catch {
+    // Diagnostic emission must never propagate.
+  }
+}
+
+/**
+ * Bounded enum for LTS write-result diagnostics.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const LTS_WRITE_RESULTS = Object.freeze({
+  created: 'created',
+  updated: 'updated',
+  write_error: 'write_error',
+});
+
+/**
+ * Returns true when an LTS record is valid for Wave 3B/3C diagnostics.
+ * Canonical contract:
+ *   - isLTSRecord(record) is true
+ *   - session_count >= LTS_MIN_SESSIONS_FOR_SIGNALS
+ *   - trajectory is not weak ('unknown' / 'insufficient_data')
+ *
+ * @param {unknown} ltsRecord
+ * @returns {boolean}
+ */
+export function isLTSValidForDiagnostics(ltsRecord) {
+  if (!isLTSRecord(ltsRecord)) return false;
+  const trajectory = ltsRecord.trajectory;
+  if (trajectory === LTS_TRAJECTORIES.UNKNOWN) return false;
+  if (trajectory === LTS_TRAJECTORIES.INSUFFICIENT_DATA) return false;
+  const sessionCount =
+    typeof ltsRecord.session_count === 'number' ? ltsRecord.session_count : 0;
+  if (sessionCount < LTS_MIN_SESSIONS_FOR_SIGNALS) return false;
+  return true;
+}
+
+/**
+ * Classifies the writeLTSSnapshot invoke response into the bounded write-result
+ * contract used by diagnostics.
+ *
+ * @param {unknown} writeResult
+ * @returns {'created'|'updated'|'write_error'}
+ */
+export function classifyLTSWriteResult(writeResult) {
+  if (
+    writeResult &&
+    typeof writeResult === 'object' &&
+    writeResult.success === true &&
+    writeResult.upserted === 'created'
+  ) {
+    return LTS_WRITE_RESULTS.created;
+  }
+  if (
+    writeResult &&
+    typeof writeResult === 'object' &&
+    writeResult.success === true &&
+    writeResult.upserted === 'updated'
+  ) {
+    return LTS_WRITE_RESULTS.updated;
+  }
+  return LTS_WRITE_RESULTS.write_error;
+}
+
+/**
+ * Invokes writeLTSSnapshot and returns bounded write-result diagnostics.
+ * Never throws; failure is classified as write_error.
+ *
+ * @param {object} base44
+ * @param {object} ltsSnapshot
+ * @returns {Promise<{ lts_valid: boolean, write_result: 'created'|'updated'|'write_error' }>}
+ */
+export async function invokeLTSSnapshotWriteWithDiagnostic(base44, ltsSnapshot) {
+  try {
+    const rawResult = await base44.functions.invoke('writeLTSSnapshot', ltsSnapshot);
+    return Object.freeze({
+      lts_valid: isLTSValidForDiagnostics(ltsSnapshot),
+      write_result: classifyLTSWriteResult(rawResult),
+    });
+  } catch {
+    return Object.freeze({
+      lts_valid: isLTSValidForDiagnostics(ltsSnapshot),
+      write_result: LTS_WRITE_RESULTS.write_error,
+    });
+  }
+}
+
 /**
  * Returns true if the Wave 3B LTS write path is active.
  *
@@ -781,6 +917,7 @@ export function isLongitudinalEnabled() {
 function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
   // This is always fire-and-forget — never awaited by the caller.
   (async () => {
+    let ltsSnapshot = null;
     try {
       // 1. Fetch bounded session records from CompanionMemory.
       const memResult = await base44.functions.invoke('retrieveTherapistMemory', {});
@@ -795,11 +932,17 @@ function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
       // 3. Build the LTS (pure, deterministic, no side effects).
       //    Lazy import — only loads if the flag path is actually reached.
       const { buildLongitudinalState } = await import('./longitudinalStateBuilder.js');
-      const ltsSnapshot = buildLongitudinalState(sessionRecords, [], null);
+      ltsSnapshot = buildLongitudinalState(sessionRecords, [], null);
 
       // 4. Upsert the LTS snapshot via the writeLTSSnapshot backend function.
-      await base44.functions.invoke('writeLTSSnapshot', ltsSnapshot);
+      //    Failure remains non-blocking (diagnostic classification is bounded).
+      const diagResult = await invokeLTSSnapshotWriteWithDiagnostic(base44, ltsSnapshot);
+      _emitLTSWriteDiagnosticIfEnabled(diagResult.write_result, ltsSnapshot);
     } catch (error) {
+      _emitLTSWriteDiagnosticIfEnabled(
+        _LTS_WRITE_DIAGNOSTIC_RESULTS.WRITE_ERROR,
+        ltsSnapshot,
+      );
       // LTS write failure must never propagate to or affect the session memory write.
       console.warn(
         '[Wave 3B] LTS snapshot write failed (non-fatal) [' + invoker + ']:',
