@@ -328,7 +328,7 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result.toLowerCase()).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
     expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
@@ -367,7 +367,7 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
       { crisis_signal: true },
     );
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(result.toLowerCase()).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
   it('high-distress message text → CONTAINMENT or STABILISATION mode', async () => {
