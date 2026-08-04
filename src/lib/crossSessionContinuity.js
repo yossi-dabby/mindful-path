@@ -210,6 +210,96 @@ export function scoreTherapistMemoryRecord(record) {
  *   recentSummary: string,
  * }|null>}
  */
+/**
+ * Parses and ranks therapist memory records from an already-fetched raw array.
+ *
+ * This is the shared parse/ranking pass used by both readCrossSessionContinuity
+ * and buildCrossSessionContinuityBlockWithDiagnostic.  Accepting pre-fetched raw
+ * records allows the caller to perform exactly ONE CompanionMemory.list call and
+ * reuse the result for both the strategy engine and the block formatter.
+ *
+ * @private
+ * @param {unknown[]} rawRecords - Raw CompanionMemory records (already fetched)
+ * @returns {{
+ *   sessionCount: number,
+ *   recurringPatterns: string[],
+ *   openFollowUpTasks: string[],
+ *   interventionsUsed: string[],
+ *   riskFlags: string[],
+ *   recentSummary: string,
+ * }|null} Structured continuity data, or null when no usable records are found.
+ */
+function _parseContinuityFromRawRecords(rawRecords) {
+  if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
+
+  // Parse all valid therapist memory records from the over-fetched list.
+  // Unlike the previous approach (break at CONTINUITY_MAX_PRIOR_SESSIONS),
+  // we collect all valid records first so we can score and rank them.
+  const allValidRecords = [];
+  for (const raw of rawRecords) {
+    const parsed = parseTherapistMemoryFromCompanionRecord(raw);
+    if (parsed) {
+      allValidRecords.push(parsed);
+    }
+  }
+
+  if (allValidRecords.length === 0) return null;
+
+  // Score each record and separate into useful vs. weak in a single pass.
+  // Records are already in recency order (most-recent-first from CompanionMemory.list).
+  // We sort useful records by score (descending), using original list position
+  // as the tiebreaker so that among equally-scored records the most recent wins.
+  const { usefulScored, weakScored } = allValidRecords.reduce(
+    (acc, record, index) => {
+      const score = scoreTherapistMemoryRecord(record);
+      const entry = { record, score, index };
+      if (score >= CONTINUITY_MIN_USEFUL_SCORE) {
+        acc.usefulScored.push(entry);
+      } else {
+        acc.weakScored.push(entry);
+      }
+      return acc;
+    },
+    { usefulScored: [], weakScored: [] },
+  );
+
+  // Sort useful records: highest score first; equal scores preserve original recency order.
+  usefulScored.sort((a, b) => b.score - a.score || a.index - b.index);
+
+  // Select up to CONTINUITY_MAX_PRIOR_SESSIONS records.
+  // Prefer useful records; supplement with weak records (in recency order) when needed.
+  const selectedScored = usefulScored.slice(0, CONTINUITY_MAX_PRIOR_SESSIONS);
+  if (selectedScored.length < CONTINUITY_MAX_PRIOR_SESSIONS) {
+    const weakNeeded = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
+    selectedScored.push(...weakScored.slice(0, weakNeeded));
+  }
+
+  // Re-sort selected set into recency order (most-recent first) for aggregation.
+  // This ensures the recentSummary always comes from the most-recent session.
+  selectedScored.sort((a, b) => a.index - b.index);
+  const memoryRecords = selectedScored.map(r => r.record);
+
+  if (memoryRecords.length === 0) return null;
+
+  // Aggregate fields across sessions (most-recent-first)
+  const allPatterns = memoryRecords.flatMap(r => r.core_patterns ?? []);
+  const allFollowUps = memoryRecords.flatMap(r => r.follow_up_tasks ?? []);
+  const allInterventions = memoryRecords.flatMap(r => r.interventions_used ?? []);
+  const allRiskFlags = memoryRecords.flatMap(r => r.risk_flags ?? []);
+
+  // Use the most recent session's summary as the anchor
+  const recentSummary = (memoryRecords[0]?.session_summary ?? '').trim().slice(0, 200);
+
+  return {
+    sessionCount: memoryRecords.length,
+    recurringPatterns: dedupeAndTrim(allPatterns),
+    openFollowUpTasks: dedupeAndTrim(allFollowUps),
+    interventionsUsed: dedupeAndTrim(allInterventions),
+    riskFlags: dedupeAndTrim(allRiskFlags),
+    recentSummary,
+  };
+}
+
 export async function readCrossSessionContinuity(entities) {
   try {
     if (!entities || typeof entities !== 'object') return null;
@@ -221,74 +311,7 @@ export async function readCrossSessionContinuity(entities) {
       CONTINUITY_MAX_PRIOR_SESSIONS * 3, // over-fetch to account for non-therapist records
     );
 
-    if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
-
-    // Parse all valid therapist memory records from the over-fetched list.
-    // Unlike the previous approach (break at CONTINUITY_MAX_PRIOR_SESSIONS),
-    // we collect all valid records first so we can score and rank them.
-    const allValidRecords = [];
-    for (const raw of rawRecords) {
-      const parsed = parseTherapistMemoryFromCompanionRecord(raw);
-      if (parsed) {
-        allValidRecords.push(parsed);
-      }
-    }
-
-    if (allValidRecords.length === 0) return null;
-
-    // Score each record and separate into useful vs. weak in a single pass.
-    // Records are already in recency order (most-recent-first from CompanionMemory.list).
-    // We sort useful records by score (descending), using original list position
-    // as the tiebreaker so that among equally-scored records the most recent wins.
-    const { usefulScored, weakScored } = allValidRecords.reduce(
-      (acc, record, index) => {
-        const score = scoreTherapistMemoryRecord(record);
-        const entry = { record, score, index };
-        if (score >= CONTINUITY_MIN_USEFUL_SCORE) {
-          acc.usefulScored.push(entry);
-        } else {
-          acc.weakScored.push(entry);
-        }
-        return acc;
-      },
-      { usefulScored: [], weakScored: [] },
-    );
-
-    // Sort useful records: highest score first; equal scores preserve original recency order.
-    usefulScored.sort((a, b) => b.score - a.score || a.index - b.index);
-
-    // Select up to CONTINUITY_MAX_PRIOR_SESSIONS records.
-    // Prefer useful records; supplement with weak records (in recency order) when needed.
-    const selectedScored = usefulScored.slice(0, CONTINUITY_MAX_PRIOR_SESSIONS);
-    if (selectedScored.length < CONTINUITY_MAX_PRIOR_SESSIONS) {
-      const weakNeeded = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
-      selectedScored.push(...weakScored.slice(0, weakNeeded));
-    }
-
-    // Re-sort selected set into recency order (most-recent first) for aggregation.
-    // This ensures the recentSummary always comes from the most-recent session.
-    selectedScored.sort((a, b) => a.index - b.index);
-    const memoryRecords = selectedScored.map(r => r.record);
-
-    if (memoryRecords.length === 0) return null;
-
-    // Aggregate fields across sessions (most-recent-first)
-    const allPatterns = memoryRecords.flatMap(r => r.core_patterns ?? []);
-    const allFollowUps = memoryRecords.flatMap(r => r.follow_up_tasks ?? []);
-    const allInterventions = memoryRecords.flatMap(r => r.interventions_used ?? []);
-    const allRiskFlags = memoryRecords.flatMap(r => r.risk_flags ?? []);
-
-    // Use the most recent session's summary as the anchor
-    const recentSummary = (memoryRecords[0]?.session_summary ?? '').trim().slice(0, 200);
-
-    return {
-      sessionCount: memoryRecords.length,
-      recurringPatterns: dedupeAndTrim(allPatterns),
-      openFollowUpTasks: dedupeAndTrim(allFollowUps),
-      interventionsUsed: dedupeAndTrim(allInterventions),
-      riskFlags: dedupeAndTrim(allRiskFlags),
-      recentSummary,
-    };
+    return _parseContinuityFromRawRecords(rawRecords);
   } catch {
     return null;
   }
@@ -494,8 +517,8 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
 
     diagnostic.memory_read_attempted = true;
 
-    // Probe the list call directly so a list() throw is diagnosed as
-    // read_error rather than being silently swallowed by readCrossSessionContinuity.
+    // Fetch raw records ONCE.  _parseContinuityFromRawRecords reuses this array
+    // so we never call CompanionMemory.list more than once per invocation.
     let rawRecords;
     try {
       rawRecords = await entities.CompanionMemory.list(
@@ -513,8 +536,8 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
       return { block: '', diagnostic };
     }
 
-    // Read and parse continuity data (fail-closed internally for malformed records).
-    const continuity = await readCrossSessionContinuity(entities);
+    // Parse continuity data from the already-fetched records (no second list call).
+    const continuity = _parseContinuityFromRawRecords(rawRecords);
 
     if (!continuity) {
       diagnostic.continuity_fail_safe = true;
@@ -528,7 +551,7 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
     diagnostic.open_follow_up_count          = continuity.openFollowUpTasks.length;
     diagnostic.prior_intervention_count      = continuity.interventionsUsed.length;
     diagnostic.historical_risk_signal_count  = continuity.riskFlags.length;
-    // working_hypothesis_count is not directly available from readCrossSessionContinuity
+    // working_hypothesis_count is not directly available from _parseContinuityFromRawRecords
     // (it aggregates only the displayed fields).  Report 0 as a safe fallback.
     diagnostic.working_hypothesis_count = 0;
 
@@ -564,7 +587,9 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
 
     diagnostic.continuity_block_emitted = true;
     diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.none;
-    return { block, diagnostic };
+    // Also return structured continuity data so callers (canonical adapter) can
+    // pass it to the strategy engine without a second list call.
+    return { block, diagnostic, continuityData: continuity };
   } catch {
     diagnostic.continuity_fail_safe = true;
     diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.read_error;

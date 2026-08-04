@@ -52,7 +52,7 @@ import {
   readLTSSnapshotWithDiagnostic,
   isLTSWeak,
   LTS_READ_RESULTS,
-} from './workflowContextInjector.js';
+} from './ltsReaderContract.js';
 
 import {
   buildCrossSessionContinuityBlockWithDiagnostic,
@@ -90,6 +90,7 @@ function _continuitySafeFallback() {
   return {
     sessions: 0,
     block: '',
+    data: null,
     diagnostic: {
       memory_read_attempted: false,
       valid_therapist_memory_record_count: 0,
@@ -130,8 +131,13 @@ function _continuitySafeFallback() {
  *     sessions: number,         // selected_prior_session_count from diagnostic
  *     block: string,            // formatted continuity block (may be '')
  *     diagnostic: object,       // full buildCrossSessionContinuityBlockWithDiagnostic diagnostic
+ *     data: object|null,        // structured continuity data for strategy engine (memory-only)
  *   },
  * }
+ *
+ * NOTE: continuity.data is the internal structured continuity result from the
+ * parse/ranking pass.  It is for in-memory use by the strategy engine only.
+ * It must never be logged, persisted, or included in any diagnostic output.
  *
  * @param {object} entities - Base44 entity client map (must include CompanionMemory)
  * @returns {Promise<Readonly<{ lts: object, continuity: object }>>}
@@ -159,13 +165,17 @@ export async function readCanonicalTherapistMemory(entities) {
 
   // ── Continuity read (fail-open: any error returns safe fallback) ────────────
   // Independent of LTS: an LTS error must not suppress the continuity read.
+  // buildCrossSessionContinuityBlockWithDiagnostic now returns continuityData
+  // (the structured parse result) alongside the block and diagnostic, so the
+  // strategy engine can reuse it without a second CompanionMemory.list call.
   let continuityResult = _continuitySafeFallback();
   try {
-    const { block, diagnostic } = await buildCrossSessionContinuityBlockWithDiagnostic(entities);
+    const { block, diagnostic, continuityData } = await buildCrossSessionContinuityBlockWithDiagnostic(entities);
     continuityResult = {
       sessions: diagnostic?.selected_prior_session_count ?? 0,
       block: block ?? '',
       diagnostic: diagnostic ?? _continuitySafeFallback().diagnostic,
+      data: continuityData ?? null,
     };
   } catch {
     continuityResult = _continuitySafeFallback();
@@ -184,6 +194,9 @@ export async function readCanonicalTherapistMemory(entities) {
       sessions: continuityResult.sessions,
       block: continuityResult.block,
       diagnostic: Object.freeze(continuityResult.diagnostic),
+      // data is the internal structured continuity result for the strategy engine.
+      // Memory-only: never logged, persisted or included in diagnostics.
+      data: continuityResult.data ?? null,
     }),
   });
 }
