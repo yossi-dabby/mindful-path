@@ -3,6 +3,7 @@ import {
   CONTEXT_COMPOSER_V2_BUDGET_CHARS,
   CONTEXT_COMPOSER_V2_OMISSION_REASONS,
   CONTEXT_COMPOSER_V2_FALLBACK_REASONS,
+  CONTEXT_COMPOSER_V2_PARITY_STATUS,
   createContextComposerV2,
 } from '../../src/lib/contextComposerV2.js';
 
@@ -17,7 +18,8 @@ describe('contextComposerV2', () => {
     expect(Object.isFrozen(result)).toBe(true);
     expect(Object.isFrozen(result.sections[0])).toBe(true);
     expect(result.diagnostic.fallback_used).toBe(false);
-    expect(result.diagnostic.parity_match).toBe(true);
+    expect(result.diagnostic.parity_match).toBe(false);
+    expect(result.diagnostic.parity_status).toBe(CONTEXT_COMPOSER_V2_PARITY_STATUS.not_compared);
     expect(result.diagnostic.fallback_reason).toBeNull();
   });
 
@@ -39,6 +41,7 @@ describe('contextComposerV2', () => {
     // Budget eviction is NOT a fallback — must return composed output
     expect(result.diagnostic.fallback_used).toBe(false);
     expect(result.diagnostic.budget_exceeded).toBe(true);
+    expect(result.diagnostic.parity_status).toBe(CONTEXT_COMPOSER_V2_PARITY_STATUS.intentional_budget_difference);
   });
 
   it('keeps required sections even when required content alone exceeds budget', () => {
@@ -49,6 +52,7 @@ describe('contextComposerV2', () => {
     expect(result.diagnostic.budget_exceeded).toBe(true);
     // Required-only exceeding budget is not a fallback either
     expect(result.diagnostic.fallback_used).toBe(false);
+    expect(result.diagnostic.parity_status).toBe(CONTEXT_COMPOSER_V2_PARITY_STATUS.intentional_budget_difference);
   });
 
   it('parity mismatch under budget fails open to legacy with explicit bounded reason code', () => {
@@ -59,7 +63,8 @@ describe('contextComposerV2', () => {
     expect(result.diagnostic.fallback_used).toBe(true);
     expect(result.diagnostic.fallback_reason).toBe(CONTEXT_COMPOSER_V2_FALLBACK_REASONS.parity_mismatch);
     expect(result.diagnostic.parity_match).toBe(false);
-    expect(JSON.stringify(result.diagnostic)).not.toContain('\"A\"');
+    expect(result.diagnostic.parity_status).toBe(CONTEXT_COMPOSER_V2_PARITY_STATUS.invariant_mismatch);
+    expect(JSON.stringify(result.diagnostic)).not.toContain('"A"');
   });
 
   it('budget eviction with fallbackRendered returns composed output — not legacy', () => {
@@ -71,6 +76,17 @@ describe('contextComposerV2', () => {
     expect(result.rendered).toBe('REQ');
     expect(result.diagnostic.fallback_used).toBe(false);
     expect(result.diagnostic.budget_exceeded).toBe(true);
+    expect(result.diagnostic.parity_status).toBe(CONTEXT_COMPOSER_V2_PARITY_STATUS.intentional_budget_difference);
+  });
+
+  it('exact parity: parity_status is exact_match when composed matches fallback under budget', () => {
+    const composer = createContextComposerV2({ budget_chars: CONTEXT_COMPOSER_V2_BUDGET_CHARS });
+    composer.registerSection({ id: 'a', order: 10, retention_priority: 10, required: true, source_layer: 'x', content: 'SAME' });
+    const result = composer.finalize({ fallbackRendered: 'SAME' });
+    expect(result.rendered).toBe('SAME');
+    expect(result.diagnostic.fallback_used).toBe(false);
+    expect(result.diagnostic.parity_match).toBe(true);
+    expect(result.diagnostic.parity_status).toBe(CONTEXT_COMPOSER_V2_PARITY_STATUS.exact_match);
   });
 
   it('emitted_section_ids and omitted_section_ids are present in diagnostic', () => {
