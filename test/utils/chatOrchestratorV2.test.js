@@ -386,3 +386,36 @@ describe('Phase 1 V2 helpers', () => {
     expect(coord.getPendingTurnCount()).toBe(0);
   });
 });
+
+
+describe('Phase 3 response policy scoping', () => {
+  it('restores bounded policy state on reload', () => {
+    const storage = new Map();
+    globalThis.window = {
+      sessionStorage: {
+        getItem: (k) => storage.get(k) ?? null,
+        setItem: (k, v) => storage.set(k, v),
+        removeItem: (k) => storage.delete(k),
+      },
+    };
+    const coord = createChatOrchestratorV2();
+    const { turn } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
+    coord.attachResponsePolicy(turn.client_request_id, {
+      policy_version: 'response_policy_v1',
+      policy_available: true,
+      action_permitted: false,
+      intervention_mode: 'structured_exploration',
+      safety_override_required: false,
+      reason_codes: ['action_not_permitted'],
+      conversation_id: CONV_ID,
+      client_request_id: turn.client_request_id,
+      status: 'pending',
+    });
+    coord.persistActiveForReload(CONV_ID);
+    const restored = createChatOrchestratorV2();
+    const active = restored.restoreAfterReload(CONV_ID);
+    expect(active.response_policy.policy_version).toBe('response_policy_v1');
+    expect(active.response_policy.reason_codes).toEqual(['action_not_permitted']);
+    delete globalThis.window;
+  });
+});

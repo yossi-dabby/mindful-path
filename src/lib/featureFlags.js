@@ -1110,6 +1110,21 @@ export const CHAT_ORCHESTRATOR_FLAGS = Object.freeze({
    * and staging hosts only (same isolation rules as THERAPIST_UPGRADE_FLAGS).
    */
   CHAT_ORCHESTRATOR_V2_ENABLED: import.meta.env?.VITE_CHAT_ORCHESTRATOR_V2_ENABLED === 'true',
+
+  /**
+   * Phase 3 — Deterministic response policy enforcement.
+   *
+   * When false (the default), no post-generation response-policy enforcement is
+   * applied and current behavior is preserved exactly.
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_RESPONSE_POLICY_ENFORCEMENT_ENABLED=true
+   * or use the preview-only ?_s2=RESPONSE_POLICY_ENFORCEMENT_ENABLED override.
+   *
+   * Effective only when THERAPIST_UPGRADE_ENABLED and
+   * THERAPIST_UPGRADE_STRATEGY_ENABLED are also enabled.
+   */
+  RESPONSE_POLICY_ENFORCEMENT_ENABLED: import.meta.env?.VITE_RESPONSE_POLICY_ENFORCEMENT_ENABLED === 'true',
 });
 
 /**
@@ -1151,9 +1166,9 @@ const _chatOrchestratorStagingOverrides = _readChatOrchestratorStagingOverrides(
  * Evaluates a Chat Orchestrator feature flag by name.
  *
  * Evaluation order (first truthy wins):
- *   1. Build-time env var (VITE_CHAT_ORCHESTRATOR_V2_ENABLED).
- *   2. Staging runtime URL override (?_s2=CHAT_ORCHESTRATOR_V2_ENABLED) —
- *      preview/staging hosts only.
+ *   1. Build-time env var.
+ *   2. Staging runtime URL override (?_s2=CHAT_ORCHESTRATOR_V2_ENABLED or
+ *      ?_s2=RESPONSE_POLICY_ENFORCEMENT_ENABLED) — preview/staging hosts only.
  *
  * Returns false (Phase 0 legacy path) when:
  *   - flagName is not a key in CHAT_ORCHESTRATOR_FLAGS
