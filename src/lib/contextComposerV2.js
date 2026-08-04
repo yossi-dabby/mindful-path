@@ -12,6 +12,11 @@ export const CONTEXT_COMPOSER_V2_OMISSION_REASONS = Object.freeze({
   empty: 'empty_content',
 });
 
+export const CONTEXT_COMPOSER_V2_FALLBACK_REASONS = Object.freeze({
+  parity_mismatch: 'parity_mismatch_under_budget',
+  none: null,
+});
+
 function freezeSection(section) {
   return Object.freeze({ ...section });
 }
@@ -58,6 +63,7 @@ function buildImmutableResult({
   budget_exceeded,
   duplicate_section_detected,
   fallback_used,
+  fallback_reason,
   output_parity_expected,
   sections,
   renderedOverride,
@@ -80,6 +86,8 @@ function buildImmutableResult({
     budget_chars,
     budget_exceeded: budget_exceeded === true,
     fallback_used: fallback_used === true,
+    fallback_reason: fallback_reason ?? null,
+    parity_match: fallback_used !== true,
     output_parity_expected: output_parity_expected === true,
   });
 
@@ -204,19 +212,56 @@ export function createContextComposerV2(options = {}) {
         }
       }
     } else {
+      // Required sections alone exceed budget — still evict all optionals to minimize output
       budget_exceeded = true;
+      const allOptionalIds = new Set(
+        sections
+          .filter((section) => section.required !== true && section.emitted === true)
+          .map((section) => section.id),
+      );
+      if (allOptionalIds.size > 0) {
+        sections = sections.map((section) =>
+          allOptionalIds.has(section.id)
+            ? buildSectionRecord({
+                ...section,
+                emitted: false,
+                omission_reason: CONTEXT_COMPOSER_V2_OMISSION_REASONS.budget,
+              })
+            : section,
+        );
+      }
     }
 
-    const fallbackUsed = fallbackRendered !== null && renderSections(sections) !== fallbackRendered;
+    const composedRendered = renderSections(sections);
+
+    // Fallback logic:
+    // - Under budget (budget_exceeded=false): composed output MUST equal legacy.
+    //   A difference is an invariant failure — fail open to the already-computed
+    //   legacy output with explicit bounded reason code.
+    // - Budget eviction (budget_exceeded=true): intentional — return composed,
+    //   reduced output.  Never fall back to full legacy output.
+    // - Required-only exceeds budget: return composed output (required sections only).
+    let fallbackUsed = false;
+    let fallbackReason = null;
+    let renderedOverride = null;
+
+    if (fallbackRendered !== null && !budget_exceeded && composedRendered !== fallbackRendered) {
+      // Parity mismatch under budget — invariant failure: fail open to legacy
+      fallbackUsed = true;
+      fallbackReason = CONTEXT_COMPOSER_V2_FALLBACK_REASONS.parity_mismatch;
+      renderedOverride = fallbackRendered;
+    }
+
     finalizedResult = buildImmutableResult({
       version,
       budget_chars,
-      budget_exceeded: fallbackUsed ? fallbackRendered.length > budget_chars : budget_exceeded,
+      budget_exceeded,
       duplicate_section_detected,
       fallback_used: fallbackUsed,
+      fallback_reason: fallbackReason,
       output_parity_expected,
       sections,
-      renderedOverride: fallbackUsed ? fallbackRendered : null,
+      renderedOverride,
     });
     return finalizedResult;
   }
