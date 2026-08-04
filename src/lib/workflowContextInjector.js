@@ -59,12 +59,6 @@
  */
 
 import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS, THERAPIST_PLANNER_FIRST_INSTRUCTIONS, PRECEDENCE_LEVELS, evaluatePlannerPrecedence, isLegacyGateBlocked, LEGACY_GATE_OVERRIDES } from './therapistWorkflowEngine.js';
-import {
-  isLTSRecord,
-  LTS_MEMORY_TYPE,
-  LTS_MIN_SESSIONS_FOR_SIGNALS,
-  LTS_TRAJECTORIES,
-} from './therapistMemoryModel.js';
 import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
 import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
 import {
@@ -96,8 +90,19 @@ import { getTherapeuticFormsPolicyPayload } from './therapeuticFormsPolicy.js';
 import { isUpgradeEnabled } from './featureFlags.js';
 // V7 continuity diagnostics (used in buildV7SessionStartContentAsync only).
 import { buildCrossSessionContinuityBlockWithDiagnostic, CONTINUITY_FAILURE_REASONS } from './crossSessionContinuity.js';
-// Phase 4 — Canonical Therapist Memory Adapter.
-import { readCanonicalTherapistMemory, isLTSWarmingUp } from './canonicalTherapistMemoryReader.js';
+// Phase 4 — Canonical Therapist Memory Adapter (no longer imports isLTSWarmingUp
+// here; that is only used in canonicalTherapistMemoryReader.js).
+import { readCanonicalTherapistMemory, buildCanonicalMemoryDiagnosticSnapshot } from './canonicalTherapistMemoryReader.js';
+// Phase 4.1 — LTS Reader Contract (leaf module, no circular dependency).
+// LTS_READ_RESULTS, isLTSWeak and readLTSSnapshotWithDiagnostic are now sourced
+// from ltsReaderContract.js so both this file and canonicalTherapistMemoryReader
+// share the same implementation without a circular import.
+import {
+  LTS_READ_RESULTS,
+  LTS_SNAPSHOT_OVERFETCH_BOUND,
+  isLTSWeak,
+  readLTSSnapshotWithDiagnostic,
+} from './ltsReaderContract.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -1634,13 +1639,22 @@ export async function buildV7SessionStartContentAsync(
   );
 
   // Step 2: Build cross-session continuity block (read-only, fail-closed)
-  // Uses diagnostic version to capture structured V7 diagnostic metadata.
+  // Phase 4.1: if a canonical memory result is available (pre-read by V10/V9),
+  // reuse its continuity block to avoid a duplicate CompanionMemory.list call.
+  // Direct V7 calls without a canonical result preserve the existing behavior.
   let continuityBlock = '';
   let continuityDiagnostic = null;
   try {
-    const { block, diagnostic } = await buildCrossSessionContinuityBlockWithDiagnostic(entities);
-    continuityBlock = block;
-    continuityDiagnostic = diagnostic;
+    const canonical = options?.canonical_memory_result;
+    if (canonical && typeof canonical === 'object' && canonical.continuity) {
+      // Reuse the pre-read canonical continuity block — no duplicate list call.
+      continuityBlock = canonical.continuity.block ?? '';
+      continuityDiagnostic = canonical.continuity.diagnostic ?? null;
+    } else {
+      const { block, diagnostic } = await buildCrossSessionContinuityBlockWithDiagnostic(entities);
+      continuityBlock = block;
+      continuityDiagnostic = diagnostic;
+    }
   } catch {
     // Fail-closed: continuity injection failure must never block session start
     continuityBlock = '';
@@ -1998,10 +2012,19 @@ export async function buildV8SessionStartContentAsync(
     const formulationRecord = await readBestFormulationRecord(entities);
 
     // Step 3: Read cross-session continuity data (read-only, bounded)
+    // Phase 4.1: if a canonical memory result is available (pre-read by V10/V9),
+    // reuse its structured continuity data to avoid a duplicate CompanionMemory.list
+    // call.  Direct V8 calls without a canonical result preserve the existing behavior.
     let continuityData = null;
     try {
-      const { readCrossSessionContinuity } = await import('./crossSessionContinuity.js');
-      continuityData = await readCrossSessionContinuity(entities);
+      const canonical = options?.canonical_memory_result;
+      if (canonical && typeof canonical === 'object' && canonical.continuity) {
+        // Reuse the pre-read canonical continuity data — no duplicate list call.
+        continuityData = canonical.continuity.data ?? null;
+      } else {
+        const { readCrossSessionContinuity } = await import('./crossSessionContinuity.js');
+        continuityData = await readCrossSessionContinuity(entities);
+      }
     } catch {
       continuityData = null;
     }
@@ -2097,15 +2120,10 @@ export async function buildV8SessionStartContentAsync(
 
 // ─── Wave 3C — LTS read path and V9 session-start injection ──────────────────
 
-/**
- * Maximum number of CompanionMemory records to over-fetch when searching for the
- * canonical LTS snapshot.  Small enough to be safe; large enough to find the LTS
- * among recently written records even if a few session records were written
- * between the LTS upsert and the next session start.
- *
- * @type {number}
- */
-export const LTS_SNAPSHOT_OVERFETCH_BOUND = 15;
+// LTS_SNAPSHOT_OVERFETCH_BOUND, LTS_READ_RESULTS, isLTSWeak and
+// readLTSSnapshotWithDiagnostic are imported from ltsReaderContract.js (leaf
+// module) and re-exported here for backward-compatibility with existing imports.
+export { LTS_SNAPSHOT_OVERFETCH_BOUND, LTS_READ_RESULTS, isLTSWeak, readLTSSnapshotWithDiagnostic };
 
 /**
  * Maximum number of items per array field included in the LTS context block.
@@ -2152,115 +2170,37 @@ function _emitV9LTSReadDiagnosticIfEnabled(readResult, ltsRecord) {
 }
 
 /**
- * Bounded LTS read-result enum for V9 diagnostics.
+ * Emits the canonical memory reader diagnostic snapshot when _s2debug=true.
  *
- * @type {Readonly<Record<string, string>>}
- */
-export const LTS_READ_RESULTS = Object.freeze({
-  valid: 'valid',
-  weak: 'weak',
-  absent_or_invalid: 'absent_or_invalid',
-  read_error: 'read_error',
-});
-
-/**
- * Reads the single canonical LTS snapshot from CompanionMemory.
+ * Phase 4.1 — connects buildCanonicalMemoryDiagnosticSnapshot to the active
+ * runtime by emitting the bounded fields from the actual canonical result used
+ * during this session-start operation.
  *
- * Fetches up to LTS_SNAPSHOT_OVERFETCH_BOUND CompanionMemory records (newest
- * first), parses each record's content, and returns the first valid LTS record
- * found (i.e. the most recently stored one).
- *
- * FAIL-OPEN CONTRACT
- * ------------------
- * Returns null on any error (missing entities, empty list, parse failure, etc.).
- * Callers must treat null as "no LTS available" and fall back to V8 output.
- *
- * PRIVACY
- * -------
- * - CompanionMemory is a private per-user entity — no cross-user access.
- * - Only records whose content passes isLTSRecord() are returned.
- * - No raw transcript content is read or returned — LTS records are structured
- *   signal aggregates only (Wave 3A/3B schema).
+ * SAFETY CONTRACT
+ * ---------------
+ * - Gated by _s2debug=true.  No-op in all other environments.
+ * - Never logs memory records, summaries, user text, or raw content.
+ * - Only emits the bounded structural fields from the diagnostic snapshot.
+ * - Fail-closed on any error (never propagates).
  *
  * @private
- * @param {object} entities - Base44 entity client map
- * @returns {Promise<{
- *   ltsRecord: object|null,
- *   diagnostic: {
- *     lts_valid: boolean,
- *     read_result: string,
- *   },
- * }>} Parsed LTS record + bounded read_result classification
+ * @param {object|null} canonicalResult - Result from readCanonicalTherapistMemory
  */
-export async function readLTSSnapshotWithDiagnostic(entities) {
-  const makeResult = (ltsRecord, read_result) => Object.freeze({
-    ltsRecord,
-    diagnostic: Object.freeze({
-      lts_valid: read_result === LTS_READ_RESULTS.valid,
-      read_result,
-    }),
-  });
-
+function _emitCanonicalMemoryDiagnosticIfEnabled(canonicalResult) {
   try {
-    if (!entities || typeof entities !== 'object') {
-      return makeResult(null, LTS_READ_RESULTS.read_error);
-    }
-    if (!entities.CompanionMemory) {
-      return makeResult(null, LTS_READ_RESULTS.read_error);
-    }
-
-    let rawRecords;
-    try {
-      if (typeof entities.CompanionMemory.filter === 'function') {
-        rawRecords = await entities.CompanionMemory.filter(
-          { memory_type: LTS_MEMORY_TYPE },
-          '-created_date',
-          LTS_SNAPSHOT_OVERFETCH_BOUND,
-        );
-      } else if (typeof entities.CompanionMemory.list === 'function') {
-        rawRecords = await entities.CompanionMemory.list(
-          '-created_date',
-          LTS_SNAPSHOT_OVERFETCH_BOUND,
-        );
-      } else {
-        return makeResult(null, LTS_READ_RESULTS.read_error);
-      }
-    } catch {
-      return makeResult(null, LTS_READ_RESULTS.read_error);
-    }
-    if (!Array.isArray(rawRecords) || rawRecords.length === 0) {
-      return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
-    }
-
-    for (const raw of rawRecords) {
-      if (!raw || typeof raw !== 'object') continue;
-      // Quick pre-filter: only bother parsing records whose outer memory_type is 'lts'.
-      if (raw.memory_type !== LTS_MEMORY_TYPE) continue;
-
-      let parsed = null;
-      try {
-        if (raw.content && typeof raw.content === 'string') {
-          parsed = JSON.parse(raw.content);
-        } else if (raw.content && typeof raw.content === 'object') {
-          parsed = raw.content;
-        }
-      } catch {
-        continue;
-      }
-
-      if (isLTSRecord(parsed)) {
-        return makeResult(
-          parsed,
-          isLTSWeak(parsed)
-            ? LTS_READ_RESULTS.weak
-            : LTS_READ_RESULTS.valid,
-        );
-      }
-    }
-
-    return makeResult(null, LTS_READ_RESULTS.absent_or_invalid);
+    if (!_isS2DebugEnabled()) return;
+    const snap = buildCanonicalMemoryDiagnosticSnapshot(canonicalResult);
+    console.group('[Phase 4.1] Canonical memory reader diagnostic');
+    console.log('canonical_memory_reader_used :', snap.canonical_memory_reader_used);
+    console.log('lts_valid                    :', snap.lts_valid);
+    console.log('lts_read_result              :', snap.lts_read_result);
+    console.log('lts_warming_up               :', snap.lts_warming_up);
+    console.log('lts_session_count            :', snap.lts_session_count);
+    console.log('continuity_session_count     :', snap.continuity_session_count);
+    console.log('continuity_read_result       :', snap.continuity_read_result);
+    console.groupEnd();
   } catch {
-    return makeResult(null, LTS_READ_RESULTS.read_error);
+    // Diagnostic emission must never propagate.
   }
 }
 
@@ -2275,29 +2215,6 @@ export async function readLTSSnapshotWithDiagnostic(entities) {
 async function readLTSSnapshot(entities) {
   const result = await readLTSSnapshotWithDiagnostic(entities);
   return result.ltsRecord;
-}
-
-/**
- * Returns true when the given LTS record is too weak or immature to be worth
- * injecting into the session-start context.
- *
- * Suppression criteria (any one is sufficient to suppress):
- *   1. The record is null, not an object, or fails isLTSRecord() — not a valid LTS.
- *   2. trajectory is 'unknown' — LTS was not computed or is a schema default.
- *   3. trajectory is 'insufficient_data' — too few sessions to derive signals.
- *   4. session_count < LTS_MIN_SESSIONS_FOR_SIGNALS — belt-and-suspenders check.
- *
- * @param {unknown} ltsRecord - Any value; the parsed LTS record to evaluate.
- * @returns {boolean} true when the record should be suppressed.
- */
-export function isLTSWeak(ltsRecord) {
-  if (!isLTSRecord(ltsRecord)) return true;
-  const trajectory = ltsRecord.trajectory;
-  if (trajectory === LTS_TRAJECTORIES.UNKNOWN) return true;
-  if (trajectory === LTS_TRAJECTORIES.INSUFFICIENT_DATA) return true;
-  const sessionCount = typeof ltsRecord.session_count === 'number' ? ltsRecord.session_count : 0;
-  if (sessionCount < LTS_MIN_SESSIONS_FOR_SIGNALS) return true;
-  return false;
 }
 
 /**
@@ -2474,6 +2391,9 @@ export async function buildV9SessionStartContentAsync(
     ltsReadResult = LTS_READ_RESULTS.read_error;
   }
   _emitV9LTSReadDiagnosticIfEnabled(ltsReadResult, ltsRecord);
+  // Phase 4.1 — emit canonical memory diagnostic (gated by _s2debug, fail-closed).
+  // Uses the actual canonical result so diagnostics always reflect the real runtime state.
+  _emitCanonicalMemoryDiagnosticIfEnabled(canonicalMemoryResult);
 
   // Wave 3D: Pass a valid (non-weak) LTS record to the V8 strategy engine via
   // the options bag.  buildV8SessionStartContentAsync extracts LTS strategy

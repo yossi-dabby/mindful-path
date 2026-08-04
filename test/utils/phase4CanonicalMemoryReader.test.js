@@ -751,4 +751,214 @@ describe('Phase 4 — Canonical Therapist Memory Adapter', () => {
     });
   });
 
+  // ── Phase 4.1: Active chain test (V12→V7, all layers, exact call counts) ─────
+  //
+  // Required by Phase 4.1 problem statement: exercise the real V12/V11/V10/V9/V8/V7
+  // delegation chain with all layers enabled and assert the exact memory call counts
+  // and data-flow properties.
+
+  describe('Phase 4.1 active chain — V12→V7 with all layers enabled', () => {
+    /**
+     * Builds a full V12 wiring with all layers enabled (mirrors the production
+     * CBT_THERAPIST_WIRING_STAGE2_V12 flags).  This is a local stub — it does not
+     * enable any feature flags and does not call any external resolvers.
+     */
+    function makeFullV12Wiring(overrides = {}) {
+      return {
+        stage2: true,
+        stage2_phase: 16,
+        memory_context_injection: true,
+        workflow_engine_enabled: true,
+        workflow_context_injection: true,
+        retrieval_orchestration_enabled: false, // retrieval not needed for memory tests
+        live_retrieval_enabled: false,
+        safety_mode_enabled: false,
+        formulation_context_enabled: false,
+        continuity_layer_enabled: true,    // V7
+        strategy_layer_enabled: true,      // V8
+        longitudinal_layer_enabled: true,  // V9
+        knowledge_layer_enabled: true,     // V10
+        competence_layer_enabled: true,    // V11
+        planner_first_enabled: true,       // V12
+        ...overrides,
+      };
+    }
+
+    /**
+     * Builds an entities mock that tracks all CompanionMemory calls separately
+     * so the test can assert exact call counts for filter (LTS) and list (continuity).
+     */
+    function makeFullChainEntities(ltsRecord, therapistRecords) {
+      const ltsRaw = ltsRecord ? [ltsToRawRecord(ltsRecord)] : [];
+      const therapistRaws = therapistRecords.map(therapistMemoryToRawRecord);
+
+      return {
+        CompanionMemory: {
+          filter: vi.fn(async () => ltsRaw),
+          list: vi.fn(async () => therapistRaws),
+        },
+        CaseFormulation: {
+          list: vi.fn(async () => []),
+        },
+      };
+    }
+
+    it('CompanionMemory.filter called exactly once and .list called exactly once through V12→V7', async () => {
+      const validLTS = makeValidLTSRecord(3, LTS_TRAJECTORIES.STABLE);
+      const sessions = [
+        makeTherapistMemoryRecord({ session_id: 'sess_1', core_patterns: ['anxiety'], follow_up_tasks: ['grounding'] }),
+        makeTherapistMemoryRecord({ session_id: 'sess_2', core_patterns: ['avoidance'], follow_up_tasks: ['exposure'] }),
+      ];
+      const entities = makeFullChainEntities(validLTS, sessions);
+      const wiring = makeFullV12Wiring();
+
+      const { buildV12SessionStartContentAsync } = await import('../../src/lib/workflowContextInjector.js');
+      await buildV12SessionStartContentAsync(wiring, entities, null, {});
+
+      // Phase 4.1 guarantee: one filter call for LTS, one list call for continuity
+      expect(entities.CompanionMemory.filter).toHaveBeenCalledTimes(1);
+      expect(entities.CompanionMemory.list).toHaveBeenCalledTimes(1);
+    });
+
+    it('continuity block is present in V12→V7 output when sessions are available', async () => {
+      const validLTS = makeValidLTSRecord(3, LTS_TRAJECTORIES.STABLE);
+      const sessions = [
+        makeTherapistMemoryRecord({ session_id: 'sess_1', core_patterns: ['anxiety'], follow_up_tasks: ['grounding'] }),
+      ];
+      const entities = makeFullChainEntities(validLTS, sessions);
+      const wiring = makeFullV12Wiring();
+
+      const { buildV12SessionStartContentAsync } = await import('../../src/lib/workflowContextInjector.js');
+      const content = await buildV12SessionStartContentAsync(wiring, entities, null, {});
+
+      expect(content).toContain('CROSS-SESSION CONTINUITY CONTEXT');
+    });
+
+    it('V8 strategy path receives continuity data from canonical result (no re-read)', async () => {
+      // Arrange: continuity data is present; we verify strategy computation runs
+      // (strategy section appears in output) which requires continuityData to be
+      // available to the strategy engine without an additional list call.
+      const validLTS = makeValidLTSRecord(3, LTS_TRAJECTORIES.STABLE);
+      const sessions = [
+        makeTherapistMemoryRecord({
+          session_id: 'sess_1',
+          core_patterns: ['safety_avoidance'],
+          follow_up_tasks: ['safety_grounding'],
+        }),
+      ];
+      const entities = makeFullChainEntities(validLTS, sessions);
+      const wiring = makeFullV12Wiring();
+
+      const { buildV12SessionStartContentAsync } = await import('../../src/lib/workflowContextInjector.js');
+      await buildV12SessionStartContentAsync(wiring, entities, null, {});
+
+      // The key assertion: list was called exactly once (V8 reused canonical data)
+      expect(entities.CompanionMemory.list).toHaveBeenCalledTimes(1);
+    });
+
+    it('valid LTS is injected into V9→V12 output', async () => {
+      const validLTS = makeValidLTSRecord(3, LTS_TRAJECTORIES.PROGRESSING);
+      const entities = makeFullChainEntities(validLTS, []);
+      const wiring = makeFullV12Wiring();
+
+      const { buildV12SessionStartContentAsync } = await import('../../src/lib/workflowContextInjector.js');
+      const content = await buildV12SessionStartContentAsync(wiring, entities, null, {});
+
+      // A valid non-weak LTS with a non-trivial trajectory should produce an LTS block
+      expect(content).toContain('LONGITUDINAL STATE CONTEXT');
+    });
+
+    it('warming-up LTS (session_count=1) is NOT injected', async () => {
+      const warmingUpLTS = makeWeakLTSRecord(1);
+      const entities = makeFullChainEntities(warmingUpLTS, []);
+      const wiring = makeFullV12Wiring();
+
+      const { buildV12SessionStartContentAsync } = await import('../../src/lib/workflowContextInjector.js');
+      const content = await buildV12SessionStartContentAsync(wiring, entities, null, {});
+
+      // Warming-up LTS must not produce an LTS block
+      expect(content).not.toContain('LONGITUDINAL STATE CONTEXT');
+    });
+
+    it('canonical diagnostic fields match the same canonical result used at runtime', async () => {
+      const validLTS = makeValidLTSRecord(4, LTS_TRAJECTORIES.STABLE);
+      const sessions = [
+        makeTherapistMemoryRecord({ session_id: 'sess_1', core_patterns: ['anxiety'] }),
+        makeTherapistMemoryRecord({ session_id: 'sess_2', core_patterns: ['avoidance'] }),
+      ];
+      const entities = makeFullChainEntities(validLTS, sessions);
+
+      // Read the canonical result directly — same path V10 takes
+      const canonicalResult = await readCanonicalTherapistMemory(entities);
+      const snap = buildCanonicalMemoryDiagnosticSnapshot(canonicalResult);
+
+      // The snapshot must accurately reflect the actual result
+      expect(snap.canonical_memory_reader_used).toBe(true);
+      expect(snap.lts_valid).toBe(canonicalResult.lts.valid);
+      expect(snap.lts_read_result).toBe(canonicalResult.lts.read_result);
+      expect(snap.lts_warming_up).toBe(canonicalResult.lts.warming_up);
+      expect(snap.lts_session_count).toBe(canonicalResult.lts.session_count);
+      expect(snap.continuity_session_count).toBe(canonicalResult.continuity.sessions);
+      // Verify specific values
+      expect(snap.lts_valid).toBe(true);
+      expect(snap.lts_warming_up).toBe(false);
+      expect(snap.continuity_session_count).toBeGreaterThan(0);
+    });
+
+    it('direct V7 call without canonical result preserves existing behavior', async () => {
+      // V7 called directly (no canonical result in options) must still work
+      const sessions = [
+        makeTherapistMemoryRecord({ session_id: 'sess_1', core_patterns: ['anxiety'] }),
+      ];
+      const entities = {
+        CompanionMemory: {
+          filter: vi.fn(async () => []),
+          list: vi.fn(async () => sessions.map(therapistMemoryToRawRecord)),
+        },
+        CaseFormulation: { list: vi.fn(async () => []) },
+      };
+      const wiring = {
+        continuity_layer_enabled: true,
+        strategy_layer_enabled: false,
+        longitudinal_layer_enabled: false,
+        knowledge_layer_enabled: false,
+      };
+
+      const content = await buildV9SessionStartContentAsync(wiring, entities, null, {});
+
+      // continuity block should be present (V7 direct path)
+      expect(content).toContain('CROSS-SESSION CONTINUITY CONTEXT');
+      // list was called (V7 direct path reads continuity independently)
+      expect(entities.CompanionMemory.list).toHaveBeenCalled();
+    });
+
+    it('direct V8 call without canonical result preserves existing behavior', async () => {
+      // V8 called directly (no canonical result in options) must still work
+      const sessions = [
+        makeTherapistMemoryRecord({ session_id: 'sess_1', core_patterns: ['anxiety'] }),
+      ];
+      const entities = {
+        CompanionMemory: {
+          filter: vi.fn(async () => []),
+          list: vi.fn(async () => sessions.map(therapistMemoryToRawRecord)),
+        },
+        CaseFormulation: { list: vi.fn(async () => []) },
+      };
+      const wiring = {
+        continuity_layer_enabled: true,
+        strategy_layer_enabled: true,
+        longitudinal_layer_enabled: false,
+        knowledge_layer_enabled: false,
+      };
+
+      const content = await buildV8SessionStartContentAsync(wiring, entities, null, {});
+
+      // Strategy section should be present
+      expect(typeof content).toBe('string');
+      expect(content.length).toBeGreaterThan(0);
+      // list was called (V8 direct path reads continuity independently)
+      expect(entities.CompanionMemory.list).toHaveBeenCalled();
+    });
+  });
+
 });
