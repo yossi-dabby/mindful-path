@@ -2034,14 +2034,26 @@ export async function buildV8SessionStartContentAsync(
       ltsInputs,
     );
 
-    // Precedence enforcement pass — blocks legacy shortcuts when higher-priority
-    // planner rules are active.  buildPlannerContext derives the precedence
-    // context from already-available V8 inputs; applyStrategyPrecedenceGuard
-    // overrides the mode to stabilisation if any action-enabling gate is blocked.
-    const plannerCtx = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
-    const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtx);
-    const responsePolicy = extractResponsePolicyFromStrategyState(strategyState);
-    options.onStrategyPolicy?.(responsePolicy, strategyState);
+    let strategyState = rawStrategyState;
+    try {
+      // Precedence enforcement pass — blocks legacy shortcuts when higher-priority
+      // planner rules are active.  buildPlannerContext derives the precedence
+      // context from already-available V8 inputs; applyStrategyPrecedenceGuard
+      // overrides the mode to stabilisation if any action-enabling gate is blocked.
+      const plannerCtx = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
+      strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtx);
+    } catch {
+      strategyState = rawStrategyState;
+    }
+
+    try {
+      const responsePolicy = extractResponsePolicyFromStrategyState(strategyState);
+      if (typeof options.onStrategyPolicy === 'function') {
+        options.onStrategyPolicy(responsePolicy, strategyState);
+      }
+    } catch {
+      // Response-policy extraction is additive only; never suppress strategy output.
+    }
 
     // Wave 2D — Emit safe strategy diagnostic when _s2debug=true is in the URL.
     // Gated, additive, no effect on routing or therapeutic behavior.
