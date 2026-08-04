@@ -13,7 +13,11 @@ import { test, expect, devices } from '@playwright/test';
  * 5. Pull-to-Refresh               — touchcancel cleanup, aria-live region
  */
 
-const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
+const BASE_URL =
+  process.env.PLAYWRIGHT_TEST_BASE_URL ||
+  process.env.E2E_BASE_URL ||
+  process.env.BASE_URL ||
+  'http://localhost:5173';
 
 // devices['Pixel 5'] includes `defaultBrowserType` which is worker-scoped and
 // cannot be used inside a test.describe() group. Strip it out so we can safely

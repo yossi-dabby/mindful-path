@@ -268,6 +268,14 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * (also requires THERAPIST_UPGRADE_ENABLED to be true).
    */
   THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED === 'true',
+
+  /**
+   * Phase 5 — Context Composer V2.
+   *
+   * False-default architectural flag for the active V12 session-start composer.
+   * Effective only when the therapist master gate and planner-first path are both active.
+   */
+  CONTEXT_COMPOSER_V2_ENABLED: import.meta.env?.VITE_CONTEXT_COMPOSER_V2_ENABLED === 'true',
 });
 
 /**

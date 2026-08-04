@@ -88,6 +88,7 @@ import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.
 import { getTherapeuticFormsPolicyPayload } from './therapeuticFormsPolicy.js';
 // Formulation-led separation — runtime flag check for V7+ chains.
 import { isUpgradeEnabled } from './featureFlags.js';
+import { createContextComposerV2 } from './contextComposerV2.js';
 // V7 continuity diagnostics (used in buildV7SessionStartContentAsync only).
 import { buildCrossSessionContinuityBlockWithDiagnostic, CONTINUITY_FAILURE_REASONS } from './crossSessionContinuity.js';
 // Phase 4 — Canonical Therapist Memory Adapter (no longer imports isLTSWarmingUp
@@ -103,6 +104,87 @@ import {
   isLTSWeak,
   readLTSSnapshotWithDiagnostic,
 } from './ltsReaderContract.js';
+
+
+const CONTEXT_COMPOSER_V2_SECTION_ORDER = Object.freeze({
+  session_start: 10,
+  workflow_instructions: 20,
+  retrieval_orchestration: 30,
+  live_retrieval_policy: 40,
+  retrieved_context: 50,
+  live_retrieved_context: 60,
+  live_runtime_status: 70,
+  safety_mode: 80,
+  emergency_resources: 90,
+  case_formulation_context: 100,
+  formulation_led_instructions: 110,
+  cross_session_continuity: 120,
+  strategy_guidance: 130,
+  precedence_enforcement: 140,
+  longitudinal_state_context: 150,
+  cbt_knowledge_context: 160,
+  competence_instructions: 170,
+  planner_first_instructions: 180,
+  attachment_context_instructions: 190,
+  therapeutic_forms_policy: 200,
+});
+
+const CONTEXT_COMPOSER_V2_SECTION_PRIORITY = Object.freeze({
+  session_start: 1000,
+  workflow_instructions: 980,
+  retrieval_orchestration: 960,
+  live_retrieval_policy: 940,
+  retrieved_context: 300,
+  live_retrieved_context: 280,
+  live_runtime_status: 920,
+  safety_mode: 990,
+  emergency_resources: 985,
+  case_formulation_context: 760,
+  formulation_led_instructions: 740,
+  cross_session_continuity: 720,
+  strategy_guidance: 700,
+  precedence_enforcement: 995,
+  longitudinal_state_context: 680,
+  cbt_knowledge_context: 660,
+  competence_instructions: 640,
+  planner_first_instructions: 970,
+  attachment_context_instructions: 620,
+  therapeutic_forms_policy: 600,
+});
+
+function _getContextComposerV2(options) {
+  return options?.context_composer_v2 ?? null;
+}
+
+function _registerContextComposerSection(options, section) {
+  const composer = _getContextComposerV2(options);
+  if (!composer) return;
+  composer.registerSection(section);
+}
+
+function _shouldUseContextComposerV2(wiring, options) {
+  if (!wiring || wiring.planner_first_enabled !== true) return false;
+  if (options?.disable_context_composer_v2 === true) return false;
+  return isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED');
+}
+
+function _createContextComposerV2Options(options = {}) {
+  if (options?.context_composer_v2) return options;
+  const composer = createContextComposerV2();
+  return { ...options, context_composer_v2: composer };
+}
+
+function _finalizeContextComposerV2(options, fallbackRendered) {
+  const composer = _getContextComposerV2(options);
+  if (!composer) return null;
+  return composer.finalize({ fallbackRendered });
+}
+
+function _appendWithComposer(options, base, section) {
+  _registerContextComposerSection(options, section);
+  if (!section.content || !section.content.trim()) return base;
+  return base ? `${base}\n\n${section.content}` : section.content;
+}
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -312,17 +394,39 @@ export function getWorkflowContextForWiring(wiring) {
  * @param {object} wiring - The active therapist wiring config object
  * @returns {string} The session-start message content
  */
-export function buildSessionStartContent(wiring) {
+export function buildSessionStartContent(wiring, options = {}) {
   let content = '[START_SESSION]';
+  _registerContextComposerSection(options, {
+    id: 'session_start',
+    order: CONTEXT_COMPOSER_V2_SECTION_ORDER.session_start,
+    retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.session_start,
+    required: true,
+    source_layer: 'v2_base',
+    content,
+  });
 
   const workflowContext = getWorkflowContextForWiring(wiring);
   if (workflowContext) {
-    content += '\n\n' + workflowContext;
+    content = _appendWithComposer(options, content, {
+      id: 'workflow_instructions',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.workflow_instructions,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.workflow_instructions,
+      required: true,
+      source_layer: 'v2_workflow',
+      content: workflowContext,
+    });
   }
 
   const retrievalContext = getRetrievalContextForWiring(wiring);
   if (retrievalContext) {
-    content += '\n\n' + retrievalContext;
+    content = _appendWithComposer(options, content, {
+      id: 'retrieval_orchestration',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.retrieval_orchestration,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.retrieval_orchestration,
+      required: true,
+      source_layer: 'v3_retrieval',
+      content: retrievalContext,
+    });
   }
 
   return content;
@@ -365,9 +469,9 @@ export function buildSessionStartContent(wiring) {
  * @param {object} entities - Base44 entity client map (e.g. base44.entities)
  * @returns {Promise<string>} The session-start message content
  */
-export async function buildV3SessionStartContentAsync(wiring, entities) {
+export async function buildV3SessionStartContentAsync(wiring, entities, options = {}) {
   // Build the base content (same as the synchronous version)
-  const baseContent = buildSessionStartContent(wiring);
+  const baseContent = buildSessionStartContent(wiring, options);
 
   // Only V3 gets real retrieval execution — all other wirings are unchanged
   if (!wiring || wiring.retrieval_orchestration_enabled !== true) {
@@ -600,18 +704,25 @@ export async function buildV4SessionStartContentAsync(
 ) {
   // For non-V4 wirings: delegate to V3 (no change to behavior)
   if (!wiring || wiring.live_retrieval_enabled !== true) {
-    return buildV3SessionStartContentAsync(wiring, entities);
+    return buildV3SessionStartContentAsync(wiring, entities, options);
   }
 
   // ── V4 path ────────────────────────────────────────────────────────────────
 
   // Step 1: Build the Phase 5 base content (workflow + retrieval orchestration instructions)
-  const phase5Base = buildSessionStartContent(wiring);
+  const phase5Base = buildSessionStartContent(wiring, options);
 
   // Step 2: Append the Phase 6 live retrieval policy instructions
   const livePolicy = getLiveRetrievalContextForWiring(wiring);
   const contentWithLivePolicy = livePolicy
-    ? phase5Base + '\n\n' + livePolicy
+    ? _appendWithComposer(options, phase5Base, {
+        id: 'live_retrieval_policy',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.live_retrieval_policy,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.live_retrieval_policy,
+        required: true,
+        source_layer: 'v4_live_policy',
+        content: livePolicy,
+      })
     : phase5Base;
 
   // Step 3: Execute V4 bounded retrieval (sources 1–4 + conditional source 5)
@@ -630,7 +741,14 @@ export async function buildV4SessionStartContentAsync(
     // Fail-open: V4 retrieval entirely failed — return content with no-context runtime status
     let failedContent = contentWithLivePolicy;
     try {
-      failedContent += '\n\n' + buildV4RuntimeStatusBlock(null);
+      failedContent = _appendWithComposer(options, failedContent, {
+        id: 'live_runtime_status',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.live_runtime_status,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.live_runtime_status,
+        required: true,
+        source_layer: 'v4_runtime_status',
+        content: buildV4RuntimeStatusBlock(null),
+      });
     } catch {
       // Ignore — never block session start
     }
@@ -665,14 +783,25 @@ export async function buildV4SessionStartContentAsync(
   let result = contentWithLivePolicy;
 
   if (internalContextPackage && internalContextPackage.trim()) {
-    result +=
-      '\n\n=== RETRIEVED CONTEXT ===\n' +
-      internalContextPackage +
-      '\n=== END RETRIEVED CONTEXT ===';
+    result = _appendWithComposer(options, result, {
+      id: 'retrieved_context',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.retrieved_context,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.retrieved_context,
+      required: false,
+      source_layer: 'v4_internal_retrieval',
+      content: '=== RETRIEVED CONTEXT ===\n' + internalContextPackage + '\n=== END RETRIEVED CONTEXT ===',
+    });
   }
 
   if (liveContextSection && liveContextSection.trim()) {
-    result += '\n\n' + liveContextSection;
+    result = _appendWithComposer(options, result, {
+      id: 'live_retrieved_context',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.live_retrieved_context,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.live_retrieved_context,
+      required: false,
+      source_layer: 'v4_live_retrieval',
+      content: liveContextSection,
+    });
   }
 
   // Step 6: Append the V4 runtime status block (derived from actual result)
@@ -1570,7 +1699,14 @@ export async function buildV6SessionStartContentAsync(
     result = result + '\n\n' + formulationBlock;
   }
   if (formulationLedBlock) {
-    result = result + '\n\n' + formulationLedBlock;
+    result = _appendWithComposer(options, result, {
+      id: 'formulation_led_instructions',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.formulation_led_instructions,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.formulation_led_instructions,
+      required: false,
+      source_layer: 'v6_formulation',
+      content: formulationLedBlock,
+    });
   }
   return result;
 }
@@ -1680,7 +1816,14 @@ export async function buildV7SessionStartContentAsync(
     return v6Base;
   }
 
-  return v6Base + '\n\n' + continuityBlock;
+  return _appendWithComposer(options, v6Base, {
+    id: 'cross_session_continuity',
+    order: CONTEXT_COMPOSER_V2_SECTION_ORDER.cross_session_continuity,
+    retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.cross_session_continuity,
+    required: false,
+    source_layer: 'v7_continuity',
+    content: continuityBlock,
+  });
 }
 
 // ─── V7 continuity diagnostic emission ───────────────────────────────────────
@@ -2109,9 +2252,25 @@ export async function buildV8SessionStartContentAsync(
 
     // Append precedence enforcement block when any legacy gate was blocked.
     const enforcementBlock = buildPrecedenceEnforcementBlock(strategyState);
-    const sections = [v7Base, strategySection];
-    if (enforcementBlock) sections.push(enforcementBlock);
-    return sections.join('\n\n');
+    let result = _appendWithComposer(options, v7Base, {
+      id: 'strategy_guidance',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.strategy_guidance,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.strategy_guidance,
+      required: false,
+      source_layer: 'v8_strategy',
+      content: strategySection,
+    });
+    if (enforcementBlock) {
+      result = _appendWithComposer(options, result, {
+        id: 'precedence_enforcement',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.precedence_enforcement,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.precedence_enforcement,
+        required: true,
+        source_layer: 'v8_strategy',
+        content: enforcementBlock,
+      });
+    }
+    return result;
   } catch {
     // Fail-open: strategy computation failed — return V7 base content unchanged
     return v7Base;
@@ -2418,7 +2577,14 @@ export async function buildV9SessionStartContentAsync(
     if (!isLTSWeak(ltsRecord)) {
       const ltsBlock = buildLTSContextBlock(ltsRecord);
       if (ltsBlock && ltsBlock.trim()) {
-        return v8Base + '\n\n' + ltsBlock;
+        return _appendWithComposer(v8Options, v8Base, {
+          id: 'longitudinal_state_context',
+          order: CONTEXT_COMPOSER_V2_SECTION_ORDER.longitudinal_state_context,
+          retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.longitudinal_state_context,
+          required: false,
+          source_layer: 'v9_lts',
+          content: ltsBlock,
+        });
       }
     }
     return v8Base;
@@ -2831,41 +2997,92 @@ export async function buildActionFirstDemotedSessionContentAsync(
   wiring,
   entities,
   baseClient,
-  options,
+  options = {},
 ) {
-  const base = await buildV12SessionStartContentAsync(wiring, entities, baseClient, options);
+  let composerOptions = options;
+  let composerCreationFailed = false;
+  try {
+    composerOptions = _shouldUseContextComposerV2(wiring, options)
+      ? _createContextComposerV2Options(options)
+      : options;
+  } catch {
+    composerCreationFailed = true;
+  }
+
+  const effectiveOptions = composerCreationFailed ? options : composerOptions;
+  const base = await buildV12SessionStartContentAsync(wiring, entities, baseClient, effectiveOptions);
+
   try {
     const block = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
-    // Guard: block must be a non-empty string
-    if (typeof block !== 'string' || !block.trim()) return base;
-    let content = base;
-    // If V12 already injected the block (planner_first_enabled === true), do not duplicate.
-    if (!content.includes(block)) {
-      // For HYBRID / V1–V11 paths: append the formulation-first planner policy block.
-      content += '\n\n' + block;
+    if (typeof block !== 'string' || !block.trim()) {
+      const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, base);
+      return finalized?.rendered ?? base;
     }
+
+    let content = base;
+    if (!content.includes(block)) {
+      content = composerCreationFailed
+        ? `${content}
+
+${block}`
+        : _appendWithComposer(effectiveOptions, content, {
+            id: 'planner_first_instructions',
+            order: CONTEXT_COMPOSER_V2_SECTION_ORDER.planner_first_instructions,
+            retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.planner_first_instructions,
+            required: true,
+            source_layer: 'action_first_wrapper',
+            content: block,
+          });
+    }
+
     if (
       wiring?.name === 'cbt_therapist' &&
       (wiring?.attachment_context_enabled === true || wiring?.attachment_context_enabled === undefined) &&
       !content.includes(THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS)
     ) {
-      content += '\n\n' + THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS;
+      content = composerCreationFailed
+        ? `${content}
+
+${THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS}`
+        : _appendWithComposer(effectiveOptions, content, {
+            id: 'attachment_context_instructions',
+            order: CONTEXT_COMPOSER_V2_SECTION_ORDER.attachment_context_instructions,
+            retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.attachment_context_instructions,
+            required: false,
+            source_layer: 'action_first_wrapper',
+            content: THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS,
+          });
     }
-    // Phase 3 — TherapeuticForms library: inject form selection instructions for all CBT Therapist sessions.
-    const therapistFormLibraryInstructions = getTherapistFormLibraryInstructions({
+
+    const therapistFormLibraryInstructions = getTherapeuticFormsPolicyPayload({
       sessionLanguage: options?.sessionLanguage,
       sessionAudience: options?.sessionAudience,
-    });
+      environment: options?.environment,
+    }).policy;
+
     if (
       wiring?.name === 'cbt_therapist' &&
       !content.includes(therapistFormLibraryInstructions)
     ) {
-      content += '\n\n' + therapistFormLibraryInstructions;
+      content = composerCreationFailed
+        ? `${content}
+
+${therapistFormLibraryInstructions}`
+        : _appendWithComposer(effectiveOptions, content, {
+            id: 'therapeutic_forms_policy',
+            order: CONTEXT_COMPOSER_V2_SECTION_ORDER.therapeutic_forms_policy,
+            retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.therapeutic_forms_policy,
+            required: false,
+            source_layer: 'action_first_wrapper',
+            content: therapistFormLibraryInstructions,
+          });
     }
-    return content;
+
+    const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, content);
+    return finalized?.rendered ?? content;
   } catch {
-    // Fail-open: any error returns the V12 base unchanged so the session is never blocked.
-    return base;
+    const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, base);
+    return finalized?.rendered ?? base;
   }
 }
 

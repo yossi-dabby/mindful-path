@@ -260,6 +260,7 @@ export function buildRuntimeCapabilitySnapshot({
   const knowledge_layer_enabled         = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_KNOWLEDGE_ENABLED');
   const competence_layer_enabled        = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_COMPETENCE_ENABLED');
   const planner_first_enabled           = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED');
+  const context_composer_v2_enabled     = safeFlag(getFlagValue, 'CONTEXT_COMPOSER_V2_ENABLED');
 
   // ── V7 continuity static diagnostic fields ────────────────────────────────
   //
@@ -339,6 +340,7 @@ export function buildRuntimeCapabilitySnapshot({
     knowledge_layer_enabled,
     competence_layer_enabled,
     planner_first_enabled,
+    context_composer_v2_enabled,
     action_first_demotion_present,
     // ── Companion capability flags ──────────────────────────────────────────
     companion_master_enabled,
