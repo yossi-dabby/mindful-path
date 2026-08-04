@@ -139,8 +139,11 @@ export function createChatOrchestratorV2() {
   /** @type {TurnRecord|null} */
   let _activeTurn = null;
 
-  /** @type {Array<{userSend: Function}>} */
+  /** @type {Array<{executeSend: Function, conversationId: string}>} */
   const _queue = [];
+
+  /** Maximum number of sends that may be queued while a turn is active. */
+  const _MAX_QUEUE_DEPTH = 10;
 
   /** @type {Set<string>} committed response keys across all turns (dedup guard) */
   const _committedResponseKeys = new Set();
@@ -177,18 +180,23 @@ export function createChatOrchestratorV2() {
    * @param {object} params
    * @param {string} params.conversationId
    * @param {Function} params.executeSend  - async () => void  called when the turn is dequeued
-   * @returns {{ turn: TurnRecord, queued: boolean }}
+   * @returns {{ turn: TurnRecord|null, queued: boolean, queue_full: boolean }}
    */
   function registerSend({ conversationId, executeSend }) {
     if (_activeTurn && !TERMINAL_STATUSES.has(_activeTurn.status)) {
-      // Active turn in progress — queue the send.
-      _queue.push({ executeSend });
-      return { turn: null, queued: true };
+      // Active turn in progress — queue the send if capacity allows.
+      if (_queue.length >= _MAX_QUEUE_DEPTH) {
+        // Queue full — reject without losing or reordering existing messages.
+        return { turn: null, queued: false, queue_full: true };
+      }
+      _queue.push({ executeSend, conversationId });
+      return { turn: null, queued: true, queue_full: false };
     }
 
+    // Atomically create the next active turn record before executing.
     const turn = createTurnRecord({ conversationId });
     _activeTurn = turn;
-    return { turn: { ...turn }, queued: false };
+    return { turn: { ...turn }, queued: false, queue_full: false };
   }
 
   /**
@@ -243,13 +251,29 @@ export function createChatOrchestratorV2() {
    * Marks the active turn as failed and drains the next queued send if any.
    *
    * @param {string} clientRequestId
-   * @returns {Function|null} The next queued executeSend, or null.
+   * @returns {{ turn: TurnRecord, executeSend: Function }|null} The next queued item, or null.
    */
   function markFailed(clientRequestId) {
     if (_activeTurn && _activeTurn.client_request_id === clientRequestId) {
       _activeTurn = advanceTurnStatus(_activeTurn, TURN_STATUS.FAILED);
     }
     return _drainQueue();
+  }
+
+  /**
+   * Initializes the baseline snapshot so that existing historical assistant
+   * messages are not treated as new responses for the current turn.
+   *
+   * Must be called after loading or switching a conversation.
+   *
+   * @param {Array<object>} visibleMessages  Sanitized visible messages for the conversation.
+   */
+  function initBaseline(visibleMessages) {
+    if (!Array.isArray(visibleMessages)) return;
+    // Reset active turn (conversation switch resets coordinator state).
+    _activeTurn = null;
+    _queue.length = 0;
+    _lastCommittedSnapshot = [...visibleMessages];
   }
 
   /**
@@ -353,22 +377,34 @@ export function createChatOrchestratorV2() {
     result._deduplicatedSnapshot = deduplicated;
 
     // Drain queue after completing the turn.
-    result._nextQueuedSend = _drainQueue();
+    const nextQueued = _drainQueue();
+    // Expose the executeSend function directly as _nextQueuedSend for backward
+    // compatibility (callers that do `if (result._nextQueuedSend) await result._nextQueuedSend()`).
+    result._nextQueuedSend = nextQueued ? nextQueued.executeSend : null;
+    // Also expose the new atomically-created turn record so callers can use it.
+    result._nextQueuedTurnRecord = nextQueued ? nextQueued.turn : null;
 
     return result;
   }
 
   /**
-   * Drains the next queued send and returns its executeSend function (or null).
-   * Should be called after a turn reaches a terminal state.
+   * Drains the next queued send.
    *
-   * @returns {Function|null}
+   * Atomically creates the next active turn record before the caller executes
+   * the send so that no send ever runs without an active TurnRecord.
+   *
+   * Returns null when the queue is empty.
+   *
+   * @returns {{ turn: TurnRecord, executeSend: Function }|null}
    * @private
    */
   function _drainQueue() {
     if (_queue.length === 0) return null;
     const next = _queue.shift();
-    return next.executeSend;
+    // Atomically create the next active turn before the caller executes the send.
+    const turn = createTurnRecord({ conversationId: next.conversationId });
+    _activeTurn = turn;
+    return { turn: { ...turn }, executeSend: next.executeSend };
   }
 
   /**
@@ -393,6 +429,8 @@ export function createChatOrchestratorV2() {
       generation_id: _activeTurn?.generation_id ?? null,
       turn_status: _activeTurn?.status ?? null,
       pending_turn_count: _queue.length,
+      queue_depth: _queue.length,
+      max_queue_depth: _MAX_QUEUE_DEPTH,
     };
   }
 
@@ -420,6 +458,7 @@ export function createChatOrchestratorV2() {
     getFeedbackIdentity,
     getDiagnosticState,
     reset,
+    initBaseline,
   });
 }
 
@@ -455,6 +494,7 @@ function _findLatestAssistant(msgs) {
  * @param {string|null} [fields.generation_id]
  * @param {string}  [fields.turn_status]
  * @param {number}  [fields.pending_turn_count]
+ * @param {number}  [fields.queue_depth]
  * @param {string}  [fields.delivery_source]
  * @param {boolean} [fields.snapshot_accepted]
  * @param {string}  [fields.snapshot_rejected_reason]
@@ -462,6 +502,7 @@ function _findLatestAssistant(msgs) {
  * @param {boolean} [fields.response_deduplicated]
  * @param {boolean} [fields.polling_exhausted]
  * @param {boolean} [fields.late_response_recovered]
+ * @param {boolean} [fields.queue_full]
  * @returns {object}
  */
 export function buildV2DebugDiagnostic(fields = {}) {
@@ -475,6 +516,7 @@ export function buildV2DebugDiagnostic(fields = {}) {
   }
   if (typeof fields.turn_status === 'string') payload.turn_status = fields.turn_status;
   if (Number.isFinite(fields.pending_turn_count)) payload.pending_turn_count = fields.pending_turn_count;
+  if (Number.isFinite(fields.queue_depth)) payload.queue_depth = fields.queue_depth;
   if (typeof fields.delivery_source === 'string') payload.delivery_source = fields.delivery_source;
   if (typeof fields.snapshot_accepted === 'boolean') payload.snapshot_accepted = fields.snapshot_accepted;
   if (typeof fields.snapshot_rejected_reason === 'string') payload.snapshot_rejected_reason = fields.snapshot_rejected_reason;
@@ -482,5 +524,6 @@ export function buildV2DebugDiagnostic(fields = {}) {
   if (typeof fields.response_deduplicated === 'boolean') payload.response_deduplicated = fields.response_deduplicated;
   if (typeof fields.polling_exhausted === 'boolean') payload.polling_exhausted = fields.polling_exhausted;
   if (typeof fields.late_response_recovered === 'boolean') payload.late_response_recovered = fields.late_response_recovered;
+  if (typeof fields.queue_full === 'boolean') payload.queue_full = fields.queue_full;
   return payload;
 }
