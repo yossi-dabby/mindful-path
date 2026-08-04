@@ -40,11 +40,7 @@ import {
   applyFormulationGuardToConversationMessages,
   applyCurrentTurnGroundingGuardToConversationMessages,
   evaluateCurrentTurnGroundingContractDetailed,
-  buildPendingGroundingCorrectionBlock,
-  buildPendingFormulationCorrectionBlock,
   classifyFormulationGuardedTurn,
-  hasGroundingCorrectionAlreadyBeenApplied,
-  hasFormulationCorrectionAlreadyBeenApplied,
 } from '../components/utils/formulationContractGuard.js';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
