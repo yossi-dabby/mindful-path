@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildOutboundUserMessageContent,
-  buildPendingCorrectionPrefix,
   calculateExpectedReplyCount,
   deduplicateMessagesByLifecycleKeys,
   getAssistantIdentityKey,
@@ -13,7 +12,10 @@ import {
 } from '../../src/lib/chatRuntimeLifecycle.js';
 import { sanitizeConversationMessagesAligned, validateAgentOutput } from '../../src/components/utils/validateAgentOutput.jsx';
 import {
-  buildPendingFormulationCorrectionBlock,
+  FORMULATION_CORRECTION_END,
+  FORMULATION_CORRECTION_START,
+  CURRENT_TURN_GROUNDING_CORRECTION_START,
+  CURRENT_TURN_GROUNDING_CORRECTION_END,
 } from '../../src/components/utils/formulationContractGuard.js';
 import { buildRuntimeCapabilitySnapshot } from '../../src/lib/runtimeCapabilityDiagnostic.js';
 import { getFormulationLedContextForWiring } from '../../src/lib/workflowContextInjector.js';
@@ -67,21 +69,26 @@ describe('Phase 0 chat runtime lifecycle characterization', () => {
     expect(result.duplicatesBlocked).toBe(1);
   });
 
-  it('correction blocks are prepended to stored outbound user content', () => {
-    const correctionBlock = buildPendingFormulationCorrectionBlock('fallback');
-    const pendingCorrectionPrefix = buildPendingCorrectionPrefix([correctionBlock]);
+  it('correction blocks are not prepended to stored outbound user content', () => {
     const outbound = buildOutboundUserMessageContent({
       runtimeSupplement: null,
       formulationSupplement: null,
-      pendingCorrectionPrefix,
       messageText: 'next message',
     });
-    expect(outbound).toContain('FORMULATION CONTRACT CORRECTION');
-    expect(outbound.endsWith('next message')).toBe(true);
+    expect(outbound).toBe('next message');
+    expect(outbound).not.toContain('FORMULATION CONTRACT CORRECTION');
   });
 
   it('sanitizer strips correction blocks from visible user content', () => {
-    const correctionBlock = buildPendingFormulationCorrectionBlock('fallback');
+    const correctionBlock = [
+      FORMULATION_CORRECTION_START,
+      '',
+      'internal correction text',
+      '',
+      'fallback',
+      '',
+      FORMULATION_CORRECTION_END,
+    ].join('\n');
     const rawMessages = [{
       role: 'user',
       content: `${correctionBlock}\n\nhello`,
@@ -89,6 +96,24 @@ describe('Phase 0 chat runtime lifecycle characterization', () => {
     const sanitized = sanitizeConversationMessagesAligned(rawMessages, 'en');
     expect(sanitized[0].content).toBe('hello');
     expect(wasCorrectionBlockSanitized(rawMessages, sanitized)).toBe(true);
+  });
+
+  it('sanitizer strips grounding correction blocks from visible user content', () => {
+    const correctionBlock = [
+      CURRENT_TURN_GROUNDING_CORRECTION_START,
+      '',
+      'internal correction text',
+      '',
+      'fallback',
+      '',
+      CURRENT_TURN_GROUNDING_CORRECTION_END,
+    ].join('\n');
+    const rawMessages = [{
+      role: 'user',
+      content: `${correctionBlock}\n\nhello`,
+    }];
+    const sanitized = sanitizeConversationMessagesAligned(rawMessages, 'en');
+    expect(sanitized[0].content).toBe('hello');
   });
 
   it('action_permitted=false currently has no deterministic post-generation enforcement', () => {

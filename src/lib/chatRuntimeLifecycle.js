@@ -94,16 +94,15 @@ export function buildPendingCorrectionPrefix(correctionBlocks) {
 export function buildOutboundUserMessageContent({
   runtimeSupplement,
   formulationSupplement,
-  pendingCorrectionPrefix,
   messageText,
 }) {
   if (runtimeSupplement) {
-    return runtimeSupplement + '\n\n' + pendingCorrectionPrefix + messageText;
+    return runtimeSupplement + '\n\n' + messageText;
   }
   if (formulationSupplement) {
-    return formulationSupplement + '\n\n' + pendingCorrectionPrefix + messageText;
+    return formulationSupplement + '\n\n' + messageText;
   }
-  return pendingCorrectionPrefix + messageText;
+  return messageText;
 }
 
 export function hasCorrectionBlockAttached(pendingCorrectionPrefix) {
@@ -145,11 +144,32 @@ export function buildS2DebugLifecycleDiagnostic(fields = {}) {
   if (typeof fields.assistant_identity_source === 'string') {
     payload.assistant_identity_source = fields.assistant_identity_source;
   }
-  if (typeof fields.correction_block_attached === 'boolean') {
-    payload.correction_block_attached = fields.correction_block_attached;
-  }
   if (typeof fields.correction_block_sanitized === 'boolean') {
     payload.correction_block_sanitized = fields.correction_block_sanitized;
+  }
+  if (typeof fields.internal_correction_pending === 'boolean') {
+    payload.internal_correction_pending = fields.internal_correction_pending;
+  }
+  if (typeof fields.correction_type === 'string' || fields.correction_type === null) {
+    payload.correction_type = fields.correction_type;
+  }
+  if (typeof fields.instruction_channel === 'string') {
+    payload.instruction_channel = fields.instruction_channel;
+  }
+  if (typeof fields.outbound_content_clean === 'boolean') {
+    payload.outbound_content_clean = fields.outbound_content_clean;
+  }
+  if (typeof fields.historical_block_detected === 'boolean') {
+    payload.historical_block_detected = fields.historical_block_detected;
+  }
+  if (typeof fields.historical_block_sanitized === 'boolean') {
+    payload.historical_block_sanitized = fields.historical_block_sanitized;
+  }
+  if (typeof fields.correction_consumed === 'boolean') {
+    payload.correction_consumed = fields.correction_consumed;
+  }
+  if (typeof fields.conversation_scope_match === 'boolean') {
+    payload.conversation_scope_match = fields.conversation_scope_match;
   }
   if (typeof fields.action_permitted === 'boolean' || fields.action_permitted === null) {
     payload.action_permitted = fields.action_permitted;
