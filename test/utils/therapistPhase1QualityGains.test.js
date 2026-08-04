@@ -147,8 +147,8 @@ describe('Phase 1 Quality — feature flag', () => {
     expect(isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED')).toBe(false);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS now contains exactly 13 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(16);
+  it('THERAPIST_UPGRADE_FLAGS now contains exactly 14 flags', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(17);
   });
 
   it('all 13 flags default to false', () => {
