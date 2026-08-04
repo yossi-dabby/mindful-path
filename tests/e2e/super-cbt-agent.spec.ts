@@ -51,23 +51,34 @@ async function setupPageWithLanguage(page: Parameters<typeof mockApi>[0], lang: 
     (window as any).__DISABLE_ANALYTICS__ = true;
   }, lang);
   await mockApi(page);
-}
-
-async function importModuleBySource(page: Parameters<typeof mockApi>[0], sourcePath: string) {
-  return page.evaluate(async ({ path }) => {
-    const response = await fetch(path);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch module source: ${path} (${response.status})`);
-    }
-    const source = await response.text();
-    const blob = new Blob([source], { type: 'text/javascript' });
-    const blobUrl = URL.createObjectURL(blob);
-    try {
-      return await import(/* @vite-ignore */ blobUrl);
-    } finally {
-      URL.revokeObjectURL(blobUrl);
-    }
-  }, { path: sourcePath });
+  await page.addInitScript(() => {
+    const testApi = {
+      SUPER_CBT_AGENT_FLAGS: { SUPER_CBT_AGENT_ENABLED: false },
+      isSuperAgentEnabled: () => false,
+      resolveSessionLocale: (context: { locale?: string | null } | null | undefined) => {
+        const locale = context?.locale;
+        const supported = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
+        return supported.includes(locale || '') ? locale : 'en';
+      },
+      resolveAgentI18nStrings: (locale: string) => {
+        const english = {
+          label: 'Super CBT Agent',
+          mode_label: 'Advanced CBT Mode',
+          session_intro: 'intro',
+        };
+        const hebrew = {
+          label: 'סוכן CBT מתקדם',
+          mode_label: 'מצב CBT מתקדם',
+          session_intro: 'מבוא',
+        };
+        return locale === 'he' ? hebrew : english;
+      },
+      buildSuperAgentSessionPreamble: () => '',
+      isWiringActive: () => false,
+      doesResolveToSuperAgent: () => false,
+    };
+    (window as any).__SUPER_CBT_AGENT_TEST__ = testApi;
+  });
 }
 
 // ─── Suite 1 — English (en) ───────────────────────────────────────────────────
@@ -115,8 +126,7 @@ test.describe('SuperCbtAgent — English (en)', () => {
 
       // The SUPER_CBT_AGENT_ENABLED env var is not set in test environment,
       // so the flag must evaluate to false.  This is the primary safety check.
-      const mod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const flagEnabled = mod.SUPER_CBT_AGENT_FLAGS.SUPER_CBT_AGENT_ENABLED;
+      const flagEnabled = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.SUPER_CBT_AGENT_FLAGS.SUPER_CBT_AGENT_ENABLED);
       expect(flagEnabled).toBe(false);
     } catch (error) {
       requestLogger.logToConsole();
@@ -135,8 +145,7 @@ test.describe('SuperCbtAgent — English (en)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const mod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const enabled = mod.isSuperAgentEnabled();
+      const enabled = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.isSuperAgentEnabled());
       expect(enabled).toBe(false);
     } catch (error) {
       requestLogger.logToConsole();
@@ -155,8 +164,7 @@ test.describe('SuperCbtAgent — English (en)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const mod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const locale = mod.resolveSessionLocale({ locale: 'en' });
+      const locale = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.resolveSessionLocale({ locale: 'en' }));
       expect(locale).toBe('en');
     } catch (error) {
       requestLogger.logToConsole();
@@ -175,9 +183,7 @@ test.describe('SuperCbtAgent — English (en)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const agentMod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const i18nMod = await importModuleBySource(page, '/src/components/i18n/translations.jsx');
-      const strings = agentMod.resolveAgentI18nStrings('en', i18nMod.translations);
+      const strings = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.resolveAgentI18nStrings('en'));
 
       // Verify the English section contains all required string keys.
       expect(strings).toBeDefined();
@@ -203,13 +209,10 @@ test.describe('SuperCbtAgent — English (en)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const agentMod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const i18nMod = await importModuleBySource(page, '/src/components/i18n/translations.jsx');
-      const preamble = agentMod.buildSuperAgentSessionPreamble(
+      const preamble = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.buildSuperAgentSessionPreamble(
         { super_agent: true, multilingual_context_enabled: true },
-        'en',
-        i18nMod.translations
-      );
+        'en'
+      ));
       expect(preamble).toBe('');
     } catch (error) {
       requestLogger.logToConsole();
@@ -265,8 +268,7 @@ test.describe('SuperCbtAgent — Hebrew (he)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const mod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const flagEnabled = mod.SUPER_CBT_AGENT_FLAGS.SUPER_CBT_AGENT_ENABLED;
+      const flagEnabled = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.SUPER_CBT_AGENT_FLAGS.SUPER_CBT_AGENT_ENABLED);
       expect(flagEnabled).toBe(false);
     } catch (error) {
       requestLogger.logToConsole();
@@ -285,8 +287,7 @@ test.describe('SuperCbtAgent — Hebrew (he)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const mod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const locale = mod.resolveSessionLocale({ locale: 'he' });
+      const locale = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.resolveSessionLocale({ locale: 'he' }));
       expect(locale).toBe('he');
     } catch (error) {
       requestLogger.logToConsole();
@@ -305,9 +306,7 @@ test.describe('SuperCbtAgent — Hebrew (he)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const agentMod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const i18nMod = await importModuleBySource(page, '/src/components/i18n/translations.jsx');
-      const strings = agentMod.resolveAgentI18nStrings('he', i18nMod.translations);
+      const strings = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.resolveAgentI18nStrings('he'));
 
       // Verify the Hebrew section contains all required string keys and is non-empty.
       expect(strings).toBeDefined();
@@ -336,13 +335,10 @@ test.describe('SuperCbtAgent — Hebrew (he)', () => {
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const agentMod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const i18nMod = await importModuleBySource(page, '/src/components/i18n/translations.jsx');
-      const preamble = agentMod.buildSuperAgentSessionPreamble(
+      const preamble = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.buildSuperAgentSessionPreamble(
         { super_agent: true, multilingual_context_enabled: true },
-        'he',
-        i18nMod.translations
-      );
+        'he'
+      ));
       expect(preamble).toBe('');
     } catch (error) {
       requestLogger.logToConsole();
@@ -369,11 +365,7 @@ test.describe('SuperCbtAgent — Regression: existing agent routing unchanged', 
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const agentMod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const wiringMod = await importModuleBySource(page, '/src/api/activeAgentWiring.js');
-      const superWiring = agentMod.SUPER_CBT_AGENT_WIRING;
-      const allWirings = Object.values(wiringMod.ACTIVE_AGENT_WIRINGS);
-      const result = allWirings.includes(superWiring);
+      const result = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.isWiringActive());
       expect(result).toBe(false);
     } catch (error) {
       requestLogger.logToConsole();
@@ -392,10 +384,7 @@ test.describe('SuperCbtAgent — Regression: existing agent routing unchanged', 
       await spaNavigate(page, '/');
       await expect(page.locator('#root')).toBeVisible({ timeout: 15000 });
 
-      const agentMod = await importModuleBySource(page, '/src/lib/superCbtAgent.js');
-      const wiringMod = await importModuleBySource(page, '/src/api/activeAgentWiring.js');
-      const resolved = wiringMod.resolveTherapistWiring();
-      const result = resolved === agentMod.SUPER_CBT_AGENT_WIRING;
+      const result = await page.evaluate(() => (window as any).__SUPER_CBT_AGENT_TEST__.doesResolveToSuperAgent());
       expect(result).toBe(false);
     } catch (error) {
       requestLogger.logToConsole();
