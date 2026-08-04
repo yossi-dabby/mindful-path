@@ -349,6 +349,7 @@ export function createChatOrchestratorV2() {
       created_at: restored.created_at,
       committed_response_key: null,
       feedback_identity: null,
+      response_policy: restored.response_policy ?? null,
     };
     _restoredFromReload = true;
     return getActiveTurn();

@@ -1441,6 +1441,21 @@ export function extractResponsePolicyFromStrategyState(strategyState) {
     reasonCodes.push(RESPONSE_POLICY_REASON_CODES.SAFETY_OVERRIDE_REQUIRED);
   }
 
+  Object.defineProperty(ss, 'response_policy', {
+    value: Object.freeze({
+      policy_version: RESPONSE_POLICY_VERSION,
+      policy_available: true,
+      action_permitted: ss.action_permitted === true,
+      intervention_mode:
+        typeof ss.intervention_mode === 'string' ? ss.intervention_mode : STRATEGY_INTERVENTION_MODES.STABILISATION,
+      safety_override_required: ss.safety_override_required === true,
+      reason_codes: Object.freeze(reasonCodes.slice(0, 6)),
+    }),
+    enumerable: false,
+    configurable: true,
+    writable: false,
+  });
+
   return Object.freeze({
     policy_version: RESPONSE_POLICY_VERSION,
     policy_available: true,

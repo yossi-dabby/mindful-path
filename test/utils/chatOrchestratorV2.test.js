@@ -391,7 +391,7 @@ describe('Phase 1 V2 helpers', () => {
 describe('Phase 3 response policy scoping', () => {
   it('restores bounded policy state on reload', () => {
     const storage = new Map();
-    global.window = {
+    globalThis.window = {
       sessionStorage: {
         getItem: (k) => storage.get(k) ?? null,
         setItem: (k, v) => storage.set(k, v),
@@ -416,6 +416,6 @@ describe('Phase 3 response policy scoping', () => {
     const active = restored.restoreAfterReload(CONV_ID);
     expect(active.response_policy.policy_version).toBe('response_policy_v1');
     expect(active.response_policy.reason_codes).toEqual(['action_not_permitted']);
-    delete global.window;
+    delete globalThis.window;
   });
 });
