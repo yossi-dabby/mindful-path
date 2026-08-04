@@ -169,6 +169,17 @@ function makeMockBaseClient() {
   };
 }
 
+/**
+ * Extracts the therapeutic strategy section from a session-start content string
+ * and returns it lowercased for case-insensitive assertions.
+ * Returns an empty string when no strategy section is present.
+ */
+function getStrategySectionLower(content) {
+  const start = content.indexOf('=== THERAPEUTIC STRATEGY');
+  if (start === -1) return '';
+  return content.slice(start).toLowerCase();
+}
+
 // ─── Section 1 — V8 wiring shape ─────────────────────────────────────────────
 
 describe('Wave 2B — V8 wiring shape', () => {
