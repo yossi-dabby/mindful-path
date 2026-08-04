@@ -811,7 +811,14 @@ export async function buildV4SessionStartContentAsync(
   try {
     const runtimeStatusBlock = buildV4RuntimeStatusBlock(v4Result);
     if (runtimeStatusBlock && runtimeStatusBlock.trim()) {
-      result += '\n\n' + runtimeStatusBlock;
+      result = _appendWithComposer(options, result, {
+        id: 'live_runtime_status',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.live_runtime_status,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.live_runtime_status,
+        required: true,
+        source_layer: 'v4_runtime_status',
+        content: runtimeStatusBlock,
+      });
     }
   } catch {
     // Ignore — never block session start
@@ -909,13 +916,27 @@ export async function buildV5SessionStartContentAsync(
     return v4Base;
   }
 
-  let result = v4Base + '\n\n' + safetyContext;
+  let result = _appendWithComposer(options, v4Base, {
+    id: 'safety_mode',
+    order: CONTEXT_COMPOSER_V2_SECTION_ORDER.safety_mode,
+    retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.safety_mode,
+    required: true,
+    source_layer: 'v5_safety',
+    content: safetyContext,
+  });
 
   // Step 4: Inject emergency resources when safety mode is active
   try {
     const resourceSection = buildEmergencyResourceSection(options.locale ?? null);
     if (resourceSection && resourceSection.trim()) {
-      result += '\n\n' + resourceSection;
+      result = _appendWithComposer(options, result, {
+        id: 'emergency_resources',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.emergency_resources,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.emergency_resources,
+        required: true,
+        source_layer: 'v5_safety',
+        content: resourceSection,
+      });
     }
   } catch {
     // Emergency resource injection failure must never block the session
@@ -1696,7 +1717,14 @@ export async function buildV6SessionStartContentAsync(
 
   let result = v5Base;
   if (formulationBlock && formulationBlock.trim()) {
-    result = result + '\n\n' + formulationBlock;
+    result = _appendWithComposer(options, result, {
+      id: 'case_formulation_context',
+      order: CONTEXT_COMPOSER_V2_SECTION_ORDER.case_formulation_context,
+      retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.case_formulation_context,
+      required: false,
+      source_layer: 'v6_formulation',
+      content: formulationBlock,
+    });
   }
   if (formulationLedBlock) {
     result = _appendWithComposer(options, result, {
@@ -2789,7 +2817,14 @@ export async function buildV10SessionStartContentAsync(
     // retrieveBoundedCBTKnowledgeBlock is fully fail-open (returns '' on error).
     const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
     if (knowledgeBlock && knowledgeBlock.trim()) {
-      return v9Base + '\n\n' + knowledgeBlock;
+      return _appendWithComposer(v10Options, v9Base, {
+        id: 'cbt_knowledge_context',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.cbt_knowledge_context,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.cbt_knowledge_context,
+        required: false,
+        source_layer: 'v10_knowledge',
+        content: knowledgeBlock,
+      });
     }
     return v9Base;
   } catch {
@@ -2845,7 +2880,14 @@ export async function buildV11SessionStartContentAsync(wiring, entities, baseCli
 
     // Step 3: Append the competence block when non-empty
     if (THERAPIST_COMPETENCE_INSTRUCTIONS && THERAPIST_COMPETENCE_INSTRUCTIONS.trim()) {
-      return v10Base + '\n\n' + THERAPIST_COMPETENCE_INSTRUCTIONS;
+      return _appendWithComposer(options, v10Base, {
+        id: 'competence_instructions',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.competence_instructions,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.competence_instructions,
+        required: false,
+        source_layer: 'v11_competence',
+        content: THERAPIST_COMPETENCE_INSTRUCTIONS,
+      });
     }
     return v10Base;
   } catch {
@@ -2910,7 +2952,14 @@ export async function buildV12SessionStartContentAsync(wiring, entities, baseCli
   try {
     // Step 2: Append the planner-first block when non-empty (synchronous import)
     if (THERAPIST_PLANNER_FIRST_INSTRUCTIONS && THERAPIST_PLANNER_FIRST_INSTRUCTIONS.trim()) {
-      return v11Base + '\n\n' + THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+      return _appendWithComposer(options, v11Base, {
+        id: 'planner_first_instructions',
+        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.planner_first_instructions,
+        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.planner_first_instructions,
+        required: true,
+        source_layer: 'v12_planner',
+        content: THERAPIST_PLANNER_FIRST_INSTRUCTIONS,
+      });
     }
     return v11Base;
   } catch {
@@ -2920,6 +2969,41 @@ export async function buildV12SessionStartContentAsync(wiring, entities, baseCli
 }
 
 // ─── Action-First Demotion — Universal formulation-first default ──────────────
+
+/**
+ * Emits the Context Composer V2 diagnostic snapshot to the console when
+ * `?_s2debug=true` is present in the URL.  No-op in all other environments.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Gated by _s2debug=true in the URL.
+ * - Only emits bounded structural fields: boolean flags, counts, and bounded
+ *   string IDs.  Never emits section content or clinical text.
+ * - Does NOT change any routing decision or therapeutic behavior.
+ * - Fail-closed on any error (never propagates).
+ *
+ * @private
+ * @param {object|null} diagnostic - Diagnostic from the finalized composer result
+ */
+function _emitContextComposerDiagnosticIfEnabled(diagnostic) {
+  try {
+    if (!_isS2DebugEnabled()) return;
+    if (!diagnostic || typeof diagnostic !== 'object') return;
+    console.group('[Context Composer V2] Final diagnostic');
+    console.log('context_composer_used    :', diagnostic.context_composer_used ?? false);
+    console.log('context_composer_version :', diagnostic.context_composer_version ?? 'unknown');
+    console.log('section_count            :', diagnostic.section_count ?? 0);
+    console.log('emitted_section_ids      :', diagnostic.emitted_section_ids ?? []);
+    console.log('omitted_section_ids      :', diagnostic.omitted_section_ids ?? []);
+    console.log('budget_exceeded          :', diagnostic.budget_exceeded ?? false);
+    console.log('fallback_used            :', diagnostic.fallback_used ?? false);
+    console.log('fallback_reason          :', diagnostic.fallback_reason ?? null);
+    console.log('parity_match             :', diagnostic.parity_match ?? true);
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostic emission must never propagate — fail silently.
+  }
+}
 
 /**
  * Builds the session-start content with action-first demotion applied
@@ -3079,9 +3163,11 @@ ${therapistFormLibraryInstructions}`
     }
 
     const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, content);
+    _emitContextComposerDiagnosticIfEnabled(finalized?.diagnostic ?? null);
     return finalized?.rendered ?? content;
   } catch {
     const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, base);
+    _emitContextComposerDiagnosticIfEnabled(finalized?.diagnostic ?? null);
     return finalized?.rendered ?? base;
   }
 }
