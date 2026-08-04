@@ -53,6 +53,16 @@ export function hasInternalCorrectionIntent(intent) {
   });
 }
 
+/**
+ * Returns true only when the intent is structurally valid AND has not yet been
+ * consumed (consumed !== true).  Use this wherever the send path needs to
+ * decide whether a pending correction must be delivered.
+ */
+export function hasPendingInternalCorrectionIntent(intent) {
+  if (!hasInternalCorrectionIntent(intent)) return false;
+  return intent.consumed !== true;
+}
+
 export function consumeInternalCorrectionIntent(intent) {
   const normalized = createInternalCorrectionIntent({
     correctionType: intent?.correction_type,

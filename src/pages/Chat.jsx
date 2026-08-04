@@ -101,7 +101,7 @@ import {
   buildInternalCorrectionDiagnostic,
   consumeInternalCorrectionIntent,
   createInternalCorrectionIntent,
-  hasInternalCorrectionIntent,
+  hasPendingInternalCorrectionIntent,
   internalCorrectionScopeMatches,
   INTERNAL_CORRECTION_CHANNEL,
   INTERNAL_CORRECTION_TYPES,
@@ -3174,11 +3174,11 @@ export default function Chat() {
       //   4. Current user message
       // For new conversations the session-start content is prepended before all of the above.
 
-      const activePendingInternalCorrection = hasInternalCorrectionIntent(pendingInternalCorrectionRef.current) &&
+      const activePendingInternalCorrection = hasPendingInternalCorrectionIntent(pendingInternalCorrectionRef.current) &&
         internalCorrectionScopeMatches(pendingInternalCorrectionRef.current, convId)
         ? pendingInternalCorrectionRef.current
         : null;
-      // Clear stale intent that belongs to a different conversation
+      // Clear stale intent that belongs to a different conversation or is already consumed
       if (pendingInternalCorrectionRef.current && !activePendingInternalCorrection) {
         pendingInternalCorrectionRef.current = null;
       }

@@ -727,25 +727,39 @@ export function stripLeadingInternalAssistantTags(content) {
   return { content: remaining, removedAny, hidden: false };
 }
 
-// Correction block bounds recognized for historical assistant-content sanitization.
-// Only structurally identifiable leading blocks are removed; partial/malformed blocks
-// (start marker present but end marker absent) are left intact so real prose is never lost.
-const ASSISTANT_CORRECTION_BLOCK_BOUNDS = [
+// Correction block bounds recognized for historical message sanitization (both roles).
+const CORRECTION_BLOCK_BOUNDS = [
   [CURRENT_TURN_GROUNDING_CORRECTION_START, CURRENT_TURN_GROUNDING_CORRECTION_END],
   [FORMULATION_CORRECTION_START, FORMULATION_CORRECTION_END],
 ];
 
 /**
+ * Returns true when `content` begins with the given `marker` after optional
+ * leading whitespace, OR when it begins with another recognised correction
+ * block start marker (i.e. we are already inside a leading correction region).
+ */
+function _isLeadingPosition(content, marker) {
+  const trimmed = content.trimStart();
+  if (trimmed.startsWith(marker)) return true;
+  // Also accept position right after any other recognised start marker sequence
+  for (const [otherStart] of CORRECTION_BLOCK_BOUNDS) {
+    if (otherStart !== marker && trimmed.startsWith(otherStart)) return true;
+  }
+  return false;
+}
+
+/**
  * Strips structurally identifiable leading internal correction blocks from
- * an assistant message content string when they appear at the start of the
- * content (or anywhere in the content as complete, bounded blocks).
+ * a historical message content string (applies to both user and assistant roles).
  *
  * Handles:
- *   - Complete blocks (start + end marker present) → removed.
- *   - Duplicate blocks → each complete occurrence removed.
- *   - Malformed / truncated blocks (start marker only, no end marker) → preserved.
- *   - Legitimate prose that merely contains a marker phrase inside a sentence → preserved.
- *   - Real user/assistant text after the block → preserved.
+ *   - Complete blocks (start + end marker present) → removed wherever they appear.
+ *   - Duplicate / mixed complete blocks → each complete occurrence removed.
+ *   - Malformed / truncated / unterminated blocks (start marker at a leading
+ *     position but no closing end marker) → also removed.
+ *   - Legitimate prose that merely contains a marker phrase inside a normal
+ *     sentence (not at a leading boundary) → preserved.
+ *   - Real user/assistant text after the internal section → preserved.
  *
  * @param {string} content
  * @returns {{ content: string, removedAny: boolean }}
@@ -756,14 +770,12 @@ export function stripLeadingInternalCorrectionBlocks(content) {
   let result = content;
   let removedAny = false;
 
-  for (const [start, end] of ASSISTANT_CORRECTION_BLOCK_BOUNDS) {
+  // Pass 1: remove all complete (terminated) blocks wherever they appear.
+  for (const [start, end] of CORRECTION_BLOCK_BOUNDS) {
     let startIdx = result.indexOf(start);
     while (startIdx !== -1) {
       const endIdx = result.indexOf(end, startIdx);
-      if (endIdx === -1) {
-        // No closing marker — incomplete block; preserve everything to avoid data loss.
-        break;
-      }
+      if (endIdx === -1) break; // no end marker — handled in pass 2
       const afterEnd = endIdx + end.length;
       // Walk back leading newlines before the block start
       let blockStart = startIdx;
@@ -775,6 +787,22 @@ export function stripLeadingInternalCorrectionBlocks(content) {
       removedAny = true;
       startIdx = result.indexOf(start);
     }
+  }
+
+  // Pass 2: remove unterminated / truncated start markers that are still at a
+  // leading position (after optional whitespace).  A start marker that appears
+  // mid-content without a paired end is legitimate prose and must be preserved.
+  for (const [start] of CORRECTION_BLOCK_BOUNDS) {
+    const trimmed = result.trimStart();
+    if (!trimmed.startsWith(start)) continue;
+    // The marker is at the leading position — strip from here to end of string
+    // (everything after is the unterminated internal block; there is no real
+    // user/assistant text to preserve because the block was never closed).
+    const startIdx = result.indexOf(start);
+    let blockStart = startIdx;
+    while (blockStart > 0 && result[blockStart - 1] === '\n') blockStart--;
+    result = result.substring(0, blockStart);
+    removedAny = true;
   }
 
   return { content: result.trim(), removedAny };
@@ -1336,9 +1364,15 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
 
     if (msg.role === 'user' && typeof msg.content === 'string') {
       const { content, attachment } = extractAttachmentMetadataFromUserContent(msg.content);
-      const visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
+      const afterRuntimeBlocks = stripAgentOnlyRuntimeBlocksFromUserContent(
         stripFormRouterContextBlock(stripAttachmentContextBlock(content))
       );
+      // Phase 2.2: strip leading internal correction blocks from historical user content
+      // using the same canonical sanitizer used for assistant content.
+      const correctionStrippedUser = stripLeadingInternalCorrectionBlocks(afterRuntimeBlocks);
+      const visibleUserText = correctionStrippedUser.removedAny
+        ? (correctionStrippedUser.content || '')
+        : afterRuntimeBlocks;
       // Preserve pdf_extracted_text / pdf_page_count from incoming metadata so the
       // collapsible card in MessageBubble always has the data available, regardless
       // of whether the SDK round-trips custom metadata fields.
@@ -1551,7 +1585,7 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         // string into a potentially non-English session.  For all other assistant messages
         // keep the original behavior (English failsafe) so no regressions occur.
         const cleaned = sanitizeAssistantMessage(contentAfterFormExtract, {
-          preventFallback: isSessionInjectedTriggeringMessage || strippedInternalTags.removedAny,
+          preventFallback: isSessionInjectedTriggeringMessage || strippedInternalTags.removedAny || correctionStripped.removedAny,
         });
         if (!cleaned) {
           console.log('[sanitizeConversationMessagesAligned] Hiding assistant turn — all content filtered');
