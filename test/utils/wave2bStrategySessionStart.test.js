@@ -319,7 +319,7 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION);
   });
 
   it('formulation present only → STABILISATION mode until readiness is explicit', async () => {
@@ -328,8 +328,8 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result.toLowerCase()).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(getStrategySectionLower(result)).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
   it('continuity present only → STABILISATION mode (planner-first: no formulation = stabilisation first)', async () => {
@@ -342,8 +342,8 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(getStrategySectionLower(result)).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
   it('both formulation and continuity present → STABILISATION mode when readiness is not explicitly passed', async () => {
@@ -352,8 +352,8 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(getStrategySectionLower(result)).not.toContain(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
   });
 
   it('safety mode active (crisis_signal) → CONTAINMENT mode', async () => {
@@ -367,7 +367,7 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
       { crisis_signal: true },
     );
 
-    expect(result.toLowerCase()).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
   it('high-distress message text → CONTAINMENT or STABILISATION mode', async () => {
@@ -381,8 +381,9 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
       { message_text: 'I feel completely hopeless, nothing will ever get better.' },
     );
 
-    const hasContainment = result.includes(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
-    const hasStabilisation = result.includes(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    const strategySection = getStrategySectionLower(result);
+    const hasContainment = strategySection.includes(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    const hasStabilisation = strategySection.includes(STRATEGY_INTERVENTION_MODES.STABILISATION);
     expect(hasContainment || hasStabilisation).toBe(true);
   });
 });
@@ -635,7 +636,7 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
       { crisis_signal: true },
     );
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
     expect(result).toContain('Guidance:');
     // CONTAINMENT guidance must reference short/grounding
     const strategyIdx = result.indexOf('=== THERAPEUTIC STRATEGY');
@@ -656,7 +657,7 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
       { flag_override: true },
     );
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
   it('hopelessness message text → CONTAINMENT mode (TIER_HIGH)', async () => {
@@ -670,7 +671,7 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
       { message_text: "I feel hopeless, nothing will ever get better, I can't see a way out." },
     );
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
   it('catastrophic message text → CONTAINMENT mode (TIER_HIGH)', async () => {
@@ -684,7 +685,7 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
       { message_text: 'Everything is ruined, my life is over, there is no way back.' },
     );
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
   it('low-distress session with both contexts → stabilisation (not containment) when readiness is not explicit', async () => {
@@ -700,8 +701,8 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
 
     // With both contexts + low distress but no explicit readiness signal passed
     // the precedence guard keeps the session in formulation-hold mode.
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
-    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
+    expect(getStrategySectionLower(result)).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(getStrategySectionLower(result)).not.toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 });
 
