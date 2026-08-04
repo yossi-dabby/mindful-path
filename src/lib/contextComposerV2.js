@@ -1,11 +1,18 @@
 const DEFAULT_CONTEXT_COMPOSER_V2_VERSION = '2.0.0';
 
 // Safe default budget rationale:
-//   Measured full V12 output (empty entities, all layers active) = ~69,731 chars.
-//   With populated fixtures (LTS, continuity, knowledge, formulation, safety) the
-//   output can reach ~110,000–115,000 chars.  120,000 provides comfortable headroom
-//   above the typical populated session-start payload while remaining well below
-//   GPT-4o's ~512,000-character system-prompt capacity.
+//   Provider / model context limit: UNKNOWN from this repository.  The application
+//   calls Base44 InvokeLLM without specifying a model or context window contract.
+//   No authoritative upper bound is available in source code.
+//
+//   Measured V12 output sizes (deterministic, bounded scenarios):
+//     - Empty entities, all layers active:                  ~69,731 chars
+//     - Populated (LTS + continuity + formulation, no KB):  ~74,163 chars
+//     - Maximum deterministic bounded scenario measured:     ~74,163 chars
+//
+//   120,000 was selected because it is ≥45,000 chars above the largest measured
+//   populated scenario, providing substantial headroom for future section additions
+//   while remaining a reasonable application-level limit regardless of provider.
 //   The previous default of 32,000 was below even the empty-entities V12 output and
 //   caused clinical-personalisation sections to be evicted on every ordinary session.
 //   Budget eviction is still exercisable by injecting an explicit low budget in tests.
