@@ -17,7 +17,7 @@
  *    addMessage → getConversation round trip.  Because that metadata
  *    round-trip CANNOT be proven, a single-flight queue is used:
  *    additional sends are queued until the active turn reaches a
- *    terminal state (completed | timed_out | failed).
+ *    final state (completed | failed | abandoned). timed_out remains recoverable.
  *
  * 3. All three delivery paths (polling, subscription, hydration) must
  *    call the same reconcile function.  The reconciler rejects stale
@@ -50,6 +50,11 @@ import {
   deduplicateMessagesByLifecycleKeys,
   getAssistantIdentityKey,
 } from './chatRuntimeLifecycle.js';
+import {
+  clearPendingTurn,
+  persistPendingTurn,
+  restorePendingTurn,
+} from './chatPendingTurnStorage.js';
 
 // ─── Turn status constants ─────────────────────────────────────────────────────
 
@@ -60,12 +65,21 @@ export const TURN_STATUS = Object.freeze({
   COMPLETED: 'completed',
   TIMED_OUT: 'timed_out',
   FAILED: 'failed',
+  ABANDONED: 'abandoned',
 });
 
-const TERMINAL_STATUSES = new Set([
+const FINAL_STATUSES = new Set([
   TURN_STATUS.COMPLETED,
-  TURN_STATUS.TIMED_OUT,
   TURN_STATUS.FAILED,
+  TURN_STATUS.ABANDONED,
+]);
+
+const TERMINAL_STATUSES = new Set([...FINAL_STATUSES]);
+const QUEUE_BLOCKING_STATUSES = new Set([
+  TURN_STATUS.PENDING,
+  TURN_STATUS.SENT,
+  TURN_STATUS.GENERATING,
+  TURN_STATUS.TIMED_OUT,
 ]);
 
 // ─── ID generation ─────────────────────────────────────────────────────────────
@@ -118,7 +132,9 @@ export function createTurnRecord({ conversationId, userMessageId, generationId }
  * @returns {TurnRecord}      - A new object (never mutates in place)
  */
 export function advanceTurnStatus(turn, newStatus) {
-  if (!turn || TERMINAL_STATUSES.has(turn.status)) return turn;
+  if (!turn) return turn;
+  const isFinal = FINAL_STATUSES.has(turn.status);
+  if (isFinal) return turn;
   if (!Object.values(TURN_STATUS).includes(newStatus)) return turn;
   return { ...turn, status: newStatus };
 }
@@ -154,6 +170,9 @@ export function createChatOrchestratorV2() {
   /** @type {Array<object>} last committed visible messages snapshot */
   let _lastCommittedSnapshot = [];
 
+  /** @type {boolean} whether the active turn was restored from reload */
+  let _restoredFromReload = false;
+
   /**
    * Returns a copy of the active turn record (or null).
    * @returns {TurnRecord|null}
@@ -183,7 +202,7 @@ export function createChatOrchestratorV2() {
    * @returns {{ turn: TurnRecord|null, queued: boolean, queue_full: boolean }}
    */
   function registerSend({ conversationId, executeSend }) {
-    if (_activeTurn && !TERMINAL_STATUSES.has(_activeTurn.status)) {
+    if (_activeTurn && QUEUE_BLOCKING_STATUSES.has(_activeTurn.status)) {
       // Active turn in progress — queue the send if capacity allows.
       if (_queue.length >= _MAX_QUEUE_DEPTH) {
         // Queue full — reject without losing or reordering existing messages.
@@ -213,6 +232,7 @@ export function createChatOrchestratorV2() {
       userMessageId
     ) {
       _activeTurn = { ..._activeTurn, user_message_id: userMessageId, status: TURN_STATUS.SENT };
+      persistPendingTurn(_activeTurn.conversation_id, _activeTurn);
     }
   }
 
@@ -223,6 +243,7 @@ export function createChatOrchestratorV2() {
   function markGenerating(clientRequestId) {
     if (_activeTurn && _activeTurn.client_request_id === clientRequestId) {
       _activeTurn = advanceTurnStatus(_activeTurn, TURN_STATUS.GENERATING);
+      persistPendingTurn(_activeTurn.conversation_id, _activeTurn);
     }
   }
 
@@ -236,6 +257,7 @@ export function createChatOrchestratorV2() {
   function markTimedOut(clientRequestId) {
     if (_activeTurn && _activeTurn.client_request_id === clientRequestId) {
       _activeTurn = advanceTurnStatus(_activeTurn, TURN_STATUS.TIMED_OUT);
+      persistPendingTurn(_activeTurn.conversation_id, _activeTurn);
     }
     return {
       orchestrator_version: 'v2',
@@ -254,9 +276,20 @@ export function createChatOrchestratorV2() {
    * @returns {{ turn: TurnRecord, executeSend: Function }|null} The next queued item, or null.
    */
   function markFailed(clientRequestId) {
+    const activeConversationId = _activeTurn?.conversation_id ?? null;
     if (_activeTurn && _activeTurn.client_request_id === clientRequestId) {
       _activeTurn = advanceTurnStatus(_activeTurn, TURN_STATUS.FAILED);
     }
+    clearPendingTurn(activeConversationId);
+    return _drainQueue();
+  }
+
+  function abandon(clientRequestId) {
+    const activeConversationId = _activeTurn?.conversation_id ?? null;
+    if (_activeTurn && _activeTurn.client_request_id === clientRequestId) {
+      _activeTurn = { ..._activeTurn, status: TURN_STATUS.ABANDONED };
+    }
+    clearPendingTurn(activeConversationId);
     return _drainQueue();
   }
 
@@ -268,12 +301,46 @@ export function createChatOrchestratorV2() {
    *
    * @param {Array<object>} visibleMessages  Sanitized visible messages for the conversation.
    */
-  function initBaseline(visibleMessages) {
+  function initializeBaseline(visibleMessages) {
     if (!Array.isArray(visibleMessages)) return;
-    // Reset active turn (conversation switch resets coordinator state).
+    _lastCommittedSnapshot = [...visibleMessages];
+  }
+
+  function resetForConversationChange() {
+    const activeConversationId = _activeTurn?.conversation_id ?? null;
     _activeTurn = null;
     _queue.length = 0;
-    _lastCommittedSnapshot = [...visibleMessages];
+    _committedResponseKeys.clear();
+    _feedbackIdentities.clear();
+    _lastCommittedSnapshot = [];
+    _restoredFromReload = false;
+    clearPendingTurn(activeConversationId);
+  }
+
+  function initBaseline(visibleMessages) {
+    initializeBaseline(visibleMessages);
+  }
+
+  function persistActiveForReload(conversationId) {
+    if (!conversationId || !_activeTurn || _activeTurn.conversation_id !== conversationId) return;
+    persistPendingTurn(conversationId, _activeTurn);
+  }
+
+  function restoreAfterReload(conversationId) {
+    const restored = restorePendingTurn(conversationId);
+    if (!restored) return null;
+    _activeTurn = {
+      conversation_id: restored.conversation_id,
+      client_request_id: restored.client_request_id,
+      user_message_id: null,
+      generation_id: null,
+      status: TURN_STATUS.PENDING,
+      created_at: restored.created_at,
+      committed_response_key: null,
+      feedback_identity: null,
+    };
+    _restoredFromReload = true;
+    return getActiveTurn();
   }
 
   /**
@@ -341,8 +408,8 @@ export function createChatOrchestratorV2() {
       return result;
     }
 
-    // Active turn already completed (one response per turn guard).
-    if (_activeTurn.status === TURN_STATUS.COMPLETED) {
+    // Active turn already in a final state (one response per turn guard).
+    if (FINAL_STATUSES.has(_activeTurn.status)) {
       result.rejected_reason = 'turn_already_completed';
       return result;
     }
@@ -357,6 +424,8 @@ export function createChatOrchestratorV2() {
       return result;
     }
 
+    const preReconcileStatus = _activeTurn.status;
+
     // Commit the response.
     _committedResponseKeys.add(responseKey);
     const feedbackId = `fb-${_activeTurn.client_request_id}`;
@@ -369,14 +438,21 @@ export function createChatOrchestratorV2() {
       feedback_identity: feedbackId,
     };
     _lastCommittedSnapshot = deduplicated;
+    clearPendingTurn(_activeTurn.conversation_id);
 
     result.accepted = true;
     result.response_correlated = true;
     result.committed_response_key = responseKey;
     result.feedback_identity = feedbackId;
     result._deduplicatedSnapshot = deduplicated;
+    result.late_response_recovered = preReconcileStatus === TURN_STATUS.TIMED_OUT;
+    result.restored_after_reload = _restoredFromReload;
+    result.recovery_result = result.restored_after_reload
+      ? (result.late_response_recovered ? 'restored_and_recovered' : 'restored_and_committed')
+      : (result.late_response_recovered ? 'late_response_recovered' : 'committed');
 
     // Drain queue after completing the turn.
+    _restoredFromReload = false;
     const nextQueued = _drainQueue();
     // Expose the executeSend function directly as _nextQueuedSend for backward
     // compatibility (callers that do `if (result._nextQueuedSend) await result._nextQueuedSend()`).
@@ -404,6 +480,8 @@ export function createChatOrchestratorV2() {
     // Atomically create the next active turn before the caller executes the send.
     const turn = createTurnRecord({ conversationId: next.conversationId });
     _activeTurn = turn;
+    _restoredFromReload = false;
+    persistPendingTurn(turn.conversation_id, turn);
     return { turn: { ...turn }, executeSend: next.executeSend };
   }
 
@@ -431,6 +509,7 @@ export function createChatOrchestratorV2() {
       pending_turn_count: _queue.length,
       queue_depth: _queue.length,
       max_queue_depth: _MAX_QUEUE_DEPTH,
+      v2_enabled: true,
     };
   }
 
@@ -439,11 +518,7 @@ export function createChatOrchestratorV2() {
    * Used when switching conversations.
    */
   function reset() {
-    _activeTurn = null;
-    _queue.length = 0;
-    _committedResponseKeys.clear();
-    _feedbackIdentities.clear();
-    _lastCommittedSnapshot = [];
+    resetForConversationChange();
   }
 
   return Object.freeze({
@@ -458,7 +533,12 @@ export function createChatOrchestratorV2() {
     getFeedbackIdentity,
     getDiagnosticState,
     reset,
+    resetForConversationChange,
+    initializeBaseline,
     initBaseline,
+    persistActiveForReload,
+    restoreAfterReload,
+    abandon,
   });
 }
 
@@ -503,6 +583,9 @@ function _findLatestAssistant(msgs) {
  * @param {boolean} [fields.polling_exhausted]
  * @param {boolean} [fields.late_response_recovered]
  * @param {boolean} [fields.queue_full]
+ * @param {boolean} [fields.v2_enabled]
+ * @param {boolean} [fields.restored_after_reload]
+ * @param {string} [fields.recovery_result]
  * @returns {object}
  */
 export function buildV2DebugDiagnostic(fields = {}) {
@@ -525,5 +608,8 @@ export function buildV2DebugDiagnostic(fields = {}) {
   if (typeof fields.polling_exhausted === 'boolean') payload.polling_exhausted = fields.polling_exhausted;
   if (typeof fields.late_response_recovered === 'boolean') payload.late_response_recovered = fields.late_response_recovered;
   if (typeof fields.queue_full === 'boolean') payload.queue_full = fields.queue_full;
+  if (typeof fields.v2_enabled === 'boolean') payload.v2_enabled = fields.v2_enabled;
+  if (typeof fields.restored_after_reload === 'boolean') payload.restored_after_reload = fields.restored_after_reload;
+  if (typeof fields.recovery_result === 'string') payload.recovery_result = fields.recovery_result;
   return payload;
 }
