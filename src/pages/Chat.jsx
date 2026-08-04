@@ -105,7 +105,6 @@ import {
 import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
-  TURN_STATUS,
 } from '@/lib/chatOrchestratorV2.js';
 import { isChatOrchestratorV2Enabled } from '@/lib/featureFlags.js';
 
@@ -538,7 +537,7 @@ export default function Chat() {
     // V2 coordinator: reset on conversation switch so that historical messages
     // from the previous conversation are never treated as active turns.
     if (chatOrchestratorV2EnabledRef.current) {
-      chatCoordinatorV2Ref.current.reset();
+      chatCoordinatorV2Ref.current.resetForConversationChange();
     }
   }, [currentConversationId]);
 
@@ -1893,10 +1892,9 @@ export default function Chat() {
                 snapshot_rejected_reason: reconcileResult.rejected_reason || undefined,
                 response_correlated: reconcileResult.response_correlated,
                 response_deduplicated: reconcileResult.response_deduplicated,
-                late_response_recovered:
-                  reconcileResult.accepted &&
-                  chatCoordinatorV2Ref.current.getActiveTurn()?.status === TURN_STATUS.COMPLETED &&
-                  reconcileResult.response_correlated,
+                late_response_recovered: reconcileResult.late_response_recovered,
+                restored_after_reload: reconcileResult.restored_after_reload,
+                recovery_result: reconcileResult.recovery_result || undefined,
               }));
             }
             if (reconcileResult.accepted && !reconcileResult.response_deduplicated) {
@@ -2089,7 +2087,7 @@ export default function Chat() {
     // V2: initialize the baseline so existing assistant messages are not treated
     // as a new response for the next turn.
     if (chatOrchestratorV2EnabledRef.current) {
-      chatCoordinatorV2Ref.current.initBaseline(guardedHydrate);
+      chatCoordinatorV2Ref.current.initializeBaseline(guardedHydrate);
       if (isS2DebugEnabled()) {
         console.log('[V2Orchestrator] initBaseline(hydrate)', buildV2DebugDiagnostic({
           ...chatCoordinatorV2Ref.current.getDiagnosticState(),
@@ -2119,9 +2117,8 @@ export default function Chat() {
             delivery_source: 'hydration',
           }));
         }
-        if (reconcile.accepted) {
-          const drainResult = coord._drainQueue();
-          if (drainResult) drainResult.executeSend();
+        if (reconcile.accepted && reconcile._nextQueuedSend) {
+          reconcile._nextQueuedSend();
         }
       }
     }
@@ -2329,7 +2326,7 @@ export default function Chat() {
       // V2: re-initialize baseline for this conversation so historical assistant
       // messages cannot be treated as a new response from a fresh send.
       if (chatOrchestratorV2EnabledRef.current) {
-        chatCoordinatorV2Ref.current.initBaseline(guardedLoad);
+        chatCoordinatorV2Ref.current.initializeBaseline(guardedLoad);
         if (isS2DebugEnabled()) {
           console.log('[V2Orchestrator] initBaseline(loadConversation)', buildV2DebugDiagnostic({
             ...chatCoordinatorV2Ref.current.getDiagnosticState(),
@@ -3387,17 +3384,10 @@ export default function Chat() {
                 if (!reconcile.accepted) {
                   console.log('[V2Orchestrator] polling reconcile rejected:', reconcile.rejected_reason);
                   setIsLoading(false);
-                  // Drain queue if needed.
-                  const drainResult = coord._drainQueue();
-                  if (drainResult) {
-                    drainResult.executeSend();
-                  }
                   return;
                 }
-                // Drain queue after commit.
-                const drainResult = coord._drainQueue();
-                if (drainResult) {
-                  drainResult.executeSend();
+                if (reconcile._nextQueuedSend) {
+                  reconcile._nextQueuedSend();
                 }
               }
 
@@ -3497,10 +3487,8 @@ export default function Chat() {
               instrumentationRef.current.THINKING_OVER_10S++;
               // V2: Mark as failed on persistent polling error.
               if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
-                chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
-                // Drain next queued send on failure.
-                const drainResult = chatCoordinatorV2Ref.current._drainQueue();
-                if (drainResult) drainResult.executeSend();
+                const failedNext = chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
+                if (failedNext) failedNext.executeSend();
               }
               setIsLoading(false);
               emitStabilitySummary();
@@ -3521,9 +3509,8 @@ export default function Chat() {
       console.error('[Send] ❌ SEND ERROR:', error);
       // V2: Mark the active turn as failed and drain the queue.
       if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
-        chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
-        const drainResult = chatCoordinatorV2Ref.current._drainQueue();
-        if (drainResult) drainResult.executeSend();
+        const failedNext = chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
+        if (failedNext) failedNext.executeSend();
       }
       // Force recovery on send error
       if (loadingTimeoutRef.current) {

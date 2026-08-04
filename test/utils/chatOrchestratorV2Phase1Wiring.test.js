@@ -368,7 +368,7 @@ describe('Test 9: Stale historical response does not attach to newer turn', () =
 // ─── Test 10: Conversation switching ─────────────────────────────────────────
 
 describe('Test 10: Conversation switching resets coordinator state safely', () => {
-  it('initBaseline resets active turn and queue when switching conversations', () => {
+  it('resetForConversationChange resets active turn and queue when switching conversations', () => {
     const coord = createChatOrchestratorV2();
 
     const { turn } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
@@ -378,19 +378,34 @@ describe('Test 10: Conversation switching resets coordinator state safely', () =
     expect(coord.getActiveTurn()).not.toBeNull();
     expect(coord.getPendingTurnCount()).toBe(1);
 
-    // Switch conversation — reset.
-    coord.initBaseline([]);
+    // Switch conversation — use resetForConversationChange (not initBaseline).
+    // initBaseline only updates the snapshot baseline; resetForConversationChange
+    // clears the active turn and queue for a full conversation switch.
+    coord.resetForConversationChange();
 
     expect(coord.getActiveTurn()).toBeNull();
     expect(coord.getPendingTurnCount()).toBe(0);
   });
 
-  it('after conversation switch, new turn registers cleanly', () => {
+  it('initBaseline does NOT clear an active turn (only updates snapshot baseline)', () => {
+    const coord = createChatOrchestratorV2();
+
+    const { turn } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
+    coord.markGenerating(turn.client_request_id);
+
+    // initBaseline updates the snapshot only — the active turn must be preserved.
+    coord.initBaseline([]);
+
+    expect(coord.getActiveTurn()).not.toBeNull();
+    expect(coord.getActiveTurn().status).toBe('generating');
+  });
+
+  it('after conversation switch (resetForConversationChange), new turn registers cleanly', () => {
     const coord = createChatOrchestratorV2();
 
     // First conversation.
     coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
-    coord.initBaseline([]); // switch
+    coord.resetForConversationChange(); // switch
 
     // New conversation turn.
     const { turn, queued } = coord.registerSend({
