@@ -235,8 +235,8 @@ describe('SECTION A — version and flag', () => {
     expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_COMPETENCE_ENABLED).toBe(false);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS now contains exactly 15 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(16);
+  it('THERAPIST_UPGRADE_FLAGS now contains exactly 17 keys', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(17);
   });
 
   it('all 15 flags default to false', () => {
