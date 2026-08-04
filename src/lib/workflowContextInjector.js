@@ -96,6 +96,8 @@ import { getTherapeuticFormsPolicyPayload } from './therapeuticFormsPolicy.js';
 import { isUpgradeEnabled } from './featureFlags.js';
 // V7 continuity diagnostics (used in buildV7SessionStartContentAsync only).
 import { buildCrossSessionContinuityBlockWithDiagnostic, CONTINUITY_FAILURE_REASONS } from './crossSessionContinuity.js';
+// Phase 4 — Canonical Therapist Memory Adapter.
+import { readCanonicalTherapistMemory, isLTSWarmingUp } from './canonicalTherapistMemoryReader.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -2447,15 +2449,26 @@ export async function buildV9SessionStartContentAsync(
 
   // ── V9 path ────────────────────────────────────────────────────────────────
 
-  // Wave 3C+3D: Read the LTS snapshot first so it can be passed both to the
-  // strategy engine (Wave 3D) and used for context block injection (Wave 3C),
-  // while preserving the bounded read diagnostic classification.
+  // Phase 4 — Canonical Therapist Memory Adapter: one read orchestration per
+  // session-start operation.  Replaces the direct readLTSSnapshotWithDiagnostic
+  // call and provides the canonical result to all downstream paths (V10+) via
+  // options.canonical_memory_result, eliminating duplicate CompanionMemory reads.
+  //
+  // If options.canonical_memory_result is already provided by V10 (which calls V9
+  // first and pre-reads the canonical result to pass through), reuse it rather
+  // than performing a second read.
+  let canonicalMemoryResult = null;
   let ltsRecord = null;
   let ltsReadResult = LTS_READ_RESULTS.read_error;
   try {
-    const result = await readLTSSnapshotWithDiagnostic(entities);
-    ltsRecord = result?.ltsRecord ?? null;
-    ltsReadResult = result?.diagnostic?.read_result ?? LTS_READ_RESULTS.read_error;
+    if (options?.canonical_memory_result && typeof options.canonical_memory_result === 'object') {
+      // Reuse the pre-read canonical result — no duplicate CompanionMemory fetch.
+      canonicalMemoryResult = options.canonical_memory_result;
+    } else {
+      canonicalMemoryResult = await readCanonicalTherapistMemory(entities);
+    }
+    ltsRecord = canonicalMemoryResult?.lts?.record ?? null;
+    ltsReadResult = canonicalMemoryResult?.lts?.read_result ?? LTS_READ_RESULTS.read_error;
   } catch {
     ltsRecord = null;
     ltsReadResult = LTS_READ_RESULTS.read_error;
@@ -2467,9 +2480,10 @@ export async function buildV9SessionStartContentAsync(
   // inputs from options.lts_record and passes them to determineTherapistStrategy.
   // When ltsRecord is null or weak, options is passed unchanged (exact V8/2C
   // behavior is preserved).
+  // Phase 4: also pass canonical_memory_result so V8 path can reference it if needed.
   const v8Options = !isLTSWeak(ltsRecord)
-    ? { ...options, lts_record: ltsRecord }
-    : options;
+    ? { ...options, lts_record: ltsRecord, canonical_memory_result: canonicalMemoryResult }
+    : { ...options, canonical_memory_result: canonicalMemoryResult };
 
   // Step 1: Build the V8 base content (with LTS strategy inputs when available)
   const v8Base = await buildV8SessionStartContentAsync(
@@ -2563,14 +2577,31 @@ export async function buildV10SessionStartContentAsync(
 
   // ── V10 path ────────────────────────────────────────────────────────────────
 
+  // Phase 4 — Pre-read the canonical memory result before calling V9, so that
+  // V9 can reuse it (via options.canonical_memory_result) without a duplicate
+  // CompanionMemory fetch.  If options.canonical_memory_result is already present
+  // (pre-read by a higher-level caller), reuse it directly.
+  let v10CanonicalResult = options?.canonical_memory_result ?? null;
+  if (!v10CanonicalResult) {
+    try {
+      v10CanonicalResult = await readCanonicalTherapistMemory(entities);
+    } catch {
+      v10CanonicalResult = null;
+    }
+  }
+  const v10Options = v10CanonicalResult
+    ? { ...options, canonical_memory_result: v10CanonicalResult }
+    : options;
+
   // Step 1: Build the V9 base content (LTS injection + all prior layers).
   // V9 reads the LTS snapshot and passes it to V8's strategy engine internally.
   // V10 inherits the full V9 output as its base and only ever appends to it.
+  // Phase 4: pass v10Options so V9 reuses the pre-read canonical result.
   const v9Base = await buildV9SessionStartContentAsync(
     wiring,
     entities,
     baseClient,
-    options,
+    v10Options,
   );
 
   // Steps 2–9: Compute knowledge retrieval decision and append block (fail-open)
@@ -2607,17 +2638,22 @@ export async function buildV10SessionStartContentAsync(
     const messageSignals = extractMessageSignals(options.message_text ?? '');
     const distressTier = scoreDistressTier(safetyResult, messageSignals);
 
-    // Step 6 (Wave 4D): Read LTS snapshot for knowledge planner alignment.
-    // This bounded read (CompanionMemory, LTS records only) is separate from V9's
-    // LTS read and provides trajectory signals to the planner so that unit type
-    // preference reflects the user's current arc (stagnating → worksheet;
-    // progressing late → case example).  Fail-open: null on any error.
+    // Step 6 (Wave 4D / Phase 4): Reuse the canonical LTS record pre-read by V10
+    // (v10CanonicalResult), avoiding a duplicate CompanionMemory read.
+    // v10CanonicalResult is set before calling V9, so this is always the same
+    // result that V9 used — one read orchestration per session-start operation.
     // continuityData = null (intentional): avoids a duplicate CompanionMemory
     // read for the full cross-session window; the strategy engine returns
     // STRUCTURED_EXPLORATION when a formulation is present without continuity.
     let ltsRecord = null;
     try {
-      ltsRecord = await readLTSSnapshot(entities);
+      if (v10CanonicalResult && typeof v10CanonicalResult === 'object' && v10CanonicalResult.lts) {
+        // Reuse the pre-read canonical result — no duplicate CompanionMemory fetch.
+        ltsRecord = v10CanonicalResult.lts.record ?? null;
+      } else {
+        // Fallback: canonical read failed — perform the bounded read directly.
+        ltsRecord = await readLTSSnapshot(entities);
+      }
     } catch {
       // Fail-open: LTS read error must never block session start.
       // The outer try/catch will return v9Base unchanged on any downstream error.
