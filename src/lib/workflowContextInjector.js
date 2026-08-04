@@ -2997,41 +2997,92 @@ export async function buildActionFirstDemotedSessionContentAsync(
   wiring,
   entities,
   baseClient,
-  options,
+  options = {},
 ) {
-  const base = await buildV12SessionStartContentAsync(wiring, entities, baseClient, options);
+  let composerOptions = options;
+  let composerCreationFailed = false;
+  try {
+    composerOptions = _shouldUseContextComposerV2(wiring, options)
+      ? _createContextComposerV2Options(options)
+      : options;
+  } catch {
+    composerCreationFailed = true;
+  }
+
+  const effectiveOptions = composerCreationFailed ? options : composerOptions;
+  const base = await buildV12SessionStartContentAsync(wiring, entities, baseClient, effectiveOptions);
+
   try {
     const block = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
-    // Guard: block must be a non-empty string
-    if (typeof block !== 'string' || !block.trim()) return base;
-    let content = base;
-    // If V12 already injected the block (planner_first_enabled === true), do not duplicate.
-    if (!content.includes(block)) {
-      // For HYBRID / V1–V11 paths: append the formulation-first planner policy block.
-      content += '\n\n' + block;
+    if (typeof block !== 'string' || !block.trim()) {
+      const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, base);
+      return finalized?.rendered ?? base;
     }
+
+    let content = base;
+    if (!content.includes(block)) {
+      content = composerCreationFailed
+        ? `${content}
+
+${block}`
+        : _appendWithComposer(effectiveOptions, content, {
+            id: 'planner_first_instructions',
+            order: CONTEXT_COMPOSER_V2_SECTION_ORDER.planner_first_instructions,
+            retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.planner_first_instructions,
+            required: true,
+            source_layer: 'action_first_wrapper',
+            content: block,
+          });
+    }
+
     if (
       wiring?.name === 'cbt_therapist' &&
       (wiring?.attachment_context_enabled === true || wiring?.attachment_context_enabled === undefined) &&
       !content.includes(THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS)
     ) {
-      content += '\n\n' + THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS;
+      content = composerCreationFailed
+        ? `${content}
+
+${THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS}`
+        : _appendWithComposer(effectiveOptions, content, {
+            id: 'attachment_context_instructions',
+            order: CONTEXT_COMPOSER_V2_SECTION_ORDER.attachment_context_instructions,
+            retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.attachment_context_instructions,
+            required: false,
+            source_layer: 'action_first_wrapper',
+            content: THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS,
+          });
     }
-    // Phase 3 — TherapeuticForms library: inject form selection instructions for all CBT Therapist sessions.
-    const therapistFormLibraryInstructions = getTherapistFormLibraryInstructions({
+
+    const therapistFormLibraryInstructions = getTherapeuticFormsPolicyPayload({
       sessionLanguage: options?.sessionLanguage,
       sessionAudience: options?.sessionAudience,
-    });
+      environment: options?.environment,
+    }).policy;
+
     if (
       wiring?.name === 'cbt_therapist' &&
       !content.includes(therapistFormLibraryInstructions)
     ) {
-      content += '\n\n' + therapistFormLibraryInstructions;
+      content = composerCreationFailed
+        ? `${content}
+
+${therapistFormLibraryInstructions}`
+        : _appendWithComposer(effectiveOptions, content, {
+            id: 'therapeutic_forms_policy',
+            order: CONTEXT_COMPOSER_V2_SECTION_ORDER.therapeutic_forms_policy,
+            retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.therapeutic_forms_policy,
+            required: false,
+            source_layer: 'action_first_wrapper',
+            content: therapistFormLibraryInstructions,
+          });
     }
-    return content;
+
+    const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, content);
+    return finalized?.rendered ?? content;
   } catch {
-    // Fail-open: any error returns the V12 base unchanged so the session is never blocked.
-    return base;
+    const finalized = composerCreationFailed ? null : _finalizeContextComposerV2(effectiveOptions, base);
+    return finalized?.rendered ?? base;
   }
 }
 

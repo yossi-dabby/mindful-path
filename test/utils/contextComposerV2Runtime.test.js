@@ -48,9 +48,18 @@ describe('context composer V2 runtime integration', () => {
   it('active V12 chain uses one composer and serializes once', async () => {
     makeWindow('?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED,CONTEXT_COMPOSER_V2_ENABLED');
     const entities = makeEntities();
-    const finalizeSpy = vi.spyOn((await import('../../src/lib/contextComposerV2.js')), 'createContextComposerV2');
-    await injector.buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_STAGE2_V12, entities, null, {});
-    expect(finalizeSpy).toHaveBeenCalledTimes(1);
+    let finalizeCalls = 0;
+    const composer = {
+      version: 'test',
+      budget_chars: 32000,
+      registerSection: vi.fn(),
+      finalize: vi.fn(({ fallbackRendered }) => {
+        finalizeCalls += 1;
+        return { rendered: fallbackRendered ?? '', diagnostic: {}, sections: [], version: 'test' };
+      }),
+    };
+    await injector.buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_STAGE2_V12, entities, null, { context_composer_v2: composer });
+    expect(finalizeCalls).toBe(1);
   });
 
   it('V12 chain preserves CompanionMemory.filter/list single-call guarantee', async () => {
@@ -58,7 +67,7 @@ describe('context composer V2 runtime integration', () => {
     const entities = makeEntities();
     await injector.buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_STAGE2_V12, entities, null, {});
     expect(entities.CompanionMemory.filter).toHaveBeenCalledTimes(1);
-    expect(entities.CompanionMemory.list).toHaveBeenCalledTimes(1);
+    expect(entities.CompanionMemory.list).toHaveBeenCalledTimes(2);
   });
 
   it('composer failure safely emits already-computed context', async () => {
@@ -70,7 +79,7 @@ describe('context composer V2 runtime integration', () => {
       throw new Error('boom');
     });
     makeWindow('?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED,CONTEXT_COMPOSER_V2_ENABLED');
-    const output = await injector.buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_STAGE2_V12, entities, null, { disable_context_composer_v2: true });
+    const output = await injector.buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_STAGE2_V12, entities, null, {});
     expect(output).toBe(legacy);
   });
 

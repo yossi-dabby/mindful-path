@@ -11,9 +11,7 @@ describe('contextComposerV2', () => {
     composer.registerSection({ id: 'b', order: 20, retention_priority: 20, required: false, source_layer: 'x', content: 'B' });
     composer.registerSection({ id: 'a', order: 10, retention_priority: 10, required: true, source_layer: 'x', content: 'A' });
     const result = composer.finalize();
-    expect(result.rendered).toBe('A
-
-B');
+    expect(result.rendered).toBe('A\n\nB');
     expect(result.sections.map((section) => section.id)).toEqual(['a', 'b']);
     expect(Object.isFrozen(result)).toBe(true);
     expect(Object.isFrozen(result.sections[0])).toBe(true);
