@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { mockApi } from '../helpers/ui';
 
+const BASE_URL =
+  process.env.PLAYWRIGHT_TEST_BASE_URL ||
+  process.env.E2E_BASE_URL ||
+  process.env.BASE_URL ||
+  'http://127.0.0.1:5173';
+
 test.describe('Chat Smoke Test', () => {
   test.beforeEach(async ({ page }) => {
     console.log('[TEST] Starting beforeEach setup');
@@ -40,7 +46,7 @@ test.describe('Chat Smoke Test', () => {
       }
     });
     
-    await page.goto('http://127.0.0.1:5173/chat', { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/chat`, { waitUntil: 'networkidle' });
     
     await page.waitForFunction(() => {
       return document.querySelector('[data-page-ready="true"]') !== null;
@@ -59,7 +65,7 @@ test.describe('Chat Smoke Test', () => {
   });
 
   test('should show welcome screen', async ({ page }) => {
-    await page.goto('http://127.0.0.1:5173/chat', { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/chat`, { waitUntil: 'networkidle' });
     
     await page.waitForFunction(() => {
       return document.querySelector('[data-page-ready="true"]') !== null;
