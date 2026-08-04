@@ -1,5 +1,15 @@
 const DEFAULT_CONTEXT_COMPOSER_V2_VERSION = '2.0.0';
-const DEFAULT_CONTEXT_COMPOSER_V2_BUDGET_CHARS = 32000;
+
+// Safe default budget rationale:
+//   Measured full V12 output (empty entities, all layers active) = ~69,731 chars.
+//   With populated fixtures (LTS, continuity, knowledge, formulation, safety) the
+//   output can reach ~110,000–115,000 chars.  120,000 provides comfortable headroom
+//   above the typical populated session-start payload while remaining well below
+//   GPT-4o's ~512,000-character system-prompt capacity.
+//   The previous default of 32,000 was below even the empty-entities V12 output and
+//   caused clinical-personalisation sections to be evicted on every ordinary session.
+//   Budget eviction is still exercisable by injecting an explicit low budget in tests.
+const DEFAULT_CONTEXT_COMPOSER_V2_BUDGET_CHARS = 120000;
 const SECTION_SEPARATOR = '\n\n';
 
 export const CONTEXT_COMPOSER_V2_VERSION = DEFAULT_CONTEXT_COMPOSER_V2_VERSION;
@@ -15,6 +25,24 @@ export const CONTEXT_COMPOSER_V2_OMISSION_REASONS = Object.freeze({
 export const CONTEXT_COMPOSER_V2_FALLBACK_REASONS = Object.freeze({
   parity_mismatch: 'parity_mismatch_under_budget',
   none: null,
+});
+
+/**
+ * Bounded parity status codes emitted in the diagnostic.
+ *
+ * - exact_match              — composedRendered === fallbackRendered (or no fallback
+ *                              was provided and budget was not exceeded).
+ * - intentional_budget_difference — budget was exceeded; composed output is intentionally
+ *                              shorter than the full legacy output.
+ * - invariant_mismatch       — composed output differs from legacy under budget;
+ *                              invariant violation — failed open to legacy fallback.
+ * - not_compared             — no fallbackRendered was supplied; parity was not checked.
+ */
+export const CONTEXT_COMPOSER_V2_PARITY_STATUS = Object.freeze({
+  exact_match: 'exact_match',
+  intentional_budget_difference: 'intentional_budget_difference',
+  invariant_mismatch: 'invariant_mismatch',
+  not_compared: 'not_compared',
 });
 
 function freezeSection(section) {
@@ -65,6 +93,7 @@ function buildImmutableResult({
   fallback_used,
   fallback_reason,
   output_parity_expected,
+  parity_status,
   sections,
   renderedOverride,
 }) {
@@ -87,7 +116,8 @@ function buildImmutableResult({
     budget_exceeded: budget_exceeded === true,
     fallback_used: fallback_used === true,
     fallback_reason: fallback_reason ?? null,
-    parity_match: fallback_used !== true,
+    parity_match: parity_status === CONTEXT_COMPOSER_V2_PARITY_STATUS.exact_match,
+    parity_status: parity_status ?? CONTEXT_COMPOSER_V2_PARITY_STATUS.not_compared,
     output_parity_expected: output_parity_expected === true,
   });
 
@@ -245,8 +275,19 @@ export function createContextComposerV2(options = {}) {
     let fallbackReason = null;
     let renderedOverride = null;
 
-    if (fallbackRendered !== null && !budget_exceeded && composedRendered !== fallbackRendered) {
-      // Parity mismatch under budget — invariant failure: fail open to legacy
+    // Compute parity_status from the actual comparison, not from fallback_used.
+    let parityStatus;
+    if (budget_exceeded) {
+      // Budget eviction is an intentional reduction — not a parity failure.
+      parityStatus = CONTEXT_COMPOSER_V2_PARITY_STATUS.intentional_budget_difference;
+    } else if (fallbackRendered === null) {
+      // No legacy output was provided — parity was not checked.
+      parityStatus = CONTEXT_COMPOSER_V2_PARITY_STATUS.not_compared;
+    } else if (composedRendered === fallbackRendered) {
+      parityStatus = CONTEXT_COMPOSER_V2_PARITY_STATUS.exact_match;
+    } else {
+      // Differs from legacy under budget — invariant failure: fail open to legacy.
+      parityStatus = CONTEXT_COMPOSER_V2_PARITY_STATUS.invariant_mismatch;
       fallbackUsed = true;
       fallbackReason = CONTEXT_COMPOSER_V2_FALLBACK_REASONS.parity_mismatch;
       renderedOverride = fallbackRendered;
@@ -260,6 +301,7 @@ export function createContextComposerV2(options = {}) {
       fallback_used: fallbackUsed,
       fallback_reason: fallbackReason,
       output_parity_expected,
+      parity_status: parityStatus,
       sections,
       renderedOverride,
     });
