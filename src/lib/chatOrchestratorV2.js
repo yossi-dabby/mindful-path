@@ -118,6 +118,7 @@ export function createTurnRecord({ conversationId, userMessageId, generationId }
     created_at: new Date().toISOString(),
     committed_response_key: null,   // identity key of the committed assistant response
     feedback_identity: null,        // exactly one per committed response
+    response_policy: null,
   };
 }
 
@@ -321,6 +322,16 @@ export function createChatOrchestratorV2() {
     initializeBaseline(visibleMessages);
   }
 
+
+  function attachResponsePolicy(clientRequestId, policy) {
+    if (!_activeTurn || _activeTurn.client_request_id !== clientRequestId) return;
+    _activeTurn = {
+      ..._activeTurn,
+      response_policy: policy ? { ...policy } : null,
+    };
+    persistPendingTurn(_activeTurn.conversation_id, _activeTurn);
+  }
+
   function persistActiveForReload(conversationId) {
     if (!conversationId || !_activeTurn || _activeTurn.conversation_id !== conversationId) return;
     persistPendingTurn(conversationId, _activeTurn);
@@ -436,6 +447,7 @@ export function createChatOrchestratorV2() {
       status: TURN_STATUS.COMPLETED,
       committed_response_key: responseKey,
       feedback_identity: feedbackId,
+      response_policy: _activeTurn.response_policy ? { ..._activeTurn.response_policy, status: 'completed' } : _activeTurn.response_policy,
     };
     _lastCommittedSnapshot = deduplicated;
     clearPendingTurn(_activeTurn.conversation_id);
@@ -536,6 +548,7 @@ export function createChatOrchestratorV2() {
     resetForConversationChange,
     initializeBaseline,
     initBaseline,
+    attachResponsePolicy,
     persistActiveForReload,
     restoreAfterReload,
     abandon,

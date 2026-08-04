@@ -111,6 +111,7 @@ import {
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
 import { isChatOrchestratorV2Enabled } from '@/lib/featureFlags.js';
+import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -453,6 +454,8 @@ export default function Chat() {
   // consumed and cleared by handleSendMessage when the next user message is sent.
   const pendingFormulationCorrectionRef = useRef(null);
   const pendingGroundingCorrectionRef = useRef(null);
+  const currentTurnResponsePolicyRef = useRef(null);
+  const legacyGenerationPolicyRef = useRef(null);
   const pendingInternalCorrectionRef = useRef(null);
   const pollingFinalityStateRef = useRef({
     assistantKey: null,
@@ -476,8 +479,35 @@ export default function Chat() {
   // Evaluate the flag once at mount; frozen for the lifetime of this Chat instance.
   // Flag false preserves exact Phase 0 legacy behavior.
   const chatOrchestratorV2EnabledRef = useRef(isChatOrchestratorV2Enabled());
+  const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
   // The coordinator is created once and reset when the conversation changes.
   const chatCoordinatorV2Ref = useRef(createChatOrchestratorV2());
+
+  const buildTurnScopedResponsePolicy = ({ policy, conversationId, clientRequestId = null, generationIdentity = null, status = 'pending' } = {}) => {
+    if (!policy || typeof policy !== 'object') return null;
+    return {
+      policy_version: typeof policy.policy_version === 'string' ? policy.policy_version : 'response_policy_v1',
+      policy_available: policy.policy_available === true,
+      action_permitted: policy.action_permitted === true,
+      intervention_mode: typeof policy.intervention_mode === 'string' ? policy.intervention_mode : 'stabilisation',
+      safety_override_required: policy.safety_override_required === true,
+      reason_codes: Array.isArray(policy.reason_codes) ? policy.reason_codes.slice(0, 6) : [],
+      conversation_id: conversationId || currentConversationId || null,
+      client_request_id: clientRequestId,
+      generation_identity: generationIdentity,
+      status,
+    };
+  };
+
+  const captureCurrentTurnResponsePolicy = ({ policy, conversationId, clientRequestId = null, generationIdentity = null, status = 'pending' } = {}) => {
+    const scoped = buildTurnScopedResponsePolicy({ policy, conversationId, clientRequestId, generationIdentity, status });
+    currentTurnResponsePolicyRef.current = scoped;
+    legacyGenerationPolicyRef.current = scoped;
+    if (clientRequestId && chatOrchestratorV2EnabledRef.current) {
+      chatCoordinatorV2Ref.current.attachResponsePolicy(clientRequestId, scoped);
+    }
+    return scoped;
+  };
 
   const emitTherapeuticFormsSessionStartDiagnostic = (conversationId) => {
     const { policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload({
@@ -1075,7 +1105,7 @@ export default function Chat() {
       subscriptionSucceededRef: subscriptionSucceededRef.current === true,
       snapshotSequence,
       action_permitted: actionPermitted,
-      response_policy_enforced: false,
+      response_policy_enforced: latestAssistantEntry?.msg?.metadata?.response_policy_diagnostics?.policy_enforced === true,
     };
     console.log('[S2Debug] message-state-update', payload);
     recordS2V8TraceEvent({
@@ -1211,7 +1241,8 @@ export default function Chat() {
    * @param {(msg: object|null, index: number) => object|null} [transformAlignedMessage]
    * @returns {Array<object>} Final guarded messages (null-free).
    */
-  const buildVisibleConversationMessages = (rawMessages, sessionLang, transformAlignedMessage = null) => {
+  const buildVisibleConversationMessages = (rawMessages, sessionLang, transformAlignedMessage = null, options = {}) => {
+    const currentPolicy = options?.responsePolicy || currentTurnResponsePolicyRef.current;
     const raw = Array.isArray(rawMessages) ? rawMessages : [];
     const guardModesByRawIndex = raw.map((rawMsg, rawIndex) => {
       if (!rawMsg || rawMsg.role !== 'assistant') return null;
@@ -1227,9 +1258,31 @@ export default function Chat() {
     const alignedProcessed = typeof transformAlignedMessage === 'function'
       ? sanitized.map((msg, index) => transformAlignedMessage(msg, index))
       : sanitized;
+    const policyEnforced = alignedProcessed.map((msg) => {
+      if (!msg || msg.role !== 'assistant' || !responsePolicyEnforcementEnabledRef.current) return msg;
+      const scopeMatch =
+        currentPolicy &&
+        currentPolicy.conversation_id === currentConversationId &&
+        (currentPolicy.client_request_id ? true : currentPolicy.generation_identity === legacyGenerationPolicyRef.current?.generation_identity);
+      const policy = currentPolicy ? { ...currentPolicy, scope_match: scopeMatch } : null;
+      const enforced = enforceResponsePolicy({
+        content: msg.content,
+        metadata: msg.metadata,
+        policy,
+        locale: sessionLang,
+      });
+      return {
+        ...msg,
+        content: enforced.content,
+        metadata: {
+          ...(enforced.metadata || {}),
+          response_policy_diagnostics: enforced.diagnostics,
+        },
+      };
+    });
     const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
       raw,
-      alignedProcessed,
+      policyEnforced,
       { locale: sessionLang }
     );
     const { messages: grounded, pendingCorrection: pendingGroundingCorrection } =
@@ -1653,7 +1706,7 @@ export default function Chat() {
                   ACTIVE_CBT_THERAPIST_WIRING,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language }
+                  { sessionLanguage: i18n.language, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
@@ -1713,7 +1766,7 @@ export default function Chat() {
                   ACTIVE_CBT_THERAPIST_WIRING,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language }
+                  { sessionLanguage: i18n.language, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
@@ -3210,6 +3263,14 @@ export default function Chat() {
             {
               sessionLanguage: i18n.language,
               message_text: messageText,
+              onStrategyPolicy: (policy) => {
+                captureCurrentTurnResponsePolicy({
+                  policy,
+                  conversationId: convId,
+                  clientRequestId: v2ActiveTurn?.client_request_id || null,
+                  generationIdentity: v2ActiveTurn?.client_request_id ? null : `legacy-${convId}`,
+                });
+              },
             }
           ),
           sessionLanguageRef.current

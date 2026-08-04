@@ -1404,6 +1404,54 @@ export function buildStrategyDiagnosticSnapshot(strategyState) {
  *
  * @type {Readonly<TherapistStrategyState>}
  */
+
+export const RESPONSE_POLICY_VERSION = 'response_policy_v1';
+
+export const RESPONSE_POLICY_REASON_CODES = Object.freeze({
+  POLICY_UNAVAILABLE: 'policy_unavailable',
+  ACTION_NOT_PERMITTED: 'action_not_permitted',
+  ACTION_PERMITTED: 'action_permitted',
+  SAFETY_OVERRIDE_REQUIRED: 'safety_override_required',
+  PRECEDENCE_BLOCKED: 'precedence_blocked',
+  FAIL_SAFE: 'fail_safe',
+});
+
+export function extractResponsePolicyFromStrategyState(strategyState) {
+  const ss = strategyState && typeof strategyState === 'object' ? strategyState : null;
+  if (!ss) {
+    return Object.freeze({
+      policy_version: RESPONSE_POLICY_VERSION,
+      policy_available: false,
+      action_permitted: false,
+      intervention_mode: STRATEGY_INTERVENTION_MODES.STABILISATION,
+      safety_override_required: false,
+      reason_codes: Object.freeze([RESPONSE_POLICY_REASON_CODES.POLICY_UNAVAILABLE]),
+    });
+  }
+
+  const reasonCodes = [];
+  if (ss.fail_safe === true) reasonCodes.push(RESPONSE_POLICY_REASON_CODES.FAIL_SAFE);
+  if (ss.precedence_enforced === true) reasonCodes.push(RESPONSE_POLICY_REASON_CODES.PRECEDENCE_BLOCKED);
+  if (ss.action_permitted === true) {
+    reasonCodes.push(RESPONSE_POLICY_REASON_CODES.ACTION_PERMITTED);
+  } else {
+    reasonCodes.push(RESPONSE_POLICY_REASON_CODES.ACTION_NOT_PERMITTED);
+  }
+  if (ss.safety_override_required === true) {
+    reasonCodes.push(RESPONSE_POLICY_REASON_CODES.SAFETY_OVERRIDE_REQUIRED);
+  }
+
+  return Object.freeze({
+    policy_version: RESPONSE_POLICY_VERSION,
+    policy_available: true,
+    action_permitted: ss.action_permitted === true,
+    intervention_mode:
+      typeof ss.intervention_mode === 'string' ? ss.intervention_mode : STRATEGY_INTERVENTION_MODES.STABILISATION,
+    safety_override_required: ss.safety_override_required === true,
+    reason_codes: Object.freeze(reasonCodes.slice(0, 6)),
+  });
+}
+
 export const STRATEGY_FAIL_SAFE_STATE = Object.freeze({
   strategy_version: STRATEGY_VERSION,
   intervention_mode: STRATEGY_INTERVENTION_MODES.STABILISATION,

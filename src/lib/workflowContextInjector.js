@@ -2040,6 +2040,8 @@ export async function buildV8SessionStartContentAsync(
     // overrides the mode to stabilisation if any action-enabling gate is blocked.
     const plannerCtx = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
     const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtx);
+    const responsePolicy = extractResponsePolicyFromStrategyState(strategyState);
+    options.onStrategyPolicy?.(responsePolicy, strategyState);
 
     // Wave 2D — Emit safe strategy diagnostic when _s2debug=true is in the URL.
     // Gated, additive, no effect on routing or therapeutic behavior.
