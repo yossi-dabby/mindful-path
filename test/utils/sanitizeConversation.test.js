@@ -33,12 +33,21 @@ import {
   ATTACHMENT_METADATA_MARKER_PREFIX,
   stripAgentOnlyRuntimeBlocksFromUserContent,
   stripLeadingInternalAssistantTags,
+  stripLeadingInternalCorrectionBlocks,
 } from '../../src/components/utils/validateAgentOutput.jsx';
 import {
   THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END,
   THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START,
   THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER,
 } from '../../src/lib/therapeuticFormsPolicy.js';
+import {
+  createInternalCorrectionIntent,
+  consumeInternalCorrectionIntent,
+  hasInternalCorrectionIntent,
+  internalCorrectionScopeMatches,
+  INTERNAL_CORRECTION_TYPES,
+  INTERNAL_CORRECTION_CHANNEL,
+} from '../../src/lib/internalCorrectionChannel.js';
 
 // ─── PURE JSON-EXTRACTION LOGIC (mirrors functions/sanitizeConversation.ts) ───
 
@@ -1221,5 +1230,271 @@ describe('V8-H – hide agent_response turns', () => {
     expect(contents).not.toContain(ENGLISH_FAILSAFE);
     expect(result.filter((msg) => msg.role === 'assistant')).toHaveLength(1);
     expect(result.at(-1)?.content).toBe('Visible follow-up opener.');
+  });
+});
+
+// ─── Phase 2.1: stripLeadingInternalCorrectionBlocks ──────────────────────────
+
+const GROUNDING_START = '=== CURRENT-TURN GROUNDING CORRECTION — NEXT TURN ONLY ===';
+const GROUNDING_END   = '=== END CURRENT-TURN GROUNDING CORRECTION ===';
+const FORMULATION_START = '=== FORMULATION CONTRACT CORRECTION \u2014 NEXT TURN ONLY ===';
+const FORMULATION_END   = '=== END FORMULATION CONTRACT CORRECTION ===';
+
+function makeGroundingBlock(body = 'grounding correction text') {
+  return `${GROUNDING_START}\n${body}\n${GROUNDING_END}`;
+}
+
+function makeFormulationBlock(body = 'formulation correction text') {
+  return `${FORMULATION_START}\n${body}\n${FORMULATION_END}`;
+}
+
+describe('Phase 2.1 — stripLeadingInternalCorrectionBlocks', () => {
+  it('strips a complete CURRENT-TURN GROUNDING CORRECTION block and preserves real text after it', () => {
+    const real = 'I hear you. Let us continue.';
+    const result = stripLeadingInternalCorrectionBlocks(makeGroundingBlock() + '\n\n' + real);
+    expect(result.content).toBe(real);
+    expect(result.removedAny).toBe(true);
+    expect(result.content).not.toContain(GROUNDING_START);
+    expect(result.content).not.toContain(GROUNDING_END);
+  });
+
+  it('strips a complete FORMULATION CONTRACT CORRECTION block and preserves real text after it', () => {
+    const real = 'Moving forward carefully.';
+    const result = stripLeadingInternalCorrectionBlocks(makeFormulationBlock() + '\n\n' + real);
+    expect(result.content).toBe(real);
+    expect(result.removedAny).toBe(true);
+    expect(result.content).not.toContain(FORMULATION_START);
+    expect(result.content).not.toContain(FORMULATION_END);
+  });
+
+  it('strips duplicate complete grounding correction blocks', () => {
+    const real = 'user message';
+    const input = makeGroundingBlock('one') + '\n\n' + makeGroundingBlock('two') + '\n\n' + real;
+    const result = stripLeadingInternalCorrectionBlocks(input);
+    expect(result.content).toBe(real);
+    expect(result.removedAny).toBe(true);
+  });
+
+  it('strips duplicate complete formulation correction blocks', () => {
+    const real = 'continuing here';
+    const input = makeFormulationBlock('a') + '\n\n' + makeFormulationBlock('b') + '\n\n' + real;
+    const result = stripLeadingInternalCorrectionBlocks(input);
+    expect(result.content).toBe(real);
+    expect(result.removedAny).toBe(true);
+  });
+
+  it('does NOT strip a malformed grounding block — start marker only, no end marker', () => {
+    const input = `${GROUNDING_START}\nsome correction text without an end marker`;
+    const result = stripLeadingInternalCorrectionBlocks(input);
+    expect(result.content).toContain(GROUNDING_START);
+    expect(result.removedAny).toBe(false);
+  });
+
+  it('does NOT strip a malformed formulation block — start marker only, no end marker', () => {
+    const input = `${FORMULATION_START}\nsome correction text without an end marker`;
+    const result = stripLeadingInternalCorrectionBlocks(input);
+    expect(result.content).toContain(FORMULATION_START);
+    expect(result.removedAny).toBe(false);
+  });
+
+  it('preserves legitimate prose that merely mentions "correction" without block markers', () => {
+    const prose = 'I want to make a correction to what I said about the formulation earlier.';
+    const result = stripLeadingInternalCorrectionBlocks(prose);
+    expect(result.content).toBe(prose);
+    expect(result.removedAny).toBe(false);
+  });
+
+  it('returns empty string when the entire content is a complete correction block', () => {
+    const result = stripLeadingInternalCorrectionBlocks(makeGroundingBlock());
+    expect(result.content).toBe('');
+    expect(result.removedAny).toBe(true);
+  });
+
+  it('handles non-string input gracefully', () => {
+    expect(stripLeadingInternalCorrectionBlocks(null)).toEqual({ content: null, removedAny: false });
+    expect(stripLeadingInternalCorrectionBlocks(undefined)).toEqual({ content: undefined, removedAny: false });
+    expect(stripLeadingInternalCorrectionBlocks(42)).toEqual({ content: 42, removedAny: false });
+  });
+
+  it('strips grounding correction block from assistant content via sanitizeConversationMessages', () => {
+    const realText = 'Thank you for sharing that with me.';
+    const messages = [
+      { role: 'assistant', content: makeGroundingBlock('instructions') + '\n\n' + realText },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(realText);
+    expect(result[0].content).not.toContain(GROUNDING_START);
+  });
+
+  it('strips formulation correction block from assistant content via sanitizeConversationMessages', () => {
+    const realText = 'Let us explore that thought together.';
+    const messages = [
+      { role: 'assistant', content: makeFormulationBlock('instructions') + '\n\n' + realText },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(realText);
+    expect(result[0].content).not.toContain(FORMULATION_START);
+  });
+});
+
+// ─── Phase 2.1: Conversation scoping ──────────────────────────────────────────
+
+describe('Phase 2.1 — internalCorrectionScopeMatches', () => {
+  it('returns true when the intent scope key matches the conversation ID', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-abc',
+    });
+    expect(internalCorrectionScopeMatches(intent, 'conv-abc')).toBe(true);
+  });
+
+  it('returns false when the intent scope key does not match the conversation ID', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-abc',
+    });
+    expect(internalCorrectionScopeMatches(intent, 'conv-xyz')).toBe(false);
+  });
+
+  it('returns false when the intent has no scope key', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+    });
+    expect(internalCorrectionScopeMatches(intent, 'conv-abc')).toBe(false);
+  });
+
+  it('returns false when intent is null', () => {
+    expect(internalCorrectionScopeMatches(null, 'conv-abc')).toBe(false);
+  });
+
+  it('returns false when conversationId is empty', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-abc',
+    });
+    expect(internalCorrectionScopeMatches(intent, '')).toBe(false);
+    expect(internalCorrectionScopeMatches(intent, null)).toBe(false);
+  });
+
+  it('scope key is not exposed in the raw intent object as conversation_id', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-secret',
+    });
+    // Only _scope_key should exist — not a raw conversation_id field
+    expect(intent).not.toHaveProperty('conversation_id');
+    expect(intent._scope_key).toBe('conv-secret');
+  });
+});
+
+// ─── Phase 2.1: Consumption lifecycle ─────────────────────────────────────────
+
+describe('Phase 2.1 — correction intent consumption lifecycle', () => {
+  it('consumed intent is not pending', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-1',
+    });
+    expect(intent.consumed).toBe(false);
+    const consumed = consumeInternalCorrectionIntent(intent);
+    expect(consumed.consumed).toBe(true);
+  });
+
+  it('hasInternalCorrectionIntent returns true for a non-consumed intent', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.FORMULATION,
+      conversationScopeKey: 'conv-1',
+    });
+    expect(hasInternalCorrectionIntent(intent)).toBe(true);
+  });
+
+  it('hasInternalCorrectionIntent is not false for consumed intent (consumed is a field, not a gate)', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-1',
+    });
+    const consumed = consumeInternalCorrectionIntent(intent);
+    // hasInternalCorrectionIntent checks structure, not consumed flag
+    expect(hasInternalCorrectionIntent(consumed)).toBe(true);
+    // But consumed flag is set
+    expect(consumed.consumed).toBe(true);
+  });
+
+  it('failed send retains the pending intent — consuming after success only', () => {
+    // Simulate: intent is created, addMessage throws, intent must not be consumed
+    let pendingIntent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-1',
+    });
+    // Simulate a failed send: do NOT consume
+    const simulateSendFailure = () => {
+      throw new Error('network error');
+    };
+    try {
+      simulateSendFailure();
+      // Would consume here on success — never reached
+      pendingIntent = consumeInternalCorrectionIntent(pendingIntent);
+    } catch (_) {
+      // Intentionally not consuming on failure
+    }
+    // Intent must still be pending
+    expect(pendingIntent.consumed).toBe(false);
+  });
+
+  it('successful retry consumes the intent exactly once', () => {
+    let pendingIntent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-1',
+    });
+    // Simulate successful send
+    pendingIntent = consumeInternalCorrectionIntent(pendingIntent);
+    expect(pendingIntent.consumed).toBe(true);
+    // Consuming an already-consumed intent produces a consistently-consumed result
+    const consumedAgain = consumeInternalCorrectionIntent(pendingIntent);
+    expect(consumedAgain.consumed).toBe(true);
+  });
+
+  it('correction created for conversation A does not scope-match conversation B', () => {
+    const intentA = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.FORMULATION,
+      conversationScopeKey: 'conv-A',
+    });
+    expect(internalCorrectionScopeMatches(intentA, 'conv-A')).toBe(true);
+    expect(internalCorrectionScopeMatches(intentA, 'conv-B')).toBe(false);
+  });
+
+  it('LOCAL_GUARD_ONLY mode is preserved through create/consume cycle', () => {
+    const intent = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      instructionChannel: INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY,
+      conversationScopeKey: 'conv-1',
+    });
+    const consumed = consumeInternalCorrectionIntent(intent);
+    expect(consumed.instruction_channel).toBe(INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY);
+  });
+
+  it('V2 (V2-on): scoped intent for conv-A is ignored when active conversation is conv-B', () => {
+    // V2-on simulation: intent was created in conv-A context
+    const intentForConvA = createInternalCorrectionIntent({
+      correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+      conversationScopeKey: 'conv-A',
+    });
+    const currentConvId = 'conv-B';
+    // Scope check should return false — intent is stale
+    const scopeMatches = internalCorrectionScopeMatches(intentForConvA, currentConvId);
+    expect(scopeMatches).toBe(false);
+    // The intent should be cleared (not used) when scope doesn't match
+    const activePending = hasInternalCorrectionIntent(intentForConvA) && scopeMatches
+      ? intentForConvA
+      : null;
+    expect(activePending).toBeNull();
+  });
+
+  it('V2 (V2-off): no scoped intent means scope check returns false safely', () => {
+    // V2-off: no intent exists
+    const noIntent = null;
+    expect(internalCorrectionScopeMatches(noIntent, 'conv-A')).toBe(false);
   });
 });

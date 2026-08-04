@@ -102,6 +102,7 @@ import {
   consumeInternalCorrectionIntent,
   createInternalCorrectionIntent,
   hasInternalCorrectionIntent,
+  internalCorrectionScopeMatches,
   INTERNAL_CORRECTION_CHANNEL,
   INTERNAL_CORRECTION_TYPES,
 } from '@/lib/internalCorrectionChannel.js';
@@ -734,12 +735,14 @@ export default function Chat() {
   };
 
   const updatePendingInternalCorrection = (pendingFormulationCorrection, pendingGroundingCorrection) => {
+    const scopeKey = currentConversationId || null;
     const nextIntent = pendingGroundingCorrection ?
       createInternalCorrectionIntent({
         correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
         canonicalPreviousResponseAvailable: true,
         instructionChannel: INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY,
         consumed: false,
+        conversationScopeKey: scopeKey,
       }) :
       pendingFormulationCorrection ?
         createInternalCorrectionIntent({
@@ -747,12 +750,13 @@ export default function Chat() {
           canonicalPreviousResponseAvailable: true,
           instructionChannel: INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY,
           consumed: false,
+          conversationScopeKey: scopeKey,
         }) :
         null;
     pendingInternalCorrectionRef.current = nextIntent;
     if (isS2DebugEnabled()) {
       logS2DebugLifecycle(buildInternalCorrectionDiagnostic(nextIntent, {
-        conversationScopeMatch: true,
+        conversationScopeMatch: internalCorrectionScopeMatches(nextIntent, currentConversationId),
       }));
     }
   };
@@ -1316,7 +1320,7 @@ export default function Chat() {
         },
         pendingGroundingCorrection: pendingGroundingCorrection !== null,
         internalCorrectionDiagnostic: buildInternalCorrectionDiagnostic(pendingInternalCorrection, {
-          conversationScopeMatch: true,
+          conversationScopeMatch: internalCorrectionScopeMatches(pendingInternalCorrection, currentConversationId),
           historicalBlockDetected: correctionBlockSanitized,
           historicalBlockSanitized: correctionBlockSanitized,
         }),
@@ -1326,7 +1330,7 @@ export default function Chat() {
         assistant_identity_source: finalAssistant ? getAssistantIdentitySource(finalAssistant) : null,
         correction_block_sanitized: correctionBlockSanitized,
         ...buildInternalCorrectionDiagnostic(pendingInternalCorrection, {
-          conversationScopeMatch: true,
+          conversationScopeMatch: internalCorrectionScopeMatches(pendingInternalCorrection, currentConversationId),
           historicalBlockDetected: correctionBlockSanitized,
           historicalBlockSanitized: correctionBlockSanitized,
         }),
@@ -3170,13 +3174,18 @@ export default function Chat() {
       //   4. Current user message
       // For new conversations the session-start content is prepended before all of the above.
 
-      const activePendingInternalCorrection = hasInternalCorrectionIntent(pendingInternalCorrectionRef.current)
+      const activePendingInternalCorrection = hasInternalCorrectionIntent(pendingInternalCorrectionRef.current) &&
+        internalCorrectionScopeMatches(pendingInternalCorrectionRef.current, convId)
         ? pendingInternalCorrectionRef.current
         : null;
+      // Clear stale intent that belongs to a different conversation
+      if (pendingInternalCorrectionRef.current && !activePendingInternalCorrection) {
+        pendingInternalCorrectionRef.current = null;
+      }
       logS2DebugLifecycle({
         delivery_source: 'send',
         ...buildInternalCorrectionDiagnostic(activePendingInternalCorrection, {
-          conversationScopeMatch: true,
+          conversationScopeMatch: internalCorrectionScopeMatches(activePendingInternalCorrection, convId),
         }),
       });
 
@@ -3211,7 +3220,7 @@ export default function Chat() {
       logS2DebugLifecycle({
         delivery_source: 'send',
         ...buildInternalCorrectionDiagnostic(activePendingInternalCorrection, {
-          conversationScopeMatch: true,
+          conversationScopeMatch: internalCorrectionScopeMatches(activePendingInternalCorrection, convId),
           outboundContentClean,
         }),
       });
@@ -3319,12 +3328,14 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      // Consume the correction intent only after successful addMessage.
+      // If addMessage throws, the pending intent is retained so the user can retry.
       if (activePendingInternalCorrection) {
         pendingInternalCorrectionRef.current = consumeInternalCorrectionIntent(activePendingInternalCorrection);
         logS2DebugLifecycle({
           delivery_source: 'send',
           ...buildInternalCorrectionDiagnostic(pendingInternalCorrectionRef.current, {
-            conversationScopeMatch: true,
+            conversationScopeMatch: internalCorrectionScopeMatches(pendingInternalCorrectionRef.current, convId),
             outboundContentClean,
           }),
         });
