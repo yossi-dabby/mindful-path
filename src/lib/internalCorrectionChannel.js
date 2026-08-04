@@ -25,14 +25,21 @@ export function createInternalCorrectionIntent({
   canonicalPreviousResponseAvailable = false,
   instructionChannel = INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY,
   consumed = false,
+  conversationScopeKey = null,
 } = {}) {
   const normalizedType = normalizeCorrectionType(correctionType);
   if (!normalizedType) return null;
+  // Store an opaque scope key so the intent can be verified against the active
+  // conversation without logging or persisting the raw conversation ID.
+  const scopeKey = typeof conversationScopeKey === 'string' && conversationScopeKey.trim()
+    ? conversationScopeKey.trim()
+    : null;
   return {
     correction_type: normalizedType,
     canonical_previous_response_available: canonicalPreviousResponseAvailable === true,
     instruction_channel: normalizeInstructionChannel(instructionChannel),
     consumed: consumed === true,
+    _scope_key: scopeKey,
   };
 }
 
@@ -42,6 +49,7 @@ export function hasInternalCorrectionIntent(intent) {
     canonicalPreviousResponseAvailable: intent?.canonical_previous_response_available,
     instructionChannel: intent?.instruction_channel,
     consumed: intent?.consumed,
+    conversationScopeKey: intent?._scope_key,
   });
 }
 
@@ -51,8 +59,19 @@ export function consumeInternalCorrectionIntent(intent) {
     canonicalPreviousResponseAvailable: intent?.canonical_previous_response_available,
     instructionChannel: intent?.instruction_channel,
     consumed: true,
+    conversationScopeKey: intent?._scope_key,
   });
   return normalized;
+}
+
+/**
+ * Returns true when the intent's scope key matches the provided conversation ID.
+ * An intent with no scope key never matches (stale or unscoped — treat as mismatch).
+ */
+export function internalCorrectionScopeMatches(intent, conversationId) {
+  if (!intent || !intent._scope_key) return false;
+  if (typeof conversationId !== 'string' || !conversationId.trim()) return false;
+  return intent._scope_key === conversationId.trim();
 }
 
 export function buildInternalCorrectionDiagnostic(intent, fields = {}) {
@@ -61,6 +80,7 @@ export function buildInternalCorrectionDiagnostic(intent, fields = {}) {
     canonicalPreviousResponseAvailable: intent?.canonical_previous_response_available,
     instructionChannel: intent?.instruction_channel,
     consumed: intent?.consumed,
+    conversationScopeKey: intent?._scope_key,
   });
   return {
     internal_correction_pending: normalized ? normalized.consumed !== true : false,

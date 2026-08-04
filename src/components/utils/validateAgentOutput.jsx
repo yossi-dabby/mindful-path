@@ -727,6 +727,59 @@ export function stripLeadingInternalAssistantTags(content) {
   return { content: remaining, removedAny, hidden: false };
 }
 
+// Correction block bounds recognized for historical assistant-content sanitization.
+// Only structurally identifiable leading blocks are removed; partial/malformed blocks
+// (start marker present but end marker absent) are left intact so real prose is never lost.
+const ASSISTANT_CORRECTION_BLOCK_BOUNDS = [
+  [CURRENT_TURN_GROUNDING_CORRECTION_START, CURRENT_TURN_GROUNDING_CORRECTION_END],
+  [FORMULATION_CORRECTION_START, FORMULATION_CORRECTION_END],
+];
+
+/**
+ * Strips structurally identifiable leading internal correction blocks from
+ * an assistant message content string when they appear at the start of the
+ * content (or anywhere in the content as complete, bounded blocks).
+ *
+ * Handles:
+ *   - Complete blocks (start + end marker present) → removed.
+ *   - Duplicate blocks → each complete occurrence removed.
+ *   - Malformed / truncated blocks (start marker only, no end marker) → preserved.
+ *   - Legitimate prose that merely contains a marker phrase inside a sentence → preserved.
+ *   - Real user/assistant text after the block → preserved.
+ *
+ * @param {string} content
+ * @returns {{ content: string, removedAny: boolean }}
+ */
+export function stripLeadingInternalCorrectionBlocks(content) {
+  if (typeof content !== 'string') return { content, removedAny: false };
+
+  let result = content;
+  let removedAny = false;
+
+  for (const [start, end] of ASSISTANT_CORRECTION_BLOCK_BOUNDS) {
+    let startIdx = result.indexOf(start);
+    while (startIdx !== -1) {
+      const endIdx = result.indexOf(end, startIdx);
+      if (endIdx === -1) {
+        // No closing marker — incomplete block; preserve everything to avoid data loss.
+        break;
+      }
+      const afterEnd = endIdx + end.length;
+      // Walk back leading newlines before the block start
+      let blockStart = startIdx;
+      while (blockStart > 0 && result[blockStart - 1] === '\n') blockStart--;
+      // Walk forward past separator newlines that follow the closing marker
+      let blockEnd = afterEnd;
+      while (blockEnd < result.length && result[blockEnd] === '\n') blockEnd++;
+      result = result.substring(0, blockStart) + result.substring(blockEnd);
+      removedAny = true;
+      startIdx = result.indexOf(start);
+    }
+  }
+
+  return { content: result.trim(), removedAny };
+}
+
 function sanitizeAssistantMessage(message, { preventFallback = false } = {}) {
   if (!message || typeof message !== 'string') return message;
   
@@ -1472,7 +1525,15 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         }
         // If internal leading tags were present but real content remains, use
         // the cleaned version for subsequent processing.
-        const contentToProcess = strippedInternalTags.removedAny ? strippedForInternal : msg.content;
+        const contentAfterInternalTags = strippedInternalTags.removedAny ? strippedForInternal : msg.content;
+
+        // Phase 2.1: Strip structurally identifiable internal correction blocks
+        // (CURRENT-TURN GROUNDING CORRECTION and FORMULATION CONTRACT CORRECTION)
+        // that may appear in historical assistant content when the model echoed them.
+        const correctionStripped = stripLeadingInternalCorrectionBlocks(contentAfterInternalTags);
+        const contentToProcess = correctionStripped.removedAny
+          ? (correctionStripped.content || '')
+          : contentAfterInternalTags;
 
         // V8-F: Also hide session-injected turns whose content is empty or
         // whitespace-only — these are provisional placeholders that should never
