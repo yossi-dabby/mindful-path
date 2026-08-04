@@ -40,11 +40,7 @@ import {
   applyFormulationGuardToConversationMessages,
   applyCurrentTurnGroundingGuardToConversationMessages,
   evaluateCurrentTurnGroundingContractDetailed,
-  buildPendingGroundingCorrectionBlock,
-  buildPendingFormulationCorrectionBlock,
   classifyFormulationGuardedTurn,
-  hasGroundingCorrectionAlreadyBeenApplied,
-  hasFormulationCorrectionAlreadyBeenApplied,
 } from '../components/utils/formulationContractGuard.js';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
@@ -88,7 +84,6 @@ import {
 } from '@/lib/s2V8TraceDiagnostics.js';
 import {
   buildOutboundUserMessageContent,
-  buildPendingCorrectionPrefix,
   buildS2DebugLifecycleDiagnostic,
   calculateExpectedReplyCount,
   deduplicateMessagesByLifecycleKeys,
@@ -102,6 +97,14 @@ import {
   shouldSuppressSubscriptionEventWhileLoading,
   wasCorrectionBlockSanitized,
 } from '@/lib/chatRuntimeLifecycle.js';
+import {
+  buildInternalCorrectionDiagnostic,
+  consumeInternalCorrectionIntent,
+  createInternalCorrectionIntent,
+  hasInternalCorrectionIntent,
+  INTERNAL_CORRECTION_CHANNEL,
+  INTERNAL_CORRECTION_TYPES,
+} from '@/lib/internalCorrectionChannel.js';
 import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
@@ -449,6 +452,7 @@ export default function Chat() {
   // consumed and cleared by handleSendMessage when the next user message is sent.
   const pendingFormulationCorrectionRef = useRef(null);
   const pendingGroundingCorrectionRef = useRef(null);
+  const pendingInternalCorrectionRef = useRef(null);
   const pollingFinalityStateRef = useRef({
     assistantKey: null,
     content: null,
@@ -523,6 +527,7 @@ export default function Chat() {
     setIsTranscribingAudio(false);
     pendingFormulationCorrectionRef.current = null;
     pendingGroundingCorrectionRef.current = null;
+    pendingInternalCorrectionRef.current = null;
     pollingFinalityStateRef.current = {
       assistantKey: null,
       content: null,
@@ -726,6 +731,30 @@ export default function Chat() {
   const logS2DebugLifecycle = (fields) => {
     if (!isS2DebugEnabled()) return;
     console.log('[S2Debug] chat-runtime-lifecycle', buildS2DebugLifecycleDiagnostic(fields));
+  };
+
+  const updatePendingInternalCorrection = (pendingFormulationCorrection, pendingGroundingCorrection) => {
+    const nextIntent = pendingGroundingCorrection ?
+      createInternalCorrectionIntent({
+        correctionType: INTERNAL_CORRECTION_TYPES.GROUNDING,
+        canonicalPreviousResponseAvailable: true,
+        instructionChannel: INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY,
+        consumed: false,
+      }) :
+      pendingFormulationCorrection ?
+        createInternalCorrectionIntent({
+          correctionType: INTERNAL_CORRECTION_TYPES.FORMULATION,
+          canonicalPreviousResponseAvailable: true,
+          instructionChannel: INTERNAL_CORRECTION_CHANNEL.LOCAL_GUARD_ONLY,
+          consumed: false,
+        }) :
+        null;
+    pendingInternalCorrectionRef.current = nextIntent;
+    if (isS2DebugEnabled()) {
+      logS2DebugLifecycle(buildInternalCorrectionDiagnostic(nextIntent, {
+        conversationScopeMatch: true,
+      }));
+    }
   };
 
   const toBoundedReasonCodes = (value) =>
@@ -1207,6 +1236,7 @@ export default function Chat() {
     );
     pendingFormulationCorrectionRef.current = pendingCorrection;
     pendingGroundingCorrectionRef.current = pendingGroundingCorrection;
+    updatePendingInternalCorrection(pendingCorrection, pendingGroundingCorrection);
     const withRuntimeMetadata = grounded.map((msg, rawIndex) => {
       if (!msg) return null;
       const guardMode = guardModesByRawIndex[rawIndex] || null;
@@ -1241,6 +1271,7 @@ export default function Chat() {
         precedingRawUser?.content || null
       );
       const correctionBlockSanitized = wasCorrectionBlockSanitized(raw, sanitized);
+      const pendingInternalCorrection = pendingInternalCorrectionRef.current;
       latestPipelineDiagnosticsRef.current = {
         assistantIdentity: finalAssistant ? {
           id: finalAssistant.id || null,
@@ -1284,11 +1315,21 @@ export default function Chat() {
           correctionBlockDetected: groundingEvaluation.correctionBlockDetected === true,
         },
         pendingGroundingCorrection: pendingGroundingCorrection !== null,
+        internalCorrectionDiagnostic: buildInternalCorrectionDiagnostic(pendingInternalCorrection, {
+          conversationScopeMatch: true,
+          historicalBlockDetected: correctionBlockSanitized,
+          historicalBlockSanitized: correctionBlockSanitized,
+        }),
       };
       logS2DebugLifecycle({
         delivery_source: 'pipeline',
         assistant_identity_source: finalAssistant ? getAssistantIdentitySource(finalAssistant) : null,
         correction_block_sanitized: correctionBlockSanitized,
+        ...buildInternalCorrectionDiagnostic(pendingInternalCorrection, {
+          conversationScopeMatch: true,
+          historicalBlockDetected: correctionBlockSanitized,
+          historicalBlockSanitized: correctionBlockSanitized,
+        }),
       });
     } else {
       latestPipelineDiagnosticsRef.current = null;
@@ -3129,46 +3170,19 @@ export default function Chat() {
       //   4. Current user message
       // For new conversations the session-start content is prepended before all of the above.
 
-      // Phase 7: Build pending correction block if needed.
-      // Uses the current conversation's persisted messages (already fetched above) to
-      // determine whether the correction was already sent.
-      const pendingCorrectionBlocks = [];
-      if (pendingFormulationCorrectionRef.current) {
-        const alreadySent = hasFormulationCorrectionAlreadyBeenApplied(
-          conversation.messages || [],
-          // afterIndex = -1 searches from the beginning of the conversation.
-          -1
-        );
-        if (!alreadySent) {
-          pendingCorrectionBlocks.push(buildPendingFormulationCorrectionBlock(
-            pendingFormulationCorrectionRef.current.fallbackText
-          ));
-        }
-        // Clear the pending state after consuming it (send-once guarantee).
-        pendingFormulationCorrectionRef.current = null;
-      }
-      if (pendingGroundingCorrectionRef.current) {
-        const alreadySent = hasGroundingCorrectionAlreadyBeenApplied(
-          conversation.messages || [],
-          -1
-        );
-        if (!alreadySent) {
-          pendingCorrectionBlocks.push(buildPendingGroundingCorrectionBlock(
-            pendingGroundingCorrectionRef.current.fallbackText
-          ));
-        }
-        pendingGroundingCorrectionRef.current = null;
-      }
-      const pendingCorrectionPrefix = buildPendingCorrectionPrefix(pendingCorrectionBlocks);
+      const activePendingInternalCorrection = hasInternalCorrectionIntent(pendingInternalCorrectionRef.current)
+        ? pendingInternalCorrectionRef.current
+        : null;
       logS2DebugLifecycle({
         delivery_source: 'send',
-        correction_block_attached: hasCorrectionBlockAttached(pendingCorrectionPrefix),
+        ...buildInternalCorrectionDiagnostic(activePendingInternalCorrection, {
+          conversationScopeMatch: true,
+        }),
       });
 
       let messageContent = buildOutboundUserMessageContent({
         runtimeSupplement,
         formulationSupplement,
-        pendingCorrectionPrefix,
         messageText,
       });
       const deterministicFormRoute = resolveFormIntentRequest(messageText, {
@@ -3193,6 +3207,14 @@ export default function Chat() {
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }
+      const outboundContentClean = !hasCorrectionBlockAttached(messageContent);
+      logS2DebugLifecycle({
+        delivery_source: 'send',
+        ...buildInternalCorrectionDiagnostic(activePendingInternalCorrection, {
+          conversationScopeMatch: true,
+          outboundContentClean,
+        }),
+      });
       const pendingPolicyRefresh = pendingTherapeuticFormsPolicyRefreshRef.current.get(convId) || null;
       if (pendingPolicyRefresh?.content) {
         messageContent = prependPendingPolicyRefreshToUserContent(messageContent, pendingPolicyRefresh.content);
@@ -3297,6 +3319,18 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      if (activePendingInternalCorrection) {
+        pendingInternalCorrectionRef.current = consumeInternalCorrectionIntent(activePendingInternalCorrection);
+        logS2DebugLifecycle({
+          delivery_source: 'send',
+          ...buildInternalCorrectionDiagnostic(pendingInternalCorrectionRef.current, {
+            conversationScopeMatch: true,
+            outboundContentClean,
+          }),
+        });
+      }
+      pendingFormulationCorrectionRef.current = null;
+      pendingGroundingCorrectionRef.current = null;
       if (pendingPolicyRefresh?.policyVersion) {
         consumePendingPolicyRefreshAfterSuccessfulSend({
           conversationId: convId,

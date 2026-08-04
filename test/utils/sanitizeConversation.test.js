@@ -918,6 +918,38 @@ describe('stripAgentOnlyRuntimeBlocksFromUserContent — Formulation Contract Co
     expect(result.trim()).toBe(userText);
   });
 
+  describe('stripAgentOnlyRuntimeBlocksFromUserContent — Current-turn grounding correction block', () => {
+    const CORRECTION_START = '=== CURRENT-TURN GROUNDING CORRECTION — NEXT TURN ONLY ===';
+    const CORRECTION_END = '=== END CURRENT-TURN GROUNDING CORRECTION ===';
+
+    function makeBlock(body = 'correction text') {
+      return `${CORRECTION_START}\n${body}\n${CORRECTION_END}`;
+    }
+
+    it('strips a complete grounding correction block leaving user text intact', () => {
+      const userText = 'המשך מכאן';
+      const content = makeBlock('some correction instructions') + '\n\n' + userText;
+      const result = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+      expect(result).not.toContain(CORRECTION_START);
+      expect(result).not.toContain(CORRECTION_END);
+      expect(result.trim()).toBe(userText);
+    });
+
+    it('does NOT strip an incomplete grounding block — start marker only', () => {
+      const content = `${CORRECTION_START}\nsome text without end marker`;
+      const result = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+      expect(result).toContain(CORRECTION_START);
+    });
+
+    it('strips duplicated complete grounding correction blocks idempotently', () => {
+      const content = `${makeBlock('one')}\n\n${makeBlock('two')}\n\nuser message`;
+      const once = stripAgentOnlyRuntimeBlocksFromUserContent(content);
+      const twice = stripAgentOnlyRuntimeBlocksFromUserContent(once);
+      expect(once).toBe('user message');
+      expect(twice).toBe('user message');
+    });
+  });
+
   it('strips correction block that is the entire content (no trailing user text)', () => {
     const content = makeBlock('instructions');
     const result = stripAgentOnlyRuntimeBlocksFromUserContent(content);
