@@ -12,7 +12,11 @@ import { test, expect } from '@playwright/test';
  * 6. Disable the tap highlight on interactive elements
  */
 
-const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
+const BASE_URL =
+  process.env.PLAYWRIGHT_TEST_BASE_URL ||
+  process.env.E2E_BASE_URL ||
+  process.env.BASE_URL ||
+  'http://localhost:5173';
 
 async function mockApis(page: import('@playwright/test').Page) {
   await page.route('**/api/apps/**', async (route) => {
