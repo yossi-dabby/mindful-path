@@ -1115,11 +1115,11 @@ export function buildStrategyContextSection(strategyState) {
       'Current user information always overrides prior formulation, continuity, and historical tasks.',
       'Never expose internal labels; never say "The system selected...", "Your distress tier is...", or name a mode.',
       '',
-      `Intervention mode : ${mode}`,
-      `Distress tier     : ${tier}`,
-      `Prior continuity  : ${contPresent ? 'yes' : 'no'}`,
+      `Intervention mode: ${mode}`,
+      `Distress tier: ${tier}`,
+      `Prior continuity: ${contPresent ? 'yes' : 'no'}`,
       `Formulation active: ${formPresent ? 'yes' : 'no'}`,
-      `Action permitted  : ${actionPermitted ? 'yes' : 'no — holding/reflection/exploration/formulation only, no concrete technique'}`,
+      `Action permitted: ${actionPermitted ? 'yes' : 'no — holding/reflection/exploration/formulation only, no concrete technique'}`,
     ];
 
     // Context signals block — only emitted when there is meaningful session context.
@@ -1148,6 +1148,7 @@ export function buildStrategyContextSection(strategyState) {
     }
 
     lines.push('');
+    lines.push('Guidance:');
     lines.push(_getModeGuidance(mode));
     lines.push('');
     // Wave 2E (Fix 4) — strategy usage contract. Bounded, non-diagnostic; never
