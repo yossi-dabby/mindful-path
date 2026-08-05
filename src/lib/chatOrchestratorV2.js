@@ -375,7 +375,15 @@ export function createChatOrchestratorV2() {
    * @param {number}        [params.startingTurnId] - Passed to deduplicateMessagesByLifecycleKeys
    * @returns {ReconcileResult}
    */
-  function reconcileSnapshot({ snapshot, deliverySource, startingTurnId = 0 }) {
+  function reconcileSnapshot({
+    snapshot,
+    deliverySource,
+    startingTurnId = 0,
+    phase = 'visible_commit',
+    visibleAccepted = true,
+    rejectionReason = null,
+    terminalReason = null,
+  }) {
     const result = {
       accepted: false,
       rejected_reason: null,
@@ -438,6 +446,20 @@ export function createChatOrchestratorV2() {
 
     const preReconcileStatus = _activeTurn.status;
 
+    if (phase === 'raw_correlation') {
+      result.response_correlated = true;
+      result.committed_response_key = responseKey;
+      result.accepted = visibleAccepted === true;
+      if (visibleAccepted !== true) {
+        result.rejected_reason = 'visible_update_rejected';
+        result.post_processing_rejected_reason =
+          typeof rejectionReason === 'string' && rejectionReason.trim()
+            ? rejectionReason
+            : 'visible_update_rejected';
+        return result;
+      }
+    }
+
     // Commit the response.
     _committedResponseKeys.add(responseKey);
     const feedbackId = `fb-${_activeTurn.client_request_id}`;
@@ -460,6 +482,10 @@ export function createChatOrchestratorV2() {
     result._deduplicatedSnapshot = deduplicated;
     result.late_response_recovered = preReconcileStatus === TURN_STATUS.TIMED_OUT;
     result.restored_after_reload = _restoredFromReload;
+    result.completion_terminal_reason =
+      typeof terminalReason === 'string' && terminalReason.trim()
+        ? terminalReason
+        : 'visible_terminal_result_committed';
     result.recovery_result = result.restored_after_reload
       ? (result.late_response_recovered ? 'restored_and_recovered' : 'restored_and_committed')
       : (result.late_response_recovered ? 'late_response_recovered' : 'committed');

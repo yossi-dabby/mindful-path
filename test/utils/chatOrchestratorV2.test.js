@@ -268,6 +268,91 @@ describe('Phase 1 V2 turn coordinator — one turn → exactly one response', ()
   });
 });
 
+describe('Phase 1 V2 turn coordinator — two-phase lifecycle gating', () => {
+  it('keeps the turn open after raw correlation until a later visible final snapshot commits', () => {
+    const coord = createChatOrchestratorV2();
+    const { turn } = coord.registerSend({
+      conversationId: CONV_ID,
+      executeSend: async () => {},
+    });
+    coord.markGenerating(turn.client_request_id);
+
+    const rawSnapshot = makeSnapshot([makeUserMsg('u1')], [makeAssistantMsg('a-raw')]);
+    const rawResult = coord.reconcileSnapshot({
+      snapshot: rawSnapshot,
+      deliverySource: 'subscription',
+      phase: 'raw_correlation',
+      visibleAccepted: false,
+      rejectionReason: 'non_final_subscription_snapshot',
+    });
+
+    expect(rawResult.accepted).toBe(false);
+    expect(rawResult.rejected_reason).toBe('visible_update_rejected');
+    expect(rawResult.response_correlated).toBe(true);
+    expect(coord.getActiveTurn().status).toBe(TURN_STATUS.GENERATING);
+
+    const finalSnapshot = makeSnapshot([makeUserMsg('u1')], [makeAssistantMsg('a-final', '2026-08-03T03:00:00.000Z')]);
+    const finalResult = coord.reconcileSnapshot({
+      snapshot: finalSnapshot,
+      deliverySource: 'polling',
+      phase: 'visible_commit',
+      visibleAccepted: true,
+      terminalReason: 'visible_terminal_result_committed',
+    });
+
+    expect(finalResult.accepted).toBe(true);
+    expect(finalResult.response_correlated).toBe(true);
+    expect(finalResult.completion_terminal_reason).toBe('visible_terminal_result_committed');
+    expect(coord.getActiveTurn().status).toBe(TURN_STATUS.COMPLETED);
+  });
+
+  it('returns turn_already_completed only after a visible commit, never after raw correlation alone', () => {
+    const coord = createChatOrchestratorV2();
+    const { turn } = coord.registerSend({
+      conversationId: CONV_ID,
+      executeSend: async () => {},
+    });
+    coord.markGenerating(turn.client_request_id);
+
+    const rawSnapshot = makeSnapshot([makeUserMsg('u1')], [makeAssistantMsg('a-raw')]);
+    const rawResult = coord.reconcileSnapshot({
+      snapshot: rawSnapshot,
+      deliverySource: 'subscription',
+      phase: 'raw_correlation',
+      visibleAccepted: false,
+      rejectionReason: 'non_final_subscription_snapshot',
+    });
+    expect(rawResult.rejected_reason).not.toBe('turn_already_completed');
+    expect(coord.getActiveTurn().status).toBe(TURN_STATUS.GENERATING);
+
+    const visibleSnapshot = makeSnapshot([makeUserMsg('u1')], [makeAssistantMsg('a-visible', '2026-08-03T04:00:00.000Z')]);
+    const visibleCommit = coord.reconcileSnapshot({
+      snapshot: visibleSnapshot,
+      deliverySource: 'polling',
+      phase: 'visible_commit',
+      visibleAccepted: true,
+      terminalReason: 'visible_terminal_result_committed',
+    });
+    expect(visibleCommit.accepted).toBe(true);
+
+    const duplicateAfterCommit = coord.reconcileSnapshot({
+      snapshot: makeSnapshot(
+        [makeUserMsg('u1')],
+        [
+          makeAssistantMsg('a-visible', '2026-08-03T04:00:00.000Z'),
+          makeAssistantMsg('a-too-late', '2026-08-03T05:00:00.000Z'),
+        ],
+      ),
+      deliverySource: 'polling',
+      phase: 'visible_commit',
+      visibleAccepted: true,
+      terminalReason: 'visible_terminal_result_committed',
+    });
+    expect(duplicateAfterCommit.accepted).toBe(false);
+    expect(duplicateAfterCommit.rejected_reason).toBe('turn_already_completed');
+  });
+});
+
 describe('Phase 1 V2 turn coordinator — one response → exactly one feedback identity', () => {
   it('produces exactly one feedback identity per committed assistant response', () => {
     const coord = createChatOrchestratorV2();
