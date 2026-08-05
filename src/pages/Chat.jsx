@@ -2019,43 +2019,81 @@ export default function Chat() {
           // CRITICAL: Safe update with validation + deduplication
           const subscriptionFinality = evaluateAssistantSnapshotFinality(processedMessages, 'Subscription');
 
-          // V2: route through reconcileSnapshot for single-flight dedup, stale guard,
-          // and late timed_out recovery. Legacy path: direct safeUpdateMessages.
+          // V2: Two-phase reconcileSnapshot wiring.
+          //   Phase A — raw_correlation: correlate the candidate without completing
+          //             the turn. visibleAccepted=false when the subscription snapshot
+          //             is not yet final (prevents premature turn completion).
+          //   Phase B — visible_commit: only after safeUpdateMessages accepts a
+          //             terminal visible result do we commit the turn.
+          // Legacy path: direct safeUpdateMessages.
           let updated = false;
           if (chatOrchestratorV2EnabledRef.current) {
-            const reconcileResult = chatCoordinatorV2Ref.current.reconcileSnapshot({
+            const coord = chatCoordinatorV2Ref.current;
+            // Phase A: raw correlation — does NOT complete the turn when non-final.
+            const correlateResult = coord.reconcileSnapshot({
               snapshot: processedMessages,
               deliverySource: 'subscription',
               startingTurnId: currentTurnIdRef.current,
+              phase: 'raw_correlation',
+              visibleAccepted: subscriptionFinality.isFinal === true,
+              rejectionReason: subscriptionFinality.isFinal === true
+                ? null
+                : (subscriptionFinality.reason || 'non_final_subscription_snapshot'),
             });
             if (isS2DebugEnabled()) {
-              console.log('[V2Orchestrator] subscription reconcile', buildV2DebugDiagnostic({
-                ...chatCoordinatorV2Ref.current.getDiagnosticState(),
+              console.log('[V2Orchestrator] subscription raw_correlation', buildV2DebugDiagnostic({
+                ...coord.getDiagnosticState(),
                 delivery_source: 'subscription',
-                snapshot_accepted: reconcileResult.accepted,
-                snapshot_rejected_reason: reconcileResult.rejected_reason || undefined,
-                response_correlated: reconcileResult.response_correlated,
-                response_deduplicated: reconcileResult.response_deduplicated,
-                late_response_recovered: reconcileResult.late_response_recovered,
-                restored_after_reload: reconcileResult.restored_after_reload,
-                recovery_result: reconcileResult.recovery_result || undefined,
+                phase: 'raw_correlation',
+                snapshot_accepted: correlateResult.accepted,
+                snapshot_rejected_reason: correlateResult.rejected_reason || undefined,
+                response_correlated: correlateResult.response_correlated,
+                response_deduplicated: correlateResult.response_deduplicated,
               }));
             }
-            if (reconcileResult.accepted && !reconcileResult.response_deduplicated) {
-              // Use the coordinator's deduplicated snapshot if available.
-              const finalSnapshot = reconcileResult._deduplicatedSnapshot || processedMessages;
-              updated = safeUpdateMessages(finalSnapshot, 'Subscription');
-              // Drain the queue if a next send was queued.
-              if (reconcileResult._nextQueuedSend) {
-                reconcileResult._nextQueuedSend().catch((err) => {
-                  console.error('[V2Orchestrator] queued send failed:', err);
-                });
-              }
-            } else if (reconcileResult.response_deduplicated) {
+            if (correlateResult.response_deduplicated) {
               // Already committed — safe to skip the state update.
               console.log('[V2Orchestrator][Subscription] deduped — skipping state update');
+            } else if (!correlateResult.response_correlated) {
+              // No candidate to work with (no assistant msg, stale, etc.) — skip.
+              console.log('[V2Orchestrator][Subscription] correlation rejected:', correlateResult.rejected_reason);
             } else {
-              console.log('[V2Orchestrator][Subscription] rejected:', reconcileResult.rejected_reason);
+              // Phase B: attempt visible update, then commit only on acceptance.
+              const candidateSnapshot = correlateResult._deduplicatedSnapshot || processedMessages;
+              updated = safeUpdateMessages(candidateSnapshot, 'Subscription');
+              if (updated) {
+                // safeUpdateMessages accepted — now formally commit the turn.
+                const commitResult = coord.reconcileSnapshot({
+                  snapshot: candidateSnapshot,
+                  deliverySource: 'subscription',
+                  startingTurnId: currentTurnIdRef.current,
+                  phase: 'visible_commit',
+                  visibleAccepted: true,
+                  terminalReason: 'visible_terminal_result_committed',
+                });
+                if (isS2DebugEnabled()) {
+                  console.log('[V2Orchestrator] subscription visible_commit', buildV2DebugDiagnostic({
+                    ...coord.getDiagnosticState(),
+                    delivery_source: 'subscription',
+                    phase: 'visible_commit',
+                    snapshot_accepted: commitResult.accepted,
+                    snapshot_rejected_reason: commitResult.rejected_reason || undefined,
+                    late_response_recovered: commitResult.late_response_recovered,
+                    restored_after_reload: commitResult.restored_after_reload,
+                    recovery_result: commitResult.recovery_result || undefined,
+                  }));
+                }
+                // Drain queued sends after turn is committed.
+                if (commitResult._nextQueuedSend) {
+                  commitResult._nextQueuedSend().catch((err) => {
+                    console.error('[V2Orchestrator] queued send failed:', err);
+                  });
+                }
+              } else {
+                // safeUpdateMessages rejected — do not complete the turn; leave later
+                // snapshots eligible. Do not set subscriptionSucceededRef=true.
+                console.log('[V2Orchestrator][Subscription] visible update rejected — turn remains open');
+              }
             }
           } else {
             updated = safeUpdateMessages(processedMessages, 'Subscription');
@@ -2096,7 +2134,11 @@ export default function Chat() {
             }
           } else {
             console.log('[Subscription] Update rejected - keeping current state');
-            if (subscriptionFinality.isFinal === true) {
+            // V2: when safeUpdateMessages rejects, do NOT mark subscription as
+            // succeeded and do NOT drain the queue — leave later snapshots eligible.
+            // Legacy (V2 disabled): preserve original behavior of marking succeeded
+            // when finality is confirmed even if the update was a no-op.
+            if (!chatOrchestratorV2EnabledRef.current && subscriptionFinality.isFinal === true) {
               subscriptionSucceededRef.current = true;
               setIsLoading(false);
               emitStabilitySummary();
@@ -2257,6 +2299,9 @@ export default function Chat() {
           snapshot: guardedHydrate,
           clientRequestId: activeTurn.client_request_id,
           deliverySource: 'hydration',
+          phase: 'visible_commit',
+          visibleAccepted: true,
+          terminalReason: 'visible_terminal_result_committed',
         });
         if (isS2DebugEnabled()) {
           console.log('[V2Orchestrator] hydration reconcile', buildV2DebugDiagnostic({
@@ -3521,31 +3566,45 @@ export default function Chat() {
             if (hasExpectedReplyCount && pollFinality.isFinal) {
               console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}) - stopping polling`);
 
-              // V2: Route through reconcileSnapshot to enforce dedup/stale/one-response guards.
+              // V2: Two-phase reconcileSnapshot wiring for polling.
+              //   Phase A — raw_correlation: correlate without completing the turn.
+              //   Phase B — visible_commit: only after safeUpdateMessages accepts.
               if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
                 const coord = chatCoordinatorV2Ref.current;
-                const reconcile = coord.reconcileSnapshot({
+                // Phase A: raw correlation — does NOT complete the turn.
+                const correlateResult = coord.reconcileSnapshot({
                   snapshot: guardedPoll,
                   clientRequestId: v2ActiveTurn.client_request_id,
                   deliverySource: 'polling',
+                  phase: 'raw_correlation',
+                  visibleAccepted: pollFinality.isFinal === true,
+                  rejectionReason: pollFinality.isFinal === true
+                    ? null
+                    : (pollFinality.reason || 'non_final_polling_snapshot'),
                 });
                 if (isS2DebugEnabled()) {
-                  console.log('[V2Orchestrator] polling reconcile', buildV2DebugDiagnostic({
+                  console.log('[V2Orchestrator] polling raw_correlation', buildV2DebugDiagnostic({
                     ...coord.getDiagnosticState(),
-                    snapshot_accepted: reconcile.accepted,
-                    snapshot_rejected_reason: reconcile.rejected_reason || undefined,
-                    response_deduplicated: reconcile.response_deduplicated,
                     delivery_source: 'polling',
+                    phase: 'raw_correlation',
+                    snapshot_accepted: correlateResult.accepted,
+                    snapshot_rejected_reason: correlateResult.rejected_reason || undefined,
+                    response_correlated: correlateResult.response_correlated,
+                    response_deduplicated: correlateResult.response_deduplicated,
                   }));
                 }
-                if (!reconcile.accepted) {
-                  console.log('[V2Orchestrator] polling reconcile rejected:', reconcile.rejected_reason);
+                if (correlateResult.response_deduplicated) {
+                  console.log('[V2Orchestrator][Polling] deduped — skipping state update');
                   setIsLoading(false);
                   return;
                 }
-                if (reconcile._nextQueuedSend) {
-                  reconcile._nextQueuedSend();
+                if (!correlateResult.response_correlated) {
+                  // No candidate (stale, no assistant msg, etc.) — abort this poll cycle.
+                  console.log('[V2Orchestrator] polling correlation rejected:', correlateResult.rejected_reason);
+                  setIsLoading(false);
+                  return;
                 }
+                // Phase B happens below: safeUpdateMessages, then visible_commit.
               }
 
               // CRITICAL: Safe update with validation
@@ -3564,6 +3623,34 @@ export default function Chat() {
               // UI).  If the update was rejected (safeUpdateMessages returned false),
               // there is nothing meaningful to report for this cycle.
               if (updated) {
+                // V2 Phase B: safeUpdateMessages accepted — now formally commit the turn.
+                if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
+                  const coord = chatCoordinatorV2Ref.current;
+                  const commitResult = coord.reconcileSnapshot({
+                    snapshot: guardedPoll,
+                    clientRequestId: v2ActiveTurn.client_request_id,
+                    deliverySource: 'polling',
+                    phase: 'visible_commit',
+                    visibleAccepted: true,
+                    terminalReason: 'visible_terminal_result_committed',
+                  });
+                  if (isS2DebugEnabled()) {
+                    console.log('[V2Orchestrator] polling visible_commit', buildV2DebugDiagnostic({
+                      ...coord.getDiagnosticState(),
+                      delivery_source: 'polling',
+                      phase: 'visible_commit',
+                      snapshot_accepted: commitResult.accepted,
+                      snapshot_rejected_reason: commitResult.rejected_reason || undefined,
+                      late_response_recovered: commitResult.late_response_recovered,
+                      recovery_result: commitResult.recovery_result || undefined,
+                    }));
+                  }
+                  if (commitResult._nextQueuedSend) {
+                    commitResult._nextQueuedSend().catch((err) => {
+                      console.error('[V2Orchestrator] polling queued send failed:', err);
+                    });
+                  }
+                }
                 // V8-K: Finalize all committed assistant messages so that subsequent
                 // subscription callbacks (late streaming chunks or socket reconnects)
                 // cannot overwrite the bubble that was just atomically rendered.
