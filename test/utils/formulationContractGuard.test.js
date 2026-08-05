@@ -2268,4 +2268,58 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
       expect(turn.metadata?.current_turn_grounding_guard_replaced).toBe(true);
     });
   });
+
+  it('does not recreate a consumed grounding correction on later hydration snapshots for the same identities', () => {
+    const correction = buildPendingGroundingCorrectionBlock(CURRENT_TURN_HE_FALLBACK);
+    const raw = [
+      { role: 'user', id: 'u1', content: PROD_USER_MSG },
+      { role: 'assistant', id: 'a1', content: UNSUPPORTED_GROUNDED_REPLY },
+      { role: 'user', id: 'u2', content: `${correction}\n\n${PROD_USER_MSG}` },
+      { role: 'assistant', id: 'a2', content: UNSUPPORTED_GROUNDED_REPLY },
+    ];
+
+    const sanitized = sanitizeConversationMessagesAligned(raw, 'he');
+    const { messages: guarded } = applyFormulationGuardToConversationMessages(raw, sanitized, { locale: 'he' });
+    const grounded = applyCurrentTurnGroundingGuardToConversationMessages(raw, guarded, { locale: 'he' });
+
+    expect(grounded.pendingCorrection).toBeNull();
+    expect(grounded.messages[3].content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(grounded.messages[3].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
+
+  it('allows the production hebrew third turn to stay visible when explicitly grounded in current-turn facts', () => {
+    const raw = [
+      { role: 'user', id: 'u1', content: 'אני לחוץ לקראת פגישה חשובה מחר.' },
+      { role: 'assistant', id: 'a1', content: 'זה נשמע כמו הרבה לחץ לקראת מחר.' },
+      { role: 'user', id: 'u2', content: 'אני חושש שאטעה מול האנשים בפגישה.' },
+      { role: 'assistant', id: 'a2', content: 'מובן שהחשש לטעות מול אנשים מגביר את המתח.' },
+      { role: 'user', id: 'u3', content: 'בגלל המחשבות האלה קשה לי להירדם.' },
+      {
+        role: 'assistant',
+        id: 'a3',
+        content: 'נשמע שהמחשבות על האפשרות לטעות בפגישה מגבירות את המתח, והמתח הזה מקשה עליך להירדם. מה אתה שם לב שקורה בגוף או במחשבות בדיוק כשאתה מנסה להירדם?',
+      },
+    ];
+
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const finalAssistant = visible[visible.length - 1];
+    expect(finalAssistant.content).not.toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(finalAssistant.metadata?.current_turn_grounding_guard_replaced).not.toBe(true);
+  });
+
+  it('still produces the fallback for a genuinely unsupported grounding claim', () => {
+    const raw = [
+      { role: 'user', id: 'u1', content: 'אני לחוץ לקראת פגישה חשובה מחר.' },
+      {
+        role: 'assistant',
+        id: 'a1',
+        content: 'המתח הזה נובע מכך שאתה יודע שבפנים אתה לא מספיק טוב. מה הדבר הראשון שעובר בך כשזה קורה?',
+      },
+    ];
+
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const finalAssistant = visible[visible.length - 1];
+    expect(finalAssistant.content).toBe(CURRENT_TURN_HE_FALLBACK);
+    expect(finalAssistant.metadata?.current_turn_grounding_guard_replaced).toBe(true);
+  });
 });
