@@ -408,78 +408,88 @@ export function createChatOrchestratorV2() {
       return result;
     }
 
-    // Cross-turn stale guard: if a clientRequestId is supplied and does not match
-    // the current active turn, this snapshot belongs to an earlier turn.
-    //
-    // Spec §3 distinguishes two sub-cases:
-    //   A. Safe terminal dedup — the response key from this snapshot was already
-    //      committed AND was committed by this same clientRequestId.  This is a
-    //      late replay of a completed turn's own response, which is safe to
-    //      acknowledge as deduplicated without affecting the current active turn.
-    //   B. Stale previous-turn response — a newer turn is active and the snapshot
-    //      cannot be attributed to a completed same-request commit.  Must be
-    //      non-terminal: must not close loading, stop polling, or drain the queue
-    //      for the current active turn.
-    if (
-      typeof clientRequestId === 'string' &&
-      clientRequestId.length > 0 &&
-      clientRequestId !== _activeTurn.client_request_id
-    ) {
-      const { deduplicated: _staleDedup } = deduplicateMessagesByLifecycleKeys(snapshot, { startingTurnId });
-      const staleAssistant = _findLatestAssistant(_staleDedup);
-      const staleResponseKey = staleAssistant
-        ? getAssistantIdentityKey(staleAssistant.msg, staleAssistant.index)
-        : null;
-
-      // Case A: same request already committed this exact response → safe terminal dedup.
-      if (
-        staleResponseKey !== null &&
-        _committedResponseKeys.has(staleResponseKey) &&
-        _committedResponseKeyOwners.get(staleResponseKey) === clientRequestId
-      ) {
-        result.accepted = true;
-        result.response_deduplicated = true;
-        result.stale_client_request_id = clientRequestId;
-        result.committed_response_key = staleResponseKey;
-        result._deduplicatedSnapshot = _staleDedup;
-        return result;
-      }
-
-      // Case B: stale response from a previous turn while a newer turn is active.
-      result.rejected_reason = 'stale_previous_turn_response';
-      result.stale_client_request_id = clientRequestId;
-      result.active_client_request_id = _activeTurn.client_request_id;
-      return result;
-    }
-
     // Reject snapshots shorter than the last committed baseline.
     if (snapshot.length < _lastCommittedSnapshot.length) {
       result.rejected_reason = 'snapshot_shorter_than_baseline';
       return result;
     }
 
-    // Deduplicate the incoming snapshot.
     const { deduplicated } = deduplicateMessagesByLifecycleKeys(snapshot, { startingTurnId });
+    const latestAssistant = _findLatestAssistant(deduplicated);
+    const latestUser = _findLatestUser(deduplicated);
+    const latestAssistantAfterLatestUser = _findLatestAssistantAfterIndex(
+      deduplicated,
+      latestUser ? latestUser.index : -1,
+    );
+    const responseKey = latestAssistant
+      ? getAssistantIdentityKey(latestAssistant.msg, latestAssistant.index)
+      : null;
+    const responseOwner = responseKey !== null
+      ? (_committedResponseKeyOwners.get(responseKey) ?? null)
+      : null;
+
+    const latestUserIsActiveTurnUser = Boolean(
+      _activeTurn.user_message_id &&
+      latestUser?.msg?.id &&
+      latestUser.msg.id === _activeTurn.user_message_id,
+    );
+    const snapshotHasActiveTurnUserWithoutAssistant = Boolean(
+      latestUserIsActiveTurnUser &&
+      latestAssistant &&
+      latestAssistant.index < latestUser.index
+    );
+
+    if (snapshotHasActiveTurnUserWithoutAssistant) {
+      result.rejected_reason = 'no_new_assistant_for_active_turn';
+      result.active_client_request_id = _activeTurn.client_request_id;
+      result._deduplicatedSnapshot = deduplicated;
+      return result;
+    }
+
+    // Cross-turn owner guard: when an already-committed response belongs to a
+    // previous request, the snapshot is stale for the current active turn even when
+    // the caller omits clientRequestId or passes the current active request id.
+    if (responseKey !== null && _committedResponseKeys.has(responseKey)) {
+      if (responseOwner === _activeTurn.client_request_id) {
+        result.accepted = true;
+        result.response_deduplicated = true;
+        result.rejected_reason = null;
+        result.committed_response_key = candidateResponseKey;
+        result._deduplicatedSnapshot = deduplicated;
+        return result;
+      }
+
+      if (responseOwner) {
+        result.rejected_reason = 'stale_previous_turn_response';
+        result.stale_client_request_id = responseOwner;
+        result.active_client_request_id = _activeTurn.client_request_id;
+        result.committed_response_key = candidateResponseKey;
+        result._deduplicatedSnapshot = deduplicated;
+        return result;
+      }
+    }
+
+    if (
+      typeof clientRequestId === 'string' &&
+      clientRequestId.length > 0 &&
+      clientRequestId !== _activeTurn.client_request_id
+    ) {
+      result.rejected_reason = 'stale_previous_turn_response';
+      result.stale_client_request_id = clientRequestId;
+      result.active_client_request_id = _activeTurn.client_request_id;
+      result.committed_response_key = candidateResponseKey;
+      result._deduplicatedSnapshot = deduplicated;
+      return result;
+    }
 
     // Identify the latest assistant message in the deduplicated snapshot.
-    const latestAssistant = _findLatestAssistant(deduplicated);
     if (!latestAssistant) {
       result.rejected_reason = 'no_assistant_message_in_snapshot';
       return result;
     }
 
-    const responseKey = getAssistantIdentityKey(latestAssistant.msg, latestAssistant.index);
-
-    // Already committed this exact response (dedup guard).
-    if (_committedResponseKeys.has(responseKey)) {
-      result.accepted = true;
-      result.response_deduplicated = true;
-      result.rejected_reason = null;
-      result.committed_response_key = responseKey;
-      // Return last committed snapshot without re-committing.
-      result._deduplicatedSnapshot = deduplicated;
-      return result;
-    }
+    const candidateAssistant = latestAssistantAfterLatestUser || latestAssistant;
+    const candidateResponseKey = getAssistantIdentityKey(candidateAssistant.msg, candidateAssistant.index);
 
     // Active turn already in a final state (one response per turn guard).
     if (FINAL_STATUSES.has(_activeTurn.status)) {
@@ -492,7 +502,7 @@ export function createChatOrchestratorV2() {
     const baselineKey = baselineAssistant
       ? getAssistantIdentityKey(baselineAssistant.msg, baselineAssistant.index)
       : null;
-    if (baselineKey && baselineKey === responseKey) {
+    if (baselineKey && baselineKey === candidateResponseKey) {
       result.rejected_reason = 'no_new_assistant_message';
       return result;
     }
@@ -505,7 +515,7 @@ export function createChatOrchestratorV2() {
       // The caller is responsible for calling visible_commit (and only after
       // safeUpdateMessages accepts) to actually complete the turn.
       result.response_correlated = true;
-      result.committed_response_key = responseKey;
+      result.committed_response_key = candidateResponseKey;
       result._deduplicatedSnapshot = deduplicated;
       if (visibleAccepted !== true) {
         result.accepted = false;
@@ -525,15 +535,15 @@ export function createChatOrchestratorV2() {
     }
 
     // Commit the response.
-    _committedResponseKeys.add(responseKey);
-    _committedResponseKeyOwners.set(responseKey, _activeTurn.client_request_id);
+    _committedResponseKeys.add(candidateResponseKey);
+    _committedResponseKeyOwners.set(candidateResponseKey, _activeTurn.client_request_id);
     const feedbackId = `fb-${_activeTurn.client_request_id}`;
     _feedbackIdentities.set(_activeTurn.client_request_id, feedbackId);
 
     _activeTurn = {
       ..._activeTurn,
       status: TURN_STATUS.COMPLETED,
-      committed_response_key: responseKey,
+      committed_response_key: candidateResponseKey,
       feedback_identity: feedbackId,
       response_policy: _activeTurn.response_policy ? { ..._activeTurn.response_policy, status: 'completed' } : _activeTurn.response_policy,
     };
@@ -542,7 +552,7 @@ export function createChatOrchestratorV2() {
 
     result.accepted = true;
     result.response_correlated = true;
-    result.committed_response_key = responseKey;
+    result.committed_response_key = candidateResponseKey;
     result.feedback_identity = feedbackId;
     result._deduplicatedSnapshot = deduplicated;
     result.late_response_recovered = preReconcileStatus === TURN_STATUS.TIMED_OUT;
@@ -658,6 +668,27 @@ export function createChatOrchestratorV2() {
 function _findLatestAssistant(msgs) {
   if (!Array.isArray(msgs)) return null;
   for (let i = msgs.length - 1; i >= 0; i--) {
+    if (msgs[i]?.role === 'assistant') {
+      return { msg: msgs[i], index: i };
+    }
+  }
+  return null;
+}
+
+
+function _findLatestUser(msgs) {
+  if (!Array.isArray(msgs)) return null;
+  for (let i = msgs.length - 1; i >= 0; i--) {
+    if (msgs[i]?.role === 'user') {
+      return { msg: msgs[i], index: i };
+    }
+  }
+  return null;
+}
+
+function _findLatestAssistantAfterIndex(msgs, minIndex) {
+  if (!Array.isArray(msgs)) return null;
+  for (let i = msgs.length - 1; i > minIndex; i--) {
     if (msgs[i]?.role === 'assistant') {
       return { msg: msgs[i], index: i };
     }
