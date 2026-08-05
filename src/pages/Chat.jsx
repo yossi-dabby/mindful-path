@@ -2052,9 +2052,15 @@ export default function Chat() {
               }));
             }
             if (correlateResult.response_deduplicated) {
-              // Already committed — close loading without re-rendering a new bubble.
-              console.log('[V2Orchestrator][Subscription] deduped — skipping state update');
-              setIsLoading(false);
+              if (correlateResult.stale_client_request_id) {
+                // Cross-turn case A dedup: old request's response arrived while a newer
+                // turn is active.  Must not close loading or stop polling for the current turn.
+                console.log('[V2Orchestrator][Subscription] stale cross-turn dedup — continuing for current turn');
+              } else {
+                // Already committed for the current active turn — close loading safely.
+                console.log('[V2Orchestrator][Subscription] deduped — skipping state update');
+                setIsLoading(false);
+              }
             } else if (!correlateResult.response_correlated) {
               // No candidate to work with (no assistant msg, stale, etc.) — skip.
               console.log('[V2Orchestrator][Subscription] correlation rejected:', correlateResult.rejected_reason);
@@ -3246,10 +3252,26 @@ export default function Chat() {
       : null;
 
     // CRITICAL: Add loading timeout failsafe (10s)
+    // V2: the coordinator's polling exhaustion/error paths own terminal timeout state.
+    // Do NOT call setIsLoading(false) from the 10s timer when V2 is active and the
+    // turn is still in-flight (PENDING/SENT/GENERATING) with bounded polling running.
+    // Legacy (V2 disabled): preserve the exact 10s clear-loading behavior.
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
     }
     loadingTimeoutRef.current = setTimeout(() => {
+      const v2Active = chatOrchestratorV2EnabledRef.current;
+      if (v2Active) {
+        const activeTurn = chatCoordinatorV2Ref.current?.getActiveTurn?.();
+        const inFlightStatuses = new Set(['pending', 'sent', 'generating']);
+        const stillPolling = !!pollingIntervalRef.current;
+        if (activeTurn && inFlightStatuses.has(activeTurn.status) && stillPolling) {
+          // V2: coordinator owns this lifecycle — do not fire the legacy failsafe.
+          console.log('[Send] ⏱️ 10s timeout suppressed — V2 polling still active (turn:', activeTurn.status, ')');
+          loadingTimeoutRef.current = null;
+          return;
+        }
+      }
       console.error('[Send] ⏱️ Loading timeout after 10s - forcing recovery');
       instrumentationRef.current.THINKING_OVER_10S++;
       setIsLoading(false);
@@ -3602,8 +3624,45 @@ export default function Chat() {
                   }));
                 }
                 if (correlateResult.response_deduplicated) {
-                  // Spec §4: deduplicated committed response — close loading safely,
-                  // stop polling, do not drain the queue a second time.
+                  if (correlateResult.stale_client_request_id) {
+                    // Cross-turn case A dedup: the response belongs to the old request but a
+                    // newer turn is now active.  Must not close loading or stop polling for the
+                    // current turn — continue polling for the active request.
+                    console.log('[V2Orchestrator][Polling] stale cross-turn dedup — continuing poll for current turn');
+                    if (isS2DebugEnabled()) {
+                      logS2DebugLifecycle({
+                        client_request_id: v2ActiveTurn.client_request_id,
+                        delivery_source: 'polling',
+                        phase: 'raw_correlation',
+                        response_correlated: correlateResult.response_correlated,
+                        safe_update_accepted: false,
+                        visible_commit_completed: false,
+                        active_turn_status: coord.getActiveTurn()?.status,
+                        polling_attempt: pollAttempts,
+                        polling_continues: !hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts),
+                        rejection_reason: 'stale_cross_turn_dedup',
+                      });
+                    }
+                    if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
+                      instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+                      chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                      setIsLoading(false);
+                      emitStabilitySummary();
+                      if (pollingIntervalRef.current) {
+                        clearTimeout(pollingIntervalRef.current);
+                        pollingIntervalRef.current = null;
+                      }
+                      if (loadingTimeoutRef.current) {
+                        clearTimeout(loadingTimeoutRef.current);
+                        loadingTimeoutRef.current = null;
+                      }
+                    } else {
+                      pollWithBackoff(pollAttempts);
+                    }
+                    return;
+                  }
+                  // Same-request dedup: deduplicated committed response for the current active
+                  // turn — close loading safely, stop polling, do not drain the queue a second time.
                   console.log('[V2Orchestrator][Polling] deduped — skipping state update');
                   if (isS2DebugEnabled()) {
                     logS2DebugLifecycle({

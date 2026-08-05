@@ -185,5 +185,19 @@ export function buildS2DebugLifecycleDiagnostic(fields = {}) {
   if (typeof fields.formulation_led_injected === 'boolean') {
     payload.formulation_led_injected = fields.formulation_led_injected;
   }
+  // Bounded V2 lifecycle fields (no message or clinical content).
+  if (typeof fields.client_request_id === 'string' || fields.client_request_id === null) {
+    payload.client_request_id = fields.client_request_id;
+  }
+  if (typeof fields.phase === 'string') payload.phase = fields.phase;
+  if (typeof fields.response_correlated === 'boolean') payload.response_correlated = fields.response_correlated;
+  if (typeof fields.safe_update_accepted === 'boolean') payload.safe_update_accepted = fields.safe_update_accepted;
+  if (typeof fields.visible_commit_completed === 'boolean') payload.visible_commit_completed = fields.visible_commit_completed;
+  if (typeof fields.active_turn_status === 'string' || fields.active_turn_status === null) {
+    payload.active_turn_status = fields.active_turn_status;
+  }
+  if (typeof fields.polling_continues === 'boolean') payload.polling_continues = fields.polling_continues;
+  if (typeof fields.rejection_reason === 'string') payload.rejection_reason = fields.rejection_reason;
+  if (typeof fields.terminal_reason === 'string') payload.terminal_reason = fields.terminal_reason;
   return payload;
 }

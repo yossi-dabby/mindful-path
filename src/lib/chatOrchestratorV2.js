@@ -165,6 +165,9 @@ export function createChatOrchestratorV2() {
   /** @type {Set<string>} committed response keys across all turns (dedup guard) */
   const _committedResponseKeys = new Set();
 
+  /** @type {Map<string, string>} responseKey → client_request_id that committed it */
+  const _committedResponseKeyOwners = new Map();
+
   /** @type {Map<string, string>} client_request_id → feedback_identity */
   const _feedbackIdentities = new Map();
 
@@ -312,6 +315,7 @@ export function createChatOrchestratorV2() {
     _activeTurn = null;
     _queue.length = 0;
     _committedResponseKeys.clear();
+    _committedResponseKeyOwners.clear();
     _feedbackIdentities.clear();
     _lastCommittedSnapshot = [];
     _restoredFromReload = false;
@@ -370,14 +374,19 @@ export function createChatOrchestratorV2() {
    *   - The active turn is already completed (one response per turn)
    *
    * @param {object} params
-   * @param {Array<object>} params.snapshot      - Visible messages array from buildVisibleConversationMessages
-   * @param {string}        params.deliverySource - 'polling' | 'subscription' | 'hydration'
+   * @param {Array<object>} params.snapshot         - Visible messages array from buildVisibleConversationMessages
+   * @param {string}        params.deliverySource   - 'polling' | 'subscription' | 'hydration'
+   * @param {string|null}   [params.clientRequestId] - The client_request_id of the turn that produced this snapshot.
+   *                                                   When provided and it does not match the active turn, the
+   *                                                   snapshot is treated as a stale response from a previous turn
+   *                                                   and a non-terminal result is returned so polling may continue.
    * @param {number}        [params.startingTurnId] - Passed to deduplicateMessagesByLifecycleKeys
    * @returns {ReconcileResult}
    */
   function reconcileSnapshot({
     snapshot,
     deliverySource,
+    clientRequestId = null,
     startingTurnId = 0,
     phase = 'visible_commit',
     visibleAccepted = true,
@@ -396,6 +405,50 @@ export function createChatOrchestratorV2() {
 
     if (!_activeTurn) {
       result.rejected_reason = 'no_active_turn';
+      return result;
+    }
+
+    // Cross-turn stale guard: if a clientRequestId is supplied and does not match
+    // the current active turn, this snapshot belongs to an earlier turn.
+    //
+    // Spec §3 distinguishes two sub-cases:
+    //   A. Safe terminal dedup — the response key from this snapshot was already
+    //      committed AND was committed by this same clientRequestId.  This is a
+    //      late replay of a completed turn's own response, which is safe to
+    //      acknowledge as deduplicated without affecting the current active turn.
+    //   B. Stale previous-turn response — a newer turn is active and the snapshot
+    //      cannot be attributed to a completed same-request commit.  Must be
+    //      non-terminal: must not close loading, stop polling, or drain the queue
+    //      for the current active turn.
+    if (
+      typeof clientRequestId === 'string' &&
+      clientRequestId.length > 0 &&
+      clientRequestId !== _activeTurn.client_request_id
+    ) {
+      const { deduplicated: _staleDedup } = deduplicateMessagesByLifecycleKeys(snapshot, { startingTurnId });
+      const staleAssistant = _findLatestAssistant(_staleDedup);
+      const staleResponseKey = staleAssistant
+        ? getAssistantIdentityKey(staleAssistant.msg, staleAssistant.index)
+        : null;
+
+      // Case A: same request already committed this exact response → safe terminal dedup.
+      if (
+        staleResponseKey !== null &&
+        _committedResponseKeys.has(staleResponseKey) &&
+        _committedResponseKeyOwners.get(staleResponseKey) === clientRequestId
+      ) {
+        result.accepted = true;
+        result.response_deduplicated = true;
+        result.stale_client_request_id = clientRequestId;
+        result.committed_response_key = staleResponseKey;
+        result._deduplicatedSnapshot = _staleDedup;
+        return result;
+      }
+
+      // Case B: stale response from a previous turn while a newer turn is active.
+      result.rejected_reason = 'stale_previous_turn_response';
+      result.stale_client_request_id = clientRequestId;
+      result.active_client_request_id = _activeTurn.client_request_id;
       return result;
     }
 
@@ -473,6 +526,7 @@ export function createChatOrchestratorV2() {
 
     // Commit the response.
     _committedResponseKeys.add(responseKey);
+    _committedResponseKeyOwners.set(responseKey, _activeTurn.client_request_id);
     const feedbackId = `fb-${_activeTurn.client_request_id}`;
     _feedbackIdentities.set(_activeTurn.client_request_id, feedbackId);
 
