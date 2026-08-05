@@ -171,7 +171,9 @@ test.describe('Chat runtime two-phase lifecycle', () => {
       const bubbleLocator = page.getByText(expectedReply, { exact: true });
       await expect(bubbleLocator).toHaveCount(1);
       await expect(page.getByText('אין עדיין מספיק מידע', { exact: false })).toHaveCount(0);
-      await expect(page.getByText(/summary|סיכום/i)).toHaveCount(0);
+      // Verify no summary/fallback text appears inside chat bubbles (the summary prompt card is excluded)
+      const chatBubbles = page.locator('[data-testid="chat-messages"]');
+      await expect(chatBubbles.getByText(/summary|סיכום/i)).toHaveCount(0);
 
       previousAssistantCount += 1;
 

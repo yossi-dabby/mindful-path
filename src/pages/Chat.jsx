@@ -4204,7 +4204,7 @@ export default function Chat() {
 
               {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && !isLoading &&
-              <div className="bg-teal-50 p-4 md:p-6 border-t border-border/70">
+              <div data-testid="summary-prompt-card" className="bg-teal-50 p-4 md:p-6 border-t border-border/70">
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
