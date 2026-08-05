@@ -2295,10 +2295,10 @@ export default function Chat() {
 
     const hydrated = safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
 
-    // V2: If a turn is active during hydration (e.g., hydration fires during generation),
-    // route through reconcileSnapshot so it can count as late delivery for timed_out turns.
-    // visible_commit is only called when safeUpdateMessages accepted the snapshot AND
-    // the snapshot is final — a rejected hydration must not complete the active turn.
+    // V2: Call visible_commit only when safeUpdateMessages accepted the snapshot
+    // (hydrated=true) AND the snapshot is final. This ensures a rejected hydration
+    // cannot complete an active turn. Late delivery for timed_out turns via hydration
+    // is only possible when the snapshot is actually accepted and final.
     if (chatOrchestratorV2EnabledRef.current) {
       const coord = chatCoordinatorV2Ref.current;
       const activeTurn = coord.getActiveTurn();
