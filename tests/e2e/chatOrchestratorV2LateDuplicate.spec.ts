@@ -20,6 +20,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { mockApi } from '../helpers/ui';
 
 /**
  * Injects the V2 flag and diagnostic mode via URL search params as per
@@ -37,6 +38,7 @@ const INJECT_V2_DEBUG = () => {
 
 test.describe('V2 late-duplicate cross-turn dedup', () => {
   test.beforeEach(async ({ page }) => {
+    await mockApi(page);
     await page.addInitScript(INJECT_V2_DEBUG);
   });
 
