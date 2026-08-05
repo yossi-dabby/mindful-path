@@ -417,6 +417,11 @@ export function createChatOrchestratorV2() {
     const { deduplicated } = deduplicateMessagesByLifecycleKeys(snapshot, { startingTurnId });
     const latestAssistant = _findLatestAssistant(deduplicated);
     const latestUser = _findLatestUser(deduplicated);
+    const activeTurnUserIndex = _findMessageIndexById(deduplicated, _activeTurn.user_message_id);
+    const latestAssistantAfterActiveTurnUser = _findLatestAssistantAfterIndex(
+      deduplicated,
+      activeTurnUserIndex,
+    );
     const latestAssistantAfterLatestUser = _findLatestAssistantAfterIndex(
       deduplicated,
       latestUser ? latestUser.index : -1,
@@ -428,24 +433,6 @@ export function createChatOrchestratorV2() {
       ? (_committedResponseKeyOwners.get(responseKey) ?? null)
       : null;
 
-    const latestUserIsActiveTurnUser = Boolean(
-      _activeTurn.user_message_id &&
-      latestUser?.msg?.id &&
-      latestUser.msg.id === _activeTurn.user_message_id,
-    );
-    const snapshotHasActiveTurnUserWithoutAssistant = Boolean(
-      latestUserIsActiveTurnUser &&
-      latestAssistant &&
-      latestAssistant.index < latestUser.index
-    );
-
-    if (snapshotHasActiveTurnUserWithoutAssistant) {
-      result.rejected_reason = 'no_new_assistant_for_active_turn';
-      result.active_client_request_id = _activeTurn.client_request_id;
-      result._deduplicatedSnapshot = deduplicated;
-      return result;
-    }
-
     // Cross-turn owner guard: when an already-committed response belongs to a
     // previous request, the snapshot is stale for the current active turn even when
     // the caller omits clientRequestId or passes the current active request id.
@@ -454,7 +441,21 @@ export function createChatOrchestratorV2() {
         result.accepted = true;
         result.response_deduplicated = true;
         result.rejected_reason = null;
-        result.committed_response_key = candidateResponseKey;
+        result.committed_response_key = responseKey;
+        result._deduplicatedSnapshot = deduplicated;
+        return result;
+      }
+
+      if (
+        responseOwner &&
+        activeTurnUserIndex >= 0 &&
+        latestAssistant &&
+        latestAssistant.index < activeTurnUserIndex
+      ) {
+        result.rejected_reason = 'no_new_assistant_for_active_turn';
+        result.stale_client_request_id = responseOwner;
+        result.active_client_request_id = _activeTurn.client_request_id;
+        result.committed_response_key = responseKey;
         result._deduplicatedSnapshot = deduplicated;
         return result;
       }
@@ -463,7 +464,7 @@ export function createChatOrchestratorV2() {
         result.rejected_reason = 'stale_previous_turn_response';
         result.stale_client_request_id = responseOwner;
         result.active_client_request_id = _activeTurn.client_request_id;
-        result.committed_response_key = candidateResponseKey;
+        result.committed_response_key = responseKey;
         result._deduplicatedSnapshot = deduplicated;
         return result;
       }
@@ -477,7 +478,7 @@ export function createChatOrchestratorV2() {
       result.rejected_reason = 'stale_previous_turn_response';
       result.stale_client_request_id = clientRequestId;
       result.active_client_request_id = _activeTurn.client_request_id;
-      result.committed_response_key = candidateResponseKey;
+      result.committed_response_key = responseKey;
       result._deduplicatedSnapshot = deduplicated;
       return result;
     }
@@ -488,7 +489,7 @@ export function createChatOrchestratorV2() {
       return result;
     }
 
-    const candidateAssistant = latestAssistantAfterLatestUser || latestAssistant;
+    const candidateAssistant = latestAssistantAfterActiveTurnUser || latestAssistantAfterLatestUser || latestAssistant;
     const candidateResponseKey = getAssistantIdentityKey(candidateAssistant.msg, candidateAssistant.index);
 
     // Active turn already in a final state (one response per turn guard).
@@ -684,6 +685,17 @@ function _findLatestUser(msgs) {
     }
   }
   return null;
+}
+
+
+function _findMessageIndexById(msgs, messageId) {
+  if (!Array.isArray(msgs) || !messageId) return -1;
+  for (let i = msgs.length - 1; i >= 0; i--) {
+    if (msgs[i]?.id === messageId) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 function _findLatestAssistantAfterIndex(msgs, minIndex) {

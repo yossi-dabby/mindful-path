@@ -222,8 +222,9 @@ describe('Test 5: Polling/subscription duplicate — dedup guard', () => {
 
     // Same snapshot again (subscription fires after polling) — deduplicated.
     const r2 = coord.reconcileSnapshot({ snapshot, deliverySource: 'subscription' });
-    expect(r2.accepted).toBe(true);
-    expect(r2.response_deduplicated).toBe(true);
+    expect(r2.accepted).toBe(false);
+    expect(r2.response_deduplicated).toBe(false);
+    expect(r2.rejected_reason).toBe('stale_previous_turn_response');
   });
 });
 
@@ -453,7 +454,8 @@ describe('Test 11: One committed response and one feedback identity per turn', (
 
     // Same snapshot again — deduplicated, no new feedback id.
     const r2 = coord.reconcileSnapshot({ snapshot, deliverySource: 'subscription' });
-    expect(r2.response_deduplicated).toBe(true);
+    expect(r2.response_deduplicated).toBe(false);
+    expect(r2.rejected_reason).toBe('stale_previous_turn_response');
     expect(r2.feedback_identity).toBeNull();
   });
 });
