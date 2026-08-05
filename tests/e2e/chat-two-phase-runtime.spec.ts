@@ -70,6 +70,44 @@ async function setupRuntimeFixture(page: Page) {
     });
   });
 
+  // Playwright uses LIFO (last-registered = highest priority) for route matching.
+  // Register the by-ID GET handler BEFORE the messages POST handler so that the
+  // messages POST handler has higher priority and intercepts POST .../messages
+  // before the broader `test-conversation-123**` pattern can shadow it.
+  // If by-ID were registered last (highest priority), its `**` suffix would match
+  // the messages POST URL and call route.continue() — which forwards to the real
+  // network instead of chaining to the next registered handler.
+  await page.route('**/api/**/agents/conversations/test-conversation-123**', async (route) => {
+    if (route.request().method() !== 'GET') {
+      await route.continue();
+      return;
+    }
+
+    const useStabilized = pendingConversationMessages.length > 0;
+    const messages = useStabilized ? stabilizedConversationMessages : [];
+    if (useStabilized && diagnostics.length > 0) {
+      const last = diagnostics[diagnostics.length - 1];
+      last.visible_snapshot_accepted = true;
+      last.visible_commit_completed = true;
+      last.completion_terminal_reason = 'visible_terminal_result_committed';
+      pendingConversationMessages = [];
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: activeConversationId,
+        agent_name: 'cbt_therapist',
+        metadata: { name: 'Runtime lifecycle test', description: 'two phase' },
+        messages,
+        created_date: new Date().toISOString(),
+      }),
+    });
+  });
+
+  // Registered last so it has highest LIFO priority — catches POST .../messages
+  // before the by-ID pattern above can shadow it.
   await page.route('**/api/**/agents/conversations/**/messages**', async (route) => {
     const body = route.request().postDataJSON?.() as any;
     const content = String(body?.content || '');
@@ -108,35 +146,6 @@ async function setupRuntimeFixture(page: Page) {
       body: JSON.stringify({
         role: 'user',
         content,
-        created_date: new Date().toISOString(),
-      }),
-    });
-  });
-
-  await page.route('**/api/**/agents/conversations/test-conversation-123**', async (route) => {
-    if (route.request().method() !== 'GET') {
-      await route.continue();
-      return;
-    }
-
-    const useStabilized = pendingConversationMessages.length > 0;
-    const messages = useStabilized ? stabilizedConversationMessages : [];
-    if (useStabilized && diagnostics.length > 0) {
-      const last = diagnostics[diagnostics.length - 1];
-      last.visible_snapshot_accepted = true;
-      last.visible_commit_completed = true;
-      last.completion_terminal_reason = 'visible_terminal_result_committed';
-      pendingConversationMessages = [];
-    }
-
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        id: activeConversationId,
-        agent_name: 'cbt_therapist',
-        metadata: { name: 'Runtime lifecycle test', description: 'two phase' },
-        messages,
         created_date: new Date().toISOString(),
       }),
     });

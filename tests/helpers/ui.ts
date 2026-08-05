@@ -454,30 +454,34 @@ export async function waitForGeneratedFileCards(
 // tests.  They are narrow enough to avoid accidentally intercepting other
 // API paths or static assets.
 //
-// Ordering rule: register POST /messages BEFORE GET by-ID so that the more-
-// specific handler is matched first by Playwright's route stack.
+// IMPORTANT — Playwright uses LIFO (last-registered = highest priority):
+// route.continue() sends the request to the real network, NOT to the next
+// registered handler.  Register CONVERSATION_BY_ID BEFORE MESSAGES_POST so
+// that MESSAGES_POST (registered last) has the highest priority and catches
+// POST .../messages before the broader `by-ID` pattern can shadow it.
 // ---------------------------------------------------------------------------
 
 /**
  * Narrow Playwright route patterns for Base44 agent conversation endpoints.
  *
- * Usage example:
+ * Usage example (LIFO order — MESSAGES_POST must be registered LAST):
  *
  * ```ts
- * await page.route(SAFE_CONVERSATION_ROUTE_PATTERNS.MESSAGES_POST, async (route) => { … });
  * await page.route(SAFE_CONVERSATION_ROUTE_PATTERNS.CONVERSATION_BY_ID, async (route) => { … });
+ * await page.route(SAFE_CONVERSATION_ROUTE_PATTERNS.MESSAGES_POST, async (route) => { … });
  * ```
  */
 export const SAFE_CONVERSATION_ROUTE_PATTERNS = {
   /**
    * POST /api/.../agents/conversations/{id}/messages
-   * Register this handler FIRST (most specific).
+   * Register this handler LAST (highest LIFO priority) so it intercepts
+   * POST .../messages before the CONVERSATION_BY_ID pattern can shadow it.
    */
   MESSAGES_POST: '**/api/**/agents/conversations/**/messages**',
 
   /**
    * GET /api/.../agents/conversations/{id}
-   * Register this handler AFTER MESSAGES_POST.
+   * Register this handler BEFORE MESSAGES_POST (lower LIFO priority).
    */
   CONVERSATION_BY_ID: '**/api/**/agents/conversations/test-conversation-123**',
 
