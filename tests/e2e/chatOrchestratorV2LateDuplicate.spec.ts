@@ -27,7 +27,15 @@ async function setupLateReplayFixture(page: Page) {
   const activeConversationId = 'test-conversation-123';
   const messages: Array<any> = [];
   const diagnostics: Array<{ type: string; payload: string }> = [];
-  let turn = 0;
+  // pollStage tracks the turn-2 polling phase:
+  //   0 = before any turn-2 poll
+  //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet added)
+  //   2 = second poll for turn 2 observed (a2 added to messages)
+  //
+  // We gate on messages.length >= 3 (u1, a1, u2 present) rather than a `turn`
+  // counter so the stage advances reliably regardless of whether the MESSAGES_POST
+  // and CONVERSATION_BY_ID handlers run in strict LIFO order in the Playwright
+  // request-intercept pipeline.
   let pollStage = 0;
 
   page.on('console', (msg) => {
@@ -61,9 +69,12 @@ async function setupLateReplayFixture(page: Page) {
       return;
     }
 
-    if (turn === 2 && pollStage === 0) {
+    // Advance pollStage based on messages.length so we don't depend on the
+    // MESSAGES_POST handler having already run before this GET fires.
+    // messages.length >= 3 means u1, a1, u2 are present (turn 2 was sent).
+    if (messages.length >= 3 && pollStage === 0) {
       pollStage = 1;
-    } else if (turn === 2 && pollStage === 1) {
+    } else if (messages.length >= 3 && pollStage === 1) {
       messages.push(buildMessage('assistant', 'a2', 'Assistant B'));
       pollStage = 2;
     }
@@ -84,9 +95,9 @@ async function setupLateReplayFixture(page: Page) {
   await page.route(SAFE_CONVERSATION_ROUTE_PATTERNS.MESSAGES_POST, async (route) => {
     const body = route.request().postDataJSON?.() as any;
     const content = String(body?.content || '');
-    turn += 1;
-    messages.push(buildMessage('user', `u${turn}`, content));
-    if (turn === 1) {
+    const userTurn = messages.filter((m) => m.role === 'user').length + 1;
+    messages.push(buildMessage('user', `u${userTurn}`, content));
+    if (userTurn === 1) {
       messages.push(buildMessage('assistant', 'a1', 'Assistant A'));
     }
     await route.fulfill({
