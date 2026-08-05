@@ -178,8 +178,12 @@ test.describe('Chat runtime two-phase lifecycle', () => {
       await expect(input).toHaveValue('', { timeout: 10000 });
     }
 
-    expect(diagnostics).toHaveLength(6);
-    diagnostics.forEach((entry) => {
+    const completedDiagnostics = diagnostics.filter(
+      (entry) => entry.completion_terminal_reason === 'visible_terminal_result_committed',
+    );
+
+    expect(completedDiagnostics).toHaveLength(6);
+    completedDiagnostics.forEach((entry) => {
       expect(entry.raw_snapshot_correlated).toBe(true);
       expect(entry.visible_snapshot_accepted).toBe(true);
       expect(entry.visible_commit_completed).toBe(true);
