@@ -1460,6 +1460,15 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
     };
   }
 
+  const assistantRawIndices = [];
+  if (Array.isArray(rawMessages)) {
+    for (let rawIndex = 0; rawIndex < rawMessages.length; rawIndex++) {
+      if (rawMessages[rawIndex]?.role === 'assistant') {
+        assistantRawIndices.push(rawIndex);
+      }
+    }
+  }
+
   const result = [];
   let lastReplacedRawIdx = -1;
   let lastReplacedFallback = null;
@@ -1484,7 +1493,9 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
       continue;
     }
 
-    const rawIdx = fi >= 0 && fi < rawMessages.length ? fi : -1;
+    const rawIdx = Number.isInteger(msg?.__rawIndex)
+      ? msg.__rawIndex
+      : assistantRawIndices.shift() ?? -1;
     const precedingRawUser = rawIdx !== -1 ? _findPrecedingRawUser(rawMessages, rawIdx) : null;
     const rawUserContent = precedingRawUser ? precedingRawUser.content : null;
     const evaluation = evaluateCurrentTurnGroundingContract(msg.content, rawUserContent);
@@ -1502,6 +1513,8 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
         ...(msg.metadata || {}),
         current_turn_grounding_guard_replaced: true,
         current_turn_grounding_guard_reason_codes: evaluation.reasonCodes,
+        current_turn_grounding_guard_user_raw_index: rawIdx,
+        current_turn_grounding_guard_user_message_id: precedingRawUser?.id || null,
       },
     };
     result.push(replacedMsg);

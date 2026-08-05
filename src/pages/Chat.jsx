@@ -917,7 +917,11 @@ export default function Chat() {
     }
     const latestMsg = latest.msg;
     const replaced = latestMsg.metadata?.formulation_guard_replaced === true;
+    const groundingReplaced = latestMsg.metadata?.current_turn_grounding_guard_replaced === true;
     const reasonCodes = toBoundedReasonCodes(latestMsg.metadata?.formulation_guard_reason_codes);
+    const groundingReasonCodes = toBoundedReasonCodes(
+      latestMsg.metadata?.current_turn_grounding_guard_reason_codes
+    );
     const guardMode = latestMsg.__guardMode ?? null;
     const guardEvaluationPass = guardMode ? !replaced : null;
     return {
@@ -926,7 +930,9 @@ export default function Chat() {
       guardMode,
       guardEvaluationPass,
       formulationGuardReplaced: replaced,
+      groundingGuardReplaced: groundingReplaced,
       reasonCodes,
+      groundingReasonCodes,
     };
   };
 
@@ -1097,7 +1103,9 @@ export default function Chat() {
       guardMode: latestAssistant.guardMode,
       guardEvaluationPass: latestAssistant.guardEvaluationPass,
       formulation_guard_replaced: latestAssistant.formulationGuardReplaced,
+      current_turn_grounding_guard_replaced: latestAssistant.groundingGuardReplaced,
       reasonCodes: latestAssistant.reasonCodes,
+      groundingReasonCodes: latestAssistant.groundingReasonCodes,
       updateAccepted: accepted,
       updateRejected: !accepted,
       rejectedReasonCode,
@@ -1123,6 +1131,7 @@ export default function Chat() {
     const confirmedLookup = buildAssistantLookupByIdentity(lastConfirmedMessagesRef.current);
     const conversationGuardMemory = getConversationGuardMemory(currentConversationId);
     let preservedExistingGuardedReplacement = false;
+    let preservedExistingGroundingReplacement = false;
 
     const merged = incoming.map((msg, index) => {
       if (!msg || msg.role !== 'assistant') return msg;
@@ -1130,15 +1139,23 @@ export default function Chat() {
       if (!identityKey) return msg;
 
       const incomingReplaced = msg.metadata?.formulation_guard_replaced === true;
+      const incomingGroundingReplaced = msg.metadata?.current_turn_grounding_guard_replaced === true;
       const confirmedAssistant = confirmedLookup.get(identityKey);
       const confirmedReplaced = confirmedAssistant?.metadata?.formulation_guard_replaced === true;
+      const confirmedGroundingReplaced = confirmedAssistant?.metadata?.current_turn_grounding_guard_replaced === true;
       const storedGuarded = conversationGuardMemory?.get(identityKey) || null;
       const storedReplaced = storedGuarded?.metadata?.formulation_guard_replaced === true;
+      const storedGroundingReplaced = storedGuarded?.metadata?.current_turn_grounding_guard_replaced === true;
       const dominantGuarded = confirmedReplaced ?
       confirmedAssistant :
       storedReplaced ?
       storedGuarded :
       null;
+      const dominantGrounded = confirmedGroundingReplaced ?
+        confirmedAssistant :
+        storedGroundingReplaced ?
+          storedGuarded :
+          null;
 
       if (!incomingReplaced && dominantGuarded) {
         preservedExistingGuardedReplacement = true;
@@ -1151,6 +1168,23 @@ export default function Chat() {
             ...(dominantGuarded.metadata || {}),
             formulation_guard_replaced: true,
             formulation_guard_reason_codes: dominantReasonCodes,
+          },
+        };
+      }
+
+      if (!incomingGroundingReplaced && dominantGrounded) {
+        preservedExistingGroundingReplacement = true;
+        const dominantReasonCodes = toBoundedReasonCodes(
+          dominantGrounded.metadata?.current_turn_grounding_guard_reason_codes
+        );
+        return {
+          ...msg,
+          content: dominantGrounded.content,
+          metadata: {
+            ...(msg.metadata || {}),
+            ...(dominantGrounded.metadata || {}),
+            current_turn_grounding_guard_replaced: true,
+            current_turn_grounding_guard_reason_codes: dominantReasonCodes,
           },
         };
       }
@@ -1175,12 +1209,20 @@ export default function Chat() {
             ...(msg.metadata || {}),
             formulation_guard_replaced: true,
             formulation_guard_reason_codes: toBoundedReasonCodes(msg.metadata?.formulation_guard_reason_codes),
+            current_turn_grounding_guard_replaced: msg.metadata?.current_turn_grounding_guard_replaced === true,
+            current_turn_grounding_guard_reason_codes: toBoundedReasonCodes(
+              msg.metadata?.current_turn_grounding_guard_reason_codes
+            ),
           },
         });
       });
     }
 
-    return { merged, preservedExistingGuardedReplacement };
+    return {
+      merged,
+      preservedExistingGuardedReplacement:
+        preservedExistingGuardedReplacement || preservedExistingGroundingReplacement,
+    };
   };
 
   /**
@@ -1280,9 +1322,12 @@ export default function Chat() {
         },
       };
     });
+    const withRawIndexes = policyEnforced.map((msg, rawIndex) => (
+      msg ? { ...msg, __rawIndex: rawIndex } : msg
+    ));
     const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
       raw,
-      policyEnforced,
+      withRawIndexes,
       { locale: sessionLang }
     );
     const { messages: grounded, pendingCorrection: pendingGroundingCorrection } =
@@ -1296,10 +1341,11 @@ export default function Chat() {
     updatePendingInternalCorrection(pendingCorrection, pendingGroundingCorrection);
     const withRuntimeMetadata = grounded.map((msg, rawIndex) => {
       if (!msg) return null;
-      const guardMode = guardModesByRawIndex[rawIndex] || null;
+      const resolvedRawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : rawIndex;
+      const guardMode = guardModesByRawIndex[resolvedRawIndex] || null;
       return {
         ...msg,
-        __rawIndex: rawIndex,
+        __rawIndex: resolvedRawIndex,
         __guardMode: guardMode,
       };
     });
@@ -2050,6 +2096,11 @@ export default function Chat() {
             }
           } else {
             console.log('[Subscription] Update rejected - keeping current state');
+            if (subscriptionFinality.isFinal === true) {
+              subscriptionSucceededRef.current = true;
+              setIsLoading(false);
+              emitStabilitySummary();
+            }
           }
         } catch (err) {
           console.error('[Subscription] ❌ Processing error:', err);

@@ -91,16 +91,21 @@ function runChatVisiblePipeline(rawMessages, locale = 'en') {
     return null;
   });
   const sanitized = sanitizeConversationMessagesAligned(raw, locale);
+  const sanitizedWithRawIndexes = sanitized.map((msg, rawIndex) =>
+    msg ? { ...msg, __rawIndex: rawIndex } : msg
+  );
   const { messages: guarded } = applyFormulationGuardToConversationMessages(
-    raw, sanitized, { locale }
+    raw, sanitizedWithRawIndexes, { locale }
   );
   const { messages: grounded } = applyCurrentTurnGroundingGuardToConversationMessages(
     raw, guarded, { locale }
   );
   return grounded
-    .map((msg, rawIndex) =>
-      msg ? { ...msg, __rawIndex: rawIndex, __guardMode: guardModesByRawIndex[rawIndex] || null } : null
-    )
+    .map((msg, rawIndex) => {
+      if (!msg) return null;
+      const resolvedRawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : rawIndex;
+      return { ...msg, __rawIndex: resolvedRawIndex, __guardMode: guardModesByRawIndex[resolvedRawIndex] || null };
+    })
     .filter(Boolean);
 }
 
