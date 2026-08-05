@@ -223,10 +223,17 @@ function runChatVisiblePipeline(rawMessages, locale = 'en') {
   const raw = Array.isArray(rawMessages) ? rawMessages : [];
   const guardModes = buildGuardModesByRawIndex(raw);
   const sanitizedAligned = sanitizeConversationMessagesAligned(raw, locale);
-  const { messages: guardedAligned } = applyFormulationGuardToConversationMessages(raw, sanitizedAligned, { locale });
+  const alignedWithRawIndexes = sanitizedAligned.map((msg, rawIndex) => (
+    msg ? { ...msg, __rawIndex: rawIndex } : msg
+  ));
+  const { messages: guardedAligned } = applyFormulationGuardToConversationMessages(raw, alignedWithRawIndexes, { locale });
   const { messages: groundedAligned } = applyCurrentTurnGroundingGuardToConversationMessages(raw, guardedAligned, { locale });
   return groundedAligned
-    .map((msg, rawIndex) => (msg ? { ...msg, __rawIndex: rawIndex, __guardMode: guardModes[rawIndex] || null } : null))
+    .map((msg, rawIndex) => {
+      if (!msg) return null;
+      const resolvedRawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : rawIndex;
+      return { ...msg, __rawIndex: resolvedRawIndex, __guardMode: guardModes[resolvedRawIndex] || null };
+    })
     .filter(Boolean);
 }
 
@@ -989,6 +996,26 @@ describe('formulationContractGuard — correction-followup integration/regressio
       'conclusion_drawn_when_explicitly_blocked'
     );
     expect(pendingCorrection?.fallbackText).toBe(EXACT_HEBREW_CONTINUATION_FALLBACK);
+  });
+
+  it('preserves raw assistant pairing when earlier assistant turns are filtered from the visible pipeline', () => {
+    const raw = [
+      { id: 'u1', role: 'user', content: 'hello' },
+      { id: 'a1', role: 'assistant', content: '{"tool_calls":[{"name":"x"}]}' },
+      { id: 'u2', role: 'user', content: 'I feel stuck in a loop and it always ends the same way.' },
+      {
+        id: 'a2',
+        role: 'assistant',
+        content: 'זה תמיד נגמר אותו דבר עבורך.',
+      },
+    ];
+
+    const visible = runChatVisiblePipeline(raw, 'he');
+    const latestAssistant = visible.filter((msg) => msg.role === 'assistant').pop();
+
+    expect(visible.map((msg) => msg.id)).toEqual(['u1', 'u2', 'a2']);
+    expect(latestAssistant.__rawIndex).toBe(3);
+    expect(latestAssistant.metadata?.current_turn_grounding_guard_replaced).toBeUndefined();
   });
 
   it('21. correction-followup Safety Mode turn bypasses the formulation guard', () => {

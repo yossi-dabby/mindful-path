@@ -1280,9 +1280,12 @@ export default function Chat() {
         },
       };
     });
+    const withRawIndexes = policyEnforced.map((msg, rawIndex) => (
+      msg ? { ...msg, __rawIndex: rawIndex } : msg
+    ));
     const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
       raw,
-      policyEnforced,
+      withRawIndexes,
       { locale: sessionLang }
     );
     const { messages: grounded, pendingCorrection: pendingGroundingCorrection } =
@@ -1296,10 +1299,11 @@ export default function Chat() {
     updatePendingInternalCorrection(pendingCorrection, pendingGroundingCorrection);
     const withRuntimeMetadata = grounded.map((msg, rawIndex) => {
       if (!msg) return null;
-      const guardMode = guardModesByRawIndex[rawIndex] || null;
+      const resolvedRawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : rawIndex;
+      const guardMode = guardModesByRawIndex[resolvedRawIndex] || null;
       return {
         ...msg,
-        __rawIndex: rawIndex,
+        __rawIndex: resolvedRawIndex,
         __guardMode: guardMode,
       };
     });
@@ -2050,6 +2054,11 @@ export default function Chat() {
             }
           } else {
             console.log('[Subscription] Update rejected - keeping current state');
+            if (subscriptionFinality.isFinal === true) {
+              subscriptionSucceededRef.current = true;
+              setIsLoading(false);
+              emitStabilitySummary();
+            }
           }
         } catch (err) {
           console.error('[Subscription] ❌ Processing error:', err);
