@@ -37,6 +37,18 @@ async function setupLateReplayFixture(page: Page) {
   // and CONVERSATION_BY_ID handlers run in strict LIFO order in the Playwright
   // request-intercept pipeline.
   let pollStage = 0;
+  let lateAssistantScheduled = false;
+
+  const scheduleLateAssistant = () => {
+    if (lateAssistantScheduled) return;
+    lateAssistantScheduled = true;
+    setTimeout(() => {
+      if (!messages.some((message) => message.id === 'a2')) {
+        messages.push(buildMessage('assistant', 'a2', 'Assistant B'));
+      }
+      pollStage = 2;
+    }, 250);
+  };
 
   page.on('console', (msg) => {
     const text = msg.text();
@@ -74,9 +86,7 @@ async function setupLateReplayFixture(page: Page) {
     // messages.length >= 3 means u1, a1, u2 are present (turn 2 was sent).
     if (messages.length >= 3 && pollStage === 0) {
       pollStage = 1;
-    } else if (messages.length >= 3 && pollStage === 1) {
-      messages.push(buildMessage('assistant', 'a2', 'Assistant B'));
-      pollStage = 2;
+      scheduleLateAssistant();
     }
 
     await route.fulfill({
@@ -99,6 +109,9 @@ async function setupLateReplayFixture(page: Page) {
     messages.push(buildMessage('user', `u${userTurn}`, content));
     if (userTurn === 1) {
       messages.push(buildMessage('assistant', 'a1', 'Assistant A'));
+    } else if (userTurn === 2 && pollStage === 0) {
+      pollStage = 1;
+      scheduleLateAssistant();
     }
     await route.fulfill({
       status: 200,
@@ -148,8 +161,15 @@ test.describe('Chat V2 late duplicate runtime', () => {
       entry?.rejection_reason === 'stale_previous_turn_response' ||
       entry?.rejection_reason === 'no_new_assistant_for_active_turn' ||
       entry?.polling_continues === true);
-    expect(staleEvidence || fixture.diagnostics.some((entry) => entry.payload.includes('polling'))).toBe(true);
+    const diagnosticStaleEvidence = fixture.diagnostics.some((entry) =>
+      entry.payload.includes('stale_previous_turn_response') ||
+      entry.payload.includes('no_new_assistant_for_active_turn') ||
+      entry.payload.includes('"polling_continues":true'));
+    const pollingAcceptedVisible = await page.getByText(/Polling:accepted/, { exact: false }).count() > 0;
+    expect(staleEvidence || diagnosticStaleEvidence || pollingAcceptedVisible).toBe(true);
     expect(lifecycle.some((entry: any) =>
-      entry?.terminal_reason === 'visible_terminal_result_committed' && entry?.client_request_id)).toBe(true);
+      entry?.terminal_reason === 'visible_terminal_result_committed' &&
+      typeof entry?.client_request_id === 'string' &&
+      entry.client_request_id.length > 0)).toBe(true);
   });
 });
