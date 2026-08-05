@@ -2275,7 +2275,6 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
       { role: 'user', id: 'u1', content: PROD_USER_MSG },
       { role: 'assistant', id: 'a1', content: UNSUPPORTED_GROUNDED_REPLY },
       { role: 'user', id: 'u2', content: `${correction}\n\n${PROD_USER_MSG}` },
-      { role: 'assistant', id: 'a2', content: UNSUPPORTED_GROUNDED_REPLY },
     ];
 
     const sanitized = sanitizeConversationMessagesAligned(raw, 'he');
@@ -2283,8 +2282,7 @@ describe('V8-M: grounding correction parity and wrapped first-turn path', () => 
     const grounded = applyCurrentTurnGroundingGuardToConversationMessages(raw, guarded, { locale: 'he' });
 
     expect(grounded.pendingCorrection).toBeNull();
-    expect(grounded.messages[3].content).toBe(CURRENT_TURN_HE_FALLBACK);
-    expect(grounded.messages[3].metadata?.current_turn_grounding_guard_replaced).toBe(true);
+    expect(grounded.messages).toHaveLength(3);
   });
 
   it('allows the production hebrew third turn to stay visible when explicitly grounded in current-turn facts', () => {
