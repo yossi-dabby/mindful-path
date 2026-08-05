@@ -3602,14 +3602,68 @@ export default function Chat() {
                   }));
                 }
                 if (correlateResult.response_deduplicated) {
+                  // Spec §4: deduplicated committed response — close loading safely,
+                  // stop polling, do not drain the queue a second time.
                   console.log('[V2Orchestrator][Polling] deduped — skipping state update');
+                  if (isS2DebugEnabled()) {
+                    logS2DebugLifecycle({
+                      client_request_id: v2ActiveTurn.client_request_id,
+                      delivery_source: 'polling',
+                      phase: 'raw_correlation',
+                      response_correlated: correlateResult.response_correlated,
+                      safe_update_accepted: false,
+                      visible_commit_completed: false,
+                      active_turn_status: coord.getActiveTurn()?.status,
+                      polling_attempt: pollAttempts,
+                      polling_continues: false,
+                      terminal_reason: 'response_deduplicated',
+                    });
+                  }
                   setIsLoading(false);
+                  if (pollingIntervalRef.current) {
+                    clearTimeout(pollingIntervalRef.current);
+                    pollingIntervalRef.current = null;
+                  }
+                  if (loadingTimeoutRef.current) {
+                    clearTimeout(loadingTimeoutRef.current);
+                    loadingTimeoutRef.current = null;
+                  }
                   return;
                 }
                 if (!correlateResult.response_correlated) {
-                  // No candidate (stale, no assistant msg, etc.) — abort this poll cycle.
-                  console.log('[V2Orchestrator] polling correlation rejected:', correlateResult.rejected_reason);
-                  setIsLoading(false);
+                  // No candidate yet (stale snapshot, no assistant msg, etc.).
+                  // Spec §1/§2: rejection is non-terminal — continue polling.
+                  console.log('[V2Orchestrator] polling correlation not yet matched — continuing poll:', correlateResult.rejected_reason);
+                  if (isS2DebugEnabled()) {
+                    logS2DebugLifecycle({
+                      client_request_id: v2ActiveTurn.client_request_id,
+                      delivery_source: 'polling',
+                      phase: 'raw_correlation',
+                      response_correlated: false,
+                      safe_update_accepted: false,
+                      visible_commit_completed: false,
+                      active_turn_status: coord.getActiveTurn()?.status,
+                      polling_attempt: pollAttempts,
+                      polling_continues: !hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts),
+                      rejection_reason: correlateResult.rejected_reason || 'not_correlated',
+                    });
+                  }
+                  if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
+                    instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+                    chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                    setIsLoading(false);
+                    emitStabilitySummary();
+                    if (pollingIntervalRef.current) {
+                      clearTimeout(pollingIntervalRef.current);
+                      pollingIntervalRef.current = null;
+                    }
+                    if (loadingTimeoutRef.current) {
+                      clearTimeout(loadingTimeoutRef.current);
+                      loadingTimeoutRef.current = null;
+                    }
+                  } else {
+                    pollWithBackoff(pollAttempts);
+                  }
                   return;
                 }
                 // Phase B happens below: safeUpdateMessages, then visible_commit.
@@ -3652,6 +3706,18 @@ export default function Chat() {
                       late_response_recovered: commitResult.late_response_recovered,
                       recovery_result: commitResult.recovery_result || undefined,
                     }));
+                    logS2DebugLifecycle({
+                      client_request_id: v2ActiveTurn.client_request_id,
+                      delivery_source: 'polling',
+                      phase: 'visible_commit',
+                      response_correlated: true,
+                      safe_update_accepted: true,
+                      visible_commit_completed: commitResult.accepted,
+                      active_turn_status: coord.getActiveTurn()?.status,
+                      polling_attempt: pollAttempts,
+                      polling_continues: false,
+                      terminal_reason: 'visible_terminal_result_committed',
+                    });
                   }
                   if (commitResult._nextQueuedSend) {
                     commitResult._nextQueuedSend().catch((err) => {
@@ -3664,10 +3730,62 @@ export default function Chat() {
                 // cannot overwrite the bubble that was just atomically rendered.
                 markAssistantMessagesFinalized(convId, guardedPoll);
                 emitStabilitySummary();
+              } else if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
+                // Spec §1: safeUpdateMessages rejected — rejection is non-terminal.
+                // Do NOT clear loading, do NOT stop polling, keep the turn GENERATING.
+                // Schedule the next bounded polling attempt.
+                const coord = chatCoordinatorV2Ref.current;
+                console.log('[V2Orchestrator][Polling] safe-update rejected — continuing poll (turn stays GENERATING)');
+                if (isS2DebugEnabled()) {
+                  logS2DebugLifecycle({
+                    client_request_id: v2ActiveTurn.client_request_id,
+                    delivery_source: 'polling',
+                    phase: 'raw_correlation',
+                    response_correlated: true,
+                    safe_update_accepted: false,
+                    visible_commit_completed: false,
+                    active_turn_status: coord.getActiveTurn()?.status,
+                    polling_attempt: pollAttempts,
+                    polling_continues: !hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts),
+                    rejection_reason: 'safe_update_rejected',
+                  });
+                }
+                if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
+                  // Spec §2C: bounded timeout reached — use existing terminal timeout path.
+                  instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+                  chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                  if (isS2DebugEnabled()) {
+                    logS2DebugLifecycle({
+                      client_request_id: v2ActiveTurn.client_request_id,
+                      delivery_source: 'polling',
+                      phase: 'raw_correlation',
+                      response_correlated: true,
+                      safe_update_accepted: false,
+                      visible_commit_completed: false,
+                      active_turn_status: coord.getActiveTurn()?.status,
+                      polling_attempt: pollAttempts,
+                      polling_continues: false,
+                      terminal_reason: 'polling_exhausted_after_rejection',
+                    });
+                  }
+                  setIsLoading(false);
+                  emitStabilitySummary();
+                  if (pollingIntervalRef.current) {
+                    clearTimeout(pollingIntervalRef.current);
+                    pollingIntervalRef.current = null;
+                  }
+                  if (loadingTimeoutRef.current) {
+                    clearTimeout(loadingTimeoutRef.current);
+                    loadingTimeoutRef.current = null;
+                  }
+                } else {
+                  pollWithBackoff(pollAttempts);
+                }
+                return;
               }
 
-              // Clear loading once finality is verified. setIsLoading(false) remains
-              // outside `if (updated)` so guard-driven update rejection cannot stall UX.
+              // Terminal accepted path (legacy or V2 accepted):
+              // Clear loading once finality is verified.
               setIsLoading(false);
 
               if (pollingIntervalRef.current) {
