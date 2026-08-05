@@ -2052,13 +2052,19 @@ export default function Chat() {
               }));
             }
             if (correlateResult.response_deduplicated) {
-              // Already committed — safe to skip the state update.
+              // Already committed — close loading without re-rendering a new bubble.
               console.log('[V2Orchestrator][Subscription] deduped — skipping state update');
+              setIsLoading(false);
             } else if (!correlateResult.response_correlated) {
               // No candidate to work with (no assistant msg, stale, etc.) — skip.
               console.log('[V2Orchestrator][Subscription] correlation rejected:', correlateResult.rejected_reason);
+            } else if (!subscriptionFinality.isFinal) {
+              // Non-final snapshot — do not call safeUpdateMessages; leave the turn
+              // open for a later final snapshot.
+              console.log('[V2Orchestrator][Subscription] non-final snapshot — turn remains open');
             } else {
-              // Phase B: attempt visible update, then commit only on acceptance.
+              // Phase B: snapshot is final and correlated — attempt visible update,
+              // then commit only if safeUpdateMessages accepts.
               const candidateSnapshot = correlateResult._deduplicatedSnapshot || processedMessages;
               updated = safeUpdateMessages(candidateSnapshot, 'Subscription');
               if (updated) {
@@ -2291,10 +2297,12 @@ export default function Chat() {
 
     // V2: If a turn is active during hydration (e.g., hydration fires during generation),
     // route through reconcileSnapshot so it can count as late delivery for timed_out turns.
+    // visible_commit is only called when safeUpdateMessages accepted the snapshot AND
+    // the snapshot is final — a rejected hydration must not complete the active turn.
     if (chatOrchestratorV2EnabledRef.current) {
       const coord = chatCoordinatorV2Ref.current;
       const activeTurn = coord.getActiveTurn();
-      if (activeTurn) {
+      if (activeTurn && hydrated && hydrateFinality.isFinal) {
         const reconcile = coord.reconcileSnapshot({
           snapshot: guardedHydrate,
           clientRequestId: activeTurn.client_request_id,

@@ -447,17 +447,28 @@ export function createChatOrchestratorV2() {
     const preReconcileStatus = _activeTurn.status;
 
     if (phase === 'raw_correlation') {
+      // Raw correlation NEVER commits the turn — it only confirms that a
+      // candidate response exists and is not already deduplicated.
+      // The caller is responsible for calling visible_commit (and only after
+      // safeUpdateMessages accepts) to actually complete the turn.
       result.response_correlated = true;
       result.committed_response_key = responseKey;
-      result.accepted = visibleAccepted === true;
+      result._deduplicatedSnapshot = deduplicated;
       if (visibleAccepted !== true) {
+        result.accepted = false;
         result.rejected_reason = 'visible_update_rejected';
         result.post_processing_rejected_reason =
           typeof rejectionReason === 'string' && rejectionReason.trim()
             ? rejectionReason
             : 'visible_update_rejected';
-        return result;
+      } else {
+        // visibleAccepted=true but raw_correlation must still not commit.
+        // Return correlated=true, accepted=false so the caller proceeds to
+        // safeUpdateMessages → visible_commit.
+        result.accepted = false;
+        result.rejected_reason = 'raw_correlation_pending_visible_commit';
       }
+      return result;
     }
 
     // Commit the response.
