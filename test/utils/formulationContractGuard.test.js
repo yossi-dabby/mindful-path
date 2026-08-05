@@ -1001,7 +1001,7 @@ describe('formulationContractGuard — correction-followup integration/regressio
   it('preserves raw assistant pairing when earlier assistant turns are filtered from the visible pipeline', () => {
     const raw = [
       { id: 'u1', role: 'user', content: 'hello' },
-      { id: 'a1', role: 'assistant', content: '{"tool_calls":[{"name":"x"}]}' },
+      { id: 'a1', role: 'assistant', content: 'connection_error' },
       { id: 'u2', role: 'user', content: 'I feel stuck in a loop and it always ends the same way.' },
       {
         id: 'a2',
