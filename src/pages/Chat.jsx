@@ -761,7 +761,14 @@ export default function Chat() {
 
   const logS2DebugLifecycle = (fields) => {
     if (!isS2DebugEnabled()) return;
-    console.log('[S2Debug] chat-runtime-lifecycle', buildS2DebugLifecycleDiagnostic(fields));
+    const payload = buildS2DebugLifecycleDiagnostic(fields);
+    console.log('[S2Debug] chat-runtime-lifecycle', payload);
+    if (typeof window !== 'undefined') {
+      if (!Array.isArray(window.__S2_DEBUG_LIFECYCLE_LOGS__)) {
+        window.__S2_DEBUG_LIFECYCLE_LOGS__ = [];
+      }
+      window.__S2_DEBUG_LIFECYCLE_LOGS__.push(payload);
+    }
   };
 
   const updatePendingInternalCorrection = (pendingFormulationCorrection, pendingGroundingCorrection) => {
