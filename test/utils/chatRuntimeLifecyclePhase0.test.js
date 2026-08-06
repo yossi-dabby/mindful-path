@@ -53,7 +53,7 @@ describe('Phase 0 chat runtime lifecycle characterization', () => {
 
   it('polling halts at the existing bounded max attempt threshold', () => {
     const { maxPollAttempts, pollDelays } = getDefaultPollingLifecycle();
-    expect(pollDelays).toEqual([500, 1000, 2000, 4000, 8000]);
+    expect(pollDelays).toEqual([500, 1000, 2000, 4000, 6500]);
     expect(hasPollingAttemptTimedOut(maxPollAttempts - 1, maxPollAttempts)).toBe(false);
     expect(hasPollingAttemptTimedOut(maxPollAttempts, maxPollAttempts)).toBe(true);
   });

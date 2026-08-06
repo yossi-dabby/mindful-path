@@ -1,4 +1,4 @@
-const DEFAULT_POLL_DELAYS = Object.freeze([500, 1000, 2000, 4000, 8000]);
+const DEFAULT_POLL_DELAYS = Object.freeze([500, 1000, 2000, 4000, 6500]);
 const DEFAULT_MAX_POLL_ATTEMPTS = 5;
 
 export function calculateExpectedReplyCount(currentMessageCount) {

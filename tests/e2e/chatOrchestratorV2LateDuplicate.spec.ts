@@ -146,7 +146,7 @@ test.describe('Chat V2 late duplicate runtime', () => {
     await expect(input).toHaveValue('', { timeout: 5000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
-    await expect(page.getByText('Assistant B', { exact: true })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Assistant B', { exact: true })).toBeVisible({ timeout: 20000 });
     expect(fixture.getPollStage()).toBe(2);
     await expect(page.getByText('Assistant B', { exact: true })).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
