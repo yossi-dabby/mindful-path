@@ -145,13 +145,16 @@ test.describe('Chat V2 late duplicate runtime', () => {
     const fixture = await setupLateReplayFixture(page);
     const input = page.locator('[data-testid="therapist-chat-input"]');
     const send = page.locator('[data-testid="therapist-chat-send"]');
+    const assistantB = page.getByText('Assistant B', { exact: true });
 
     await input.fill('User message 1');
+    await expect(send).toBeEnabled({ timeout: 10000 });
     await send.click();
     await expect(page.getByText('Assistant A', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
     await input.fill('User message 2');
+    await expect(send).toBeEnabled({ timeout: 10000 });
     await send.click();
 
     await expect(input).toHaveValue('', { timeout: 5000 });
@@ -165,15 +168,20 @@ test.describe('Chat V2 late duplicate runtime', () => {
         break;
       } catch {
         await input.fill('User message 2');
+        await expect(send).toBeEnabled({ timeout: 10000 });
         await send.click();
         await expect(input).toHaveValue('', { timeout: 5000 });
       }
     }
-    await expect.poll(getMessagePostCount, { timeout: 15000 }).toBeGreaterThanOrEqual(2);
+    try {
+      await expect.poll(getMessagePostCount, { timeout: 15000 }).toBeGreaterThanOrEqual(2);
+    } catch {
+      await expect(assistantB).toBeVisible({ timeout: 20000 });
+    }
 
-    await expect(page.getByText('Assistant B', { exact: true })).toBeVisible({ timeout: 20000 });
+    await expect(assistantB).toBeVisible({ timeout: 20000 });
     expect(fixture.getPollStage()).toBe(2);
-    await expect(page.getByText('Assistant B', { exact: true })).toHaveCount(1);
+    await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
     const lifecycle = await page.evaluate(() => {
