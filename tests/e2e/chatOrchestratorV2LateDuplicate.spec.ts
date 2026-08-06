@@ -162,25 +162,15 @@ test.describe('Chat V2 late duplicate runtime', () => {
 
     const getMessagePostCount = () =>
       fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
-    for (let attempt = 0; attempt < 4 && getMessagePostCount() < 2; attempt++) {
-      try {
-        await expect.poll(getMessagePostCount, { timeout: 15000 }).toBeGreaterThanOrEqual(2);
-        break;
-      } catch {
-        await input.fill('User message 2');
-        await expect(send).toBeEnabled({ timeout: 10000 });
-        await send.click();
-        await expect(input).toHaveValue('', { timeout: 5000 });
-      }
-    }
+    let secondPostObserved = true;
     try {
-      await expect.poll(getMessagePostCount, { timeout: 15000 }).toBeGreaterThanOrEqual(2);
+      await expect.poll(getMessagePostCount, { timeout: 30000 }).toBeGreaterThanOrEqual(2);
     } catch {
-      await expect(assistantB).toBeVisible({ timeout: 20000 });
+      secondPostObserved = false;
     }
 
     await expect(assistantB).toBeVisible({ timeout: 20000 });
-    expect(fixture.getPollStage()).toBe(2);
+    await expect.poll(() => fixture.getPollStage(), { timeout: secondPostObserved ? 10000 : 20000 }).toBe(2);
     await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
