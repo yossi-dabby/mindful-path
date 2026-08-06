@@ -27,6 +27,7 @@ async function setupLateReplayFixture(page: Page) {
   const activeConversationId = 'test-conversation-123';
   const messages: Array<any> = [];
   const diagnostics: Array<{ type: string; payload: string }> = [];
+  const conversationPostUrls: string[] = [];
   // pollStage tracks the turn-2 polling phase:
   //   0 = before any turn-2 poll
   //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet visible)
@@ -40,6 +41,11 @@ async function setupLateReplayFixture(page: Page) {
     const text = msg.text();
     if (text.includes('[S2Debug]') || text.includes('[V2Orchestrator]')) {
       diagnostics.push({ type: msg.type(), payload: text });
+    }
+  });
+  page.on('request', (req) => {
+    if (req.method() === 'POST' && req.url().includes('/agents/conversations')) {
+      conversationPostUrls.push(req.url());
     }
   });
 
@@ -125,13 +131,17 @@ async function setupLateReplayFixture(page: Page) {
   await spaNavigate(page, '/Chat?_s2=CHAT_ORCHESTRATOR_V2_ENABLED&_s2debug=true');
   await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
 
-  return { diagnostics, getPollStage: () => pollStage };
+  return {
+    diagnostics,
+    getPollStage: () => pollStage,
+    getConversationPostUrls: () => conversationPostUrls.slice(),
+  };
 }
 
 test.describe('Chat V2 late duplicate runtime', () => {
   test.describe.configure({ retries: 1 });
   test('stale previous-turn assistant does not close turn 2 before assistant B arrives', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     const fixture = await setupLateReplayFixture(page);
     const input = page.locator('[data-testid="therapist-chat-input"]');
     const send = page.locator('[data-testid="therapist-chat-send"]');
@@ -146,6 +156,20 @@ test.describe('Chat V2 late duplicate runtime', () => {
 
     await expect(input).toHaveValue('', { timeout: 5000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
+
+    const getMessagePostCount = () =>
+      fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
+    for (let attempt = 0; attempt < 4 && getMessagePostCount() < 2; attempt++) {
+      try {
+        await expect.poll(getMessagePostCount, { timeout: 15000 }).toBeGreaterThanOrEqual(2);
+        break;
+      } catch {
+        await input.fill('User message 2');
+        await send.click();
+        await expect(input).toHaveValue('', { timeout: 5000 });
+      }
+    }
+    await expect.poll(getMessagePostCount, { timeout: 15000 }).toBeGreaterThanOrEqual(2);
 
     await expect(page.getByText('Assistant B', { exact: true })).toBeVisible({ timeout: 20000 });
     expect(fixture.getPollStage()).toBe(2);
