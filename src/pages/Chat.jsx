@@ -110,7 +110,11 @@ import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
-import { isChatOrchestratorV2Enabled } from '@/lib/featureFlags.js';
+import {
+  getNonSafetyGuardAuditMode,
+  isChatOrchestratorV2Enabled,
+  isGroundingGuardRemediationShadowEnabled,
+} from '@/lib/featureFlags.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
@@ -480,6 +484,13 @@ export default function Chat() {
   // Flag false preserves exact Phase 0 legacy behavior.
   const chatOrchestratorV2EnabledRef = useRef(isChatOrchestratorV2Enabled());
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
+  const formulationGuardAuditModeRef = useRef(getNonSafetyGuardAuditMode('formulation'));
+  const currentTurnGroundingGuardAuditModeRef = useRef(
+    isGroundingGuardRemediationShadowEnabled()
+      ? 'SHADOW'
+      : getNonSafetyGuardAuditMode('grounding')
+  );
+  const guardDecisionReuseCacheRef = useRef(new Map());
   // The coordinator is created once and reset when the conversation changes.
   const chatCoordinatorV2Ref = useRef(createChatOrchestratorV2());
   // Tracks the previous currentConversationId so the conversation-change effect can
@@ -588,6 +599,7 @@ export default function Chat() {
         chatCoordinatorV2Ref.current.resetForConversationChange();
       }
     }
+    guardDecisionReuseCacheRef.current.clear();
     prevConversationIdForV2ResetRef.current = currentConversationId;
   }, [currentConversationId]);
 
@@ -957,6 +969,94 @@ export default function Chat() {
     };
   };
 
+  const hashBoundedIdentifier = (value) => {
+    if (typeof value !== 'string' || value.length === 0) return null;
+    let hash = 2166136261;
+    for (let i = 0; i < value.length; i += 1) {
+      hash ^= value.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return `fnv1a32:${(hash >>> 0).toString(16).padStart(8, '0')}`;
+  };
+
+  const getGuardAuditEntriesFromAssistant = (assistantMsg) => {
+    if (!assistantMsg || assistantMsg.role !== 'assistant') return [];
+    const metadata = assistantMsg.metadata || {};
+    const entries = [];
+    const formulationAudit = metadata.formulation_guard_audit;
+    const groundingAudit = metadata.current_turn_grounding_guard_audit;
+    if (formulationAudit && typeof formulationAudit === 'object') {
+      entries.push(formulationAudit);
+    }
+    if (groundingAudit && typeof groundingAudit === 'object') {
+      entries.push(groundingAudit);
+    }
+    return entries;
+  };
+
+  const emitGuardIsolationDiagnostics = ({
+    source,
+    incomingMessages,
+    safeUpdateAccepted,
+    visibleCommitCompleted,
+  }) => {
+    if (!isS2DebugEnabled()) return;
+    const latestAssistantEntry = selectLatestAssistantResponse(incomingMessages);
+    if (!latestAssistantEntry?.msg) return;
+    const latestAssistant = latestAssistantEntry.msg;
+    const assistantStableId = latestAssistant.id || getAssistantIdentityKey(latestAssistant, latestAssistantEntry.index);
+    const assistantRawIndex =
+      Number.isInteger(latestAssistant.__rawIndex) ? latestAssistant.__rawIndex : latestAssistantEntry.index;
+    const currentTurn = chatCoordinatorV2Ref.current?.getActiveTurn?.() || null;
+    const conversationHash = hashBoundedIdentifier(currentConversationId || '');
+    const language = sessionLanguageRef.current || 'en';
+    const audits = getGuardAuditEntriesFromAssistant(latestAssistant);
+    audits.forEach((audit) => {
+      const guardVersion = typeof audit.guard_version === 'string' ? audit.guard_version : 'unknown';
+      const pairedUserStableId = typeof audit.paired_user_stable_id === 'string' ? audit.paired_user_stable_id : null;
+      const decisionKey = [
+        currentConversationId || 'none',
+        assistantStableId || `raw:${assistantRawIndex}`,
+        pairedUserStableId || `raw:${audit.paired_user_raw_index ?? 'none'}`,
+        guardVersion,
+        language,
+      ].join('|');
+      const decisionReused = guardDecisionReuseCacheRef.current.has(decisionKey);
+      if (!decisionReused) {
+        guardDecisionReuseCacheRef.current.set(decisionKey, true);
+      }
+      logS2DebugLifecycle({
+        conversation_id_hash: conversationHash,
+        client_request_id: currentTurn?.client_request_id || null,
+        generation_id: currentTurn?.generation_id || null,
+        assistant_stable_id: assistantStableId || null,
+        assistant_raw_index: Number.isInteger(audit.assistant_raw_index) ? audit.assistant_raw_index : assistantRawIndex,
+        paired_user_stable_id: pairedUserStableId,
+        paired_user_raw_index: Number.isInteger(audit.paired_user_raw_index) ? audit.paired_user_raw_index : null,
+        language,
+        delivery_source: normalizeTraceSource(source) || source || 'unknown',
+        guard_name: typeof audit.guard_name === 'string' ? audit.guard_name : 'unknown_guard',
+        guard_mode: typeof audit.guard_mode === 'string'
+          ? audit.guard_mode
+          : (audit.guard_name === 'current_turn_grounding_guard'
+            ? currentTurnGroundingGuardAuditModeRef.current
+            : audit.guard_name === 'formulation_contract_guard'
+              ? formulationGuardAuditModeRef.current
+              : 'unknown'),
+        guard_version: guardVersion,
+        guard_input_identity:
+          typeof audit.guard_input_identity === 'string' ? audit.guard_input_identity : null,
+        guard_decision: typeof audit.guard_decision === 'string' ? audit.guard_decision : 'unknown',
+        guard_reason_codes: Array.isArray(audit.guard_reason_codes) ? audit.guard_reason_codes.slice(0, 8) : [],
+        replacement_created: audit.replacement_created === true,
+        replacement_terminal: audit.replacement_terminal === true,
+        safe_update_accepted: safeUpdateAccepted,
+        visible_commit_completed: visibleCommitCompleted,
+        decision_reused: decisionReused || audit.decision_reused === true,
+      });
+    });
+  };
+
   const getAssistantContentSummary = (msg) => {
     if (!msg || msg.role !== 'assistant') return { length: 0, hash: null };
     return summarizeText(typeof msg.content === 'string' ? msg.content : '');
@@ -1144,6 +1244,12 @@ export default function Chat() {
       rejectedReasonCode,
       snapshotSequence,
       pollFinality,
+    });
+    emitGuardIsolationDiagnostics({
+      source,
+      incomingMessages,
+      safeUpdateAccepted: accepted,
+      visibleCommitCompleted: false,
     });
   };
 
@@ -1346,17 +1452,47 @@ export default function Chat() {
     const withRawIndexes = policyEnforced.map((msg, rawIndex) => (
       msg ? { ...msg, __rawIndex: rawIndex } : msg
     ));
-    const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
+    const {
+      messages: guarded,
+      pendingCorrection,
+      auditEvents: formulationGuardAuditEvents = [],
+    } = applyFormulationGuardToConversationMessages(
       raw,
       withRawIndexes,
-      { locale: sessionLang }
+      {
+        locale: sessionLang,
+        auditMode: formulationGuardAuditModeRef.current,
+      }
     );
-    const { messages: grounded, pendingCorrection: pendingGroundingCorrection } =
+    const {
+      messages: grounded,
+      pendingCorrection: pendingGroundingCorrection,
+      auditEvents: groundingGuardAuditEvents = [],
+    } =
       applyCurrentTurnGroundingGuardToConversationMessages(
       raw,
       guarded,
-      { locale: sessionLang }
+      {
+        locale: sessionLang,
+        auditMode: currentTurnGroundingGuardAuditModeRef.current,
+      }
     );
+    const guardAuditByAssistantRawIndex = new Map();
+    [...formulationGuardAuditEvents, ...groundingGuardAuditEvents].forEach((auditEvent) => {
+      const rawIndex = Number.isInteger(auditEvent?.assistant_raw_index)
+        ? auditEvent.assistant_raw_index
+        : null;
+      if (rawIndex === null) return;
+      if (!guardAuditByAssistantRawIndex.has(rawIndex)) {
+        guardAuditByAssistantRawIndex.set(rawIndex, {});
+      }
+      const bucket = guardAuditByAssistantRawIndex.get(rawIndex);
+      if (auditEvent.guard_name === 'formulation_contract_guard') {
+        bucket.formulation = auditEvent;
+      } else if (auditEvent.guard_name === 'current_turn_grounding_guard') {
+        bucket.grounding = auditEvent;
+      }
+    });
     pendingFormulationCorrectionRef.current = pendingCorrection;
     pendingGroundingCorrectionRef.current = pendingGroundingCorrection;
     updatePendingInternalCorrection(pendingCorrection, pendingGroundingCorrection);
@@ -1364,10 +1500,22 @@ export default function Chat() {
       if (!msg) return null;
       const resolvedRawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : rawIndex;
       const guardMode = guardModesByRawIndex[resolvedRawIndex] || null;
+      const guardAuditBucket = guardAuditByAssistantRawIndex.get(resolvedRawIndex);
       return {
         ...msg,
         __rawIndex: resolvedRawIndex,
         __guardMode: guardMode,
+        metadata: {
+          ...(msg.metadata || {}),
+          ...(guardAuditBucket
+            ? {
+              formulation_guard_audit:
+                  guardAuditBucket.formulation || undefined,
+              current_turn_grounding_guard_audit:
+                  guardAuditBucket.grounding || undefined,
+            }
+            : {}),
+        },
       };
     });
     const finalMessages = withRuntimeMetadata.filter(Boolean);
@@ -2116,6 +2264,12 @@ export default function Chat() {
                     recovery_result: commitResult.recovery_result || undefined,
                   }));
                 }
+                emitGuardIsolationDiagnostics({
+                  source: 'Subscription',
+                  incomingMessages: candidateSnapshot,
+                  safeUpdateAccepted: commitResult.accepted === true,
+                  visibleCommitCompleted: commitResult.accepted === true,
+                });
                 // Drain queued sends after turn is committed.
                 if (commitResult._nextQueuedSend) {
                   commitResult._nextQueuedSend().catch((err) => {
@@ -2346,6 +2500,12 @@ export default function Chat() {
             delivery_source: 'hydration',
           }));
         }
+        emitGuardIsolationDiagnostics({
+          source: 'CurrentConversationHydrate',
+          incomingMessages: guardedHydrate,
+          safeUpdateAccepted: reconcile.accepted === true,
+          visibleCommitCompleted: reconcile.accepted === true,
+        });
         if (reconcile.accepted && reconcile._nextQueuedSend) {
           reconcile._nextQueuedSend();
         }
@@ -3799,6 +3959,12 @@ export default function Chat() {
                       terminal_reason: 'visible_terminal_result_committed',
                     });
                   }
+                  emitGuardIsolationDiagnostics({
+                    source: 'Polling',
+                    incomingMessages: guardedPoll,
+                    safeUpdateAccepted: true,
+                    visibleCommitCompleted: commitResult.accepted === true,
+                  });
                   if (commitResult._nextQueuedSend) {
                     commitResult._nextQueuedSend().catch((err) => {
                       console.error('[V2Orchestrator] polling queued send failed:', err);

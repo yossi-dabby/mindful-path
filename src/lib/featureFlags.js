@@ -1192,3 +1192,53 @@ export function isChatOrchestratorV2Enabled(flagName = 'CHAT_ORCHESTRATOR_V2_ENA
   if (_chatOrchestratorStagingOverrides[flagName] === true) return true;
   return false;
 }
+
+const NON_SAFETY_GUARD_AUDIT_MODES = new Set(['ENFORCE', 'SHADOW', 'OFF']);
+
+function _normalizeNonSafetyGuardAuditMode(value, fallback = 'ENFORCE') {
+  if (typeof value !== 'string') return fallback;
+  const normalized = value.trim().toUpperCase();
+  return NON_SAFETY_GUARD_AUDIT_MODES.has(normalized) ? normalized : fallback;
+}
+
+/**
+ * Returns the audit execution mode for non-safety guards.
+ *
+ * Modes:
+ *  - ENFORCE: evaluate and apply deterministic replacement on violation
+ *  - SHADOW : evaluate only, never replace
+ *  - OFF    : skip evaluation and replacement
+ *
+ * Defaults to ENFORCE to preserve existing production behavior.
+ *
+ * @param {'formulation'|'grounding'|string} guardName
+ * @returns {'ENFORCE'|'SHADOW'|'OFF'}
+ */
+export function getNonSafetyGuardAuditMode(guardName) {
+  if (guardName === 'formulation') {
+    return _normalizeNonSafetyGuardAuditMode(
+      import.meta.env?.VITE_FORMULATION_GUARD_AUDIT_MODE,
+      'ENFORCE',
+    );
+  }
+  if (guardName === 'grounding') {
+    return _normalizeNonSafetyGuardAuditMode(
+      import.meta.env?.VITE_CURRENT_TURN_GROUNDING_GUARD_AUDIT_MODE,
+      'ENFORCE',
+    );
+  }
+  return 'ENFORCE';
+}
+
+/**
+ * False-default remediation gate for grounding guard delivery incidents.
+ *
+ * When enabled, Chat runtime forces the grounding non-safety guard into SHADOW
+ * mode regardless of the configured grounding audit mode, allowing shadow-first
+ * rollback-safe operation during incident triage.
+ *
+ * @returns {boolean}
+ */
+export function isGroundingGuardRemediationShadowEnabled() {
+  return import.meta.env?.VITE_GROUNDING_GUARD_REMEDIATION_SHADOW_ENABLED === 'true';
+}

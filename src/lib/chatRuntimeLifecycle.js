@@ -199,5 +199,35 @@ export function buildS2DebugLifecycleDiagnostic(fields = {}) {
   if (typeof fields.polling_continues === 'boolean') payload.polling_continues = fields.polling_continues;
   if (typeof fields.rejection_reason === 'string') payload.rejection_reason = fields.rejection_reason;
   if (typeof fields.terminal_reason === 'string') payload.terminal_reason = fields.terminal_reason;
+  if (typeof fields.conversation_id_hash === 'string' || fields.conversation_id_hash === null) {
+    payload.conversation_id_hash = fields.conversation_id_hash;
+  }
+  if (typeof fields.generation_id === 'string' || fields.generation_id === null) {
+    payload.generation_id = fields.generation_id;
+  }
+  if (typeof fields.assistant_stable_id === 'string' || fields.assistant_stable_id === null) {
+    payload.assistant_stable_id = fields.assistant_stable_id;
+  }
+  if (Number.isInteger(fields.assistant_raw_index) || fields.assistant_raw_index === null) {
+    payload.assistant_raw_index = fields.assistant_raw_index;
+  }
+  if (typeof fields.paired_user_stable_id === 'string' || fields.paired_user_stable_id === null) {
+    payload.paired_user_stable_id = fields.paired_user_stable_id;
+  }
+  if (Number.isInteger(fields.paired_user_raw_index) || fields.paired_user_raw_index === null) {
+    payload.paired_user_raw_index = fields.paired_user_raw_index;
+  }
+  if (typeof fields.language === 'string') payload.language = fields.language;
+  if (typeof fields.guard_name === 'string') payload.guard_name = fields.guard_name;
+  if (typeof fields.guard_mode === 'string') payload.guard_mode = fields.guard_mode;
+  if (typeof fields.guard_version === 'string') payload.guard_version = fields.guard_version;
+  if (typeof fields.guard_input_identity === 'string' || fields.guard_input_identity === null) {
+    payload.guard_input_identity = fields.guard_input_identity;
+  }
+  if (typeof fields.guard_decision === 'string') payload.guard_decision = fields.guard_decision;
+  if (Array.isArray(fields.guard_reason_codes)) payload.guard_reason_codes = fields.guard_reason_codes.slice(0, 8);
+  if (typeof fields.replacement_created === 'boolean') payload.replacement_created = fields.replacement_created;
+  if (typeof fields.replacement_terminal === 'boolean') payload.replacement_terminal = fields.replacement_terminal;
+  if (typeof fields.decision_reused === 'boolean') payload.decision_reused = fields.decision_reused;
   return payload;
 }

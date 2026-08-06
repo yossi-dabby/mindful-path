@@ -71,6 +71,18 @@ export const CURRENT_TURN_GROUNDING_CORRECTION_END =
 const INITIAL_FORMULATION_GUARD_MODE = 'initial_formulation';
 const CORRECTION_FOLLOWUP_GUARD_MODE = 'correction_followup';
 
+const GUARD_AUDIT_MODES = new Set(['ENFORCE', 'SHADOW', 'OFF']);
+const GUARD_DECISIONS = Object.freeze({
+  PASS: 'PASS',
+  SOFT_WARN: 'SOFT_WARN',
+  REPLACE_TERMINAL: 'REPLACE_TERMINAL',
+  HARD_STOP_SAFETY: 'HARD_STOP_SAFETY',
+  ERROR_FAIL_OPEN: 'ERROR_FAIL_OPEN',
+});
+
+const FORMULATION_GUARD_VERSION = 'formulation_contract_guard.v1';
+const CURRENT_TURN_GROUNDING_GUARD_VERSION = 'current_turn_grounding_guard.v1';
+
 // ─── Exact fallback texts (immutable) ─────────────────────────────────────────
 
 /**
@@ -740,6 +752,19 @@ function _normalizeSnippet(value, maxLen = 160) {
   return normalized.length > maxLen ? normalized.slice(0, maxLen) : normalized;
 }
 
+function _resolveGuardAuditMode(mode, fallback = 'ENFORCE') {
+  if (typeof mode !== 'string') return fallback;
+  const normalized = mode.trim().toUpperCase();
+  return GUARD_AUDIT_MODES.has(normalized) ? normalized : fallback;
+}
+
+function _boundedReasonCodes(reasonCodes) {
+  if (!Array.isArray(reasonCodes)) return [];
+  return reasonCodes
+    .filter((code) => typeof code === 'string' && code.trim().length > 0)
+    .slice(0, 8);
+}
+
 // ─── Current-turn grounding: context-aware helpers ────────────────────────────
 
 /**
@@ -1297,6 +1322,15 @@ function _findPrecedingRawUser(rawMessages, beforeIdx) {
   return null;
 }
 
+function _findPrecedingRawUserInfo(rawMessages, beforeIdx) {
+  for (let i = beforeIdx - 1; i >= 0; i--) {
+    if (rawMessages[i] && rawMessages[i].role === 'user') {
+      return { message: rawMessages[i], rawIndex: i };
+    }
+  }
+  return { message: null, rawIndex: null };
+}
+
 // ─── Phase 6: Centralized guard application ───────────────────────────────────
 
 /**
@@ -1321,9 +1355,11 @@ function _findPrecedingRawUser(rawMessages, beforeIdx) {
  * @param {Array<object>}  finalMessages   Sanitized + processed messages (raw-index aligned).
  * @param {object}         [options]
  * @param {'he'|'en'|string} [options.locale='en']  Session locale.
+ * @param {'ENFORCE'|'SHADOW'|'OFF'} [options.auditMode='ENFORCE']
  * @returns {{
  *   messages: Array<object>,
- *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null
+ *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null,
+ *   auditEvents: Array<object>
  * }}
  */
 export function applyFormulationGuardToConversationMessages(
@@ -1333,14 +1369,16 @@ export function applyFormulationGuardToConversationMessages(
 ) {
   const locale = (typeof options?.locale === 'string' ? options.locale : 'en');
   const effectiveLocale = locale.startsWith('he') ? 'he' : 'en';
+  const auditMode = _resolveGuardAuditMode(options?.auditMode, 'ENFORCE');
+  const auditEvents = [];
 
   // Guard is only defined for Hebrew and English.
   if (effectiveLocale !== 'he' && effectiveLocale !== 'en') {
-    return { messages: finalMessages, pendingCorrection: null };
+    return { messages: finalMessages, pendingCorrection: null, auditEvents };
   }
 
   if (!Array.isArray(rawMessages) || !Array.isArray(finalMessages)) {
-    return { messages: Array.isArray(finalMessages) ? finalMessages : [], pendingCorrection: null };
+    return { messages: Array.isArray(finalMessages) ? finalMessages : [], pendingCorrection: null, auditEvents };
   }
 
   const result = [];
@@ -1358,7 +1396,11 @@ export function applyFormulationGuardToConversationMessages(
 
     // Canonical production contract: processed index must match raw index.
     const rawIdx = fi >= 0 && fi < rawMessages.length ? fi : -1;
-    const precedingRawUser = rawIdx !== -1 ? _findPrecedingRawUser(rawMessages, rawIdx) : null;
+    const precedingRawUserInfo = rawIdx !== -1
+      ? _findPrecedingRawUserInfo(rawMessages, rawIdx)
+      : { message: null, rawIndex: null };
+    const precedingRawUser = precedingRawUserInfo.message;
+    const pairedUserRawIndex = precedingRawUserInfo.rawIndex;
 
     const rawUserContent = precedingRawUser ? precedingRawUser.content : null;
 
@@ -1373,6 +1415,22 @@ export function applyFormulationGuardToConversationMessages(
 
     // Already guarded_replaced (idempotency): do not re-evaluate
     if (msg.metadata?.formulation_guard_replaced === true) {
+      const reasonCodes = _boundedReasonCodes(msg.metadata?.formulation_guard_reason_codes);
+      const replacementCreated = typeof msg.content === 'string' && msg.content.length > 0;
+      auditEvents.push({
+        guard_name: 'formulation_contract_guard',
+        guard_mode: auditMode,
+        guard_version: FORMULATION_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: replacementCreated ? GUARD_DECISIONS.REPLACE_TERMINAL : GUARD_DECISIONS.SOFT_WARN,
+        guard_reason_codes: reasonCodes,
+        replacement_created: replacementCreated,
+        replacement_terminal: replacementCreated,
+        decision_reused: true,
+        assistant_raw_index: rawIdx !== -1 ? rawIdx : fi,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
       result.push(msg);
       // Still track as a replaced turn for pending correction logic
       if (rawIdx !== -1) {
@@ -1383,10 +1441,91 @@ export function applyFormulationGuardToConversationMessages(
     }
 
     // Evaluate the assistant response
-    const evaluation = evaluateFormulationResponseContract(msg.content, rawUserContent, guardMode);
+    let evaluation;
+    try {
+      evaluation = evaluateFormulationResponseContract(msg.content, rawUserContent, guardMode);
+    } catch (_error) {
+      auditEvents.push({
+        guard_name: 'formulation_contract_guard',
+        guard_mode: auditMode,
+        guard_version: FORMULATION_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.ERROR_FAIL_OPEN,
+        guard_reason_codes: ['guard_evaluation_error'],
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx !== -1 ? rawIdx : fi,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
+      result.push(msg);
+      continue;
+    }
+
+    const boundedReasonCodes = _boundedReasonCodes(evaluation.reasonCodes);
 
     if (evaluation.pass) {
+      auditEvents.push({
+        guard_name: 'formulation_contract_guard',
+        guard_mode: auditMode,
+        guard_version: FORMULATION_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.PASS,
+        guard_reason_codes: boundedReasonCodes,
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx !== -1 ? rawIdx : fi,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
       result.push(msg);
+      continue;
+    }
+
+    if (auditMode === 'OFF') {
+      auditEvents.push({
+        guard_name: 'formulation_contract_guard',
+        guard_mode: auditMode,
+        guard_version: FORMULATION_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.SOFT_WARN,
+        guard_reason_codes: boundedReasonCodes,
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx !== -1 ? rawIdx : fi,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
+      result.push(msg);
+      continue;
+    }
+
+    if (auditMode === 'SHADOW') {
+      const shadowMsg = {
+        ...msg,
+        metadata: {
+          ...(msg.metadata || {}),
+          formulation_guard_shadow_reason_codes: boundedReasonCodes,
+        },
+      };
+      auditEvents.push({
+        guard_name: 'formulation_contract_guard',
+        guard_mode: auditMode,
+        guard_version: FORMULATION_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.SOFT_WARN,
+        guard_reason_codes: boundedReasonCodes,
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx !== -1 ? rawIdx : fi,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
+      result.push(shadowMsg);
       continue;
     }
 
@@ -1398,9 +1537,23 @@ export function applyFormulationGuardToConversationMessages(
       metadata: {
         ...(msg.metadata || {}),
         formulation_guard_replaced: true,
-        formulation_guard_reason_codes: evaluation.reasonCodes,
+        formulation_guard_reason_codes: boundedReasonCodes,
       },
     };
+    auditEvents.push({
+      guard_name: 'formulation_contract_guard',
+      guard_mode: auditMode,
+      guard_version: FORMULATION_GUARD_VERSION,
+      guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+      guard_decision: GUARD_DECISIONS.REPLACE_TERMINAL,
+      guard_reason_codes: boundedReasonCodes,
+      replacement_created: true,
+      replacement_terminal: true,
+      decision_reused: false,
+      assistant_raw_index: rawIdx !== -1 ? rawIdx : fi,
+      paired_user_raw_index: pairedUserRawIndex,
+      paired_user_stable_id: precedingRawUser?.id || null,
+    });
     result.push(replacedMsg);
 
     if (rawIdx !== -1) {
@@ -1424,7 +1577,7 @@ export function applyFormulationGuardToConversationMessages(
     }
   }
 
-  return { messages: result, pendingCorrection };
+  return { messages: result, pendingCorrection, auditEvents };
 }
 
 /**
@@ -1440,9 +1593,11 @@ export function applyFormulationGuardToConversationMessages(
  * @param {Array<object>} finalMessages
  * @param {object} [options]
  * @param {'he'|'en'|string} [options.locale='en']
+ * @param {'ENFORCE'|'SHADOW'|'OFF'} [options.auditMode='ENFORCE']
  * @returns {{
  *   messages: Array<object>,
- *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null
+ *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null,
+ *   auditEvents: Array<object>
  * }}
  */
 export function applyCurrentTurnGroundingGuardToConversationMessages(
@@ -1452,11 +1607,14 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
 ) {
   const locale = (typeof options?.locale === 'string' ? options.locale : 'en');
   const effectiveLocale = locale.startsWith('he') ? 'he' : 'en';
+  const auditMode = _resolveGuardAuditMode(options?.auditMode, 'ENFORCE');
+  const auditEvents = [];
 
   if (!Array.isArray(rawMessages) || !Array.isArray(finalMessages)) {
     return {
       messages: Array.isArray(finalMessages) ? finalMessages : [],
       pendingCorrection: null,
+      auditEvents,
     };
   }
 
@@ -1481,6 +1639,26 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
     }
 
     if (msg.metadata?.current_turn_grounding_guard_replaced === true) {
+      const reasonCodes = _boundedReasonCodes(msg.metadata?.current_turn_grounding_guard_reason_codes);
+      const rawIdx = Number.isInteger(msg?.__rawIndex) ? msg.__rawIndex : fi;
+      const precedingRawUserInfo = rawIdx !== -1
+        ? _findPrecedingRawUserInfo(rawMessages, rawIdx)
+        : { message: null, rawIndex: null };
+      const precedingRawUser = precedingRawUserInfo.message;
+      auditEvents.push({
+        guard_name: 'current_turn_grounding_guard',
+        guard_mode: auditMode,
+        guard_version: CURRENT_TURN_GROUNDING_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.REPLACE_TERMINAL,
+        guard_reason_codes: reasonCodes,
+        replacement_created: true,
+        replacement_terminal: true,
+        decision_reused: true,
+        assistant_raw_index: rawIdx,
+        paired_user_raw_index: precedingRawUserInfo.rawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
       result.push(msg);
       continue;
     }
@@ -1496,12 +1674,97 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
     const rawIdx = Number.isInteger(msg?.__rawIndex)
       ? msg.__rawIndex
       : assistantRawIndices.shift() ?? -1;
-    const precedingRawUser = rawIdx !== -1 ? _findPrecedingRawUser(rawMessages, rawIdx) : null;
+    const precedingRawUserInfo = rawIdx !== -1
+      ? _findPrecedingRawUserInfo(rawMessages, rawIdx)
+      : { message: null, rawIndex: null };
+    const precedingRawUser = precedingRawUserInfo.message;
+    const pairedUserRawIndex = precedingRawUserInfo.rawIndex;
     const rawUserContent = precedingRawUser ? precedingRawUser.content : null;
-    const evaluation = evaluateCurrentTurnGroundingContract(msg.content, rawUserContent);
+    let evaluation;
+    try {
+      evaluation = evaluateCurrentTurnGroundingContract(msg.content, rawUserContent);
+    } catch (_error) {
+      auditEvents.push({
+        guard_name: 'current_turn_grounding_guard',
+        guard_mode: auditMode,
+        guard_version: CURRENT_TURN_GROUNDING_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.ERROR_FAIL_OPEN,
+        guard_reason_codes: ['guard_evaluation_error'],
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
+      result.push(msg);
+      continue;
+    }
+
+    const boundedReasonCodes = _boundedReasonCodes(evaluation.reasonCodes);
 
     if (evaluation.pass) {
+      auditEvents.push({
+        guard_name: 'current_turn_grounding_guard',
+        guard_mode: auditMode,
+        guard_version: CURRENT_TURN_GROUNDING_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.PASS,
+        guard_reason_codes: boundedReasonCodes,
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
       result.push(msg);
+      continue;
+    }
+
+    if (auditMode === 'OFF') {
+      auditEvents.push({
+        guard_name: 'current_turn_grounding_guard',
+        guard_mode: auditMode,
+        guard_version: CURRENT_TURN_GROUNDING_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.SOFT_WARN,
+        guard_reason_codes: boundedReasonCodes,
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
+      result.push(msg);
+      continue;
+    }
+
+    if (auditMode === 'SHADOW') {
+      const shadowMsg = {
+        ...msg,
+        metadata: {
+          ...(msg.metadata || {}),
+          current_turn_grounding_guard_shadow_reason_codes: boundedReasonCodes,
+        },
+      };
+      auditEvents.push({
+        guard_name: 'current_turn_grounding_guard',
+        guard_mode: auditMode,
+        guard_version: CURRENT_TURN_GROUNDING_GUARD_VERSION,
+        guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+        guard_decision: GUARD_DECISIONS.SOFT_WARN,
+        guard_reason_codes: boundedReasonCodes,
+        replacement_created: false,
+        replacement_terminal: false,
+        decision_reused: false,
+        assistant_raw_index: rawIdx,
+        paired_user_raw_index: pairedUserRawIndex,
+        paired_user_stable_id: precedingRawUser?.id || null,
+      });
+      result.push(shadowMsg);
       continue;
     }
 
@@ -1512,11 +1775,25 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
       metadata: {
         ...(msg.metadata || {}),
         current_turn_grounding_guard_replaced: true,
-        current_turn_grounding_guard_reason_codes: evaluation.reasonCodes,
+        current_turn_grounding_guard_reason_codes: boundedReasonCodes,
         current_turn_grounding_guard_user_raw_index: rawIdx,
         current_turn_grounding_guard_user_message_id: precedingRawUser?.id || null,
       },
     };
+    auditEvents.push({
+      guard_name: 'current_turn_grounding_guard',
+      guard_mode: auditMode,
+      guard_version: CURRENT_TURN_GROUNDING_GUARD_VERSION,
+      guard_input_identity: `assistant_raw:${rawIdx}|paired_user_raw:${rawIdx !== -1 ? rawIdx - 1 : -1}`,
+      guard_decision: GUARD_DECISIONS.REPLACE_TERMINAL,
+      guard_reason_codes: boundedReasonCodes,
+      replacement_created: true,
+      replacement_terminal: true,
+      decision_reused: false,
+      assistant_raw_index: rawIdx,
+      paired_user_raw_index: pairedUserRawIndex,
+      paired_user_stable_id: precedingRawUser?.id || null,
+    });
     result.push(replacedMsg);
     if (rawIdx !== -1) {
       lastReplacedRawIdx = rawIdx;
@@ -1538,5 +1815,5 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
     }
   }
 
-  return { messages: result, pendingCorrection };
+  return { messages: result, pendingCorrection, auditEvents };
 }
