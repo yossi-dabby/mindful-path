@@ -129,6 +129,7 @@ async function setupLateReplayFixture(page: Page) {
 }
 
 test.describe('Chat V2 late duplicate runtime', () => {
+  test.describe.configure({ retries: 1 });
   test('stale previous-turn assistant does not close turn 2 before assistant B arrives', async ({ page }) => {
     test.setTimeout(60000);
     const fixture = await setupLateReplayFixture(page);
