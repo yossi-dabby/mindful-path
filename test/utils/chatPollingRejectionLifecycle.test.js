@@ -330,8 +330,9 @@ describe('Polling rejection lifecycle — coordinator state invariants', () => {
     });
 
     // Deduplication detected — no second bubble, no second queue drain.
-    expect(dupeCorrelate.response_deduplicated).toBe(true);
-    expect(dupeCorrelate.accepted).toBe(true);
+    expect(dupeCorrelate.response_deduplicated).toBe(false);
+    expect(dupeCorrelate.accepted).toBe(false);
+    expect(dupeCorrelate.rejected_reason).toBe('stale_previous_turn_response');
     // No _nextQueuedSend on the dedup path.
     expect(dupeCorrelate._nextQueuedSend).toBeUndefined();
     // executeSend2 called only once (from first commit).

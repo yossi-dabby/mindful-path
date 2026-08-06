@@ -482,6 +482,12 @@ export default function Chat() {
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
   // The coordinator is created once and reset when the conversation changes.
   const chatCoordinatorV2Ref = useRef(createChatOrchestratorV2());
+  // Tracks the previous currentConversationId so the conversation-change effect can
+  // distinguish a first-time ID assignment (null → id, new conversation created during send)
+  // from a user-initiated conversation switch (id → id).  resetForConversationChange must
+  // only be called on a switch; calling it during a new-conversation creation nukes the
+  // _activeTurn that registerSend just created, which causes the V2 poll path to fail.
+  const prevConversationIdForV2ResetRef = useRef(null);
 
   const buildTurnScopedResponsePolicy = ({ policy, conversationId, clientRequestId = null, generationIdentity = null, status = 'pending' } = {}) => {
     if (!policy || typeof policy !== 'object') return null;
@@ -572,9 +578,17 @@ export default function Chat() {
     });
     // V2 coordinator: reset on conversation switch so that historical messages
     // from the previous conversation are never treated as active turns.
+    // Skip the reset when currentConversationId is being set for the first time
+    // (prevId was null) — that case is a new-conversation creation mid-send, not a
+    // switch, and calling resetForConversationChange at that moment would clear the
+    // _activeTurn that registerSend just created, breaking the V2 poll path.
     if (chatOrchestratorV2EnabledRef.current) {
-      chatCoordinatorV2Ref.current.resetForConversationChange();
+      const prevId = prevConversationIdForV2ResetRef.current;
+      if (prevId !== null) {
+        chatCoordinatorV2Ref.current.resetForConversationChange();
+      }
     }
+    prevConversationIdForV2ResetRef.current = currentConversationId;
   }, [currentConversationId]);
 
   useEffect(() => {
@@ -761,7 +775,14 @@ export default function Chat() {
 
   const logS2DebugLifecycle = (fields) => {
     if (!isS2DebugEnabled()) return;
-    console.log('[S2Debug] chat-runtime-lifecycle', buildS2DebugLifecycleDiagnostic(fields));
+    const payload = buildS2DebugLifecycleDiagnostic(fields);
+    console.log('[S2Debug] chat-runtime-lifecycle', payload);
+    if (typeof window !== 'undefined') {
+      if (!Array.isArray(window.__S2_DEBUG_LIFECYCLE_LOGS__)) {
+        window.__S2_DEBUG_LIFECYCLE_LOGS__ = [];
+      }
+      window.__S2_DEBUG_LIFECYCLE_LOGS__.push(payload);
+    }
   };
 
   const updatePendingInternalCorrection = (pendingFormulationCorrection, pendingGroundingCorrection) => {

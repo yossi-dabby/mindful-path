@@ -156,6 +156,8 @@ describe('Cross-turn dedup contract', () => {
     vi.stubGlobal('window', { sessionStorage: makeSessionStorage() });
   });
 
+
+
   it('late duplicate from turn 1 does not stop polling for turn 2', () => {
     const coord = createChatOrchestratorV2();
 
@@ -192,8 +194,9 @@ describe('Cross-turn dedup contract', () => {
 
     // Case A: safe terminal dedup for the old request — not a fatal error,
     // but stale_client_request_id signals that this is NOT for the current turn.
-    expect(staleResult.response_deduplicated).toBe(true);
-    expect(staleResult.accepted).toBe(true);
+    expect(staleResult.response_deduplicated).toBe(false);
+    expect(staleResult.accepted).toBe(false);
+    expect(staleResult.rejected_reason).toBe('stale_previous_turn_response');
     // stale_client_request_id lets callers know this is cross-turn
     expect(staleResult.stale_client_request_id).toBe(turn1.client_request_id);
 
@@ -300,7 +303,8 @@ describe('Cross-turn dedup contract', () => {
     });
     // stale_client_request_id is set — callers must not close loading or stop polling
     expect(stale.stale_client_request_id).toBe(turn1.client_request_id);
-    expect(stale.response_deduplicated).toBe(true);
+    expect(stale.response_deduplicated).toBe(false);
+    expect(stale.rejected_reason).toBe('stale_previous_turn_response');
     // _nextQueuedSend must not be set — stale results must not drain the queue
     expect(stale._nextQueuedSend).toBeUndefined();
     // The queued execute was not called a second time
@@ -367,5 +371,80 @@ describe('Diagnostic sanitizer — new V2 lifecycle fields', () => {
     expect(diag.client_request_id).toBe('req-xyz');
     expect(diag.phase).toBe('visible_commit');
     expect(diag.polling_continues).toBe(true);
+  });
+});
+
+
+describe('Stale replay active-request regression', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+    vi.stubGlobal('window', { sessionStorage: makeSessionStorage() });
+  });
+
+  it('active request snapshot with user 2 but only assistant 1 stays non-terminal', () => {
+    const coord = createChatOrchestratorV2();
+    const { turn: turn1 } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
+    coord.recordUserMessageId(turn1.client_request_id, 'u1');
+    coord.markGenerating(turn1.client_request_id);
+    coord.reconcileSnapshot({
+      snapshot: [makeUserMsg('u1'), makeAssistantMsg('a1')],
+      deliverySource: 'polling',
+      clientRequestId: turn1.client_request_id,
+      phase: 'visible_commit',
+    });
+
+    coord.abandon(turn1.client_request_id);
+    const { turn: turn2 } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
+    coord.recordUserMessageId(turn2.client_request_id, 'u2');
+    coord.markGenerating(turn2.client_request_id);
+
+    const result = coord.reconcileSnapshot({
+      snapshot: [makeUserMsg('u1'), makeAssistantMsg('a1'), makeUserMsg('u2')],
+      deliverySource: 'polling',
+      clientRequestId: turn2.client_request_id,
+      phase: 'raw_correlation',
+    });
+
+    expect(result.accepted).toBe(false);
+    expect(result.response_deduplicated).toBe(false);
+    expect(result.rejected_reason).toBe('no_new_assistant_for_active_turn');
+    expect(coord.getActiveTurn()?.status).toBe(TURN_STATUS.GENERATING);
+  });
+
+  it('subscription replay without clientRequestId stays non-terminal and later assistant commits', () => {
+    const coord = createChatOrchestratorV2();
+    const { turn: turn1 } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
+    coord.recordUserMessageId(turn1.client_request_id, 'u1');
+    coord.markGenerating(turn1.client_request_id);
+    coord.reconcileSnapshot({
+      snapshot: [makeUserMsg('u1'), makeAssistantMsg('a1')],
+      deliverySource: 'subscription',
+      clientRequestId: turn1.client_request_id,
+      phase: 'visible_commit',
+    });
+
+    coord.abandon(turn1.client_request_id);
+    const { turn: turn2 } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
+    coord.recordUserMessageId(turn2.client_request_id, 'u2');
+    coord.markGenerating(turn2.client_request_id);
+
+    const stale = coord.reconcileSnapshot({
+      snapshot: [makeUserMsg('u1'), makeAssistantMsg('a1'), makeUserMsg('u2')],
+      deliverySource: 'subscription',
+      phase: 'raw_correlation',
+    });
+    expect(stale.accepted).toBe(false);
+    expect(stale.response_deduplicated).toBe(false);
+    expect(stale.rejected_reason).toBe('no_new_assistant_for_active_turn');
+    expect(coord.getActiveTurn()?.status).toBe(TURN_STATUS.GENERATING);
+
+    const commit2 = coord.reconcileSnapshot({
+      snapshot: [makeUserMsg('u1'), makeAssistantMsg('a1'), makeUserMsg('u2'), makeAssistantMsg('a2', '2026-08-05T00:02:00.000Z')],
+      deliverySource: 'subscription',
+      phase: 'visible_commit',
+      clientRequestId: turn2.client_request_id,
+    });
+    expect(commit2.accepted).toBe(true);
+    expect(coord.getActiveTurn()?.status).toBe(TURN_STATUS.COMPLETED);
   });
 });
