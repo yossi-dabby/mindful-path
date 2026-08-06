@@ -29,26 +29,12 @@ async function setupLateReplayFixture(page: Page) {
   const diagnostics: Array<{ type: string; payload: string }> = [];
   // pollStage tracks the turn-2 polling phase:
   //   0 = before any turn-2 poll
-  //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet added)
+  //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet visible)
   //   2 = second poll for turn 2 observed (a2 added to messages)
   //
-  // We gate on messages.length >= 3 (u1, a1, u2 present) rather than a `turn`
-  // counter so the stage advances reliably regardless of whether the MESSAGES_POST
-  // and CONVERSATION_BY_ID handlers run in strict LIFO order in the Playwright
-  // request-intercept pipeline.
+  // a2 is injected synchronously on the second GET so there is no timer-based
+  // race between the Node.js event loop and the browser's 500 ms polling timer.
   let pollStage = 0;
-  let lateAssistantScheduled = false;
-
-  const scheduleLateAssistant = () => {
-    if (lateAssistantScheduled) return;
-    lateAssistantScheduled = true;
-    setTimeout(() => {
-      if (!messages.some((message) => message.id === 'a2')) {
-        messages.push(buildMessage('assistant', 'a2', 'Assistant B'));
-      }
-      pollStage = 2;
-    }, 250);
-  };
 
   page.on('console', (msg) => {
     const text = msg.text();
@@ -84,9 +70,22 @@ async function setupLateReplayFixture(page: Page) {
     // Advance pollStage based on messages.length so we don't depend on the
     // MESSAGES_POST handler having already run before this GET fires.
     // messages.length >= 3 means u1, a1, u2 are present (turn 2 was sent).
+    //
+    // Stage 0 → 1 (first poll after turn 2): return [u1, a1, u2] without a2 so
+    // the orchestrator exercises the "reply not yet ready" polling-continuation
+    // path before a2 becomes visible.
+    //
+    // Stage 1 → 2 (second poll after turn 2): inject a2 synchronously so the
+    // orchestrator receives [u1, a1, u2, a2] and can commit "Assistant B".
+    // Synchronous injection avoids any timer-based race with the browser's
+    // polling timer that caused intermittent CI failures.
     if (messages.length >= 3 && pollStage === 0) {
       pollStage = 1;
-      scheduleLateAssistant();
+    } else if (messages.length >= 3 && pollStage === 1) {
+      if (!messages.some((m) => m.id === 'a2')) {
+        messages.push(buildMessage('assistant', 'a2', 'Assistant B'));
+      }
+      pollStage = 2;
     }
 
     await route.fulfill({
@@ -109,9 +108,6 @@ async function setupLateReplayFixture(page: Page) {
     messages.push(buildMessage('user', `u${userTurn}`, content));
     if (userTurn === 1) {
       messages.push(buildMessage('assistant', 'a1', 'Assistant A'));
-    } else if (userTurn === 2 && pollStage === 0) {
-      pollStage = 1;
-      scheduleLateAssistant();
     }
     await route.fulfill({
       status: 200,
