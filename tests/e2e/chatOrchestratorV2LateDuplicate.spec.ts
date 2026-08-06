@@ -67,21 +67,23 @@ async function setupLateReplayFixture(page: Page) {
       return;
     }
 
-    // Advance pollStage based on messages.length so we don't depend on the
-    // MESSAGES_POST handler having already run before this GET fires.
-    // messages.length >= 3 means u1, a1, u2 are present (turn 2 was sent).
+    // Advance pollStage only after u2 has been confirmed as sent (u2 id present
+    // in messages array), so a background GET (e.g. React-Query refetch) that
+    // fires before MESSAGES_POST completes cannot prematurely consume a stage
+    // transition.
     //
-    // Stage 0 → 1 (first poll after turn 2): return [u1, a1, u2] without a2 so
-    // the orchestrator exercises the "reply not yet ready" polling-continuation
-    // path before a2 becomes visible.
+    // Stage 0 → 1 (first GET after turn 2 is sent): return [u1, a1, u2]
+    // without a2 so the orchestrator exercises the "reply not yet ready"
+    // polling-continuation path before a2 becomes visible.
     //
-    // Stage 1 → 2 (second poll after turn 2): inject a2 synchronously so the
-    // orchestrator receives [u1, a1, u2, a2] and can commit "Assistant B".
-    // Synchronous injection avoids any timer-based race with the browser's
-    // polling timer that caused intermittent CI failures.
-    if (messages.length >= 3 && pollStage === 0) {
+    // Stage 1 → 2 (second GET after turn 2 is sent): inject a2 synchronously
+    // so the orchestrator receives [u1, a1, u2, a2] and can commit
+    // "Assistant B".  Synchronous injection avoids any timer-based race with
+    // the browser's polling timer that caused intermittent CI failures.
+    const turn2Sent = messages.some((m) => m.id === 'u2');
+    if (turn2Sent && pollStage === 0) {
       pollStage = 1;
-    } else if (messages.length >= 3 && pollStage === 1) {
+    } else if (turn2Sent && pollStage === 1) {
       if (!messages.some((m) => m.id === 'a2')) {
         messages.push(buildMessage('assistant', 'a2', 'Assistant B'));
       }
