@@ -3621,9 +3621,9 @@ export default function Chat() {
               console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}) - stopping polling`);
 
               // Tracks whether Phase A raw_correlation succeeded for this polling attempt.
-              // Used by the polling-exhaustion handler to decide between force-completing
-              // (Phase A verified a valid new response) and marking the turn timed-out.
-              let v2PhaseACorrelated = false;
+              // Holds the correlated snapshot so the exhaustion handler can force-complete
+              // with the exact same snapshot that Phase A verified.
+              let v2PhaseACorrelated = null;
 
               // V2: Two-phase reconcileSnapshot wiring for polling.
               //   Phase A — raw_correlation: correlate without completing the turn.
@@ -3786,7 +3786,10 @@ export default function Chat() {
                   return;
                 }
                 // Phase A succeeded — Phase B (visible_commit) happens below.
-                v2PhaseACorrelated = true;
+                // Capture the correlated snapshot here so the polling-exhaustion
+                // handler uses the exact snapshot that Phase A verified, not a
+                // potentially different one from a later re-entry.
+                v2PhaseACorrelated = guardedPoll;
               }
 
               // CRITICAL: Safe update with validation
@@ -3908,11 +3911,11 @@ export default function Chat() {
                     // the queue is permanently blocked.
                     const forceCoord = chatCoordinatorV2Ref.current;
                     const forceCommit = forceCoord.reconcileSnapshot({
-                      snapshot: guardedPoll,
+                      snapshot: v2PhaseACorrelated,
                       clientRequestId: v2ActiveTurn.client_request_id,
                       deliverySource: 'polling',
                       phase: 'visible_commit',
-                      visibleAccepted: false,
+                      visibleAccepted: true,
                       terminalReason: 'visible_terminal_result_committed',
                     });
                     if (isS2DebugEnabled()) {
