@@ -110,7 +110,7 @@ import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
-import { isChatOrchestratorV2Enabled } from '@/lib/featureFlags.js';
+import { isChatOrchestratorV2Enabled, getDedupGuardPollingMode } from '@/lib/featureFlags.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
@@ -480,6 +480,9 @@ export default function Chat() {
   // Flag false preserves exact Phase 0 legacy behavior.
   const chatOrchestratorV2EnabledRef = useRef(isChatOrchestratorV2Enabled());
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
+  // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
+  // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
+  const dedupGuardPollingModeRef = useRef(getDedupGuardPollingMode());
   // The coordinator is created once and reset when the conversation changes.
   const chatCoordinatorV2Ref = useRef(createChatOrchestratorV2());
   // Tracks the previous currentConversationId so the conversation-change effect can
@@ -3713,6 +3716,33 @@ export default function Chat() {
                 if (!correlateResult.response_correlated) {
                   // No candidate yet (stale snapshot, no assistant msg, etc.).
                   // Spec §1/§2: rejection is non-terminal — continue polling.
+                  //
+                  // DEDUP_GUARD_POLLING (Guard Isolation Audit):
+                  //   When the rejection reason is 'turn_already_completed' AND
+                  //   subscription already committed this turn
+                  //   (subscriptionSucceededRef.current=true), continuing to poll
+                  //   is unnecessary — the turn is done.  SHADOW/ENFORCE modes
+                  //   detect this and suppress the poll continuation.
+                  //   OFF (default) preserves legacy behavior exactly.
+                  const _dedupGuardModeNcr = dedupGuardPollingModeRef.current;
+                  if (
+                    correlateResult.rejected_reason === 'turn_already_completed' &&
+                    subscriptionSucceededRef.current &&
+                    (_dedupGuardModeNcr === 'SHADOW' || _dedupGuardModeNcr === 'ENFORCE')
+                  ) {
+                    // Bounded provenance diagnostic — no PII, no content.
+                    console.log('[DedupGuard][' + _dedupGuardModeNcr + '] polling dedup: turn_already_completed + subscription_committed — suppressing poll continuation', {
+                      guard_mode: _dedupGuardModeNcr,
+                      delivery_source: 'polling',
+                      response_correlated: false,
+                      rejected_reason: 'turn_already_completed',
+                      subscription_committed: true,
+                      polling_attempt: pollAttempts,
+                      terminal_reason: 'subscription_committed_turn_completed',
+                    });
+                    // Turn is already committed — do not continue polling.
+                    return;
+                  }
                   console.log('[V2Orchestrator] polling correlation not yet matched — continuing poll:', correlateResult.rejected_reason);
                   if (isS2DebugEnabled()) {
                     logS2DebugLifecycle({
@@ -3814,6 +3844,28 @@ export default function Chat() {
                 // Spec §1: safeUpdateMessages rejected — rejection is non-terminal.
                 // Do NOT clear loading, do NOT stop polling, keep the turn GENERATING.
                 // Schedule the next bounded polling attempt.
+                //
+                // DEDUP_GUARD_POLLING (Guard Isolation Audit):
+                //   When subscription already committed this turn
+                //   (subscriptionSucceededRef.current=true), the updated=false outcome
+                //   above is a deliberate skip — NOT a safeUpdateMessages rejection.
+                //   SHADOW/ENFORCE modes detect this and prevent unnecessary polling
+                //   continuation.  OFF (default) preserves legacy behavior exactly.
+                const _dedupGuardMode = dedupGuardPollingModeRef.current;
+                const _subscriptionCommitted = subscriptionSucceededRef.current;
+                if (_subscriptionCommitted && (_dedupGuardMode === 'SHADOW' || _dedupGuardMode === 'ENFORCE')) {
+                  // Bounded provenance diagnostic — no PII, no content.
+                  console.log('[DedupGuard][' + _dedupGuardMode + '] polling dedup: subscription-committed skip is not a rejection — suppressing poll continuation', {
+                    guard_mode: _dedupGuardMode,
+                    delivery_source: 'polling',
+                    response_correlated: true,
+                    subscription_committed: true,
+                    polling_attempt: pollAttempts,
+                    terminal_reason: 'subscription_committed_skip',
+                  });
+                  // Turn is already committed by subscription — do not continue polling.
+                  return;
+                }
                 const coord = chatCoordinatorV2Ref.current;
                 console.log('[V2Orchestrator][Polling] safe-update rejected — continuing poll (turn stays GENERATING)');
                 if (isS2DebugEnabled()) {
