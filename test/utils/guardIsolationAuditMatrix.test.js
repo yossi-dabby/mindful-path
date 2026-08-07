@@ -443,7 +443,6 @@ describe('getDedupGuardPollingMode — flag contract', () => {
   it('returns SHADOW when VITE_DEDUP_GUARD_POLLING_SHADOW=true', async () => {
     vi.resetModules();
     vi.stubEnv('VITE_DEDUP_GUARD_POLLING_SHADOW', 'true');
-    vi.unstubEnv = vi.unstubAllEnvs ?? (() => {});
     const { getDedupGuardPollingMode: fn } = await import('../../src/lib/featureFlags.js');
     expect(fn()).toBe('SHADOW');
     vi.unstubAllEnvs();
