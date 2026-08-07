@@ -3620,6 +3620,11 @@ export default function Chat() {
             if (hasExpectedReplyCount && pollFinality.isFinal) {
               console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}) - stopping polling`);
 
+              // Tracks whether Phase A raw_correlation succeeded for this polling attempt.
+              // Used by the polling-exhaustion handler to decide between force-completing
+              // (Phase A verified a valid new response) and marking the turn timed-out.
+              let v2PhaseACorrelated = false;
+
               // V2: Two-phase reconcileSnapshot wiring for polling.
               //   Phase A — raw_correlation: correlate without completing the turn.
               //   Phase B — visible_commit: only after safeUpdateMessages accepts.
@@ -3780,7 +3785,8 @@ export default function Chat() {
                   }
                   return;
                 }
-                // Phase B happens below: safeUpdateMessages, then visible_commit.
+                // Phase A succeeded — Phase B (visible_commit) happens below.
+                v2PhaseACorrelated = true;
               }
 
               // CRITICAL: Safe update with validation
@@ -3891,9 +3897,46 @@ export default function Chat() {
                   });
                 }
                 if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
-                  // Spec §2C: bounded timeout reached — use existing terminal timeout path.
+                  // Spec §2C: bounded timeout reached.
                   instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
-                  chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                  if (v2PhaseACorrelated) {
+                    // Phase A already confirmed a valid new response, but
+                    // safeUpdateMessages kept rejecting across all poll attempts.
+                    // Force-complete the turn via visible_commit so the queue
+                    // drains and any subsequent send (turn 2) can proceed.
+                    // Without this, _activeTurn stays GENERATING/TIMED_OUT and
+                    // the queue is permanently blocked.
+                    const forceCoord = chatCoordinatorV2Ref.current;
+                    const forceCommit = forceCoord.reconcileSnapshot({
+                      snapshot: guardedPoll,
+                      clientRequestId: v2ActiveTurn.client_request_id,
+                      deliverySource: 'polling',
+                      phase: 'visible_commit',
+                      visibleAccepted: false,
+                      terminalReason: 'visible_terminal_result_committed',
+                    });
+                    if (isS2DebugEnabled()) {
+                      logS2DebugLifecycle({
+                        client_request_id: v2ActiveTurn.client_request_id,
+                        delivery_source: 'polling',
+                        phase: 'visible_commit',
+                        response_correlated: true,
+                        safe_update_accepted: false,
+                        visible_commit_completed: forceCommit.accepted,
+                        active_turn_status: forceCoord.getActiveTurn()?.status,
+                        polling_attempt: pollAttempts,
+                        polling_continues: false,
+                        terminal_reason: 'polling_exhausted_force_commit',
+                      });
+                    }
+                    if (forceCommit._nextQueuedSend) {
+                      forceCommit._nextQueuedSend().catch((err) => {
+                        console.error('[V2Orchestrator] polling exhaustion force-commit queued send failed:', err);
+                      });
+                    }
+                  } else {
+                    chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                  }
                   if (isS2DebugEnabled()) {
                     logS2DebugLifecycle({
                       client_request_id: v2ActiveTurn.client_request_id,
