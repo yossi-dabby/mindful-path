@@ -13,12 +13,15 @@ const ACTIVE_CONVERSATION_ID = 'test-conversation-123';
  * ultimately commits "Assistant B" to React state.
  */
 async function nudgeConversationRefetch(page: import('@playwright/test').Page) {
-  await page.evaluate(async () => {
-    await fetch(`/api/apps/test-app-id/agents/conversations/test-conversation-123`, {
-      method: 'GET',
-      cache: 'no-store',
-    });
-  });
+  await page.evaluate(
+    ([appId, convId]: [string, string]) => {
+      return fetch(`/api/apps/${appId}/agents/conversations/${convId}`, {
+        method: 'GET',
+        cache: 'no-store',
+      });
+    },
+    [TEST_APP_ID, ACTIVE_CONVERSATION_ID] as [string, string],
+  );
 }
 
 function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
