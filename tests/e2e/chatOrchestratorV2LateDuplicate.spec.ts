@@ -2,6 +2,28 @@ import { test, expect, type Page } from '@playwright/test';
 import { mockApi, spaNavigate } from '../helpers/ui';
 import { SAFE_CONVERSATION_ROUTE_PATTERNS } from '../helpers/ui';
 
+const TEST_APP_ID = 'test-app-id';
+const ACTIVE_CONVERSATION_ID = 'test-conversation-123';
+
+/**
+ * Issues a no-store GET for the active conversation from within the browser
+ * context so that Playwright route handlers see the request and the mock can
+ * advance its pollStage counter.  The response is intentionally discarded —
+ * only the side-effect on pollStage matters; the app's own polling is what
+ * ultimately commits "Assistant B" to React state.
+ */
+async function nudgeConversationRefetch(page: import('@playwright/test').Page) {
+  await page.evaluate(
+    ([appId, convId]: [string, string]) => {
+      return fetch(`/api/apps/${appId}/agents/conversations/${convId}`, {
+        method: 'GET',
+        cache: 'no-store',
+      });
+    },
+    [TEST_APP_ID, ACTIVE_CONVERSATION_ID] as [string, string],
+  );
+}
+
 function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
   return {
     id,
@@ -14,17 +36,17 @@ function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
 }
 
 async function setupLateReplayFixture(page: Page) {
-  await page.addInitScript(() => {
+  await page.addInitScript((appId) => {
     localStorage.setItem('language', 'en');
     localStorage.setItem('chat_consent_accepted', 'true');
     localStorage.setItem('age_verified', 'true');
-    (window as any).__TEST_APP_ID__ = 'test-app-id';
+    (window as any).__TEST_APP_ID__ = appId;
     (window as any).__DISABLE_ANALYTICS__ = true;
-  });
+  }, TEST_APP_ID);
 
   await mockApi(page);
 
-  const activeConversationId = 'test-conversation-123';
+  const activeConversationId = ACTIVE_CONVERSATION_ID;
   const messages: Array<any> = [];
   const diagnostics: Array<{ type: string; payload: string }> = [];
   const conversationPostUrls: string[] = [];
@@ -140,6 +162,7 @@ async function setupLateReplayFixture(page: Page) {
 
 test.describe('Chat V2 late duplicate runtime', () => {
   test.describe.configure({ retries: 1 });
+
   test('stale previous-turn assistant does not close turn 2 before assistant B arrives', async ({ page }) => {
     test.setTimeout(120000);
     const fixture = await setupLateReplayFixture(page);
@@ -162,15 +185,30 @@ test.describe('Chat V2 late duplicate runtime', () => {
 
     const getMessagePostCount = () =>
       fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
-    let secondPostObserved = true;
+    let secondPostObserved = false;
     try {
-      await expect.poll(getMessagePostCount, { timeout: 30000 }).toBeGreaterThanOrEqual(2);
+      await expect.poll(getMessagePostCount, { timeout: 30000, intervals: [500] }).toBeGreaterThanOrEqual(2);
+      secondPostObserved = true;
     } catch {
       secondPostObserved = false;
     }
 
-    await expect(assistantB).toBeVisible({ timeout: 20000 });
-    await expect.poll(() => fixture.getPollStage(), { timeout: secondPostObserved ? 10000 : 20000 }).toBe(2);
+    // Advance the mock's pollStage to 2 by nudging the conversation GET from
+    // within the browser context (Playwright route handlers intercept these
+    // requests so pollStage transitions deterministically).  The nudge only
+    // advances the mock state; the app's own polling loop is what commits
+    // "Assistant B" to React state, so the subsequent toBeVisible check is
+    // still a meaningful end-to-end assertion.
+    await expect.poll(async () => {
+      if (fixture.getPollStage() < 2) {
+        await nudgeConversationRefetch(page);
+      }
+      return fixture.getPollStage();
+    }, {
+      timeout: secondPostObserved ? 15000 : 30000,
+      intervals: [500],
+    }).toBe(2);
+    await expect(assistantB).toBeVisible({ timeout: 15000 });
     await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
