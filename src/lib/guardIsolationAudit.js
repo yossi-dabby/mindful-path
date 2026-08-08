@@ -465,10 +465,17 @@ export function applyGroundingGuardWithMode(rawMessages, finalMessages, options)
  */
 export function augmentProvenanceWithLifecycle(provenance, lifecycle) {
   if (!provenance || typeof provenance !== 'object') return provenance;
+  const hasLifecycle = lifecycle !== null && lifecycle !== undefined;
   return Object.freeze({
     ...provenance,
-    response_correlated: lifecycle?.responseCorrelated ?? provenance.response_correlated,
-    safe_update_accepted: lifecycle?.safeUpdateAccepted ?? provenance.safe_update_accepted,
-    visible_commit_completed: lifecycle?.visibleCommitCompleted ?? provenance.visible_commit_completed,
+    response_correlated: hasLifecycle
+      ? (lifecycle.responseCorrelated !== undefined ? lifecycle.responseCorrelated : null)
+      : provenance.response_correlated,
+    safe_update_accepted: hasLifecycle
+      ? (lifecycle.safeUpdateAccepted !== undefined ? lifecycle.safeUpdateAccepted : null)
+      : provenance.safe_update_accepted,
+    visible_commit_completed: hasLifecycle
+      ? (lifecycle.visibleCommitCompleted !== undefined ? lifecycle.visibleCommitCompleted : null)
+      : provenance.visible_commit_completed,
   });
 }
