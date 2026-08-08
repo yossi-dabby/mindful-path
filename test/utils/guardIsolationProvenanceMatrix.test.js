@@ -35,6 +35,7 @@ import {
   applyGroundingGuardWithMode,
   buildGuardProvenanceRecord,
   augmentProvenanceWithLifecycle,
+  assessCausalEvidence,
   GUARD_DECISION,
   GUARD_NAME,
 } from '../../src/lib/guardIsolationAudit.js';
@@ -688,4 +689,460 @@ describe('Incident signature — connect guard decision to lifecycle provenance 
       expect(fullProvenance.visible_commit_completed, `[${locale}] incident-rej: no commit`).toBe(false);
     });
   }
+});
+
+// ─── Regression: candidate-identity provenance isolation ─────────────────────
+
+describe('Candidate-identity provenance isolation — regression', () => {
+  /**
+   * These tests prove that identity-keyed provenance (keyed by client_request_id)
+   * cannot cross-attribute lifecycle evidence across assistant candidates.
+   *
+   * Simulated pattern that mirrors Chat.jsx guardProvenanceByRequestIdRef:
+   *   1. Evaluate guard for candidate A → store provenance under key A.
+   *   2. Evaluate guard for candidate B → store provenance under key B.
+   *   3. Augment with lifecycle for key B → must NOT affect key A's record.
+   */
+
+  it('earlier REPLACED + later PASS: augmenting later candidate returns PASS lifecycle, earlier record unchanged', () => {
+    const { raw: rawA, final: finalA } = buildFormulationPair(
+      FD_BLOCK_USER_CONTENT,
+      FORMULATION_FAILING_ASSISTANT_CONTENT,
+      'en'
+    );
+    const { raw: rawB, final: finalB } = buildFormulationPair(
+      'How are you?',
+      'I am doing well, thank you for asking.',
+      'en'
+    );
+
+    // Candidate A: guard REPLACES (REPLACED)
+    const resultA = applyFormulationGuardWithMode(rawA, finalA, {
+      locale: 'en',
+      mode: 'ENFORCE',
+      clientRequestId: 'crid-A',
+    });
+
+    // Candidate B: guard PASSES (no FD block in user content → PASS)
+    const resultB = applyFormulationGuardWithMode(rawB, finalB, {
+      locale: 'en',
+      mode: 'ENFORCE',
+      clientRequestId: 'crid-B',
+    });
+
+    // Simulate identity-keyed map (as in guardProvenanceByRequestIdRef)
+    const provenanceMap = new Map();
+    provenanceMap.set('crid-A', resultA.provenance);
+    provenanceMap.set('crid-B', resultB.provenance);
+
+    // Lifecycle event for candidate B (the latest turn)
+    const lifecycleB = { responseCorrelated: true, safeUpdateAccepted: true, visibleCommitCompleted: true, deliverySource: 'polling' };
+
+    // Augment candidate B's provenance with lifecycle
+    const augmentedB = augmentProvenanceWithLifecycle(provenanceMap.get('crid-B'), lifecycleB);
+
+    // Candidate A's record is untouched — still REPLACED, no lifecycle fields
+    expect(provenanceMap.get('crid-A').guard_decision).toBe(GUARD_DECISION.REPLACED);
+    expect(provenanceMap.get('crid-A').safe_update_accepted).toBeNull();
+    expect(provenanceMap.get('crid-A').visible_commit_completed).toBeNull();
+
+    // Candidate B's augmented provenance is PASS with lifecycle
+    expect(augmentedB.guard_decision).toBe(GUARD_DECISION.PASS);
+    expect(augmentedB.safe_update_accepted).toBe(true);
+    expect(augmentedB.visible_commit_completed).toBe(true);
+    expect(augmentedB.delivery_source).toBe('polling');
+    expect(augmentedB.client_request_id).toBe('crid-B');
+  });
+
+  it('earlier PASS + later REPLACED: augmenting later candidate returns REPLACED lifecycle, earlier record unchanged', () => {
+    const { raw: rawA, final: finalA } = buildFormulationPair(
+      'How are you?',
+      'I am doing well, thank you for asking.',
+      'en'
+    );
+    const { raw: rawB, final: finalB } = buildFormulationPair(
+      FD_BLOCK_USER_CONTENT,
+      FORMULATION_FAILING_ASSISTANT_CONTENT,
+      'en'
+    );
+
+    // Candidate A: guard PASSES
+    const resultA = applyFormulationGuardWithMode(rawA, finalA, {
+      locale: 'en',
+      mode: 'ENFORCE',
+      clientRequestId: 'crid-A2',
+    });
+
+    // Candidate B: guard REPLACES
+    const resultB = applyFormulationGuardWithMode(rawB, finalB, {
+      locale: 'en',
+      mode: 'ENFORCE',
+      clientRequestId: 'crid-B2',
+    });
+
+    const provenanceMap = new Map();
+    provenanceMap.set('crid-A2', resultA.provenance);
+    provenanceMap.set('crid-B2', resultB.provenance);
+
+    // Lifecycle for candidate B (latest turn) — safe_update_accepted=false (rejection scenario)
+    const lifecycleB = { responseCorrelated: true, safeUpdateAccepted: false, visibleCommitCompleted: false, deliverySource: 'subscription' };
+    const augmentedB = augmentProvenanceWithLifecycle(provenanceMap.get('crid-B2'), lifecycleB);
+
+    // Candidate A's record is still PASS, no lifecycle
+    expect(provenanceMap.get('crid-A2').guard_decision).toBe(GUARD_DECISION.PASS);
+    expect(provenanceMap.get('crid-A2').safe_update_accepted).toBeNull();
+
+    // Candidate B's augmented provenance identifies the REPLACEMENT with lifecycle
+    expect(augmentedB.guard_decision).toBe(GUARD_DECISION.REPLACED);
+    expect(augmentedB.safe_update_accepted).toBe(false);
+    expect(augmentedB.visible_commit_completed).toBe(false);
+    expect(augmentedB.delivery_source).toBe('subscription');
+    expect(augmentedB.client_request_id).toBe('crid-B2');
+  });
+
+  it('subscription/polling interleaving: augmenting by key cannot affect provenance stored under a different key', () => {
+    // Simulates interleaved subscription + polling delivery for two distinct requests.
+    const provenanceMap = new Map();
+
+    const subProvenance = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: true,
+      replacementTerminal: true,
+      assistantRawIndex: 2,
+      assistantId: 'ast-sub',
+      userRawIndex: 1,
+      userId: 'usr-sub',
+      language: 'en',
+      clientRequestId: 'crid-sub',
+      deliverySource: null,
+    });
+
+    const pollProvenance = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.GROUNDING,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 4,
+      assistantId: 'ast-poll',
+      userRawIndex: 3,
+      userId: 'usr-poll',
+      language: 'en',
+      clientRequestId: 'crid-poll',
+      deliverySource: null,
+    });
+
+    provenanceMap.set('crid-sub', subProvenance);
+    provenanceMap.set('crid-poll', pollProvenance);
+
+    // Polling lifecycle arrives for crid-poll — augment only that key
+    const pollLifecycle = { responseCorrelated: true, safeUpdateAccepted: true, visibleCommitCompleted: true, deliverySource: 'polling' };
+    const augmentedPoll = augmentProvenanceWithLifecycle(provenanceMap.get('crid-poll'), pollLifecycle);
+
+    // Subscription provenance (different key) is unmodified
+    const subRecord = provenanceMap.get('crid-sub');
+    expect(subRecord.guard_decision).toBe(GUARD_DECISION.REPLACED);
+    expect(subRecord.safe_update_accepted).toBeNull();
+    expect(subRecord.delivery_source).toBeNull();
+
+    // Polling provenance augmented correctly, keyed by its own client_request_id
+    expect(augmentedPoll.guard_decision).toBe(GUARD_DECISION.PASS);
+    expect(augmentedPoll.safe_update_accepted).toBe(true);
+    expect(augmentedPoll.delivery_source).toBe('polling');
+    expect(augmentedPoll.client_request_id).toBe('crid-poll');
+  });
+
+  it('client_request_id mismatch: looking up the wrong key returns undefined, preventing cross-attribution', () => {
+    const provenanceMap = new Map();
+    provenanceMap.set('crid-correct', buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: true,
+      replacementTerminal: true,
+      assistantRawIndex: 0,
+      assistantId: 'ast-x',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-correct',
+    }));
+
+    // A lookup with a mismatched (wrong) client_request_id returns undefined
+    const wrongLookup = provenanceMap.get('crid-wrong') ?? null;
+    expect(wrongLookup).toBeNull();
+
+    // Augmenting null is a no-op (identity)
+    const augmented = augmentProvenanceWithLifecycle(null, {
+      responseCorrelated: true,
+      safeUpdateAccepted: true,
+      visibleCommitCompleted: true,
+    });
+    expect(augmented).toBeNull();
+  });
+});
+
+// ─── Regression: delivery_source propagated through augmentation ─────────────
+
+describe('delivery_source — propagated through augmentProvenanceWithLifecycle', () => {
+  it('applies deliverySource from lifecycle, overriding null in base record', () => {
+    const base = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.GROUNDING,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-ds',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-ds',
+      deliverySource: null,
+    });
+
+    const augmented = augmentProvenanceWithLifecycle(base, {
+      responseCorrelated: true,
+      safeUpdateAccepted: true,
+      visibleCommitCompleted: true,
+      deliverySource: 'subscription',
+    });
+
+    expect(augmented.delivery_source).toBe('subscription');
+  });
+
+  it('applies deliverySource=polling from lifecycle', () => {
+    const base = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'SHADOW',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 1,
+      assistantId: 'ast-ds2',
+      userRawIndex: 0,
+      userId: 'usr-ds2',
+      language: 'he',
+      clientRequestId: 'crid-ds2',
+      deliverySource: null,
+    });
+
+    const augmented = augmentProvenanceWithLifecycle(base, {
+      responseCorrelated: true,
+      safeUpdateAccepted: false,
+      visibleCommitCompleted: false,
+      deliverySource: 'polling',
+    });
+
+    expect(augmented.delivery_source).toBe('polling');
+    expect(augmented.safe_update_accepted).toBe(false);
+  });
+
+  it('preserves existing delivery_source when lifecycle does not supply one', () => {
+    const base = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.GROUNDING,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-ds3',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-ds3',
+      deliverySource: 'polling',
+    });
+
+    const augmented = augmentProvenanceWithLifecycle(base, {
+      responseCorrelated: true,
+      safeUpdateAccepted: true,
+      visibleCommitCompleted: true,
+      // no deliverySource field
+    });
+
+    // Existing delivery_source preserved when lifecycle does not override it
+    expect(augmented.delivery_source).toBe('polling');
+  });
+});
+
+// ─── Regression: causal decision rule ────────────────────────────────────────
+
+describe('assessCausalEvidence — causal decision rule', () => {
+  it('ENFORCE REPLACED + SHADOW PASS → causal=true', () => {
+    const enforceRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: true,
+      replacementTerminal: true,
+      assistantRawIndex: 0,
+      assistantId: 'ast-e1',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-causal',
+    });
+    const shadowRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'SHADOW',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-s1',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-causal-shadow',
+    });
+    const result = assessCausalEvidence(enforceRecord, shadowRecord);
+    expect(result.causal).toBe(true);
+    expect(result.reason).toBe('enforce_replaced_shadow_pass');
+  });
+
+  it('ENFORCE REPLACED + SHADOW REPLACED → NOT causal (both replace)', () => {
+    const enforceRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.GROUNDING,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['GROUNDING_VIOLATION'],
+      replacementCreated: true,
+      replacementTerminal: true,
+      assistantRawIndex: 0,
+      assistantId: 'ast-e2',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-both-replace',
+    });
+    const shadowRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.GROUNDING,
+      guardMode: 'SHADOW',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['GROUNDING_VIOLATION'],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-s2',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-both-replace-shadow',
+    });
+    const result = assessCausalEvidence(enforceRecord, shadowRecord);
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('enforce_replaced_shadow_also_replaced');
+  });
+
+  it('ENFORCE PASS + SHADOW PASS → NOT causal (no replacement signal)', () => {
+    const enforceRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-e3',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-both-pass',
+    });
+    const shadowRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'SHADOW',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-s3',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-both-pass-shadow',
+    });
+    const result = assessCausalEvidence(enforceRecord, shadowRecord);
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('enforce_passed_no_causal_signal');
+  });
+
+  it('missing enforce record → NOT causal', () => {
+    const shadowRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'SHADOW',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-s4',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-missing',
+    });
+    const result = assessCausalEvidence(null, shadowRecord);
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('missing_paired_evidence');
+  });
+
+  it('missing shadow record → NOT causal', () => {
+    const enforceRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: true,
+      replacementTerminal: true,
+      assistantRawIndex: 0,
+      assistantId: 'ast-e5',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-missing-shadow',
+    });
+    const result = assessCausalEvidence(enforceRecord, null);
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('missing_paired_evidence');
+  });
+
+  it('ENFORCE REPLACED + SHADOW PASS — safe_update_accepted=false alone does NOT prove causality without shadow evidence', () => {
+    // This test documents the WRONG classification that the old rule allowed:
+    // REPLACED + safe_update_accepted=false was previously sufficient.
+    // The correct rule requires paired SHADOW PASS evidence.
+    const enforceRecord = augmentProvenanceWithLifecycle(
+      buildGuardProvenanceRecord({
+        guardName: GUARD_NAME.GROUNDING,
+        guardMode: 'ENFORCE',
+        guardDecision: GUARD_DECISION.REPLACED,
+        reasonCodes: ['GROUNDING_VIOLATION'],
+        replacementCreated: true,
+        replacementTerminal: true,
+        assistantRawIndex: 0,
+        assistantId: 'ast-e6',
+        userRawIndex: null,
+        userId: null,
+        language: 'en',
+        clientRequestId: 'crid-corrected',
+      }),
+      { responseCorrelated: true, safeUpdateAccepted: false, visibleCommitCompleted: false, deliverySource: 'polling' }
+    );
+    // With only an ENFORCE REPLACED record and no shadow record, causality is unproven.
+    const result = assessCausalEvidence(enforceRecord, null);
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('missing_paired_evidence');
+  });
 });

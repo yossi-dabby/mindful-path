@@ -466,10 +466,12 @@ export default function Chat() {
     stableCount: 0,
   });
   const latestPipelineDiagnosticsRef = useRef(null);
-  // Guard Isolation Audit Phase 1 — stores the latest guard provenance records
-  // emitted by buildVisibleConversationMessages.  Augmented with lifecycle outcome
-  // fields (safe_update_accepted, visible_commit_completed) at call sites.
-  const latestGuardProvenanceRef = useRef({ formulation: null, grounding: null });
+  // Guard Isolation Audit Phase 1 — stores guard provenance records keyed by
+  // client_request_id so that lifecycle augmentation is always scoped to the
+  // CURRENT assistant candidate / active request.  An older replaced assistant
+  // can never be augmented with the safe_update / visible_commit result of a
+  // newer assistant.  Each entry is { formulation: provenance|null, grounding: provenance|null }.
+  const guardProvenanceByRequestIdRef = useRef(new Map());
   // Capture the entry URL search ONCE so internal Chat navigations (pdfViewerReturn,
   // intent cleanup, Base44 SDK routing) cannot silently change the active _s2 stage
   // or disable diagnostics mid-session.
@@ -817,9 +819,15 @@ export default function Chat() {
    * @param {boolean|null} lifecycle.visibleCommitCompleted
    * @param {string|null}  [lifecycle.deliverySource]
    */
-  const emitAugmentedGuardProvenance = (lifecycle) => {
+  const emitAugmentedGuardProvenance = (lifecycle, clientRequestId) => {
     if (!isS2DebugEnabled()) return;
-    const stored = latestGuardProvenanceRef.current;
+    // Scope provenance lookup to the current candidate's client_request_id.
+    // This prevents an older replaced assistant's provenance record from being
+    // augmented with the lifecycle result of a newer assistant candidate.
+    const key = typeof clientRequestId === 'string' && clientRequestId
+      ? clientRequestId
+      : '__no_request_id__';
+    const stored = guardProvenanceByRequestIdRef.current.get(key) ?? null;
     if (!stored || (!stored.formulation && !stored.grounding)) return;
     const augmented = {
       formulation: stored.formulation
@@ -1551,11 +1559,13 @@ export default function Chat() {
         }
         window.__S2_GUARD_PROVENANCE_LOGS__.push(groundingProvenance);
       }
-      // Store in ref so lifecycle call sites can augment with outcome fields.
-      latestGuardProvenanceRef.current = {
+      // Store in ref keyed by client_request_id so each lifecycle call site can
+      // augment only the provenance belonging to the matching assistant candidate.
+      const _provenanceKey = _auditClientRequestId ?? '__no_request_id__';
+      guardProvenanceByRequestIdRef.current.set(_provenanceKey, {
         formulation: formulationProvenance ?? null,
         grounding: groundingProvenance ?? null,
-      };
+      });
     } else {
       latestPipelineDiagnosticsRef.current = null;
     }
@@ -2223,7 +2233,7 @@ export default function Chat() {
                     safeUpdateAccepted: true,
                     visibleCommitCompleted: commitResult.accepted === true,
                     deliverySource: 'subscription',
-                  });
+                  }, coord.getActiveTurn()?.client_request_id ?? null);
                 }
                 // Drain queued sends after turn is committed.
                 if (commitResult._nextQueuedSend) {
@@ -2241,7 +2251,7 @@ export default function Chat() {
                   safeUpdateAccepted: false,
                   visibleCommitCompleted: false,
                   deliverySource: 'subscription',
-                });
+                }, coord.getActiveTurn()?.client_request_id ?? null);
               }
             }
           } else {
@@ -3961,7 +3971,7 @@ export default function Chat() {
                       safeUpdateAccepted: true,
                       visibleCommitCompleted: commitResult.accepted === true,
                       deliverySource: 'polling',
-                    });
+                    }, v2ActiveTurn.client_request_id);
                   }
                   if (commitResult._nextQueuedSend) {
                     commitResult._nextQueuedSend().catch((err) => {
@@ -4025,7 +4035,7 @@ export default function Chat() {
                     safeUpdateAccepted: false,
                     visibleCommitCompleted: false,
                     deliverySource: 'polling',
-                  });
+                  }, v2ActiveTurn.client_request_id);
                 }
                 if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
                   // Spec §2C: bounded timeout reached.

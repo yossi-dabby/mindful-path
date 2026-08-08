@@ -461,6 +461,7 @@ export function applyGroundingGuardWithMode(rawMessages, finalMessages, options)
  * @param {boolean|null} lifecycle.responseCorrelated
  * @param {boolean|null} lifecycle.safeUpdateAccepted
  * @param {boolean|null} lifecycle.visibleCommitCompleted
+ * @param {string|null}  [lifecycle.deliverySource]       — actual delivery path (subscription/polling/etc.)
  * @returns {object}
  */
 export function augmentProvenanceWithLifecycle(provenance, lifecycle) {
@@ -477,5 +478,48 @@ export function augmentProvenanceWithLifecycle(provenance, lifecycle) {
     visible_commit_completed: hasLifecycle
       ? (lifecycle.visibleCommitCompleted !== undefined ? lifecycle.visibleCommitCompleted : null)
       : provenance.visible_commit_completed,
+    // delivery_source: always record the actual lifecycle delivery path.
+    delivery_source: hasLifecycle && typeof lifecycle.deliverySource === 'string'
+      ? lifecycle.deliverySource
+      : provenance.delivery_source,
   });
+}
+
+// ─── Causal evidence assessment ───────────────────────────────────────────────
+
+/**
+ * Assesses whether a guard family is PROVEN causal based on paired ENFORCE/SHADOW
+ * runtime evidence.
+ *
+ * Causality requires ALL of the following:
+ *   1. ENFORCE run: guard_decision=REPLACED (guard fired and replaced the candidate).
+ *   2. SHADOW run:  guard_decision=PASS (same candidate passed through unchanged —
+ *      i.e. removing the guard would have preserved the original response).
+ *
+ * If ENFORCE and SHADOW both produce REPLACED, or both produce PASS, the guard is
+ * NOT proven causal.  A REPLACED+false-safe-update pair alone is insufficient
+ * without the matching SHADOW PASS evidence.
+ *
+ * @param {object|null} enforceRecord  — augmented provenance from the ENFORCE run
+ * @param {object|null} shadowRecord   — augmented provenance from the SHADOW run
+ * @returns {{ causal: boolean, reason: string }}
+ */
+export function assessCausalEvidence(enforceRecord, shadowRecord) {
+  if (!enforceRecord || !shadowRecord) {
+    return { causal: false, reason: 'missing_paired_evidence' };
+  }
+  const enforceReplaced = enforceRecord.guard_decision === GUARD_DECISION.REPLACED;
+  const shadowPass = shadowRecord.guard_decision === GUARD_DECISION.PASS;
+  if (enforceReplaced && shadowPass) {
+    return { causal: true, reason: 'enforce_replaced_shadow_pass' };
+  }
+  if (!enforceReplaced && !shadowPass) {
+    return { causal: false, reason: 'both_replaced_not_proven' };
+  }
+  if (!enforceReplaced) {
+    return { causal: false, reason: 'enforce_passed_no_causal_signal' };
+  }
+  // enforceReplaced=true but shadowPass=false: both modes replace → guard is not
+  // the discriminating factor.
+  return { causal: false, reason: 'enforce_replaced_shadow_also_replaced' };
 }
