@@ -36,6 +36,7 @@ import {
   buildGuardProvenanceRecord,
   augmentProvenanceWithLifecycle,
   assessCausalEvidence,
+  buildCompositeProvenanceKey,
   GUARD_DECISION,
   GUARD_NAME,
 } from '../../src/lib/guardIsolationAudit.js';
@@ -977,7 +978,7 @@ describe('delivery_source — propagated through augmentProvenanceWithLifecycle'
 // ─── Regression: causal decision rule ────────────────────────────────────────
 
 describe('assessCausalEvidence — causal decision rule', () => {
-  it('ENFORCE REPLACED + SHADOW PASS → causal=true', () => {
+  it('ENFORCE REPLACED + SHADOW PASS → NOT causal (non-deterministic, model candidate may differ between runs)', () => {
     const enforceRecord = buildGuardProvenanceRecord({
       guardName: GUARD_NAME.FORMULATION,
       guardMode: 'ENFORCE',
@@ -1007,11 +1008,13 @@ describe('assessCausalEvidence — causal decision rule', () => {
       clientRequestId: 'crid-causal-shadow',
     });
     const result = assessCausalEvidence(enforceRecord, shadowRecord);
-    expect(result.causal).toBe(true);
-    expect(result.reason).toBe('enforce_replaced_shadow_pass');
+    // SHADOW=PASS when ENFORCE=REPLACED: the underlying model candidate may have
+    // differed between runs — causality cannot be attributed to the guard.
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('non_deterministic_not_proven');
   });
 
-  it('ENFORCE REPLACED + SHADOW REPLACED → NOT causal (both replace)', () => {
+  it('ENFORCE REPLACED + SHADOW REPLACED → PROVEN causal (guard fires in both modes on same candidate)', () => {
     const enforceRecord = buildGuardProvenanceRecord({
       guardName: GUARD_NAME.GROUNDING,
       guardMode: 'ENFORCE',
@@ -1031,7 +1034,7 @@ describe('assessCausalEvidence — causal decision rule', () => {
       guardMode: 'SHADOW',
       guardDecision: GUARD_DECISION.REPLACED,
       reasonCodes: ['GROUNDING_VIOLATION'],
-      replacementCreated: false,
+      replacementCreated: false, // SHADOW: guard fires but does NOT apply replacement
       replacementTerminal: false,
       assistantRawIndex: 0,
       assistantId: 'ast-s2',
@@ -1041,8 +1044,10 @@ describe('assessCausalEvidence — causal decision rule', () => {
       clientRequestId: 'crid-both-replace-shadow',
     });
     const result = assessCausalEvidence(enforceRecord, shadowRecord);
-    expect(result.causal).toBe(false);
-    expect(result.reason).toBe('enforce_replaced_shadow_also_replaced');
+    // Strong causal signal: guard fires in both ENFORCE (replacement applied) and
+    // SHADOW (guard evaluates, emits REPLACED, does NOT apply replacement).
+    expect(result.causal).toBe(true);
+    expect(result.reason).toBe('proven_causal');
   });
 
   it('ENFORCE PASS + SHADOW PASS → NOT causal (no replacement signal)', () => {
@@ -1119,10 +1124,10 @@ describe('assessCausalEvidence — causal decision rule', () => {
     expect(result.reason).toBe('missing_paired_evidence');
   });
 
-  it('ENFORCE REPLACED + SHADOW PASS — safe_update_accepted=false alone does NOT prove causality without shadow evidence', () => {
-    // This test documents the WRONG classification that the old rule allowed:
-    // REPLACED + safe_update_accepted=false was previously sufficient.
-    // The correct rule requires paired SHADOW PASS evidence.
+  it('ENFORCE REPLACED + no shadow record — safe_update_accepted=false alone does NOT prove causality', () => {
+    // The correct causal rule requires a paired SHADOW=REPLACED record (guard fires
+    // in both modes on the same candidate content).  An ENFORCE REPLACED record with
+    // safe_update_accepted=false is a necessary condition but not sufficient alone.
     const enforceRecord = augmentProvenanceWithLifecycle(
       buildGuardProvenanceRecord({
         guardName: GUARD_NAME.GROUNDING,
@@ -1182,5 +1187,278 @@ describe('assessCausalEvidence — ENFORCE=PASS + SHADOW=REPLACED inconsistent c
     const result = assessCausalEvidence(enforceRecord, shadowRecord);
     expect(result.causal).toBe(false);
     expect(result.reason).toBe('enforce_passed_shadow_replaced_inconsistent');
+  });
+});
+
+// ─── Composite provenance key — candidate isolation ───────────────────────────
+
+describe('buildCompositeProvenanceKey — candidate-scoped isolation', () => {
+  it('two different assistant candidates under the same client_request_id produce different keys', () => {
+    const key1 = buildCompositeProvenanceKey('crid-shared', 'ast-A', 'usr-A', GUARD_NAME.FORMULATION);
+    const key2 = buildCompositeProvenanceKey('crid-shared', 'ast-B', 'usr-B', GUARD_NAME.FORMULATION);
+    expect(key1).not.toBe(key2);
+  });
+
+  it('same candidate, different guard names produce different keys', () => {
+    const key1 = buildCompositeProvenanceKey('crid-1', 'ast-1', 'usr-1', GUARD_NAME.FORMULATION);
+    const key2 = buildCompositeProvenanceKey('crid-1', 'ast-1', 'usr-1', GUARD_NAME.GROUNDING);
+    expect(key1).not.toBe(key2);
+  });
+
+  it('null / absent components produce a deterministic sentinel key', () => {
+    const key = buildCompositeProvenanceKey(null, null, null, null);
+    expect(key).toBe('__no_request_id__\x00__no_assistant_id__\x00__no_user_id__\x00__no_guard__');
+  });
+
+  it('candidate A stored under shared crid cannot overwrite or be retrieved as candidate B', () => {
+    const store = new Map();
+    const provA = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: true,
+      replacementTerminal: true,
+      assistantRawIndex: 0,
+      assistantId: 'ast-A',
+      userRawIndex: null,
+      userId: 'usr-A',
+      language: 'en',
+      clientRequestId: 'crid-shared',
+    });
+    const provB = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-B',
+      userRawIndex: null,
+      userId: 'usr-B',
+      language: 'en',
+      clientRequestId: 'crid-shared',
+    });
+    const keyA = buildCompositeProvenanceKey('crid-shared', 'ast-A', 'usr-A', GUARD_NAME.FORMULATION);
+    const keyB = buildCompositeProvenanceKey('crid-shared', 'ast-B', 'usr-B', GUARD_NAME.FORMULATION);
+
+    store.set(keyA, provA);
+    store.set(keyB, provB);
+
+    // Both entries coexist — neither overwrites the other.
+    expect(store.size).toBe(2);
+    // Candidate A's key returns candidate A's record (REPLACED).
+    expect(store.get(keyA).guard_decision).toBe(GUARD_DECISION.REPLACED);
+    // Candidate B's key returns candidate B's record (PASS).
+    expect(store.get(keyB).guard_decision).toBe(GUARD_DECISION.PASS);
+  });
+
+  it('wrong-key prefix scan (mismatched clientRequestId) returns no entries', () => {
+    const store = new Map();
+    const key = buildCompositeProvenanceKey('crid-correct', 'ast-x', 'usr-x', GUARD_NAME.FORMULATION);
+    store.set(key, { sentinel: true });
+
+    const found = [];
+    for (const [k, v] of store.entries()) {
+      if (k.startsWith('crid-wrong\x00')) found.push(v);
+    }
+    expect(found).toHaveLength(0);
+  });
+
+  it('prefix scan for a given clientRequestId finds entries for all guards of the same candidate', () => {
+    const store = new Map();
+    const crid = 'crid-prefix-scan';
+    const astId = 'ast-ps';
+    const usrId = 'usr-ps';
+
+    const provF = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: astId,
+      userRawIndex: null,
+      userId: usrId,
+      language: 'en',
+      clientRequestId: crid,
+    });
+    const provG = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.GROUNDING,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: astId,
+      userRawIndex: null,
+      userId: usrId,
+      language: 'en',
+      clientRequestId: crid,
+    });
+    store.set(buildCompositeProvenanceKey(crid, astId, usrId, GUARD_NAME.FORMULATION), provF);
+    store.set(buildCompositeProvenanceKey(crid, astId, usrId, GUARD_NAME.GROUNDING), provG);
+    // Different clientRequestId entry — must not appear in prefix scan for crid.
+    store.set(buildCompositeProvenanceKey('crid-other', astId, usrId, GUARD_NAME.FORMULATION), {});
+
+    const prefix = crid + '\x00';
+    const found = [];
+    for (const [k, v] of store.entries()) {
+      if (k.startsWith(prefix)) found.push(v);
+    }
+    expect(found).toHaveLength(2);
+    expect(found).toContain(provF);
+    expect(found).toContain(provG);
+  });
+});
+
+// ─── Bounded provenance store — FIFO cap and conversation-clear ────────────────────
+
+describe('Bounded provenance store — FIFO cap and conversation-clear semantics', () => {
+  it('FIFO eviction: entries beyond cap=20 are evicted oldest-first', () => {
+    const store = new Map();
+    const CAP = 20;
+    for (let i = 0; i < 25; i++) {
+      const k = buildCompositeProvenanceKey(
+        `crid-cap-${i}`, `ast-${i}`, `usr-${i}`, GUARD_NAME.FORMULATION
+      );
+      store.set(k, { index: i });
+      while (store.size > CAP) {
+        store.delete(store.keys().next().value);
+      }
+    }
+    expect(store.size).toBe(CAP);
+    const indices = [...store.values()].map((v) => v.index);
+    // Entries 0-4 (oldest five) must be evicted; entries 5-24 (newest 20) must remain.
+    for (let i = 0; i < 5; i++) {
+      expect(indices, `entry ${i} should have been evicted`).not.toContain(i);
+    }
+    for (let i = 5; i < 25; i++) {
+      expect(indices, `entry ${i} should be present`).toContain(i);
+    }
+  });
+
+  it('conversation-clear: store.clear() removes all entries', () => {
+    const store = new Map();
+    for (let i = 0; i < 5; i++) {
+      store.set(
+        buildCompositeProvenanceKey(`crid-clear-${i}`, `ast-${i}`, `usr-${i}`, GUARD_NAME.GROUNDING),
+        { index: i }
+      );
+    }
+    expect(store.size).toBe(5);
+    store.clear();
+    expect(store.size).toBe(0);
+  });
+
+  it('after conversation-clear, old keys are not found by prefix scan', () => {
+    const store = new Map();
+    store.set(
+      buildCompositeProvenanceKey('crid-old', 'ast-old', 'usr-old', GUARD_NAME.GROUNDING),
+      { sentinel: 'old' }
+    );
+    store.clear();
+
+    const found = [];
+    for (const [k, v] of store.entries()) {
+      if (k.startsWith('crid-old\x00')) found.push(v);
+    }
+    expect(found).toHaveLength(0);
+  });
+});
+
+// ─── Strict causal decision table (complete) ─────────────────────────────────
+
+describe('assessCausalEvidence — strict complete decision table', () => {
+  function makeEnforceRecord(decision) {
+    return buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: decision,
+      reasonCodes: decision === GUARD_DECISION.REPLACED ? ['FD_SCOPE'] : [],
+      replacementCreated: decision === GUARD_DECISION.REPLACED,
+      replacementTerminal: decision === GUARD_DECISION.REPLACED,
+      assistantRawIndex: 0,
+      assistantId: 'ast-table-e',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-table',
+    });
+  }
+  function makeShadowRecord(decision) {
+    return buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'SHADOW',
+      guardDecision: decision,
+      reasonCodes: decision === GUARD_DECISION.REPLACED ? ['FD_SCOPE'] : [],
+      // SHADOW never applies replacements.
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-table-s',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-table-shadow',
+    });
+  }
+
+  it('ENFORCE=REPLACED + SHADOW=REPLACED → causal=true, reason=proven_causal', () => {
+    const r = assessCausalEvidence(
+      makeEnforceRecord(GUARD_DECISION.REPLACED),
+      makeShadowRecord(GUARD_DECISION.REPLACED)
+    );
+    expect(r.causal).toBe(true);
+    expect(r.reason).toBe('proven_causal');
+  });
+
+  it('ENFORCE=REPLACED + SHADOW=PASS → causal=false, reason=non_deterministic_not_proven', () => {
+    const r = assessCausalEvidence(
+      makeEnforceRecord(GUARD_DECISION.REPLACED),
+      makeShadowRecord(GUARD_DECISION.PASS)
+    );
+    expect(r.causal).toBe(false);
+    expect(r.reason).toBe('non_deterministic_not_proven');
+  });
+
+  it('ENFORCE=PASS + SHADOW=PASS → causal=false, reason=enforce_passed_no_causal_signal', () => {
+    const r = assessCausalEvidence(
+      makeEnforceRecord(GUARD_DECISION.PASS),
+      makeShadowRecord(GUARD_DECISION.PASS)
+    );
+    expect(r.causal).toBe(false);
+    expect(r.reason).toBe('enforce_passed_no_causal_signal');
+  });
+
+  it('ENFORCE=PASS + SHADOW=REPLACED → causal=false, reason=enforce_passed_shadow_replaced_inconsistent', () => {
+    const r = assessCausalEvidence(
+      makeEnforceRecord(GUARD_DECISION.PASS),
+      makeShadowRecord(GUARD_DECISION.REPLACED)
+    );
+    expect(r.causal).toBe(false);
+    expect(r.reason).toBe('enforce_passed_shadow_replaced_inconsistent');
+  });
+
+  it('null enforce record → causal=false, reason=missing_paired_evidence', () => {
+    const r = assessCausalEvidence(null, makeShadowRecord(GUARD_DECISION.REPLACED));
+    expect(r.causal).toBe(false);
+    expect(r.reason).toBe('missing_paired_evidence');
+  });
+
+  it('null shadow record → causal=false, reason=missing_paired_evidence', () => {
+    const r = assessCausalEvidence(makeEnforceRecord(GUARD_DECISION.REPLACED), null);
+    expect(r.causal).toBe(false);
+    expect(r.reason).toBe('missing_paired_evidence');
+  });
+
+  it('both null → causal=false, reason=missing_paired_evidence', () => {
+    const r = assessCausalEvidence(null, null);
+    expect(r.causal).toBe(false);
+    expect(r.reason).toBe('missing_paired_evidence');
   });
 });

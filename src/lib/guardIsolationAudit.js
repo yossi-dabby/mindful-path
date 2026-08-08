@@ -142,6 +142,41 @@ function _anyReplacementApplied(original, processed) {
   return false;
 }
 
+// ─── Candidate-scoped composite provenance key ───────────────────────────────
+
+/**
+ * Builds a deterministic composite key that uniquely identifies one guard
+ * evaluation for one assistant candidate.
+ *
+ * The key is formed from four dimensions so that different assistant candidates
+ * sharing the same client_request_id (e.g. multiple polling snapshots for a
+ * single request) each produce a distinct key and can never cross-attribute
+ * provenance.
+ *
+ * Dimensions:
+ *   clientRequestId  — the active turn's client-side request identity.
+ *   assistantId      — the stable identity key of the specific assistant message.
+ *   userId           — the stable identity key of the paired user message.
+ *   guardName        — which guard produced this record.
+ *
+ * Null-byte (\x00) is used as a field separator because it cannot appear in any
+ * of the component strings (all are URL-safe IDs, ISO timestamps, or guard name
+ * constants).
+ *
+ * @param {string|null} clientRequestId
+ * @param {string|null} assistantId
+ * @param {string|null} userId
+ * @param {string|null} guardName
+ * @returns {string}
+ */
+export function buildCompositeProvenanceKey(clientRequestId, assistantId, userId, guardName) {
+  const r = typeof clientRequestId === 'string' && clientRequestId ? clientRequestId : '__no_request_id__';
+  const a = typeof assistantId === 'string' && assistantId ? assistantId : '__no_assistant_id__';
+  const u = typeof userId === 'string' && userId ? userId : '__no_user_id__';
+  const g = typeof guardName === 'string' && guardName ? guardName : '__no_guard__';
+  return `${r}\x00${a}\x00${u}\x00${g}`;
+}
+
 // ─── Provenance record builder ────────────────────────────────────────────────
 
 /**
@@ -491,14 +526,27 @@ export function augmentProvenanceWithLifecycle(provenance, lifecycle) {
  * Assesses whether a guard family is PROVEN causal based on paired ENFORCE/SHADOW
  * runtime evidence.
  *
- * Causality requires ALL of the following:
- *   1. ENFORCE run: guard_decision=REPLACED (guard fired and replaced the candidate).
- *   2. SHADOW run:  guard_decision=PASS (same candidate passed through unchanged —
- *      i.e. removing the guard would have preserved the original response).
+ * In SHADOW mode the guard still evaluates the candidate — it just does not apply
+ * the replacement.  Therefore, when the guard fires on a given candidate, SHADOW
+ * must also emit guard_decision=REPLACED (with replacement_created=false).  The
+ * strong causal signal is therefore ENFORCE=REPLACED + SHADOW=REPLACED.
  *
- * If ENFORCE and SHADOW both produce REPLACED, or both produce PASS, the guard is
- * NOT proven causal.  A REPLACED+false-safe-update pair alone is insufficient
- * without the matching SHADOW PASS evidence.
+ * Decision table:
+ *
+ *   ENFORCE=REPLACED  SHADOW=REPLACED  → causal=true  ('proven_causal')
+ *     • ENFORCE: guard fired, replacement applied (replacement_created=true),
+ *       safe_update_accepted=false and/or visible_commit_completed=false.
+ *     • SHADOW: guard fired on the same candidate (replacement_created=false),
+ *       same reason_codes, safe_update_accepted=true, visible_commit_completed=true.
+ *
+ *   ENFORCE=REPLACED  SHADOW=PASS      → causal=false ('non_deterministic_not_proven')
+ *     • The underlying model candidate may differ between ENFORCE and SHADOW runs.
+ *       The guard firing in ENFORCE but not in SHADOW cannot be attributed to the
+ *       guard itself — it is more likely a consequence of a different model output.
+ *
+ *   ENFORCE=PASS      SHADOW=PASS      → causal=false ('enforce_passed_no_causal_signal')
+ *   ENFORCE=PASS      SHADOW=REPLACED  → causal=false ('enforce_passed_shadow_replaced_inconsistent')
+ *   either missing                     → causal=false ('missing_paired_evidence')
  *
  * @param {object|null} enforceRecord  — augmented provenance from the ENFORCE run
  * @param {object|null} shadowRecord   — augmented provenance from the SHADOW run
@@ -509,19 +557,26 @@ export function assessCausalEvidence(enforceRecord, shadowRecord) {
     return { causal: false, reason: 'missing_paired_evidence' };
   }
   const enforceReplaced = enforceRecord.guard_decision === GUARD_DECISION.REPLACED;
+  const shadowReplaced = shadowRecord.guard_decision === GUARD_DECISION.REPLACED;
   const shadowPass = shadowRecord.guard_decision === GUARD_DECISION.PASS;
-  if (enforceReplaced && shadowPass) {
-    return { causal: true, reason: 'enforce_replaced_shadow_pass' };
+
+  if (enforceReplaced && shadowReplaced) {
+    // Strong causal signal: ENFORCE replaced the candidate and SHADOW also detected
+    // the violation (replacement_created=false in SHADOW because the mode suppresses
+    // the actual replacement but the guard still fires).
+    return { causal: true, reason: 'proven_causal' };
   }
-  if (!enforceReplaced && !shadowPass) {
-    // ENFORCE=PASS, SHADOW=REPLACED — inconsistent: shadow replaces but enforce does not.
-    // This is not a causal pattern; the guard is not the discriminating factor.
+  if (enforceReplaced && shadowPass) {
+    // ENFORCE replaced but SHADOW passed — the underlying model candidate likely
+    // differed between the two runs.  Cannot attribute causality to the guard.
+    return { causal: false, reason: 'non_deterministic_not_proven' };
+  }
+  if (!enforceReplaced && shadowReplaced) {
+    // ENFORCE=PASS, SHADOW=REPLACED — inconsistent: the guard fires in SHADOW but not
+    // in ENFORCE.  This is not a recognisable causal pattern.
     return { causal: false, reason: 'enforce_passed_shadow_replaced_inconsistent' };
   }
-  if (!enforceReplaced) {
-    return { causal: false, reason: 'enforce_passed_no_causal_signal' };
-  }
-  // enforceReplaced=true but shadowPass=false: both modes replace → guard is not
-  // the discriminating factor.
-  return { causal: false, reason: 'enforce_replaced_shadow_also_replaced' };
+  // Both PASS — no replacement signal in either run.
+  void shadowPass; // exhaustiveness note: only remaining case
+  return { causal: false, reason: 'enforce_passed_no_causal_signal' };
 }

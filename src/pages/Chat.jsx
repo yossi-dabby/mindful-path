@@ -113,6 +113,7 @@ import {
   applyFormulationGuardWithMode,
   applyGroundingGuardWithMode,
   augmentProvenanceWithLifecycle,
+  buildCompositeProvenanceKey,
 } from '@/lib/guardIsolationAudit.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
 
@@ -607,6 +608,10 @@ export default function Chat() {
       }
     }
     prevConversationIdForV2ResetRef.current = currentConversationId;
+    // Guard Isolation Audit — clear the composite provenance store on every
+    // conversation switch so that evidence from a previous conversation can never
+    // be augmented with lifecycle events from the new conversation.
+    guardProvenanceByRequestIdRef.current.clear();
   }, [currentConversationId]);
 
   useEffect(() => {
@@ -821,38 +826,29 @@ export default function Chat() {
    */
   const emitAugmentedGuardProvenance = (lifecycle, clientRequestId) => {
     if (!isS2DebugEnabled()) return;
-    // Scope provenance lookup to the current candidate's client_request_id.
-    // This prevents an older replaced assistant's provenance record from being
-    // augmented with the lifecycle result of a newer assistant candidate.
-    const key = typeof clientRequestId === 'string' && clientRequestId
+    // The provenance store is keyed by composite key (client_request_id + assistant_id +
+    // user_id + guard_name).  Lifecycle augmentation applies to all records whose
+    // key begins with the active client_request_id prefix, which identifies every guard
+    // evaluation performed for this specific request — regardless of which assistant
+    // candidate produced each record.
+    const _reqIdSegment = typeof clientRequestId === 'string' && clientRequestId
       ? clientRequestId
       : '__no_request_id__';
-    const stored = guardProvenanceByRequestIdRef.current.get(key) ?? null;
-    if (!stored || (!stored.formulation && !stored.grounding)) return;
-    const augmented = {
-      formulation: stored.formulation
-        ? augmentProvenanceWithLifecycle(stored.formulation, lifecycle)
-        : null,
-      grounding: stored.grounding
-        ? augmentProvenanceWithLifecycle(stored.grounding, lifecycle)
-        : null,
-    };
-    if (augmented.formulation) {
-      console.log('[S2Debug][GuardProvenance][augmented] formulation', augmented.formulation);
-      if (typeof window !== 'undefined') {
-        if (!Array.isArray(window.__S2_GUARD_PROVENANCE_AUGMENTED__)) {
-          window.__S2_GUARD_PROVENANCE_AUGMENTED__ = [];
-        }
-        window.__S2_GUARD_PROVENANCE_AUGMENTED__.push(augmented.formulation);
-      }
+    const _prefix = _reqIdSegment + '\x00';
+    const _matching = [];
+    for (const [k, v] of guardProvenanceByRequestIdRef.current.entries()) {
+      if (k.startsWith(_prefix)) _matching.push(v);
     }
-    if (augmented.grounding) {
-      console.log('[S2Debug][GuardProvenance][augmented] grounding', augmented.grounding);
+    if (_matching.length === 0) return;
+    for (const _stored of _matching) {
+      const _augmented = augmentProvenanceWithLifecycle(_stored, lifecycle);
+      const _label = _stored.guard_name?.includes('Grounding') ? 'grounding' : 'formulation';
+      console.log(`[S2Debug][GuardProvenance][augmented] ${_label}`, _augmented);
       if (typeof window !== 'undefined') {
         if (!Array.isArray(window.__S2_GUARD_PROVENANCE_AUGMENTED__)) {
           window.__S2_GUARD_PROVENANCE_AUGMENTED__ = [];
         }
-        window.__S2_GUARD_PROVENANCE_AUGMENTED__.push(augmented.grounding);
+        window.__S2_GUARD_PROVENANCE_AUGMENTED__.push(_augmented);
       }
     }
   };
@@ -1559,13 +1555,38 @@ export default function Chat() {
         }
         window.__S2_GUARD_PROVENANCE_LOGS__.push(groundingProvenance);
       }
-      // Store in ref keyed by client_request_id so each lifecycle call site can
-      // augment only the provenance belonging to the matching assistant candidate.
-      const _provenanceKey = _auditClientRequestId ?? '__no_request_id__';
-      guardProvenanceByRequestIdRef.current.set(_provenanceKey, {
-        formulation: formulationProvenance ?? null,
-        grounding: groundingProvenance ?? null,
-      });
+      // Store each guard's provenance under a composite key that includes the
+      // active client_request_id, the specific assistant's stable identity, the
+      // paired user's stable identity, and the guard name.  This prevents any two
+      // assistant candidates that share the same client_request_id (e.g. multiple
+      // polling snapshots) from ever overwriting or cross-attributing each other's
+      // provenance records.
+      if (formulationProvenance) {
+        const _fKey = buildCompositeProvenanceKey(
+          _auditClientRequestId,
+          formulationProvenance.assistant_id,
+          formulationProvenance.user_id,
+          formulationProvenance.guard_name
+        );
+        guardProvenanceByRequestIdRef.current.set(_fKey, formulationProvenance);
+      }
+      if (groundingProvenance) {
+        const _gKey = buildCompositeProvenanceKey(
+          _auditClientRequestId,
+          groundingProvenance.assistant_id,
+          groundingProvenance.user_id,
+          groundingProvenance.guard_name
+        );
+        guardProvenanceByRequestIdRef.current.set(_gKey, groundingProvenance);
+      }
+      // Bounded cap: the store is finite and FIFO-evicts the oldest entry when the
+      // cap is exceeded.  This prevents unbounded growth across a long conversation.
+      const _PROVENANCE_STORE_CAP = 20;
+      while (guardProvenanceByRequestIdRef.current.size > _PROVENANCE_STORE_CAP) {
+        guardProvenanceByRequestIdRef.current.delete(
+          guardProvenanceByRequestIdRef.current.keys().next().value
+        );
+      }
     } else {
       latestPipelineDiagnosticsRef.current = null;
     }
