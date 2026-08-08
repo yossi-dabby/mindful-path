@@ -270,6 +270,13 @@ test.describe('PullToRefresh gesture handling', () => {
 
   test('pull indicator has role=status and aria-live=polite', async ({ page }) => {
     await simulatePull(page, 200, 290);
+    // Wait for React state to update and the pull indicator to render
+    // before querying ARIA attributes (simulatePull is synchronous but
+    // React's isPulling state update is asynchronous).
+    await page.waitForFunction(
+      () => document.querySelector('[data-pull-to-refresh]')?.getAttribute('data-pulling') === 'true',
+      { timeout: 3000 },
+    );
     // The indicator element must carry the correct ARIA attributes for screen readers
     const attrs = await page.evaluate(() => {
       const indicator = document.querySelector('[role="status"]');
