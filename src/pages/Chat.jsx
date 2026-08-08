@@ -37,8 +37,6 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessagesAligned, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import {
-  applyFormulationGuardToConversationMessages,
-  applyCurrentTurnGroundingGuardToConversationMessages,
   evaluateCurrentTurnGroundingContractDetailed,
   classifyFormulationGuardedTurn,
 } from '../components/utils/formulationContractGuard.js';
@@ -110,7 +108,12 @@ import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
-import { isChatOrchestratorV2Enabled, getDedupGuardPollingMode } from '@/lib/featureFlags.js';
+import { isChatOrchestratorV2Enabled, getDedupGuardPollingMode, getFormulationGuardMode, getGroundingGuardMode } from '@/lib/featureFlags.js';
+import {
+  applyFormulationGuardWithMode,
+  applyGroundingGuardWithMode,
+  augmentProvenanceWithLifecycle,
+} from '@/lib/guardIsolationAudit.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
@@ -463,6 +466,10 @@ export default function Chat() {
     stableCount: 0,
   });
   const latestPipelineDiagnosticsRef = useRef(null);
+  // Guard Isolation Audit Phase 1 — stores the latest guard provenance records
+  // emitted by buildVisibleConversationMessages.  Augmented with lifecycle outcome
+  // fields (safe_update_accepted, visible_commit_completed) at call sites.
+  const latestGuardProvenanceRef = useRef({ formulation: null, grounding: null });
   // Capture the entry URL search ONCE so internal Chat navigations (pdfViewerReturn,
   // intent cleanup, Base44 SDK routing) cannot silently change the active _s2 stage
   // or disable diagnostics mid-session.
@@ -483,6 +490,12 @@ export default function Chat() {
   // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
   // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
   const dedupGuardPollingModeRef = useRef(getDedupGuardPollingMode());
+  // Guard Isolation Audit Phase 1 — formulation + grounding guard modes.
+  // Frozen at component mount; ENFORCE is the false-default (behavior-preserving).
+  // Selectable via ?_s2=FORMULATION_GUARD_SHADOW / FORMULATION_GUARD_OFF
+  // and ?_s2=GROUNDING_GUARD_SHADOW / GROUNDING_GUARD_OFF on preview/staging hosts.
+  const formulationGuardModeRef = useRef(getFormulationGuardMode());
+  const groundingGuardModeRef = useRef(getGroundingGuardMode());
   // The coordinator is created once and reset when the conversation changes.
   const chatCoordinatorV2Ref = useRef(createChatOrchestratorV2());
   // Tracks the previous currentConversationId so the conversation-change effect can
@@ -785,6 +798,54 @@ export default function Chat() {
         window.__S2_DEBUG_LIFECYCLE_LOGS__ = [];
       }
       window.__S2_DEBUG_LIFECYCLE_LOGS__.push(payload);
+    }
+  };
+
+  /**
+   * Guard Isolation Audit Phase 1 — emits complete guard provenance records
+   * augmented with lifecycle outcome fields (safe_update_accepted,
+   * visible_commit_completed, response_correlated).
+   *
+   * Call after safeUpdateMessages and reconcileSnapshot(visible_commit) to
+   * connect the guard decision chain to the delivery lifecycle.
+   *
+   * No-op when _s2debug=true is not present in the URL.
+   *
+   * @param {object} lifecycle
+   * @param {boolean|null} lifecycle.responseCorrelated
+   * @param {boolean|null} lifecycle.safeUpdateAccepted
+   * @param {boolean|null} lifecycle.visibleCommitCompleted
+   * @param {string|null}  [lifecycle.deliverySource]
+   */
+  const emitAugmentedGuardProvenance = (lifecycle) => {
+    if (!isS2DebugEnabled()) return;
+    const stored = latestGuardProvenanceRef.current;
+    if (!stored || (!stored.formulation && !stored.grounding)) return;
+    const augmented = {
+      formulation: stored.formulation
+        ? augmentProvenanceWithLifecycle(stored.formulation, lifecycle)
+        : null,
+      grounding: stored.grounding
+        ? augmentProvenanceWithLifecycle(stored.grounding, lifecycle)
+        : null,
+    };
+    if (augmented.formulation) {
+      console.log('[S2Debug][GuardProvenance][augmented] formulation', augmented.formulation);
+      if (typeof window !== 'undefined') {
+        if (!Array.isArray(window.__S2_GUARD_PROVENANCE_AUGMENTED__)) {
+          window.__S2_GUARD_PROVENANCE_AUGMENTED__ = [];
+        }
+        window.__S2_GUARD_PROVENANCE_AUGMENTED__.push(augmented.formulation);
+      }
+    }
+    if (augmented.grounding) {
+      console.log('[S2Debug][GuardProvenance][augmented] grounding', augmented.grounding);
+      if (typeof window !== 'undefined') {
+        if (!Array.isArray(window.__S2_GUARD_PROVENANCE_AUGMENTED__)) {
+          window.__S2_GUARD_PROVENANCE_AUGMENTED__ = [];
+        }
+        window.__S2_GUARD_PROVENANCE_AUGMENTED__.push(augmented.grounding);
+      }
     }
   };
 
@@ -1349,17 +1410,33 @@ export default function Chat() {
     const withRawIndexes = policyEnforced.map((msg, rawIndex) => (
       msg ? { ...msg, __rawIndex: rawIndex } : msg
     ));
-    const { messages: guarded, pendingCorrection } = applyFormulationGuardToConversationMessages(
-      raw,
-      withRawIndexes,
-      { locale: sessionLang }
-    );
-    const { messages: grounded, pendingCorrection: pendingGroundingCorrection } =
-      applyCurrentTurnGroundingGuardToConversationMessages(
-      raw,
-      guarded,
-      { locale: sessionLang }
-    );
+    // Guard Isolation Audit Phase 1 — mode-aware guard calls.
+    // Mode is frozen at component mount via formulationGuardModeRef / groundingGuardModeRef.
+    // ENFORCE (default) preserves existing behavior; SHADOW observes without replacing;
+    // OFF skips the guard entirely.  No safety control is affected.
+    const _fGuardMode = formulationGuardModeRef.current;
+    const _gGuardMode = groundingGuardModeRef.current;
+    const _auditClientRequestId = chatCoordinatorV2Ref.current?.getActiveTurn()?.client_request_id ?? null;
+    const {
+      messages: guarded,
+      pendingCorrection,
+      provenance: formulationProvenance,
+    } = applyFormulationGuardWithMode(raw, withRawIndexes, {
+      locale: sessionLang,
+      mode: _fGuardMode,
+      clientRequestId: _auditClientRequestId,
+      deliverySource: options?.deliverySource ?? null,
+    });
+    const {
+      messages: grounded,
+      pendingCorrection: pendingGroundingCorrection,
+      provenance: groundingProvenance,
+    } = applyGroundingGuardWithMode(raw, guarded, {
+      locale: sessionLang,
+      mode: _gGuardMode,
+      clientRequestId: _auditClientRequestId,
+      deliverySource: options?.deliverySource ?? null,
+    });
     pendingFormulationCorrectionRef.current = pendingCorrection;
     pendingGroundingCorrectionRef.current = pendingGroundingCorrection;
     updatePendingInternalCorrection(pendingCorrection, pendingGroundingCorrection);
@@ -1458,6 +1535,27 @@ export default function Chat() {
           historicalBlockSanitized: correctionBlockSanitized,
         }),
       });
+      // Guard Isolation Audit Phase 1 — emit bounded provenance for each guard.
+      // No transcript text, clinical content or PII is included in these payloads.
+      if (formulationProvenance) {
+        console.log('[S2Debug][GuardProvenance] formulation', formulationProvenance);
+        if (!Array.isArray(window.__S2_GUARD_PROVENANCE_LOGS__)) {
+          window.__S2_GUARD_PROVENANCE_LOGS__ = [];
+        }
+        window.__S2_GUARD_PROVENANCE_LOGS__.push(formulationProvenance);
+      }
+      if (groundingProvenance) {
+        console.log('[S2Debug][GuardProvenance] grounding', groundingProvenance);
+        if (!Array.isArray(window.__S2_GUARD_PROVENANCE_LOGS__)) {
+          window.__S2_GUARD_PROVENANCE_LOGS__ = [];
+        }
+        window.__S2_GUARD_PROVENANCE_LOGS__.push(groundingProvenance);
+      }
+      // Store in ref so lifecycle call sites can augment with outcome fields.
+      latestGuardProvenanceRef.current = {
+        formulation: formulationProvenance ?? null,
+        grounding: groundingProvenance ?? null,
+      };
     } else {
       latestPipelineDiagnosticsRef.current = null;
     }
@@ -2118,6 +2216,14 @@ export default function Chat() {
                     restored_after_reload: commitResult.restored_after_reload,
                     recovery_result: commitResult.recovery_result || undefined,
                   }));
+                  // Guard Isolation Audit Phase 1 — augment guard provenance with
+                  // lifecycle outcome fields now that we know the full result chain.
+                  emitAugmentedGuardProvenance({
+                    responseCorrelated: correlateResult.response_correlated,
+                    safeUpdateAccepted: true,
+                    visibleCommitCompleted: commitResult.accepted === true,
+                    deliverySource: 'subscription',
+                  });
                 }
                 // Drain queued sends after turn is committed.
                 if (commitResult._nextQueuedSend) {
@@ -2129,6 +2235,13 @@ export default function Chat() {
                 // safeUpdateMessages rejected — do not complete the turn; leave later
                 // snapshots eligible. Do not set subscriptionSucceededRef=true.
                 console.log('[V2Orchestrator][Subscription] visible update rejected — turn remains open');
+                // Guard Isolation Audit Phase 1 — capture rejection outcome.
+                emitAugmentedGuardProvenance({
+                  responseCorrelated: correlateResult.response_correlated,
+                  safeUpdateAccepted: false,
+                  visibleCommitCompleted: false,
+                  deliverySource: 'subscription',
+                });
               }
             }
           } else {
@@ -3841,6 +3954,14 @@ export default function Chat() {
                       polling_continues: false,
                       terminal_reason: 'visible_terminal_result_committed',
                     });
+                    // Guard Isolation Audit Phase 1 — augment guard provenance with
+                    // polling lifecycle outcome fields.
+                    emitAugmentedGuardProvenance({
+                      responseCorrelated: true,
+                      safeUpdateAccepted: true,
+                      visibleCommitCompleted: commitResult.accepted === true,
+                      deliverySource: 'polling',
+                    });
                   }
                   if (commitResult._nextQueuedSend) {
                     commitResult._nextQueuedSend().catch((err) => {
@@ -3897,6 +4018,13 @@ export default function Chat() {
                     polling_attempt: pollAttempts,
                     polling_continues: !hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts),
                     rejection_reason: 'safe_update_rejected',
+                  });
+                  // Guard Isolation Audit Phase 1 — capture safe_update_accepted=false.
+                  emitAugmentedGuardProvenance({
+                    responseCorrelated: true,
+                    safeUpdateAccepted: false,
+                    visibleCommitCompleted: false,
+                    deliverySource: 'polling',
                   });
                 }
                 if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
