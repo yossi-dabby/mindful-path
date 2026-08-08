@@ -13,6 +13,27 @@ function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
   };
 }
 
+function isConversationMessagePost(url: string, method: string) {
+  return method === 'POST' && url.includes('/agents/conversations/') && url.includes('/messages');
+}
+
+async function sendChatMessage(page: Page, message: string) {
+  const input = page.locator('[data-testid="therapist-chat-input"]');
+  const send = page.locator('[data-testid="therapist-chat-send"]');
+
+  await input.fill(message);
+  await expect(send).toBeEnabled({ timeout: 10000 });
+
+  const postResponsePromise = page.waitForResponse(
+    (response) => isConversationMessagePost(response.url(), response.request().method()),
+    { timeout: 15000 },
+  );
+
+  await send.click();
+  await postResponsePromise;
+  await expect(input).toHaveValue('', { timeout: 5000 });
+}
+
 async function setupLateReplayFixture(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem('language', 'en');
@@ -27,7 +48,6 @@ async function setupLateReplayFixture(page: Page) {
   const activeConversationId = 'test-conversation-123';
   const messages: Array<any> = [];
   const diagnostics: Array<{ type: string; payload: string }> = [];
-  const conversationPostUrls: string[] = [];
   // pollStage tracks the turn-2 polling phase:
   //   0 = before any turn-2 poll
   //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet visible)
@@ -41,11 +61,6 @@ async function setupLateReplayFixture(page: Page) {
     const text = msg.text();
     if (text.includes('[S2Debug]') || text.includes('[V2Orchestrator]')) {
       diagnostics.push({ type: msg.type(), payload: text });
-    }
-  });
-  page.on('request', (req) => {
-    if (req.method() === 'POST' && req.url().includes('/agents/conversations')) {
-      conversationPostUrls.push(req.url());
     }
   });
 
@@ -134,7 +149,6 @@ async function setupLateReplayFixture(page: Page) {
   return {
     diagnostics,
     getPollStage: () => pollStage,
-    getConversationPostUrls: () => conversationPostUrls.slice(),
   };
 }
 
@@ -144,33 +158,17 @@ test.describe('Chat V2 late duplicate runtime', () => {
     test.setTimeout(120000);
     const fixture = await setupLateReplayFixture(page);
     const input = page.locator('[data-testid="therapist-chat-input"]');
-    const send = page.locator('[data-testid="therapist-chat-send"]');
     const assistantB = page.getByText('Assistant B', { exact: true });
 
-    await input.fill('User message 1');
-    await expect(send).toBeEnabled({ timeout: 10000 });
-    await send.click();
+    await sendChatMessage(page, 'User message 1');
     await expect(page.getByText('Assistant A', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
-    await input.fill('User message 2');
-    await expect(send).toBeEnabled({ timeout: 10000 });
-    await send.click();
-
-    await expect(input).toHaveValue('', { timeout: 5000 });
+    await sendChatMessage(page, 'User message 2');
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
-    const getMessagePostCount = () =>
-      fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
-    let secondPostObserved = true;
-    try {
-      await expect.poll(getMessagePostCount, { timeout: 30000 }).toBeGreaterThanOrEqual(2);
-    } catch {
-      secondPostObserved = false;
-    }
-
-    await expect(assistantB).toBeVisible({ timeout: 20000 });
-    await expect.poll(() => fixture.getPollStage(), { timeout: secondPostObserved ? 10000 : 20000 }).toBe(2);
+    await expect.poll(() => fixture.getPollStage(), { timeout: 30000 }).toBe(2);
+    await expect(assistantB).toBeVisible({ timeout: 10000 });
     await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
