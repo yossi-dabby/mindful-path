@@ -1171,6 +1171,81 @@ export const CHAT_ORCHESTRATOR_FLAGS = Object.freeze({
    * the guard fires as expected, then switch to DEDUP_GUARD_POLLING_ENFORCE.
    */
   DEDUP_GUARD_POLLING_ENFORCE: import.meta.env?.VITE_DEDUP_GUARD_POLLING_ENFORCE === 'true',
+
+  /**
+   * Guard Isolation Audit — Formulation guard: SHADOW mode (Phase 1).
+   *
+   * When true, the formulation guard observes and emits provenance logs for
+   * each assistant candidate that would have been replaced, but does NOT apply
+   * the replacement.  The visible message is the original unguarded response.
+   * Used for isolation evidence gathering on staging / preview hosts.
+   *
+   * Default: false (ENFORCE — existing behavior preserved; replacements applied).
+   *
+   * Staging enablement:
+   *   VITE_FORMULATION_GUARD_SHADOW=true
+   * or ?_s2=FORMULATION_GUARD_SHADOW on preview/staging hosts.
+   *
+   * Rollback: leave unset or set to false.
+   * SHADOW takes priority over OFF when both are active.
+   * No safety/crisis/unsafe-output control is affected by this flag.
+   */
+  FORMULATION_GUARD_SHADOW: import.meta.env?.VITE_FORMULATION_GUARD_SHADOW === 'true',
+
+  /**
+   * Guard Isolation Audit — Formulation guard: OFF mode (Phase 1).
+   *
+   * When true, the formulation guard is skipped entirely.  The pipeline
+   * behaves as if the guard does not exist; original messages pass through.
+   * No provenance is emitted in OFF mode.
+   *
+   * Default: false (ENFORCE — existing behavior preserved).
+   *
+   * Staging enablement:
+   *   VITE_FORMULATION_GUARD_OFF=true
+   * or ?_s2=FORMULATION_GUARD_OFF on preview/staging hosts.
+   *
+   * Subordinate to FORMULATION_GUARD_SHADOW (SHADOW wins when both are set).
+   * No safety/crisis/unsafe-output control is affected by this flag.
+   */
+  FORMULATION_GUARD_OFF: import.meta.env?.VITE_FORMULATION_GUARD_OFF === 'true',
+
+  /**
+   * Guard Isolation Audit — Grounding guard: SHADOW mode (Phase 1).
+   *
+   * When true, the current-turn grounding guard observes and emits provenance
+   * logs for each assistant candidate that would have been replaced, but does
+   * NOT apply the replacement.  The visible message is the original response.
+   * Used for isolation evidence gathering on staging / preview hosts.
+   *
+   * Default: false (ENFORCE — existing behavior preserved; replacements applied).
+   *
+   * Staging enablement:
+   *   VITE_GROUNDING_GUARD_SHADOW=true
+   * or ?_s2=GROUNDING_GUARD_SHADOW on preview/staging hosts.
+   *
+   * Rollback: leave unset or set to false.
+   * SHADOW takes priority over OFF when both are active.
+   * No safety/crisis/unsafe-output control is affected by this flag.
+   */
+  GROUNDING_GUARD_SHADOW: import.meta.env?.VITE_GROUNDING_GUARD_SHADOW === 'true',
+
+  /**
+   * Guard Isolation Audit — Grounding guard: OFF mode (Phase 1).
+   *
+   * When true, the current-turn grounding guard is skipped entirely.
+   * Original messages pass through; no provenance is emitted.
+   *
+   * Default: false (ENFORCE — existing behavior preserved).
+   *
+   * Staging enablement:
+   *   VITE_GROUNDING_GUARD_OFF=true
+   * or ?_s2=GROUNDING_GUARD_OFF on preview/staging hosts.
+   *
+   * Subordinate to GROUNDING_GUARD_SHADOW (SHADOW wins when both are set).
+   * No safety/crisis/unsafe-output control is affected by this flag.
+   */
+  GROUNDING_GUARD_OFF: import.meta.env?.VITE_GROUNDING_GUARD_OFF === 'true',
 });
 
 /**
@@ -1250,4 +1325,54 @@ export function getDedupGuardPollingMode() {
   if (isChatOrchestratorV2Enabled('DEDUP_GUARD_POLLING_ENFORCE')) return 'ENFORCE';
   if (isChatOrchestratorV2Enabled('DEDUP_GUARD_POLLING_SHADOW')) return 'SHADOW';
   return 'OFF';
+}
+
+/**
+ * Returns the current formulation guard mode for Phase 1 isolation audit.
+ *
+ * Evaluation order: SHADOW wins over OFF; both default to ENFORCE.
+ *
+ *   'ENFORCE' — guard applies replacements (default, behavior-preserving).
+ *   'SHADOW'  — guard evaluates and emits provenance but does NOT replace.
+ *   'OFF'     — guard is skipped; original messages pass through unchanged.
+ *
+ * Enable SHADOW via VITE_FORMULATION_GUARD_SHADOW=true
+ * or ?_s2=FORMULATION_GUARD_SHADOW on preview/staging hosts.
+ *
+ * Enable OFF via VITE_FORMULATION_GUARD_OFF=true
+ * or ?_s2=FORMULATION_GUARD_OFF on preview/staging hosts.
+ *
+ * No safety/crisis/unsafe-output control is affected by any mode.
+ *
+ * @returns {'ENFORCE' | 'SHADOW' | 'OFF'}
+ */
+export function getFormulationGuardMode() {
+  if (isChatOrchestratorV2Enabled('FORMULATION_GUARD_SHADOW')) return 'SHADOW';
+  if (isChatOrchestratorV2Enabled('FORMULATION_GUARD_OFF')) return 'OFF';
+  return 'ENFORCE';
+}
+
+/**
+ * Returns the current grounding guard mode for Phase 1 isolation audit.
+ *
+ * Evaluation order: SHADOW wins over OFF; both default to ENFORCE.
+ *
+ *   'ENFORCE' — guard applies replacements (default, behavior-preserving).
+ *   'SHADOW'  — guard evaluates and emits provenance but does NOT replace.
+ *   'OFF'     — guard is skipped; original messages pass through unchanged.
+ *
+ * Enable SHADOW via VITE_GROUNDING_GUARD_SHADOW=true
+ * or ?_s2=GROUNDING_GUARD_SHADOW on preview/staging hosts.
+ *
+ * Enable OFF via VITE_GROUNDING_GUARD_OFF=true
+ * or ?_s2=GROUNDING_GUARD_OFF on preview/staging hosts.
+ *
+ * No safety/crisis/unsafe-output control is affected by any mode.
+ *
+ * @returns {'ENFORCE' | 'SHADOW' | 'OFF'}
+ */
+export function getGroundingGuardMode() {
+  if (isChatOrchestratorV2Enabled('GROUNDING_GUARD_SHADOW')) return 'SHADOW';
+  if (isChatOrchestratorV2Enabled('GROUNDING_GUARD_OFF')) return 'OFF';
+  return 'ENFORCE';
 }
