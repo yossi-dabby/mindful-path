@@ -514,7 +514,9 @@ export function assessCausalEvidence(enforceRecord, shadowRecord) {
     return { causal: true, reason: 'enforce_replaced_shadow_pass' };
   }
   if (!enforceReplaced && !shadowPass) {
-    return { causal: false, reason: 'both_replaced_not_proven' };
+    // ENFORCE=PASS, SHADOW=REPLACED — inconsistent: shadow replaces but enforce does not.
+    // This is not a causal pattern; the guard is not the discriminating factor.
+    return { causal: false, reason: 'enforce_passed_shadow_replaced_inconsistent' };
   }
   if (!enforceReplaced) {
     return { causal: false, reason: 'enforce_passed_no_causal_signal' };

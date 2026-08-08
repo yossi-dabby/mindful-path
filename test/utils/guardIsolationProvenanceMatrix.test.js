@@ -1146,3 +1146,41 @@ describe('assessCausalEvidence — causal decision rule', () => {
     expect(result.reason).toBe('missing_paired_evidence');
   });
 });
+
+// ─── Regression: assessCausalEvidence — ENFORCE=PASS + SHADOW=REPLACED ────────
+
+describe('assessCausalEvidence — ENFORCE=PASS + SHADOW=REPLACED inconsistent case', () => {
+  it('returns enforce_passed_shadow_replaced_inconsistent (not causal)', () => {
+    const enforceRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'ENFORCE',
+      guardDecision: GUARD_DECISION.PASS,
+      reasonCodes: [],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-incon',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-incon',
+    });
+    const shadowRecord = buildGuardProvenanceRecord({
+      guardName: GUARD_NAME.FORMULATION,
+      guardMode: 'SHADOW',
+      guardDecision: GUARD_DECISION.REPLACED,
+      reasonCodes: ['FD_SCOPE'],
+      replacementCreated: false,
+      replacementTerminal: false,
+      assistantRawIndex: 0,
+      assistantId: 'ast-incon-s',
+      userRawIndex: null,
+      userId: null,
+      language: 'en',
+      clientRequestId: 'crid-incon-shadow',
+    });
+    const result = assessCausalEvidence(enforceRecord, shadowRecord);
+    expect(result.causal).toBe(false);
+    expect(result.reason).toBe('enforce_passed_shadow_replaced_inconsistent');
+  });
+});
