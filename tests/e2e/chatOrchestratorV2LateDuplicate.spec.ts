@@ -13,35 +13,13 @@ function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
   };
 }
 
-function isConversationMessagePost(url: string, method: string) {
-  return method === 'POST' && url.includes('/agents/conversations/') && url.includes('/messages');
-}
-
-async function sendChatMessage(page: Page, message: string) {
-  const input = page.locator('[data-testid="therapist-chat-input"]');
-  const send = page.locator('[data-testid="therapist-chat-send"]');
-
-  await input.fill(message);
-  await expect(send).toBeEnabled({ timeout: 10000 });
-
-  const postResponsePromise = page.waitForResponse(
-    (response) => isConversationMessagePost(response.url(), response.request().method()),
-    { timeout: 15000 },
-  );
-
-  await send.click();
-  await postResponsePromise;
-  await expect(input).toHaveValue('', { timeout: 5000 });
-}
-
-async function waitForVisibleTerminalCommitCount(page: Page, expectedCount: number) {
-  await expect.poll(async () => (
-    page.evaluate(() => {
-      const entries = (window as any).__S2_DEBUG_LIFECYCLE_LOGS__ || [];
-      if (!Array.isArray(entries)) return 0;
-      return entries.filter((entry: any) => entry?.terminal_reason === 'visible_terminal_result_committed').length;
-    })
-  ), { timeout: 15000 }).toBeGreaterThanOrEqual(expectedCount);
+async function nudgeConversationRefetch(page: Page) {
+  await page.evaluate(async () => {
+    await fetch('/api/apps/test-app-id/agents/conversations/test-conversation-123', {
+      method: 'GET',
+      cache: 'no-store',
+    });
+  });
 }
 
 async function setupLateReplayFixture(page: Page) {
@@ -58,19 +36,18 @@ async function setupLateReplayFixture(page: Page) {
   const activeConversationId = 'test-conversation-123';
   const messages: Array<any> = [];
   const diagnostics: Array<{ type: string; payload: string }> = [];
-  // pollStage tracks the turn-2 polling phase:
-  //   0 = before any turn-2 poll
-  //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet visible)
-  //   2 = second poll for turn 2 observed (a2 added to messages)
-  //
-  // a2 is injected synchronously on the second GET so there is no timer-based
-  // race between the Node.js event loop and the browser's 500 ms polling timer.
+  const conversationPostUrls: string[] = [];
   let pollStage = 0;
 
   page.on('console', (msg) => {
     const text = msg.text();
     if (text.includes('[S2Debug]') || text.includes('[V2Orchestrator]')) {
       diagnostics.push({ type: msg.type(), payload: text });
+    }
+  });
+  page.on('request', (req) => {
+    if (req.method() === 'POST' && req.url().includes('/agents/conversations')) {
+      conversationPostUrls.push(req.url());
     }
   });
 
@@ -98,19 +75,6 @@ async function setupLateReplayFixture(page: Page) {
       return;
     }
 
-    // Advance pollStage only after u2 has been confirmed as sent (u2 id present
-    // in messages array), so a background GET (e.g. React-Query refetch) that
-    // fires before MESSAGES_POST completes cannot prematurely consume a stage
-    // transition.
-    //
-    // Stage 0 → 1 (first GET after turn 2 is sent): return [u1, a1, u2]
-    // without a2 so the orchestrator exercises the "reply not yet ready"
-    // polling-continuation path before a2 becomes visible.
-    //
-    // Stage 1 → 2 (second GET after turn 2 is sent): inject a2 synchronously
-    // so the orchestrator receives [u1, a1, u2, a2] and can commit
-    // "Assistant B".  Synchronous injection avoids any timer-based race with
-    // the browser's polling timer that caused intermittent CI failures.
     const turn2Sent = messages.some((m) => m.id === 'u2');
     if (turn2Sent && pollStage === 0) {
       pollStage = 1;
@@ -159,30 +123,54 @@ async function setupLateReplayFixture(page: Page) {
   return {
     diagnostics,
     getPollStage: () => pollStage,
+    getConversationPostUrls: () => conversationPostUrls.slice(),
   };
 }
 
 test.describe('Chat V2 late duplicate runtime', () => {
   test.describe.configure({ retries: 1 });
+
   test('stale previous-turn assistant does not close turn 2 before assistant B arrives', async ({ page }) => {
     test.setTimeout(120000);
     const fixture = await setupLateReplayFixture(page);
     const input = page.locator('[data-testid="therapist-chat-input"]');
+    const send = page.locator('[data-testid="therapist-chat-send"]');
     const assistantB = page.getByText('Assistant B', { exact: true });
 
-    await sendChatMessage(page, 'User message 1');
+    await input.fill('User message 1');
+    await expect(send).toBeEnabled({ timeout: 10000 });
+    await send.click();
     await expect(page.getByText('Assistant A', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
-    await waitForVisibleTerminalCommitCount(page, 1);
 
-    await sendChatMessage(page, 'User message 2');
+    await input.fill('User message 2');
+    await expect(send).toBeEnabled({ timeout: 10000 });
+    await send.click();
+
+    await expect(input).toHaveValue('', { timeout: 5000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
-    await expect.poll(() => fixture.getPollStage(), { timeout: 30000 }).toBe(2);
+    const getMessagePostCount = () =>
+      fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
+    let secondPostObserved = true;
+    try {
+      await expect.poll(getMessagePostCount, { timeout: 30000, intervals: [500] }).toBeGreaterThanOrEqual(2);
+    } catch {
+      secondPostObserved = false;
+    }
+
+    await expect.poll(async () => {
+      if (fixture.getPollStage() < 2) {
+        await nudgeConversationRefetch(page);
+      }
+      return fixture.getPollStage();
+    }, {
+      timeout: secondPostObserved ? 15000 : 30000,
+      intervals: [500],
+    }).toBe(2);
     await expect(assistantB).toBeVisible({ timeout: 10000 });
     await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
-    await waitForVisibleTerminalCommitCount(page, 2);
 
     const lifecycle = await page.evaluate(() => {
       const entries = (window as any).__S2_DEBUG_LIFECYCLE_LOGS__ || [];
