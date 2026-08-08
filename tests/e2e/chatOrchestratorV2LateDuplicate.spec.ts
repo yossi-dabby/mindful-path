@@ -2,6 +2,9 @@ import { test, expect, type Page } from '@playwright/test';
 import { mockApi, spaNavigate } from '../helpers/ui';
 import { SAFE_CONVERSATION_ROUTE_PATTERNS } from '../helpers/ui';
 
+const TEST_APP_ID = 'test-app-id';
+const ACTIVE_CONVERSATION_ID = 'test-conversation-123';
+
 function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
   return {
     id,
@@ -13,30 +16,28 @@ function buildMessage(role: 'user' | 'assistant', id: string, content: string) {
   };
 }
 
-async function nudgeConversationRefetch(page: Page) {
-  await page.evaluate(async () => {
-    await fetch('/api/apps/test-app-id/agents/conversations/test-conversation-123', {
-      method: 'GET',
-      cache: 'no-store',
-    });
-  });
-}
-
 async function setupLateReplayFixture(page: Page) {
-  await page.addInitScript(() => {
+  await page.addInitScript((appId) => {
     localStorage.setItem('language', 'en');
     localStorage.setItem('chat_consent_accepted', 'true');
     localStorage.setItem('age_verified', 'true');
-    (window as any).__TEST_APP_ID__ = 'test-app-id';
+    (window as any).__TEST_APP_ID__ = appId;
     (window as any).__DISABLE_ANALYTICS__ = true;
-  });
+  }, TEST_APP_ID);
 
   await mockApi(page);
 
-  const activeConversationId = 'test-conversation-123';
+  const activeConversationId = ACTIVE_CONVERSATION_ID;
   const messages: Array<any> = [];
   const diagnostics: Array<{ type: string; payload: string }> = [];
   const conversationPostUrls: string[] = [];
+  // pollStage tracks the turn-2 polling phase:
+  //   0 = before any turn-2 poll
+  //   1 = first poll for turn 2 observed (u1, a1, u2 in messages, a2 not yet visible)
+  //   2 = second poll for turn 2 observed (a2 added to messages)
+  //
+  // a2 is injected synchronously on the second GET so there is no timer-based
+  // race between the Node.js event loop and the browser's 500 ms polling timer.
   let pollStage = 0;
 
   page.on('console', (msg) => {
@@ -75,6 +76,19 @@ async function setupLateReplayFixture(page: Page) {
       return;
     }
 
+    // Advance pollStage only after u2 has been confirmed as sent (u2 id present
+    // in messages array), so a background GET (e.g. React-Query refetch) that
+    // fires before MESSAGES_POST completes cannot prematurely consume a stage
+    // transition.
+    //
+    // Stage 0 → 1 (first GET after turn 2 is sent): return [u1, a1, u2]
+    // without a2 so the orchestrator exercises the "reply not yet ready"
+    // polling-continuation path before a2 becomes visible.
+    //
+    // Stage 1 → 2 (second GET after turn 2 is sent): inject a2 synchronously
+    // so the orchestrator receives [u1, a1, u2, a2] and can commit
+    // "Assistant B".  Synchronous injection avoids any timer-based race with
+    // the browser's polling timer that caused intermittent CI failures.
     const turn2Sent = messages.some((m) => m.id === 'u2');
     if (turn2Sent && pollStage === 0) {
       pollStage = 1;
@@ -152,23 +166,19 @@ test.describe('Chat V2 late duplicate runtime', () => {
 
     const getMessagePostCount = () =>
       fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
-    let secondPostObserved = true;
+    let secondPostObserved = false;
     try {
       await expect.poll(getMessagePostCount, { timeout: 30000, intervals: [500] }).toBeGreaterThanOrEqual(2);
+      secondPostObserved = true;
     } catch {
       secondPostObserved = false;
     }
 
-    await expect.poll(async () => {
-      if (fixture.getPollStage() < 2) {
-        await nudgeConversationRefetch(page);
-      }
-      return fixture.getPollStage();
-    }, {
+    await expect(assistantB).toBeVisible({ timeout: 30000 });
+    await expect.poll(() => fixture.getPollStage(), {
       timeout: secondPostObserved ? 15000 : 30000,
       intervals: [500],
     }).toBe(2);
-    await expect(assistantB).toBeVisible({ timeout: 10000 });
     await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
