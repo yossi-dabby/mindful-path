@@ -1133,6 +1133,44 @@ export const CHAT_ORCHESTRATOR_FLAGS = Object.freeze({
    * THERAPIST_UPGRADE_STRATEGY_ENABLED are also enabled.
    */
   RESPONSE_POLICY_ENFORCEMENT_ENABLED: import.meta.env?.VITE_RESPONSE_POLICY_ENFORCEMENT_ENABLED === 'true',
+
+  /**
+   * Guard Isolation Audit — Dedup guard polling: SHADOW mode.
+   *
+   * When true, the dedup guard observes and logs the "subscription-committed
+   * skip treated as safe-update rejection" scenario without blocking it.
+   * Used for shadow-first rollout validation in staging.
+   *
+   * Default: false (OFF — legacy behavior preserved).
+   *
+   * Staging enablement:
+   *   VITE_DEDUP_GUARD_POLLING_SHADOW=true
+   * or ?_s2=DEDUP_GUARD_POLLING_SHADOW on preview/staging hosts.
+   *
+   * Rollback: leave unset or set to false.
+   * This flag is subordinate to DEDUP_GUARD_POLLING_ENFORCE (ENFORCE wins).
+   */
+  DEDUP_GUARD_POLLING_SHADOW: import.meta.env?.VITE_DEDUP_GUARD_POLLING_SHADOW === 'true',
+
+  /**
+   * Guard Isolation Audit — Dedup guard polling: ENFORCE mode.
+   *
+   * When true, the dedup guard actively prevents the polling continuation path
+   * from treating a deliberate "subscription-committed skip" as a safe-update
+   * rejection. Subscription-committed turns are not re-polled.
+   *
+   * Default: false (OFF — legacy behavior preserved).
+   *
+   * Staging enablement:
+   *   VITE_DEDUP_GUARD_POLLING_ENFORCE=true
+   * or ?_s2=DEDUP_GUARD_POLLING_ENFORCE on preview/staging hosts.
+   *
+   * Rollback: set VITE_DEDUP_GUARD_POLLING_ENFORCE=false (or leave unset).
+   *
+   * Shadow-first rollout: enable DEDUP_GUARD_POLLING_SHADOW first to confirm
+   * the guard fires as expected, then switch to DEDUP_GUARD_POLLING_ENFORCE.
+   */
+  DEDUP_GUARD_POLLING_ENFORCE: import.meta.env?.VITE_DEDUP_GUARD_POLLING_ENFORCE === 'true',
 });
 
 /**
@@ -1191,4 +1229,25 @@ export function isChatOrchestratorV2Enabled(flagName = 'CHAT_ORCHESTRATOR_V2_ENA
   if (CHAT_ORCHESTRATOR_FLAGS[flagName] === true) return true;
   if (_chatOrchestratorStagingOverrides[flagName] === true) return true;
   return false;
+}
+
+/**
+ * Returns the current dedup guard polling mode.
+ *
+ * Evaluation order: ENFORCE wins over SHADOW; both default to OFF.
+ *
+ *   'ENFORCE' — guard is active: deliberate subscription-committed skips are
+ *               NOT treated as safe-update rejections by the polling path.
+ *   'SHADOW'  — guard observes and logs but does not block (staging validation).
+ *   'OFF'     — guard is inactive; legacy behavior is preserved exactly.
+ *
+ * Enable via VITE_DEDUP_GUARD_POLLING_ENFORCE / VITE_DEDUP_GUARD_POLLING_SHADOW
+ * (or the corresponding ?_s2= URL overrides on preview/staging hosts).
+ *
+ * @returns {'ENFORCE' | 'SHADOW' | 'OFF'}
+ */
+export function getDedupGuardPollingMode() {
+  if (isChatOrchestratorV2Enabled('DEDUP_GUARD_POLLING_ENFORCE')) return 'ENFORCE';
+  if (isChatOrchestratorV2Enabled('DEDUP_GUARD_POLLING_SHADOW')) return 'SHADOW';
+  return 'OFF';
 }

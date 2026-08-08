@@ -110,7 +110,7 @@ import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
-import { isChatOrchestratorV2Enabled } from '@/lib/featureFlags.js';
+import { isChatOrchestratorV2Enabled, getDedupGuardPollingMode } from '@/lib/featureFlags.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
@@ -480,6 +480,9 @@ export default function Chat() {
   // Flag false preserves exact Phase 0 legacy behavior.
   const chatOrchestratorV2EnabledRef = useRef(isChatOrchestratorV2Enabled());
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
+  // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
+  // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
+  const dedupGuardPollingModeRef = useRef(getDedupGuardPollingMode());
   // The coordinator is created once and reset when the conversation changes.
   const chatCoordinatorV2Ref = useRef(createChatOrchestratorV2());
   // Tracks the previous currentConversationId so the conversation-change effect can
@@ -3617,6 +3620,11 @@ export default function Chat() {
             if (hasExpectedReplyCount && pollFinality.isFinal) {
               console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}) - stopping polling`);
 
+              // Tracks whether Phase A raw_correlation succeeded for this polling attempt.
+              // Holds the correlated snapshot so the exhaustion handler can force-complete
+              // with the exact same snapshot that Phase A verified.
+              let v2PhaseACorrelated = null;
+
               // V2: Two-phase reconcileSnapshot wiring for polling.
               //   Phase A — raw_correlation: correlate without completing the turn.
               //   Phase B — visible_commit: only after safeUpdateMessages accepts.
@@ -3713,6 +3721,37 @@ export default function Chat() {
                 if (!correlateResult.response_correlated) {
                   // No candidate yet (stale snapshot, no assistant msg, etc.).
                   // Spec §1/§2: rejection is non-terminal — continue polling.
+                  //
+                  // DEDUP_GUARD_POLLING (Guard Isolation Audit):
+                  //   When the rejection reason is 'turn_already_completed' AND
+                  //   subscription already committed this turn
+                  //   (subscriptionSucceededRef.current=true), continuing to poll
+                  //   is unnecessary — the turn is done.
+                  //   SHADOW: log observation only, fall through (legacy behavior continues).
+                  //   ENFORCE: log + suppress the poll continuation.
+                  //   OFF (default): no logging, legacy behavior preserved exactly.
+                  const _dedupGuardModeNcr = dedupGuardPollingModeRef.current;
+                  if (
+                    correlateResult.rejected_reason === 'turn_already_completed' &&
+                    subscriptionSucceededRef.current &&
+                    (_dedupGuardModeNcr === 'SHADOW' || _dedupGuardModeNcr === 'ENFORCE')
+                  ) {
+                    // Bounded provenance diagnostic — no PII, no content.
+                    console.log('[DedupGuard][' + _dedupGuardModeNcr + '] polling dedup: turn_already_completed + subscription_committed observed', {
+                      guard_mode: _dedupGuardModeNcr,
+                      delivery_source: 'polling',
+                      response_correlated: false,
+                      rejected_reason: 'turn_already_completed',
+                      subscription_committed: true,
+                      polling_attempt: pollAttempts,
+                      terminal_reason: 'subscription_committed_turn_completed',
+                    });
+                    if (_dedupGuardModeNcr === 'ENFORCE') {
+                      // ENFORCE: turn is committed — suppress polling continuation.
+                      return;
+                    }
+                    // SHADOW: observation logged; fall through to existing polling continuation.
+                  }
                   console.log('[V2Orchestrator] polling correlation not yet matched — continuing poll:', correlateResult.rejected_reason);
                   if (isS2DebugEnabled()) {
                     logS2DebugLifecycle({
@@ -3746,7 +3785,11 @@ export default function Chat() {
                   }
                   return;
                 }
-                // Phase B happens below: safeUpdateMessages, then visible_commit.
+                // Phase A succeeded — Phase B (visible_commit) happens below.
+                // Capture the correlated snapshot here so the polling-exhaustion
+                // handler uses the exact snapshot that Phase A verified, not a
+                // potentially different one from a later re-entry.
+                v2PhaseACorrelated = guardedPoll;
               }
 
               // CRITICAL: Safe update with validation
@@ -3814,6 +3857,32 @@ export default function Chat() {
                 // Spec §1: safeUpdateMessages rejected — rejection is non-terminal.
                 // Do NOT clear loading, do NOT stop polling, keep the turn GENERATING.
                 // Schedule the next bounded polling attempt.
+                //
+                // DEDUP_GUARD_POLLING (Guard Isolation Audit):
+                //   When subscription already committed this turn
+                //   (subscriptionSucceededRef.current=true), the updated=false outcome
+                //   above is a deliberate skip — NOT a safeUpdateMessages rejection.
+                //   SHADOW: log observation only, fall through (legacy behavior continues).
+                //   ENFORCE: log + suppress the unnecessary polling continuation.
+                //   OFF (default): no logging, legacy behavior preserved exactly.
+                const _dedupGuardMode = dedupGuardPollingModeRef.current;
+                const _subscriptionCommitted = subscriptionSucceededRef.current;
+                if (_subscriptionCommitted && (_dedupGuardMode === 'SHADOW' || _dedupGuardMode === 'ENFORCE')) {
+                  // Bounded provenance diagnostic — no PII, no content.
+                  console.log('[DedupGuard][' + _dedupGuardMode + '] polling dedup: subscription-committed skip observed (not a safe-update rejection)', {
+                    guard_mode: _dedupGuardMode,
+                    delivery_source: 'polling',
+                    response_correlated: true,
+                    subscription_committed: true,
+                    polling_attempt: pollAttempts,
+                    terminal_reason: 'subscription_committed_skip',
+                  });
+                  if (_dedupGuardMode === 'ENFORCE') {
+                    // ENFORCE: turn is committed — suppress polling continuation.
+                    return;
+                  }
+                  // SHADOW: observation logged; fall through to existing polling continuation.
+                }
                 const coord = chatCoordinatorV2Ref.current;
                 console.log('[V2Orchestrator][Polling] safe-update rejected — continuing poll (turn stays GENERATING)');
                 if (isS2DebugEnabled()) {
@@ -3831,9 +3900,46 @@ export default function Chat() {
                   });
                 }
                 if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
-                  // Spec §2C: bounded timeout reached — use existing terminal timeout path.
+                  // Spec §2C: bounded timeout reached.
                   instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
-                  chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                  if (v2PhaseACorrelated) {
+                    // Phase A already confirmed a valid new response, but
+                    // safeUpdateMessages kept rejecting across all poll attempts.
+                    // Force-complete the turn via visible_commit so the queue
+                    // drains and any subsequent send (turn 2) can proceed.
+                    // Without this, _activeTurn stays GENERATING/TIMED_OUT and
+                    // the queue is permanently blocked.
+                    const forceCoord = chatCoordinatorV2Ref.current;
+                    const forceCommit = forceCoord.reconcileSnapshot({
+                      snapshot: v2PhaseACorrelated,
+                      clientRequestId: v2ActiveTurn.client_request_id,
+                      deliverySource: 'polling',
+                      phase: 'visible_commit',
+                      visibleAccepted: true,
+                      terminalReason: 'visible_terminal_result_committed',
+                    });
+                    if (isS2DebugEnabled()) {
+                      logS2DebugLifecycle({
+                        client_request_id: v2ActiveTurn.client_request_id,
+                        delivery_source: 'polling',
+                        phase: 'visible_commit',
+                        response_correlated: true,
+                        safe_update_accepted: false,
+                        visible_commit_completed: forceCommit.accepted,
+                        active_turn_status: forceCoord.getActiveTurn()?.status,
+                        polling_attempt: pollAttempts,
+                        polling_continues: false,
+                        terminal_reason: 'polling_exhausted_force_commit',
+                      });
+                    }
+                    if (forceCommit._nextQueuedSend) {
+                      forceCommit._nextQueuedSend().catch((err) => {
+                        console.error('[V2Orchestrator] polling exhaustion force-commit queued send failed:', err);
+                      });
+                    }
+                  } else {
+                    chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
+                  }
                   if (isS2DebugEnabled()) {
                     logS2DebugLifecycle({
                       client_request_id: v2ActiveTurn.client_request_id,
