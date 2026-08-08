@@ -34,6 +34,16 @@ async function sendChatMessage(page: Page, message: string) {
   await expect(input).toHaveValue('', { timeout: 5000 });
 }
 
+async function waitForVisibleTerminalCommitCount(page: Page, expectedCount: number) {
+  await expect.poll(async () => (
+    page.evaluate(() => {
+      const entries = (window as any).__S2_DEBUG_LIFECYCLE_LOGS__ || [];
+      if (!Array.isArray(entries)) return 0;
+      return entries.filter((entry: any) => entry?.terminal_reason === 'visible_terminal_result_committed').length;
+    })
+  ), { timeout: 15000 }).toBeGreaterThanOrEqual(expectedCount);
+}
+
 async function setupLateReplayFixture(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem('language', 'en');
@@ -163,6 +173,7 @@ test.describe('Chat V2 late duplicate runtime', () => {
     await sendChatMessage(page, 'User message 1');
     await expect(page.getByText('Assistant A', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
+    await waitForVisibleTerminalCommitCount(page, 1);
 
     await sendChatMessage(page, 'User message 2');
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
@@ -171,6 +182,7 @@ test.describe('Chat V2 late duplicate runtime', () => {
     await expect(assistantB).toBeVisible({ timeout: 10000 });
     await expect(assistantB).toHaveCount(1);
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
+    await waitForVisibleTerminalCommitCount(page, 2);
 
     const lifecycle = await page.evaluate(() => {
       const entries = (window as any).__S2_DEBUG_LIFECYCLE_LOGS__ || [];
