@@ -9,9 +9,18 @@
  *   - applyCurrentTurnGroundingGuardToConversationMessages
  *
  * Each wrapper supports three runtime modes (selectable via ?_s2= URL override):
- *   ENFORCE — guard evaluates and applies replacement (default; behavior-preserving).
- *   SHADOW  — guard evaluates and emits provenance but does NOT apply replacement.
- *   OFF     — guard is skipped; original messages pass through unchanged.
+ *   ENFORCE — guard evaluates; emits provenance with guard_decision/reason_codes; delivery authority revoked.
+ *   SHADOW  — guard evaluates; emits provenance with guard_decision/reason_codes; delivery authority revoked.
+ *             Both ENFORCE and SHADOW have identical delivery behavior post-Phase-1 remediation.
+ *             ENFORCE is retained as the default mode label for telemetry continuity and to preserve
+ *             the ability to distinguish intentional enforcement attempts from passive observation,
+ *             should delivery authority be restored for a scoped guard in a future phase.
+ *   OFF     — guard is skipped entirely; original messages pass through unchanged; provenance emitted
+ *             with GUARD_DECISION.SKIPPED.
+ *
+ * Post-Phase-1 remediation: ENFORCE mode no longer has delivery authority for non-safety guards.
+ * The guard_decision, reason_codes, and diagnostics still emit for telemetry in all modes.
+ * Safety-critical output/crisis filtering is a separate pipeline and is unaffected.
  *
  * Bounded provenance emitted per assistant candidate (no transcript text, no PII):
  *   client_request_id, assistant_raw_index, assistant_id,
@@ -297,6 +306,10 @@ export function applyFormulationGuardWithMode(rawMessages, finalMessages, option
   }
 
   // ── ENFORCE or SHADOW: run the guard ─────────────────────────────────────
+  // guardResult.messages and guardResult.pendingCorrection are intentionally NOT
+  // used for delivery — they are evaluated only to derive wasReplaced, guardDecision,
+  // and reason_codes for provenance telemetry.  Do not "fix" this apparent discard:
+  // restoring delivery of guardResult.messages would reintroduce the fallback bug.
   const guardResult = applyFormulationGuardToConversationMessages(raw, final, { locale });
 
   const replacedRawIndex = _findLastReplacedRawIndex(
@@ -331,13 +344,17 @@ export function applyFormulationGuardWithMode(rawMessages, finalMessages, option
 
   const guardDecision = wasReplaced ? GUARD_DECISION.REPLACED : GUARD_DECISION.PASS;
 
+  // Non-safety guard delivery authority is revoked (Phase 1 remediation).
+  // The guard evaluates and emits guard_decision, reason_codes, and diagnostics
+  // for telemetry in all modes, but never applies a replacement to delivered messages.
+  // Safety-critical output filtering is unaffected (separate pipeline).
   const provenance = buildGuardProvenanceRecord({
     guardName: GUARD_NAME.FORMULATION,
     guardMode: mode,
     guardDecision,
     reasonCodes,
-    replacementCreated: mode === 'ENFORCE' && wasReplaced,
-    replacementTerminal: mode === 'ENFORCE' && wasReplaced,
+    replacementCreated: false,
+    replacementTerminal: false,
     assistantRawIndex,
     assistantId: _safeAssistantId(assistantMsg, assistantRawIndex),
     userRawIndex,
@@ -350,17 +367,9 @@ export function applyFormulationGuardWithMode(rawMessages, finalMessages, option
     visibleCommitCompleted: null,
   });
 
-  if (mode === 'SHADOW') {
-    // SHADOW: emit provenance but do NOT apply replacement.
-    return { messages: final, pendingCorrection: null, provenance };
-  }
-
-  // ENFORCE: apply replacement.
-  return {
-    messages: guardResult.messages,
-    pendingCorrection: guardResult.pendingCorrection,
-    provenance,
-  };
+  // ENFORCE and SHADOW: emit provenance for telemetry, but do NOT apply replacement.
+  // Delivery authority of this non-safety guard is revoked; the original messages pass through.
+  return { messages: final, pendingCorrection: null, provenance };
 }
 
 // ─── Mode-aware grounding guard wrapper ─────────────────────────────────────
@@ -418,6 +427,10 @@ export function applyGroundingGuardWithMode(rawMessages, finalMessages, options)
   }
 
   // ── ENFORCE or SHADOW: run the guard ─────────────────────────────────────
+  // guardResult.messages and guardResult.pendingCorrection are intentionally NOT
+  // used for delivery — they are evaluated only to derive wasReplaced, guardDecision,
+  // and reason_codes for provenance telemetry.  Do not "fix" this apparent discard:
+  // restoring delivery of guardResult.messages would reintroduce the fallback bug.
   const guardResult = applyCurrentTurnGroundingGuardToConversationMessages(raw, final, { locale });
 
   const replacedRawIndex = _findLastReplacedRawIndex(
@@ -451,13 +464,17 @@ export function applyGroundingGuardWithMode(rawMessages, finalMessages, options)
 
   const guardDecision = wasReplaced ? GUARD_DECISION.REPLACED : GUARD_DECISION.PASS;
 
+  // Non-safety guard delivery authority is revoked (Phase 1 remediation).
+  // The guard evaluates and emits guard_decision, reason_codes, and diagnostics
+  // for telemetry in all modes, but never applies a replacement to delivered messages.
+  // Safety-critical output filtering is unaffected (separate pipeline).
   const provenance = buildGuardProvenanceRecord({
     guardName: GUARD_NAME.GROUNDING,
     guardMode: mode,
     guardDecision,
     reasonCodes,
-    replacementCreated: mode === 'ENFORCE' && wasReplaced,
-    replacementTerminal: mode === 'ENFORCE' && wasReplaced,
+    replacementCreated: false,
+    replacementTerminal: false,
     assistantRawIndex,
     assistantId: _safeAssistantId(assistantMsg, assistantRawIndex),
     userRawIndex,
@@ -470,17 +487,9 @@ export function applyGroundingGuardWithMode(rawMessages, finalMessages, options)
     visibleCommitCompleted: null,
   });
 
-  if (mode === 'SHADOW') {
-    // SHADOW: emit provenance but do NOT apply replacement.
-    return { messages: final, pendingCorrection: null, provenance };
-  }
-
-  // ENFORCE: apply replacement.
-  return {
-    messages: guardResult.messages,
-    pendingCorrection: guardResult.pendingCorrection,
-    provenance,
-  };
+  // ENFORCE and SHADOW: emit provenance for telemetry, but do NOT apply replacement.
+  // Delivery authority of this non-safety guard is revoked; the original messages pass through.
+  return { messages: final, pendingCorrection: null, provenance };
 }
 
 // ─── Provenance augmentation ─────────────────────────────────────────────────

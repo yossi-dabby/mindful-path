@@ -176,6 +176,10 @@ test.describe('Chat V2 late duplicate runtime', () => {
     await expect(page.getByText('Assistant A', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
+    const getMessagePostCount = () =>
+      fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
+    const postCountBeforeTurn2 = getMessagePostCount();
+
     await input.fill('User message 2');
     await expect(send).toBeEnabled({ timeout: 10000 });
     await send.click();
@@ -183,14 +187,31 @@ test.describe('Chat V2 late duplicate runtime', () => {
     await expect(input).toHaveValue('', { timeout: 5000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
 
-    const getMessagePostCount = () =>
-      fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
     let secondPostObserved = false;
     try {
-      await expect.poll(getMessagePostCount, { timeout: 30000, intervals: [500] }).toBeGreaterThanOrEqual(2);
+      await expect.poll(getMessagePostCount, { timeout: 15000, intervals: [500] }).toBeGreaterThanOrEqual(postCountBeforeTurn2 + 1);
       secondPostObserved = true;
     } catch {
-      secondPostObserved = false;
+      if (getMessagePostCount() >= postCountBeforeTurn2 + 1) {
+        secondPostObserved = true;
+      } else {
+        const currentInputValue = await input.inputValue();
+        const canResubmit =
+          await send.isVisible().catch(() => false) &&
+          await send.isEnabled().catch(() => false);
+        if (currentInputValue.trim().length > 0 || canResubmit) {
+          await expect(input).toBeEnabled({ timeout: 10000 });
+          await input.fill('User message 2');
+          await expect(input).toHaveValue('User message 2', { timeout: 5000 });
+          await input.press('Enter');
+        }
+        try {
+          await expect.poll(getMessagePostCount, { timeout: 15000, intervals: [500] }).toBeGreaterThanOrEqual(postCountBeforeTurn2 + 1);
+          secondPostObserved = true;
+        } catch {
+          throw new Error('Turn-2 message POST was not observed after both click and Enter fallback submissions');
+        }
+      }
     }
 
     // Advance the mock's pollStage to 2 by nudging the conversation GET from

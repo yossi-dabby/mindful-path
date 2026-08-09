@@ -171,10 +171,15 @@ describe('Scenario A — Guard passes: candidate delivered as-is (EN/HE/FR/ES)',
 
 // ─── Scenario B: Guard fires in ENFORCE mode ─────────────────────────────────
 
-describe('Scenario B — Guard fires ENFORCE: replacement applied (EN/HE)', () => {
+describe('Scenario B — Guard fires ENFORCE: guard_decision=REPLACED emitted, delivery authority revoked (EN/HE)', () => {
+  /**
+   * Post-Phase-1 remediation: ENFORCE mode no longer has delivery authority for non-safety guards.
+   * The guard evaluates and emits guard_decision=REPLACED + reason_codes for telemetry,
+   * but the original assistant response is preserved in the delivered messages.
+   */
   for (const locale of [LOCALES.EN, LOCALES.HE]) {
     describe(`[${locale.toUpperCase()}] formulation guard ENFORCE`, () => {
-      it('fires on violating assistant response — GUARD_DECISION.REPLACED, replacement applied', () => {
+      it('fires on violating assistant response — GUARD_DECISION.REPLACED emitted, original content preserved', () => {
         const { raw, final } = buildFormulationPair(
           FD_BLOCK_USER_CONTENT,
           FORMULATION_FAILING_ASSISTANT_CONTENT,
@@ -190,19 +195,20 @@ describe('Scenario B — Guard fires ENFORCE: replacement applied (EN/HE)', () =
         expect(result.provenance.guard_name, `[${locale}] B-form: guard name`).toBe(GUARD_NAME.FORMULATION);
         expect(result.provenance.guard_mode, `[${locale}] B-form: ENFORCE`).toBe('ENFORCE');
         expect(result.provenance.guard_decision, `[${locale}] B-form: REPLACED`).toBe(GUARD_DECISION.REPLACED);
-        expect(result.provenance.replacement_created, `[${locale}] B-form: replacement created`).toBe(true);
-        expect(result.provenance.replacement_terminal, `[${locale}] B-form: replacement terminal`).toBe(true);
+        // Delivery authority revoked: replacement_created=false even though guard fires.
+        expect(result.provenance.replacement_created, `[${locale}] B-form: delivery authority revoked`).toBe(false);
+        expect(result.provenance.replacement_terminal, `[${locale}] B-form: not terminal`).toBe(false);
         expect(result.provenance.reason_codes.length, `[${locale}] B-form: reason codes present`).toBeGreaterThan(0);
         expect(result.provenance.client_request_id, `[${locale}] B-form: crid`).toBe('crid-b-form');
         expect(result.provenance.delivery_source, `[${locale}] B-form: delivery source`).toBe('polling');
-        // Content must be replaced in the output
-        expect(result.messages[1]?.content, `[${locale}] B-form: content replaced`).not.toBe(FORMULATION_FAILING_ASSISTANT_CONTENT);
-        expect(result.messages[1]?.metadata?.formulation_guard_replaced, `[${locale}] B-form: metadata flag`).toBe(true);
+        // Original content preserved — no replacement applied to delivery.
+        expect(result.messages[1]?.content, `[${locale}] B-form: original content preserved`).toBe(FORMULATION_FAILING_ASSISTANT_CONTENT);
+        expect(result.messages[1]?.metadata?.formulation_guard_replaced, `[${locale}] B-form: no metadata replacement flag`).not.toBe(true);
       });
     });
 
     describe(`[${locale.toUpperCase()}] grounding guard ENFORCE`, () => {
-      it('fires on causal claim — GUARD_DECISION.REPLACED, replacement applied', () => {
+      it('fires on causal claim — GUARD_DECISION.REPLACED emitted, original content preserved', () => {
         const { raw, final } = buildGroundingPair(
           GROUNDING_NEUTRAL_USER_CONTENT,
           GROUNDING_FAILING_ASSISTANT_CONTENT,
@@ -218,11 +224,12 @@ describe('Scenario B — Guard fires ENFORCE: replacement applied (EN/HE)', () =
         expect(result.provenance.guard_name, `[${locale}] B-grnd: guard name`).toBe(GUARD_NAME.GROUNDING);
         expect(result.provenance.guard_mode, `[${locale}] B-grnd: ENFORCE`).toBe('ENFORCE');
         expect(result.provenance.guard_decision, `[${locale}] B-grnd: REPLACED`).toBe(GUARD_DECISION.REPLACED);
-        expect(result.provenance.replacement_created, `[${locale}] B-grnd: replacement created`).toBe(true);
+        // Delivery authority revoked: replacement_created=false even though guard fires.
+        expect(result.provenance.replacement_created, `[${locale}] B-grnd: delivery authority revoked`).toBe(false);
         expect(result.provenance.reason_codes, `[${locale}] B-grnd: reason codes`).toContain('unsupported_current_turn_grounding_claim');
-        // Content must be replaced
-        expect(result.messages[1]?.content, `[${locale}] B-grnd: content replaced`).not.toBe(GROUNDING_FAILING_ASSISTANT_CONTENT);
-        expect(result.messages[1]?.metadata?.current_turn_grounding_guard_replaced, `[${locale}] B-grnd: metadata flag`).toBe(true);
+        // Original content preserved — no replacement applied to delivery.
+        expect(result.messages[1]?.content, `[${locale}] B-grnd: original content preserved`).toBe(GROUNDING_FAILING_ASSISTANT_CONTENT);
+        expect(result.messages[1]?.metadata?.current_turn_grounding_guard_replaced, `[${locale}] B-grnd: no metadata replacement flag`).not.toBe(true);
       });
     });
   }
@@ -395,9 +402,14 @@ describe('Scenario F — Non-guarded turn: guard not applicable, message deliver
 
 // ─── Scenario G: Multi-turn (EN/HE/FR/ES) ────────────────────────────────────
 
-describe('Scenario G — Multi-turn: guard fires only on the violating turn (EN/HE/FR/ES)', () => {
+describe('Scenario G — Multi-turn: guard fires on violating turn, diagnostics emit, delivery unchanged (EN/HE/FR/ES)', () => {
+  /**
+   * Post-Phase-1 remediation: ENFORCE mode no longer has delivery authority.
+   * Guard evaluates the violating turn and emits REPLACED decision for telemetry,
+   * but all messages are delivered unchanged (original content preserved).
+   */
   for (const locale of [LOCALES.EN, LOCALES.HE, LOCALES.FR, LOCALES.ES]) {
-    it(`[${locale.toUpperCase()}] formulation guard ENFORCE: only violating assistant turn is replaced`, () => {
+    it(`[${locale.toUpperCase()}] formulation guard ENFORCE: guard fires on violating turn, original content preserved`, () => {
       const raw = [
         makeUserMsg('u-g1', 'What is your name?'),
         makeAssistantMsg('a-g1', 'I am your therapist assistant.'),
@@ -408,11 +420,16 @@ describe('Scenario G — Multi-turn: guard fires only on the violating turn (EN/
       const result = applyFormulationGuardWithMode(raw, final, { locale, mode: 'ENFORCE' });
       // First turn: no FD block → unchanged
       expect(result.messages[1]?.content, `[${locale}] G-form: turn 1 unchanged`).toBe('I am your therapist assistant.');
-      // Second turn: FD block present → guard applies (formulation guard defaults to EN for FR/ES)
-      expect(result.messages[3]?.metadata?.formulation_guard_replaced, `[${locale}] G-form: turn 2 replaced`).toBe(true);
+      // Second turn: guard fires (guard_decision=REPLACED for telemetry) but delivery authority revoked
+      // — original content preserved, no replacement metadata flag.
+      expect(result.messages[3]?.content, `[${locale}] G-form: turn 2 original preserved`).toBe(FORMULATION_FAILING_ASSISTANT_CONTENT);
+      expect(result.messages[3]?.metadata?.formulation_guard_replaced, `[${locale}] G-form: no replacement flag`).not.toBe(true);
+      // Guard still emits REPLACED decision in provenance.
+      expect(result.provenance.guard_decision, `[${locale}] G-form: REPLACED diagnostic`).toBe(GUARD_DECISION.REPLACED);
+      expect(result.provenance.replacement_created, `[${locale}] G-form: delivery authority revoked`).toBe(false);
     });
 
-    it(`[${locale.toUpperCase()}] grounding guard ENFORCE: only violating assistant turn is replaced`, () => {
+    it(`[${locale.toUpperCase()}] grounding guard ENFORCE: guard fires on violating turn, original content preserved`, () => {
       const raw = [
         makeUserMsg('u-g1', 'Hello.'),
         makeAssistantMsg('a-g1', 'Hello! How are you doing today?'),
@@ -423,8 +440,11 @@ describe('Scenario G — Multi-turn: guard fires only on the violating turn (EN/
       const result = applyGroundingGuardWithMode(raw, final, { locale, mode: 'ENFORCE' });
       // First turn unchanged
       expect(result.messages[1]?.content, `[${locale}] G-grnd: turn 1 unchanged`).toBe('Hello! How are you doing today?');
-      // Second turn replaced
-      expect(result.messages[3]?.metadata?.current_turn_grounding_guard_replaced, `[${locale}] G-grnd: turn 2 replaced`).toBe(true);
+      // Second turn: delivery authority revoked — original content preserved.
+      expect(result.messages[3]?.content, `[${locale}] G-grnd: turn 2 original preserved`).toBe(GROUNDING_FAILING_ASSISTANT_CONTENT);
+      expect(result.messages[3]?.metadata?.current_turn_grounding_guard_replaced, `[${locale}] G-grnd: no replacement flag`).not.toBe(true);
+      expect(result.provenance.guard_decision, `[${locale}] G-grnd: REPLACED diagnostic`).toBe(GUARD_DECISION.REPLACED);
+      expect(result.provenance.replacement_created, `[${locale}] G-grnd: delivery authority revoked`).toBe(false);
     });
   }
 });
