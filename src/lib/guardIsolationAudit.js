@@ -9,9 +9,14 @@
  *   - applyCurrentTurnGroundingGuardToConversationMessages
  *
  * Each wrapper supports three runtime modes (selectable via ?_s2= URL override):
- *   ENFORCE — guard evaluates and emits provenance; does NOT apply replacement (delivery authority revoked).
- *   SHADOW  — guard evaluates and emits provenance; does NOT apply replacement (same delivery behavior as ENFORCE).
- *   OFF     — guard is skipped; original messages pass through unchanged.
+ *   ENFORCE — guard evaluates; emits provenance with guard_decision/reason_codes; delivery authority revoked.
+ *   SHADOW  — guard evaluates; emits provenance with guard_decision/reason_codes; delivery authority revoked.
+ *             Both ENFORCE and SHADOW have identical delivery behavior post-Phase-1 remediation.
+ *             ENFORCE is retained as the default mode label for telemetry continuity and to preserve
+ *             the ability to distinguish intentional enforcement attempts from passive observation,
+ *             should delivery authority be restored for a scoped guard in a future phase.
+ *   OFF     — guard is skipped entirely; original messages pass through unchanged; provenance emitted
+ *             with GUARD_DECISION.SKIPPED.
  *
  * Post-Phase-1 remediation: ENFORCE mode no longer has delivery authority for non-safety guards.
  * The guard_decision, reason_codes, and diagnostics still emit for telemetry in all modes.
@@ -301,6 +306,10 @@ export function applyFormulationGuardWithMode(rawMessages, finalMessages, option
   }
 
   // ── ENFORCE or SHADOW: run the guard ─────────────────────────────────────
+  // guardResult.messages and guardResult.pendingCorrection are intentionally NOT
+  // used for delivery — they are evaluated only to derive wasReplaced, guardDecision,
+  // and reason_codes for provenance telemetry.  Do not "fix" this apparent discard:
+  // restoring delivery of guardResult.messages would reintroduce the fallback bug.
   const guardResult = applyFormulationGuardToConversationMessages(raw, final, { locale });
 
   const replacedRawIndex = _findLastReplacedRawIndex(
@@ -418,6 +427,10 @@ export function applyGroundingGuardWithMode(rawMessages, finalMessages, options)
   }
 
   // ── ENFORCE or SHADOW: run the guard ─────────────────────────────────────
+  // guardResult.messages and guardResult.pendingCorrection are intentionally NOT
+  // used for delivery — they are evaluated only to derive wasReplaced, guardDecision,
+  // and reason_codes for provenance telemetry.  Do not "fix" this apparent discard:
+  // restoring delivery of guardResult.messages would reintroduce the fallback bug.
   const guardResult = applyCurrentTurnGroundingGuardToConversationMessages(raw, final, { locale });
 
   const replacedRawIndex = _findLastReplacedRawIndex(
