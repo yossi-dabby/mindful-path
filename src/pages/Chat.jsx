@@ -3866,6 +3866,41 @@ export default function Chat() {
                   // No candidate yet (stale snapshot, no assistant msg, etc.).
                   // Spec §1/§2: rejection is non-terminal — continue polling.
                   //
+                  // Early-exit: when the turn is already completed (committed by
+                  // hydration, subscription, or a concurrent polling path), there
+                  // is nothing more for this loop to do.  Stop immediately so the
+                  // shared pollingIntervalRef is not held open beyond the current
+                  // turn, which would otherwise cancel the next turn's polling timer
+                  // when this loop eventually clears the ref on exhaustion.
+                  if (correlateResult.rejected_reason === 'turn_already_completed') {
+                    console.log('[V2Orchestrator][Polling] turn already completed by another path — stopping poll early');
+                    if (isS2DebugEnabled()) {
+                      logS2DebugLifecycle({
+                        client_request_id: v2ActiveTurn.client_request_id,
+                        delivery_source: 'polling',
+                        phase: 'raw_correlation',
+                        response_correlated: false,
+                        safe_update_accepted: false,
+                        visible_commit_completed: false,
+                        active_turn_status: chatCoordinatorV2Ref.current?.getActiveTurn?.()?.status,
+                        polling_attempt: pollAttempts,
+                        polling_continues: false,
+                        terminal_reason: 'turn_already_completed_early_exit',
+                      });
+                    }
+                    setIsLoading(false);
+                    emitStabilitySummary();
+                    if (pollingIntervalRef.current) {
+                      clearTimeout(pollingIntervalRef.current);
+                      pollingIntervalRef.current = null;
+                    }
+                    if (loadingTimeoutRef.current) {
+                      clearTimeout(loadingTimeoutRef.current);
+                      loadingTimeoutRef.current = null;
+                    }
+                    return;
+                  }
+                  //
                   // DEDUP_GUARD_POLLING (Guard Isolation Audit):
                   //   When the rejection reason is 'turn_already_completed' AND
                   //   subscription already committed this turn
@@ -3874,6 +3909,8 @@ export default function Chat() {
                   //   SHADOW: log observation only, fall through (legacy behavior continues).
                   //   ENFORCE: log + suppress the poll continuation.
                   //   OFF (default): no logging, legacy behavior preserved exactly.
+                  //   NOTE: The early-exit above now handles 'turn_already_completed'
+                  //   unconditionally, so the guard below is a no-op safety net only.
                   const _dedupGuardModeNcr = dedupGuardPollingModeRef.current;
                   if (
                     correlateResult.rejected_reason === 'turn_already_completed' &&
