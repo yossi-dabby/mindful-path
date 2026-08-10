@@ -3616,7 +3616,7 @@ export default function Chat() {
       if (isNewConversation) {
         const sessionStartContent = addLangDirective(
           await buildActionFirstDemotedSessionContentAsync(
-            newConversationEffectiveWiring ?? ACTIVE_CBT_THERAPIST_WIRING,
+            newConversationEffectiveWiring,
             base44.entities,
             base44,
             {

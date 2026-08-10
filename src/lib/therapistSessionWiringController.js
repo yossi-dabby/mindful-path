@@ -107,11 +107,12 @@ export function createTherapistSessionWiringController(fallbackWiring) {
     /**
      * Returns true only after lock AND runtime snapshot was accepted
      * (i.e. the runtime authority was actually applied and consumed).
+     * Delegates to getDiagnosticFields() to avoid expression divergence.
      *
      * @returns {boolean}
      */
     getAppliedToActive() {
-      return _runtimeApplied && _locked;
+      return this.getDiagnosticFields().applied_to_active_wiring;
     },
 
     /** @returns {string|null} */
