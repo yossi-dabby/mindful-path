@@ -196,161 +196,267 @@ import {
  *
  * @returns {object} The active CBT Therapist wiring configuration
  */
-export function resolveTherapistWiring() {
-  if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
-    // ── Wave 5 — Formulation-First Planner Policy (supersedes all prior phases) ──
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED',
-        path: 'stage2_v12',
-        phase: 'wave5_planner_first',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V12;
+function _resolveTherapistWiringDecision(flagReader) {
+  const isEnabled = (flagName) => {
+    try {
+      return flagReader(flagName) === true;
+    } catch (_error) {
+      return false;
     }
+  };
 
-    // ── Phase 3 Competence Architecture (supersedes all prior phases) ────────
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_COMPETENCE_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_COMPETENCE_ENABLED',
-        path: 'stage2_v11',
-        phase: 'phase3_competence_architecture',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V11;
-    }
-
-    // ── Wave 4C — CBT knowledge retrieval (supersedes Wave 3C LTS and earlier) ──
-    if (
-      isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&
-      isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED') &&
-      isUpgradeEnabled('THERAPIST_UPGRADE_KNOWLEDGE_ENABLED')
-    ) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_KNOWLEDGE_ENABLED',
-        path: 'stage2_v10',
-        phase: 'wave4c_knowledge_retrieval',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V10;
-    }
-
-    // ── Wave 3C — LTS injection (supersedes Wave 2B strategy layer and earlier) ──
-    if (
-      isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&
-      isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED')
-    ) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_LONGITUDINAL_ENABLED',
-        path: 'stage2_v9',
-        phase: 'wave3c_lts',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V9;
-    }
-
-    // ── Wave 2B — Strategy layer (supersedes Phase 3 Deep Personalization and earlier) ──
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_STRATEGY_ENABLED',
-        path: 'stage2_v8',
-        phase: 'wave2b_strategy',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V8;
-    }
-
-    // ── Phase 3 Deep Personalization — Continuity (supersedes Phase 1 Quality and earlier) ──
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_CONTINUITY_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_CONTINUITY_ENABLED',
-        path: 'stage2_v7',
-        phase: '3_deep_personalization',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V7;
-    }
-
-    // ── Phase 1 Quality — Formulation context (supersedes Phase 7 and earlier) ──
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED')) {
-      // When FORMULATION_LED_ENABLED is also on, select the formulation-led variant
-      if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_LED_ENABLED')) {
-        logUpgradeEvent('route_selected', {
-          flag: 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED',
-          path: 'stage2_v6_led',
-          phase: '1_quality_formulation_led',
-        });
-        return CBT_THERAPIST_WIRING_STAGE2_V6_LED;
-      }
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED',
-        path: 'stage2_v6',
-        phase: '1_quality',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V6;
-    }
-
-    // ── Phase 7 — Safety mode (supersedes Phase 6 and earlier) ───────────
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_SAFETY_MODE_ENABLED',
-        path: 'stage2_v5',
-        phase: '7',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V5;
-    }
-
-    // ── Phase 6 — Live retrieval wrapper (supersedes Phase 5 and earlier) ────
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED',
-        path: 'stage2_v4',
-        phase: '6',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V4;
-    }
-
-    // ── Phase 5 — Retrieval orchestration (supersedes Phase 3 and Phase 1) ──
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED',
-        path: 'stage2_v3',
-        phase: '5',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V3;
-    }
-
-    // ── Phase 3 — Workflow engine (supersedes Phase 1 when both flags are on) ──
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_WORKFLOW_ENABLED',
-        path: 'stage2_v2',
-        phase: '3',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V2;
-    }
-
-    // ── Phase 1 — Structured memory layer ──────────────────────────────────
-    if (isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')) {
-      logUpgradeEvent('route_selected', {
-        flag: 'THERAPIST_UPGRADE_MEMORY_ENABLED',
-        path: 'stage2_v1',
-        phase: '1',
-      });
-      return CBT_THERAPIST_WIRING_STAGE2_V1;
-    }
-
-    // ── Master gate on, no phase flag matched — fall through to current default ──
-    logUpgradeEvent('route_not_selected', {
-      flag: 'THERAPIST_UPGRADE_ENABLED',
-      path: 'hybrid',
-      reason: 'no_phase_flag_matched',
-      phase: '0.1',
-    });
-    return CBT_THERAPIST_WIRING_HYBRID;
+  if (!isEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_HYBRID,
+      event: {
+        kind: 'route_not_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_ENABLED',
+          path: 'hybrid',
+          reason: 'master_gate_off',
+          phase: '0.1',
+        },
+      },
+    };
   }
 
-  logUpgradeEvent('route_not_selected', {
-    flag: 'THERAPIST_UPGRADE_ENABLED',
-    path: 'hybrid',
-    reason: 'master_gate_off',
-    phase: '0.1',
-  });
-  return CBT_THERAPIST_WIRING_HYBRID;
+  if (isEnabled('THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V12,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED',
+          path: 'stage2_v12',
+          phase: 'wave5_planner_first',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_COMPETENCE_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V11,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_COMPETENCE_ENABLED',
+          path: 'stage2_v11',
+          phase: 'phase3_competence_architecture',
+        },
+      },
+    };
+  }
+
+  if (
+    isEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&
+    isEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED') &&
+    isEnabled('THERAPIST_UPGRADE_KNOWLEDGE_ENABLED')
+  ) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V10,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_KNOWLEDGE_ENABLED',
+          path: 'stage2_v10',
+          phase: 'wave4c_knowledge_retrieval',
+        },
+      },
+    };
+  }
+
+  if (
+    isEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&
+    isEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED')
+  ) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V9,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_LONGITUDINAL_ENABLED',
+          path: 'stage2_v9',
+          phase: 'wave3c_lts',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V8,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_STRATEGY_ENABLED',
+          path: 'stage2_v8',
+          phase: 'wave2b_strategy',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_CONTINUITY_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V7,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_CONTINUITY_ENABLED',
+          path: 'stage2_v7',
+          phase: '3_deep_personalization',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED')) {
+    if (isEnabled('THERAPIST_UPGRADE_FORMULATION_LED_ENABLED')) {
+      return {
+        wiring: CBT_THERAPIST_WIRING_STAGE2_V6_LED,
+        event: {
+          kind: 'route_selected',
+          context: {
+            flag: 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED',
+            path: 'stage2_v6_led',
+            phase: '1_quality_formulation_led',
+          },
+        },
+      };
+    }
+
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V6,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED',
+          path: 'stage2_v6',
+          phase: '1_quality',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V5,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_SAFETY_MODE_ENABLED',
+          path: 'stage2_v5',
+          phase: '7',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V4,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED',
+          path: 'stage2_v4',
+          phase: '6',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V3,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED',
+          path: 'stage2_v3',
+          phase: '5',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V2,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_WORKFLOW_ENABLED',
+          path: 'stage2_v2',
+          phase: '3',
+        },
+      },
+    };
+  }
+
+  if (isEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')) {
+    return {
+      wiring: CBT_THERAPIST_WIRING_STAGE2_V1,
+      event: {
+        kind: 'route_selected',
+        context: {
+          flag: 'THERAPIST_UPGRADE_MEMORY_ENABLED',
+          path: 'stage2_v1',
+          phase: '1',
+        },
+      },
+    };
+  }
+
+  // ── Master gate on, no phase flag matched — fall through to current default ──
+  return {
+    wiring: CBT_THERAPIST_WIRING_HYBRID,
+    event: {
+      kind: 'route_not_selected',
+      context: {
+        flag: 'THERAPIST_UPGRADE_ENABLED',
+        path: 'hybrid',
+        reason: 'no_phase_flag_matched',
+        phase: '0.1',
+      },
+    },
+  };
+}
+
+/**
+ * Resolves therapist wiring using a provided flag reader.
+ *
+ * This is a pure resolver and does not mutate state or emit side effects.
+ *
+ * @param {(flagName: string) => boolean} flagReader
+ * @returns {object}
+ */
+export function resolveTherapistWiringFromFlagReader(flagReader) {
+  return _resolveTherapistWiringDecision(flagReader).wiring;
+}
+
+/**
+ * Resolves the active CBT Therapist wiring using the production flag reader.
+ *
+ * @returns {object}
+ */
+export function resolveTherapistWiring() {
+  const decision = _resolveTherapistWiringDecision(isUpgradeEnabled);
+  logUpgradeEvent(decision.event.kind, decision.event.context);
+  return decision.wiring;
+}
+
+/**
+ * Predicts therapist wiring from a runtime snapshot of boolean flags.
+ *
+ * Phase 0.1 diagnostic-only path: never applied to active routing.
+ *
+ * @param {Record<string, boolean>} runtimeFlags
+ * @returns {object}
+ */
+export function predictTherapistWiringFromRuntimeFlags(runtimeFlags = {}) {
+  return resolveTherapistWiringFromFlagReader((flagName) => runtimeFlags?.[flagName] === true);
 }
 
 // ─── Exported wiring constants ───────────────────────────────────────────────
