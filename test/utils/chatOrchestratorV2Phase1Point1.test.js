@@ -89,22 +89,27 @@ describe('Chat Orchestrator V2 Phase 1.1', () => {
     expect(result.restored_after_reload).toBe(true);
   });
 
-  it('timed_out + new queued send + late old response drains after recovery', async () => {
+  it('timed_out + new send starts immediately and stale old response is rejected', () => {
     const coord = createChatOrchestratorV2();
-    const executeQueued = vi.fn(async () => {});
+    const executeNew = vi.fn(async () => {});
     const { turn } = coord.registerSend({ conversationId: CONV_ID, executeSend: async () => {} });
     coord.markTimedOut(turn.client_request_id);
-    const queued = coord.registerSend({ conversationId: CONV_ID, executeSend: executeQueued });
-    expect(queued.queued).toBe(true);
+    const nextSend = coord.registerSend({ conversationId: CONV_ID, executeSend: executeNew });
+    expect(nextSend.queued).toBe(false);
+    expect(nextSend.turn).toBeTruthy();
+    coord.markGenerating(nextSend.turn.client_request_id);
 
     const result = coord.reconcileSnapshot({
       snapshot: makeSnapshot(makeUserMsg(), makeAssistantMsg()),
       deliverySource: 'subscription',
+      clientRequestId: turn.client_request_id,
     });
-    expect(result.accepted).toBe(true);
-    expect(result.late_response_recovered).toBe(true);
-    await result._nextQueuedSend();
-    expect(executeQueued).toHaveBeenCalledOnce();
+    expect(result.accepted).toBe(false);
+    expect(result.rejected_reason).toBe('stale_previous_turn_response');
+    expect(result.stale_client_request_id).toBe(turn.client_request_id);
+    expect(result.active_client_request_id).toBe(nextSend.turn.client_request_id);
+    expect(result._nextQueuedSend).toBeUndefined();
+    expect(executeNew).not.toHaveBeenCalled();
   });
 
   it('polling success path is accepted', () => {
