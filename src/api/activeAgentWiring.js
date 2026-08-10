@@ -409,6 +409,7 @@ function _resolveTherapistWiringDecision(flagReader) {
     };
   }
 
+  // ── Master gate on, no phase flag matched — fall through to current default ──
   return {
     wiring: CBT_THERAPIST_WIRING_HYBRID,
     event: {

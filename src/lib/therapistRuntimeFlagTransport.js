@@ -1,5 +1,3 @@
-import { base44 } from '@/api/base44Client.js';
-
 export const THERAPIST_RUNTIME_FLAG_SCHEMA = 'therapist-runtime-flags-v1';
 
 export const THERAPIST_RUNTIME_FLAG_KEYS = Object.freeze([
@@ -89,19 +87,22 @@ export async function fetchTherapistRuntimeFlagSnapshot({ invokeFn } = {}) {
   const invoke =
     typeof invokeFn === 'function'
       ? invokeFn
-      : () => base44.functions.invoke('therapistRuntimeFlagSnapshot');
+      : async () => {
+          const { base44 } = await import('../api/base44Client.js');
+          return base44.functions.invoke('therapistRuntimeFlagSnapshot');
+        };
 
   _inflightRuntimeSnapshotPromise = (async () => {
     try {
       const response = await invoke();
       const normalized = normalizeTherapistRuntimeFlagSnapshotPayload(response?.data ?? response ?? null);
       const snapshot = normalized ? buildAvailableSnapshot(normalized) : buildUnavailableSnapshot();
-      _cachedRuntimeSnapshot = snapshot;
+      if (snapshot.transport_status === 'available') {
+        _cachedRuntimeSnapshot = snapshot;
+      }
       return snapshot;
     } catch (_error) {
-      const snapshot = buildUnavailableSnapshot();
-      _cachedRuntimeSnapshot = snapshot;
-      return snapshot;
+      return buildUnavailableSnapshot();
     } finally {
       _inflightRuntimeSnapshotPromise = null;
     }

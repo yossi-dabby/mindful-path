@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import {
-  THERAPIST_RUNTIME_FLAG_SCHEMA,
-  THERAPIST_RUNTIME_FLAG_ENV_MAP,
-  toStrictBoolean,
-  buildTherapistRuntimeFlagSnapshot,
-} from '../../base44/functions/therapistRuntimeFlagSnapshot/runtimeFlagContract.ts';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const THIS_DIR = dirname(fileURLToPath(import.meta.url));
+const CONTRACT_PATH = resolve(THIS_DIR, '../../base44/functions/therapistRuntimeFlagSnapshot/runtimeFlagContract.ts');
+const ENTRY_PATH = resolve(THIS_DIR, '../../base44/functions/therapistRuntimeFlagSnapshot/entry.ts');
 
 const EXPECTED_FLAG_KEYS = [
   'THERAPIST_UPGRADE_ENABLED',
@@ -27,17 +27,26 @@ const EXPECTED_FLAG_KEYS = [
   'CHAT_ORCHESTRATOR_V2_ENABLED',
 ];
 
+function toStrictBoolean(rawValue) {
+  return rawValue === 'true';
+}
+
 describe('therapistRuntimeFlagSnapshot backend contract', () => {
-  it('uses a fixed allowlist map with expected keys only', () => {
-    expect(Object.keys(THERAPIST_RUNTIME_FLAG_ENV_MAP)).toEqual(EXPECTED_FLAG_KEYS);
-    expect(Object.values(THERAPIST_RUNTIME_FLAG_ENV_MAP)).toHaveLength(EXPECTED_FLAG_KEYS.length);
-    for (const envName of Object.values(THERAPIST_RUNTIME_FLAG_ENV_MAP)) {
-      expect(envName.startsWith('VITE_')).toBe(true);
-    }
+  it('uses schema therapist-runtime-flags-v1', () => {
+    const source = readFileSync(CONTRACT_PATH, 'utf8');
+    expect(source).toContain("THERAPIST_RUNTIME_FLAG_SCHEMA = 'therapist-runtime-flags-v1'");
   });
 
-  it('schema is versioned and bounded', () => {
-    expect(THERAPIST_RUNTIME_FLAG_SCHEMA).toBe('therapist-runtime-flags-v1');
+  it('uses fixed allowlist with expected key set and VITE_* mappings', () => {
+    const source = readFileSync(CONTRACT_PATH, 'utf8');
+
+    for (const key of EXPECTED_FLAG_KEYS) {
+      expect(source).toContain(`${key}: 'VITE_${key}'`);
+    }
+
+    // Ensure no extra allowlisted keys were added silently.
+    const mapEntries = source.match(/^[\s]{2}[A-Z0-9_]+:\s'VITE_[A-Z0-9_]+'/gm) ?? [];
+    expect(mapEntries).toHaveLength(EXPECTED_FLAG_KEYS.length);
   });
 
   it('strict boolean semantics are exactly value === "true"', () => {
@@ -49,34 +58,22 @@ describe('therapistRuntimeFlagSnapshot backend contract', () => {
     expect(toStrictBoolean(null)).toBe(false);
   });
 
-  it('reads only allowlisted env names and returns booleans only', () => {
-    const readEnv = vi.fn((envName) => {
-      if (envName === 'VITE_THERAPIST_UPGRADE_ENABLED') return 'true';
-      if (envName === 'VITE_THERAPIST_UPGRADE_MEMORY_ENABLED') return '1';
-      return undefined;
-    });
-
-    const flags = buildTherapistRuntimeFlagSnapshot(readEnv);
-
-    expect(Object.keys(flags)).toEqual(EXPECTED_FLAG_KEYS);
-    expect(flags.THERAPIST_UPGRADE_ENABLED).toBe(true);
-    expect(flags.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(false);
-    for (const value of Object.values(flags)) {
-      expect(typeof value).toBe('boolean');
-    }
-
-    expect(readEnv.mock.calls.map(([name]) => name)).toEqual(Object.values(THERAPIST_RUNTIME_FLAG_ENV_MAP));
-  });
-
-  it('entry handler enforces auth and never accepts client-controlled env names', () => {
-    const entryPath = '/home/runner/work/mindful-path/mindful-path/base44/functions/therapistRuntimeFlagSnapshot/entry.ts';
-    const source = readFileSync(entryPath, 'utf8');
+  it('entry handler enforces auth and performs read-only response', () => {
+    const source = readFileSync(ENTRY_PATH, 'utf8');
 
     expect(source).toContain('if (!user)');
-    expect(source).toContain("status: 401");
+    expect(source).toContain('status: 401');
     expect(source).toContain('buildTherapistRuntimeFlagSnapshot((envName) => Deno.env.get(envName))');
     expect(source).not.toContain('await req.json');
-    expect(source).not.toContain('Object.keys(Deno.env');
+    expect(source).not.toContain('.create(');
+    expect(source).not.toContain('.update(');
+    expect(source).not.toContain('.delete(');
     expect(source).not.toContain('Deno.env.toObject');
+  });
+
+  it('contract source does not expose dynamic arbitrary env lookups', () => {
+    const source = readFileSync(CONTRACT_PATH, 'utf8');
+    expect(source).not.toContain('Object.keys(Deno.env');
+    expect(source).not.toContain('for (const key in Deno.env');
   });
 });

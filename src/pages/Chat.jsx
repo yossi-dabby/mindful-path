@@ -571,31 +571,18 @@ export default function Chat() {
     let cancelled = false;
 
     (async () => {
-      try {
-        const snapshot = await fetchTherapistRuntimeFlagSnapshot();
-        if (cancelled) return;
+      const snapshot = await fetchTherapistRuntimeFlagSnapshot();
+      if (cancelled) return;
 
-        const predictedWiring = predictTherapistWiringFromRuntimeFlags(snapshot.flags);
-        const diagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
-          snapshot,
-          predictedTherapistWiring: _therapistWiringCanonicalName(predictedWiring),
-          currentActiveTherapistWiring: _therapistWiringCanonicalName(ACTIVE_CBT_THERAPIST_WIRING),
-        });
+      const predictedWiring = predictTherapistWiringFromRuntimeFlags(snapshot.flags);
+      const diagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
+        snapshot,
+        predictedTherapistWiring: _therapistWiringCanonicalName(predictedWiring),
+        currentActiveTherapistWiring: _therapistWiringCanonicalName(ACTIVE_CBT_THERAPIST_WIRING),
+      });
 
-        if (s2DebugEnabledRef.current) {
-          window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = diagnostic;
-        }
-      } catch (_error) {
-        if (!s2DebugEnabledRef.current || cancelled) return;
-
-        const fallbackDiagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
-          predictedTherapistWiring: _therapistWiringCanonicalName(
-            predictTherapistWiringFromRuntimeFlags({}),
-          ),
-          currentActiveTherapistWiring: _therapistWiringCanonicalName(ACTIVE_CBT_THERAPIST_WIRING),
-        });
-
-        window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = fallbackDiagnostic;
+      if (s2DebugEnabledRef.current) {
+        window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = diagnostic;
       }
     })();
 

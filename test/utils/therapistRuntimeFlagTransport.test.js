@@ -92,6 +92,26 @@ describe('therapist runtime transport fetching', () => {
     expect(snapshot.received).toBe(false);
   });
 
+
+  it('does not cache unavailable snapshot so a later retry can succeed', async () => {
+    const failingInvoke = vi.fn(async () => {
+      throw new Error('temporary outage');
+    });
+
+    const first = await fetchTherapistRuntimeFlagSnapshot({ invokeFn: failingInvoke });
+    expect(first.transport_status).toBe('unavailable');
+
+    const succeedingInvoke = vi.fn(async () => ({
+      data: {
+        schema: THERAPIST_RUNTIME_FLAG_SCHEMA,
+        flags: { THERAPIST_UPGRADE_ENABLED: true },
+      },
+    }));
+
+    const second = await fetchTherapistRuntimeFlagSnapshot({ invokeFn: succeedingInvoke });
+    expect(second.transport_status).toBe('available');
+    expect(second.flags.THERAPIST_UPGRADE_ENABLED).toBe(true);
+  });
   it('caches snapshot for the current page/session', async () => {
     const invokeFn = vi.fn(async () => ({
       data: {
