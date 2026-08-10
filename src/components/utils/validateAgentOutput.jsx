@@ -345,54 +345,95 @@ export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
 function getVisibleUserContentForIntent(rawContent) {
   if (typeof rawContent !== 'string') return '';
   let content = rawContent.trim();
-  let isSessionInjected = false;
   if (!content || content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)) return '';
 
   if (content.startsWith('[START_SESSION]')) {
-    isSessionInjected = true;
-    const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
-    let splitPos = -1;
-
-    if (lastEndMarkerMatch) {
-      const lastMarker = lastEndMarkerMatch[lastEndMarkerMatch.length - 1];
-      const lastMarkerIdx = content.lastIndexOf(lastMarker);
-      const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
-      if (sepIdx !== -1) splitPos = sepIdx;
-    } else {
-      // [START_SESSION] blocks without an explicit "=== END ... ===" marker can
-      // still contain multiple "\n\n" separators inside the injected context.
-      // The final separator is the boundary before the user's visible text.
-      const lastSep = content.lastIndexOf('\n\n');
-      if (lastSep !== -1) splitPos = lastSep;
-    }
-
-    if (splitPos === -1) return '';
-    content = content.substring(splitPos + 2).trim();
+    const extracted = extractVisibleUserContentFromSessionStart(content);
+    return extracted.content;
   }
 
   const { content: contentWithoutAttachmentMarker } = extractAttachmentMetadataFromUserContent(content);
-  let visible = stripAgentOnlyRuntimeBlocksFromUserContent(
+  const visible = stripAgentOnlyRuntimeBlocksFromUserContent(
     stripFormRouterContextBlock(
       stripAttachmentContextBlock(contentWithoutAttachmentMarker)
     )
   );
+  return visible;
+}
 
-  // Session-injected turns can include additional agent-only policy blocks after
-  // the planner tail and before the real user text (for example
-  // [ATTACHMENT_HANDLING_POLICY] / [THERAPEUTIC_FORMS_POLICY]).
-  // In those cases the final paragraph after the last blank line is the user text.
-  if (
-    isSessionInjected &&
-    typeof visible === 'string' &&
-    (visible.includes('[ATTACHMENT_HANDLING_POLICY]') || visible.includes('[THERAPEUTIC_FORMS_POLICY]'))
-  ) {
-    const tailSep = visible.lastIndexOf('\n\n');
-    if (tailSep !== -1) {
-      visible = visible.substring(tailSep + 2).trim();
+function extractVisibleUserContentFromSessionStart(rawContent) {
+  if (typeof rawContent !== 'string') return { content: '', attachment: null };
+  const content = rawContent.trim();
+  if (!content.startsWith('[START_SESSION]')) return { content: '', attachment: null };
+
+  const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
+  let splitPos = -1;
+
+  if (lastEndMarkerMatch) {
+    const lastMarker = lastEndMarkerMatch[lastEndMarkerMatch.length - 1];
+    const lastMarkerIdx = content.lastIndexOf(lastMarker);
+    const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
+    if (sepIdx !== -1) {
+      splitPos = sepIdx;
+    }
+  } else {
+    const sessionLangIdx = content.lastIndexOf('[SESSION_LANGUAGE:');
+    if (sessionLangIdx !== -1) {
+      const directiveEndIdx = content.indexOf(']', sessionLangIdx);
+      const separatorSearchStart = directiveEndIdx !== -1 ? directiveEndIdx + 1 : sessionLangIdx;
+      const sepAfterDirective = content.indexOf('\n\n', separatorSearchStart);
+      if (sepAfterDirective === -1) {
+        return { content: '', attachment: null };
+      }
+      splitPos = sepAfterDirective;
+    } else {
+      const firstSep = content.indexOf('\n\n');
+      if (firstSep !== -1) {
+        splitPos = firstSep;
+      }
     }
   }
 
-  return visible;
+  if (!lastEndMarkerMatch) {
+    const markerRegex = /\[(ATTACHMENT_HANDLING_POLICY|THERAPEUTIC_FORMS_POLICY|SESSION_LANGUAGE:[^\]]*)\]/g;
+    let lastMarkerMatch = null;
+    let markerMatch = markerRegex.exec(content);
+    while (markerMatch) {
+      lastMarkerMatch = markerMatch;
+      markerMatch = markerRegex.exec(content);
+    }
+    if (lastMarkerMatch) {
+      const sepAfterLastMarker = content.indexOf('\n\n', lastMarkerMatch.index + lastMarkerMatch[0].length);
+      if (sepAfterLastMarker !== -1) {
+        splitPos = sepAfterLastMarker;
+      } else if (lastMarkerMatch[0].startsWith('[SESSION_LANGUAGE:')) {
+        return { content: '', attachment: null };
+      }
+    }
+  }
+
+  if (splitPos === -1) return { content: '', attachment: null };
+
+  const userText = content.substring(splitPos + 2).trim();
+  if (!userText) return { content: '', attachment: null };
+
+  const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
+  const visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
+    stripFormRouterContextBlock(stripAttachmentContextBlock(cleanedUserText))
+  );
+
+  if (
+    typeof visibleUserText === 'string' &&
+    (
+      visibleUserText.includes('[ATTACHMENT_HANDLING_POLICY]') ||
+      visibleUserText.includes('[THERAPEUTIC_FORMS_POLICY]') ||
+      visibleUserText.includes('[SESSION_LANGUAGE:')
+    )
+  ) {
+    return { content: '', attachment: null };
+  }
+
+  return { content: visibleUserText, attachment };
 }
 
 function isLegacyPureTherapeuticFormsPolicyRefreshUserMessage(content) {
@@ -1309,60 +1350,21 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
     // For the HYBRID wiring, there is no "===" marker — the entire content is
     // "[START_SESSION]" optionally followed by "\n\n<user text>".
     if (msg.role === 'user' && typeof msg.content === 'string' && msg.content.startsWith('[START_SESSION]')) {
-      const content = msg.content;
-
-      // Find the last "=== END ... ===" sentinel (V2+ upgraded wirings)
-      const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
-      let splitPos = -1;
-
-      if (lastEndMarkerMatch) {
-        const lastMarker = lastEndMarkerMatch[lastEndMarkerMatch.length - 1];
-        const lastMarkerIdx = content.lastIndexOf(lastMarker);
-        // The "\n\n" between the session-start block and user text follows the marker
-        const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
-        if (sepIdx !== -1) {
-          splitPos = sepIdx;
+      const { content: visibleUserText, attachment } = extractVisibleUserContentFromSessionStart(msg.content);
+      if (visibleUserText) {
+        const pdfMetaSession = {};
+        if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
+        if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;
+        // Phase 3B: stamp session_language on user message metadata (do not override existing)
+        const sessionLangMetaSession = {};
+        if (!msg.metadata?.session_language) {
+          sessionLangMetaSession.session_language = normalizedSessionLang;
         }
-      } else {
-        // HYBRID wiring can include additional injected policy/runtime text with
-        // multiple "\n\n" separators. The final separator is the boundary before
-        // the real user-visible text.
-        const lastSep = content.lastIndexOf('\n\n');
-        if (lastSep !== -1) {
-          splitPos = lastSep;
-        }
-      }
-
-      if (splitPos !== -1) {
-        const userText = content.substring(splitPos + 2).trim();
-        const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
-        if (userText) {
-          let visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
-            stripFormRouterContextBlock(stripAttachmentContextBlock(cleanedUserText))
-          );
-          if (
-            typeof visibleUserText === 'string' &&
-            (visibleUserText.includes('[ATTACHMENT_HANDLING_POLICY]') || visibleUserText.includes('[THERAPEUTIC_FORMS_POLICY]'))
-          ) {
-            const tailSep = visibleUserText.lastIndexOf('\n\n');
-            if (tailSep !== -1) {
-              visibleUserText = visibleUserText.substring(tailSep + 2).trim();
-            }
-          }
-          const pdfMetaSession = {};
-          if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
-          if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;
-          // Phase 3B: stamp session_language on user message metadata (do not override existing)
-          const sessionLangMetaSession = {};
-          if (!msg.metadata?.session_language) {
-            sessionLangMetaSession.session_language = normalizedSessionLang;
-          }
-          return {
-            ...msg,
-            content: visibleUserText,
-            metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMetaSession, ...sessionLangMetaSession }
-          };
-        }
+        return {
+          ...msg,
+          content: visibleUserText,
+          metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMetaSession, ...sessionLangMetaSession }
+        };
       }
       // Pure session-start injection with no user text — hide from chat history
       return null;
