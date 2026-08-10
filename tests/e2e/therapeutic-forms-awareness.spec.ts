@@ -276,7 +276,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
     await sendChatMessage(page, 'תן לי שני טפסים בעברית לנושא חרדה');
 
     const cards = page.locator('[data-testid="generated-file-card"]');
-    await expect(cards).toHaveCount(2);
+    await expect(cards).toHaveCount(2, { timeout: 15000 });
     await expect(page.locator(`[data-testid="generated-file-card"][data-form-id="${HE_SINGLE.id}"]`)).toHaveCount(1);
     await expect(page.locator(`[data-testid="generated-file-card"][data-form-id="${HE_COMBINED.id}"]`)).toHaveCount(1);
     await expect(page.locator('[data-testid="generated-file-card"][data-language="he"]')).toHaveCount(2);

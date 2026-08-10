@@ -850,6 +850,41 @@ describe('sanitizeConversationMessages — agent-only runtime block stripping', 
     expect(result[0].content.startsWith('[')).toBe(false);
   });
 
+  it('A4c. Pure session-start with internal policies and SESSION_LANGUAGE shows no user bubble', () => {
+    const fullContent = [
+      '[START_SESSION]',
+      '',
+      '[ATTACHMENT_HANDLING_POLICY]',
+      'Do not invent attachment metadata.',
+      '',
+      '[THERAPEUTIC_FORMS_POLICY]',
+      'Do not invent form IDs, file names, URLs, catalogs, or attachments.',
+      '',
+      '[SESSION_LANGUAGE: he. Open and respond entirely in Hebrew for this session. Do not use another language unless the user explicitly asks to change the session language.]',
+    ].join('\n');
+
+    const result = sanitizeConversationMessages([{ role: 'user', content: fullContent }], 'he');
+    expect(result).toHaveLength(0);
+  });
+
+  it('A4d. Session-start extraction preserves full multi-paragraph first user text', () => {
+    const userMsg = 'First paragraph in English.\n\nSecond paragraph in Hebrew:\nשלום, אני משתף בשתי פסקאות.';
+    const fullContent = [
+      '[START_SESSION]',
+      '',
+      '[ATTACHMENT_HANDLING_POLICY]',
+      'Use attachment metadata when present.',
+      '',
+      '[SESSION_LANGUAGE: en. Open and respond entirely in English for this session. Do not use another language unless the user explicitly asks to change the session language.]',
+      '',
+      userMsg,
+    ].join('\n');
+
+    const result = sanitizeConversationMessages([{ role: 'user', content: fullContent }], 'en');
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(userMsg);
+  });
+
   // A5 — Attachment metadata preserved after stripping
   it('A5. Attachment metadata is preserved when a runtime block is stripped from a user message', () => {
     const userMsg = 'Please look at this file.';
