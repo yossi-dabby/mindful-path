@@ -40,7 +40,7 @@ import {
   evaluateCurrentTurnGroundingContractDetailed,
   classifyFormulationGuardedTurn,
 } from '../components/utils/formulationContractGuard.js';
-import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
+import { ACTIVE_CBT_THERAPIST_WIRING, predictTherapistWiringFromRuntimeFlags } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
 import {
   consumePendingPolicyRefreshAfterSuccessfulSend,
@@ -116,6 +116,11 @@ import {
   buildCompositeProvenanceKey,
 } from '@/lib/guardIsolationAudit.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
+import { _therapistWiringCanonicalName } from '@/lib/runtimeCapabilityDiagnostic.js';
+import {
+  fetchTherapistRuntimeFlagSnapshot,
+  buildTherapistRuntimeFlagTransportDiagnostic,
+} from '@/lib/therapistRuntimeFlagTransport.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -561,6 +566,44 @@ export default function Chat() {
       delete window.copyS2V8Trace;
     };
   }, []); // intentional empty deps — mount/unmount only
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const snapshot = await fetchTherapistRuntimeFlagSnapshot();
+        if (cancelled) return;
+
+        const predictedWiring = predictTherapistWiringFromRuntimeFlags(snapshot.flags);
+        const diagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
+          snapshot,
+          predictedTherapistWiring: _therapistWiringCanonicalName(predictedWiring),
+          currentActiveTherapistWiring: _therapistWiringCanonicalName(ACTIVE_CBT_THERAPIST_WIRING),
+        });
+
+        if (s2DebugEnabledRef.current) {
+          window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = diagnostic;
+        }
+      } catch (_error) {
+        if (!s2DebugEnabledRef.current || cancelled) return;
+
+        const fallbackDiagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
+          predictedTherapistWiring: _therapistWiringCanonicalName(
+            predictTherapistWiringFromRuntimeFlags({}),
+          ),
+          currentActiveTherapistWiring: _therapistWiringCanonicalName(ACTIVE_CBT_THERAPIST_WIRING),
+        });
+
+        window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = fallbackDiagnostic;
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      delete window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__;
+    };
+  }, []);
 
   // Reset visible window when conversation changes
   useEffect(() => {
