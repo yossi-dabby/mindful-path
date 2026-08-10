@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const THIS_DIR = dirname(fileURLToPath(import.meta.url));
 const CONTRACT_PATH = resolve(THIS_DIR, '../../base44/functions/therapistRuntimeFlagSnapshot/runtimeFlagContract.ts');
 const ENTRY_PATH = resolve(THIS_DIR, '../../base44/functions/therapistRuntimeFlagSnapshot/entry.ts');
+const FRONTEND_TRANSPORT_PATH = resolve(THIS_DIR, '../../src/lib/therapistRuntimeFlagTransport.js');
 
 const EXPECTED_FLAG_KEYS = [
   'THERAPIST_UPGRADE_ENABLED',
@@ -32,19 +33,18 @@ function toStrictBoolean(rawValue) {
 }
 
 describe('therapistRuntimeFlagSnapshot backend contract', () => {
-  it('uses schema therapist-runtime-flags-v1', () => {
-    const source = readFileSync(CONTRACT_PATH, 'utf8');
+  it('uses schema therapist-runtime-flags-v1 in entry.ts', () => {
+    const source = readFileSync(ENTRY_PATH, 'utf8');
     expect(source).toContain("THERAPIST_RUNTIME_FLAG_SCHEMA = 'therapist-runtime-flags-v1'");
   });
 
-  it('uses fixed allowlist with expected key set and VITE_* mappings', () => {
-    const source = readFileSync(CONTRACT_PATH, 'utf8');
+  it('uses fixed 17-key allowlist with expected VITE_* mappings in entry.ts', () => {
+    const source = readFileSync(ENTRY_PATH, 'utf8');
 
     for (const key of EXPECTED_FLAG_KEYS) {
       expect(source).toContain(`${key}: 'VITE_${key}'`);
     }
 
-    // Ensure no extra allowlisted keys were added silently.
     const mapEntries = source.match(/^[\s]{2}[A-Z0-9_]+:\s'VITE_[A-Z0-9_]+'/gm) ?? [];
     expect(mapEntries).toHaveLength(EXPECTED_FLAG_KEYS.length);
   });
@@ -61,6 +61,8 @@ describe('therapistRuntimeFlagSnapshot backend contract', () => {
   it('entry handler enforces auth and performs read-only response', () => {
     const source = readFileSync(ENTRY_PATH, 'utf8');
 
+    expect(source).toContain('const base44 = createClientFromRequest(req);');
+    expect(source).toContain('const user = await base44.auth.me().catch(() => null);');
     expect(source).toContain('if (!user)');
     expect(source).toContain('status: 401');
     expect(source).toContain('buildTherapistRuntimeFlagSnapshot((envName) => Deno.env.get(envName))');
@@ -71,9 +73,31 @@ describe('therapistRuntimeFlagSnapshot backend contract', () => {
     expect(source).not.toContain('Deno.env.toObject');
   });
 
-  it('contract source does not expose dynamic arbitrary env lookups', () => {
-    const source = readFileSync(CONTRACT_PATH, 'utf8');
+  it('entry source does not expose dynamic arbitrary env lookups', () => {
+    const source = readFileSync(ENTRY_PATH, 'utf8');
     expect(source).not.toContain('Object.keys(Deno.env');
     expect(source).not.toContain('for (const key in Deno.env');
+  });
+
+  it('entry source has no local relative imports and keeps only Base44 SDK npm import', () => {
+    const source = readFileSync(ENTRY_PATH, 'utf8');
+    const importLines = source.match(/^import .*$/gm) ?? [];
+
+    expect(importLines).toEqual([
+      "import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';",
+    ]);
+    expect(source).not.toContain("from './");
+    expect(source).not.toContain('from "../');
+  });
+
+  it('runtimeFlagContract.ts no longer exists under the function directory', () => {
+    expect(existsSync(CONTRACT_PATH)).toBe(false);
+  });
+
+  it('frontend transport contract remains unchanged by backend packaging update', () => {
+    const source = readFileSync(FRONTEND_TRANSPORT_PATH, 'utf8');
+    expect(source).toContain("THERAPIST_RUNTIME_FLAG_SCHEMA = 'therapist-runtime-flags-v1'");
+    expect(source).toContain("base44.functions.invoke('therapistRuntimeFlagSnapshot')");
+    expect(source).toContain('applied_to_active_wiring: false');
   });
 });
