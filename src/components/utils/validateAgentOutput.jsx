@@ -1324,11 +1324,12 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
           splitPos = sepIdx;
         }
       } else {
-        // HYBRID wiring: "[START_SESSION]" with no section headers — the first
-        // (and only) "\n\n" is the separator before user text
-        const firstSep = content.indexOf('\n\n');
-        if (firstSep !== -1) {
-          splitPos = firstSep;
+        // HYBRID wiring can include additional injected policy/runtime text with
+        // multiple "\n\n" separators. The final separator is the boundary before
+        // the real user-visible text.
+        const lastSep = content.lastIndexOf('\n\n');
+        if (lastSep !== -1) {
+          splitPos = lastSep;
         }
       }
 
@@ -1336,9 +1337,18 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         const userText = content.substring(splitPos + 2).trim();
         const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
         if (userText) {
-          const visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
+          let visibleUserText = stripAgentOnlyRuntimeBlocksFromUserContent(
             stripFormRouterContextBlock(stripAttachmentContextBlock(cleanedUserText))
           );
+          if (
+            typeof visibleUserText === 'string' &&
+            (visibleUserText.includes('[ATTACHMENT_HANDLING_POLICY]') || visibleUserText.includes('[THERAPEUTIC_FORMS_POLICY]'))
+          ) {
+            const tailSep = visibleUserText.lastIndexOf('\n\n');
+            if (tailSep !== -1) {
+              visibleUserText = visibleUserText.substring(tailSep + 2).trim();
+            }
+          }
           const pdfMetaSession = {};
           if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
           if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;

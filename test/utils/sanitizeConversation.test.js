@@ -831,6 +831,25 @@ describe('sanitizeConversationMessages — agent-only runtime block stripping', 
     expect(result[0].content).not.toContain(FORM_START);
   });
 
+  it('A4b. Hybrid session-start with internal policy blocks keeps only trailing user text', () => {
+    const userMsg = 'Please help me process what happened today.';
+    const fullContent = [
+      '[START_SESSION]',
+      '',
+      '[ATTACHMENT_HANDLING_POLICY]',
+      'Use attachment metadata when present.',
+      '',
+      '[THERAPEUTIC_FORMS_POLICY]',
+      'Forms policy context.',
+      '',
+      userMsg,
+    ].join('\n');
+    const result = sanitizeConversationMessages([{ role: 'user', content: fullContent }]);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(userMsg);
+    expect(result[0].content.startsWith('[')).toBe(false);
+  });
+
   // A5 — Attachment metadata preserved after stripping
   it('A5. Attachment metadata is preserved when a runtime block is stripped from a user message', () => {
     const userMsg = 'Please look at this file.';
