@@ -207,13 +207,30 @@ export function createChatOrchestratorV2() {
    */
   function registerSend({ conversationId, executeSend }) {
     if (_activeTurn && QUEUE_BLOCKING_STATUSES.has(_activeTurn.status)) {
-      // Active turn in progress — queue the send if capacity allows.
-      if (_queue.length >= _MAX_QUEUE_DEPTH) {
-        // Queue full — reject without losing or reordering existing messages.
-        return { turn: null, queued: false, queue_full: true };
+      // A TIMED_OUT turn means the coordinator already gave up on receiving a
+      // response and called setIsLoading(false) — the send button is re-enabled
+      // and the user is explicitly retrying or sending a new message.  Queuing
+      // behind a dead turn would permanently block the HTTP request, so we
+      // abandon the stale turn and start a fresh one immediately instead.
+      if (_activeTurn.status === TURN_STATUS.TIMED_OUT) {
+        if (_queue.length > 0) {
+          console.warn(
+            '[V2Orchestrator] registerSend: abandoning',
+            _queue.length,
+            'queued send(s) behind a TIMED_OUT turn — they will not be retried',
+          );
+        }
+        _activeTurn = null;
+        _queue.length = 0;
+      } else {
+        // Active turn genuinely in progress — queue the send if capacity allows.
+        if (_queue.length >= _MAX_QUEUE_DEPTH) {
+          // Queue full — reject without losing or reordering existing messages.
+          return { turn: null, queued: false, queue_full: true };
+        }
+        _queue.push({ executeSend, conversationId });
+        return { turn: null, queued: true, queue_full: false };
       }
-      _queue.push({ executeSend, conversationId });
-      return { turn: null, queued: true, queue_full: false };
     }
 
     // Atomically create the next active turn record before executing.
