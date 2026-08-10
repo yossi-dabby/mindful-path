@@ -98,6 +98,8 @@ describe('therapistRuntimeFlagSnapshot backend contract', () => {
     const source = readFileSync(FRONTEND_TRANSPORT_PATH, 'utf8');
     expect(source).toContain("THERAPIST_RUNTIME_FLAG_SCHEMA = 'therapist-runtime-flags-v1'");
     expect(source).toContain("base44.functions.invoke('therapistRuntimeFlagSnapshot')");
-    expect(source).toContain('applied_to_active_wiring: false');
+    // Phase 0.2A: applied_to_active_wiring is now parameter-driven (no longer hardcoded false).
+    // The diagnostic builder accepts appliedToActiveWiring so the gate can surface truth.
+    expect(source).toContain('applied_to_active_wiring: appliedToActiveWiring === true');
   });
 });

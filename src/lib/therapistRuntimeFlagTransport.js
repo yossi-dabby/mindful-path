@@ -18,6 +18,10 @@ export const THERAPIST_RUNTIME_FLAG_KEYS = Object.freeze([
   'THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED',
   'CONTEXT_COMPOSER_V2_ENABLED',
   'CHAT_ORCHESTRATOR_V2_ENABLED',
+  // Phase 0.2A — backend-only runtime authority gate (18th key).
+  // Missing/false/any-non-'true' value normalizes to false.
+  // An older Phase 0.1 frontend receiving this key ignores it safely.
+  'THERAPIST_RUNTIME_APPLY_ENABLED',
 ]);
 
 let _cachedRuntimeSnapshot = null;
@@ -115,6 +119,9 @@ export function buildTherapistRuntimeFlagTransportDiagnostic({
   snapshot,
   predictedTherapistWiring,
   currentActiveTherapistWiring,
+  appliedToActiveWiring = false,
+  activationReason = null,
+  selectionLocked = false,
 } = {}) {
   const safeSnapshot = snapshot && typeof snapshot === 'object' ? snapshot : buildUnavailableSnapshot();
 
@@ -125,7 +132,9 @@ export function buildTherapistRuntimeFlagTransportDiagnostic({
     flags: safeSnapshot.flags || getDefaultTherapistRuntimeFlags(),
     predicted_therapist_wiring: predictedTherapistWiring || 'unknown',
     current_active_therapist_wiring: currentActiveTherapistWiring || 'unknown',
-    applied_to_active_wiring: false,
+    applied_to_active_wiring: appliedToActiveWiring === true,
+    activation_reason: activationReason || null,
+    selection_locked: selectionLocked === true,
     fetched_at: safeSnapshot.fetched_at || null,
     generated_at: safeSnapshot.generated_at || null,
   });
