@@ -40,7 +40,8 @@ import {
   evaluateCurrentTurnGroundingContractDetailed,
   classifyFormulationGuardedTurn,
 } from '../components/utils/formulationContractGuard.js';
-import { ACTIVE_CBT_THERAPIST_WIRING, predictTherapistWiringFromRuntimeFlags } from '@/api/activeAgentWiring.js';
+import { ACTIVE_CBT_THERAPIST_WIRING, predictTherapistWiringFromRuntimeFlags, resolveTherapistRuntimeActivation } from '@/api/activeAgentWiring.js';
+import { createTherapistSessionWiringController } from '@/lib/therapistSessionWiringController.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
 import {
   consumePendingPolicyRefreshAfterSuccessfulSend,
@@ -513,6 +514,13 @@ export default function Chat() {
   // _activeTurn that registerSend just created, which causes the V2 poll path to fail.
   const prevConversationIdForV2ResetRef = useRef(null);
 
+  // Phase 0.2A — Session-local therapist wiring controller.
+  // Initialized once at mount with the build-time fallback wiring.
+  // Accepts a runtime authority decision before the first session-start send;
+  // locks the effective wiring on first lockAndConsume() call.
+  // A new Chat mount (browser reload) creates a fresh controller.
+  const sessionWiringControllerRef = useRef(createTherapistSessionWiringController(ACTIVE_CBT_THERAPIST_WIRING));
+
   const buildTurnScopedResponsePolicy = ({ policy, conversationId, clientRequestId = null, generationIdentity = null, status = 'pending' } = {}) => {
     if (!policy || typeof policy !== 'object') return null;
     return {
@@ -574,11 +582,27 @@ export default function Chat() {
       const snapshot = await fetchTherapistRuntimeFlagSnapshot();
       if (cancelled) return;
 
+      // Phase 0.2A — Evaluate runtime authority via the pure decision API.
+      // If THERAPIST_RUNTIME_APPLY_ENABLED is true in the snapshot, the canonical
+      // resolver is invoked over snapshot.flags and the decision is offered to the
+      // session wiring controller.  The controller rejects late arrivals (after lock).
+      const decision = resolveTherapistRuntimeActivation({
+        snapshot,
+        fallbackWiring: ACTIVE_CBT_THERAPIST_WIRING,
+      });
+      sessionWiringControllerRef.current.tryApply(decision);
+
       const predictedWiring = predictTherapistWiringFromRuntimeFlags(snapshot.flags);
+      const controllerFields = sessionWiringControllerRef.current.getDiagnosticFields();
       const diagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
         snapshot,
         predictedTherapistWiring: _therapistWiringCanonicalName(predictedWiring),
-        currentActiveTherapistWiring: _therapistWiringCanonicalName(ACTIVE_CBT_THERAPIST_WIRING),
+        currentActiveTherapistWiring: _therapistWiringCanonicalName(
+          sessionWiringControllerRef.current.getEffectiveWiring()
+        ),
+        appliedToActiveWiring: controllerFields.applied_to_active_wiring,
+        activationReason: controllerFields.activation_reason,
+        selectionLocked: controllerFields.selection_locked,
       });
 
       if (s2DebugEnabledRef.current) {
@@ -1892,11 +1916,13 @@ export default function Chat() {
             // Get safety profile from user settings or default to 'standard'
             const user = await base44.auth.me().catch(() => null);
             const safetyProfile = user?.preferences?.safety_profile || 'standard';
-            const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
+            // Phase 0.2A: lock and consume the effective wiring for this session.
+            const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
+            const agentName = effectiveWiring.name;
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
-              tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
+              tool_configs: effectiveWiring.tool_configs,
               metadata: {
                 name: intentParam === 'thought_work' ? 'Thought Journal Session' :
                 intentParam === 'goal_work' ? 'Goal Setting Session' :
@@ -1932,7 +1958,7 @@ export default function Chat() {
                   }, 10000);
                 }
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
-                  ACTIVE_CBT_THERAPIST_WIRING,
+                  effectiveWiring,
                   base44.entities,
                   base44,
                   { sessionLanguage: i18n.language, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
@@ -1952,11 +1978,13 @@ export default function Chat() {
             // Get safety profile from user settings or default to 'standard'
             const user = await base44.auth.me().catch(() => null);
             const safetyProfile = user?.preferences?.safety_profile || 'standard';
-            const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
+            // Phase 0.2A: lock and consume the effective wiring for this session.
+            const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
+            const agentName = effectiveWiring.name;
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
-              tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
+              tool_configs: effectiveWiring.tool_configs,
               metadata: {
                 name: intentParam === 'thought_work' ? 'Thought Journal Session' :
                 intentParam === 'goal_work' ? 'Goal Setting Session' :
@@ -1992,7 +2020,7 @@ export default function Chat() {
                   }, 10000);
                 }
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
-                  ACTIVE_CBT_THERAPIST_WIRING,
+                  effectiveWiring,
                   base44.entities,
                   base44,
                   { sessionLanguage: i18n.language, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
@@ -2601,7 +2629,9 @@ export default function Chat() {
       // Get safety profile from user settings or default to 'standard'
       const user = await base44.auth.me().catch(() => null);
       const safetyProfile = user?.preferences?.safety_profile || 'standard';
-      const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
+      // Phase 0.2A: lock and consume the effective wiring for this session.
+      const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
+      const agentName = effectiveWiring.name;
 
       // Track agent profile usage
       if (appParams.appId) {
@@ -2617,7 +2647,7 @@ export default function Chat() {
 
       const conversation = await base44.agents.createConversation({
         agent_name: agentName,
-        tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
+        tool_configs: effectiveWiring.tool_configs,
         metadata: {
           name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
           description: 'CBT Therapy Session',
@@ -2655,7 +2685,7 @@ export default function Chat() {
           }, 10000);
         }
         const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
-          ACTIVE_CBT_THERAPIST_WIRING,
+          effectiveWiring,
           base44.entities,
           base44,
           {
@@ -3480,17 +3510,22 @@ export default function Chat() {
     try {
       let convId = currentConversationId;
       let isNewConversation = false;
+      // Phase 0.2A: holds the locked effective wiring when a new conversation is created.
+      // Set in the isNewConversation block; used in the session-start content block below.
+      let newConversationEffectiveWiring = null;
       if (!convId) {
         isNewConversation = true;
         sessionLanguageRef.current = i18n.language || 'en';
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
         const safetyProfile = user?.preferences?.safety_profile || 'standard';
-        const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
+        // Phase 0.2A: lock and consume the effective wiring for this session.
+        newConversationEffectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
+        const agentName = newConversationEffectiveWiring.name;
 
         const conversation = await base44.agents.createConversation({
           agent_name: agentName,
-          tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
+          tool_configs: newConversationEffectiveWiring.tool_configs,
           metadata: {
             name: `Session ${conversations?.length + 1 || 1}`,
             description: 'Therapy session',
@@ -3581,7 +3616,7 @@ export default function Chat() {
       if (isNewConversation) {
         const sessionStartContent = addLangDirective(
           await buildActionFirstDemotedSessionContentAsync(
-            ACTIVE_CBT_THERAPIST_WIRING,
+            newConversationEffectiveWiring ?? ACTIVE_CBT_THERAPIST_WIRING,
             base44.entities,
             base44,
             {

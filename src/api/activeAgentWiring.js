@@ -556,3 +556,61 @@ export const ACTIVE_AGENT_WIRINGS = {
   cbt_therapist: ACTIVE_CBT_THERAPIST_WIRING,
   ai_companion:  ACTIVE_AI_COMPANION_WIRING,
 };
+
+// ─── Phase 0.2A — Runtime Authority Decision API ─────────────────────────────
+//
+// resolveTherapistRuntimeActivation is a pure function that decides whether a
+// successfully transported runtime snapshot should become the source of therapist
+// wiring selection for a Chat session.
+//
+// It is gated by THERAPIST_RUNTIME_APPLY_ENABLED — an independent backend-only
+// control-plane switch that defaults false and is NOT a therapist capability flag.
+//
+// Key invariants:
+//   - THERAPIST_RUNTIME_APPLY_ENABLED MUST NOT participate in V1–V12 precedence.
+//   - V1–V12 selection is always delegated to resolveTherapistWiringFromFlagReader.
+//   - No capability flag is activated by this function.
+//   - Default state (APPLY missing/false) is identical to Phase 0.1 behavior.
+
+/**
+ * Resolves whether the runtime snapshot should become the active therapist wiring
+ * for a Chat session.
+ *
+ * Returns a bounded decision object:
+ *   { wiring, applied: boolean, reason: string }
+ *
+ * Possible reasons:
+ *   transport_unavailable  — snapshot absent or transport failed
+ *   apply_gate_off         — snapshot available but THERAPIST_RUNTIME_APPLY_ENABLED !== true
+ *   runtime_snapshot_applied — snapshot available and APPLY === true; wiring resolved
+ *                              through the canonical resolver
+ *
+ * @param {{ snapshot: object|null, fallbackWiring: object }} options
+ * @returns {{ wiring: object, applied: boolean, reason: string }}
+ */
+export function resolveTherapistRuntimeActivation({ snapshot, fallbackWiring }) {
+  const safe = fallbackWiring ?? ACTIVE_CBT_THERAPIST_WIRING;
+
+  if (!snapshot || snapshot.transport_status !== 'available' || !snapshot.received) {
+    return { wiring: safe, applied: false, reason: 'transport_unavailable' };
+  }
+
+  const flags = snapshot.flags;
+  if (!flags || typeof flags !== 'object') {
+    return { wiring: safe, applied: false, reason: 'transport_unavailable' };
+  }
+
+  // Strict gate: only the boolean true value (as stored after transport normalisation)
+  // enables runtime authority.  The APPLY flag does NOT participate in V1–V12 precedence.
+  if (flags['THERAPIST_RUNTIME_APPLY_ENABLED'] !== true) {
+    return { wiring: safe, applied: false, reason: 'apply_gate_off' };
+  }
+
+  // APPLY=true — delegate to the canonical resolver for V1–V12 selection.
+  // The APPLY flag itself is excluded from the reader so it cannot alter V1–V12 routing.
+  const resolvedWiring = resolveTherapistWiringFromFlagReader(
+    (flagName) => flagName === 'THERAPIST_RUNTIME_APPLY_ENABLED' ? false : (flags[flagName] === true),
+  );
+
+  return { wiring: resolvedWiring, applied: true, reason: 'runtime_snapshot_applied' };
+}
