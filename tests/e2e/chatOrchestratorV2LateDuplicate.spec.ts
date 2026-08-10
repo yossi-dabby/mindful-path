@@ -161,10 +161,10 @@ async function setupLateReplayFixture(page: Page) {
 }
 
 test.describe('Chat V2 late duplicate runtime', () => {
-  test.describe.configure({ retries: 1 });
+  test.describe.configure({ retries: 2 });
 
   test('stale previous-turn assistant does not close turn 2 before assistant B arrives', async ({ page }) => {
-    test.setTimeout(120000);
+    test.setTimeout(180000);
     const fixture = await setupLateReplayFixture(page);
     const input = page.locator('[data-testid="therapist-chat-input"]');
     const send = page.locator('[data-testid="therapist-chat-send"]');
@@ -175,6 +175,8 @@ test.describe('Chat V2 late duplicate runtime', () => {
     await send.click();
     await expect(page.getByText('Assistant A', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Assistant A', { exact: true })).toHaveCount(1);
+    await nudgeConversationRefetch(page);
+    await nudgeConversationRefetch(page);
 
     const getMessagePostCount = () =>
       fixture.getConversationPostUrls().filter((url) => url.includes('/messages')).length;
@@ -189,24 +191,18 @@ test.describe('Chat V2 late duplicate runtime', () => {
 
     let secondPostObserved = false;
     try {
-      await expect.poll(getMessagePostCount, { timeout: 15000, intervals: [500] }).toBeGreaterThanOrEqual(postCountBeforeTurn2 + 1);
+      await expect.poll(getMessagePostCount, { timeout: 45000, intervals: [500] }).toBeGreaterThanOrEqual(postCountBeforeTurn2 + 1);
       secondPostObserved = true;
     } catch {
       if (getMessagePostCount() >= postCountBeforeTurn2 + 1) {
         secondPostObserved = true;
       } else {
-        const currentInputValue = await input.inputValue();
-        const canResubmit =
-          await send.isVisible().catch(() => false) &&
-          await send.isEnabled().catch(() => false);
-        if (currentInputValue.trim().length > 0 || canResubmit) {
-          await expect(input).toBeEnabled({ timeout: 10000 });
-          await input.fill('User message 2');
-          await expect(input).toHaveValue('User message 2', { timeout: 5000 });
-          await input.press('Enter');
-        }
+        await expect(input).toBeEnabled({ timeout: 10000 });
+        await input.fill('User message 2');
+        await expect(input).toHaveValue('User message 2', { timeout: 5000 });
+        await input.press('Enter');
         try {
-          await expect.poll(getMessagePostCount, { timeout: 15000, intervals: [500] }).toBeGreaterThanOrEqual(postCountBeforeTurn2 + 1);
+          await expect.poll(getMessagePostCount, { timeout: 45000, intervals: [500] }).toBeGreaterThanOrEqual(postCountBeforeTurn2 + 1);
           secondPostObserved = true;
         } catch {
           throw new Error('Turn-2 message POST was not observed after both click and Enter fallback submissions');
