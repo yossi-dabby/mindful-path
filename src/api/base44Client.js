@@ -68,7 +68,16 @@ try {
         const original = entity[method];
         if (typeof original !== 'function') return;
         entity[method] = (...args) =>
-          Promise.resolve(original.apply(entity, args)).then(normalizeEntityList);
+          Promise.resolve(original.apply(entity, args)).then((result) =>
+            normalizeEntityList(result, {
+              entityName,
+              method,
+              diagnosticKey:
+                entityName === 'Goal' && method === 'filter'
+                  ? 'client_goal_response_shape'
+                  : '',
+            })
+          );
       });
     });
   }

@@ -59,6 +59,7 @@ import {
   LTS_WRITE_RESULTS,
   enrichConversationMemoryPayload,
 } from '../../src/lib/sessionEndSummarization.js';
+import { normalizeEntityList } from '../../src/lib/entityListNormalizer.js';
 
 import {
   buildLongitudinalState,
@@ -78,6 +79,28 @@ const generateSummarySource = readFileSync(
 
 function loadBackendGateFn(fnName) {
   // Extract function body using a broad multiline match.
+  const pattern = new RegExp(
+    `function ${fnName}\\([\\s\\S]*?^}`,
+    'm',
+  );
+  const match = generateSummarySource.match(pattern);
+  expect(match, `${fnName} must exist in generateSessionSummary/entry.ts`).not.toBeNull();
+  const transpiled = ts.transpileModule(
+    `${match[0]}\nexport { ${fnName} };`,
+    {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    },
+  );
+  const mod = { exports: {} };
+  // eslint-disable-next-line no-new-func
+  new Function('module', 'exports', transpiled.outputText)(mod, mod.exports);
+  return mod.exports[fnName];
+}
+
+function loadBackendSourceFn(fnName) {
   const pattern = new RegExp(
     `function ${fnName}\\([\\s\\S]*?^}`,
     'm',
@@ -320,6 +343,35 @@ describe('enrichConversationMemoryPayload — entity response normalization', ()
     expect(result.follow_up_tasks).toContain('Grounding practice');
   });
 
+  describe('global wrapper interaction — shared normalizeEntityList first, then enrichment', () => {
+    const goal = { id: 'goal-wrap-1', title: 'Keep hydration plan', status: 'active' };
+
+    function makeWrappedEntities(goalResponse) {
+      return {
+        Goal: {
+          filter: vi.fn(async () => normalizeEntityList(goalResponse)),
+        },
+        CaseFormulation: {
+          list: vi.fn(async () => normalizeEntityList([])),
+        },
+      };
+    }
+
+    it('shared boundary preserves Goal from { data: { results:[...] } } for continuity enrichment', async () => {
+      const entities = makeWrappedEntities({ data: { results: [goal] } });
+      const result = await enrichConversationMemoryPayload(makeBasePayload(), entities);
+      expect(result.goals_referenced).toEqual(['goal-wrap-1']);
+      expect(result.follow_up_tasks).toContain('Keep hydration plan');
+    });
+
+    it('shared boundary preserves Goal from { data:[...] } for continuity enrichment', async () => {
+      const entities = makeWrappedEntities({ data: [goal] });
+      const result = await enrichConversationMemoryPayload(makeBasePayload(), entities);
+      expect(result.goals_referenced).toEqual(['goal-wrap-1']);
+      expect(result.follow_up_tasks).toContain('Keep hydration plan');
+    });
+  });
+
   it('13. Goal { results: [...] } enriches', async () => {
     const entities = makeEntities({ goalResponse: { results: [goal] }, cfResponse: [] });
     const result = await enrichConversationMemoryPayload(makeBasePayload(), entities);
@@ -442,6 +494,30 @@ describe('isRuntimeContinuityEnrichmentEnabled (backend gate)', () => {
 // ─── 24–32: Backend enrichment behaviour (via gate-function + structure inspection) ─
 
 describe('backend continuity enrichment structure (generateSessionSummary source)', () => {
+  const normalizeBackendEntityList = loadBackendSourceFn('normalizeBackendEntityList');
+
+  it('24a. normalizeBackendEntityList handles all four supported response shapes', () => {
+    const row = { id: 'goal-1', title: 'Grounding' };
+    expect(normalizeBackendEntityList([row])).toEqual([row]);
+    expect(normalizeBackendEntityList({ results: [row] })).toEqual([row]);
+    expect(normalizeBackendEntityList({ data: [row] })).toEqual([row]);
+    expect(normalizeBackendEntityList({ data: { results: [row] } })).toEqual([row]);
+  });
+
+  it('24b. normalizeBackendEntityList fail-open fallback for empty/unsupported shapes', () => {
+    expect(normalizeBackendEntityList(null)).toEqual([]);
+    expect(normalizeBackendEntityList(undefined)).toEqual([]);
+    expect(normalizeBackendEntityList({ data: { foo: [] } })).toEqual([]);
+    expect(normalizeBackendEntityList({ foo: 'bar' })).toEqual([]);
+  });
+
+  it('24c. normalizeBackendEntityList does not mutate source envelope', () => {
+    const envelope = { data: { results: [{ id: 'goal-1', title: 'Grounding' }] } };
+    const before = JSON.stringify(envelope);
+    normalizeBackendEntityList(envelope);
+    expect(JSON.stringify(envelope)).toBe(before);
+  });
+
   it('24. backend enrichment code reads Goal with { status: "active" }, newest-first, max 5', () => {
     // Verify the source code contains the expected Goal.filter call shape
     expect(generateSummarySource).toMatch(/base44\.entities\.Goal\.filter/);

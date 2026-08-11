@@ -245,6 +245,7 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
       const {
         triggerConversationEndSummarization,
       } = await import('/src/lib/sessionEndSummarization.js');
+      const { normalizeEntityList } = await import('/src/lib/entityListNormalizer.js');
       const { triggerConversationMemoryWriteOnce } = await import('/src/lib/conversationMemoryWriteDedup.js');
       const {
         THERAPIST_RUNTIME_FLAG_SCHEMA,
@@ -288,16 +289,22 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
         Goal: {
           filter: async (...args: unknown[]) => {
             goalReadCalls.push(args);
-            return [
-              { id: 'goal-real-1', title: 'Practice grounding', status: 'active' },
-              { id: 'goal-real-2', title: transcriptText, status: 'active' },
-            ];
+            return normalizeEntityList({
+              data: {
+                results: [
+                  { id: 'goal-real-1', title: 'Practice grounding', status: 'active' },
+                  { id: 'goal-real-2', title: transcriptText, status: 'active' },
+                ],
+              },
+            });
           },
         },
         CaseFormulation: {
           list: async (...args: unknown[]) => {
             formulationReadCalls.push(args);
-            return [{ core_belief: transcriptText }];
+            return normalizeEntityList({
+              data: [{ core_belief: transcriptText }],
+            });
           },
         },
       };
