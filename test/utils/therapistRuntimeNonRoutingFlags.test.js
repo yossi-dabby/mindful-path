@@ -15,9 +15,9 @@
  *
  *   1.  snapshot unavailable  → legacy behavior
  *   2.  APPLY=false           → legacy behavior
- *   3.  SUMMARIZATION=false   → no write (gate returns false under runtime authority)
- *   4.  SUMMARIZATION=true + accepted runtime authority → gate returns true
- *   5.  no duplicate memory write (sanitizeSummaryRecord is idempotent)
+ *   3.  APPLY=true + MASTER=true + SUMMARIZATION=false → gate returns false
+ *   4.  APPLY=true + MASTER=true + SUMMARIZATION=true  → gate returns true
+ *   5.  APPLY=true + MASTER=false + SUMMARIZATION=true → gate returns false
  *   6.  privacy / sanitization contract unchanged
  *   7.  CONTEXT_COMPOSER_V2=false → resolves false
  *   8.  CONTEXT_COMPOSER_V2=true  → resolves true via runtime authority
@@ -163,10 +163,11 @@ describe('Test 2 — APPLY=false: resolvers fall back to legacy behavior', () =>
 
 // ─── 3. SUMMARIZATION=false (with valid runtime authority) → gate returns false
 
-describe('Test 3 — SUMMARIZATION=false under runtime authority: gate returns false', () => {
-  it('3a. runtime SUMMARIZATION=false with APPLY=true → resolveRuntimeSummarizationFlag returns false', () => {
+describe('Test 3 — APPLY=true + MASTER=true + SUMMARIZATION=false: gate returns false', () => {
+  it('3a. runtime SUMMARIZATION=false with APPLY=true and MASTER=true → resolveRuntimeSummarizationFlag returns false', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: false,
     });
     expect(resolveRuntimeSummarizationFlag(snapshot)).toBe(false);
@@ -183,30 +184,32 @@ describe('Test 3 — SUMMARIZATION=false under runtime authority: gate returns f
 
 // ─── 4. SUMMARIZATION=true + valid runtime authority → gate returns true ─────
 
-describe('Test 4 — SUMMARIZATION=true + accepted runtime authority: gate returns true', () => {
-  it('4a. runtime SUMMARIZATION=true with APPLY=true → resolveRuntimeSummarizationFlag returns true', () => {
+describe('Test 4 — APPLY=true + MASTER=true + SUMMARIZATION=true: gate returns true', () => {
+  it('4a. runtime SUMMARIZATION=true with APPLY=true and MASTER=true → resolveRuntimeSummarizationFlag returns true', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
-      THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
-    });
-    expect(resolveRuntimeSummarizationFlag(snapshot)).toBe(true);
-  });
-
-  it('4b. MASTER=false but SUMMARIZATION=true and APPLY=true → runtime authority still true', () => {
-    // Runtime authority overrides the build-time gate; snapshot resolves directly.
-    const snapshot = makeAvailableSnapshot({
-      THERAPIST_RUNTIME_APPLY_ENABLED: true,
-      THERAPIST_UPGRADE_ENABLED: false,
+      THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
     });
     expect(resolveRuntimeSummarizationFlag(snapshot)).toBe(true);
   });
 });
 
-// ─── 5. no duplicate memory write — sanitizeSummaryRecord is idempotent ──────
+describe('Test 5 — APPLY=true + MASTER=false + SUMMARIZATION=true: gate returns false', () => {
+  it('5a. MASTER=false + SUMMARIZATION=true + APPLY=true → resolveRuntimeSummarizationFlag returns false', () => {
+    const snapshot = makeAvailableSnapshot({
+      THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: false,
+      THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
+    });
+    expect(resolveRuntimeSummarizationFlag(snapshot)).toBe(false);
+  });
+});
 
-describe('Test 5 — No duplicate write: sanitizeSummaryRecord is idempotent', () => {
-  it('5a. calling sanitizeSummaryRecord twice on the same input produces identical results', () => {
+// ─── 5a. Sanitizer determinism remains unchanged (not a dedup substitute) ────
+
+describe('Test 5a — Sanitizer determinism remains unchanged', () => {
+  it('5a-1. calling sanitizeSummaryRecord twice on the same input produces identical results', () => {
     const input = {
       session_id: 'test-session-001',
       session_date: '2025-06-01T09:00:00.000Z',
@@ -220,7 +223,7 @@ describe('Test 5 — No duplicate write: sanitizeSummaryRecord is idempotent', (
     expect(first.rejected_fields).toEqual(second.rejected_fields);
   });
 
-  it('5b. sanitizing an already-sanitized record returns identical output', () => {
+  it('5a-2. sanitizing an already-sanitized record returns identical output', () => {
     const input = {
       session_id: 'abc',
       session_summary: 'Progress noted.',
@@ -263,6 +266,7 @@ describe('Test 6 — Privacy and sanitization contract unchanged by runtime auth
     // This test confirms sanitizeSummaryRecord is independent of the gate.
     const snapshotOn = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
     });
     const gateResult = resolveRuntimeSummarizationFlag(snapshotOn);

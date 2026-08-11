@@ -21,12 +21,12 @@
  *  3. triggerConversationEndSummarization — gate check with switch invoker
  *  4. triggerConversationEndSummarization — inert below message threshold
  *     (tested via deriveConversationMemoryPayload input-shape invariants)
- *  5. Chat.jsx static analysis — new import
+ *  5. Conversation-memory dedup helper — export + trigger-count behavior
  *  6. Chat.jsx static analysis — conversationMemoryWrittenRef dedup Set
  *  7. Chat.jsx static analysis — maybeTriggerEndWrite helper
  *  8. Chat.jsx static analysis — loadConversation integration
  *  9. Chat.jsx static analysis — startNewConversationWithIntent integration
- * 10. Chat.jsx static analysis — requestSummary dedup mark
+ * 10. Chat.jsx static analysis — requestSummary dedup wiring
  * 11. Privacy contract — no raw transcript leakage
  * 12. Role isolation — companion wiring unaffected
  * 13. Rollback — prior Phase 4 exports unchanged
@@ -42,7 +42,7 @@
  * - All prior-phase exports are rechecked here (additive).
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -57,6 +57,10 @@ import {
   deriveSessionSummaryPayload,
   triggerSessionEndSummarization,
 } from '../../src/lib/sessionEndSummarization.js';
+import {
+  claimConversationMemoryWrite,
+  triggerConversationMemoryWriteOnce,
+} from '../../src/lib/conversationMemoryWriteDedup.js';
 
 // ── Phase 1 schema helpers ───────────────────────────────────────────────────
 import {
@@ -190,15 +194,95 @@ describe('Phase 5 — Message-threshold gate: deriveConversationMemoryPayload in
   });
 });
 
-// ─── Section 5 — Chat.jsx static analysis: new import ────────────────────────
+// ─── Section 5 — Dedup helper: export + trigger-count behavior ───────────────
 
-describe('Phase 5 — Chat.jsx static analysis: new import', () => {
-  it('Chat.jsx imports CONVERSATION_MIN_MESSAGES_FOR_MEMORY', () => {
-    expect(chatSrc).toContain('CONVERSATION_MIN_MESSAGES_FOR_MEMORY');
+describe('Phase 5 — conversation-memory dedup helper', () => {
+  it('claimConversationMemoryWrite marks a conversation ID only once', () => {
+    const tracker = new Set();
+
+    expect(claimConversationMemoryWrite(tracker, 'conv-dedup-1')).toBe(true);
+    expect(claimConversationMemoryWrite(tracker, 'conv-dedup-1')).toBe(false);
+    expect(tracker.has('conv-dedup-1')).toBe(true);
   });
 
-  it('Chat.jsx imports CONVERSATION_MIN_MESSAGES_FOR_MEMORY from sessionEndSummarization', () => {
-    expect(chatSrc).toMatch(/CONVERSATION_MIN_MESSAGES_FOR_MEMORY.*sessionEndSummarization/s);
+  it('11. requestSummary twice for same conversation → one summarization trigger', () => {
+    const tracker = new Set();
+    const trigger = vi.fn();
+
+    triggerConversationMemoryWriteOnce({
+      writeTracker: tracker,
+      conversationId: 'conv-dedup-2',
+      conversationMeta: { name: 'Session A' },
+      trigger,
+      invoker: 'chat_request_summary',
+    });
+    triggerConversationMemoryWriteOnce({
+      writeTracker: tracker,
+      conversationId: 'conv-dedup-2',
+      conversationMeta: { name: 'Session A' },
+      trigger,
+      invoker: 'chat_request_summary',
+    });
+
+    expect(trigger).toHaveBeenCalledTimes(1);
+  });
+
+  it('12. requestSummary then conversation-switch → one trigger total', () => {
+    const tracker = new Set();
+    const trigger = vi.fn();
+    const messages = Array.from(
+      { length: CONVERSATION_MIN_MESSAGES_FOR_MEMORY },
+      (_, idx) => ({ id: idx }),
+    );
+
+    triggerConversationMemoryWriteOnce({
+      writeTracker: tracker,
+      conversationId: 'conv-dedup-3',
+      conversationMeta: { name: 'Session B' },
+      trigger,
+      invoker: 'chat_request_summary',
+    });
+    triggerConversationMemoryWriteOnce({
+      writeTracker: tracker,
+      conversationId: 'conv-dedup-3',
+      conversationMeta: { name: 'Session B' },
+      messages,
+      minMessages: CONVERSATION_MIN_MESSAGES_FOR_MEMORY,
+      trigger,
+      invoker: 'chat_conversation_switch',
+    });
+
+    expect(trigger).toHaveBeenCalledTimes(1);
+  });
+
+  it('13. conversation-switch then duplicate switch → one trigger total', () => {
+    const tracker = new Set();
+    const trigger = vi.fn();
+    const messages = Array.from(
+      { length: CONVERSATION_MIN_MESSAGES_FOR_MEMORY },
+      (_, idx) => ({ id: idx }),
+    );
+
+    triggerConversationMemoryWriteOnce({
+      writeTracker: tracker,
+      conversationId: 'conv-dedup-4',
+      conversationMeta: { name: 'Session C' },
+      messages,
+      minMessages: CONVERSATION_MIN_MESSAGES_FOR_MEMORY,
+      trigger,
+      invoker: 'chat_conversation_switch',
+    });
+    triggerConversationMemoryWriteOnce({
+      writeTracker: tracker,
+      conversationId: 'conv-dedup-4',
+      conversationMeta: { name: 'Session C' },
+      messages,
+      minMessages: CONVERSATION_MIN_MESSAGES_FOR_MEMORY,
+      trigger,
+      invoker: 'chat_conversation_switch',
+    });
+
+    expect(trigger).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -228,22 +312,9 @@ describe('Phase 5 — Chat.jsx static analysis: maybeTriggerEndWrite helper', ()
     expect(chatSrc).toMatch(/const\s+maybeTriggerEndWrite\s*=/);
   });
 
-  it('maybeTriggerEndWrite checks messages length against CONVERSATION_MIN_MESSAGES_FOR_MEMORY', () => {
-    expect(chatSrc).toMatch(/msgList\.length\s*<\s*CONVERSATION_MIN_MESSAGES_FOR_MEMORY/);
-  });
-
-  it('maybeTriggerEndWrite checks conversationMemoryWrittenRef dedup set', () => {
-    expect(chatSrc).toMatch(/conversationMemoryWrittenRef\.current\.has\(/);
-  });
-
-  it('maybeTriggerEndWrite adds to conversationMemoryWrittenRef after dedup check', () => {
-    expect(chatSrc).toMatch(/conversationMemoryWrittenRef\.current\.add\(/);
-  });
-
-  it('maybeTriggerEndWrite calls triggerConversationEndSummarization', () => {
-    // The helper must call the actual trigger function
+  it('maybeTriggerEndWrite delegates dedup and threshold enforcement to triggerConversationMemoryWriteOnce', () => {
     const helperIdx = chatSrc.indexOf('const maybeTriggerEndWrite');
-    const callIdx = chatSrc.indexOf('triggerConversationEndSummarization(convId', helperIdx);
+    const callIdx = chatSrc.indexOf('triggerConversationMemoryWriteOnce({', helperIdx);
     expect(helperIdx).toBeGreaterThan(-1);
     expect(callIdx).toBeGreaterThan(helperIdx);
   });
@@ -252,11 +323,10 @@ describe('Phase 5 — Chat.jsx static analysis: maybeTriggerEndWrite helper', ()
     expect(chatSrc).toContain('chat_conversation_switch');
   });
 
-  it('maybeTriggerEndWrite guards against falsy convId', () => {
-    // The helper must have a guard: if (!convId) return;
+  it('maybeTriggerEndWrite passes CONVERSATION_MIN_MESSAGES_FOR_MEMORY into the dedup helper', () => {
     const helperIdx = chatSrc.indexOf('const maybeTriggerEndWrite');
-    const guardIdx = chatSrc.indexOf('if (!convId) return', helperIdx);
-    expect(guardIdx).toBeGreaterThan(helperIdx);
+    const thresholdIdx = chatSrc.indexOf('minMessages: CONVERSATION_MIN_MESSAGES_FOR_MEMORY', helperIdx);
+    expect(thresholdIdx).toBeGreaterThan(helperIdx);
   });
 });
 
@@ -321,16 +391,14 @@ describe('Phase 5 — Chat.jsx static analysis: startNewConversationWithIntent i
 
 // ─── Section 10 — Chat.jsx static analysis: requestSummary dedup mark ────────
 
-describe('Phase 5 — Chat.jsx static analysis: requestSummary dedup mark', () => {
-  it('requestSummary adds currentConversationId to conversationMemoryWrittenRef before calling triggerConversationEndSummarization', () => {
+describe('Phase 5 — Chat.jsx static analysis: requestSummary dedup wiring', () => {
+  it('requestSummary delegates dedup to triggerConversationMemoryWriteOnce', () => {
     const reqSummaryIdx = chatSrc.indexOf('const requestSummary');
-    const addIdx = chatSrc.indexOf('conversationMemoryWrittenRef.current.add(currentConversationId)', reqSummaryIdx);
-    const triggerIdx = chatSrc.indexOf('triggerConversationEndSummarization(', reqSummaryIdx);
-    expect(addIdx).toBeGreaterThan(reqSummaryIdx);
-    expect(addIdx).toBeLessThan(triggerIdx);
+    const triggerIdx = chatSrc.indexOf('triggerConversationMemoryWriteOnce({', reqSummaryIdx);
+    expect(triggerIdx).toBeGreaterThan(reqSummaryIdx);
   });
 
-  it('requestSummary still calls triggerConversationEndSummarization with "chat_request_summary" invoker', () => {
+  it('requestSummary still passes "chat_request_summary" as the invoker', () => {
     const reqSummaryIdx = chatSrc.indexOf('const requestSummary');
     const triggerIdx = chatSrc.indexOf("'chat_request_summary'", reqSummaryIdx);
     expect(triggerIdx).toBeGreaterThan(reqSummaryIdx);
