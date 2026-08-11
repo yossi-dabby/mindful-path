@@ -51,6 +51,11 @@ describe('Phase 0 chat runtime lifecycle characterization', () => {
     expect(shouldSuppressSubscriptionEventWhileLoading(false)).toBe(false);
   });
 
+  it('loading suppression can be gated by authoritative polling state', () => {
+    expect(shouldSuppressSubscriptionEventWhileLoading(true, { hasAuthoritativePolling: true })).toBe(true);
+    expect(shouldSuppressSubscriptionEventWhileLoading(true, { hasAuthoritativePolling: false })).toBe(false);
+  });
+
   it('polling halts at the existing bounded max attempt threshold', () => {
     const { maxPollAttempts, pollDelays } = getDefaultPollingLifecycle();
     expect(pollDelays).toEqual([500, 1000, 2000, 4000, 6500]);

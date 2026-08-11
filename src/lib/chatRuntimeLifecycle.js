@@ -61,8 +61,12 @@ export function deduplicateMessagesByLifecycleKeys(newMessages, options = {}) {
   };
 }
 
-export function shouldSuppressSubscriptionEventWhileLoading(isLoading) {
-  return isLoading === true;
+export function shouldSuppressSubscriptionEventWhileLoading(isLoading, options = {}) {
+  if (isLoading !== true) return false;
+  if (!options || !Object.prototype.hasOwnProperty.call(options, 'hasAuthoritativePolling')) {
+    return true;
+  }
+  return options.hasAuthoritativePolling === true;
 }
 
 export function getDefaultPollingLifecycle() {
