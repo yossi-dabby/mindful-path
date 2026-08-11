@@ -2127,7 +2127,9 @@ export default function Chat() {
         // V2 path: do NOT suppress subscription events — all delivery paths flow
         // through reconcileSnapshot() which handles dedup and stale guards.
         // Legacy path: suppress subscription events while loading (polling is authoritative).
-        if (!chatOrchestratorV2EnabledRef.current && shouldSuppressSubscriptionEventWhileLoading(isLoadingRef.current)) {
+        if (!chatOrchestratorV2EnabledRef.current && shouldSuppressSubscriptionEventWhileLoading(isLoadingRef.current, {
+          hasAuthoritativePolling: Boolean(pollingIntervalRef.current),
+        })) {
           logS2DebugLifecycle({
             delivery_source: 'subscription',
             active_request_count: isLoadingRef.current ? 1 : 0,
