@@ -109,6 +109,7 @@
 import { isSummarizationEnabled, resolveRuntimeSummarizationFlag } from './summarizationGate.js';
 import { sanitizeSummaryRecord, buildSafeStubRecord, isRawTranscriptContent } from './summarizationGate.js';
 import { isUpgradeEnabled } from './featureFlags.js';
+import { classifyEntityListResponseShape } from './entityListNormalizer.js';
 import {
   isTherapistMemoryRecord,
   isLTSRecord,
@@ -558,6 +559,7 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
     // s2debug tracking (no private content emitted).
     let _s2GoalResult = 'empty';
     let _s2GoalCount = 0;
+    let _s2GoalResponseShape = 'empty';
     let _s2FormulationResult = 'empty';
 
     // ── 1. Goal enrichment ─────────────────────────────────────────────────────
@@ -571,6 +573,7 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
           '-created_date',
           ENRICHMENT_MAX_GOALS,
         );
+        _s2GoalResponseShape = classifyEntityListResponseShape(goalResponse);
         const activeGoals = _extractEntityArray(goalResponse);
         _s2GoalResult = activeGoals.length > 0 ? 'success' : 'empty';
         _s2GoalCount = activeGoals.length;
@@ -594,6 +597,7 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
       }
     } catch {
       _s2GoalResult = 'error';
+      _s2GoalResponseShape = 'error';
       // Goal read failed — leave goals_referenced and follow_up_tasks as-is.
     }
 
@@ -631,6 +635,7 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
         console.group('[_s2debug] client enrichment');
         console.log('client_goal_read_result       :', _s2GoalResult);
         console.log('client_goal_count             :', _s2GoalCount);
+        console.log('client_goal_response_shape    :', _s2GoalResponseShape);
         console.log('client_formulation_read_result:', _s2FormulationResult);
         console.groupEnd();
       } catch {

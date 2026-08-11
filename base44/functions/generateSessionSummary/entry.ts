@@ -124,6 +124,51 @@ function isRuntimeContinuityEnrichmentEnabled(
   return true;
 }
 
+type BackendEntityResponseShape =
+  | 'array'
+  | 'results_envelope'
+  | 'data_array_envelope'
+  | 'data_results_envelope'
+  | 'empty'
+  | 'unsupported'
+  | 'error';
+
+function classifyBackendEntityResponseShape(value: unknown): BackendEntityResponseShape {
+  try {
+    if (Array.isArray(value)) return 'array';
+    if (value === null || value === undefined) return 'empty';
+    if (typeof value !== 'object') return 'unsupported';
+    const record = value as Record<string, unknown>;
+    if (Array.isArray(record['results'])) return 'results_envelope';
+    if (Array.isArray(record['data'])) return 'data_array_envelope';
+    const data = record['data'];
+    if (data && typeof data === 'object' && Array.isArray((data as Record<string, unknown>)['results'])) {
+      return 'data_results_envelope';
+    }
+    return 'unsupported';
+  } catch {
+    return 'error';
+  }
+}
+
+function normalizeBackendEntityList(value: unknown): unknown[] {
+  try {
+    if (Array.isArray(value)) return value;
+    if (!value || typeof value !== 'object') return [];
+
+    const record = value as Record<string, unknown>;
+    if (Array.isArray(record['results'])) return record['results'] as unknown[];
+    if (Array.isArray(record['data'])) return record['data'] as unknown[];
+    const data = record['data'];
+    if (data && typeof data === 'object' && Array.isArray((data as Record<string, unknown>)['results'])) {
+      return (data as Record<string, unknown>)['results'] as unknown[];
+    }
+  } catch {
+    // Never throw.
+  }
+  return [];
+}
+
 const ALLOWED_STRING_FIELDS: string[] = [
   'session_id',
   'session_date',
@@ -363,6 +408,8 @@ Deno.serve(async (req) => {
     let _backendEnrichmentApplied = false;
     let _backendGoalCount = 0;
     let _backendFormulationPresent = false;
+    let _backendGoalResponseShape: BackendEntityResponseShape = 'empty';
+    let _backendFormulationResponseShape: BackendEntityResponseShape = 'empty';
 
     if (_backendContinuityEnabled && !safety_stub) {
       // Max records for backend enrichment.
@@ -386,7 +433,8 @@ Deno.serve(async (req) => {
           '-created_date',
           BACKEND_MAX_GOALS,
         );
-        const goals: unknown[] = Array.isArray(goalsResponse) ? goalsResponse : [];
+        _backendGoalResponseShape = classifyBackendEntityResponseShape(goalsResponse);
+        const goals: unknown[] = normalizeBackendEntityList(goalsResponse);
         _backendGoalCount = goals.length;
 
         const newGoalIds: string[] = [];
@@ -425,6 +473,7 @@ Deno.serve(async (req) => {
           _backendEnrichmentApplied = true;
         }
       } catch (_goalError) {
+        _backendGoalResponseShape = 'error';
         // Goal read failure: do not fail the therapist_session write.
       }
 
@@ -434,9 +483,10 @@ Deno.serve(async (req) => {
           '-created_date',
           1,
         );
-        const formulations: unknown[] = Array.isArray(formulationsResponse)
-          ? formulationsResponse
-          : [];
+        _backendFormulationResponseShape = classifyBackendEntityResponseShape(
+          formulationsResponse,
+        );
+        const formulations: unknown[] = normalizeBackendEntityList(formulationsResponse);
         if (formulations.length > 0) {
           const cf = formulations[0];
           if (cf && typeof cf === 'object') {
@@ -463,6 +513,7 @@ Deno.serve(async (req) => {
           }
         }
       } catch (_cfError) {
+        _backendFormulationResponseShape = 'error';
         // CaseFormulation read failure: do not fail the therapist_session write.
       }
     }
@@ -482,6 +533,8 @@ Deno.serve(async (req) => {
         '[_s2debug] backend_enrichment_applied:', _backendEnrichmentApplied,
         '| backend_goal_count:', _backendGoalCount,
         '| backend_formulation_present:', _backendFormulationPresent,
+        '| backend_goal_response_shape:', _backendGoalResponseShape,
+        '| backend_formulation_response_shape:', _backendFormulationResponseShape,
       );
     }
 

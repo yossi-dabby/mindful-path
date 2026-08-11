@@ -56,6 +56,7 @@ import {
   getDefaultTherapistRuntimeFlags,
   normalizeTherapistRuntimeFlagSnapshotPayload,
 } from '../../src/lib/therapistRuntimeFlagTransport.js';
+import { normalizeEntityList } from '../../src/lib/entityListNormalizer.js';
 
 // ─── Test helpers ─────────────────────────────────────────────────────────────
 
@@ -268,27 +269,33 @@ describe('Test 22: enrichment reads only approved Goal / CaseFormulation structu
       '../../src/lib/sessionEndSummarization.js'
     );
 
-    const goalFilter = vi.fn(async () => [
-      {
-        id: 'goal-1',
-        title: 'Practice grounding',
-        status: 'active',
-        forbidden_raw_message: 'User: raw transcript line that must never persist',
+    const goalFilter = vi.fn(async () => normalizeEntityList({
+      data: {
+        results: [
+          {
+            id: 'goal-1',
+            title: 'Practice grounding',
+            status: 'active',
+            forbidden_raw_message: 'User: raw transcript line that must never persist',
+          },
+          {
+            id: 'goal-2',
+            title: 'Sleep hygiene routine',
+            status: 'active',
+            transcript: 'Client: private text',
+          },
+        ],
       },
-      {
-        id: 'goal-2',
-        title: 'Sleep hygiene routine',
-        status: 'active',
-        transcript: 'Client: private text',
-      },
-    ]);
+    }));
 
-    const formulationList = vi.fn(async () => [
-      {
-        core_belief: 'I am unsafe when anxious.',
-        transcript: 'Therapist: private text',
-      },
-    ]);
+    const formulationList = vi.fn(async () => normalizeEntityList({
+      data: [
+        {
+          core_belief: 'I am unsafe when anxious.',
+          transcript: 'Therapist: private text',
+        },
+      ],
+    }));
 
     const basePayload = deriveConversationMemoryPayload('conv-test-22', {
       name: 'Session 22',
