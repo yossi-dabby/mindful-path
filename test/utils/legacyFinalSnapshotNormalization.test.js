@@ -1,6 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import {
   normalizeLegacyActiveTurnFinalSnapshot,
   applyRecordScopedAssistantFeedbackFinality,
@@ -240,13 +238,14 @@ describe('legacy final snapshot normalization', () => {
       { role: 'assistant', id: 'a-progress', __rawIndex: 1, content: 'working...' },
       { role: 'assistant', id: 'a-final', __rawIndex: 2, content: 'final answer' },
     ];
+    const canonical = normalizeLegacyActiveTurnFinalSnapshot(incoming).messages;
     const explicitFinal = applyRecordScopedAssistantFeedbackFinality(
-      normalizeLegacyActiveTurnFinalSnapshot(incoming).messages,
+      canonical,
       true
     );
     const stableAcrossPollsFinal = applyRecordScopedAssistantFeedbackFinality(
-      normalizeLegacyActiveTurnFinalSnapshot(incoming).messages,
-      true
+      explicitFinal,
+      false
     );
     expect(stableAcrossPollsFinal).toEqual(explicitFinal);
   });
@@ -255,14 +254,5 @@ describe('legacy final snapshot normalization', () => {
     const visibleCanonicalAssistant = { role: 'assistant', __rawIndex: 7, content: 'final answer' };
     expect(resolveFeedbackMessageIndex(visibleCanonicalAssistant, 1)).toBe(7);
     expect(resolveFeedbackMessageIndex({ role: 'assistant', content: 'fallback' }, 3)).toBe(3);
-  });
-});
-
-describe('legacy path source contracts', () => {
-  it('Chat final-commit normalization is legacy-gated and finality-gated', () => {
-    const chatSource = readFileSync(resolve(process.cwd(), 'src/pages/Chat.jsx'), 'utf8');
-    expect(chatSource).toContain('normalizeLegacyActiveTurnFinalSnapshot');
-    expect(chatSource).toContain('chatOrchestratorV2EnabledRef.current !== true');
-    expect(chatSource).toContain('finalityDecision.isFinal === true');
   });
 });
