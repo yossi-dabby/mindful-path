@@ -21,6 +21,7 @@ export function triggerConversationMemoryWriteOnce({
     if (!Array.isArray(messages) || messages.length < minMessages) return false;
   }
 
+  if (typeof trigger !== 'function') return false;
   if (!claimConversationMemoryWrite(writeTracker, conversationId)) return false;
 
   trigger(
