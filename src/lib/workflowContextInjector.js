@@ -165,6 +165,60 @@ function _registerContextComposerSection(options, section) {
 function _shouldUseContextComposerV2(wiring, options) {
   if (!wiring || wiring.planner_first_enabled !== true) return false;
   if (options?.disable_context_composer_v2 === true) return false;
+  // Narrow runtime-authority override: if the caller has resolved and frozen
+  // a composer flag from the runtime snapshot at session-start, honour it.
+  // A boolean value here means the caller has already applied authority checks.
+  if (typeof options?.runtime_context_composer_v2_override === 'boolean') {
+    return options.runtime_context_composer_v2_override;
+  }
+  // Snapshot-based resolution: if the caller passes the runtime snapshot,
+  // resolve authority inline (equivalent to calling resolveRuntimeContextComposerV2Flag).
+  if (options?.runtime_snapshot !== undefined) {
+    return resolveRuntimeContextComposerV2Flag(wiring, options.runtime_snapshot);
+  }
+  return isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED');
+}
+
+// ─── Runtime authority resolver for Context Composer V2 ──────────────────────
+
+/**
+ * Resolves whether Context Composer V2 should be used for a given wiring and
+ * runtime flag snapshot.
+ *
+ * Runtime authority applies only when ALL of the following are true:
+ *   1. `wiring.planner_first_enabled === true` (non-V12 wirings cannot activate).
+ *   2. A snapshot object is supplied.
+ *   3. `snapshot.transport_status === 'available'` and `snapshot.received === true`.
+ *   4. `snapshot.flags.THERAPIST_RUNTIME_APPLY_ENABLED === true`.
+ *
+ * When those conditions are met the runtime value of `CONTEXT_COMPOSER_V2_ENABLED`
+ * is used instead of the build-time feature flag.  In every other case the
+ * legacy `isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED')` result is preserved.
+ *
+ * The return value MUST be frozen at session-start and passed to
+ * `buildActionFirstDemotedSessionContentAsync` via
+ * `options.runtime_context_composer_v2_override`.  A late-arriving snapshot
+ * must NOT change the composer choice after it has been resolved.
+ *
+ * Passing `null` or `undefined` for snapshot is safe: returns the legacy value.
+ *
+ * @param {object|null} wiring - The effective therapist wiring for the session.
+ * @param {object|null|undefined} snapshot - The runtime flag snapshot.
+ * @returns {boolean}
+ */
+export function resolveRuntimeContextComposerV2Flag(wiring, snapshot) {
+  if (!wiring || wiring.planner_first_enabled !== true) {
+    return false;
+  }
+  if (
+    snapshot &&
+    snapshot.transport_status === 'available' &&
+    snapshot.received === true &&
+    snapshot.flags &&
+    snapshot.flags['THERAPIST_RUNTIME_APPLY_ENABLED'] === true
+  ) {
+    return snapshot.flags['CONTEXT_COMPOSER_V2_ENABLED'] === true;
+  }
   return isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED');
 }
 

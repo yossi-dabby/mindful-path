@@ -61,6 +61,41 @@ export function isSummarizationEnabled() {
   return isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED');
 }
 
+// ─── Runtime authority resolver ───────────────────────────────────────────────
+
+/**
+ * Resolves whether summarization is enabled, optionally honouring a runtime
+ * flag snapshot delivered by the Phase 0.2 transport layer.
+ *
+ * Runtime authority applies only when ALL of the following are true:
+ *   1. A snapshot object is supplied.
+ *   2. `snapshot.transport_status === 'available'` and `snapshot.received === true`.
+ *   3. `snapshot.flags.THERAPIST_RUNTIME_APPLY_ENABLED === true`.
+ *
+ * When those conditions are met the runtime value of
+ * `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` is used instead of the
+ * build-time feature flag.  In every other case the legacy
+ * `isSummarizationEnabled()` result is preserved unchanged.
+ *
+ * Passing `null` or `undefined` is safe: the function returns the legacy value.
+ *
+ * @param {object|null|undefined} snapshot - The runtime flag snapshot (may be
+ *   absent when called from contexts that have no snapshot).
+ * @returns {boolean}
+ */
+export function resolveRuntimeSummarizationFlag(snapshot) {
+  if (
+    snapshot &&
+    snapshot.transport_status === 'available' &&
+    snapshot.received === true &&
+    snapshot.flags &&
+    snapshot.flags['THERAPIST_RUNTIME_APPLY_ENABLED'] === true
+  ) {
+    return snapshot.flags['THERAPIST_UPGRADE_SUMMARIZATION_ENABLED'] === true;
+  }
+  return isSummarizationEnabled();
+}
+
 // ─── Forbidden input fields ───────────────────────────────────────────────────
 
 /**
