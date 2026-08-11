@@ -313,11 +313,11 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
 
       base44.functions.invoke = async (name: string, payload: any) => {
         successCalls.push({ name, payload });
-        if (name === 'generateSessionSummary') return { success: true, id: 'mem-e2e-1' };
-        if (name === 'retrieveTherapistMemory') return { memories: [], count: 0 };
+        if (name === 'generateSessionSummary') return { data: { success: true, id: 'mem-e2e-1' } };
+        if (name === 'retrieveTherapistMemory') return { data: { memories: [], count: 0 } };
         if (name === 'writeLTSSnapshot') {
           resolveSuccessPath?.();
-          return { success: true, id: 'lts-e2e-1', upserted: 'created' };
+          return { data: { success: true, id: 'lts-e2e-1', upserted: 'created' } };
         }
         return { success: true };
       };
@@ -497,5 +497,36 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
     expect(result.continuityEnabled).toBe(true);
     expect(result.longitudinalEnabled).toBe(true);
     expect(result.chatOrchestratorV2).toBe(false);
+  });
+
+  test('unwrapBase44FunctionData supports unwrapped (legacy) responses as compatibility', async ({ page }) => {
+    await bootChat(page);
+
+    const result = await page.evaluate(async () => {
+      const { unwrapBase44FunctionData } = await import('/src/lib/sessionEndSummarization.js');
+
+      const legacyMemories = { memories: [{ therapist_memory_version: '1', session_id: 'legacy-1' }], count: 1 };
+      const legacyWrite = { success: true, upserted: 'created' };
+      const legacySummary = { success: true, id: 'legacy-mem-1' };
+
+      const unwrappedMemories = unwrapBase44FunctionData(legacyMemories);
+      const unwrappedWrite = unwrapBase44FunctionData(legacyWrite);
+      const unwrappedSummary = unwrapBase44FunctionData(legacySummary);
+
+      return {
+        memoriesLength: Array.isArray(unwrappedMemories?.memories) ? unwrappedMemories.memories.length : -1,
+        writeSuccess: unwrappedWrite?.success,
+        writeUpserted: unwrappedWrite?.upserted,
+        summarySuccess: unwrappedSummary?.success,
+        summaryId: unwrappedSummary?.id,
+      };
+    });
+
+    // Legacy unwrapped responses are passed through unchanged.
+    expect(result.memoriesLength).toBe(1);
+    expect(result.writeSuccess).toBe(true);
+    expect(result.writeUpserted).toBe('created');
+    expect(result.summarySuccess).toBe(true);
+    expect(result.summaryId).toBe('legacy-mem-1');
   });
 });

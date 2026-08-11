@@ -107,7 +107,7 @@
  */
 
 import { isSummarizationEnabled, resolveRuntimeSummarizationFlag } from './summarizationGate.js';
-import { sanitizeSummaryRecord, buildSafeStubRecord } from './summarizationGate.js';
+import { sanitizeSummaryRecord, buildSafeStubRecord, isRawTranscriptContent } from './summarizationGate.js';
 import { isUpgradeEnabled } from './featureFlags.js';
 import {
   isTherapistMemoryRecord,
@@ -115,6 +115,39 @@ import {
   LTS_MIN_SESSIONS_FOR_SIGNALS,
   LTS_TRAJECTORIES,
 } from './therapistMemoryModel.js';
+
+// ─── Base44 function response unwrap helper ───────────────────────────────────
+
+/**
+ * Unwraps a Base44 SDK function invoke result.
+ *
+ * Base44 function responses may be delivered wrapped in a `.data` envelope
+ * (e.g. `{ data: { memories: [...] } }`) or as a legacy bare object
+ * (e.g. `{ memories: [...] }`).  This helper normalises both forms.
+ *
+ * - If `result` is a non-null object with a non-null object `result.data`:
+ *   returns `result.data`.
+ * - Otherwise returns `result` unchanged (legacy / already-unwrapped).
+ * - Never throws; safe to call on any value.
+ *
+ * @param {unknown} result - Raw invoke return value.
+ * @returns {unknown} The unwrapped payload or the original value.
+ */
+export function unwrapBase44FunctionData(result) {
+  try {
+    if (
+      result !== null &&
+      typeof result === 'object' &&
+      result.data !== null &&
+      typeof result.data === 'object'
+    ) {
+      return result.data;
+    }
+  } catch {
+    // Defensive: never throw.
+  }
+  return result;
+}
 
 // ─── Bounded input constants ──────────────────────────────────────────────────
 
@@ -482,6 +515,38 @@ export const ENRICHMENT_FORMULATION_FIELD_MAX_CHARS = 120;
  *   and working_hypotheses populated from entity data where available.
  *   Returns basePayload unchanged on any error.
  */
+
+/**
+ * Normalises an entity response from Goal.filter or CaseFormulation.list
+ * into a plain array, accepting all four real Base44 response shapes:
+ *
+ *   - bare array          → returned as-is
+ *   - { results: [...] }  → returns .results
+ *   - { data: [...] }     → returns .data
+ *   - { data: { results: [...] } } → returns .data.results
+ *
+ * Returns an empty array for any other shape. Never throws.
+ *
+ * @param {unknown} response
+ * @returns {unknown[]}
+ */
+function _extractEntityArray(response) {
+  try {
+    if (Array.isArray(response)) return response;
+    if (response !== null && typeof response === 'object') {
+      const d = response.data;
+      if (Array.isArray(d)) return d;
+      if (d !== null && typeof d === 'object') {
+        if (Array.isArray(d.results)) return d.results;
+      }
+      if (Array.isArray(response.results)) return response.results;
+    }
+  } catch {
+    // Never throw.
+  }
+  return [];
+}
+
 export async function enrichConversationMemoryPayload(basePayload, entities) {
   try {
     if (!basePayload || typeof basePayload !== 'object') return basePayload;
@@ -490,18 +555,26 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
     // Start with a shallow copy so the base record is never mutated.
     const enriched = { ...basePayload };
 
+    // s2debug tracking (no private content emitted).
+    let _s2GoalResult = 'empty';
+    let _s2GoalCount = 0;
+    let _s2FormulationResult = 'empty';
+
     // ── 1. Goal enrichment ─────────────────────────────────────────────────────
     // Read active goals (bounded to ENRICHMENT_MAX_GOALS).
     // goals_referenced: goal IDs (existing schema field for goal identity).
     // follow_up_tasks: goal titles as actionable continuity tasks.
     try {
       if (entities.Goal && typeof entities.Goal.filter === 'function') {
-        const activeGoals = await entities.Goal.filter(
+        const goalResponse = await entities.Goal.filter(
           { status: 'active' },
           '-created_date',
           ENRICHMENT_MAX_GOALS,
         );
-        if (Array.isArray(activeGoals) && activeGoals.length > 0) {
+        const activeGoals = _extractEntityArray(goalResponse);
+        _s2GoalResult = activeGoals.length > 0 ? 'success' : 'empty';
+        _s2GoalCount = activeGoals.length;
+        if (activeGoals.length > 0) {
           const goalIds = [];
           const followUpTasks = [];
           for (const goal of activeGoals) {
@@ -512,13 +585,15 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
                 ? goal.title.trim().slice(0, ENRICHMENT_GOAL_TITLE_MAX_CHARS)
                 : '';
             if (id) goalIds.push(id);
-            if (title) followUpTasks.push(title);
+            // Only add a title that is non-empty and does not look like raw transcript.
+            if (title && !isRawTranscriptContent(title)) followUpTasks.push(title);
           }
           if (goalIds.length > 0) enriched.goals_referenced = goalIds;
           if (followUpTasks.length > 0) enriched.follow_up_tasks = followUpTasks;
         }
       }
     } catch {
+      _s2GoalResult = 'error';
       // Goal read failed — leave goals_referenced and follow_up_tasks as-is.
     }
 
@@ -530,8 +605,10 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
         entities.CaseFormulation &&
         typeof entities.CaseFormulation.list === 'function'
       ) {
-        const formulations = await entities.CaseFormulation.list('-created_date', 1);
-        if (Array.isArray(formulations) && formulations.length > 0) {
+        const formulationResponse = await entities.CaseFormulation.list('-created_date', 1);
+        const formulations = _extractEntityArray(formulationResponse);
+        _s2FormulationResult = formulations.length > 0 ? 'success' : 'empty';
+        if (formulations.length > 0) {
           const cf = formulations[0];
           if (cf && typeof cf === 'object') {
             const coreBelief =
@@ -545,7 +622,20 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
         }
       }
     } catch {
+      _s2FormulationResult = 'error';
       // Formulation read failed — leave working_hypotheses as-is.
+    }
+
+    if (_isS2DebugEnabled()) {
+      try {
+        console.group('[_s2debug] client enrichment');
+        console.log('client_goal_read_result       :', _s2GoalResult);
+        console.log('client_goal_count             :', _s2GoalCount);
+        console.log('client_formulation_read_result:', _s2FormulationResult);
+        console.groupEnd();
+      } catch {
+        // Diagnostic emission must never propagate.
+      }
     }
 
     return enriched;
@@ -723,11 +813,23 @@ export function triggerConversationEndSummarization(
 
       // Phase 3 enrichment: Goal + CaseFormulation data (fail-closed).
       // Only runs when both summarization AND continuity flags are active.
-      if (entities && resolveRuntimeContinuityEnrichmentFlag(runtimeSnapshot)) {
+      const _continuityEnabled = entities
+        ? resolveRuntimeContinuityEnrichmentFlag(runtimeSnapshot)
+        : false;
+      if (entities && _continuityEnabled) {
         try {
           memoryPayload = await enrichConversationMemoryPayload(memoryPayload, entities);
         } catch {
           // Enrichment failure: continue with base payload.
+        }
+      }
+      if (_isS2DebugEnabled()) {
+        try {
+          console.group('[_s2debug] memory-write pipeline');
+          console.log('continuity_runtime_enabled    :', _continuityEnabled);
+          console.groupEnd();
+        } catch {
+          // Diagnostic emission must never propagate.
         }
       }
 
@@ -737,12 +839,17 @@ export function triggerConversationEndSummarization(
       // Lazy import to avoid any bundler/module cost in default-off mode
       const { base44 } = await import('../api/base44Client.js');
 
-      await base44.functions.invoke('generateSessionSummary', record);
+      const summaryRaw = await base44.functions.invoke('generateSessionSummary', record);
+      const summaryResult = unwrapBase44FunctionData(summaryRaw);
 
-      // Wave 3B: recompute and upsert the LTS snapshot after the conversation
-      // memory write has succeeded.  Fire-and-forget — failure here never
-      // affects the Chat.jsx requestSummary path.
-      if (resolveRuntimeLongitudinalFlag(runtimeSnapshot)) {
+      // Wave 3B: only recompute and upsert the LTS snapshot when the summary
+      // write did NOT explicitly fail (success !== false).  If the invoke threw,
+      // the outer catch handles it.  Fire-and-forget — failure never affects
+      // the Chat.jsx requestSummary path.
+      if (
+        resolveRuntimeLongitudinalFlag(runtimeSnapshot) &&
+        !(summaryResult && typeof summaryResult === 'object' && summaryResult.success === false)
+      ) {
         _fireLTSWrite(base44, invoker);
       }
     } catch (error) {
@@ -890,9 +997,10 @@ export function classifyLTSWriteResult(writeResult) {
 export async function invokeLTSSnapshotWriteWithDiagnostic(base44, ltsSnapshot) {
   try {
     const rawResult = await base44.functions.invoke('writeLTSSnapshot', ltsSnapshot);
+    const writeResult = unwrapBase44FunctionData(rawResult);
     return Object.freeze({
       lts_valid: isLTSValidForDiagnostics(ltsSnapshot),
-      write_result: classifyLTSWriteResult(rawResult),
+      write_result: classifyLTSWriteResult(writeResult),
     });
   } catch {
     return Object.freeze({
@@ -990,7 +1098,8 @@ function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
     let ltsSnapshot = null;
     try {
       // 1. Fetch bounded session records from CompanionMemory.
-      const memResult = await base44.functions.invoke('retrieveTherapistMemory', {});
+      const memRaw = await base44.functions.invoke('retrieveTherapistMemory', {});
+      const memResult = unwrapBase44FunctionData(memRaw);
 
       // 2. Extract and filter to therapist session records only.
       //    Cap to LTS_SESSION_RECORDS_FETCH_CAP before passing to the builder.
@@ -999,10 +1108,15 @@ function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
         .filter((r) => isTherapistMemoryRecord(r))
         .slice(0, LTS_SESSION_RECORDS_FETCH_CAP);
 
+      // retrieveTherapistMemory returns newest-first; buildLongitudinalState
+      // assumes oldest-first.  Reverse into a new array — never mutate the
+      // API response array.
+      const oldestFirstSessionRecords = sessionRecords.slice().reverse();
+
       // 3. Build the LTS (pure, deterministic, no side effects).
       //    Lazy import — only loads if the flag path is actually reached.
       const { buildLongitudinalState } = await import('./longitudinalStateBuilder.js');
-      ltsSnapshot = buildLongitudinalState(sessionRecords, [], null);
+      ltsSnapshot = buildLongitudinalState(oldestFirstSessionRecords, [], null);
 
       // 4. Upsert the LTS snapshot via the writeLTSSnapshot backend function.
       //    Failure remains non-blocking (diagnostic classification is bounded).
@@ -1012,6 +1126,24 @@ function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
         ltsSnapshot,
         diagResult.lts_valid,
       );
+      if (_isS2DebugEnabled()) {
+        try {
+          const wasWrapped =
+            memRaw !== null &&
+            typeof memRaw === 'object' &&
+            memRaw.data !== null &&
+            typeof memRaw.data === 'object';
+          console.group('[_s2debug] LTS pipeline');
+          console.log('lts_memory_response_wrapped   :', wasWrapped);
+          console.log('lts_retrieved_memory_count    :', rawMemories.length);
+          console.log('lts_therapist_session_count   :', sessionRecords.length);
+          console.log('lts_input_order_oldest_first  :', true);
+          console.log('lts_write_result              :', diagResult.write_result);
+          console.groupEnd();
+        } catch {
+          // Diagnostic emission must never propagate.
+        }
+      }
     } catch (error) {
       _emitLTSWriteDiagnosticIfEnabled(
         _LTS_WRITE_DIAGNOSTIC_RESULTS.WRITE_ERROR,
