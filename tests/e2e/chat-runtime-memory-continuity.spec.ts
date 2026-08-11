@@ -280,7 +280,7 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
       });
 
       const transcriptSentinel = '__RAW_SENTINEL_E2E__';
-      const transcriptText = `User: ${transcriptSentinel}`;
+      const transcriptText = `[12:34] ${transcriptSentinel}`;
 
       const goalReadCalls: unknown[][] = [];
       const formulationReadCalls: unknown[][] = [];
@@ -362,7 +362,7 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
         'conv-e2e-real-failure',
         { intent: 'failure path' },
         'chat_request_summary',
-        entities,
+        null,
         acceptedRuntime,
       );
 

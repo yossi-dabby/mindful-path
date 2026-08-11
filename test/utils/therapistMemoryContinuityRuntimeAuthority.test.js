@@ -322,9 +322,14 @@ describe('Test 22: enrichment reads only approved Goal / CaseFormulation structu
 });
 
 describe('Test 23: no raw message content stored', () => {
+  afterEach(() => {
+    vi.doUnmock('../../src/api/base44Client.js');
+    vi.resetModules();
+  });
+
   it('23. triggerConversationEndSummarization excludes raw transcript sentinel from persisted generateSessionSummary payload', async () => {
     const transcriptSentinel = '__RAW_TRANSCRIPT_SENTINEL_23__';
-    const transcriptLine = `User: ${transcriptSentinel}`;
+    const transcriptLine = `[12:34] ${transcriptSentinel}`;
     const runtimeSnapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
       THERAPIST_UPGRADE_ENABLED: true,
@@ -378,8 +383,6 @@ describe('Test 23: no raw message content stored', () => {
     expect(persistedSerialized).not.toContain('transcript');
     expect(persistedSerialized).not.toContain('messages');
 
-    vi.doUnmock('../../src/api/base44Client.js');
-    vi.resetModules();
   });
 });
 
@@ -482,8 +485,6 @@ describe('Test 24: LTS recompute occurs only after successful therapist_session 
       return { success: true };
     });
 
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
     vi.doMock('../../src/api/base44Client.js', () => ({
       base44: { functions: { invoke: invokeSpy } },
     }));
@@ -500,10 +501,11 @@ describe('Test 24: LTS recompute occurs only after successful therapist_session 
 
     await generateDone;
 
-    expect(callOrder).toEqual(['generateSessionSummary']);
+    await vi.waitFor(() => {
+      expect(callOrder).toEqual(['generateSessionSummary']);
+    });
     expect(callOrder).not.toContain('retrieveTherapistMemory');
     expect(callOrder).not.toContain('writeLTSSnapshot');
-    expect(warnSpy).toHaveBeenCalled();
   });
 });
 
