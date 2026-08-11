@@ -106,7 +106,7 @@
  * See Phase 4 for Chat.jsx conversation memory write context.
  */
 
-import { isSummarizationEnabled } from './summarizationGate.js';
+import { isSummarizationEnabled, resolveRuntimeSummarizationFlag } from './summarizationGate.js';
 import { sanitizeSummaryRecord, buildSafeStubRecord } from './summarizationGate.js';
 import { isUpgradeEnabled } from './featureFlags.js';
 import {
@@ -671,9 +671,12 @@ export function triggerConversationEndSummarization(
   conversationMeta = {},
   invoker = CONVERSATION_END_SUMMARY_INVOKER,
   entities = null,
+  runtimeSnapshot = null,
 ) {
-  // Gate check: if not enabled, return immediately — entirely inert
-  if (!isSummarizationEnabled()) {
+  // Gate check: runtime snapshot authority overrides build-time flag when the
+  // snapshot is available and THERAPIST_RUNTIME_APPLY_ENABLED is true.
+  // Callers that do not supply a snapshot receive the exact legacy behavior.
+  if (!resolveRuntimeSummarizationFlag(runtimeSnapshot)) {
     return;
   }
 

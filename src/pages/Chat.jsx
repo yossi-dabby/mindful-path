@@ -520,6 +520,9 @@ export default function Chat() {
   // locks the effective wiring on first lockAndConsume() call.
   // A new Chat mount (browser reload) creates a fresh controller.
   const sessionWiringControllerRef = useRef(createTherapistSessionWiringController(ACTIVE_CBT_THERAPIST_WIRING));
+  // Phase 0.2 — stores the fetched runtime snapshot so it can be threaded to
+  // session-start and summarization call sites without re-fetching.
+  const runtimeSnapshotRef = useRef(null);
 
   const buildTurnScopedResponsePolicy = ({ policy, conversationId, clientRequestId = null, generationIdentity = null, status = 'pending' } = {}) => {
     if (!policy || typeof policy !== 'object') return null;
@@ -591,6 +594,10 @@ export default function Chat() {
         fallbackWiring: ACTIVE_CBT_THERAPIST_WIRING,
       });
       sessionWiringControllerRef.current.tryApply(decision);
+
+      // Phase 0.2 — Store the snapshot for non-routing flag resolution
+      // (summarization gate and context composer choice at session-start).
+      runtimeSnapshotRef.current = snapshot;
 
       const predictedWiring = predictTherapistWiringFromRuntimeFlags(snapshot.flags);
       const controllerFields = sessionWiringControllerRef.current.getDiagnosticFields();
@@ -1961,7 +1968,7 @@ export default function Chat() {
                   effectiveWiring,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
+                  { sessionLanguage: i18n.language, runtime_snapshot: runtimeSnapshotRef.current, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
@@ -2023,7 +2030,7 @@ export default function Chat() {
                   effectiveWiring,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
+                  { sessionLanguage: i18n.language, runtime_snapshot: runtimeSnapshotRef.current, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
@@ -2692,6 +2699,7 @@ export default function Chat() {
           base44,
           {
             sessionLanguage: i18n.language,
+            runtime_snapshot: runtimeSnapshotRef.current,
             ...(initialMessage ? { message_text: initialMessage } : {}),
           }
         );
@@ -3623,6 +3631,7 @@ export default function Chat() {
             base44,
             {
               sessionLanguage: i18n.language,
+              runtime_snapshot: runtimeSnapshotRef.current,
               message_text: messageText,
               onStrategyPolicy: (policy) => {
                 captureCurrentTurnResponsePolicy({
@@ -4367,7 +4376,7 @@ export default function Chat() {
     if (!Array.isArray(msgList) || msgList.length < CONVERSATION_MIN_MESSAGES_FOR_MEMORY) return;
     if (conversationMemoryWrittenRef.current.has(convId)) return;
     conversationMemoryWrittenRef.current.add(convId);
-    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch', base44.entities);
+    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch', base44.entities, runtimeSnapshotRef.current);
   };
 
   const requestSummary = async () => {
@@ -4389,7 +4398,8 @@ export default function Chat() {
       currentConversationId,
       convForMemory?.metadata || {},
       'chat_request_summary',
-      base44.entities
+      base44.entities,
+      runtimeSnapshotRef.current
     );
 
     // Build a language-aware summary request
