@@ -378,15 +378,17 @@ describe('Phase 4 — Chat.jsx integration (static analysis)', () => {
     expect(chatSrc).toContain('sessionEndSummarization');
   });
 
-  it('Chat.jsx calls triggerConversationEndSummarization in the requestSummary context', () => {
-    // The call must be present inside the requestSummary function block.
-    // We verify the call site exists in the source.
-    const callCount = (chatSrc.match(/triggerConversationEndSummarization\s*\(/g) || []).length;
-    expect(callCount).toBeGreaterThanOrEqual(1);
+  it('Chat.jsx calls triggerConversationMemoryWriteOnce in the requestSummary context', () => {
+    const requestSummaryIdx = chatSrc.indexOf('const requestSummary');
+    const callIdx = chatSrc.indexOf('triggerConversationMemoryWriteOnce({', requestSummaryIdx);
+    expect(requestSummaryIdx).toBeGreaterThan(-1);
+    expect(callIdx).toBeGreaterThan(requestSummaryIdx);
   });
 
-  it('Chat.jsx passes currentConversationId as first argument to triggerConversationEndSummarization', () => {
-    expect(chatSrc).toMatch(/triggerConversationEndSummarization\s*\(\s*currentConversationId/);
+  it('Chat.jsx passes currentConversationId into the requestSummary dedup helper call', () => {
+    const requestSummaryIdx = chatSrc.indexOf('const requestSummary');
+    const conversationIdIdx = chatSrc.indexOf('conversationId: currentConversationId', requestSummaryIdx);
+    expect(conversationIdIdx).toBeGreaterThan(requestSummaryIdx);
   });
 
   it('Chat.jsx passes conversations?.find result metadata as second argument', () => {
