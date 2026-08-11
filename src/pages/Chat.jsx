@@ -122,6 +122,7 @@ import {
   fetchTherapistRuntimeFlagSnapshot,
   buildTherapistRuntimeFlagTransportDiagnostic,
 } from '@/lib/therapistRuntimeFlagTransport.js';
+import { triggerConversationMemoryWriteOnce } from '@/lib/conversationMemoryWriteDedup.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -4372,11 +4373,17 @@ export default function Chat() {
   // The call is non-blocking and fail-closed (errors are caught inside
   // triggerConversationEndSummarization). Inert when flags are off.
   const maybeTriggerEndWrite = (convId, convMeta, msgList) => {
-    if (!convId) return;
-    if (!Array.isArray(msgList) || msgList.length < CONVERSATION_MIN_MESSAGES_FOR_MEMORY) return;
-    if (conversationMemoryWrittenRef.current.has(convId)) return;
-    conversationMemoryWrittenRef.current.add(convId);
-    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch', base44.entities, runtimeSnapshotRef.current);
+    triggerConversationMemoryWriteOnce({
+      writeTracker: conversationMemoryWrittenRef.current,
+      conversationId: convId,
+      conversationMeta: convMeta || {},
+      messages: msgList,
+      minMessages: CONVERSATION_MIN_MESSAGES_FOR_MEMORY,
+      trigger: triggerConversationEndSummarization,
+      invoker: 'chat_conversation_switch',
+      entities: base44.entities,
+      runtimeSnapshot: runtimeSnapshotRef.current,
+    });
   };
 
   const requestSummary = async () => {
@@ -4391,16 +4398,17 @@ export default function Chat() {
     // The metadata lookup uses the in-memory conversations list to avoid an
     // extra network round-trip; falls back to empty metadata when unavailable.
     const convForMemory = conversations?.find((c) => c.id === currentConversationId);
-    // Phase 5 — Mark as written before calling so that any concurrent
-    // conversation-switch trigger (maybeTriggerEndWrite) de-dupes against it.
-    conversationMemoryWrittenRef.current.add(currentConversationId);
-    triggerConversationEndSummarization(
-      currentConversationId,
-      convForMemory?.metadata || {},
-      'chat_request_summary',
-      base44.entities,
-      runtimeSnapshotRef.current
-    );
+    // Phase 5/6 — Claim the conversation ID before triggering so repeated
+    // requestSummary calls and any later switch-trigger de-dupe against it.
+    triggerConversationMemoryWriteOnce({
+      writeTracker: conversationMemoryWrittenRef.current,
+      conversationId: currentConversationId,
+      conversationMeta: convForMemory?.metadata || {},
+      trigger: triggerConversationEndSummarization,
+      invoker: 'chat_request_summary',
+      entities: base44.entities,
+      runtimeSnapshot: runtimeSnapshotRef.current,
+    });
 
     // Build a language-aware summary request
     const userLang = i18n.language || 'en';

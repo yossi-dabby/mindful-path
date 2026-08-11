@@ -71,10 +71,11 @@ export function isSummarizationEnabled() {
  *   1. A snapshot object is supplied.
  *   2. `snapshot.transport_status === 'available'` and `snapshot.received === true`.
  *   3. `snapshot.flags.THERAPIST_RUNTIME_APPLY_ENABLED === true`.
+ *   4. `snapshot.flags.THERAPIST_UPGRADE_ENABLED === true`.
  *
  * When those conditions are met the runtime value of
- * `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` is used instead of the
- * build-time feature flag.  In every other case the legacy
+ * `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` is honoured only when the runtime
+ * master gate remains true. In every other case the legacy
  * `isSummarizationEnabled()` result is preserved unchanged.
  *
  * Passing `null` or `undefined` is safe: the function returns the legacy value.
@@ -91,7 +92,10 @@ export function resolveRuntimeSummarizationFlag(snapshot) {
     snapshot.flags &&
     snapshot.flags['THERAPIST_RUNTIME_APPLY_ENABLED'] === true
   ) {
-    return snapshot.flags['THERAPIST_UPGRADE_SUMMARIZATION_ENABLED'] === true;
+    return (
+      snapshot.flags['THERAPIST_UPGRADE_ENABLED'] === true &&
+      snapshot.flags['THERAPIST_UPGRADE_SUMMARIZATION_ENABLED'] === true
+    );
   }
   return isSummarizationEnabled();
 }

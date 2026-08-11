@@ -11,10 +11,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  *
  * ACTIVATION
  * ----------
- * Gated by the THERAPIST_UPGRADE_SUMMARIZATION_ENABLED environment variable.
- * Returns 503 when the flag is not 'true'. Both the master flag
- * (THERAPIST_UPGRADE_ENABLED) and this phase flag must be true before any
- * caller can use this function.
+ * Legacy gating is controlled by THERAPIST_UPGRADE_SUMMARIZATION_ENABLED.
+ * When THERAPIST_RUNTIME_APPLY_ENABLED === 'true', runtime-authority mode is
+ * active and this function instead requires BOTH
+ * VITE_THERAPIST_UPGRADE_ENABLED === 'true' and
+ * VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED === 'true'.
+ * Returns 503 when the effective gate is not open.
  *
  * SESSION-END BOUNDARY
  * --------------------
@@ -84,7 +86,19 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const THERAPIST_MEMORY_VERSION_KEY = 'therapist_memory_version';
 const THERAPIST_MEMORY_VERSION = '1';
-const SUMMARIZATION_FLAG_ENV = 'THERAPIST_UPGRADE_SUMMARIZATION_ENABLED';
+
+function isGenerateSessionSummaryEnabled(
+  readEnv: (name: string) => string | undefined,
+): boolean {
+  if (readEnv('THERAPIST_RUNTIME_APPLY_ENABLED') === 'true') {
+    return (
+      readEnv('VITE_THERAPIST_UPGRADE_ENABLED') === 'true' &&
+      readEnv('VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') === 'true'
+    );
+  }
+
+  return readEnv('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') === 'true';
+}
 
 const ALLOWED_STRING_FIELDS: string[] = [
   'session_id',
@@ -270,10 +284,10 @@ function buildSummaryRecord(input: Record<string, unknown>): {
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
-  // ── Gate: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED must be 'true' ───────────
-  // When the flag is off, return a gated 503 — not an error, the session simply
-  // closes without triggering summarization.
-  const flagEnabled = Deno.env.get(SUMMARIZATION_FLAG_ENV) === 'true';
+  // ── Gate: preserve legacy backend semantics unless runtime authority is on ──
+  // When THERAPIST_RUNTIME_APPLY_ENABLED === 'true', require strict VITE master
+  // + summarization flags. Otherwise keep the legacy backend secret gate.
+  const flagEnabled = isGenerateSessionSummaryEnabled((name) => Deno.env.get(name));
   if (!flagEnabled) {
     return Response.json(
       {
