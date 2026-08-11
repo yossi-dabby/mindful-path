@@ -42,6 +42,7 @@ import {
 } from '../components/utils/formulationContractGuard.js';
 import { ACTIVE_CBT_THERAPIST_WIRING, predictTherapistWiringFromRuntimeFlags, resolveTherapistRuntimeActivation } from '@/api/activeAgentWiring.js';
 import { createTherapistSessionWiringController } from '@/lib/therapistSessionWiringController.js';
+import { createContextComposerV2SessionSelectionController } from '@/lib/contextComposerV2SessionSelectionController.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
 import {
   consumePendingPolicyRefreshAfterSuccessfulSend,
@@ -400,6 +401,7 @@ export default function Chat() {
   // do not corrupt the response language used by the Final Output Governor.
   // Stored as a ref so MessageBubble renders do not trigger on locale changes.
   const sessionLanguageRef = useRef(i18n.language || 'en');
+  const currentConversationIdRef = useRef(currentConversationId);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const formsPolicyVersionCacheRef = useRef(new Map());
@@ -521,6 +523,7 @@ export default function Chat() {
   // locks the effective wiring on first lockAndConsume() call.
   // A new Chat mount (browser reload) creates a fresh controller.
   const sessionWiringControllerRef = useRef(createTherapistSessionWiringController(ACTIVE_CBT_THERAPIST_WIRING));
+  const contextComposerSessionSelectionRef = useRef(createContextComposerV2SessionSelectionController());
   // Phase 0.2 — stores the fetched runtime snapshot so it can be threaded to
   // session-start and summarization call sites without re-fetching.
   const runtimeSnapshotRef = useRef(null);
@@ -566,6 +569,44 @@ export default function Chat() {
     });
   };
 
+  const refreshTherapistRuntimeFlagTransportDiagnostic = (sessionId = null) => {
+    const snapshot = runtimeSnapshotRef.current;
+    const predictedWiring = snapshot?.flags
+      ? predictTherapistWiringFromRuntimeFlags(snapshot.flags)
+      : ACTIVE_CBT_THERAPIST_WIRING;
+    const controllerFields = sessionWiringControllerRef.current.getDiagnosticFields();
+    const sessionSelection = contextComposerSessionSelectionRef.current.getSelection(
+      sessionId || currentConversationIdRef.current
+    );
+    const diagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
+      snapshot,
+      predictedTherapistWiring: _therapistWiringCanonicalName(predictedWiring),
+      currentActiveTherapistWiring: _therapistWiringCanonicalName(
+        sessionWiringControllerRef.current.getEffectiveWiring()
+      ),
+      appliedToActiveWiring: controllerFields.applied_to_active_wiring,
+      activationReason: controllerFields.activation_reason,
+      selectionLocked: controllerFields.selection_locked,
+      contextComposerV2Effective: sessionSelection?.context_composer_v2_effective ?? null,
+      contextComposerV2SelectionLocked: sessionSelection?.context_composer_v2_selection_locked === true,
+      contextComposerV2SelectionReason: sessionSelection?.context_composer_v2_selection_reason ?? null,
+    });
+
+    if (s2DebugEnabledRef.current) {
+      window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = diagnostic;
+    }
+  };
+
+  const lockContextComposerV2SelectionForSession = (sessionId, wiring) => {
+    const selection = contextComposerSessionSelectionRef.current.lockAndGet({
+      sessionId,
+      wiring,
+      snapshot: runtimeSnapshotRef.current,
+    });
+    refreshTherapistRuntimeFlagTransportDiagnostic(sessionId);
+    return selection;
+  };
+
   // Mount-only: expose the trace collector and clean up only when Chat unmounts.
   // Do NOT depend on location.search — internal Chat navigations must not recreate
   // or destroy the collector; the entry-URL debug flag is the authoritative source.
@@ -600,22 +641,7 @@ export default function Chat() {
       // (summarization gate and context composer choice at session-start).
       runtimeSnapshotRef.current = snapshot;
 
-      const predictedWiring = predictTherapistWiringFromRuntimeFlags(snapshot.flags);
-      const controllerFields = sessionWiringControllerRef.current.getDiagnosticFields();
-      const diagnostic = buildTherapistRuntimeFlagTransportDiagnostic({
-        snapshot,
-        predictedTherapistWiring: _therapistWiringCanonicalName(predictedWiring),
-        currentActiveTherapistWiring: _therapistWiringCanonicalName(
-          sessionWiringControllerRef.current.getEffectiveWiring()
-        ),
-        appliedToActiveWiring: controllerFields.applied_to_active_wiring,
-        activationReason: controllerFields.activation_reason,
-        selectionLocked: controllerFields.selection_locked,
-      });
-
-      if (s2DebugEnabledRef.current) {
-        window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = diagnostic;
-      }
+      refreshTherapistRuntimeFlagTransportDiagnostic();
     })();
 
     return () => {
@@ -623,6 +649,11 @@ export default function Chat() {
       delete window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__;
     };
   }, []);
+
+  useEffect(() => {
+    currentConversationIdRef.current = currentConversationId;
+    refreshTherapistRuntimeFlagTransportDiagnostic(currentConversationId || null);
+  }, [currentConversationId]);
 
   // Reset visible window when conversation changes
   useEffect(() => {
@@ -1965,11 +1996,16 @@ export default function Chat() {
                     }
                   }, 10000);
                 }
+                const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
                   effectiveWiring,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language, runtime_snapshot: runtimeSnapshotRef.current, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
+                  {
+                    sessionLanguage: i18n.language,
+                    runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
+                    onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); },
+                  }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
@@ -2027,11 +2063,16 @@ export default function Chat() {
                     }
                   }, 10000);
                 }
+                const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
                   effectiveWiring,
                   base44.entities,
                   base44,
-                  { sessionLanguage: i18n.language, runtime_snapshot: runtimeSnapshotRef.current, onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); } }
+                  {
+                    sessionLanguage: i18n.language,
+                    runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
+                    onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); },
+                  }
                 );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
@@ -2694,13 +2735,14 @@ export default function Chat() {
             }
           }, 10000);
         }
+        const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
         const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
           effectiveWiring,
           base44.entities,
           base44,
           {
             sessionLanguage: i18n.language,
-            runtime_snapshot: runtimeSnapshotRef.current,
+            runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
             ...(initialMessage ? { message_text: initialMessage } : {}),
           }
         );
@@ -3625,6 +3667,7 @@ export default function Chat() {
         messageContent += formRouterContext;
       }
       if (isNewConversation) {
+        const sessionComposerSelection = lockContextComposerV2SelectionForSession(convId, newConversationEffectiveWiring);
         const sessionStartContent = addLangDirective(
           await buildActionFirstDemotedSessionContentAsync(
             newConversationEffectiveWiring,
@@ -3632,7 +3675,7 @@ export default function Chat() {
             base44,
             {
               sessionLanguage: i18n.language,
-              runtime_snapshot: runtimeSnapshotRef.current,
+              runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
               message_text: messageText,
               onStrategyPolicy: (policy) => {
                 captureCurrentTurnResponsePolicy({

@@ -122,6 +122,9 @@ export function buildTherapistRuntimeFlagTransportDiagnostic({
   appliedToActiveWiring = false,
   activationReason = null,
   selectionLocked = false,
+  contextComposerV2Effective = null,
+  contextComposerV2SelectionLocked = false,
+  contextComposerV2SelectionReason = null,
 } = {}) {
   const safeSnapshot = snapshot && typeof snapshot === 'object' ? snapshot : buildUnavailableSnapshot();
 
@@ -135,6 +138,13 @@ export function buildTherapistRuntimeFlagTransportDiagnostic({
     applied_to_active_wiring: appliedToActiveWiring === true,
     activation_reason: activationReason || null,
     selection_locked: selectionLocked === true,
+    context_composer_v2_effective:
+      typeof contextComposerV2Effective === 'boolean' ? contextComposerV2Effective : null,
+    context_composer_v2_selection_locked: contextComposerV2SelectionLocked === true,
+    context_composer_v2_selection_reason:
+      typeof contextComposerV2SelectionReason === 'string' && contextComposerV2SelectionReason
+        ? contextComposerV2SelectionReason
+        : null,
     fetched_at: safeSnapshot.fetched_at || null,
     generated_at: safeSnapshot.generated_at || null,
   });
