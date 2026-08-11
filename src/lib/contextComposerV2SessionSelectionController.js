@@ -21,10 +21,14 @@ export function createContextComposerV2SessionSelectionController({
         throw new Error('contextComposerV2SessionSelectionController.lockAndGet: sessionId is required');
       }
 
-      const existing = _lockedBySessionId.get(sessionId);
-      if (existing) return existing;
+      if (_lockedBySessionId.has(sessionId)) {
+        return _lockedBySessionId.get(sessionId);
+      }
 
-      const resolved = resolveSelection(wiring, snapshot) || {};
+      const resolved = resolveSelection(wiring, snapshot);
+      if (!resolved || typeof resolved !== 'object') {
+        throw new Error('contextComposerV2SessionSelectionController.lockAndGet: resolveSelection returned invalid result');
+      }
       const locked = Object.freeze({
         context_composer_v2_effective: resolved.enabled === true,
         context_composer_v2_selection_locked: true,

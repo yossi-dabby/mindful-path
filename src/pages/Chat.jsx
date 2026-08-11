@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
@@ -402,6 +402,7 @@ export default function Chat() {
   // Stored as a ref so MessageBubble renders do not trigger on locale changes.
   const sessionLanguageRef = useRef(i18n.language || 'en');
   const currentConversationIdRef = useRef(currentConversationId);
+  currentConversationIdRef.current = currentConversationId;
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const formsPolicyVersionCacheRef = useRef(new Map());
@@ -569,7 +570,7 @@ export default function Chat() {
     });
   };
 
-  const refreshTherapistRuntimeFlagTransportDiagnostic = (sessionId = null) => {
+  const refreshTherapistRuntimeFlagTransportDiagnostic = useCallback((sessionId = null) => {
     const snapshot = runtimeSnapshotRef.current;
     const predictedWiring = snapshot?.flags
       ? predictTherapistWiringFromRuntimeFlags(snapshot.flags)
@@ -595,9 +596,9 @@ export default function Chat() {
     if (s2DebugEnabledRef.current) {
       window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__ = diagnostic;
     }
-  };
+  }, []);
 
-  const lockContextComposerV2SelectionForSession = (sessionId, wiring) => {
+  const lockContextComposerV2SelectionForSession = useCallback((sessionId, wiring) => {
     const selection = contextComposerSessionSelectionRef.current.lockAndGet({
       sessionId,
       wiring,
@@ -605,7 +606,7 @@ export default function Chat() {
     });
     refreshTherapistRuntimeFlagTransportDiagnostic(sessionId);
     return selection;
-  };
+  }, [refreshTherapistRuntimeFlagTransportDiagnostic]);
 
   // Mount-only: expose the trace collector and clean up only when Chat unmounts.
   // Do NOT depend on location.search — internal Chat navigations must not recreate
@@ -641,19 +642,18 @@ export default function Chat() {
       // (summarization gate and context composer choice at session-start).
       runtimeSnapshotRef.current = snapshot;
 
-      refreshTherapistRuntimeFlagTransportDiagnostic();
+      refreshTherapistRuntimeFlagTransportDiagnostic(currentConversationIdRef.current || null);
     })();
 
     return () => {
       cancelled = true;
       delete window.__THERAPIST_RUNTIME_FLAG_TRANSPORT__;
     };
-  }, []);
+  }, [refreshTherapistRuntimeFlagTransportDiagnostic]);
 
   useEffect(() => {
-    currentConversationIdRef.current = currentConversationId;
     refreshTherapistRuntimeFlagTransportDiagnostic(currentConversationId || null);
-  }, [currentConversationId]);
+  }, [currentConversationId, refreshTherapistRuntimeFlagTransportDiagnostic]);
 
   // Reset visible window when conversation changes
   useEffect(() => {

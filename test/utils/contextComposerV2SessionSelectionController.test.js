@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import path from 'node:path';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 import { createContextComposerV2SessionSelectionController } from '../../src/lib/contextComposerV2SessionSelectionController.js';
 import { resolveRuntimeContextComposerV2Selection } from '../../src/lib/workflowContextInjector.js';
@@ -193,16 +193,26 @@ describe('Context Composer V2 session lock controller', () => {
 });
 
 describe('Chat wiring uses session-local composer override path', () => {
-  const chatPath = path.resolve('src/pages/Chat.jsx');
-  const chatSource = readFileSync(chatPath, 'utf8');
+  let chatSource = '';
+
+  beforeAll(() => {
+    const chatPath = fileURLToPath(new URL('../../src/pages/Chat.jsx', import.meta.url));
+    chatSource = readFileSync(chatPath, 'utf8');
+  });
 
   it('uses runtime_context_composer_v2_override in session-start build call sites', () => {
+    // Static-source guard (intentionally brittle by design):
+    // there are four therapist session-start builder call sites in Chat.jsx:
+    // (1) URL-intent new-session path, (2) active-conversation intent path that
+    // creates a new session, (3) explicit startNewConversationWithIntent path,
+    // and (4) first-send implicit new-session path. Each must thread the frozen
+    // override to prevent mid-session flips. If these call sites are refactored,
+    // this assertion must be updated with equivalent behavioral coverage.
     const overrideUses = (chatSource.match(/runtime_context_composer_v2_override/g) || []).length;
-    expect(overrideUses).toBeGreaterThanOrEqual(4);
+    expect(overrideUses).toBe(4);
   });
 
   it('does not pass runtime_snapshot directly into buildActionFirstDemotedSessionContentAsync call options', () => {
-    const directSnapshotUses = (chatSource.match(/buildActionFirstDemotedSessionContentAsync[\s\S]{0,450}runtime_snapshot/g) || []).length;
-    expect(directSnapshotUses).toBe(0);
+    expect(chatSource.includes('runtime_snapshot:')).toBe(false);
   });
 });
