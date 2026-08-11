@@ -42,6 +42,7 @@ import {
 
 import {
   resolveRuntimeContextComposerV2Flag,
+  buildActionFirstDemotedSessionContentAsync,
 } from '../../src/lib/workflowContextInjector.js';
 
 import {
@@ -93,6 +94,18 @@ function makeUnavailableSnapshot() {
     generated_at: null,
     fetched_at: new Date().toISOString(),
   });
+}
+
+function makeEntities() {
+  return {
+    CompanionMemory: {
+      filter: async () => [],
+      list: async () => [],
+    },
+    CaseFormulation: {
+      list: async () => [],
+    },
+  };
 }
 
 // V12 wiring — planner_first_enabled === true
@@ -284,6 +297,7 @@ describe('Test 7 — CONTEXT_COMPOSER_V2=false under runtime authority: resolves
   it('7a. runtime CONTEXT_COMPOSER_V2=false with APPLY=true, V12 wiring → false', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: false,
     });
     expect(resolveRuntimeContextComposerV2Flag(WIRING_V12, snapshot)).toBe(false);
@@ -298,15 +312,25 @@ describe('Test 7 — CONTEXT_COMPOSER_V2=false under runtime authority: resolves
 // ─── 8. CONTEXT_COMPOSER_V2=true → existing composer used ────────────────────
 
 describe('Test 8 — CONTEXT_COMPOSER_V2=true + valid runtime authority: resolves true', () => {
-  it('8a. runtime CONTEXT_COMPOSER_V2=true + APPLY=true + V12 wiring → true', () => {
+  it('8a. runtime CONTEXT_COMPOSER_V2=true + APPLY=true + MASTER=true + V12 wiring → true', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: true,
     });
     expect(resolveRuntimeContextComposerV2Flag(WIRING_V12, snapshot)).toBe(true);
   });
 
-  it('8b. APPLY=false even with CONTEXT_COMPOSER_V2=true → legacy path (false)', () => {
+  it('8b. APPLY=true + MASTER=false + CONTEXT_COMPOSER_V2=true → hard rollback false', () => {
+    const snapshot = makeAvailableSnapshot({
+      THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: false,
+      CONTEXT_COMPOSER_V2_ENABLED: true,
+    });
+    expect(resolveRuntimeContextComposerV2Flag(WIRING_V12, snapshot)).toBe(false);
+  });
+
+  it('8c. APPLY=false even with CONTEXT_COMPOSER_V2=true → legacy path (false)', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: false,
       CONTEXT_COMPOSER_V2_ENABLED: true,
@@ -321,6 +345,7 @@ describe('Test 9 — Non-V12 wiring: Context Composer V2 cannot be activated', (
   it('9a. HYBRID wiring + APPLY=true + CONTEXT_COMPOSER_V2=true → false', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: true,
     });
     expect(resolveRuntimeContextComposerV2Flag(WIRING_HYBRID, snapshot)).toBe(false);
@@ -350,6 +375,7 @@ describe('Test 10 — Session lock: late snapshot cannot change composer choice'
   it('10a. value resolved at session-start is a frozen primitive; late snapshot has no effect', () => {
     const snapshotAtSessionStart = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: false,
     });
     // Caller freezes this at session-start.
@@ -360,6 +386,7 @@ describe('Test 10 — Session lock: late snapshot cannot change composer choice'
     // The session-frozen choice is unaffected because it is a primitive boolean.
     const lateSnapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: true,
     });
     // The frozen choice does not change.
@@ -372,6 +399,7 @@ describe('Test 10 — Session lock: late snapshot cannot change composer choice'
   it('10b. session-start snapshot with V2=true is unaffected by subsequent snapshot with V2=false', () => {
     const snapshotAtSessionStart = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: true,
     });
     const frozenChoice = resolveRuntimeContextComposerV2Flag(WIRING_V12, snapshotAtSessionStart);
@@ -379,6 +407,7 @@ describe('Test 10 — Session lock: late snapshot cannot change composer choice'
 
     const lateSnapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: false,
     });
     // Frozen primitive is immutable.
@@ -393,6 +422,7 @@ describe('Test 11 — V12 routing is unaffected by Context Composer V2 flag', ()
   it('11a. V12 wiring identity is not altered by resolveRuntimeContextComposerV2Flag', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: true,
     });
     // The resolver returns a boolean — it does NOT modify or re-select the wiring.
@@ -407,6 +437,7 @@ describe('Test 11 — V12 routing is unaffected by Context Composer V2 flag', ()
     // The CONTEXT_COMPOSER_V2_ENABLED flag must not mutate PLANNER_FIRST_ENABLED.
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: true,
     });
     expect(snapshot.flags['THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED']).toBe(false);
@@ -423,6 +454,7 @@ describe('Test 12 — CHAT_ORCHESTRATOR_V2 is not affected by PR #920 resolvers'
     // CONTEXT_COMPOSER_V2_ENABLED and the planner_first_enabled wiring property.
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       CONTEXT_COMPOSER_V2_ENABLED: false,
       CHAT_ORCHESTRATOR_V2_ENABLED: true, // this must NOT influence our resolver
     });
@@ -432,6 +464,7 @@ describe('Test 12 — CHAT_ORCHESTRATOR_V2 is not affected by PR #920 resolvers'
   it('12b. resolveRuntimeSummarizationFlag does not read CHAT_ORCHESTRATOR_V2_ENABLED', () => {
     const snapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: false,
       CHAT_ORCHESTRATOR_V2_ENABLED: true,
     });
@@ -445,9 +478,61 @@ describe('Test 12 — CHAT_ORCHESTRATOR_V2 is not affected by PR #920 resolvers'
   });
 
   it('12d. A snapshot with CHAT_ORCHESTRATOR_V2=true has it correctly normalised to true', () => {
-    const snapshot = makeAvailableSnapshot({ CHAT_ORCHESTRATOR_V2_ENABLED: true });
+    const snapshot = makeAvailableSnapshot({
+      THERAPIST_RUNTIME_APPLY_ENABLED: true,
+      THERAPIST_UPGRADE_ENABLED: true,
+      CHAT_ORCHESTRATOR_V2_ENABLED: true,
+    });
     expect(snapshot.flags['CHAT_ORCHESTRATOR_V2_ENABLED']).toBe(true);
     // But this does not activate Context Composer V2.
     expect(resolveRuntimeContextComposerV2Flag(WIRING_V12, snapshot)).toBe(false);
+  });
+});
+
+describe('Test 13/14 — Build path behavior with explicit runtime override', () => {
+  it('13. runtime_context_composer_v2_override=false preserves exact prior V12 rendered output', async () => {
+    const entities = makeEntities();
+    const legacy = await buildActionFirstDemotedSessionContentAsync(
+      WIRING_V12,
+      entities,
+      null,
+      { disable_context_composer_v2: true }
+    );
+    const overridden = await buildActionFirstDemotedSessionContentAsync(
+      WIRING_V12,
+      entities,
+      null,
+      { runtime_context_composer_v2_override: false }
+    );
+    expect(overridden).toBe(legacy);
+  });
+
+  it('14. runtime_context_composer_v2_override=true uses existing Context Composer V2 finalize path', async () => {
+    const entities = makeEntities();
+    const composer = {
+      version: 'test',
+      budget_chars: 120000,
+      registerSection: () => {},
+      finalize: ({ fallbackRendered }) => ({
+        rendered: fallbackRendered,
+        diagnostic: {
+          fallback_used: false,
+          parity_match: true,
+          parity_status: 'exact_match',
+        },
+        sections: [],
+        version: 'test',
+      }),
+    };
+    const output = await buildActionFirstDemotedSessionContentAsync(
+      WIRING_V12,
+      entities,
+      null,
+      {
+        runtime_context_composer_v2_override: true,
+        context_composer_v2: composer,
+      }
+    );
+    expect(typeof output).toBe('string');
   });
 });

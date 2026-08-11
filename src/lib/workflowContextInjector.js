@@ -191,9 +191,12 @@ function _shouldUseContextComposerV2(wiring, options) {
  *   3. `snapshot.transport_status === 'available'` and `snapshot.received === true`.
  *   4. `snapshot.flags.THERAPIST_RUNTIME_APPLY_ENABLED === true`.
  *
- * When those conditions are met the runtime value of `CONTEXT_COMPOSER_V2_ENABLED`
- * is used instead of the build-time feature flag.  In every other case the
- * legacy `isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED')` result is preserved.
+ * When those conditions are met:
+ *   - `THERAPIST_UPGRADE_ENABLED === false` is a hard rollback (`false`).
+ *   - Otherwise, `CONTEXT_COMPOSER_V2_ENABLED === true` enables composer.
+ *
+ * In every other case (snapshot unavailable/unreceived/APPLY=false), the legacy
+ * `isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED')` result is preserved.
  *
  * The return value MUST be frozen at session-start and passed to
  * `buildActionFirstDemotedSessionContentAsync` via
@@ -207,8 +210,15 @@ function _shouldUseContextComposerV2(wiring, options) {
  * @returns {boolean}
  */
 export function resolveRuntimeContextComposerV2Flag(wiring, snapshot) {
+  return resolveRuntimeContextComposerV2Selection(wiring, snapshot).enabled;
+}
+
+export function resolveRuntimeContextComposerV2Selection(wiring, snapshot) {
   if (!wiring || wiring.planner_first_enabled !== true) {
-    return false;
+    return Object.freeze({
+      enabled: false,
+      reason: 'non_planner_wiring',
+    });
   }
   if (
     snapshot &&
@@ -217,9 +227,21 @@ export function resolveRuntimeContextComposerV2Flag(wiring, snapshot) {
     snapshot.flags &&
     snapshot.flags['THERAPIST_RUNTIME_APPLY_ENABLED'] === true
   ) {
-    return snapshot.flags['CONTEXT_COMPOSER_V2_ENABLED'] === true;
+    if (snapshot.flags['THERAPIST_UPGRADE_ENABLED'] !== true) {
+      return Object.freeze({
+        enabled: false,
+        reason: 'master_off',
+      });
+    }
+    return Object.freeze({
+      enabled: snapshot.flags['CONTEXT_COMPOSER_V2_ENABLED'] === true,
+      reason: 'runtime_snapshot_applied',
+    });
   }
-  return isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED');
+  return Object.freeze({
+    enabled: isUpgradeEnabled('CONTEXT_COMPOSER_V2_ENABLED'),
+    reason: 'legacy_fallback',
+  });
 }
 
 function _createContextComposerV2Options(options = {}) {
