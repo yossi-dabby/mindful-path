@@ -100,6 +100,30 @@ function isGenerateSessionSummaryEnabled(
   return readEnv('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') === 'true';
 }
 
+/**
+ * Returns true ONLY when runtime-authority continuity enrichment is active.
+ *
+ * All four environment variables must be exactly 'true':
+ *   THERAPIST_RUNTIME_APPLY_ENABLED
+ *   VITE_THERAPIST_UPGRADE_ENABLED          (MASTER)
+ *   VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED
+ *   VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED
+ *
+ * MASTER=false is a hard rollback: returns false immediately.
+ * APPLY not 'true': preserves legacy behavior (no new enrichment).
+ *
+ * @param readEnv - Env reader (e.g. (name) => Deno.env.get(name)).
+ */
+function isRuntimeContinuityEnrichmentEnabled(
+  readEnv: (name: string) => string | undefined,
+): boolean {
+  if (readEnv('THERAPIST_RUNTIME_APPLY_ENABLED') !== 'true') return false;
+  if (readEnv('VITE_THERAPIST_UPGRADE_ENABLED') !== 'true') return false;
+  if (readEnv('VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') !== 'true') return false;
+  if (readEnv('VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED') !== 'true') return false;
+  return true;
+}
+
 const ALLOWED_STRING_FIELDS: string[] = [
   'session_id',
   'session_date',
@@ -326,6 +350,123 @@ Deno.serve(async (req) => {
       );
     }
 
+    // ── Backend continuity enrichment (structured fallback) ──────────────────
+    // Only active when ALL four runtime-authority continuity flags are set.
+    // Never enriches a safety_stub. Never reads messages/transcript.
+    // Read-only: Goal (id, title only) + CaseFormulation (core_belief only).
+    // Merges with existing frontend enrichment; deduplicates.
+    // If any read fails, the already-sanitized record is used as-is.
+    const _backendContinuityEnabled = isRuntimeContinuityEnrichmentEnabled(
+      (name) => Deno.env.get(name),
+    );
+
+    let _backendEnrichmentApplied = false;
+    let _backendGoalCount = 0;
+    let _backendFormulationPresent = false;
+
+    if (_backendContinuityEnabled && !safety_stub) {
+      // Max records for backend enrichment.
+      const BACKEND_MAX_GOALS = 5;
+
+      // Existing goals_referenced and follow_up_tasks from frontend enrichment.
+      const existingGoalIds: string[] = Array.isArray(record['goals_referenced'])
+        ? (record['goals_referenced'] as string[]).filter((s) => typeof s === 'string')
+        : [];
+      const existingFollowUpTasks: string[] = Array.isArray(record['follow_up_tasks'])
+        ? (record['follow_up_tasks'] as string[]).filter((s) => typeof s === 'string')
+        : [];
+      const existingWorkingHypotheses: string[] = Array.isArray(record['working_hypotheses'])
+        ? (record['working_hypotheses'] as string[]).filter((s) => typeof s === 'string')
+        : [];
+
+      // ── Goal enrichment ───────────────────────────────────────────────────
+      try {
+        const goalsResponse = await base44.entities.Goal.filter(
+          { status: 'active' },
+          '-created_date',
+          BACKEND_MAX_GOALS,
+        );
+        const goals: unknown[] = Array.isArray(goalsResponse) ? goalsResponse : [];
+        _backendGoalCount = goals.length;
+
+        const newGoalIds: string[] = [];
+        const newFollowUpTasks: string[] = [];
+
+        for (const goal of goals) {
+          if (!goal || typeof goal !== 'object') continue;
+          const g = goal as Record<string, unknown>;
+          const id = typeof g['id'] === 'string' ? (g['id'] as string).trim() : '';
+          const title =
+            typeof g['title'] === 'string'
+              ? sanitizeStringField((g['title'] as string).trim(), 'follow_up_tasks')
+              : '';
+          if (id && !existingGoalIds.includes(id) && !newGoalIds.includes(id)) {
+            newGoalIds.push(id);
+          }
+          // Only add title if it passes the transcript detector and is non-empty.
+          if (
+            title &&
+            !isRawTranscript(title) &&
+            !existingFollowUpTasks.includes(title) &&
+            !newFollowUpTasks.includes(title)
+          ) {
+            newFollowUpTasks.push(title);
+          }
+        }
+
+        if (newGoalIds.length > 0 || newFollowUpTasks.length > 0) {
+          const mergedGoalIds = sanitizeArrayField([...existingGoalIds, ...newGoalIds]);
+          const mergedFollowUpTasks = sanitizeArrayField([
+            ...existingFollowUpTasks,
+            ...newFollowUpTasks,
+          ]);
+          if (mergedGoalIds.length > 0) record['goals_referenced'] = mergedGoalIds;
+          if (mergedFollowUpTasks.length > 0) record['follow_up_tasks'] = mergedFollowUpTasks;
+          _backendEnrichmentApplied = true;
+        }
+      } catch (_goalError) {
+        // Goal read failure: do not fail the therapist_session write.
+      }
+
+      // ── CaseFormulation enrichment ─────────────────────────────────────────
+      try {
+        const formulationsResponse = await base44.entities.CaseFormulation.list(
+          '-created_date',
+          1,
+        );
+        const formulations: unknown[] = Array.isArray(formulationsResponse)
+          ? formulationsResponse
+          : [];
+        if (formulations.length > 0) {
+          const cf = formulations[0];
+          if (cf && typeof cf === 'object') {
+            const cfRecord = cf as Record<string, unknown>;
+            const coreBelief =
+              typeof cfRecord['core_belief'] === 'string'
+                ? sanitizeStringField((cfRecord['core_belief'] as string).trim(), 'working_hypotheses')
+                : '';
+            if (
+              coreBelief &&
+              !isRawTranscript(coreBelief) &&
+              !existingWorkingHypotheses.includes(coreBelief)
+            ) {
+              const mergedHypotheses = sanitizeArrayField([
+                ...existingWorkingHypotheses,
+                coreBelief,
+              ]);
+              if (mergedHypotheses.length > 0) {
+                record['working_hypotheses'] = mergedHypotheses;
+                _backendFormulationPresent = true;
+                _backendEnrichmentApplied = true;
+              }
+            }
+          }
+        }
+      } catch (_cfError) {
+        // CaseFormulation read failure: do not fail the therapist_session write.
+      }
+    }
+
     // ── Persist to CompanionMemory ────────────────────────────────────────
     // Uses the same persistence pattern as writeTherapistMemory (Phase 1).
     // The version marker in the JSON allows retrieveTherapistMemory to
@@ -334,6 +475,15 @@ Deno.serve(async (req) => {
       memory_type: 'therapist_session',
       content: JSON.stringify(record),
     });
+
+    // Backend s2debug diagnostics (server-log only; not in chat UI).
+    if (_backendContinuityEnabled) {
+      console.log(
+        '[_s2debug] backend_enrichment_applied:', _backendEnrichmentApplied,
+        '| backend_goal_count:', _backendGoalCount,
+        '| backend_formulation_present:', _backendFormulationPresent,
+      );
+    }
 
     return Response.json({
       success: true,
