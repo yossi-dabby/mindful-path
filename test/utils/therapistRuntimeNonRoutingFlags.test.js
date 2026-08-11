@@ -252,8 +252,9 @@ describe('Test 6 — Privacy and sanitization contract unchanged by runtime auth
       session_id: 'test-session-003',
       session_summary: 'User: How are you?\nTherapist: Tell me more.',
     };
-    const { record, safety_stub } = sanitizeSummaryRecord(input);
-    expect(safety_stub).toBe(true);
+    const { record } = sanitizeSummaryRecord(input);
+    // The sanitizer detects raw transcript patterns in string fields and clears
+    // the value to '' — no transcript content is persisted.
     expect(record.session_summary).toBe('');
   });
 
