@@ -263,48 +263,249 @@ describe('resolveRuntimeLongitudinalFlag — Test 12: unavailable snapshot → e
 // ─── FUNCTIONAL CONTRACT tests (22–26) ────────────────────────────────────────
 
 describe('Test 22: enrichment reads only approved Goal / CaseFormulation structured fields', () => {
-  it('22. enriched entities only expose id/title/status for Goal and core_belief for CaseFormulation', async () => {
-    // Verify ENRICHMENT_MAX_GOALS is a positive bounded constant.
-    expect(typeof ENRICHMENT_MAX_GOALS).toBe('number');
-    expect(ENRICHMENT_MAX_GOALS).toBeGreaterThan(0);
-    expect(ENRICHMENT_MAX_GOALS).toBeLessThanOrEqual(10);
+  it('22. enrichConversationMemoryPayload uses bounded approved reads and produces only structured enrichment fields', async () => {
+    const { enrichConversationMemoryPayload, deriveConversationMemoryPayload } = await import(
+      '../../src/lib/sessionEndSummarization.js'
+    );
 
-    // Verify isContinuityEnrichmentEnabled and resolveRuntimeContinuityEnrichmentFlag are functions.
-    expect(typeof isContinuityEnrichmentEnabled).toBe('function');
-    expect(typeof resolveRuntimeContinuityEnrichmentFlag).toBe('function');
+    const goalFilter = vi.fn(async () => [
+      {
+        id: 'goal-1',
+        title: 'Practice grounding',
+        status: 'active',
+        forbidden_raw_message: 'User: raw transcript line that must never persist',
+      },
+      {
+        id: 'goal-2',
+        title: 'Sleep hygiene routine',
+        status: 'active',
+        transcript: 'Client: private text',
+      },
+    ]);
+
+    const formulationList = vi.fn(async () => [
+      {
+        core_belief: 'I am unsafe when anxious.',
+        transcript: 'Therapist: private text',
+      },
+    ]);
+
+    const basePayload = deriveConversationMemoryPayload('conv-test-22', {
+      name: 'Session 22',
+      intent: 'anxiety planning',
+    });
+
+    const enriched = await enrichConversationMemoryPayload(basePayload, {
+      Goal: { filter: goalFilter },
+      CaseFormulation: { list: formulationList },
+    });
+
+    expect(goalFilter).toHaveBeenCalledTimes(1);
+    expect(goalFilter).toHaveBeenCalledWith(
+      { status: 'active' },
+      '-created_date',
+      ENRICHMENT_MAX_GOALS,
+    );
+
+    expect(formulationList).toHaveBeenCalledTimes(1);
+    expect(formulationList).toHaveBeenCalledWith('-created_date', 1);
+
+    expect(enriched.goals_referenced).toEqual(['goal-1', 'goal-2']);
+    expect(enriched.follow_up_tasks).toEqual(['Practice grounding', 'Sleep hygiene routine']);
+    expect(enriched.working_hypotheses).toEqual(['I am unsafe when anxious.']);
+
+    const persisted = JSON.stringify(enriched);
+    expect(persisted).not.toContain('forbidden_raw_message');
+    expect(persisted).not.toContain('transcript');
+    expect(persisted).not.toContain('messages');
   });
 });
 
 describe('Test 23: no raw message content stored', () => {
-  it('23. resolveRuntimeContinuityEnrichmentFlag never passes transcript text — only boolean gate', () => {
-    const snapshot = makeAvailableSnapshot({
+  afterEach(() => {
+    vi.doUnmock('../../src/api/base44Client.js');
+    vi.resetModules();
+  });
+
+  it('23. triggerConversationEndSummarization excludes raw transcript sentinel from persisted generateSessionSummary payload', async () => {
+    const transcriptSentinel = '__RAW_TRANSCRIPT_SENTINEL_23__';
+    const transcriptLine = `[12:34] ${transcriptSentinel}`;
+    const runtimeSnapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
       THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
       THERAPIST_UPGRADE_CONTINUITY_ENABLED: true,
+      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: false,
     });
-    const result = resolveRuntimeContinuityEnrichmentFlag(snapshot);
-    // The return value is always a boolean — no message content is exposed.
-    expect(typeof result).toBe('boolean');
+
+    const invokeSpy = vi.fn(async (fnName, payload) => {
+      if (fnName === 'generateSessionSummary') {
+        return { success: true, id: 'mem-23', payload };
+      }
+      return { success: true };
+    });
+
+    vi.resetModules();
+    vi.doMock('../../src/api/base44Client.js', () => ({
+      base44: { functions: { invoke: invokeSpy } },
+    }));
+
+    const { triggerConversationEndSummarization } = await import('../../src/lib/sessionEndSummarization.js');
+
+    const entities = {
+      Goal: {
+        filter: vi.fn(async () => [
+          { id: 'g-23', title: transcriptLine, status: 'active' },
+          { id: 'g-23b', title: 'Keep sleep schedule', status: 'active' },
+        ]),
+      },
+      CaseFormulation: {
+        list: vi.fn(async () => [{ core_belief: transcriptLine }]),
+      },
+    };
+
+    triggerConversationEndSummarization(
+      'conv-test-23',
+      { intent: `\n${transcriptLine}` },
+      'test_23',
+      entities,
+      runtimeSnapshot,
+    );
+
+    await vi.waitFor(() => {
+      expect(invokeSpy).toHaveBeenCalledWith('generateSessionSummary', expect.any(Object));
+    });
+
+    const persistedPayload = invokeSpy.mock.calls.find(([fn]) => fn === 'generateSessionSummary')?.[1];
+    expect(persistedPayload).toBeTruthy();
+    const persistedSerialized = JSON.stringify(persistedPayload);
+    expect(persistedSerialized).not.toContain(transcriptSentinel);
+    expect(persistedSerialized).not.toContain('transcript');
+    expect(persistedSerialized).not.toContain('messages');
+
   });
 });
 
 describe('Test 24: LTS recompute occurs only after successful therapist_session write', () => {
-  it('24. resolveRuntimeLongitudinalFlag (used post-write) returns correct gate', () => {
-    const snapshotOn = makeAvailableSnapshot({
+  afterEach(() => {
+    vi.doUnmock('../../src/api/base44Client.js');
+    vi.doUnmock('../../src/lib/longitudinalStateBuilder.js');
+    vi.restoreAllMocks();
+    vi.resetModules();
+  });
+
+  it('24a. generateSessionSummary success occurs before retrieveTherapistMemory/writeLTSSnapshot when longitudinal gate is true', async () => {
+    const runtimeSnapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
       THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
+      THERAPIST_UPGRADE_CONTINUITY_ENABLED: true,
       THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: true,
     });
-    const snapshotOff = makeAvailableSnapshot({
+
+    const callOrder = [];
+    let finish;
+    const finished = new Promise((resolve) => {
+      finish = resolve;
+    });
+
+    const invokeSpy = vi.fn(async (fnName) => {
+      callOrder.push(fnName);
+      if (fnName === 'generateSessionSummary') return { success: true, id: 'mem-24a' };
+      if (fnName === 'retrieveTherapistMemory') return { memories: [], count: 0 };
+      if (fnName === 'writeLTSSnapshot') {
+        finish();
+        return { success: true, id: 'lts-24a', upserted: 'created' };
+      }
+      return { success: true };
+    });
+
+    vi.doMock('../../src/api/base44Client.js', () => ({
+      base44: { functions: { invoke: invokeSpy } },
+    }));
+    vi.doMock('../../src/lib/longitudinalStateBuilder.js', () => ({
+      buildLongitudinalState: () => ({
+        lts_version: '1',
+        memory_type: 'lts',
+        generated_at: '2026-01-01T00:00:00.000Z',
+        session_count: 0,
+        recurring_core_patterns: [],
+        persistent_blockers: [],
+        helpful_interventions: [],
+        stalled_interventions: [],
+        risk_trajectory_flags: [],
+        trajectory: 'insufficient_data',
+        next_focus_hint: '',
+        goals_in_motion: [],
+      }),
+    }));
+
+    const { triggerConversationEndSummarization } = await import('../../src/lib/sessionEndSummarization.js');
+
+    triggerConversationEndSummarization(
+      'conv-test-24a',
+      { intent: 'ordering success path' },
+      'test_24a',
+      null,
+      runtimeSnapshot,
+    );
+
+    await finished;
+
+    const summaryIdx = callOrder.indexOf('generateSessionSummary');
+    const retrieveIdx = callOrder.indexOf('retrieveTherapistMemory');
+    const writeIdx = callOrder.indexOf('writeLTSSnapshot');
+
+    expect(summaryIdx).toBeGreaterThanOrEqual(0);
+    expect(retrieveIdx).toBeGreaterThan(summaryIdx);
+    expect(writeIdx).toBeGreaterThan(retrieveIdx);
+  });
+
+  it('24b. generateSessionSummary failure prevents retrieveTherapistMemory/writeLTSSnapshot', async () => {
+    const runtimeSnapshot = makeAvailableSnapshot({
       THERAPIST_RUNTIME_APPLY_ENABLED: true,
       THERAPIST_UPGRADE_ENABLED: true,
       THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
-      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: false,
+      THERAPIST_UPGRADE_CONTINUITY_ENABLED: true,
+      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: true,
     });
-    expect(resolveRuntimeLongitudinalFlag(snapshotOn)).toBe(true);
-    expect(resolveRuntimeLongitudinalFlag(snapshotOff)).toBe(false);
+
+    const callOrder = [];
+    let generateAttempted;
+    const generateDone = new Promise((resolve) => {
+      generateAttempted = resolve;
+    });
+
+    const invokeSpy = vi.fn(async (fnName) => {
+      callOrder.push(fnName);
+      if (fnName === 'generateSessionSummary') {
+        generateAttempted();
+        throw new Error('generate fail');
+      }
+      return { success: true };
+    });
+
+    vi.doMock('../../src/api/base44Client.js', () => ({
+      base44: { functions: { invoke: invokeSpy } },
+    }));
+
+    const { triggerConversationEndSummarization } = await import('../../src/lib/sessionEndSummarization.js');
+
+    triggerConversationEndSummarization(
+      'conv-test-24b',
+      { intent: 'ordering failure path' },
+      'test_24b',
+      null,
+      runtimeSnapshot,
+    );
+
+    await generateDone;
+
+    await vi.waitFor(() => {
+      expect(callOrder).toEqual(['generateSessionSummary']);
+    });
+    expect(callOrder).not.toContain('retrieveTherapistMemory');
+    expect(callOrder).not.toContain('writeLTSSnapshot');
   });
 });
 

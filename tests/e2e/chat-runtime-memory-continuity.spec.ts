@@ -238,38 +238,185 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
     expect(result.unavailableFallback).toBe(result.unavailableLegacy);
   });
 
-  test('triggerConversationEndSummarization with accepted runtime authority fires memory write once (deduplicated)', async ({ page }) => {
+  test('real runtime path proves enrichment privacy ordering failure-block and dedup', async ({ page }) => {
     await bootChat(page);
 
     const result = await page.evaluate(async () => {
+      const {
+        triggerConversationEndSummarization,
+      } = await import('/src/lib/sessionEndSummarization.js');
       const { triggerConversationMemoryWriteOnce } = await import('/src/lib/conversationMemoryWriteDedup.js');
+      const {
+        THERAPIST_RUNTIME_FLAG_SCHEMA,
+        THERAPIST_RUNTIME_FLAG_KEYS,
+        normalizeTherapistRuntimeFlagSnapshotPayload,
+      } = await import('/src/lib/therapistRuntimeFlagTransport.js');
+      const { base44 } = await import('/src/api/base44Client.js');
 
-      const tracker = new Set<string>();
-      let triggerCount = 0;
-      const triggerFn = () => { triggerCount += 1; };
+      const buildSnapshot = (overrides: Record<string, boolean>) => {
+        const defaults: Record<string, boolean> = {};
+        for (const key of THERAPIST_RUNTIME_FLAG_KEYS) defaults[key] = false;
+        const normalized = normalizeTherapistRuntimeFlagSnapshotPayload({
+          schema: THERAPIST_RUNTIME_FLAG_SCHEMA,
+          flags: { ...defaults, ...overrides },
+          generated_at: '2026-01-01T00:00:00.000Z',
+        });
+        return {
+          schema: normalized.schema,
+          transport_status: 'available',
+          received: true,
+          flags: normalized.flags,
+          generated_at: normalized.generated_at,
+          fetched_at: '2026-01-01T00:00:00.000Z',
+        };
+      };
 
-      // First call — should trigger
-      triggerConversationMemoryWriteOnce({
-        writeTracker: tracker,
-        conversationId: 'conv-e2e-p923-1',
-        conversationMeta: { name: 'P923 session' },
-        trigger: triggerFn,
-        invoker: 'chat_request_summary',
+      const acceptedRuntime = buildSnapshot({
+        THERAPIST_RUNTIME_APPLY_ENABLED: true,
+        THERAPIST_UPGRADE_ENABLED: true,
+        THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: true,
+        THERAPIST_UPGRADE_CONTINUITY_ENABLED: true,
+        THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: true,
       });
 
-      // Second call for same conversation — should NOT trigger (deduplication)
-      triggerConversationMemoryWriteOnce({
-        writeTracker: tracker,
-        conversationId: 'conv-e2e-p923-1',
-        conversationMeta: { name: 'P923 session' },
-        trigger: triggerFn,
-        invoker: 'chat_request_summary',
+      const transcriptSentinel = '__RAW_SENTINEL_E2E__';
+      const transcriptText = `[12:34] ${transcriptSentinel}`;
+
+      const goalReadCalls: unknown[][] = [];
+      const formulationReadCalls: unknown[][] = [];
+      const entities = {
+        Goal: {
+          filter: async (...args: unknown[]) => {
+            goalReadCalls.push(args);
+            return [
+              { id: 'goal-real-1', title: 'Practice grounding', status: 'active' },
+              { id: 'goal-real-2', title: transcriptText, status: 'active' },
+            ];
+          },
+        },
+        CaseFormulation: {
+          list: async (...args: unknown[]) => {
+            formulationReadCalls.push(args);
+            return [{ core_belief: transcriptText }];
+          },
+        },
+      };
+
+      const successCalls: Array<{ name: string; payload: any }> = [];
+      const failureCalls: Array<{ name: string; payload: any }> = [];
+      const originalInvoke = base44.functions.invoke;
+
+      let resolveSuccessPath: (() => void) | null = null;
+      const successDone = new Promise<void>((resolve) => {
+        resolveSuccessPath = resolve;
       });
 
-      return triggerCount;
+      base44.functions.invoke = async (name: string, payload: any) => {
+        successCalls.push({ name, payload });
+        if (name === 'generateSessionSummary') return { success: true, id: 'mem-e2e-1' };
+        if (name === 'retrieveTherapistMemory') return { memories: [], count: 0 };
+        if (name === 'writeLTSSnapshot') {
+          resolveSuccessPath?.();
+          return { success: true, id: 'lts-e2e-1', upserted: 'created' };
+        }
+        return { success: true };
+      };
+
+      const writeTracker = new Set<string>();
+      triggerConversationMemoryWriteOnce({
+        writeTracker,
+        conversationId: 'conv-e2e-real-1',
+        conversationMeta: { name: 'Real Runtime Session', intent: `\n${transcriptText}` },
+        trigger: triggerConversationEndSummarization,
+        invoker: 'chat_request_summary',
+        entities,
+        runtimeSnapshot: acceptedRuntime,
+      });
+      triggerConversationMemoryWriteOnce({
+        writeTracker,
+        conversationId: 'conv-e2e-real-1',
+        conversationMeta: { name: 'Real Runtime Session', intent: `\n${transcriptText}` },
+        trigger: triggerConversationEndSummarization,
+        invoker: 'chat_request_summary',
+        entities,
+        runtimeSnapshot: acceptedRuntime,
+      });
+
+      await successDone;
+
+      let resolveFailurePath: (() => void) | null = null;
+      const failureDone = new Promise<void>((resolve) => {
+        resolveFailurePath = resolve;
+      });
+
+      base44.functions.invoke = async (name: string, payload: any) => {
+        failureCalls.push({ name, payload });
+        if (name === 'generateSessionSummary') {
+          resolveFailurePath?.();
+          throw new Error('forced-generate-failure');
+        }
+        return { success: true };
+      };
+
+      triggerConversationEndSummarization(
+        'conv-e2e-real-failure',
+        { intent: 'failure path' },
+        'chat_request_summary',
+        null,
+        acceptedRuntime,
+      );
+
+      await failureDone;
+      base44.functions.invoke = originalInvoke;
+
+      const summaryCalls = successCalls.filter((c) => c.name === 'generateSessionSummary');
+      const summaryPayload = summaryCalls[0]?.payload ?? null;
+      const payloadSerialized = JSON.stringify(summaryPayload);
+      const successOrder = successCalls.map((c) => c.name);
+
+      return {
+        generateCountSuccessPath: summaryCalls.length,
+        summarySessionId: summaryPayload?.session_id ?? null,
+        summaryVersion: summaryPayload?.therapist_memory_version ?? null,
+        goalsReferenced: summaryPayload?.goals_referenced ?? [],
+        followUpTasks: summaryPayload?.follow_up_tasks ?? [],
+        workingHypotheses: summaryPayload?.working_hypotheses ?? [],
+        hasSentinelInPayload: payloadSerialized.includes(transcriptSentinel),
+        hasTranscriptField: payloadSerialized.includes('"transcript"'),
+        hasMessagesField: payloadSerialized.includes('"messages"'),
+        goalReadCalls,
+        formulationReadCalls,
+        successOrder,
+        failureOrder: failureCalls.map((c) => c.name),
+      };
     });
 
-    expect(result).toBe(1);
+    expect(result.generateCountSuccessPath).toBe(1);
+    expect(result.summaryVersion).toBe('1');
+    expect(result.summarySessionId).toBe('conv-e2e-real-1');
+    expect(result.goalsReferenced).toEqual(['goal-real-1', 'goal-real-2']);
+    expect(result.followUpTasks).toEqual(['Practice grounding']);
+    expect(result.workingHypotheses).toEqual([]);
+    expect(result.hasSentinelInPayload).toBe(false);
+    expect(result.hasTranscriptField).toBe(false);
+    expect(result.hasMessagesField).toBe(false);
+
+    expect(result.goalReadCalls).toEqual([
+      [{ status: 'active' }, '-created_date', 5],
+    ]);
+    expect(result.formulationReadCalls).toEqual([['-created_date', 1]]);
+
+    expect(result.successOrder[0]).toBe('generateSessionSummary');
+    expect(result.successOrder).toContain('retrieveTherapistMemory');
+    expect(result.successOrder).toContain('writeLTSSnapshot');
+    expect(result.successOrder.indexOf('retrieveTherapistMemory')).toBeGreaterThan(
+      result.successOrder.indexOf('generateSessionSummary'),
+    );
+    expect(result.successOrder.indexOf('writeLTSSnapshot')).toBeGreaterThan(
+      result.successOrder.indexOf('retrieveTherapistMemory'),
+    );
+
+    expect(result.failureOrder).toEqual(['generateSessionSummary']);
   });
 
   test('chat page renders without internal diagnostic text in visible UI', async ({ page }) => {
@@ -278,9 +425,7 @@ test.describe('Runtime memory / continuity / LTS gate E2E', () => {
     await spaNavigate(page, '/Chat');
 
     // Wait for chat root
-    await expect(page.locator('[data-testid="chat-root"], [class*="chat"], main, #root').first()).toBeVisible({
-      timeout: 15000,
-    });
+    await expect(page.locator('[data-testid="chat-root"], [class*="chat"], main, #root').first()).toBeVisible();
 
     const pageText = await page.locator('body').textContent();
 
