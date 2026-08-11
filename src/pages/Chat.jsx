@@ -124,6 +124,10 @@ import {
   buildTherapistRuntimeFlagTransportDiagnostic,
 } from '@/lib/therapistRuntimeFlagTransport.js';
 import { triggerConversationMemoryWriteOnce } from '@/lib/conversationMemoryWriteDedup.js';
+import {
+  normalizeLegacyActiveTurnFinalSnapshot,
+  applyRecordScopedAssistantFeedbackFinality,
+} from '@/lib/legacyFinalSnapshotNormalization.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -1150,16 +1154,7 @@ export default function Chat() {
   };
 
   const applyAssistantFeedbackFinalityMetadata = (msgs, decisionIsFinal) => (
-    (Array.isArray(msgs) ? msgs : []).map((msg) => {
-      if (!msg || msg.role !== 'assistant') return msg;
-      return {
-        ...msg,
-        metadata: {
-          ...(msg.metadata || {}),
-          feedback_finality_verified: decisionIsFinal === true,
-        },
-      };
-    })
+    applyRecordScopedAssistantFeedbackFinality(msgs, decisionIsFinal)
   );
 
   const buildAssistantFinalitySnapshot = (assistantMsg, pollFinality = null) => {
@@ -1693,14 +1688,20 @@ export default function Chat() {
     const sanitized = validateAndSanitizeMessages(merged);
     const pollFinality = options?.pollFinality || null;
     const finalityDecision = evaluateAssistantSnapshotFinality(sanitized, source, pollFinality);
+    const shouldNormalizeLegacyFinalSnapshot =
+      chatOrchestratorV2EnabledRef.current !== true &&
+      finalityDecision.isFinal === true;
+    const canonicalizedSnapshot = shouldNormalizeLegacyFinalSnapshot
+      ? normalizeLegacyActiveTurnFinalSnapshot(sanitized).messages
+      : sanitized;
     instrumentationRef.current.TOTAL_MESSAGES_PROCESSED += newMessages.length;
 
     // Compare with last confirmed state
-    if (sanitized.length < lastConfirmedMessagesRef.current.length) {
+    if (canonicalizedSnapshot.length < lastConfirmedMessagesRef.current.length) {
       console.log(`[${source}] ⚠️ Rejecting update - fewer messages than confirmed state`);
       logS2DebugStateUpdate({
         source,
-        incomingMessages: sanitized,
+        incomingMessages: canonicalizedSnapshot,
         accepted: false,
         rejectedReasonCode: 'rejected_shorter_than_confirmed',
         preservedExistingGuardedReplacement,
@@ -1712,17 +1713,17 @@ export default function Chat() {
 
     const assistantContentChanged = hasAssistantSnapshotContentChange(
       lastConfirmedMessagesRef.current,
-      sanitized
+      canonicalizedSnapshot
     );
     const visibleAssistantMutation = hasVisibleAssistantMutation(
       lastConfirmedMessagesRef.current,
-      sanitized
+      canonicalizedSnapshot
     );
     if (visibleAssistantMutation) {
       console.warn(`[${source}] ⛔ IMMUTABLE ASSISTANT CONTENT: blocked mutation of visible assistant prose`);
       logS2DebugStateUpdate({
       source,
-      incomingMessages: sanitized,
+      incomingMessages: canonicalizedSnapshot,
       accepted: false,
       rejectedReasonCode: 'rejected_visible_assistant_immutable',
       preservedExistingGuardedReplacement,
@@ -1741,7 +1742,7 @@ export default function Chat() {
       console.warn(`[${source}] ⛔ NON-FINAL ASSISTANT SNAPSHOT: blocked assistant content change`);
       logS2DebugStateUpdate({
         source,
-        incomingMessages: sanitized,
+        incomingMessages: canonicalizedSnapshot,
         accepted: false,
         rejectedReasonCode: finalityDecision.reason || 'rejected_non_final_assistant_change',
         preservedExistingGuardedReplacement,
@@ -1753,7 +1754,7 @@ export default function Chat() {
     }
 
     // CRITICAL: Check for duplicate assistant messages in new batch
-    const assistantMessages = sanitized.filter((m) => m.role === 'assistant');
+    const assistantMessages = canonicalizedSnapshot.filter((m) => m.role === 'assistant');
     const assistantContents = assistantMessages.map((m) => String(m.content).substring(0, 100));
     const uniqueContents = new Set(assistantContents);
 
@@ -1763,7 +1764,7 @@ export default function Chat() {
 
       // Further deduplicate by content
       const seenContents = new Set();
-      const fullyDeduplicated = sanitized.filter((msg) => {
+      const fullyDeduplicated = canonicalizedSnapshot.filter((msg) => {
         if (msg.role !== 'assistant') return true;
         const contentKey = String(msg.content).substring(0, 100);
         if (seenContents.has(contentKey)) {
@@ -1795,17 +1796,17 @@ export default function Chat() {
 
     // Check if this is actually new content
     const lastConfirmedAssistant = lastConfirmedMessagesRef.current.filter((m) => m.role === 'assistant').pop();
-    const newAssistant = sanitized.filter((m) => m.role === 'assistant').pop();
+    const newAssistant = canonicalizedSnapshot.filter((m) => m.role === 'assistant').pop();
 
     if (lastConfirmedAssistant && newAssistant) {
       const oldContent = String(lastConfirmedAssistant.content);
       const newContent = String(newAssistant.content);
 
-      if (oldContent === newContent && sanitized.length === lastConfirmedMessagesRef.current.length) {
+      if (oldContent === newContent && canonicalizedSnapshot.length === lastConfirmedMessagesRef.current.length) {
         console.log(`[${source}] ⚠️ Rejecting update - no new content detected`);
         logS2DebugStateUpdate({
           source,
-          incomingMessages: sanitized,
+          incomingMessages: canonicalizedSnapshot,
           accepted: false,
           rejectedReasonCode: 'rejected_no_new_content',
           preservedExistingGuardedReplacement,
@@ -1827,7 +1828,7 @@ export default function Chat() {
       // overwrite of the previous reply.  Applying the guard in that case would
       // silently block the new reply and cause the stuck-response bug (reply
       // stored in the backend but never shown live without exit/re-entry).
-      const isSameMessageCount = sanitized.length === lastConfirmedMessagesRef.current.length;
+      const isSameMessageCount = canonicalizedSnapshot.length === lastConfirmedMessagesRef.current.length;
       // When either message lacks an id we conservatively assume they could be
       // the same message (fail-closed: keep protection when uncertain).  The
       // primary gate is isSameMessageCount — a growing batch always bypasses
@@ -1842,7 +1843,7 @@ export default function Chat() {
         console.warn(`[${source}] ⚠️ CONTENT REGRESSION BLOCKED: new(${newLen}) < old(${oldLen})*0.75 — rejecting`);
         logS2DebugStateUpdate({
           source,
-          incomingMessages: sanitized,
+          incomingMessages: canonicalizedSnapshot,
           accepted: false,
           rejectedReasonCode: 'rejected_content_regression_guard',
           preservedExistingGuardedReplacement,
@@ -1863,7 +1864,7 @@ export default function Chat() {
       const confirmedAssistants = lastConfirmedMessagesRef.current.filter(
         (m) => m && m.role === 'assistant'
       );
-      const wouldModifyFinalized = sanitized.some((msg, idx) => {
+      const wouldModifyFinalized = canonicalizedSnapshot.some((msg, idx) => {
         if (!msg || msg.role !== 'assistant') return false;
         const key = getAssistantIdentityKey(msg, idx);
         if (!key || !finalizedBucket.has(key)) return false;
@@ -1876,7 +1877,7 @@ export default function Chat() {
         console.warn(`[${source}] ⛔ IMMUTABILITY: blocked modification of finalized assistant message`);
         logS2DebugStateUpdate({
           source,
-          incomingMessages: sanitized,
+          incomingMessages: canonicalizedSnapshot,
           accepted: false,
           rejectedReasonCode: 'rejected_immutability_guard',
           preservedExistingGuardedReplacement,
@@ -1888,10 +1889,10 @@ export default function Chat() {
     }
 
     // Update is safe - commit to state
-    console.log(`[${source}] ✅ SAFE UPDATE: ${sanitized.length} messages`);
+    console.log(`[${source}] ✅ SAFE UPDATE: ${canonicalizedSnapshot.length} messages`);
     instrumentationRef.current.SAFE_UPDATES++;
     const finalityTaggedMessages = applyAssistantFeedbackFinalityMetadata(
-      sanitized,
+      canonicalizedSnapshot,
       finalityDecision.isFinal === true
     );
     lastConfirmedMessagesRef.current = finalityTaggedMessages;
@@ -2398,7 +2399,7 @@ export default function Chat() {
             // V8-K: finalize the committed messages so subsequent subscription
             // callbacks (e.g. reconnect replays) cannot overwrite the bubble.
             if (subscriptionFinality.isFinal) {
-              markAssistantMessagesFinalized(currentConversationId, processedMessages);
+              markAssistantMessagesFinalized(currentConversationId, lastConfirmedMessagesRef.current);
             }
 
             // Emit FINAL STABILITY SUMMARY for this send cycle
@@ -4160,7 +4161,7 @@ export default function Chat() {
                 // V8-K: Finalize all committed assistant messages so that subsequent
                 // subscription callbacks (late streaming chunks or socket reconnects)
                 // cannot overwrite the bubble that was just atomically rendered.
-                markAssistantMessagesFinalized(convId, guardedPoll);
+                markAssistantMessagesFinalized(convId, lastConfirmedMessagesRef.current);
                 emitStabilitySummary();
               } else if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
                 // Spec §1: safeUpdateMessages rejected — rejection is non-terminal.

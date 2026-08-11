@@ -1,6 +1,7 @@
 import React from 'react';
 import MessageBubble from './MessageBubble';
 import { getMessageRenderKey } from './utils/messageRenderKey';
+import { resolveFeedbackMessageIndex } from './utils/feedbackIndex';
 
 /**
  * Renders the list of chat messages for the active therapist chat runtime.
@@ -18,12 +19,13 @@ export default function MessageList({ messages, visibleCount, conversationId, se
         message.role === 'assistant' && prevMsg?.role === 'user'
           ? prevMsg?.content
           : undefined;
+      const feedbackMessageIndex = resolveFeedbackMessageIndex(message, index);
       return (
         <MessageBubble
           key={getMessageRenderKey(message, index, conversationId)}
           message={message}
           conversationId={conversationId}
-          messageIndex={index}
+          messageIndex={feedbackMessageIndex}
           agentName="cbt_therapist"
           context="chat"
           userMessage={prevUserMessage}
