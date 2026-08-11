@@ -6,6 +6,13 @@ export function claimConversationMemoryWrite(writeTracker, conversationId) {
   return true;
 }
 
+/**
+ * Claims a conversation ID and invokes the supplied summarization trigger once.
+ *
+ * Returns true only when the write was actually triggered. Returns false when
+ * the conversation was already claimed, the threshold gate is not satisfied, or
+ * the supplied trigger is not callable.
+ */
 export function triggerConversationMemoryWriteOnce({
   writeTracker,
   conversationId,
