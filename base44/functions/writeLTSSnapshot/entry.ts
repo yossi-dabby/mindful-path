@@ -188,11 +188,37 @@ function sanitizeLTSRecord(
   return record;
 }
 
+// ─── Runtime-authority gate ───────────────────────────────────────────────────
+
+/**
+ * Returns true when the LTS write gate is open.
+ *
+ * When THERAPIST_RUNTIME_APPLY_ENABLED === 'true' (runtime-authority mode),
+ * requires ALL of VITE_THERAPIST_UPGRADE_ENABLED,
+ * VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED, and
+ * VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED to be exactly 'true'.
+ *
+ * Otherwise preserves the exact legacy gate:
+ * THERAPIST_UPGRADE_LONGITUDINAL_ENABLED === 'true'.
+ */
+function isWriteLTSSnapshotEnabled(
+  readEnv: (name: string) => string | undefined,
+): boolean {
+  if (readEnv('THERAPIST_RUNTIME_APPLY_ENABLED') === 'true') {
+    return (
+      readEnv('VITE_THERAPIST_UPGRADE_ENABLED') === 'true' &&
+      readEnv('VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') === 'true' &&
+      readEnv('VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED') === 'true'
+    );
+  }
+  return readEnv('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED') === 'true';
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
-  // ── Gate: THERAPIST_UPGRADE_LONGITUDINAL_ENABLED must be 'true' ────────────
-  const flagEnabled = Deno.env.get(LTS_FLAG_ENV) === 'true';
+  // ── Gate: runtime-authority-aware LTS write gate ───────────────────────────
+  const flagEnabled = isWriteLTSSnapshotEnabled((name) => Deno.env.get(name));
   if (!flagEnabled) {
     return Response.json(
       {
