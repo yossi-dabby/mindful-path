@@ -379,6 +379,42 @@ export function isContinuityEnrichmentEnabled() {
 }
 
 /**
+ * Resolves whether conversation-memory continuity enrichment is enabled,
+ * optionally honouring a runtime flag snapshot.
+ *
+ * Runtime authority applies when the snapshot is accepted
+ * (transport_status=available, received=true, APPLY=true).
+ * Under accepted runtime authority enrichment is TRUE only when ALL of:
+ *   THERAPIST_RUNTIME_APPLY_ENABLED, THERAPIST_UPGRADE_ENABLED,
+ *   THERAPIST_UPGRADE_SUMMARIZATION_ENABLED, THERAPIST_UPGRADE_CONTINUITY_ENABLED
+ * are true in the snapshot.  MASTER=false hard-rolls-back enrichment.
+ *
+ * When runtime authority is unavailable or APPLY is not true, the function
+ * preserves the exact legacy isContinuityEnrichmentEnabled() result.
+ *
+ * No raw message content is affected by this gate.
+ *
+ * @param {object|null|undefined} snapshot - Runtime flag snapshot (may be absent).
+ * @returns {boolean}
+ */
+export function resolveRuntimeContinuityEnrichmentFlag(snapshot) {
+  if (
+    snapshot &&
+    snapshot.transport_status === 'available' &&
+    snapshot.received === true &&
+    snapshot.flags &&
+    snapshot.flags['THERAPIST_RUNTIME_APPLY_ENABLED'] === true
+  ) {
+    return (
+      snapshot.flags['THERAPIST_UPGRADE_ENABLED'] === true &&
+      snapshot.flags['THERAPIST_UPGRADE_SUMMARIZATION_ENABLED'] === true &&
+      snapshot.flags['THERAPIST_UPGRADE_CONTINUITY_ENABLED'] === true
+    );
+  }
+  return isContinuityEnrichmentEnabled();
+}
+
+/**
  * Maximum number of active Goal records read during enrichment.
  * Bounded to prevent large entity reads from slowing down the write path.
  *
@@ -687,7 +723,7 @@ export function triggerConversationEndSummarization(
 
       // Phase 3 enrichment: Goal + CaseFormulation data (fail-closed).
       // Only runs when both summarization AND continuity flags are active.
-      if (entities && isContinuityEnrichmentEnabled()) {
+      if (entities && resolveRuntimeContinuityEnrichmentFlag(runtimeSnapshot)) {
         try {
           memoryPayload = await enrichConversationMemoryPayload(memoryPayload, entities);
         } catch {
@@ -706,7 +742,7 @@ export function triggerConversationEndSummarization(
       // Wave 3B: recompute and upsert the LTS snapshot after the conversation
       // memory write has succeeded.  Fire-and-forget — failure here never
       // affects the Chat.jsx requestSummary path.
-      if (isLongitudinalEnabled()) {
+      if (resolveRuntimeLongitudinalFlag(runtimeSnapshot)) {
         _fireLTSWrite(base44, invoker);
       }
     } catch (error) {
@@ -883,6 +919,41 @@ export function isLongitudinalEnabled() {
     isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') &&
     isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED')
   );
+}
+
+/**
+ * Resolves whether the Wave 3B LTS write path is enabled, optionally
+ * honouring a runtime flag snapshot.
+ *
+ * Runtime authority applies when the snapshot is accepted
+ * (transport_status=available, received=true, APPLY=true).
+ * Under accepted runtime authority LTS write is TRUE only when ALL of:
+ *   THERAPIST_RUNTIME_APPLY_ENABLED, THERAPIST_UPGRADE_ENABLED,
+ *   THERAPIST_UPGRADE_SUMMARIZATION_ENABLED, THERAPIST_UPGRADE_LONGITUDINAL_ENABLED
+ * are true in the snapshot.
+ *
+ * When runtime authority is unavailable or APPLY is not true, the function
+ * preserves the exact legacy isLongitudinalEnabled() result.
+ * The fire-and-forget UX is not changed by this gate.
+ *
+ * @param {object|null|undefined} snapshot - Runtime flag snapshot (may be absent).
+ * @returns {boolean}
+ */
+export function resolveRuntimeLongitudinalFlag(snapshot) {
+  if (
+    snapshot &&
+    snapshot.transport_status === 'available' &&
+    snapshot.received === true &&
+    snapshot.flags &&
+    snapshot.flags['THERAPIST_RUNTIME_APPLY_ENABLED'] === true
+  ) {
+    return (
+      snapshot.flags['THERAPIST_UPGRADE_ENABLED'] === true &&
+      snapshot.flags['THERAPIST_UPGRADE_SUMMARIZATION_ENABLED'] === true &&
+      snapshot.flags['THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'] === true
+    );
+  }
+  return isLongitudinalEnabled();
 }
 
 /**

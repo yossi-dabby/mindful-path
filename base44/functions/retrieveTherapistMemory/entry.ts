@@ -79,12 +79,36 @@ const MAX_MEMORIES = 20;
 
 const SOURCE = 'therapist_structured';
 
+// ─── Runtime-authority gate ───────────────────────────────────────────────────
+
+/**
+ * Returns true when the memory-read gate is open.
+ *
+ * When THERAPIST_RUNTIME_APPLY_ENABLED === 'true' (runtime-authority mode),
+ * requires BOTH VITE_THERAPIST_UPGRADE_ENABLED and
+ * VITE_THERAPIST_UPGRADE_MEMORY_ENABLED to be exactly 'true'.
+ *
+ * Otherwise preserves the exact legacy gate:
+ * THERAPIST_UPGRADE_MEMORY_ENABLED === 'true'.
+ */
+function isRetrieveTherapistMemoryEnabled(
+  readEnv: (name: string) => string | undefined,
+): boolean {
+  if (readEnv('THERAPIST_RUNTIME_APPLY_ENABLED') === 'true') {
+    return (
+      readEnv('VITE_THERAPIST_UPGRADE_ENABLED') === 'true' &&
+      readEnv('VITE_THERAPIST_UPGRADE_MEMORY_ENABLED') === 'true'
+    );
+  }
+  return readEnv('THERAPIST_UPGRADE_MEMORY_ENABLED') === 'true';
+}
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
-  // ── Gate: THERAPIST_UPGRADE_MEMORY_ENABLED must be 'true' ──────────────────
-  // Fail-open: return empty memories (not an error) when flag is off.
-  const flagEnabled = Deno.env.get(THERAPIST_MEMORY_FLAG_ENV) === 'true';
+  // ── Gate: runtime-authority-aware memory-read gate ─────────────────────────
+  // Fail-open: return empty memories (not an error) when gate is closed.
+  const flagEnabled = isRetrieveTherapistMemoryEnabled((name) => Deno.env.get(name));
   if (!flagEnabled) {
     return Response.json({
       memories: [],
