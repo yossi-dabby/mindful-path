@@ -153,10 +153,7 @@ describe('Session-start opener fallback controller', () => {
     expect(harness.fetchConversation).toHaveBeenCalledOnce();
     expect(harness.safeUpdateMessages).toHaveBeenCalledOnce();
     expect(harness.safeUpdateMessages.mock.calls[0][1]).toBe('SessionStartFallback');
-    expect(harness.markAssistantMessagesFinalized).toHaveBeenCalledWith(
-      'conv-first-session',
-      harness.lastConfirmedRef.current
-    );
+    expect(harness.markAssistantMessagesFinalized).not.toHaveBeenCalled();
     expect(harness.setIsLoading).toHaveBeenLastCalledWith(false);
     expect(harness.clearLoadingTimeout).toHaveBeenCalled();
     expect(harness.controller.getState().active).toBe(false);
@@ -191,7 +188,7 @@ describe('Session-start opener fallback controller', () => {
 
     expect(duplicateAccepted).toBe(false);
     expect(harness.lastConfirmedRef.current.filter((msg) => msg.role === 'assistant')).toHaveLength(1);
-    expect(harness.markAssistantMessagesFinalized).toHaveBeenCalledOnce();
+    expect(harness.markAssistantMessagesFinalized).not.toHaveBeenCalled();
   });
 
   it('uses the processed visible final opener and never surfaces stored progress bubbles', async () => {
