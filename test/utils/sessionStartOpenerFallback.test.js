@@ -286,6 +286,178 @@ describe('Session-start opener fallback controller', () => {
   });
 });
 
+describe('Markerless stability — two-consecutive-read acceptance', () => {
+  // A markerless assistant has content but no explicit final status or metadata.
+  function makeMarkerlessAssistant(content = 'Welcome to your first session.', id = 'a-markerless') {
+    return { role: 'assistant', id, content };
+  }
+
+  it('accepts a markerless canonical assistant after two identical consecutive reads', async () => {
+    const assistant = makeMarkerlessAssistant();
+    const harness = createHarness({
+      fetchConversation: vi.fn(async () => ({
+        messages: [makeUserMessage(), assistant],
+      })),
+      // Use a lifecycle with enough room for the two stability reads.
+      getLifecycle: () => ({ pollDelays: [0, 0, 0, 0, 0], maxPollAttempts: 5 }),
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    // Must be committed exactly once.
+    expect(harness.safeUpdateMessages).toHaveBeenCalledOnce();
+    expect(harness.safeUpdateMessages.mock.calls[0][1]).toBe('SessionStartFallback');
+    // The finality reason must reflect local stable snapshot decision.
+    const { pollFinality } = harness.safeUpdateMessages.mock.calls[0][2];
+    expect(pollFinality.isFinal).toBe(true);
+    expect(pollFinality.reason).toBe('session_start_post_completion_stable_snapshot');
+    expect(harness.setIsLoading).toHaveBeenLastCalledWith(false);
+    expect(harness.controller.getState().active).toBe(false);
+  });
+
+  it('does not commit a markerless assistant seen only once before exhaustion', async () => {
+    const assistant = makeMarkerlessAssistant();
+    let callCount = 0;
+    const harness = createHarness({
+      fetchConversation: vi.fn(async () => {
+        callCount += 1;
+        if (callCount === 1) return { messages: [makeUserMessage(), assistant] };
+        // Return no assistant on subsequent reads to prevent stability.
+        return { messages: [makeUserMessage()] };
+      }),
+      getLifecycle: () => ({ pollDelays: [0, 0], maxPollAttempts: 2 }),
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    expect(harness.safeUpdateMessages).not.toHaveBeenCalled();
+    expect(harness.setIsLoading).toHaveBeenLastCalledWith(false);
+  });
+
+  it('resets the stability counter when the canonical assistant fingerprint changes between reads', async () => {
+    let callCount = 0;
+    const harness = createHarness({
+      fetchConversation: vi.fn(async () => {
+        callCount += 1;
+        // First read: progress snapshot.
+        if (callCount === 1) {
+          return { messages: [makeUserMessage(), makeMarkerlessAssistant('Thinking…', 'a-progress')] };
+        }
+        // Subsequent reads: different final content — fingerprint changes.
+        return { messages: [makeUserMessage(), makeMarkerlessAssistant('Final opener text.', 'a-final')] };
+      }),
+      // 5 attempts: read 1 (progress), reads 2-3 (first+second identical final) → commit.
+      getLifecycle: () => ({ pollDelays: [0, 0, 0, 0, 0], maxPollAttempts: 5 }),
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    // Must be committed — but only with the final content, not the progress snapshot.
+    expect(harness.safeUpdateMessages).toHaveBeenCalledOnce();
+    const committedMessages = harness.safeUpdateMessages.mock.calls[0][0];
+    const committedAssistant = committedMessages.filter((m) => m.role === 'assistant').pop();
+    expect(committedAssistant.content).toBe('Final opener text.');
+    // Progress snapshot must never have been committed.
+    const { pollFinality } = harness.safeUpdateMessages.mock.calls[0][2];
+    expect(pollFinality.reason).toBe('session_start_post_completion_stable_snapshot');
+  });
+
+  it('does not commit an empty snapshot (no visible assistant)', async () => {
+    const harness = createHarness({
+      fetchConversation: vi.fn(async () => ({ messages: [] })),
+      getLifecycle: () => ({ pollDelays: [0, 0], maxPollAttempts: 2 }),
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    expect(harness.safeUpdateMessages).not.toHaveBeenCalled();
+    expect(harness.setIsLoading).toHaveBeenLastCalledWith(false);
+  });
+
+  it('cancelled stale controller cannot update visible messages after conversation switch', async () => {
+    let resolveFetch;
+    const fetchConversation = vi.fn(
+      () => new Promise((resolve) => { resolveFetch = resolve; })
+    );
+    const harness = createHarness({ fetchConversation });
+
+    harness.controller.start('conv-first-session');
+    const attemptPromise = harness.scheduler.runNext();
+
+    // Simulate conversation switch before fetch resolves.
+    harness.state.currentConversationId = 'conv-other';
+    resolveFetch({ messages: [makeUserMessage(), makeMarkerlessAssistant()] });
+    await attemptPromise;
+
+    expect(harness.safeUpdateMessages).not.toHaveBeenCalled();
+    expect(harness.controller.getState().active).toBe(false);
+  });
+
+  it('progress plus final records normalize to one canonical visible opener via buildVisibleConversationMessages', async () => {
+    const progress = { role: 'assistant', id: 'a-progress', content: 'Thinking…' };
+    const finalOpener = makeMarkerlessAssistant('Welcome to your first session.');
+    const buildVisibleConversationMessages = vi.fn((messages) => {
+      // Simulate PR #929 normalization: suppress the progress bubble.
+      return messages.filter((m) => m.id !== 'a-progress');
+    });
+    const harness = createHarness({
+      fetchConversation: vi.fn(async () => ({
+        messages: [makeUserMessage(), progress, finalOpener],
+      })),
+      buildVisibleConversationMessages,
+      getLifecycle: () => ({ pollDelays: [0, 0, 0, 0, 0], maxPollAttempts: 5 }),
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    expect(harness.safeUpdateMessages).toHaveBeenCalledOnce();
+    const committed = harness.safeUpdateMessages.mock.calls[0][0];
+    // Progress bubble must not appear in committed messages.
+    expect(committed.some((m) => m.content === 'Thinking…')).toBe(false);
+    expect(committed.some((m) => m.content === 'Welcome to your first session.')).toBe(true);
+  });
+});
+
+describe('Explicit-final path preserved', () => {
+  it('accepts an explicit-final opener immediately on the first read', async () => {
+    const harness = createHarness({
+      // Default fetchConversation returns assistant with status: 'final'.
+      getLifecycle: () => ({ pollDelays: [0, 0, 0, 0, 0], maxPollAttempts: 5 }),
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    // One authoritative read is sufficient — no stability wait needed.
+    expect(harness.fetchConversation).toHaveBeenCalledOnce();
+    expect(harness.safeUpdateMessages).toHaveBeenCalledOnce();
+    const { pollFinality } = harness.safeUpdateMessages.mock.calls[0][2];
+    expect(pollFinality.isFinal).toBe(true);
+    expect(pollFinality.reason).toBe('explicit_final_status');
+  });
+});
+
+describe('Feedback targeting — opener receives no feedback controls', () => {
+  it('MessageBubble gates feedback controls on feedback_finality_verified metadata', () => {
+    const BUBBLE_SOURCE = readFileSync(
+      resolve('src/components/chat/MessageBubble.jsx'),
+      'utf8'
+    );
+    // PR #930: feedback is conditional on the feedback_finality_verified metadata flag,
+    // which is set by applyAssistantFeedbackFinalityMetadata only when the finality
+    // decision is true. The opener committed through the fallback carries this flag
+    // according to the pollFinality decision passed to safeUpdateMessages.
+    expect(BUBBLE_SOURCE).toContain('feedback_finality_verified');
+    // The tag is applied per-message in Chat.jsx — preserving the existing behavior.
+    expect(CHAT_SOURCE).toContain('applyAssistantFeedbackFinalityMetadata');
+  });
+});
+
 describe('Session-start opener fallback integration guards', () => {
   it('starts the opener fallback only after the automatic first-session addMessage succeeds', () => {
     const addMessageIndex = CHAT_SOURCE.indexOf('await base44.agents.addMessage(conversation, {');
