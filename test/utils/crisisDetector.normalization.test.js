@@ -30,7 +30,7 @@ import { describe, it, expect } from 'vitest';
 import {
   detectCrisisLanguage,
   detectCrisisWithReason,
-} from '../../src/components/utils/crisisDetector.jsx';
+} from '../../src/components/utils/crisisDetector.js';
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 

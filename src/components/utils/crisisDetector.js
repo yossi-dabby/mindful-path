@@ -200,6 +200,90 @@ export function isGeneralDistressFalsePositive(message) {
     const hasCrisisPattern = CRISIS_PATTERNS.some(p => p.test(message));
     return !hasCrisisPattern;
 }
+/**
+ * Clause splitter: splits text on coordinating conjunctions, semicolons, and
+ * sentence boundaries so that negation/crisis checking can be scoped per clause.
+ * Handles Hebrew conjunction וְ/ו prefix (ו + word) and Latin conjunctions.
+ */
+function splitIntoClauses(text) {
+    // Split on: sentence-ending punctuation, semicolons, coordinating conjunctions
+    // (but, however, yet, although, though, while, whereas, אבל, אך, אולם, אלא, ברם)
+    // and the Hebrew vav copula "ו" when it begins a word after a space.
+    return text
+        .split(/[.!?;]|\s+(?:but|however|yet|although|though|while|whereas|אבל|אך|אולם|אלא|ברם)\s+|\s+(?=ו(?=[^\s]))/i)
+        .map(s => s.trim())
+        .filter(Boolean);
+}
+
+/**
+ * A negation may suppress only the concrete crisis occurrence that follows it
+ * directly (within at most three intervening tokens). It must never suppress
+ * another affirmative occurrence later in the same clause.
+ */
+const DIRECT_NEGATION_BEFORE_MATCH_RE = /(?:^|\s)(?:לא|אינ\S*|אין|איני|לאו|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3}$/i;
+
+function collectCrisisOccurrences(text) {
+    const occurrences = new Map();
+    for (const pattern of CRISIS_PATTERNS) {
+        const flags = pattern.flags.replace(/g/g, '').replace(/y/g, '') + 'g';
+        const matcher = new RegExp(pattern.source, flags);
+        let match;
+        while ((match = matcher.exec(text)) !== null) {
+            const start = match.index;
+            const end = start + match[0].length;
+            occurrences.set(`${start}:${end}`, { start, end });
+            if (match[0].length === 0) matcher.lastIndex += 1;
+        }
+    }
+    return [...occurrences.values()].sort((a, b) => a.start - b.start || a.end - b.end);
+}
+
+function directNegationBefore(text, occurrenceStart) {
+    const prefix = text.slice(0, occurrenceStart).replace(/\s+/g, ' ');
+    const match = DIRECT_NEGATION_BEFORE_MATCH_RE.exec(prefix);
+    if (!match) return null;
+    return { start: match.index, end: prefix.length };
+}
+
+/**
+ * Returns true only when every concrete crisis-pattern occurrence is directly
+ * negated. Every occurrence is evaluated separately; one negated occurrence
+ * can never hide a later affirmative occurrence of the same pattern.
+ */
+export function isDirectNegationFalsePositive(message) {
+    if (!message || typeof message !== 'string') return false;
+    const clauses = splitIntoClauses(message);
+    let foundNegatedCrisis = false;
+
+    for (const clause of clauses) {
+        const clauseLower = clause.toLowerCase();
+        const clauseStripped = clauseLower.replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
+        const variants = clauseStripped === clauseLower
+            ? [clauseLower]
+            : [clauseLower, clauseStripped];
+
+        for (const variant of variants) {
+            const occurrences = collectCrisisOccurrences(variant);
+            for (let index = 0; index < occurrences.length; index += 1) {
+                const occurrence = occurrences[index];
+                const negation = directNegationBefore(variant, occurrence.start);
+                if (!negation) return false;
+
+                // A negator that already spans an earlier crisis occurrence cannot
+                // also negate a later occurrence in the same clause.
+                const interveningCrisis = occurrences
+                    .slice(0, index)
+                    .some(previous => previous.start >= negation.start && previous.end <= occurrence.start);
+                if (interveningCrisis) return false;
+
+                foundNegatedCrisis = true;
+            }
+        }
+    }
+
+    return foundNegatedCrisis;
+}
+
 export function detectCrisisLanguage(message) {
     if (!message || typeof message !== 'string') {
         return false;
@@ -215,7 +299,13 @@ export function detectCrisisLanguage(message) {
     // Also test a punctuation-stripped version for boundary matching
     const stripped = original.replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
     const normalized = normalizeForDetection(message);
-    return CRISIS_PATTERNS.some(pattern => pattern.test(original) || pattern.test(stripped) || pattern.test(normalized));
+    // If no crisis pattern matches at all, return false immediately.
+    const hasCrisis = CRISIS_PATTERNS.some(pattern => pattern.test(original) || pattern.test(stripped) || pattern.test(normalized));
+    if (!hasCrisis) return false;
+    // Crisis pattern matched — check whether every match is directly negated
+    // within its own clause. If so, suppress Layer-1 escalation and let Layer-2 decide.
+    if (isDirectNegationFalsePositive(message)) return false;
+    return true;
 }
 /**
  * Detect crisis language and return reason code if detected
