@@ -1924,9 +1924,7 @@ export default function Chat() {
 
   sessionStartOpenerFallbackDepsRef.current = {
     buildVisibleConversationMessages,
-    evaluatePollingAssistantFinality,
     safeUpdateMessages,
-    markAssistantMessagesFinalized,
     setIsLoading,
     emitStabilitySummary,
   };
@@ -1937,14 +1935,8 @@ export default function Chat() {
       buildVisibleConversationMessages: (...args) => (
         sessionStartOpenerFallbackDepsRef.current.buildVisibleConversationMessages(...args)
       ),
-      evaluatePollingAssistantFinality: (...args) => (
-        sessionStartOpenerFallbackDepsRef.current.evaluatePollingAssistantFinality(...args)
-      ),
       safeUpdateMessages: (...args) => (
         sessionStartOpenerFallbackDepsRef.current.safeUpdateMessages(...args)
-      ),
-      markAssistantMessagesFinalized: (...args) => (
-        sessionStartOpenerFallbackDepsRef.current.markAssistantMessagesFinalized(...args)
       ),
       getCurrentConversationId: () => currentConversationIdRef.current,
       getLastConfirmedMessages: () => lastConfirmedMessagesRef.current,

@@ -19,6 +19,22 @@ export function getSessionStartFallbackDelayForAttempt(
   return pollDelays[Math.min(attemptIndex, pollDelays.length - 1)];
 }
 
+function isFinalAssistantMessage(assistantMsg) {
+  const statusValue = typeof assistantMsg?.status === 'string'
+    ? assistantMsg.status.trim().toLowerCase()
+    : '';
+  const metadataStatusValue = typeof assistantMsg?.metadata?.status === 'string'
+    ? assistantMsg.metadata.status.trim().toLowerCase()
+    : '';
+  const finalStatuses = new Set(['done', 'completed', 'complete', 'final', 'finished']);
+  if (statusValue && finalStatuses.has(statusValue)) return true;
+  if (metadataStatusValue && finalStatuses.has(metadataStatusValue)) return true;
+  if (assistantMsg?.metadata?.is_final === true) return true;
+  if (assistantMsg?.metadata?.final === true) return true;
+  if (assistantMsg?.metadata?.completed === true) return true;
+  return false;
+}
+
 export function hasVisibleAssistantMessage(messages) {
   const latestAssistant = selectLatestAssistantResponse(messages);
   return Boolean(
@@ -47,9 +63,7 @@ export function createSessionStartOpenerFallbackController(options) {
   const {
     fetchConversation,
     buildVisibleConversationMessages,
-    evaluatePollingAssistantFinality,
     safeUpdateMessages,
-    markAssistantMessagesFinalized,
     getCurrentConversationId,
     getLastConfirmedMessages,
     getSessionLanguage,
@@ -156,7 +170,11 @@ export function createSessionStartOpenerFallbackController(options) {
         conversation?.messages || [],
         getSessionLanguage()
       );
-      const pollFinality = evaluatePollingAssistantFinality(visibleMessages);
+      const latestAssistant = selectLatestAssistantResponse(visibleMessages);
+      const pollFinality = {
+        isFinal: latestAssistant ? isFinalAssistantMessage(latestAssistant.msg) : false,
+        reason: 'explicit_final_status',
+      };
 
       if (hasVisibleAssistantMessage(visibleMessages) && pollFinality.isFinal === true) {
         const updated = safeUpdateMessages(visibleMessages, 'SessionStartFallback', {
@@ -164,7 +182,6 @@ export function createSessionStartOpenerFallbackController(options) {
         });
 
         if (updated) {
-          markAssistantMessagesFinalized(conversationId, visibleMessages);
           stop('visible_commit', {
             clearLoading: true,
             clearLoadingTimeout: true,
