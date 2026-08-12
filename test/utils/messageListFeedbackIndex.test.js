@@ -1,4 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('../../src/components/chat/MessageBubble.jsx', () => ({
+  default: function MockMessageBubble() {
+    return null;
+  },
+}));
 
 import MessageList from '../../src/components/chat/MessageList.jsx';
 
