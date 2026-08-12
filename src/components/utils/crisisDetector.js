@@ -200,6 +200,68 @@ export function isGeneralDistressFalsePositive(message) {
     const hasCrisisPattern = CRISIS_PATTERNS.some(p => p.test(message));
     return !hasCrisisPattern;
 }
+/**
+ * Clause splitter: splits text on coordinating conjunctions, semicolons, and
+ * sentence boundaries so that negation/crisis checking can be scoped per clause.
+ * Handles Hebrew conjunction וְ/ו prefix (ו + word) and Latin conjunctions.
+ */
+function splitIntoClauses(text) {
+    // Split on: sentence-ending punctuation, semicolons, coordinating conjunctions
+    // (but, however, yet, although, though, while, whereas, אבל, אך, אולם, אלא, ברם)
+    // and the Hebrew vav copula "ו" when it begins a word after a space.
+    return text
+        .split(/[.!?;]|\s+(?:but|however|yet|although|though|while|whereas|אבל|אך|אולם|אלא|ברם)\s+|\s+(?=ו(?=[^\s]))/i)
+        .map(s => s.trim())
+        .filter(Boolean);
+}
+
+/**
+ * Negation words immediately before a crisis phrase suppress that match within the same clause.
+ * Hebrew: לא, אינ*, אין, איני, לאו — English: not, no, never, don't, do not, am not, I'm not.
+ */
+const NEGATION_RE = /((?:^|\s)(?:לא|אינ\S*|אין|איני|לאו|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3})/i;
+
+/**
+ * Returns true only when EVERY crisis phrase in the message is directly negated
+ * within its own clause AND no remaining clause contains an un-negated crisis phrase.
+ *
+ * Safe denial examples:
+ *   "אני לא חושב לפגוע בעצמי ואיני נמצא בסכנה כרגע." → true (safe)
+ *   "I do not want to hurt myself." → true (safe)
+ *
+ * Mixed-risk examples (must return false so crisis is still detected):
+ *   "אני לא חושב לפגוע בעצמי בדרך כלל, אבל עכשיו אני רוצה למות." → false
+ *   "I do not want to hurt myself, but I do want to die." → false
+ */
+export function isDirectNegationFalsePositive(message) {
+    if (!message || typeof message !== 'string') return false;
+    const clauses = splitIntoClauses(message);
+    let foundNegatedCrisis = false;
+    for (const clause of clauses) {
+        const clauseLower = clause.toLowerCase();
+        const clauseStripped = clauseLower.replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
+        for (const pattern of CRISIS_PATTERNS) {
+            const matchesClause = pattern.test(clauseLower) || pattern.test(clauseStripped);
+            if (!matchesClause) continue;
+            // Crisis phrase is present in this clause — check if it is directly negated.
+            // We test whether a negation word appears within ~3 tokens before the match.
+            const negationBeforeMatch = new RegExp(
+                NEGATION_RE.source + '(?:' + pattern.source + ')',
+                'i'
+            );
+            if (!negationBeforeMatch.test(clauseLower) && !negationBeforeMatch.test(clauseStripped)) {
+                // Un-negated crisis phrase found — whole message is still a crisis.
+                return false;
+            }
+            // This clause has a directly-negated crisis phrase — mark it but keep scanning.
+            foundNegatedCrisis = true;
+        }
+    }
+    // Only return true (safe) if we actually found at least one negated crisis phrase
+    // and no un-negated one survived.
+    return foundNegatedCrisis;
+}
+
 export function detectCrisisLanguage(message) {
     if (!message || typeof message !== 'string') {
         return false;
@@ -215,7 +277,13 @@ export function detectCrisisLanguage(message) {
     // Also test a punctuation-stripped version for boundary matching
     const stripped = original.replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
     const normalized = normalizeForDetection(message);
-    return CRISIS_PATTERNS.some(pattern => pattern.test(original) || pattern.test(stripped) || pattern.test(normalized));
+    // If no crisis pattern matches at all, return false immediately.
+    const hasCrisis = CRISIS_PATTERNS.some(pattern => pattern.test(original) || pattern.test(stripped) || pattern.test(normalized));
+    if (!hasCrisis) return false;
+    // Crisis pattern matched — check whether every match is directly negated
+    // within its own clause. If so, suppress Layer-1 escalation and let Layer-2 decide.
+    if (isDirectNegationFalsePositive(message)) return false;
+    return true;
 }
 /**
  * Detect crisis language and return reason code if detected
