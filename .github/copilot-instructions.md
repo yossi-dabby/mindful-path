@@ -5,6 +5,15 @@
 
 ---
 
+## 0. Branch Policy (Main Only)
+
+- **All PRs target `main`.** There is no intermediate branch.
+- **The Git `staging` branch has been retired.** Do not create, recreate, target, or require it.
+- **Changes reach `main` through reviewed PRs** with required CI validation (lint, unit tests, build, E2E) and human review.
+- **Follow-up corrections must update the same branch and PR** unless the owner explicitly requests a new PR.
+
+---
+
 ## 1. What This App Is
 
 **Mindful Path** is a production-sensitive cognitive behavioral therapy (CBT) application. It serves real users with mental health needs. The app is partially live and operationally active.

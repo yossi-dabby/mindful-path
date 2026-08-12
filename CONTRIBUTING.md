@@ -5,21 +5,20 @@
 
 ---
 
-## Branch Policy — Staging First
+## Branch Policy — Main Only
 
-**All rollout and preparation PRs must target `staging`, not `main`.**
+**All PRs must target `main`.** The Git `staging` branch has been retired and must not be recreated or targeted.
 
 | Branch | Role |
 |---|---|
-| `main` | Stable, Base44-connected production branch. Merges from `staging` only. |
-| `staging` | Rollout-validation branch. All rollout/preparation PRs target here first. |
+| `main` | Stable, Base44-connected production branch. All PRs target here directly. |
 
 ### Rules
 
-1. **Target `staging`** for all rollout/preparation work.
-2. **`main` is stable and Base44-connected.** Do not open rollout/preparation PRs directly against `main`.
-3. **Merge to `main` only after staging validation passes** — CI green, human review complete, staging environment confirmed safe.
-4. **If you opened a PR against `main` by mistake**, close it immediately and reopen it targeting `staging`.
+1. **Target `main`** for all work — there is no intermediate branch.
+2. **Changes reach `main` through reviewed PRs with required CI validation** (lint, unit tests, build, E2E).
+3. **Do not create, recreate, target, or require the `staging` Git branch.**
+4. **Follow-up corrections to an open PR must update the same PR** unless the owner explicitly requests a separate PR.
 
 ---
 
@@ -37,7 +36,7 @@ For the full safety rule set, see `docs/copilot-safety-rules.md`.
 
 ## Before Opening a PR
 
-1. Confirm your PR targets **`staging`** (not `main`).
+1. Confirm your PR targets **`main`**.
 2. Run `npm run lint` — zero errors required.
 3. Run `npm test` — all tests must pass.
 4. Run `npm run build` — build must succeed.
