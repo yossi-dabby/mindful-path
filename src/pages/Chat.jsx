@@ -2856,11 +2856,11 @@ export default function Chat() {
       const leavingId = currentConversationId;
       const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
       maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+      clearLocalAudioDraft();
       sessionStartOpenerFallbackRef.current?.stop('conversation_switch', {
         clearLoading: true,
         clearLoadingTimeout: true,
       });
-      clearLocalAudioDraft();
 
       let conversation = await base44.agents.getConversation(conversationId);
       const isSameConversation = conversationId === currentConversationId;

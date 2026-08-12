@@ -123,9 +123,10 @@ export function createSessionStartOpenerFallbackController(options) {
 
     const delay = getSessionStartFallbackDelayForAttempt(attemptIndex, lifecycle.pollDelays);
     clearTimer();
-    state.timerId = schedule(() => {
-      void executeAttempt(runId, conversationId, attemptIndex, lifecycle);
-    }, delay);
+    state.timerId = schedule(
+      () => executeAttempt(runId, conversationId, attemptIndex, lifecycle),
+      delay
+    );
   };
 
   const executeAttempt = async (runId, conversationId, attemptIndex, lifecycle) => {

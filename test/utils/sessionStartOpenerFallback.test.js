@@ -9,7 +9,7 @@ import {
 } from '../../src/lib/sessionStartOpenerFallback.js';
 
 const CHAT_SOURCE = readFileSync(
-  resolve('/home/runner/work/mindful-path/mindful-path/src/pages/Chat.jsx'),
+  resolve('src/pages/Chat.jsx'),
   'utf8'
 );
 
