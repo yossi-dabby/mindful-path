@@ -130,8 +130,8 @@ describe('test 3 — complete two-turn lifecycle produces correct canonical orde
     // Simulate what buildVisibleConversationMessages produces after all-turns pipeline:
     // At commit time, normalizeLegacyActiveTurnFinalSnapshot is applied too.
     // But normalizeAllCompletedTurnsFinalSnapshot suppresses user1's turn progress1.
-    const allTurms = pipeline(raw);
-    expect(allTurms.map((m) => m.id || m.role)).toEqual([
+    const allTurns = pipeline(raw);
+    expect(allTurns.map((m) => m.id || m.role)).toEqual([
       'u1',      // user1
       'final1',  // canonical for turn 1
       'u2',      // user2
@@ -141,7 +141,7 @@ describe('test 3 — complete two-turn lifecycle produces correct canonical orde
     ]);
 
     // Then at commit time, active-turn normalization collapses progress2 too:
-    const withActiveTurnNorm = normalizeLegacyActiveTurnFinalSnapshot(allTurms).messages;
+    const withActiveTurnNorm = normalizeLegacyActiveTurnFinalSnapshot(allTurns).messages;
     expect(withActiveTurnNorm.map((m) => m.id || m.role)).toEqual([
       'u1',   // user1
       'final1', // canonical turn 1

@@ -1688,6 +1688,7 @@ export default function Chat() {
 
   // CRITICAL: Safe state update with duplicate detection
   const safeUpdateMessages = (newMessages, source, options = {}) => {
+    const snapshotSequence = ++snapshotSequenceRef.current;
     const { merged, preservedExistingGuardedReplacement } = applyMonotonicGuardedMerge(newMessages);
     const sanitized = validateAndSanitizeMessages(merged);
     const pollFinality = options?.pollFinality || null;
