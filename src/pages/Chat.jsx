@@ -85,6 +85,7 @@ import {
 import {
   buildOutboundUserMessageContent,
   buildS2DebugLifecycleDiagnostic,
+  applyLegacyVisibleAssistantNormalizationGate,
   calculateExpectedReplyCount,
   deduplicateMessagesByLifecycleKeys,
   getAssistantIdentityKey,
@@ -1548,8 +1549,12 @@ export default function Chat() {
       };
     });
     const finalMessages = withRuntimeMetadata.filter(Boolean);
+    const visibleMessages = applyLegacyVisibleAssistantNormalizationGate(
+      finalMessages,
+      chatOrchestratorV2EnabledRef.current
+    );
     if (isS2DebugEnabled()) {
-      const latestAssistant = selectLatestAssistantResponse(finalMessages);
+      const latestAssistant = selectLatestAssistantResponse(visibleMessages);
       const assistantRawIndex =
         latestAssistant && Number.isInteger(latestAssistant.msg.__rawIndex)
           ? latestAssistant.msg.__rawIndex
@@ -1683,7 +1688,7 @@ export default function Chat() {
     } else {
       latestPipelineDiagnosticsRef.current = null;
     }
-    return finalMessages;
+    return visibleMessages;
   };
 
   // CRITICAL: Safe state update with duplicate detection
