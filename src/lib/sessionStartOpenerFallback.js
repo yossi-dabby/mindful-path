@@ -63,14 +63,7 @@ export function createSessionStartOpenerFallbackController(options) {
   const {
     fetchConversation,
     buildVisibleConversationMessages,
-    evaluatePollingAssistantFinality = (messages) => {
-      const latestAssistant = selectLatestAssistantResponse(messages);
-      const isFinal = latestAssistant ? isFinalAssistantMessage(latestAssistant.msg) : false;
-      return {
-        isFinal,
-        reason: isFinal ? 'explicit_final_status' : 'assistant_still_mutating',
-      };
-    },
+    evaluatePollingAssistantFinality: injectedEvaluatePollingAssistantFinality = null,
     safeUpdateMessages,
     getCurrentConversationId,
     getLastConfirmedMessages,
@@ -91,6 +84,43 @@ export function createSessionStartOpenerFallbackController(options) {
     timerId: null,
     attempts: 0,
   };
+  let fallbackFinalityState = {
+    assistantKey: null,
+    content: null,
+    stableCount: 0,
+  };
+
+  const evaluateFallbackPollingAssistantFinality = (messages) => {
+    const latestAssistant = selectLatestAssistantResponse(messages);
+    if (!latestAssistant || typeof latestAssistant.msg?.content !== 'string') {
+      fallbackFinalityState = {
+        assistantKey: null,
+        content: null,
+        stableCount: 0,
+      };
+      return { isFinal: false, reason: 'missing_assistant_message' };
+    }
+
+    const key = getAssistantIdentityKey(latestAssistant.msg, latestAssistant.index);
+    const content = String(latestAssistant.msg.content);
+    const unchanged =
+      fallbackFinalityState.assistantKey === key &&
+      fallbackFinalityState.content === content;
+    const stableCount = unchanged ? fallbackFinalityState.stableCount + 1 : 1;
+    fallbackFinalityState = { assistantKey: key, content, stableCount };
+
+    if (isFinalAssistantMessage(latestAssistant.msg)) {
+      return { isFinal: true, reason: 'explicit_final_status' };
+    }
+    if (stableCount >= 2) {
+      return { isFinal: true, reason: 'stable_across_poll_snapshots' };
+    }
+    return { isFinal: false, reason: 'assistant_still_mutating' };
+  };
+  const evaluatePollingAssistantFinality =
+    typeof injectedEvaluatePollingAssistantFinality === 'function'
+      ? injectedEvaluatePollingAssistantFinality
+      : evaluateFallbackPollingAssistantFinality;
 
   const clearTimer = () => {
     if (state.timerId !== null) {
@@ -124,6 +154,11 @@ export function createSessionStartOpenerFallbackController(options) {
       conversationId: null,
       timerId: null,
       attempts: 0,
+    };
+    fallbackFinalityState = {
+      assistantKey: null,
+      content: null,
+      stableCount: 0,
     };
 
     return reason;

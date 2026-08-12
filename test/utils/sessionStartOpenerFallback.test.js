@@ -76,44 +76,44 @@ function createStatefulSafeUpdater(lastConfirmedRef) {
       return false;
     }
 
-    function applyAssistantFeedbackFinalityMetadata(msgs, decisionIsFinal) {
-      return (Array.isArray(msgs) ? msgs : []).map((msg) => {
-        if (!msg || msg.role !== 'assistant') return msg;
-        return {
-          ...msg,
-          metadata: {
-            ...(msg.metadata || {}),
-            feedback_finality_verified: decisionIsFinal === true,
-          },
-        };
-      });
-    }
-
-    function commitSnapshotLikeSafeUpdateForFeedbackTest({
-      incomingMessages,
-      finalityDecision,
-      suppressFeedback = false,
-      forceDuplicateBranch = false,
-    }) {
-      const sanitized = Array.isArray(incomingMessages) ? incomingMessages : [];
-      const shouldApplyFeedback = finalityDecision?.isFinal === true && suppressFeedback !== true;
-      if (forceDuplicateBranch) {
-        const seenContents = new Set();
-        const fullyDeduplicated = sanitized.filter((msg) => {
-          if (msg?.role !== 'assistant') return true;
-          const contentKey = String(msg.content).substring(0, 100);
-          if (seenContents.has(contentKey)) return false;
-          seenContents.add(contentKey);
-          return true;
-        });
-        return applyAssistantFeedbackFinalityMetadata(fullyDeduplicated, shouldApplyFeedback);
-      }
-      return applyAssistantFeedbackFinalityMetadata(sanitized, shouldApplyFeedback);
-    }
-
     lastConfirmedRef.current = Array.isArray(messages) ? messages.map((msg) => ({ ...msg })) : [];
     return true;
   });
+}
+
+function applyAssistantFeedbackFinalityMetadata(msgs, decisionIsFinal) {
+  return (Array.isArray(msgs) ? msgs : []).map((msg) => {
+    if (!msg || msg.role !== 'assistant') return msg;
+    return {
+      ...msg,
+      metadata: {
+        ...(msg.metadata || {}),
+        feedback_finality_verified: decisionIsFinal === true,
+      },
+    };
+  });
+}
+
+function commitSnapshotLikeSafeUpdateForFeedbackTest({
+  incomingMessages,
+  finalityDecision,
+  suppressFeedback = false,
+  forceDuplicateBranch = false,
+}) {
+  const sanitized = Array.isArray(incomingMessages) ? incomingMessages : [];
+  const shouldApplyFeedback = finalityDecision?.isFinal === true && suppressFeedback !== true;
+  if (forceDuplicateBranch) {
+    const seenContents = new Set();
+    const fullyDeduplicated = sanitized.filter((msg) => {
+      if (msg?.role !== 'assistant') return true;
+      const contentKey = String(msg.content).substring(0, 100);
+      if (seenContents.has(contentKey)) return false;
+      seenContents.add(contentKey);
+      return true;
+    });
+    return applyAssistantFeedbackFinalityMetadata(fullyDeduplicated, shouldApplyFeedback);
+  }
+  return applyAssistantFeedbackFinalityMetadata(sanitized, shouldApplyFeedback);
 }
 
 function createHarness(overrides = {}) {
