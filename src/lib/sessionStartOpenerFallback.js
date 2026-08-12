@@ -9,6 +9,24 @@ const DEFAULT_SESSION_START_FALLBACK_DELAYS = Object.freeze([250, 500, 1000, 200
 // treat a markerless assistant snapshot as stable and complete.
 const MARKERLESS_STABILITY_REQUIRED = 2;
 
+// Development-only logging guard (URL ?s2debug or ?debug).  Mirrors the
+// pattern used across other lib modules so that logs never surface in
+// production unless the developer explicitly opts in.
+function _isS2DebugEnabled() {
+  try {
+    if (typeof window === 'undefined') return false;
+    const search = window.location?.search ?? '';
+    return search.includes('s2debug') || search.includes('debug');
+  } catch {
+    return false;
+  }
+}
+
+function _log(message, meta) {
+  if (!_isS2DebugEnabled()) return;
+  console.debug(`[SessionStartFallback] ${message}`, meta);
+}
+
 export function getDefaultSessionStartFallbackLifecycle() {
   return {
     pollDelays: DEFAULT_SESSION_START_FALLBACK_DELAYS,
@@ -164,13 +182,13 @@ export function createSessionStartOpenerFallbackController(options) {
 
   const executeAttempt = async (runId, conversationId, attemptIndex, lifecycle) => {
     if (!isInScope(conversationId, runId)) {
-      console.debug('[SessionStartFallback] cancelled or scope_lost at attempt start', { attemptIndex });
+      _log('cancelled or scope_lost at attempt start', { attemptIndex });
       stop('scope_lost', { clearLoadingTimeout: true });
       return;
     }
 
     state.attempts = attemptIndex + 1;
-    console.debug('[SessionStartFallback] fallback attempt', { attempt: state.attempts });
+    _log('fallback attempt', { attempt: state.attempts });
 
     if (hasVisibleAssistantMessage(getLastConfirmedMessages())) {
       stop('already_visible', {
@@ -183,7 +201,7 @@ export function createSessionStartOpenerFallbackController(options) {
     try {
       const conversation = await fetchConversation(conversationId);
       if (!isInScope(conversationId, runId)) {
-        console.debug('[SessionStartFallback] cancelled after fetch', { attemptIndex });
+        _log('cancelled after fetch', { attemptIndex });
         stop('scope_lost', { clearLoadingTimeout: true });
         return;
       }
@@ -195,12 +213,12 @@ export function createSessionStartOpenerFallbackController(options) {
       const latestAssistant = selectLatestAssistantResponse(visibleMessages);
 
       if (!latestAssistant) {
-        console.debug('[SessionStartFallback] assistant absent', { attempt: state.attempts });
+        _log('assistant absent', { attempt: state.attempts });
       }
 
       // Path 1: Explicit final marker present — accept immediately.
       if (hasVisibleAssistantMessage(visibleMessages) && isFinalAssistantMessage(latestAssistant.msg)) {
-        console.debug('[SessionStartFallback] explicit final accepted', { attempt: state.attempts });
+        _log('explicit final accepted', { attempt: state.attempts });
         const pollFinality = {
           isFinal: true,
           reason: 'explicit_final_status',
@@ -235,13 +253,13 @@ export function createSessionStartOpenerFallbackController(options) {
         if (fingerprint) {
           if (fingerprint === state.stabilityFingerprint) {
             state.stabilityCount += 1;
-            console.debug('[SessionStartFallback] markerless stability count', {
+            _log('markerless stability count', {
               count: state.stabilityCount,
               required: MARKERLESS_STABILITY_REQUIRED,
             });
 
             if (state.stabilityCount >= MARKERLESS_STABILITY_REQUIRED) {
-              console.debug('[SessionStartFallback] stable markerless snapshot accepted', {
+              _log('stable markerless snapshot accepted', {
                 attempt: state.attempts,
               });
               const stableFinality = {
@@ -273,7 +291,7 @@ export function createSessionStartOpenerFallbackController(options) {
           } else {
             // Fingerprint changed — assistant identity or content shifted; reset
             // stability so an in-progress snapshot is never committed.
-            console.debug('[SessionStartFallback] fingerprint changed/reset', {
+            _log('fingerprint changed/reset', {
               attempt: state.attempts,
             });
             state.stabilityFingerprint = fingerprint;
@@ -283,7 +301,7 @@ export function createSessionStartOpenerFallbackController(options) {
       }
 
       if (state.attempts >= lifecycle.maxPollAttempts) {
-        console.debug('[SessionStartFallback] exhausted', { maxAttempts: lifecycle.maxPollAttempts });
+        _log('exhausted', { maxAttempts: lifecycle.maxPollAttempts });
         stop('timeout', {
           clearLoading: true,
           clearLoadingTimeout: true,
