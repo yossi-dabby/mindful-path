@@ -63,6 +63,14 @@ export function createSessionStartOpenerFallbackController(options) {
   const {
     fetchConversation,
     buildVisibleConversationMessages,
+    evaluatePollingAssistantFinality = (messages) => {
+      const latestAssistant = selectLatestAssistantResponse(messages);
+      const isFinal = latestAssistant ? isFinalAssistantMessage(latestAssistant.msg) : false;
+      return {
+        isFinal,
+        reason: isFinal ? 'explicit_final_status' : 'assistant_still_mutating',
+      };
+    },
     safeUpdateMessages,
     getCurrentConversationId,
     getLastConfirmedMessages,
@@ -170,15 +178,12 @@ export function createSessionStartOpenerFallbackController(options) {
         conversation?.messages || [],
         getSessionLanguage()
       );
-      const latestAssistant = selectLatestAssistantResponse(visibleMessages);
-      const pollFinality = {
-        isFinal: latestAssistant ? isFinalAssistantMessage(latestAssistant.msg) : false,
-        reason: 'explicit_final_status',
-      };
+      const pollFinality = evaluatePollingAssistantFinality(visibleMessages);
 
       if (hasVisibleAssistantMessage(visibleMessages) && pollFinality.isFinal === true) {
         const updated = safeUpdateMessages(visibleMessages, 'SessionStartFallback', {
           pollFinality,
+          suppressFeedback: true,
         });
 
         if (updated) {
