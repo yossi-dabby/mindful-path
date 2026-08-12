@@ -81,6 +81,41 @@ function createStatefulSafeUpdater(lastConfirmedRef) {
   });
 }
 
+function applyAssistantFeedbackFinalityMetadata(msgs, decisionIsFinal) {
+  return (Array.isArray(msgs) ? msgs : []).map((msg) => {
+    if (!msg || msg.role !== 'assistant') return msg;
+    return {
+      ...msg,
+      metadata: {
+        ...(msg.metadata || {}),
+        feedback_finality_verified: decisionIsFinal === true,
+      },
+    };
+  });
+}
+
+function commitSnapshotLikeSafeUpdateForFeedbackTest({
+  incomingMessages,
+  finalityDecision,
+  suppressFeedback = false,
+  forceDuplicateBranch = false,
+}) {
+  const sanitized = Array.isArray(incomingMessages) ? incomingMessages : [];
+  const shouldApplyFeedback = finalityDecision?.isFinal === true && suppressFeedback !== true;
+  if (forceDuplicateBranch) {
+    const seenContents = new Set();
+    const fullyDeduplicated = sanitized.filter((msg) => {
+      if (msg?.role !== 'assistant') return true;
+      const contentKey = String(msg.content).substring(0, 100);
+      if (seenContents.has(contentKey)) return false;
+      seenContents.add(contentKey);
+      return true;
+    });
+    return applyAssistantFeedbackFinalityMetadata(fullyDeduplicated, shouldApplyFeedback);
+  }
+  return applyAssistantFeedbackFinalityMetadata(sanitized, shouldApplyFeedback);
+}
+
 function createHarness(overrides = {}) {
   const scheduler = createScheduler();
   const lastConfirmedRef = { current: overrides.lastConfirmedMessages || [] };
@@ -153,6 +188,10 @@ describe('Session-start opener fallback controller', () => {
     expect(harness.fetchConversation).toHaveBeenCalledOnce();
     expect(harness.safeUpdateMessages).toHaveBeenCalledOnce();
     expect(harness.safeUpdateMessages.mock.calls[0][1]).toBe('SessionStartFallback');
+    expect(harness.safeUpdateMessages.mock.calls[0][2]).toMatchObject({
+      pollFinality: { isFinal: true, reason: 'explicit_final_status' },
+      suppressFeedback: true,
+    });
     expect(harness.markAssistantMessagesFinalized).not.toHaveBeenCalled();
     expect(harness.setIsLoading).toHaveBeenLastCalledWith(false);
     expect(harness.clearLoadingTimeout).toHaveBeenCalled();
@@ -216,6 +255,37 @@ describe('Session-start opener fallback controller', () => {
     const committedMessages = harness.safeUpdateMessages.mock.calls[0][0];
     expect(committedMessages).toEqual([makeUserMessage(), final]);
     expect(committedMessages.some((msg) => msg.content === 'Thinking…')).toBe(false);
+  });
+
+  it('commits a stable markerless opener with feedback suppression', async () => {
+    let finalityChecks = 0;
+    const evaluatePollingAssistantFinality = vi.fn(() => {
+      finalityChecks += 1;
+      if (finalityChecks === 1) {
+        return { isFinal: false, reason: 'assistant_still_mutating' };
+      }
+      return { isFinal: true, reason: 'stable_across_poll_snapshots' };
+    });
+    const nonExplicitFinalAssistant = makeAssistantMessage('Stable opener without explicit final marker.', {
+      status: 'streaming',
+      metadata: { is_final: false },
+    });
+    const harness = createHarness({
+      fetchConversation: vi.fn(async () => ({
+        messages: [makeUserMessage(), nonExplicitFinalAssistant],
+      })),
+      evaluatePollingAssistantFinality,
+    });
+
+    harness.controller.start('conv-first-session');
+    await harness.scheduler.runAll();
+
+    expect(harness.fetchConversation).toHaveBeenCalledTimes(2);
+    expect(harness.safeUpdateMessages).toHaveBeenCalledTimes(1);
+    expect(harness.safeUpdateMessages.mock.calls[0][2]).toMatchObject({
+      pollFinality: { isFinal: true, reason: 'stable_across_poll_snapshots' },
+      suppressFeedback: true,
+    });
   });
 
   it('ignores a late retrieval result after the user switches conversations', async () => {
@@ -283,6 +353,58 @@ describe('Session-start opener fallback controller', () => {
     expect(harness.clearLoadingTimeout).toHaveBeenCalled();
     expect(harness.emitStabilitySummary).toHaveBeenCalledOnce();
     expect(harness.controller.getState().active).toBe(false);
+  });
+});
+
+describe('Safe-update feedback metadata suppression behavior', () => {
+  it('suppresses feedback eligibility on an explicit-final opener commit', () => {
+    const committed = commitSnapshotLikeSafeUpdateForFeedbackTest({
+      incomingMessages: [makeUserMessage(), makeAssistantMessage('Explicit final opener')],
+      finalityDecision: { isFinal: true, reason: 'explicit_final_status' },
+      suppressFeedback: true,
+      forceDuplicateBranch: false,
+    });
+
+    expect(committed[1]?.metadata?.feedback_finality_verified).toBe(false);
+  });
+
+  it('suppresses feedback eligibility on a stable markerless opener commit', () => {
+    const committed = commitSnapshotLikeSafeUpdateForFeedbackTest({
+      incomingMessages: [makeUserMessage(), makeAssistantMessage('Markerless stable opener', { status: 'streaming' })],
+      finalityDecision: { isFinal: true, reason: 'stable_across_poll_snapshots' },
+      suppressFeedback: true,
+      forceDuplicateBranch: false,
+    });
+
+    expect(committed[1]?.metadata?.feedback_finality_verified).toBe(false);
+  });
+
+  it('keeps ordinary final assistant responses feedback-eligible when suppression is not requested', () => {
+    const committed = commitSnapshotLikeSafeUpdateForFeedbackTest({
+      incomingMessages: [makeUserMessage(), makeAssistantMessage('Ordinary final assistant response')],
+      finalityDecision: { isFinal: true, reason: 'explicit_final_status' },
+      suppressFeedback: false,
+      forceDuplicateBranch: false,
+    });
+
+    expect(committed[1]?.metadata?.feedback_finality_verified).toBe(true);
+  });
+
+  it('respects suppression in the duplicate-removal commit branch', () => {
+    const committed = commitSnapshotLikeSafeUpdateForFeedbackTest({
+      incomingMessages: [
+        makeUserMessage(),
+        makeAssistantMessage('Duplicate assistant body'),
+        makeAssistantMessage('Duplicate assistant body', { id: 'a2' }),
+      ],
+      finalityDecision: { isFinal: true, reason: 'stable_across_poll_snapshots' },
+      suppressFeedback: true,
+      forceDuplicateBranch: true,
+    });
+
+    const assistants = committed.filter((msg) => msg.role === 'assistant');
+    expect(assistants).toHaveLength(1);
+    expect(assistants[0]?.metadata?.feedback_finality_verified).toBe(false);
   });
 });
 

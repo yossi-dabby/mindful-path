@@ -1700,6 +1700,7 @@ export default function Chat() {
     const { merged, preservedExistingGuardedReplacement } = applyMonotonicGuardedMerge(newMessages);
     const sanitized = validateAndSanitizeMessages(merged);
     const pollFinality = options?.pollFinality || null;
+    const suppressFeedback = options?.suppressFeedback === true;
     const finalityDecision = evaluateAssistantSnapshotFinality(sanitized, source, pollFinality);
     instrumentationRef.current.TOTAL_MESSAGES_PROCESSED += newMessages.length;
 
@@ -1785,7 +1786,7 @@ export default function Chat() {
       // Update with fully deduplicated version
       const finalityTaggedMessages = applyAssistantFeedbackFinalityMetadata(
         fullyDeduplicated,
-        finalityDecision.isFinal === true
+        finalityDecision.isFinal === true && !suppressFeedback
       );
       lastConfirmedMessagesRef.current = finalityTaggedMessages;
       setMessages(finalityTaggedMessages);
@@ -1900,7 +1901,7 @@ export default function Chat() {
     instrumentationRef.current.SAFE_UPDATES++;
     const finalityTaggedMessages = applyAssistantFeedbackFinalityMetadata(
       sanitized,
-      finalityDecision.isFinal === true
+      finalityDecision.isFinal === true && !suppressFeedback
     );
     lastConfirmedMessagesRef.current = finalityTaggedMessages;
     setMessages(finalityTaggedMessages);
@@ -1935,6 +1936,7 @@ export default function Chat() {
       buildVisibleConversationMessages: (...args) => (
         sessionStartOpenerFallbackDepsRef.current.buildVisibleConversationMessages(...args)
       ),
+      evaluatePollingAssistantFinality,
       safeUpdateMessages: (...args) => (
         sessionStartOpenerFallbackDepsRef.current.safeUpdateMessages(...args)
       ),
