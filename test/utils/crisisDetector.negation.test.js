@@ -161,6 +161,48 @@ describe('mixed messages — denial followed by affirmative crisis (must remain 
   });
 });
 
+// ─── SUPPORTED DENIAL / AFFIRMATIVE PAIRS ────────────────────────────────────
+
+describe('each multilingual denial exercises an existing crisis pattern', () => {
+  const pairs = [
+    ['Hebrew', 'אני לא חושב לפגוע בעצמי.', 'אני רוצה לפגוע בעצמי.'],
+    ['English', 'I do not want to hurt myself.', 'I want to hurt myself.'],
+    ['Spanish', 'No quiero hacerme daño.', 'Quiero hacerme daño.'],
+    ['French', 'Je ne veux pas me faire du mal.', 'Je veux me faire du mal.'],
+    ['German', 'Ich denke nicht daran, mich umbringen.', 'Ich will mich umbringen.'],
+    ['Italian', 'Non voglio farmi del male.', 'Voglio farmi del male.'],
+    ['Portuguese', 'Não quero me machucar.', 'Quero me machucar.'],
+  ];
+
+  for (const [language, denial, affirmative] of pairs) {
+    it(`${language}: direct denial is safe and the corresponding affirmative is crisis-positive`, () => {
+      expectSafe(denial);
+      expectCrisis(affirmative);
+    });
+  }
+});
+
+// ─── SAME-PATTERN MIXED OCCURRENCES ──────────────────────────────────────────
+
+describe('same clause — a negated occurrence never hides a later affirmative occurrence', () => {
+  const mixedRiskMessages = [
+    ['English self-harm', 'I do not want to hurt myself and I want to hurt myself.'],
+    ['English suicide', 'I am not thinking about suicide and now I am thinking about suicide.'],
+    ['Spanish', 'No quiero hacerme daño y ahora quiero hacerme daño.'],
+    ['French', 'Je ne veux pas me faire du mal et maintenant je veux me faire du mal.'],
+    ['German', 'Ich denke nicht an Selbstmord und jetzt denke ich an Selbstmord.'],
+    ['Italian', 'Non voglio farmi del male e adesso voglio farmi del male.'],
+    ['Portuguese', 'Não quero me machucar e agora quero me machucar.'],
+  ];
+
+  for (const [language, message] of mixedRiskMessages) {
+    it(`${language}: the affirmative occurrence wins`, () => {
+      expectCrisis(message);
+      expect(isDirectNegationFalsePositive(message)).toBe(false);
+    });
+  }
+});
+
 // ─── isDirectNegationFalsePositive CONTRACT ───────────────────────────────────
 
 describe('isDirectNegationFalsePositive — contract', () => {

@@ -216,49 +216,71 @@ function splitIntoClauses(text) {
 }
 
 /**
- * Negation words immediately before a crisis phrase suppress that match within the same clause.
- * Hebrew: לא, אינ*, אין, איני, לאו — English: not, no, never, don't, do not, am not, I'm not.
+ * A negation may suppress only the concrete crisis occurrence that follows it
+ * directly (within at most three intervening tokens). It must never suppress
+ * another affirmative occurrence later in the same clause.
  */
-const NEGATION_RE = /((?:^|\s)(?:לא|אינ\S*|אין|איני|לאו|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3})/i;
+const DIRECT_NEGATION_BEFORE_MATCH_RE = /(?:^|\s)(?:לא|אינ\S*|אין|איני|לאו|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3}$/i;
+
+function collectCrisisOccurrences(text) {
+    const occurrences = new Map();
+    for (const pattern of CRISIS_PATTERNS) {
+        const flags = pattern.flags.replace(/g/g, '').replace(/y/g, '') + 'g';
+        const matcher = new RegExp(pattern.source, flags);
+        let match;
+        while ((match = matcher.exec(text)) !== null) {
+            const start = match.index;
+            const end = start + match[0].length;
+            occurrences.set(`${start}:${end}`, { start, end });
+            if (match[0].length === 0) matcher.lastIndex += 1;
+        }
+    }
+    return [...occurrences.values()].sort((a, b) => a.start - b.start || a.end - b.end);
+}
+
+function directNegationBefore(text, occurrenceStart) {
+    const prefix = text.slice(0, occurrenceStart).replace(/\s+/g, ' ');
+    const match = DIRECT_NEGATION_BEFORE_MATCH_RE.exec(prefix);
+    if (!match) return null;
+    return { start: match.index, end: prefix.length };
+}
 
 /**
- * Returns true only when EVERY crisis phrase in the message is directly negated
- * within its own clause AND no remaining clause contains an un-negated crisis phrase.
- *
- * Safe denial examples:
- *   "אני לא חושב לפגוע בעצמי ואיני נמצא בסכנה כרגע." → true (safe)
- *   "I do not want to hurt myself." → true (safe)
- *
- * Mixed-risk examples (must return false so crisis is still detected):
- *   "אני לא חושב לפגוע בעצמי בדרך כלל, אבל עכשיו אני רוצה למות." → false
- *   "I do not want to hurt myself, but I do want to die." → false
+ * Returns true only when every concrete crisis-pattern occurrence is directly
+ * negated. Every occurrence is evaluated separately; one negated occurrence
+ * can never hide a later affirmative occurrence of the same pattern.
  */
 export function isDirectNegationFalsePositive(message) {
     if (!message || typeof message !== 'string') return false;
     const clauses = splitIntoClauses(message);
     let foundNegatedCrisis = false;
+
     for (const clause of clauses) {
         const clauseLower = clause.toLowerCase();
         const clauseStripped = clauseLower.replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
-        for (const pattern of CRISIS_PATTERNS) {
-            const matchesClause = pattern.test(clauseLower) || pattern.test(clauseStripped);
-            if (!matchesClause) continue;
-            // Crisis phrase is present in this clause — check if it is directly negated.
-            // We test whether a negation word appears within ~3 tokens before the match.
-            const negationBeforeMatch = new RegExp(
-                NEGATION_RE.source + '(?:' + pattern.source + ')',
-                'i'
-            );
-            if (!negationBeforeMatch.test(clauseLower) && !negationBeforeMatch.test(clauseStripped)) {
-                // Un-negated crisis phrase found — whole message is still a crisis.
-                return false;
+        const variants = clauseStripped === clauseLower
+            ? [clauseLower]
+            : [clauseLower, clauseStripped];
+
+        for (const variant of variants) {
+            const occurrences = collectCrisisOccurrences(variant);
+            for (let index = 0; index < occurrences.length; index += 1) {
+                const occurrence = occurrences[index];
+                const negation = directNegationBefore(variant, occurrence.start);
+                if (!negation) return false;
+
+                // A negator that already spans an earlier crisis occurrence cannot
+                // also negate a later occurrence in the same clause.
+                const interveningCrisis = occurrences
+                    .slice(0, index)
+                    .some(previous => previous.start >= negation.start && previous.end <= occurrence.start);
+                if (interveningCrisis) return false;
+
+                foundNegatedCrisis = true;
             }
-            // This clause has a directly-negated crisis phrase — mark it but keep scanning.
-            foundNegatedCrisis = true;
         }
     }
-    // Only return true (safe) if we actually found at least one negated crisis phrase
-    // and no un-negated one survived.
+
     return foundNegatedCrisis;
 }
 
