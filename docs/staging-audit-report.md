@@ -1,3 +1,7 @@
+> ⚠️ **ARCHIVED HISTORICAL REFERENCE** — The Git `staging` branch described in this document has been retired. All PRs now target `main` directly. **Do not follow the staging-branch instructions in this file.**
+
+---
+
 # Staging Branch Audit Report
 
 **Branch:** `staging`

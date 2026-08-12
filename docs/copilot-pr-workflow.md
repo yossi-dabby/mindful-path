@@ -6,23 +6,22 @@
 
 ---
 
-## 0. Branch Targeting Policy (Staging-First)
+## 0. Branch Targeting Policy (Main Only)
 
-**This is a critical rule that must be followed for all rollout/preparation PRs. Read it before opening any PR.**
+**All PRs must target `main`.** The Git `staging` branch has been retired and must not be recreated, targeted, or required.
 
 | Branch | Purpose | Who merges to it |
 |---|---|---|
-| `main` | Stable, Base44-connected production branch | Merges from `staging` only, after validation |
-| `staging` | Rollout-validation branch for all preparation and feature work | All rollout/preparation PRs target here first |
+| `main` | Stable, Base44-connected production branch | All PRs target here directly, after CI validation and human review |
 
 ### Rules
 
-1. **All rollout and preparation PRs must target `staging`, not `main`.**
-2. **`main` is the stable Base44-connected branch.** Direct pushes or PRs to `main` that bypass `staging` are not allowed for rollout/preparation work.
-3. **Merge to `main` only after staging validation passes.** This means CI passes on `staging`, human review is complete, and the change has been confirmed safe in the staging environment.
-4. **If you opened a PR against `main` by mistake**, close it and reopen it targeting `staging`. Do not merge it into `main` before it has gone through `staging`.
+1. **All PRs must target `main`.**
+2. **The Git `staging` branch has been retired.** Do not create, recreate, target, or route work through it.
+3. **Changes reach `main` through reviewed PRs** with required validation: lint, unit tests, build, and E2E tests pass; human review complete.
+4. **Follow-up corrections to an open PR must update the same branch and PR** unless the owner explicitly requests a new PR.
 
-> **Copilot rule:** Always open PRs against `staging` for rollout/preparation tasks. Never open a rollout/preparation PR against `main`.
+> **Copilot rule:** Always open PRs against `main`. Never open a PR against `staging` or require a staging-first step.
 
 ---
 
