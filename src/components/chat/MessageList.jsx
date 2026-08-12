@@ -14,6 +14,7 @@ export default function MessageList({ messages, visibleCount, conversationId, se
     .filter((m) => m && isRenderableChatRole(m.role) && (m.content || hasUserAttachment(m)))
     .map((message, index, arr) => {
       const prevMsg = arr[index - 1];
+      const messageIndex = Number.isInteger(message?.__rawIndex) ? message.__rawIndex : index;
       const prevUserMessage =
         message.role === 'assistant' && prevMsg?.role === 'user'
           ? prevMsg?.content
@@ -23,7 +24,7 @@ export default function MessageList({ messages, visibleCount, conversationId, se
           key={getMessageRenderKey(message, index, conversationId)}
           message={message}
           conversationId={conversationId}
-          messageIndex={index}
+          messageIndex={messageIndex}
           agentName="cbt_therapist"
           context="chat"
           userMessage={prevUserMessage}
