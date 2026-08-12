@@ -2,13 +2,13 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 
-const { capturedProps } = vi.hoisted(() => ({
+const mockState = vi.hoisted(() => ({
   capturedProps: [],
 }));
 
 vi.mock('../../src/components/chat/MessageBubble.jsx', () => ({
   default: function MockMessageBubble(props) {
-    capturedProps.push(props);
+    mockState.capturedProps.push(props);
     return null;
   },
 }));
@@ -17,7 +17,7 @@ import MessageList from '../../src/components/chat/MessageList.jsx';
 
 describe('MessageList feedback index targeting', () => {
   beforeEach(() => {
-    capturedProps.length = 0;
+    mockState.capturedProps = [];
   });
 
   it('prefers raw message indexes for feedback targeting when available', () => {
@@ -34,9 +34,9 @@ describe('MessageList feedback index targeting', () => {
       })
     );
 
-    expect(capturedProps).toHaveLength(2);
-    expect(capturedProps[0].messageIndex).toBe(0);
-    expect(capturedProps[1].messageIndex).toBe(2);
+    expect(mockState.capturedProps).toHaveLength(2);
+    expect(mockState.capturedProps[0].messageIndex).toBe(0);
+    expect(mockState.capturedProps[1].messageIndex).toBe(2);
   });
 
   it('falls back to visible indexes when raw indexes are unavailable', () => {
@@ -53,8 +53,8 @@ describe('MessageList feedback index targeting', () => {
       })
     );
 
-    expect(capturedProps).toHaveLength(2);
-    expect(capturedProps[0].messageIndex).toBe(0);
-    expect(capturedProps[1].messageIndex).toBe(1);
+    expect(mockState.capturedProps).toHaveLength(2);
+    expect(mockState.capturedProps[0].messageIndex).toBe(0);
+    expect(mockState.capturedProps[1].messageIndex).toBe(1);
   });
 });
