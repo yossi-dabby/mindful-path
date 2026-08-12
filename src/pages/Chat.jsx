@@ -96,6 +96,7 @@ import {
   selectLatestAssistantResponse,
   shouldSuppressSubscriptionEventWhileLoading,
   wasCorrectionBlockSanitized,
+  evaluateActiveTurnAssistantCorrelation,
 } from '@/lib/chatRuntimeLifecycle.js';
 import {
   buildInternalCorrectionDiagnostic,
@@ -126,6 +127,7 @@ import {
 import { triggerConversationMemoryWriteOnce } from '@/lib/conversationMemoryWriteDedup.js';
 import {
   normalizeLegacyActiveTurnFinalSnapshot,
+  normalizeAllCompletedTurnsFinalSnapshot,
   applyRecordScopedAssistantFeedbackFinality,
 } from '@/lib/legacyFinalSnapshotNormalization.js';
 
@@ -1678,12 +1680,14 @@ export default function Chat() {
     } else {
       latestPipelineDiagnosticsRef.current = null;
     }
-    return finalMessages;
+    // Persistently suppress intermediate (progress) assistant records from all
+    // completed historical turns so they never reappear on later snapshots,
+    // hydration, conversation switch, or page reload.
+    return normalizeAllCompletedTurnsFinalSnapshot(finalMessages);
   };
 
   // CRITICAL: Safe state update with duplicate detection
   const safeUpdateMessages = (newMessages, source, options = {}) => {
-    const snapshotSequence = ++snapshotSequenceRef.current;
     const { merged, preservedExistingGuardedReplacement } = applyMonotonicGuardedMerge(newMessages);
     const sanitized = validateAndSanitizeMessages(merged);
     const pollFinality = options?.pollFinality || null;
@@ -3877,13 +3881,22 @@ export default function Chat() {
             const pollFinality = evaluatePollingAssistantFinality(guardedPoll);
             const hasExpectedReplyCount = guardedPoll.length >= expectedReplyCountRef.current;
 
+            // BLOCKER 1 fix — active-turn correlation guard.
+            // Verify the terminal assistant candidate is structurally positioned
+            // AFTER the active (latest) user message.  If the latest user message
+            // comes after the latest assistant, that assistant belongs to a prior
+            // turn and must not be accepted as the current turn's response.
+            const activeTurnCorrelation = evaluateActiveTurnAssistantCorrelation(guardedPoll);
+            const pollIsTerminallyCorrelated =
+              pollFinality.isFinal && activeTurnCorrelation.isActiveTurnResponse;
+
             console.log(
-              `[Polling] Retrieved ${guardedPoll.length} messages, expected ${expectedReplyCountRef.current}, finality=${pollFinality.reason}`
+              `[Polling] Retrieved ${guardedPoll.length} messages, expected ${expectedReplyCountRef.current}, finality=${pollFinality.reason}, correlation=${activeTurnCorrelation.reason}`
             );
 
             // Final-only commit: expected count alone is not sufficient.
-            if (hasExpectedReplyCount && pollFinality.isFinal) {
-              console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}) - stopping polling`);
+            if (hasExpectedReplyCount && pollIsTerminallyCorrelated) {
+              console.log(`[Polling] ✅ Final reply confirmed (${pollFinality.reason}, ${activeTurnCorrelation.reason}) - stopping polling`);
 
               // Tracks whether Phase A raw_correlation succeeded for this polling attempt.
               // Holds the correlated snapshot so the exhaustion handler can force-complete
@@ -4299,8 +4312,11 @@ export default function Chat() {
                 clearTimeout(loadingTimeoutRef.current);
                 loadingTimeoutRef.current = null;
               }
-            } else if (hasExpectedReplyCount && !pollFinality.isFinal) {
-              console.log(`[Polling] ⏳ Awaiting final snapshot (${pollFinality.reason})`);
+            } else if (hasExpectedReplyCount && (!pollFinality.isFinal || !activeTurnCorrelation.isActiveTurnResponse)) {
+              const awaitReason = !pollFinality.isFinal
+                ? pollFinality.reason
+                : `correlation_blocked:${activeTurnCorrelation.reason}`;
+              console.log(`[Polling] ⏳ Awaiting final snapshot (${awaitReason})`);
               if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
                 console.warn('[Polling] Finality not confirmed before max attempts - falling back to timeout path');
                 instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;

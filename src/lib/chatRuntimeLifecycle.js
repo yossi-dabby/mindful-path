@@ -91,6 +91,75 @@ export function selectLatestAssistantResponse(msgs) {
   return assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
 }
 
+/**
+ * Active-turn correlation guard.
+ *
+ * Returns whether the latest assistant in `msgs` is structurally positioned
+ * AFTER the latest user message, meaning it can be a valid candidate response
+ * for the active (current) user turn.
+ *
+ * When the latest user message comes AFTER the latest assistant — which happens
+ * immediately after the user sends a new message before any assistant reply
+ * arrives — no valid candidate exists and polling must not accept any earlier
+ * assistant record as the response.
+ *
+ * @param {Array} msgs  Canonical visible snapshot.
+ * @returns {{
+ *   isActiveTurnResponse: boolean,
+ *   activeUserIndex: number,
+ *   latestAssistantIndex: number,
+ *   reason: string,
+ * }}
+ */
+export function evaluateActiveTurnAssistantCorrelation(msgs) {
+  const list = Array.isArray(msgs) ? msgs : [];
+
+  let activeUserIndex = -1;
+  for (let i = list.length - 1; i >= 0; i -= 1) {
+    if (list[i]?.role === 'user') { activeUserIndex = i; break; }
+  }
+
+  let latestAssistantIndex = -1;
+  for (let i = list.length - 1; i >= 0; i -= 1) {
+    if (list[i]?.role === 'assistant') { latestAssistantIndex = i; break; }
+  }
+
+  if (activeUserIndex < 0) {
+    return {
+      isActiveTurnResponse: false,
+      activeUserIndex: -1,
+      latestAssistantIndex,
+      reason: 'no_active_user_message',
+    };
+  }
+
+  if (latestAssistantIndex < 0) {
+    return {
+      isActiveTurnResponse: false,
+      activeUserIndex,
+      latestAssistantIndex: -1,
+      reason: 'no_assistant_in_snapshot',
+    };
+  }
+
+  if (latestAssistantIndex > activeUserIndex) {
+    return {
+      isActiveTurnResponse: true,
+      activeUserIndex,
+      latestAssistantIndex,
+      reason: 'assistant_after_active_user',
+    };
+  }
+
+  // Latest assistant precedes the active user message — it belongs to a previous turn.
+  return {
+    isActiveTurnResponse: false,
+    activeUserIndex,
+    latestAssistantIndex,
+    reason: 'assistant_precedes_active_user',
+  };
+}
+
 export function buildPendingCorrectionPrefix(correctionBlocks) {
   return correctionBlocks.length > 0 ? `${correctionBlocks.join('\n\n')}\n\n` : '';
 }
