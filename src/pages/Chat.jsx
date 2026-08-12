@@ -98,6 +98,7 @@ import {
   shouldSuppressSubscriptionEventWhileLoading,
   wasCorrectionBlockSanitized,
 } from '@/lib/chatRuntimeLifecycle.js';
+import { createSessionStartOpenerFallbackController } from '@/lib/sessionStartOpenerFallback.js';
 import {
   buildInternalCorrectionDiagnostic,
   consumeInternalCorrectionIntent,
@@ -423,6 +424,8 @@ export default function Chat() {
   const subscriptionSucceededRef = useRef(false);
   const snapshotSequenceRef = useRef(0);
   const guardedAssistantMemoryByConversationRef = useRef(new Map());
+  const sessionStartOpenerFallbackRef = useRef(null);
+  const sessionStartOpenerFallbackDepsRef = useRef({});
   // V8-K: mirrors isLoading for subscription closures that cannot safely close over
   // the React state variable (the closure is created once when the effect runs and
   // would capture a stale false value otherwise).
@@ -1912,6 +1915,47 @@ export default function Chat() {
     return true;
   };
 
+  const clearLoadingTimeout = () => {
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
+  };
+
+  sessionStartOpenerFallbackDepsRef.current = {
+    buildVisibleConversationMessages,
+    evaluatePollingAssistantFinality,
+    safeUpdateMessages,
+    markAssistantMessagesFinalized,
+    setIsLoading,
+    emitStabilitySummary,
+  };
+
+  if (!sessionStartOpenerFallbackRef.current) {
+    sessionStartOpenerFallbackRef.current = createSessionStartOpenerFallbackController({
+      fetchConversation: (conversationId) => base44.agents.getConversation(conversationId),
+      buildVisibleConversationMessages: (...args) => (
+        sessionStartOpenerFallbackDepsRef.current.buildVisibleConversationMessages(...args)
+      ),
+      evaluatePollingAssistantFinality: (...args) => (
+        sessionStartOpenerFallbackDepsRef.current.evaluatePollingAssistantFinality(...args)
+      ),
+      safeUpdateMessages: (...args) => (
+        sessionStartOpenerFallbackDepsRef.current.safeUpdateMessages(...args)
+      ),
+      markAssistantMessagesFinalized: (...args) => (
+        sessionStartOpenerFallbackDepsRef.current.markAssistantMessagesFinalized(...args)
+      ),
+      getCurrentConversationId: () => currentConversationIdRef.current,
+      getLastConfirmedMessages: () => lastConfirmedMessagesRef.current,
+      getSessionLanguage: () => sessionLanguageRef.current,
+      isMounted: () => mountedRef.current,
+      setIsLoading: (value) => sessionStartOpenerFallbackDepsRef.current.setIsLoading(value),
+      clearLoadingTimeout,
+      emitStabilitySummary: () => sessionStartOpenerFallbackDepsRef.current.emitStabilitySummary(),
+    });
+  }
+
   useEffect(() => {
     const container = document.querySelector('[data-testid="chat-messages"]');
     if (!container) {
@@ -1930,6 +1974,9 @@ export default function Chat() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      sessionStartOpenerFallbackRef.current?.stop('unmount', {
+        clearLoadingTimeout: true,
+      });
       mountedRef.current = false;
     };
   }, []);
@@ -2121,6 +2168,10 @@ export default function Chat() {
               // V8-K: finalize only when finality is verified.
               if (visibilityFinality.isFinal) {
                 markAssistantMessagesFinalized(currentConversationId, guarded);
+                sessionStartOpenerFallbackRef.current?.stop('visibility_visible_commit', {
+                  clearLoading: true,
+                  clearLoadingTimeout: true,
+                });
               }
               setIsLoading(false);
               emitStabilitySummary();
@@ -2404,6 +2455,10 @@ export default function Chat() {
             // callbacks (e.g. reconnect replays) cannot overwrite the bubble.
             if (subscriptionFinality.isFinal) {
               markAssistantMessagesFinalized(currentConversationId, processedMessages);
+              sessionStartOpenerFallbackRef.current?.stop('subscription_visible_commit', {
+                clearLoading: true,
+                clearLoadingTimeout: true,
+              });
             }
 
             // Emit FINAL STABILITY SUMMARY for this send cycle
@@ -2617,8 +2672,23 @@ export default function Chat() {
     // overwrite them (e.g. on socket reconnect after initial page load).
     if (hydrated && hydrateFinality.isFinal) {
       markAssistantMessagesFinalized(currentConversationId, guardedHydrate);
+      sessionStartOpenerFallbackRef.current?.stop('hydrate_visible_commit', {
+        clearLoading: true,
+        clearLoadingTimeout: true,
+      });
     }
   }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
+
+  useEffect(() => {
+    const controller = sessionStartOpenerFallbackRef.current;
+    const activeState = controller?.getState?.();
+    if (activeState?.active && activeState.conversationId !== currentConversationId) {
+      controller.stop('conversation_switch', {
+        clearLoading: true,
+        clearLoadingTimeout: true,
+      });
+    }
+  }, [currentConversationId]);
 
   useEffect(() => {
     const nextViewerState = currentConversationId ? {
@@ -2716,6 +2786,10 @@ export default function Chat() {
       setMessages([]);
       clearLocalAudioDraft();
       lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
+      subscriptionSucceededRef.current = false;
+      sessionStartOpenerFallbackRef.current?.stop('new_session_reset', {
+        clearLoadingTimeout: true,
+      });
       setShowSidebar(false);
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       // Lock session language at conversation start (separate from UI locale).
@@ -2727,6 +2801,7 @@ export default function Chat() {
       // message, append it to the same turn so the agent handles both together.
       setTimeout(async () => {
         setIsLoading(true);
+        clearLoadingTimeout();
         // Safety fallback: if the subscription does not deliver a reply within
         // 10 s (e.g. in CI / test environments where the WebSocket is rejected),
         // clear the loading state so the send button is not stuck disabled.
@@ -2757,6 +2832,7 @@ export default function Chat() {
           addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
           addLangDirective(sessionStartContent, sessionLanguageRef.current)
         });
+        sessionStartOpenerFallbackRef.current?.start(conversation.id);
         emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
       }, 100);
     } catch (error) {
@@ -2780,6 +2856,10 @@ export default function Chat() {
       const leavingId = currentConversationId;
       const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
       maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+      sessionStartOpenerFallbackRef.current?.stop('conversation_switch', {
+        clearLoading: true,
+        clearLoadingTimeout: true,
+      });
       clearLocalAudioDraft();
 
       let conversation = await base44.agents.getConversation(conversationId);
