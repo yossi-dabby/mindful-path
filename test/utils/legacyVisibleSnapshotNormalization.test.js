@@ -1,0 +1,188 @@
+import { describe, it, expect } from 'vitest';
+import {
+  applyLegacyVisibleAssistantNormalizationGate,
+  getAssistantIdentityKey,
+  selectLatestAssistantResponse,
+} from '../../src/lib/chatRuntimeLifecycle.js';
+
+const FINAL_STATUSES = new Set(['done', 'completed', 'complete', 'final', 'finished']);
+
+const isExplicitlyFinalAssistantMessage = (assistantMsg) => {
+  const status = typeof assistantMsg?.status === 'string' ? assistantMsg.status.toLowerCase() : '';
+  const metadataStatus = typeof assistantMsg?.metadata?.status === 'string'
+    ? assistantMsg.metadata.status.toLowerCase()
+    : '';
+  return (
+    FINAL_STATUSES.has(status) ||
+    FINAL_STATUSES.has(metadataStatus) ||
+    assistantMsg?.metadata?.is_final === true ||
+    assistantMsg?.metadata?.final === true ||
+    assistantMsg?.metadata?.completed === true
+  );
+};
+
+const evaluateAssistantSnapshotFinality = (msgs, source) => {
+  const latest = selectLatestAssistantResponse(msgs);
+  if (!latest) return { isFinal: true, reason: 'no_assistant_in_snapshot' };
+  if (isExplicitlyFinalAssistantMessage(latest.msg)) {
+    return { isFinal: true, reason: 'explicit_final_status' };
+  }
+  return { isFinal: false, reason: `non_final_${String(source || 'unknown').toLowerCase()}_snapshot` };
+};
+
+const buildAssistantContentMapByIdentity = (msgs) => {
+  const map = new Map();
+  (Array.isArray(msgs) ? msgs : []).forEach((msg, index) => {
+    if (!msg || msg.role !== 'assistant') return;
+    const key = getAssistantIdentityKey(msg, index);
+    if (!key) return;
+    map.set(key, typeof msg.content === 'string' ? msg.content : '');
+  });
+  return map;
+};
+
+const hasAssistantSnapshotContentChange = (prevMessages, nextMessages) => {
+  const prevMap = buildAssistantContentMapByIdentity(prevMessages);
+  const nextMap = buildAssistantContentMapByIdentity(nextMessages);
+  if (prevMap.size !== nextMap.size) return true;
+  for (const [key, content] of prevMap.entries()) {
+    if (!nextMap.has(key)) return true;
+    if (nextMap.get(key) !== content) return true;
+  }
+  return false;
+};
+
+const hasVisibleAssistantMutation = (prevMessages, nextMessages) => {
+  const prevMap = buildAssistantContentMapByIdentity(prevMessages);
+  if (prevMap.size === 0) return false;
+  const nextMap = buildAssistantContentMapByIdentity(nextMessages);
+  for (const [key, prevContent] of prevMap.entries()) {
+    if (!nextMap.has(key)) continue;
+    if (nextMap.get(key) !== prevContent) return true;
+  }
+  return false;
+};
+
+const applyAssistantFeedbackFinalityMetadata = (msgs, decisionIsFinal) => (
+  (Array.isArray(msgs) ? msgs : []).map((msg) => {
+    if (!msg || msg.role !== 'assistant') return msg;
+    return {
+      ...msg,
+      metadata: {
+        ...(msg.metadata || {}),
+        feedback_finality_verified: decisionIsFinal === true,
+      },
+    };
+  })
+);
+
+function createSafeUpdateHydrationGate(chatOrchestratorV2Enabled = false) {
+  let lastConfirmed = [];
+  let visible = [];
+
+  const commit = (rawSnapshot, source) => {
+    const normalized = applyLegacyVisibleAssistantNormalizationGate(
+      rawSnapshot,
+      chatOrchestratorV2Enabled
+    );
+    const finalityDecision = evaluateAssistantSnapshotFinality(normalized, source);
+    const assistantChanged = hasAssistantSnapshotContentChange(lastConfirmed, normalized);
+
+    if (hasVisibleAssistantMutation(lastConfirmed, normalized)) {
+      return { accepted: false, reason: 'rejected_visible_assistant_immutable', finalityDecision };
+    }
+
+    const hadVisibleAssistant = lastConfirmed.some((msg) => msg?.role === 'assistant');
+    const allowNonFinalPopulation =
+      (source === 'LoadConversation' || source === 'CurrentConversationHydrate') && !hadVisibleAssistant;
+
+    if (assistantChanged && finalityDecision.isFinal !== true && !allowNonFinalPopulation) {
+      return { accepted: false, reason: 'rejected_non_final_hydration_snapshot', finalityDecision };
+    }
+
+    visible = applyAssistantFeedbackFinalityMetadata(normalized, finalityDecision.isFinal === true);
+    lastConfirmed = visible;
+    return { accepted: true, reason: 'accepted', finalityDecision };
+  };
+
+  return {
+    commit,
+    getVisible: () => visible,
+  };
+}
+
+describe('legacy visible snapshot normalization for hydration/load', () => {
+  const user1 = { role: 'user', id: 'u1', content: 'first question' };
+  const progress1 = { role: 'assistant', id: 'a1p', __rawIndex: 1, content: 'draft 1' };
+  const final1 = { role: 'assistant', id: 'a1f', __rawIndex: 2, content: 'final 1', metadata: { status: 'completed' } };
+  const user2 = { role: 'user', id: 'u2', content: 'second question' };
+  const progress2 = { role: 'assistant', id: 'a2p', __rawIndex: 4, content: 'draft 2' };
+  const final2NoMarker = { role: 'assistant', id: 'a2f', __rawIndex: 5, content: 'final 2' };
+
+  const rawWithTwoPairs = [user1, progress1, final1, user2, progress2, final2NoMarker];
+
+  it('hydrates to user1→final1→user2→final2 even when latest final has no explicit final markers', () => {
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit(rawWithTwoPairs, 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    expect(result.finalityDecision.isFinal).toBe(false);
+    expect(gate.getVisible().map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
+  });
+
+  it('load-conversation path yields the same collapsed legacy snapshot under no-explicit-final condition', () => {
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit(rawWithTwoPairs, 'LoadConversation');
+
+    expect(result.accepted).toBe(true);
+    expect(result.finalityDecision.isFinal).toBe(false);
+    expect(gate.getVisible().map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
+  });
+
+  it('single latest assistant (user2→progress2) stays structurally intact and is not feedback-final', () => {
+    const gate = createSafeUpdateHydrationGate(false);
+    const rawSingleLatestAssistant = [user1, final1, user2, progress2];
+    const result = gate.commit(rawSingleLatestAssistant, 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    expect(result.finalityDecision.isFinal).toBe(false);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2p']);
+    expect(visible[3].__rawIndex).toBe(4);
+    expect(visible[3].metadata?.feedback_finality_verified).toBe(false);
+  });
+
+  it('when latest turn has progress2→final2, only final2 remains visible with original raw index', () => {
+    const gate = createSafeUpdateHydrationGate(false);
+    const raw = [user1, final1, user2, progress2, final2NoMarker];
+    const result = gate.commit(raw, 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
+    expect(visible[3].__rawIndex).toBe(5);
+  });
+
+  it('repeated hydration/refetch/subscription/reload snapshots stay idempotent', () => {
+    const gate = createSafeUpdateHydrationGate(false);
+    const baseline = gate.commit(rawWithTwoPairs, 'CurrentConversationHydrate');
+    expect(baseline.accepted).toBe(true);
+    const expected = gate.getVisible().map((m) => `${m.id}:${m.__rawIndex ?? 'na'}`);
+
+    const sources = ['CurrentConversationHydrate', 'Refetch', 'Subscription', 'LoadConversation'];
+    sources.forEach((source) => {
+      const result = gate.commit(rawWithTwoPairs, source);
+      expect(result.accepted).toBe(true);
+      expect(gate.getVisible().map((m) => `${m.id}:${m.__rawIndex ?? 'na'}`)).toEqual(expected);
+    });
+  });
+
+  it('V2-enabled path bypasses legacy normalization and keeps snapshot sequence unchanged', () => {
+    const v2Snapshot = applyLegacyVisibleAssistantNormalizationGate(rawWithTwoPairs, true);
+    const legacySnapshot = applyLegacyVisibleAssistantNormalizationGate(rawWithTwoPairs, false);
+
+    expect(v2Snapshot).toBe(rawWithTwoPairs);
+    expect(v2Snapshot.map((m) => m.id)).toEqual(['u1', 'a1p', 'a1f', 'u2', 'a2p', 'a2f']);
+    expect(legacySnapshot.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
+  });
+});

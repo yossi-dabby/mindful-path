@@ -91,6 +91,57 @@ export function selectLatestAssistantResponse(msgs) {
   return assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
 }
 
+export function normalizeLegacyVisibleAssistantBlocks(msgs) {
+  const messages = Array.isArray(msgs) ? msgs : [];
+  if (messages.length <= 1) return messages;
+
+  const normalized = [];
+  for (let i = 0; i < messages.length; i++) {
+    const current = messages[i];
+    if (!current || current.role !== 'user') {
+      normalized.push(current);
+      continue;
+    }
+
+    normalized.push(current);
+
+    let segmentEnd = i + 1;
+    while (segmentEnd < messages.length && messages[segmentEnd]?.role !== 'user') {
+      segmentEnd++;
+    }
+
+    const segment = messages.slice(i + 1, segmentEnd);
+    let latestAssistant = null;
+    for (let j = segment.length - 1; j >= 0; j--) {
+      if (segment[j]?.role === 'assistant') {
+        latestAssistant = segment[j];
+        break;
+      }
+    }
+
+    segment.forEach((entry) => {
+      if (!entry) return;
+      if (entry.role !== 'assistant') {
+        normalized.push(entry);
+        return;
+      }
+      if (entry === latestAssistant) {
+        normalized.push(entry);
+      }
+    });
+
+    i = segmentEnd - 1;
+  }
+
+  return normalized;
+}
+
+export function applyLegacyVisibleAssistantNormalizationGate(finalMessages, chatOrchestratorV2Enabled) {
+  return chatOrchestratorV2Enabled === true
+    ? finalMessages
+    : normalizeLegacyVisibleAssistantBlocks(finalMessages);
+}
+
 export function buildPendingCorrectionPrefix(correctionBlocks) {
   return correctionBlocks.length > 0 ? `${correctionBlocks.join('\n\n')}\n\n` : '';
 }
