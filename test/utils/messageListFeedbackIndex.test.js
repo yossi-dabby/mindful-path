@@ -39,7 +39,7 @@ describe('MessageList feedback index targeting', () => {
     expect(mockState.capturedProps[1].messageIndex).toBe(2);
   });
 
-  it('falls back to visible indexes when raw indexes are unavailable', () => {
+  it('falls back to filtered visible indexes when raw indexes are unavailable', () => {
     renderToStaticMarkup(
       React.createElement(MessageList, {
         messages: [
