@@ -165,6 +165,7 @@ import {
 import {
   getPlannerFirstContextForWiring,
   buildV12SessionStartContentAsync,
+  buildActionFirstDemotedSessionContentAsync,
 } from '../../src/lib/workflowContextInjector.js';
 
 // ── Feature flags + resolver ──────────────────────────────────────────────────
@@ -825,5 +826,69 @@ describe('Wave 5 — SECTION J: clinical regression scenarios', () => {
     // Must include formulation-first framing
     expect(text).toContain('formulation');
     expect(text).toContain('understanding');
+  });
+});
+
+// ─── SECTION F — Competing-hypotheses differentiation rule ────────────────────
+
+describe('Wave 5 — SECTION F: Competing-hypotheses differentiation rule', () => {
+  it('111. Instructions contain the COMPETING-HYPOTHESES DIFFERENTIATION section header', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toContain('COMPETING-HYPOTHESES DIFFERENTIATION');
+  });
+
+  it('112. Rule identifies explicit competing-hypotheses request as a genuine clarification gap', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    // Must require all three activation conditions including "genuine unresolved formulation gap"
+    expect(text).toMatch(/genuine unresolved formulation gap/i);
+    expect(text).toMatch(/two or more plausible clinical explanations/i);
+    expect(text).toMatch(/asks the therapist to help distinguish/i);
+  });
+
+  it('113. Rule requires exactly one focused, non-leading discriminating question', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/exactly one focused, non-leading question/i);
+    expect(text).toMatch(/tests different\s+predictions of the competing hypotheses/i);
+  });
+
+  it('114. Rule prohibits selecting a hypothesis without evidence', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/do not select or imply that one hypothesis is correct/i);
+  });
+
+  it('115. Rule requires calibrated uncertainty language', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    // Must list calibrated language markers
+    expect(text).toContain('"may"');
+    expect(text).toContain('"might"');
+    expect(text).toContain('"would likely"');
+    expect(text).toContain('"one possibility is"');
+  });
+
+  it('116. Rule rejects unsupported categorical counterfactuals', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/unsupported categorical counterfactuals/i);
+    expect(text).toContain('"the anxiety would disappear"');
+    expect(text).toContain('"positive feedback would not reduce it"');
+  });
+
+  it('117. Rule honors an explicit request for no solution or exercise', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/honor an explicit user request for no solution.*exercise.*technique/i);
+  });
+
+  it('118. Rule explicitly states it does NOT weaken the existing question-restraint default', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/does not make questions mandatory/i);
+    expect(text).toMatch(/does not weaken the existing default question-restraint rule/i);
+    // Default no-question rule must still be present in the stabilizers
+    expect(text).toMatch(/default to no question/i);
+  });
+
+  it('119. Universal HYBRID wrapper includes the updated planner rule exactly once', async () => {
+    const content = await buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_HYBRID, {}, {});
+    // The planner instructions block must appear exactly once
+    const occurrences = content.split('COMPETING-HYPOTHESES DIFFERENTIATION').length - 1;
+    expect(occurrences).toBe(1);
   });
 });
