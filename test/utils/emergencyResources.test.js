@@ -81,6 +81,41 @@ describe('emergencyResources', () => {
     expect(clearStoredEmergencyRegion(blockedStorage)).toBeNull();
   });
 
+  it('returns null when the window localStorage getter throws', () => {
+    const originalWindowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    const temporaryWindow = {};
+
+    Object.defineProperty(temporaryWindow, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new Error('blocked');
+      },
+    });
+
+    try {
+      Object.defineProperty(globalThis, 'window', {
+        configurable: true,
+        writable: true,
+        value: temporaryWindow,
+      });
+
+      expect(() => readStoredEmergencyRegion()).not.toThrow();
+      expect(readStoredEmergencyRegion()).toBeNull();
+      expect(() => writeStoredEmergencyRegion('US')).not.toThrow();
+      expect(writeStoredEmergencyRegion('US')).toBeNull();
+      expect(() => clearStoredEmergencyRegion()).not.toThrow();
+      expect(clearStoredEmergencyRegion()).toBeNull();
+    } finally {
+      if (originalWindowDescriptor) {
+        Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
+      } else {
+        delete globalThis.window;
+      }
+    }
+
+    expect(Object.getOwnPropertyDescriptor(globalThis, 'window')).toEqual(originalWindowDescriptor);
+  });
+
   it('persists and reloads a valid explicit region selection', () => {
     const storage = createStorage();
 

@@ -79,10 +79,15 @@ export const EMERGENCY_RESOURCES_BY_REGION = Object.freeze({
 });
 
 function getDefaultStorage() {
-  if (typeof window === 'undefined' || !window?.localStorage) {
+  if (typeof window === 'undefined') {
     return null;
   }
-  return window.localStorage;
+
+  try {
+    return window.localStorage ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export function normalizeEmergencyRegion(value) {
