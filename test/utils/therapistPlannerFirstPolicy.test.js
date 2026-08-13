@@ -892,3 +892,85 @@ describe('Wave 5 — SECTION F: Competing-hypotheses differentiation rule', () =
     expect(occurrences).toBe(1);
   });
 });
+
+describe('Wave 5 — SECTION G: Collaborative readiness assessment policy', () => {
+  it('120. Instructions contain the COLLABORATIVE READINESS ASSESSMENT section header and explicit activation scope', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toContain('COLLABORATIVE READINESS ASSESSMENT');
+    expect(text).toMatch(/activates only when the user explicitly asks to understand or\s+assess readiness/i);
+    expect(text).toMatch(/not consent to action/i);
+  });
+
+  it('121. Rule distinguishes willingness, current capacity, and consent/preference', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/willingness/i);
+    expect(text).toMatch(/current capacity/i);
+    expect(text).toMatch(/consent\/preference/i);
+  });
+
+  it('122. Rule explicitly says readiness does not require zero anxiety and rejects universal numeric cutoff', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/does not require zero anxiety or complete calm/i);
+    expect(text).toMatch(/do not impose a universal numerical distress cutoff/i);
+  });
+
+  it('123. Rule requires mixed evidence to remain mixed and separated by support, limits, and unknowns', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/if evidence is mixed, keep it mixed/i);
+    expect(text).toMatch(/what may support readiness/i);
+    expect(text).toMatch(/what may limit readiness/i);
+    expect(text).toMatch(/what remains unknown/i);
+  });
+
+  it('124. Rule allows at most one focused readiness question only when one clinically necessary fact is missing', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/if one clinically necessary readiness fact is missing/i);
+    expect(text).toMatch(/ask at most one focused, non-leading question/i);
+  });
+
+  it('125. Explicit no-exercise request prohibits covert techniques and try-and-see readiness tasks', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/explicitly requests no exercise\/task\/technique yet/i);
+    expect(text).toMatch(/including breathing, grounding, slowing, distress-rating, visualization/i);
+    expect(text).toMatch(/behavioral experiments, exposure, homework, or "try this and see"/i);
+    expect(text).toMatch(/do not make performing any technique a prerequisite test of readiness/i);
+  });
+
+  it('126. Rule forbids hidden-meaning narratives and unsupported motive assumptions', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/use only user-supplied evidence/i);
+    expect(text).toMatch(/do not invent hidden meaning, motives, symbolic significance, or protective "parts"/i);
+  });
+
+  it('127. Rule prohibits dramatic deterministic language and gives forbidden examples', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/do not use dramatic or deterministic language/i);
+    expect(text).toContain('"it will become a monster"');
+    expect(text).toContain('"you will be unable to process it"');
+  });
+
+  it('128. Rule separates "not ready now" from indefinite avoidance and preserves user choice', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/do not decide "act now" or "wait" for the user/i);
+    expect(text).toMatch(/distinguish "not ready at this moment" from "never ready"/i);
+  });
+
+  it('129. Rule keeps crisis and emergency safety precedence absolute', () => {
+    const text = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    expect(text).toMatch(/does not weaken crisis or emergency handling/i);
+    expect(text).toMatch(/safety precedence remains absolute/i);
+  });
+
+  it('130. Existing intervention readiness gates remain intact', () => {
+    const gates = THERAPIST_INTERVENTION_READINESS_GATES;
+    expect(Object.keys(gates)).toHaveLength(6);
+    expect(gates.distress_allows_task).toBeDefined();
+    expect(gates.distress_allows_task.if_not_met).toMatch(/grounding and containment/i);
+  });
+
+  it('131. Universal HYBRID wrapper includes collaborative readiness policy exactly once', async () => {
+    const content = await buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_HYBRID, {}, {});
+    const occurrences = content.split('COLLABORATIVE READINESS ASSESSMENT').length - 1;
+    expect(occurrences).toBe(1);
+  });
+});
