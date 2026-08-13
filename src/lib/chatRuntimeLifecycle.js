@@ -1,5 +1,36 @@
 const DEFAULT_POLL_DELAYS = Object.freeze([500, 1000, 2000, 4000, 6500]);
 const DEFAULT_MAX_POLL_ATTEMPTS = 5;
+const FINAL_ASSISTANT_STATUSES = new Set(['done', 'completed', 'complete', 'final', 'finished']);
+const ADMINISTRATIVE_ASSISTANT_ACK_PATTERNS = [
+  // Hebrew
+  /^הרישום הקליני עודכן(?:[\s.!?,—-]|$)/,
+  // English
+  /^The clinical record has been updated(?:[\s.!?,—-]|$)/i,
+  /^(?:The\s+)?memory has been updated(?:[\s.!?,—-]|$)/i,
+  /^(?:The\s+)?record has been updated(?:[\s.!?,—-]|$)/i,
+  /^Memory updated(?:[\s.!?,—-]|$)/i,
+  /^Record updated(?:[\s.!?,—-]|$)/i,
+  // Spanish (es)
+  /^El registro clínico ha sido actualizado(?:[\s.!?,—-]|$)/,
+  /^Registro actualizado(?:[\s.!?,—-]|$)/i,
+  /^Memoria actualizada(?:[\s.!?,—-]|$)/i,
+  // French (fr)
+  /^Le dossier clinique a été mis à jour(?:[\s.!?,—-]|$)/,
+  /^Enregistrement mis à jour(?:[\s.!?,—-]|$)/i,
+  /^Mémoire mise à jour(?:[\s.!?,—-]|$)/i,
+  // German (de)
+  /^Die klinische Akte wurde aktualisiert(?:[\s.!?,—-]|$)/,
+  /^Eintrag aktualisiert(?:[\s.!?,—-]|$)/i,
+  /^Erinnerung aktualisiert(?:[\s.!?,—-]|$)/i,
+  // Italian (it)
+  /^Il registro clinico è stato aggiornato(?:[\s.!?,—-]|$)/,
+  /^Registro aggiornato(?:[\s.!?,—-]|$)/i,
+  /^Memoria aggiornata(?:[\s.!?,—-]|$)/i,
+  // Portuguese (pt)
+  /^O registro clínico foi atualizado(?:[\s.!?,—-]|$)/,
+  /^Registro atualizado(?:[\s.!?,—-]|$)/i,
+  /^Memória atualizada(?:[\s.!?,—-]|$)/i,
+];
 
 export function calculateExpectedReplyCount(currentMessageCount) {
   return currentMessageCount + 2;
@@ -91,6 +122,147 @@ export function selectLatestAssistantResponse(msgs) {
   return assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
 }
 
+function getAssistantContentText(msg) {
+  return typeof msg?.content === 'string' ? msg.content.trim() : '';
+}
+
+function isExplicitlyFinalAssistantMessage(msg) {
+  const status = typeof msg?.status === 'string' ? msg.status.trim().toLowerCase() : '';
+  const metadataStatus =
+    typeof msg?.metadata?.status === 'string' ? msg.metadata.status.trim().toLowerCase() : '';
+  return (
+    FINAL_ASSISTANT_STATUSES.has(status) ||
+    FINAL_ASSISTANT_STATUSES.has(metadataStatus) ||
+    msg?.metadata?.is_final === true ||
+    msg?.metadata?.final === true ||
+    msg?.metadata?.completed === true
+  );
+}
+
+function isAdministrativeAssistantAcknowledgement(msg) {
+  const content = getAssistantContentText(msg).replace(/\s+/g, ' ');
+  if (!content) return false;
+  if (content.length > 320) return false;
+  return ADMINISTRATIVE_ASSISTANT_ACK_PATTERNS.some((pattern) => pattern.test(content));
+}
+
+function hasHiddenAssistantBoundary(previousAssistant, nextAssistant) {
+  const previousRawIndex = Number.isInteger(previousAssistant?.__rawIndex) ? previousAssistant.__rawIndex : null;
+  const nextRawIndex = Number.isInteger(nextAssistant?.__rawIndex) ? nextAssistant.__rawIndex : null;
+  if (previousRawIndex === null || nextRawIndex === null) return false;
+  return nextRawIndex - previousRawIndex > 1;
+}
+
+function normalizeAssistantContentForComparison(content) {
+  return typeof content === 'string' ? content.replace(/\s+/g, ' ').trim() : '';
+}
+
+function assistantMessageSupersedes(previousAssistant, nextAssistant) {
+  const previousContent = normalizeAssistantContentForComparison(previousAssistant?.content);
+  const nextContent = normalizeAssistantContentForComparison(nextAssistant?.content);
+  if (!previousContent || !nextContent) return false;
+  if (previousContent === nextContent) return true;
+  if (nextContent.startsWith(previousContent)) return true;
+
+  const previousId = typeof previousAssistant?.id === 'string' ? previousAssistant.id : null;
+  const nextId = typeof nextAssistant?.id === 'string' ? nextAssistant.id : null;
+  return previousId !== null && nextId !== null && previousId === nextId;
+}
+
+function mergeAssistantMessages(previousAssistant, nextAssistant) {
+  const previousContent = getAssistantContentText(previousAssistant);
+  const nextContent = getAssistantContentText(nextAssistant);
+  if (!previousContent) return nextAssistant;
+  if (!nextContent) return previousAssistant;
+  if (assistantMessageSupersedes(previousAssistant, nextAssistant)) {
+    return nextAssistant;
+  }
+  return {
+    ...previousAssistant,
+    ...nextAssistant,
+    metadata: {
+      ...(previousAssistant?.metadata || {}),
+      ...(nextAssistant?.metadata || {}),
+    },
+    content: `${previousContent}\n\n${nextContent}`,
+  };
+}
+
+function buildAssistantSegmentBlocks(segment) {
+  const blocks = [];
+  let currentBlock = null;
+
+  for (let i = 0; i < segment.length; i++) {
+    const entry = segment[i];
+    if (!entry || entry.role !== 'assistant') {
+      currentBlock = null;
+      continue;
+    }
+
+    const previousAssistant = currentBlock?.messages?.[currentBlock.messages.length - 1] || null;
+    const startNewBlock = !currentBlock || hasHiddenAssistantBoundary(previousAssistant, entry);
+    if (startNewBlock) {
+      currentBlock = { messages: [] };
+      blocks.push(currentBlock);
+    }
+    currentBlock.messages.push(entry);
+  }
+
+  return blocks;
+}
+
+function selectCanonicalAssistantWithinBlock(blockMessages) {
+  const messages = Array.isArray(blockMessages) ? blockMessages.filter(Boolean) : [];
+  if (messages.length === 0) return null;
+
+  // Within one contiguous block: never concatenate — select the best single candidate.
+  // Priority 1: latest explicitly-final non-administrative message.
+  // Priority 2: latest non-administrative message.
+  // Priority 3: last message in the block.
+  let latestFinalNonAdmin = null;
+  let latestNonAdmin = null;
+
+  for (let i = 0; i < messages.length; i++) {
+    const candidate = messages[i];
+    const isAdmin = isAdministrativeAssistantAcknowledgement(candidate);
+    if (!isAdmin) {
+      latestNonAdmin = candidate;
+      if (isExplicitlyFinalAssistantMessage(candidate)) {
+        latestFinalNonAdmin = candidate;
+      }
+    }
+  }
+
+  if (latestFinalNonAdmin !== null) return latestFinalNonAdmin;
+  if (latestNonAdmin !== null) return latestNonAdmin;
+  return messages[messages.length - 1];
+}
+
+function selectCanonicalAssistantForSegment(segment) {
+  const assistantBlocks = buildAssistantSegmentBlocks(segment)
+    .map((block) => selectCanonicalAssistantWithinBlock(block.messages))
+    .filter(Boolean);
+  if (assistantBlocks.length === 0) return null;
+
+  const substantiveAssistants = assistantBlocks.filter((msg) => !isAdministrativeAssistantAcknowledgement(msg));
+  const candidates = substantiveAssistants.length > 0 ? substantiveAssistants : assistantBlocks;
+
+  let canonical = candidates[0];
+  for (let i = 1; i < candidates.length; i++) {
+    const candidate = candidates[i];
+    if (isAdministrativeAssistantAcknowledgement(candidate) && !isAdministrativeAssistantAcknowledgement(canonical)) {
+      continue;
+    }
+    if (assistantMessageSupersedes(canonical, candidate)) {
+      canonical = candidate;
+      continue;
+    }
+    canonical = mergeAssistantMessages(canonical, candidate);
+  }
+
+  return canonical;
+}
+
 export function normalizeLegacyVisibleAssistantBlocks(msgs) {
   const messages = Array.isArray(msgs) ? msgs : [];
   if (messages.length <= 1) return messages;
@@ -111,22 +283,22 @@ export function normalizeLegacyVisibleAssistantBlocks(msgs) {
     }
 
     const segment = messages.slice(i + 1, segmentEnd);
-    let latestAssistant = null;
-    for (let j = segment.length - 1; j >= 0; j--) {
-      if (segment[j]?.role === 'assistant') {
-        latestAssistant = segment[j];
-        break;
+    const canonicalAssistant = selectCanonicalAssistantForSegment(segment);
+    const lastAssistantIndex = (() => {
+      for (let j = segment.length - 1; j >= 0; j--) {
+        if (segment[j]?.role === 'assistant') return j;
       }
-    }
+      return -1;
+    })();
 
-    segment.forEach((entry) => {
+    segment.forEach((entry, segmentIndex) => {
       if (!entry) return;
       if (entry.role !== 'assistant') {
         normalized.push(entry);
         return;
       }
-      if (entry === latestAssistant) {
-        normalized.push(entry);
+      if (segmentIndex === lastAssistantIndex && canonicalAssistant) {
+        normalized.push(canonicalAssistant);
       }
     });
 
