@@ -162,6 +162,9 @@ describe('legacy visible snapshot normalization for hydration/load', () => {
     const visible = gate.getVisible();
     expect(visible.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
     expect(visible[3].__rawIndex).toBe(5);
+    // Exact content — must equal final2NoMarker.content, not a concatenation
+    expect(visible[3].content).toBe(final2NoMarker.content);
+    expect(visible[3].content).not.toContain(progress2.content);
   });
 
   it('keeps the substantive reply when a later Hebrew clinical-record acknowledgement is present', () => {
@@ -288,5 +291,160 @@ describe('legacy visible snapshot normalization for hydration/load', () => {
     expect(v2Snapshot).toBe(rawWithTwoPairs);
     expect(v2Snapshot.map((m) => m.id)).toEqual(['u1', 'a1p', 'a1f', 'u2', 'a2p', 'a2f']);
     expect(legacySnapshot.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
+  });
+
+  it('contiguous progress+final within one block: selects final, never concatenates their content', () => {
+    const progressMsg = { role: 'assistant', id: 'prog', __rawIndex: 1, content: 'thinking…' };
+    const finalMsg = {
+      role: 'assistant',
+      id: 'fin',
+      __rawIndex: 2,
+      content: 'Here is the complete answer.',
+      metadata: { status: 'completed' },
+    };
+    const normalized = normalizeLegacyVisibleAssistantBlocks([user1, progressMsg, finalMsg]);
+    expect(normalized).toHaveLength(2);
+    expect(normalized[1].id).toBe('fin');
+    expect(normalized[1].content).toBe('Here is the complete answer.');
+    expect(normalized[1].content).not.toContain('thinking');
+  });
+
+  it('keeps the substantive reply when a later Spanish administrative acknowledgement is present', () => {
+    const substantive = {
+      role: 'assistant',
+      id: 'a-substantive-es',
+      __rawIndex: 1,
+      content: 'El mecanismo que se mantiene aquí es la evitación que reduce la ansiedad momentáneamente pero refuerza el miedo.',
+      metadata: { status: 'completed' },
+    };
+    const acknowledgement = {
+      role: 'assistant',
+      id: 'a-admin-es',
+      __rawIndex: 3,
+      content: 'El registro clínico ha sido actualizado. Si deseas compartir cómo fue la próxima vez, estoy aquí.',
+    };
+
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit([user1, substantive, acknowledgement], 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a-substantive-es']);
+    expect(visible[1].content).toBe(substantive.content);
+  });
+
+  it('keeps the substantive reply when a later French administrative acknowledgement is present', () => {
+    const substantive = {
+      role: 'assistant',
+      id: 'a-substantive-fr',
+      __rawIndex: 1,
+      content: "Le mécanisme ici est l'évitement qui réduit l'anxiété momentanément mais renforce la peur.",
+      metadata: { status: 'completed' },
+    };
+    const acknowledgement = {
+      role: 'assistant',
+      id: 'a-admin-fr',
+      __rawIndex: 3,
+      content: 'Le dossier clinique a été mis à jour. Si vous souhaitez partager comment ça s\'est passé, je suis là.',
+    };
+
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit([user1, substantive, acknowledgement], 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a-substantive-fr']);
+    expect(visible[1].content).toBe(substantive.content);
+  });
+
+  it('keeps the substantive reply when a later German administrative acknowledgement is present', () => {
+    const substantive = {
+      role: 'assistant',
+      id: 'a-substantive-de',
+      __rawIndex: 1,
+      content: 'Der aufrechterhaltende Mechanismus ist hier Vermeidung, die die Angst kurzfristig reduziert, aber die Befürchtung stärkt.',
+      metadata: { status: 'completed' },
+    };
+    const acknowledgement = {
+      role: 'assistant',
+      id: 'a-admin-de',
+      __rawIndex: 3,
+      content: 'Die klinische Akte wurde aktualisiert. Wenn Sie teilen möchten, wie es gelaufen ist, bin ich hier.',
+    };
+
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit([user1, substantive, acknowledgement], 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a-substantive-de']);
+    expect(visible[1].content).toBe(substantive.content);
+  });
+
+  it('keeps the substantive reply when a later Italian administrative acknowledgement is present', () => {
+    const substantive = {
+      role: 'assistant',
+      id: 'a-substantive-it',
+      __rawIndex: 1,
+      content: "Il meccanismo che si mantiene qui è l'evitamento che riduce l'ansia momentaneamente ma rafforza la paura.",
+      metadata: { status: 'completed' },
+    };
+    const acknowledgement = {
+      role: 'assistant',
+      id: 'a-admin-it',
+      __rawIndex: 3,
+      content: 'Il registro clinico è stato aggiornato. Se vuoi condividere come è andata, sono qui.',
+    };
+
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit([user1, substantive, acknowledgement], 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a-substantive-it']);
+    expect(visible[1].content).toBe(substantive.content);
+  });
+
+  it('keeps the substantive reply when a later Portuguese administrative acknowledgement is present', () => {
+    const substantive = {
+      role: 'assistant',
+      id: 'a-substantive-pt',
+      __rawIndex: 1,
+      content: 'O mecanismo que se mantém aqui é a evitação que reduz a ansiedade momentaneamente mas reforça o medo.',
+      metadata: { status: 'completed' },
+    };
+    const acknowledgement = {
+      role: 'assistant',
+      id: 'a-admin-pt',
+      __rawIndex: 3,
+      content: 'O registro clínico foi atualizado. Se quiser compartilhar como foi, estou aqui.',
+    };
+
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit([user1, substantive, acknowledgement], 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a-substantive-pt']);
+    expect(visible[1].content).toBe(substantive.content);
+  });
+
+  it('does not classify a long message starting with an ack pattern as administrative', () => {
+    // A substantive reply that happens to start with a phrase >320 chars should not be filtered
+    const longSubstantive = {
+      role: 'assistant',
+      id: 'a-long-start',
+      __rawIndex: 1,
+      content: 'The clinical record has been updated. ' + 'x'.repeat(300),
+      metadata: { status: 'completed' },
+    };
+
+    const gate = createSafeUpdateHydrationGate(false);
+    const result = gate.commit([user1, longSubstantive], 'CurrentConversationHydrate');
+
+    expect(result.accepted).toBe(true);
+    const visible = gate.getVisible();
+    expect(visible.map((m) => m.id)).toEqual(['u1', 'a-long-start']);
+    expect(visible[1].content).toBe(longSubstantive.content);
   });
 });

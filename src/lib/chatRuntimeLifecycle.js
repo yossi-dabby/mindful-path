@@ -2,12 +2,34 @@ const DEFAULT_POLL_DELAYS = Object.freeze([500, 1000, 2000, 4000, 6500]);
 const DEFAULT_MAX_POLL_ATTEMPTS = 5;
 const FINAL_ASSISTANT_STATUSES = new Set(['done', 'completed', 'complete', 'final', 'finished']);
 const ADMINISTRATIVE_ASSISTANT_ACK_PATTERNS = [
+  // Hebrew
   /^הרישום הקליני עודכן(?:[\s.!?,—-]|$)/,
+  // English
   /^The clinical record has been updated(?:[\s.!?,—-]|$)/i,
   /^(?:The\s+)?memory has been updated(?:[\s.!?,—-]|$)/i,
   /^(?:The\s+)?record has been updated(?:[\s.!?,—-]|$)/i,
   /^Memory updated(?:[\s.!?,—-]|$)/i,
   /^Record updated(?:[\s.!?,—-]|$)/i,
+  // Spanish (es)
+  /^El registro clínico ha sido actualizado(?:[\s.!?,—-]|$)/,
+  /^Registro actualizado(?:[\s.!?,—-]|$)/i,
+  /^Memoria actualizada(?:[\s.!?,—-]|$)/i,
+  // French (fr)
+  /^Le dossier clinique a été mis à jour(?:[\s.!?,—-]|$)/,
+  /^Enregistrement mis à jour(?:[\s.!?,—-]|$)/i,
+  /^Mémoire mise à jour(?:[\s.!?,—-]|$)/i,
+  // German (de)
+  /^Die klinische Akte wurde aktualisiert(?:[\s.!?,—-]|$)/,
+  /^Eintrag aktualisiert(?:[\s.!?,—-]|$)/i,
+  /^Erinnerung aktualisiert(?:[\s.!?,—-]|$)/i,
+  // Italian (it)
+  /^Il registro clinico è stato aggiornato(?:[\s.!?,—-]|$)/,
+  /^Registro aggiornato(?:[\s.!?,—-]|$)/i,
+  /^Memoria aggiornata(?:[\s.!?,—-]|$)/i,
+  // Portuguese (pt)
+  /^O registro clínico foi atualizado(?:[\s.!?,—-]|$)/,
+  /^Registro atualizado(?:[\s.!?,—-]|$)/i,
+  /^Memória atualizada(?:[\s.!?,—-]|$)/i,
 ];
 
 export function calculateExpectedReplyCount(currentMessageCount) {
@@ -120,6 +142,7 @@ function isExplicitlyFinalAssistantMessage(msg) {
 function isAdministrativeAssistantAcknowledgement(msg) {
   const content = getAssistantContentText(msg).replace(/\s+/g, ' ');
   if (!content) return false;
+  if (content.length > 320) return false;
   return ADMINISTRATIVE_ASSISTANT_ACK_PATTERNS.some((pattern) => pattern.test(content));
 }
 
@@ -192,27 +215,27 @@ function selectCanonicalAssistantWithinBlock(blockMessages) {
   const messages = Array.isArray(blockMessages) ? blockMessages.filter(Boolean) : [];
   if (messages.length === 0) return null;
 
-  let canonical = messages[0];
-  for (let i = 1; i < messages.length; i++) {
+  // Within one contiguous block: never concatenate — select the best single candidate.
+  // Priority 1: latest explicitly-final non-administrative message.
+  // Priority 2: latest non-administrative message.
+  // Priority 3: last message in the block.
+  let latestFinalNonAdmin = null;
+  let latestNonAdmin = null;
+
+  for (let i = 0; i < messages.length; i++) {
     const candidate = messages[i];
-    if (isAdministrativeAssistantAcknowledgement(candidate) && !isAdministrativeAssistantAcknowledgement(canonical)) {
-      continue;
+    const isAdmin = isAdministrativeAssistantAcknowledgement(candidate);
+    if (!isAdmin) {
+      latestNonAdmin = candidate;
+      if (isExplicitlyFinalAssistantMessage(candidate)) {
+        latestFinalNonAdmin = candidate;
+      }
     }
-    if (
-      isExplicitlyFinalAssistantMessage(candidate) &&
-      !isExplicitlyFinalAssistantMessage(canonical)
-    ) {
-      canonical = candidate;
-      continue;
-    }
-    if (assistantMessageSupersedes(canonical, candidate)) {
-      canonical = candidate;
-      continue;
-    }
-    canonical = mergeAssistantMessages(canonical, candidate);
   }
 
-  return canonical;
+  if (latestFinalNonAdmin !== null) return latestFinalNonAdmin;
+  if (latestNonAdmin !== null) return latestNonAdmin;
+  return messages[messages.length - 1];
 }
 
 function selectCanonicalAssistantForSegment(segment) {
