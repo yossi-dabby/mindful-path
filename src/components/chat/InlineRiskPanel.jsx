@@ -1,105 +1,200 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, Phone, MessageSquare } from 'lucide-react';
+import { AlertTriangle, Globe, Phone, MessageSquare } from 'lucide-react';
 import { appParams } from '@/lib/app-params';
+import {
+  SUPPORTED_EMERGENCY_REGIONS,
+  clearStoredEmergencyRegion,
+  getEmergencyResources,
+  normalizeEmergencyRegion,
+  readStoredEmergencyRegion,
+  writeStoredEmergencyRegion,
+} from '@/lib/emergencyResources';
 import { useTranslation } from 'react-i18next';
 
-// Self-contained crisis UI strings — presentation only, no detection logic
-const CRISIS_STRINGS = {
+const GLOBAL_HELP_URL = 'https://findahelpline.com/';
+
+const CRISIS_UI_STRINGS = {
   en: {
     title: "We're Here to Help",
     body: "This AI cannot provide emergency support. If you're in crisis, please reach out to a professional immediately.",
-    hotlineLabel: "Crisis Hotline",
-    hotlineNumber: "988 (US)",
-    textLabel: "Crisis Text Line",
-    textNumber: 'Text "HELLO" to 741741',
-    emergencyLabel: "Emergency",
-    emergencyNumber: "911 / 112",
-    button: "Return to Chat",
-    disclaimer: "This AI is not a substitute for professional crisis care."
+    button: 'Return to Chat',
+    disclaimer: 'This AI is not a substitute for professional crisis care.',
+    chooseRegionLabel: 'Choose country/region',
+    chooseRegionPlaceholder: 'Select your country/region',
+    resourcesFor: 'Resources for',
+    changeCountry: 'Change country',
+    localEmergencyGuidance: 'Local emergency guidance',
+    genericGuidance: 'Contact local emergency services immediately or go to the nearest emergency department.',
+    worldwideHelpDirectory: 'Worldwide help directory',
+    hotlineLabel: 'Crisis hotline',
+    textLabel: 'Text support',
+    emergencyLabel: 'Emergency services',
   },
   he: {
-    title: "אנחנו כאן בשבילך",
-    body: "בינה מלאכותית זו אינה יכולה לספק סיוע חירום. אם אתה/את במשבר, פנה/י לאיש מקצוע באופן מיידי.",
-    hotlineLabel: "קו עזרה למשבר (ערן)",
-    hotlineNumber: "1201",
-    textLabel: "קו חירום כללי",
-    textNumber: '101 (מד"א) / 100 (משטרה)',
-    emergencyLabel: "חירום",
-    emergencyNumber: "101 / 112",
+    title: 'אנחנו כאן בשבילך',
+    body: 'בינה מלאכותית זו אינה יכולה לספק סיוע חירום. אם אתה/את במשבר, פנה/י לאיש מקצוע באופן מיידי.',
     button: "חזרה לצ'אט",
-    disclaimer: "בינה מלאכותית זו אינה תחליף לטיפול מקצועי בעת משבר."
+    disclaimer: 'בינה מלאכותית זו אינה תחליף לטיפול מקצועי בעת משבר.',
+    chooseRegionLabel: 'בחר/י מדינה/אזור',
+    chooseRegionPlaceholder: 'בחר/י את המדינה/האזור שלך',
+    resourcesFor: 'משאבים עבור',
+    changeCountry: 'שינוי מדינה',
+    localEmergencyGuidance: 'הנחיית חירום מקומית',
+    genericGuidance: 'פנה/י מיד לשירותי החירום המקומיים או גש/י לחדר המיון הקרוב ביותר.',
+    worldwideHelpDirectory: 'מדריך עזרה עולמי',
+    hotlineLabel: 'קו סיוע למשבר',
+    textLabel: 'סיוע בהודעה',
+    emergencyLabel: 'שירותי חירום',
   },
   es: {
-    title: "Estamos aquí para ayudarte",
-    body: "Esta IA no puede proporcionar apoyo de emergencia. Si estás en crisis, comunícate con un profesional de inmediato.",
-    hotlineLabel: "Línea de crisis",
-    hotlineNumber: "024 (España)",
-    textLabel: "Emergencias generales",
-    textNumber: "112",
-    emergencyLabel: "Emergencia",
-    emergencyNumber: "112",
-    button: "Volver al chat",
-    disclaimer: "Esta IA no reemplaza la atención profesional en situaciones de crisis."
+    title: 'Estamos aquí para ayudarte',
+    body: 'Esta IA no puede proporcionar apoyo de emergencia. Si estás en crisis, comunícate con un profesional de inmediato.',
+    button: 'Volver al chat',
+    disclaimer: 'Esta IA no reemplaza la atención profesional en situaciones de crisis.',
+    chooseRegionLabel: 'Elige país/región',
+    chooseRegionPlaceholder: 'Selecciona tu país/región',
+    resourcesFor: 'Recursos para',
+    changeCountry: 'Cambiar país',
+    localEmergencyGuidance: 'Orientación de emergencia local',
+    genericGuidance: 'Contacta inmediatamente con los servicios de emergencia locales o acude al servicio de urgencias más cercano.',
+    worldwideHelpDirectory: 'Directorio mundial de ayuda',
+    hotlineLabel: 'Línea de crisis',
+    textLabel: 'Apoyo por texto',
+    emergencyLabel: 'Servicios de emergencia',
   },
   fr: {
-    title: "Nous sommes là pour vous aider",
+    title: 'Nous sommes là pour vous aider',
     body: "Cette IA ne peut pas fournir un soutien d'urgence. Si vous êtes en crise, contactez immédiatement un professionnel.",
-    hotlineLabel: "Numéro national de prévention du suicide",
-    hotlineNumber: "3114 (France)",
-    textLabel: "Urgences générales",
-    textNumber: "15 / 112",
-    emergencyLabel: "Urgence",
-    emergencyNumber: "15 / 112",
-    button: "Retour au chat",
-    disclaimer: "Cette IA ne remplace pas une prise en charge professionnelle en situation de crise."
+    button: 'Retour au chat',
+    disclaimer: 'Cette IA ne remplace pas une prise en charge professionnelle en situation de crise.',
+    chooseRegionLabel: 'Choisir un pays/une région',
+    chooseRegionPlaceholder: 'Sélectionnez votre pays/région',
+    resourcesFor: 'Ressources pour',
+    changeCountry: 'Changer de pays',
+    localEmergencyGuidance: "Conseils d'urgence locaux",
+    genericGuidance: "Contactez immédiatement les services d'urgence locaux ou rendez-vous au service des urgences le plus proche.",
+    worldwideHelpDirectory: "Annuaire mondial d'aide",
+    hotlineLabel: 'Ligne de crise',
+    textLabel: 'Aide par SMS',
+    emergencyLabel: "Services d'urgence",
   },
   de: {
-    title: "Wir sind für dich da",
-    body: "Diese KI kann keine Notfallunterstützung bieten. Wenn du dich in einer Krise befindest, wende dich sofort an eine Fachkraft.",
-    hotlineLabel: "Telefonseelsorge",
-    hotlineNumber: "0800 111 0 111 (Deutschland)",
-    textLabel: "Notruf",
-    textNumber: "112",
-    emergencyLabel: "Notruf",
-    emergencyNumber: "112",
-    button: "Zurück zum Chat",
-    disclaimer: "Diese KI ersetzt keine professionelle Krisenunterstützung."
+    title: 'Wir sind für dich da',
+    body: 'Diese KI kann keine Notfallunterstützung bieten. Wenn du dich in einer Krise befindest, wende dich sofort an eine Fachkraft.',
+    button: 'Zurück zum Chat',
+    disclaimer: 'Diese KI ersetzt keine professionelle Krisenunterstützung.',
+    chooseRegionLabel: 'Land/Region auswählen',
+    chooseRegionPlaceholder: 'Wähle dein Land/deine Region',
+    resourcesFor: 'Ressourcen für',
+    changeCountry: 'Land ändern',
+    localEmergencyGuidance: 'Lokale Notfallhinweise',
+    genericGuidance: 'Kontaktiere sofort die örtlichen Notdienste oder gehe in die nächstgelegene Notaufnahme.',
+    worldwideHelpDirectory: 'Weltweites Hilfsverzeichnis',
+    hotlineLabel: 'Krisenhotline',
+    textLabel: 'Text-Hilfe',
+    emergencyLabel: 'Notdienste',
   },
   it: {
-    title: "Siamo qui per aiutarti",
-    body: "Questa IA non può fornire supporto di emergenza. Se sei in crisi, contatta immediatamente un professionista.",
-    hotlineLabel: "Telefono Amico",
-    hotlineNumber: "800 274 274 (Italia)",
-    textLabel: "Emergenza generale",
-    textNumber: "112",
-    emergencyLabel: "Emergenza",
-    emergencyNumber: "112",
-    button: "Torna alla chat",
-    disclaimer: "Questa IA non sostituisce l'assistenza professionale in situazioni di crisi."
+    title: 'Siamo qui per aiutarti',
+    body: 'Questa IA non può fornire supporto di emergenza. Se sei in crisi, contatta immediatamente un professionista.',
+    button: 'Torna alla chat',
+    disclaimer: "Questa IA non sostituisce l'assistenza professionale in situazioni di crisi.",
+    chooseRegionLabel: 'Scegli paese/regione',
+    chooseRegionPlaceholder: 'Seleziona il tuo paese/la tua regione',
+    resourcesFor: 'Risorse per',
+    changeCountry: 'Cambia paese',
+    localEmergencyGuidance: 'Indicazioni di emergenza locali',
+    genericGuidance: 'Contatta immediatamente i servizi di emergenza locali oppure recati al pronto soccorso più vicino.',
+    worldwideHelpDirectory: 'Directory mondiale di aiuto',
+    hotlineLabel: 'Linea di crisi',
+    textLabel: 'Supporto via SMS',
+    emergencyLabel: 'Servizi di emergenza',
   },
   pt: {
-    title: "Estamos aqui para ajudar",
-    body: "Esta IA não pode fornecer suporte de emergência. Se estiver em crise, contacte imediatamente um profissional.",
-    hotlineLabel: "SOS Voz Amiga",
-    hotlineNumber: "213 544 545 (Portugal)",
-    textLabel: "Emergência geral",
-    textNumber: "112",
-    emergencyLabel: "Emergência",
-    emergencyNumber: "112",
-    button: "Voltar ao chat",
-    disclaimer: "Esta IA não substitui o apoio profissional em situações de crise."
-  }
+    title: 'Estamos aqui para ajudar',
+    body: 'Esta IA não pode fornecer suporte de emergência. Se estiver em crise, contacte imediatamente um profissional.',
+    button: 'Voltar ao chat',
+    disclaimer: 'Esta IA não substitui o apoio profissional em situações de crise.',
+    chooseRegionLabel: 'Escolha país/região',
+    chooseRegionPlaceholder: 'Selecione o seu país/região',
+    resourcesFor: 'Recursos para',
+    changeCountry: 'Alterar país',
+    localEmergencyGuidance: 'Orientação de emergência local',
+    genericGuidance: 'Contacte imediatamente os serviços de emergência locais ou dirija-se ao serviço de urgência mais próximo.',
+    worldwideHelpDirectory: 'Diretório mundial de ajuda',
+    hotlineLabel: 'Linha de crise',
+    textLabel: 'Apoio por mensagem',
+    emergencyLabel: 'Serviços de emergência',
+  },
 };
+
+const EMERGENCY_REGION_LABELS = Object.freeze({
+  US: 'United States',
+  IL: 'Israel',
+  ES: 'Spain',
+  FR: 'France',
+  DE: 'Germany',
+  IT: 'Italy',
+  PT: 'Portugal',
+});
+
+function resolveLanguageCode(language) {
+  const baseLang = language?.split('-')[0];
+  if (CRISIS_UI_STRINGS[language]) {
+    return language;
+  }
+  if (CRISIS_UI_STRINGS[baseLang]) {
+    return baseLang;
+  }
+  return 'en';
+}
+
+function getRegionDisplayName(region, language) {
+  if (!region) {
+    return '';
+  }
+
+  try {
+    if (typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function') {
+      const displayNames = new Intl.DisplayNames([language], { type: 'region' });
+      return displayNames.of(region) || EMERGENCY_REGION_LABELS[region] || region;
+    }
+  } catch {
+    // Fall back to deterministic labels below.
+  }
+
+  return EMERGENCY_REGION_LABELS[region] || region;
+}
+
+function ResourceRow({ icon: Icon, label, value, serviceName }) {
+  return (
+    <div className="flex items-start gap-2 p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
+      <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
+      <div className="min-w-0">
+        <span className="font-medium" style={{ color: '#7F1D1D' }}>{label}:</span>
+        <span className="ml-2 break-words" style={{ color: '#991B1B' }}>{value}</span>
+        {serviceName && serviceName !== label ? (
+          <p className="text-xs mt-1" style={{ color: '#991B1B', opacity: 0.85 }}>
+            {serviceName}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function InlineRiskPanel({ onDismiss }) {
   const { i18n } = useTranslation();
-  const baseLang = i18n.language?.split('-')[0];
-  const lang = CRISIS_STRINGS[i18n.language] ? i18n.language
-    : CRISIS_STRINGS[baseLang] ? baseLang
-    : 'en';
-  const s = CRISIS_STRINGS[lang];
+  const [selectedRegion, setSelectedRegion] = useState(() => readStoredEmergencyRegion());
+  const lang = resolveLanguageCode(i18n.language);
+  const s = CRISIS_UI_STRINGS[lang];
+  const resources = getEmergencyResources(selectedRegion);
+  const currentRegionName = useMemo(
+    () => getRegionDisplayName(selectedRegion, lang),
+    [selectedRegion, lang]
+  );
 
   const handleDismiss = () => {
     if (appParams.appId) {
@@ -111,6 +206,17 @@ export default function InlineRiskPanel({ onDismiss }) {
       });
     }
     onDismiss();
+  };
+
+  const handleRegionChange = (event) => {
+    const nextRegion = normalizeEmergencyRegion(event.target.value);
+    writeStoredEmergencyRegion(undefined, nextRegion);
+    setSelectedRegion(nextRegion);
+  };
+
+  const handleClearRegion = () => {
+    clearStoredEmergencyRegion();
+    setSelectedRegion(null);
   };
 
   return (
@@ -144,29 +250,104 @@ export default function InlineRiskPanel({ onDismiss }) {
               {s.body}
             </p>
 
-            <div className="space-y-2 mb-4 text-sm">
-              <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
-                <Phone className="w-4 h-4 flex-shrink-0" style={{ color: '#DC2626' }} />
-                <div>
-                  <span className="font-medium" style={{ color: '#7F1D1D' }}>{s.hotlineLabel}:</span>
-                  <span className="ml-2" style={{ color: '#991B1B' }}>{s.hotlineNumber}</span>
+            {resources ? (
+              <div className="mb-4">
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <p
+                    data-testid="emergency-region-current"
+                    className="text-sm font-medium"
+                    style={{ color: '#7F1D1D' }}
+                  >
+                    {s.resourcesFor} {currentRegionName}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleClearRegion}
+                    data-testid="emergency-region-change"
+                    aria-label={s.changeCountry}
+                    className="text-sm underline underline-offset-2"
+                    style={{ color: '#991B1B' }}
+                  >
+                    {s.changeCountry}
+                  </button>
+                </div>
+
+                <div
+                  data-testid="emergency-local-resources"
+                  className="space-y-2 mb-3 text-sm"
+                >
+                  <p className="font-medium" style={{ color: '#7F1D1D' }}>
+                    {s.localEmergencyGuidance}
+                  </p>
+                  <ResourceRow
+                    icon={Phone}
+                    label={s.hotlineLabel}
+                    value={resources.hotlineNumber}
+                    serviceName={resources.hotlineLabel}
+                  />
+                  <ResourceRow
+                    icon={MessageSquare}
+                    label={s.textLabel}
+                    value={resources.textNumber}
+                    serviceName={resources.textLabel}
+                  />
+                  <ResourceRow
+                    icon={Phone}
+                    label={s.emergencyLabel}
+                    value={resources.emergencyNumber}
+                    serviceName={resources.emergencyLabel}
+                  />
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
-                <MessageSquare className="w-4 h-4 flex-shrink-0" style={{ color: '#DC2626' }} />
-                <div>
-                  <span className="font-medium" style={{ color: '#7F1D1D' }}>{s.textLabel}:</span>
-                  <span className="ml-2" style={{ color: '#991B1B' }}>{s.textNumber}</span>
+            ) : (
+              <div className="mb-4">
+                <label
+                  htmlFor="emergency-region-select"
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: '#7F1D1D' }}
+                >
+                  {s.chooseRegionLabel}
+                </label>
+                <select
+                  id="emergency-region-select"
+                  data-testid="emergency-region-select"
+                  aria-label={s.chooseRegionLabel}
+                  className="w-full rounded-xl border px-3 py-2 text-sm mb-3 bg-white"
+                  style={{ borderColor: 'rgba(239, 68, 68, 0.35)', color: '#7F1D1D' }}
+                  value=""
+                  onChange={handleRegionChange}
+                >
+                  <option value="">{s.chooseRegionPlaceholder}</option>
+                  {SUPPORTED_EMERGENCY_REGIONS.map((region) => (
+                    <option key={region} value={region}>
+                      {getRegionDisplayName(region, lang)}
+                    </option>
+                  ))}
+                </select>
+                <div
+                  data-testid="emergency-generic-guidance"
+                  className="p-3 rounded-xl text-sm"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)', color: '#991B1B' }}
+                >
+                  <p className="font-medium mb-1" style={{ color: '#7F1D1D' }}>
+                    {s.localEmergencyGuidance}
+                  </p>
+                  <p>{s.genericGuidance}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
-                <Phone className="w-4 h-4 flex-shrink-0" style={{ color: '#DC2626' }} />
-                <div>
-                  <span className="font-medium" style={{ color: '#7F1D1D' }}>{s.emergencyLabel}:</span>
-                  <span className="ml-2" style={{ color: '#991B1B' }}>{s.emergencyNumber}</span>
-                </div>
-              </div>
-            </div>
+            )}
+
+            <a
+              href={GLOBAL_HELP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="emergency-global-directory"
+              className="flex items-center gap-2 text-sm font-medium mb-4 underline underline-offset-2"
+              style={{ color: '#991B1B' }}
+            >
+              <Globe className="w-4 h-4 flex-shrink-0" />
+              <span>{s.worldwideHelpDirectory}</span>
+            </a>
 
             <p className="text-xs mb-3" style={{ color: '#991B1B', opacity: 0.8 }}>
               {s.disclaimer}
