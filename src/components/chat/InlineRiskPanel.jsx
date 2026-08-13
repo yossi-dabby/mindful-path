@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Button } from '../ui/button.jsx';
+import { Card } from '../ui/card.jsx';
 import { AlertTriangle, Globe, Phone, MessageSquare } from 'lucide-react';
-import { appParams } from '@/lib/app-params';
+import { appParams } from '../../lib/app-params.js';
 import {
   SUPPORTED_EMERGENCY_REGIONS,
   clearStoredEmergencyRegion,
@@ -10,7 +10,7 @@ import {
   normalizeEmergencyRegion,
   readStoredEmergencyRegion,
   writeStoredEmergencyRegion,
-} from '@/lib/emergencyResources';
+} from '../../lib/emergencyResources.js';
 import { useTranslation } from 'react-i18next';
 
 const GLOBAL_HELP_URL = 'https://findahelpline.com/';

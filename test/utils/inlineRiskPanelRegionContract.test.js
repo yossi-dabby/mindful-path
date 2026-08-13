@@ -57,11 +57,19 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@/lib/app-params', () => ({
+vi.mock('../../src/lib/app-params.js', () => ({
   appParams: { appId: null },
 }));
 
-vi.mock('@/lib/emergencyResources', () => ({
+vi.mock('../../src/components/ui/button.jsx', () => ({
+  Button: ({ children, ...props }) => React.createElement('button', props, children),
+}));
+
+vi.mock('../../src/components/ui/card.jsx', () => ({
+  Card: ({ children, ...props }) => React.createElement('div', props, children),
+}));
+
+vi.mock('../../src/lib/emergencyResources.js', () => ({
   SUPPORTED_EMERGENCY_REGIONS: ['US', 'IL', 'ES', 'FR', 'DE', 'IT', 'PT'],
   normalizeEmergencyRegion: mockState.normalizeEmergencyRegion,
   readStoredEmergencyRegion: mockState.readStoredEmergencyRegion,
@@ -90,7 +98,7 @@ describe('InlineRiskPanel region contract', () => {
   });
 
   it('imports the explicit emergency region utility', () => {
-    expect(panelSource).toContain("from '@/lib/emergencyResources'");
+    expect(panelSource).toContain("from '../../lib/emergencyResources.js'");
   });
 
   it('keeps country-specific numbers out of language-copy objects', () => {
