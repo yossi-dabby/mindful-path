@@ -890,7 +890,5 @@ describe('Wave 5 — SECTION F: Competing-hypotheses differentiation rule', () =
     // The planner instructions block must appear exactly once
     const occurrences = content.split('COMPETING-HYPOTHESES DIFFERENTIATION').length - 1;
     expect(occurrences).toBe(1);
-    // And the full block is present
-    expect(content).toContain('COMPETING-HYPOTHESES DIFFERENTIATION');
   });
 });
