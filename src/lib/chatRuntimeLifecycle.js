@@ -154,10 +154,6 @@ function mergeAssistantMessages(previousAssistant, nextAssistant) {
   if (assistantMessageSupersedes(previousAssistant, nextAssistant)) {
     return nextAssistant;
   }
-  const mergedContent =
-    previousContent === nextContent
-      ? nextContent
-      : `${previousContent}\n\n${nextContent}`;
   return {
     ...previousAssistant,
     ...nextAssistant,
@@ -165,7 +161,7 @@ function mergeAssistantMessages(previousAssistant, nextAssistant) {
       ...(previousAssistant?.metadata || {}),
       ...(nextAssistant?.metadata || {}),
     },
-    content: mergedContent,
+    content: `${previousContent}\n\n${nextContent}`,
   };
 }
 
@@ -192,9 +188,36 @@ function buildAssistantSegmentBlocks(segment) {
   return blocks;
 }
 
+function selectCanonicalAssistantWithinBlock(blockMessages) {
+  const messages = Array.isArray(blockMessages) ? blockMessages.filter(Boolean) : [];
+  if (messages.length === 0) return null;
+
+  let canonical = messages[0];
+  for (let i = 1; i < messages.length; i++) {
+    const candidate = messages[i];
+    if (isAdministrativeAssistantAcknowledgement(candidate) && !isAdministrativeAssistantAcknowledgement(canonical)) {
+      continue;
+    }
+    if (
+      isExplicitlyFinalAssistantMessage(candidate) &&
+      !isExplicitlyFinalAssistantMessage(canonical)
+    ) {
+      canonical = candidate;
+      continue;
+    }
+    if (assistantMessageSupersedes(canonical, candidate)) {
+      canonical = candidate;
+      continue;
+    }
+    canonical = mergeAssistantMessages(canonical, candidate);
+  }
+
+  return canonical;
+}
+
 function selectCanonicalAssistantForSegment(segment) {
   const assistantBlocks = buildAssistantSegmentBlocks(segment)
-    .map((block) => block.messages[block.messages.length - 1])
+    .map((block) => selectCanonicalAssistantWithinBlock(block.messages))
     .filter(Boolean);
   if (assistantBlocks.length === 0) return null;
 
@@ -208,14 +231,6 @@ function selectCanonicalAssistantForSegment(segment) {
       continue;
     }
     if (assistantMessageSupersedes(canonical, candidate)) {
-      canonical = candidate;
-      continue;
-    }
-    if (
-      isExplicitlyFinalAssistantMessage(candidate) &&
-      !isExplicitlyFinalAssistantMessage(canonical) &&
-      assistantMessageSupersedes(canonical, candidate)
-    ) {
       canonical = candidate;
       continue;
     }
