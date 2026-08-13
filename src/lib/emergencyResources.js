@@ -110,8 +110,10 @@ export function readStoredEmergencyRegion(storage = getDefaultStorage()) {
   }
 }
 
-export function writeStoredEmergencyRegion(storage = getDefaultStorage(), region) {
-  const normalized = normalizeEmergencyRegion(region);
+export function writeStoredEmergencyRegion(storageOrRegion = getDefaultStorage(), region) {
+  const usesInjectedStorage = arguments.length > 1;
+  const storage = usesInjectedStorage ? storageOrRegion : getDefaultStorage();
+  const normalized = normalizeEmergencyRegion(usesInjectedStorage ? region : storageOrRegion);
   if (!normalized || !storage || typeof storage.setItem !== 'function') {
     return null;
   }

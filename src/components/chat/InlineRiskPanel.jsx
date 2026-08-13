@@ -210,7 +210,7 @@ export default function InlineRiskPanel({ onDismiss }) {
 
   const handleRegionChange = (event) => {
     const nextRegion = normalizeEmergencyRegion(event.target.value);
-    writeStoredEmergencyRegion(undefined, nextRegion);
+    writeStoredEmergencyRegion(nextRegion);
     setSelectedRegion(nextRegion);
   };
 
