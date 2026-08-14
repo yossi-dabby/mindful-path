@@ -1,6 +1,15 @@
 const DEFAULT_POLL_DELAYS = Object.freeze([500, 1000, 2000, 4000, 6500]);
 const DEFAULT_MAX_POLL_ATTEMPTS = 5;
 const FINAL_ASSISTANT_STATUSES = new Set(['done', 'completed', 'complete', 'final', 'finished']);
+const COMPLETED_TOOL_CALL_STATUSES = new Set([
+  'success',
+  'succeeded',
+  'done',
+  'completed',
+  'complete',
+  'finished',
+]);
+const POST_REPLY_PERSISTENCE_TOOL_NAMES = new Set(['writetherapistmemory']);
 const ADMINISTRATIVE_ASSISTANT_ACK_PATTERNS = [
   // Hebrew
   /^הרישום הקליני עודכן(?:[\s.!?,—-]|$)/,
@@ -146,6 +155,21 @@ function isAdministrativeAssistantAcknowledgement(msg) {
   return ADMINISTRATIVE_ASSISTANT_ACK_PATTERNS.some((pattern) => pattern.test(content));
 }
 
+function hasCompletedPostReplyPersistenceToolCall(msg) {
+  const toolCalls = Array.isArray(msg?.tool_calls) ? msg.tool_calls : [];
+  return toolCalls.some((toolCall) => {
+    const name = typeof toolCall?.name === 'string' ? toolCall.name.trim().toLowerCase() : '';
+    if (!POST_REPLY_PERSISTENCE_TOOL_NAMES.has(name)) return false;
+
+    const status = typeof toolCall?.status === 'string' ? toolCall.status.trim().toLowerCase() : '';
+    const hasResult =
+      Object.prototype.hasOwnProperty.call(toolCall || {}, 'results') &&
+      toolCall.results !== null &&
+      toolCall.results !== undefined;
+    return COMPLETED_TOOL_CALL_STATUSES.has(status) || hasResult;
+  });
+}
+
 function hasHiddenAssistantBoundary(previousAssistant, nextAssistant) {
   const previousRawIndex = Number.isInteger(previousAssistant?.__rawIndex) ? previousAssistant.__rawIndex : null;
   const nextRawIndex = Number.isInteger(nextAssistant?.__rawIndex) ? nextAssistant.__rawIndex : null;
@@ -215,18 +239,22 @@ function selectCanonicalAssistantWithinBlock(blockMessages) {
   const messages = Array.isArray(blockMessages) ? blockMessages.filter(Boolean) : [];
   if (messages.length === 0) return null;
 
-  // Within one contiguous block: never concatenate — select the best single candidate.
   // Priority 1: latest explicitly-final non-administrative message.
-  // Priority 2: latest non-administrative message.
-  // Priority 3: last message in the block.
+  // Priority 2: preserve a completed post-reply persistence boundary. Base44 can
+  // persist the therapeutic answer and its writeTherapistMemory call in one
+  // assistant record, then append a complementary assistant continuation in the
+  // next raw record. Those two records are one user-facing answer even though
+  // their raw indexes are contiguous.
+  // Priority 3: latest non-administrative message (progress -> final collapse).
+  // Priority 4: last message in the block.
   let latestFinalNonAdmin = null;
-  let latestNonAdmin = null;
+  const nonAdministrativeMessages = [];
 
   for (let i = 0; i < messages.length; i++) {
     const candidate = messages[i];
     const isAdmin = isAdministrativeAssistantAcknowledgement(candidate);
     if (!isAdmin) {
-      latestNonAdmin = candidate;
+      nonAdministrativeMessages.push(candidate);
       if (isExplicitlyFinalAssistantMessage(candidate)) {
         latestFinalNonAdmin = candidate;
       }
@@ -234,7 +262,28 @@ function selectCanonicalAssistantWithinBlock(blockMessages) {
   }
 
   if (latestFinalNonAdmin !== null) return latestFinalNonAdmin;
-  if (latestNonAdmin !== null) return latestNonAdmin;
+
+  if (nonAdministrativeMessages.length > 1) {
+    let persistenceBoundaryIndex = -1;
+    for (let i = nonAdministrativeMessages.length - 2; i >= 0; i--) {
+      if (hasCompletedPostReplyPersistenceToolCall(nonAdministrativeMessages[i])) {
+        persistenceBoundaryIndex = i;
+        break;
+      }
+    }
+
+    if (persistenceBoundaryIndex >= 0) {
+      let canonical = nonAdministrativeMessages[persistenceBoundaryIndex];
+      for (let i = persistenceBoundaryIndex + 1; i < nonAdministrativeMessages.length; i++) {
+        canonical = mergeAssistantMessages(canonical, nonAdministrativeMessages[i]);
+      }
+      return canonical;
+    }
+  }
+
+  if (nonAdministrativeMessages.length > 0) {
+    return nonAdministrativeMessages[nonAdministrativeMessages.length - 1];
+  }
   return messages[messages.length - 1];
 }
 

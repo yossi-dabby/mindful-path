@@ -309,6 +309,108 @@ describe('legacy visible snapshot normalization for hydration/load', () => {
     expect(normalized[1].content).not.toContain('thinking');
   });
 
+  it('merges a contiguous therapeutic reply and its post-memory-write continuation', () => {
+    const actionableReply = {
+      role: 'assistant',
+      id: 'action-before-memory-write',
+      __rawIndex: 6,
+      content: 'בחר משימה אחת שאורכת עד חמש דקות והתחל בה עכשיו. כשהטיימר מצלצל — עצור, גם אם אתה באמצע משפט. ההצלחה כאן היא שהתחלת, לא שסיימת.',
+      tool_calls: [
+        {
+          name: 'writeTherapistMemory',
+          status: 'success',
+          results: '{"success":true}',
+        },
+      ],
+    };
+    const therapeuticContinuation = {
+      role: 'assistant',
+      id: 'rationale-after-memory-write',
+      __rawIndex: 7,
+      content: 'הצעד הזה מכוון בדיוק למעגל שהסברנו — לא מחכים למוטיבציה, אלא נותנים לפעולה קטנה להתחיל להזין את תחושת היכולת.',
+    };
+
+    const normalized = normalizeLegacyVisibleAssistantBlocks([
+      user1,
+      actionableReply,
+      therapeuticContinuation,
+    ]);
+
+    expect(normalized).toHaveLength(2);
+    expect(normalized[1].id).toBe('rationale-after-memory-write');
+    expect(normalized[1].content).toBe(
+      `${actionableReply.content}\n\n${therapeuticContinuation.content}`
+    );
+    expect(normalized[1].content).toContain('בחר משימה אחת');
+    expect(normalized[1].content).toContain('הצעד הזה מכוון');
+
+    const normalizedAgain = normalizeLegacyVisibleAssistantBlocks(normalized);
+    expect(normalizedAgain[1].content).toBe(normalized[1].content);
+  });
+
+  it('does not merge a retrieval progress record with a following final response', () => {
+    const retrievalProgress = {
+      role: 'assistant',
+      id: 'retrieval-progress',
+      __rawIndex: 1,
+      content: 'I am checking the earlier records before I answer.',
+      tool_calls: [
+        {
+          name: 'retrieveTherapistMemory',
+          status: 'success',
+          results: '{"success":true}',
+        },
+      ],
+    };
+    const finalWithoutMarker = {
+      role: 'assistant',
+      id: 'final-after-retrieval',
+      __rawIndex: 2,
+      content: 'Here is the complete therapeutic answer.',
+    };
+
+    const normalized = normalizeLegacyVisibleAssistantBlocks([
+      user1,
+      retrievalProgress,
+      finalWithoutMarker,
+    ]);
+
+    expect(normalized).toHaveLength(2);
+    expect(normalized[1].id).toBe('final-after-retrieval');
+    expect(normalized[1].content).toBe(finalWithoutMarker.content);
+    expect(normalized[1].content).not.toContain(retrievalProgress.content);
+  });
+
+  it('prefers an explicitly final response over an earlier memory-write record', () => {
+    const preFinalReply = {
+      role: 'assistant',
+      id: 'pre-final-memory-write',
+      __rawIndex: 1,
+      content: 'An earlier answer fragment that must not be duplicated.',
+      tool_calls: [
+        {
+          name: 'writeTherapistMemory',
+          status: 'success',
+          results: '{"success":true}',
+        },
+      ],
+    };
+    const explicitFinal = {
+      role: 'assistant',
+      id: 'explicit-final-after-memory-write',
+      __rawIndex: 2,
+      content: 'Here is the complete answer.',
+      metadata: { status: 'completed' },
+    };
+
+    const normalized = normalizeLegacyVisibleAssistantBlocks([user1, preFinalReply, explicitFinal]);
+
+    expect(normalized).toHaveLength(2);
+    expect(normalized[1].id).toBe('explicit-final-after-memory-write');
+    expect(normalized[1].content).toBe(explicitFinal.content);
+    expect(normalized[1].content).not.toContain(preFinalReply.content);
+  });
+
   it('keeps the substantive reply when a later Spanish administrative acknowledgement is present', () => {
     const substantive = {
       role: 'assistant',
