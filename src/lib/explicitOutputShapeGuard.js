@@ -145,7 +145,10 @@ export function enforceAtomicActionOutput({
   const lastActionClause = actionRecords.at(-1).actionClauses.at(-1);
   const originalFirstActionSentence = evaluation.sentences[firstActionSentenceIndex] || '';
   const punctuation = originalFirstActionSentence.match(/[.!?]$/)?.[0] || '.';
-  const atomicSentence = ensureTerminalPunctuation(lastActionClause, punctuation);
+  const normalizedAtomicClause = normalizeLocale(locale) === 'en'
+    ? `${lastActionClause.charAt(0).toUpperCase()}${lastActionClause.slice(1)}`
+    : lastActionClause;
+  const atomicSentence = ensureTerminalPunctuation(normalizedAtomicClause, punctuation);
 
   const content = evaluation.sentences
     .map((sentence, index) => {
