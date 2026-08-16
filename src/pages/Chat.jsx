@@ -120,6 +120,7 @@ import {
   buildCompositeProvenanceKey,
 } from '@/lib/guardIsolationAudit.js';
 import { enforceResponsePolicy } from '../lib/responsePolicyEnforcer.js';
+import { applyAtomicActionGuardToConversationMessages } from '../lib/explicitOutputShapeGuard.js';
 import { _therapistWiringCanonicalName } from '@/lib/runtimeCapabilityDiagnostic.js';
 import {
   fetchTherapistRuntimeFlagSnapshot,
@@ -1460,7 +1461,11 @@ export default function Chat() {
    *                                     — enforces immediate-message grounding and
    *                                        replaces unsupported inferred claims with
    *                                        a localized neutral fallback
-   *   5. null filtering                  — removes messages hidden by the sanitizer
+   *   5. atomic output-shape guard       — as the final content rewrite, collapses
+   *                                        chained imperatives only when the paired
+   *                                        current visible user turn explicitly
+   *                                        requested exactly one action/step
+   *   6. null filtering                  — removes messages hidden by the sanitizer
    *
    * Also updates pendingFormulationCorrectionRef for the next outbound send.
    *
@@ -1541,7 +1546,15 @@ export default function Chat() {
     pendingFormulationCorrectionRef.current = pendingCorrection;
     pendingGroundingCorrectionRef.current = pendingGroundingCorrection;
     updatePendingInternalCorrection(pendingCorrection, pendingGroundingCorrection);
-    const withRuntimeMetadata = grounded.map((msg, rawIndex) => {
+    // This is deliberately the final content-rewriting stage. It runs after
+    // formulation and grounding replacements so no later correction can append a
+    // second command after the atomicity recount.
+    const outputShaped = applyAtomicActionGuardToConversationMessages(
+      sanitized,
+      grounded,
+      { locale: sessionLang },
+    );
+    const withRuntimeMetadata = outputShaped.map((msg, rawIndex) => {
       if (!msg) return null;
       const resolvedRawIndex = Number.isInteger(msg.__rawIndex) ? msg.__rawIndex : rawIndex;
       const guardMode = guardModesByRawIndex[resolvedRawIndex] || null;
