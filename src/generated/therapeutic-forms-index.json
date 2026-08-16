@@ -131,6 +131,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Adolescents CBT Core Series",
@@ -235,6 +237,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Is Going On for Me Right Now?",
@@ -341,6 +345,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "My Body Gives Me Signals",
@@ -447,6 +453,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Triggered Me?",
@@ -552,6 +560,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Thought, Feeling, Action",
@@ -657,6 +667,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "My Personal Map",
@@ -762,6 +774,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Did My Mind Say?",
@@ -867,6 +881,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Thought or Fact?",
@@ -972,6 +988,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Which Interpretation Did I Give It?",
@@ -1077,6 +1095,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Kind of Thought Is This?",
@@ -1182,6 +1202,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Belief Lies Underneath?",
@@ -1287,6 +1309,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Is the Evidence?",
@@ -1392,6 +1416,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Is There Another Way to See This?",
@@ -1497,6 +1523,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Would I Say to a Friend?",
@@ -1602,6 +1630,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "A More Balanced Thought",
@@ -1707,6 +1737,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Do I Choose to Think Now?",
@@ -1812,6 +1844,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Choosing an Action",
@@ -1917,6 +1951,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Creating a Helpful Thought",
@@ -2022,6 +2058,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Small Steps",
@@ -2127,6 +2165,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Thinking, Beliefs and Assumptions",
@@ -2232,6 +2272,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Balance and Evaluation",
@@ -2337,6 +2379,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Avoidance",
@@ -2442,6 +2486,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Small Steps",
@@ -2547,6 +2593,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Gradual Exposure",
@@ -2652,6 +2700,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Effective Action",
@@ -2757,6 +2807,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Persistence and Tracking",
@@ -2862,6 +2914,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "What Have I Learned About Myself?",
@@ -2967,6 +3021,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "My Weekly Check-In",
@@ -3072,6 +3128,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Strengthening Myself",
@@ -3177,6 +3235,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "When It’s Hard for Me - What Helps Me?",
@@ -3282,6 +3342,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "My Road Card",
@@ -3385,6 +3447,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 1,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Adolescents CBT Specialized Series",
@@ -3487,6 +3551,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 01 — Anxiety, Stress and Fears",
@@ -3586,6 +3652,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 02 — Mood, Functioning and Energy",
@@ -3683,6 +3751,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 03 — Self-Esteem and Identity",
@@ -3782,6 +3852,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 04 — Friendship, Belonging, and Conflict",
@@ -3879,6 +3951,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 05 — Anger, Impulsivity, and Regulation",
@@ -3982,6 +4056,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 06 — OCD, Intrusive Thoughts, and New Responses",
@@ -4083,6 +4159,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 07 — ADHD, Attention, Organization, and Impulsivity",
@@ -4182,6 +4260,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 8000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 08 — Body, Sleep, and Stress",
@@ -4281,6 +4361,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 9000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 09 — Trauma and Safe Coping",
@@ -4384,6 +4466,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "en": {
         "title": "Module 10 — Parents and Teens",
@@ -4503,6 +4587,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "What Am I Feeling?",
@@ -4621,6 +4707,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "What Is My Body Telling Me?",
@@ -4735,6 +4823,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Feeling Meter",
@@ -4851,6 +4941,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Early Signs Detective",
@@ -4966,6 +5058,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Feelings Can Change",
@@ -5079,6 +5173,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Feeling Card",
@@ -5195,6 +5291,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "What Is My Thought Saying?",
@@ -5310,6 +5408,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Thought or Fact?",
@@ -5426,6 +5526,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Worry Thoughts",
@@ -5542,6 +5644,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Helpful Thought Switch",
@@ -5658,6 +5762,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Thought Detective",
@@ -5772,6 +5878,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "A Thought That Helps Me",
@@ -5888,6 +5996,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "What Do I Do When It Feels Hard?",
@@ -6006,6 +6116,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Tiny Brave Step",
@@ -6125,6 +6237,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Brave Ladder",
@@ -6241,6 +6355,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Before I Try",
@@ -6357,6 +6473,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "After I Tried",
@@ -6473,6 +6591,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Small Step Plan",
@@ -6591,6 +6711,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Pause Button",
@@ -6709,6 +6831,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "What Can Help Me Calm Down?",
@@ -6825,6 +6949,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Breathing Helper",
@@ -6941,6 +7067,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Back to My Body",
@@ -7057,6 +7185,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Safe Calm Place",
@@ -7169,6 +7299,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Calm Tools Card",
@@ -7289,6 +7421,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Calm Tools",
@@ -7406,6 +7540,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "When I Feel Overwhelmed",
@@ -7524,6 +7660,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Feeling Thermometer",
@@ -7642,6 +7780,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Calm Plan: Before I Get Too Upset",
@@ -7762,6 +7902,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Calm Corner",
@@ -7878,6 +8020,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "My Calm Plan",
@@ -7980,6 +8124,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "CBT Core for Children — Stage 1: Emotions & Body",
@@ -8081,6 +8227,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "CBT Core for Children — Stage 3: Behavior & Small Steps",
@@ -8182,6 +8330,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "CBT Core for Children — Stage 4: Regulation & Calm",
@@ -8283,6 +8433,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "CBT Core for Children — Stage 5: Calm Tools & Personal Plan",
@@ -8396,6 +8548,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.1 — Safe Goodbye Plan",
@@ -8508,6 +8662,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.10 — Safe Goodbye Card",
@@ -8620,6 +8776,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.2 — School Separation Steps",
@@ -8732,6 +8890,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.3 — Sleeping Alone Support",
@@ -8844,6 +9004,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.4 — Comfort Object Anchor",
@@ -8956,6 +9118,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.5 — Goodbye Step Ladder",
@@ -9068,6 +9232,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.6 — Separation Worry Thoughts",
@@ -9180,6 +9346,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.7 — Body Feelings During Separation",
@@ -9292,6 +9460,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.8 — Who Can Help Me?",
@@ -9404,6 +9574,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.1.9 — Brave Separation Practice",
@@ -9518,6 +9690,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.1 — Fear of Dogs",
@@ -9634,6 +9808,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.10 — Specific Fear Coping Card",
@@ -9750,6 +9926,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.2 — Elevator Fear Steps",
@@ -9866,6 +10044,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.3 — Shots and Injections",
@@ -9982,6 +10162,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.4 — Loud Noise Coping",
@@ -10096,6 +10278,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.5 — Fear Map",
@@ -10212,6 +10396,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.6 — Gentle Brave Ladder",
@@ -10328,6 +10514,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.7 — Thought vs Reality Check",
@@ -10444,6 +10632,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.8 — Getting Closer Plan",
@@ -10558,6 +10748,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.2.9 — Tiny Brave Practice",
@@ -10668,6 +10860,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.1 — Speaking in Class Bravely",
@@ -10778,6 +10972,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.10 — Social Courage Card",
@@ -10888,6 +11084,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.2 — What If They Laugh?",
@@ -10998,6 +11196,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.3 — Fear of Mistakes in Social Situations",
@@ -11106,6 +11306,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.4 — Joining a Game",
@@ -11216,6 +11418,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.5 — Asking for Help Out Loud",
@@ -11326,6 +11530,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.6 — Social Worry Thoughts",
@@ -11436,6 +11642,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.7 — Body Signs in Social Stress",
@@ -11546,6 +11754,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.8 — Helpful Social Phrases",
@@ -11656,6 +11866,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.3.9 — Small Social Steps Ladder",
@@ -11766,6 +11978,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.1 — Before the Test",
@@ -11876,6 +12090,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.10 — Confidence Card",
@@ -11988,6 +12204,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.2 — Mistake Fear Rebalance",
@@ -12100,6 +12318,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.3 — I Will Not Succeed Thought Check",
@@ -12212,6 +12432,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.4 — Ready Before the Task",
@@ -12324,6 +12546,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.5 — Breathing Before a Test",
@@ -12436,6 +12660,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.6 — Break It Into Small Parts",
@@ -12548,6 +12774,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.7 — After the Test Reflection",
@@ -12660,6 +12888,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.8 — Success Is Not Perfection",
@@ -12772,6 +13002,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.4.9 — Performance Plan Template",
@@ -12881,6 +13113,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.1 — Everyday Worries",
@@ -12993,6 +13227,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.10 — Worry Reminder Card",
@@ -13103,6 +13339,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.2 — Worries About Family",
@@ -13215,6 +13453,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.3 — Future and Daily Uncertainty",
@@ -13327,6 +13567,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.4 — What Is In My Control?",
@@ -13439,6 +13681,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.5 — Short Worry Time",
@@ -13551,6 +13795,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.6 — Helpful Thoughts for Worry",
@@ -13663,6 +13909,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.7 — Body and Worry Signals",
@@ -13775,6 +14023,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.8 — Calming Anchor Practice",
@@ -13887,6 +14137,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "1.5.9 — My Worry Coping Plan",
@@ -13997,6 +14249,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.1 — Anger Thermometer",
@@ -14109,6 +14363,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.10 — Personal Anger Plan",
@@ -14221,6 +14477,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.2 — Early Anger Signs",
@@ -14333,6 +14591,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.3 — Pause Before Outburst",
@@ -14445,6 +14705,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.4 — Body Clues for Anger",
@@ -14557,6 +14819,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.5 — Choose a Different Response",
@@ -14667,6 +14931,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.6 — Repair After Anger",
@@ -14779,6 +15045,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.7 — Ask for a Break",
@@ -14891,6 +15159,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.8 — Calming Tools for Anger",
@@ -15001,6 +15271,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.1.9 — Frustration Ladder",
@@ -15115,6 +15387,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.1 — Cooperation Starter",
@@ -15229,6 +15503,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.10 — Trying Differently Card",
@@ -15343,6 +15619,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.2 — Arguing Pattern Check",
@@ -15457,6 +15735,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.3 — Refusal to Request Mapping",
@@ -15571,6 +15851,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.4 — Authority Conflict Plan",
@@ -15685,6 +15967,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.5 — Choice vs Opposition",
@@ -15799,6 +16083,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.6 — Ask Instead of Argue",
@@ -15913,6 +16199,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.7 — Try One Rule",
@@ -16027,6 +16315,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.8 — Repair After Conflict",
@@ -16141,6 +16431,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.2.9 — Flexibility Practice",
@@ -16253,6 +16545,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.1 — Stop Before Acting",
@@ -16367,6 +16661,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.10 — Stop-Think-Choose Card",
@@ -16479,6 +16775,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.2 — Think Before Doing",
@@ -16593,6 +16891,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.3 — Quiet Hands Practice",
@@ -16707,6 +17007,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.4 — Waiting My Turn",
@@ -16821,6 +17123,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.5 — Choose Before Urge",
@@ -16935,6 +17239,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.6 — What Happens After?",
@@ -17049,6 +17355,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.7 — Action Traffic Light",
@@ -17163,6 +17471,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.8 — Practicing Waiting",
@@ -17277,6 +17587,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "2.3.9 — Fixing It After Impulse",
@@ -17391,6 +17703,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.1 — Thoughts About Myself",
@@ -17505,6 +17819,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.10 — Self-Worth Card",
@@ -17619,6 +17935,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.2 — I Am Not Good Enough Thought Check",
@@ -17733,6 +18051,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.3 — My Strengths List",
@@ -17847,6 +18167,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.4 — Learning Is Growth",
@@ -17961,6 +18283,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.5 — Small Success Tracker",
@@ -18075,6 +18399,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.6 — Mistakes Are Not Failure",
@@ -18189,6 +18515,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.7 — Critical Voice vs Kind Voice",
@@ -18303,6 +18631,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.8 — What Others Appreciate",
@@ -18417,6 +18747,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.1.9 — Helpful Self-Talk Builder",
@@ -18529,6 +18861,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.1 — Joining a Game",
@@ -18643,6 +18977,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.10 — Social Skill Card",
@@ -18755,6 +19091,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.2 — Asking for a Turn",
@@ -18869,6 +19207,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.3 — Solving Arguments",
@@ -18983,6 +19323,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.4 — Saying No Safely",
@@ -19097,6 +19439,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.5 — Understanding Social Cues",
@@ -19211,6 +19555,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.6 — What Makes a Good Friendship?",
@@ -19325,6 +19671,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.7 — When I Feel Left Out",
@@ -19439,6 +19787,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.8 — Repair After Hurting Someone",
@@ -19553,6 +19903,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "3.2.9 — Short Conversation Plan",
@@ -19669,6 +20021,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.1 — Sticky Thoughts Notice",
@@ -19785,6 +20139,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.10 — Brave OCD Card",
@@ -19901,6 +20257,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.2 — Urge to Do a Ritual",
@@ -20017,6 +20375,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.3 — Doubt Loop Check",
@@ -20133,6 +20493,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.4 — Repeated Checking Plan",
@@ -20249,6 +20611,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.5 — Washing/Cleaning Urges",
@@ -20365,6 +20729,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.6 — Arranging and Order Urges",
@@ -20481,6 +20847,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.7 — Wait Before Ritual",
@@ -20597,6 +20965,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.8 — Not-Now Ladder",
@@ -20713,6 +21083,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.1.9 — Choose a New Response",
@@ -20829,6 +21201,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.1 — Feeling Safe Right Now",
@@ -20945,6 +21319,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.10 — Help and Support Card",
@@ -21061,6 +21437,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.2 — Noticing Triggers Without Details",
@@ -21177,6 +21555,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.3 — Back to My Body",
@@ -21293,6 +21673,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.4 — Safe Place Anchor",
@@ -21409,6 +21791,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.5 — Safe Person Support",
@@ -21525,6 +21909,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.6 — What Helps Me Now",
@@ -21641,6 +22027,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.7 — Body Signs After Fear",
@@ -21757,6 +22145,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.8 — Grounding Plan",
@@ -21873,6 +22263,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "4.2.9 — Safety Statement",
@@ -21987,6 +22379,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.1 — Thoughts Before Sleep",
@@ -22101,6 +22495,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.10 — Personal Sleep Plan",
@@ -22215,6 +22611,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.2 — Fear of the Dark Support",
@@ -22329,6 +22727,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.3 — Bedtime Routine Builder",
@@ -22443,6 +22843,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.4 — Body Ready for Sleep",
@@ -22557,6 +22959,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.5 — Calming Sleep Tools",
@@ -22671,6 +23075,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.6 — Night Support Card",
@@ -22785,6 +23191,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.7 — Waking Up at Night",
@@ -22899,6 +23307,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.8 — Staying Safely in Bed",
@@ -23013,6 +23423,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.1.9 — Nighttime Worries",
@@ -23123,6 +23535,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.1 — Stomach Ache Before School",
@@ -23235,6 +23649,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.10 — Calm Body Card",
@@ -23347,6 +23763,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.2 — Headache and Worry Link",
@@ -23459,6 +23877,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.3 — What Is My Body Saying?",
@@ -23571,6 +23991,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.4 — When It Happens Most",
@@ -23683,6 +24105,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.5 — What Helps My Body?",
@@ -23795,6 +24219,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.6 — Breathing for Tense Body",
@@ -23907,6 +24333,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.7 — Thought-Feeling-Body Link",
@@ -24019,6 +24447,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.8 — Asking for Help",
@@ -24129,6 +24559,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.2.9 — Return-to-Action Plan",
@@ -24241,6 +24673,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.1 — No Shame, No Blame",
@@ -24353,6 +24787,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.10 — I Am Learning Card",
@@ -24465,6 +24901,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.2 — My Body Learns Slowly",
@@ -24577,6 +25015,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.3 — Calm Evening Routine",
@@ -24689,6 +25129,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.4 — Body Signals Awareness",
@@ -24801,6 +25243,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.5 — Asking for Help Kindly",
@@ -24913,6 +25357,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.6 — Calm Bathroom Plan",
@@ -25025,6 +25471,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.7 — When Accidents Happen",
@@ -25137,6 +25585,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.8 — Kind Words for Myself",
@@ -25249,6 +25699,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "5.3.9 — Parent Support Plan",
@@ -25362,6 +25814,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 1.1 — Separation Anxiety",
@@ -25479,6 +25933,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 1.2 — Specific Phobias",
@@ -25590,6 +26046,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 1.3 — Social Anxiety",
@@ -25705,6 +26163,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 1.4 — Test & Performance Anxiety",
@@ -25820,6 +26280,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 1005003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 1.5 — Generalized Anxiety / Everyday Worries",
@@ -25935,6 +26397,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 2.1 — Anger Outbursts & Regulation",
@@ -26052,6 +26516,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 2002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 2.2 — Oppositional Behavior / ODD Patterns",
@@ -26167,6 +26633,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 2.3 — Impulsivity",
@@ -26282,6 +26750,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 3.1 — Low Self-Esteem",
@@ -26397,6 +26867,8 @@
     "clinicalDomain": "social",
     "displayOrder": 3002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 3.2 — Social Difficulties",
@@ -26514,6 +26986,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 4.1 — OCD",
@@ -26633,6 +27107,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 4.2 — Trauma-Sensitive Coping / PTSD",
@@ -26748,6 +27224,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 5.1 — Sleep Problems",
@@ -26861,6 +27339,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 5002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 5.2 — Psychosomatic Complaints",
@@ -26976,6 +27456,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 5003003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "en": {
         "title": "Children CBT Specialized 5.3 — Enuresis / Encopresis Stress Support",
@@ -27093,6 +27575,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה עובר עליי עכשיו?",
@@ -27212,6 +27696,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "הגוף שלי שולח לי סימנים",
@@ -27331,6 +27817,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הפעיל אותי?",
@@ -27450,6 +27938,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה–רגש–פעולה",
@@ -27567,6 +28057,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "המפה האישית שלי",
@@ -27684,6 +28176,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הראש שלי אמר?",
@@ -27801,6 +28295,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה או עובדה?",
@@ -27918,6 +28414,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "איזה פירוש נתתי לזה?",
@@ -28035,6 +28533,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "איזה סוג מחשבה זו?",
@@ -28152,6 +28652,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "איזו אמונה מסתתרת מתחת?",
@@ -28269,6 +28771,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הראיות?",
@@ -28386,6 +28890,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "יש דרך אחרת לראות את זה?",
@@ -28503,6 +29009,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הייתי אומר/ת לחבר/ה?",
@@ -28620,6 +29128,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה מאוזנת יותר",
@@ -28737,6 +29247,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה אני בוחר/ת לחשוב עכשיו?",
@@ -28854,6 +29366,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "בחירת פעולה",
@@ -28971,6 +29485,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "בניית מחשבה מועילה",
@@ -29088,6 +29604,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "צעדים קטנים",
@@ -29205,6 +29723,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מחשבות, אמונות והנחות",
@@ -29322,6 +29842,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "איזון והערכה",
@@ -29439,6 +29961,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "הימנעות",
@@ -29556,6 +30080,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "צעדים קטנים לפעולה",
@@ -29673,6 +30199,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "חשיפה הדרגתית",
@@ -29790,6 +30318,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "פעולה יעילה",
@@ -29907,6 +30437,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "התמדה ומעקב",
@@ -30024,6 +30556,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה למדתי על עצמי?",
@@ -30141,6 +30675,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "בדיקה שבועית",
@@ -30258,6 +30794,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מחזק/ת את עצמי",
@@ -30375,6 +30913,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כשקשה לי — מה עוזר לי?",
@@ -30492,6 +31032,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס הדרך שלי",
@@ -30605,6 +31147,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שלב 1 — קובץ מאוחד",
@@ -30718,6 +31262,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שלב 2 — קובץ מאוחד",
@@ -30832,6 +31378,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שלב 3 — קובץ מאוחד",
@@ -30946,6 +31494,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שלב 4 — קובץ מאוחד",
@@ -31060,6 +31610,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שלב 5 — קובץ מאוחד",
@@ -31173,6 +31725,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 6000003,
     "isCombinedPdf": true,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שלב 6 — קובץ מאוחד",
@@ -31284,6 +31838,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה קורה אצלי עכשיו?",
@@ -31394,6 +31950,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה מפעיל את הלחץ או הפחד שלי?",
@@ -31502,6 +32060,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הדאגה שלי אומרת?",
@@ -31612,6 +32172,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "לחץ לפני מבחן",
@@ -31722,6 +32284,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "הימנעות או אומץ?",
@@ -31832,6 +32396,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "סולם האומץ שלי",
@@ -31942,6 +32508,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "איך מצב הרוח והאנרגיה שלי היום?",
@@ -32054,6 +32622,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הרגיש כבד לאחרונה?",
@@ -32166,6 +32736,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה נותן לי קצת כוח?",
@@ -32276,6 +32848,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כשאני מתרחק/ת",
@@ -32388,6 +32962,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מי עוזר לי להרגיש לבד?",
@@ -32500,6 +33076,8 @@
     "clinicalDomain": "mood",
     "displayOrder": 2006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "התוכנית שלי לאיפוס מצב רוח",
@@ -32606,6 +33184,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 3001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה אני אומר/ת לעצמי?",
@@ -32712,6 +33292,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 3002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כשאני משווה את עצמי",
@@ -32818,6 +33400,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 3003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה חזק בי?",
@@ -32926,6 +33510,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 3004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "הקול של מי אני נושא/ת?",
@@ -33034,6 +33620,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 3005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה חשוב לי?",
@@ -33140,6 +33728,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 3006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית העוגן לזהות שלי",
@@ -33246,6 +33836,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מפת השייכות שלי",
@@ -33354,6 +33946,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כשאני מרגיש/ה בחוץ",
@@ -33460,6 +34054,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה עוד יכול להיות שקורה?",
@@ -33568,6 +34164,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "להגיד מה אני צריך/ה",
@@ -33676,6 +34274,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "גבולות שעוזרים לי",
@@ -33784,6 +34384,8 @@
     "clinicalDomain": "social",
     "displayOrder": 4006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית התיקון שלי אחרי קונפליקט",
@@ -33892,6 +34494,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מד הכעס שלי",
@@ -34000,6 +34604,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה הצית אותי?",
@@ -34108,6 +34714,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "עצירה לפני פעולה",
@@ -34216,6 +34824,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "לבחור את הצעד הבא שלי",
@@ -34324,6 +34934,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תיקון אחרי התפרצות",
@@ -34434,6 +35046,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 5006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית ההרגעה שלי",
@@ -34542,6 +35156,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "המחשבה קופצת לי לראש",
@@ -34652,6 +35268,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מעגל ה-OCD שלי",
@@ -34762,6 +35380,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "לזהות את הדחף, לא את הסכנה",
@@ -34872,6 +35492,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "לרכוב על גל הדחף",
@@ -34982,6 +35604,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית התגובה החדשה שלי",
@@ -35092,6 +35716,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 6006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית התרגול האמיץ שלי",
@@ -35202,6 +35828,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מפת הקשב שלי",
@@ -35310,6 +35938,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מתחילים בקטן",
@@ -35418,6 +36048,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הצעדים למשימה שלי",
@@ -35526,6 +36158,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מונה ההסחות שלי",
@@ -35634,6 +36268,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "עוצרים לפני שפועלים",
@@ -35742,6 +36378,8 @@
     "clinicalDomain": "adhd",
     "displayOrder": 7006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הארגון השבועית שלי",
@@ -35848,6 +36486,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 8001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מפת סימני הלחץ שלי",
@@ -35952,6 +36592,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 8002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "בדיקת הגוף שלי",
@@ -36056,6 +36698,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 8003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "התוכנית שלי לאיפוס השינה",
@@ -36162,6 +36806,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 8004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כשהמתח מכאיב לגוף שלי",
@@ -36268,6 +36914,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 8005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "איפוס הנשימה שלי",
@@ -36374,6 +37022,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 8006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "התוכנית שלי לחזרה לאיזון",
@@ -36482,6 +37132,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 9001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "עוגן הביטחון שלי",
@@ -36590,6 +37242,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 9002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הקרקוע שלי",
@@ -36698,6 +37352,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 9003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מפת רמזי הטריגרים שלי",
@@ -36806,6 +37462,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 9004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מעגל התמיכה שלי",
@@ -36914,6 +37572,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 9005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "התוכנית שלי לחזרה לרוגע",
@@ -37022,6 +37682,8 @@
     "clinicalDomain": "emotion_regulation",
     "displayOrder": 9006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית החזרה העדינה שלי",
@@ -37128,6 +37790,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10001004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "שיחה שמתחילה בי",
@@ -37234,6 +37898,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10002004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "מה אני רוצה שיבינו?",
@@ -37342,6 +38008,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10003004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "כשיש מתח בבית",
@@ -37450,6 +38118,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10004004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "גבולות ועצמאות",
@@ -37558,6 +38228,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10005004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "בניית אמון",
@@ -37664,6 +38336,8 @@
     "clinicalDomain": "parents",
     "displayOrder": 10006004,
     "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית לשיחה רגועה",
@@ -37824,6 +38498,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה עובר עליי עכשיו?",
@@ -37982,6 +38658,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הגוף שלי שולח לי סימנים",
@@ -38136,6 +38814,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה הפעיל אותי?",
@@ -38292,6 +38972,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה–רגש–פעולה",
@@ -38449,6 +39131,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "המפה האישית שלי",
@@ -38604,6 +39288,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס הרגש שלי",
@@ -38758,6 +39444,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה המחשבה שלי אומרת?",
@@ -38913,6 +39601,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה או עובדה?",
@@ -39071,6 +39761,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבות דאגה",
@@ -39227,6 +39919,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחליפים למחשבה מועילה",
@@ -39385,6 +40079,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "בלש המחשבות שלי",
@@ -39541,6 +40237,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה שעוזרת לי",
@@ -39699,6 +40397,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה אני עושה כשקשה לי?",
@@ -39859,6 +40559,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "צעד אמיץ קטן",
@@ -40020,6 +40722,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "סולם האומץ שלי",
@@ -40178,6 +40882,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לפני שאני מנסה",
@@ -40336,6 +41042,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "אחרי שניסיתי",
@@ -40494,6 +41202,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הצעד הקטן שלי",
@@ -40654,6 +41364,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כפתור עצירה",
@@ -40814,6 +41526,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כלי ההרגעה שלי",
@@ -40972,6 +41686,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "נשימות שעוזרות לי",
@@ -41128,6 +41844,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "קרקוע כאן ועכשיו",
@@ -41286,6 +42004,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "המקום הבטוח שלי",
@@ -41440,6 +42160,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הרגעה קצרה",
@@ -41602,6 +42324,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5001004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית רגיעה אישית",
@@ -41761,6 +42485,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5002004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "ערכת ההרגעה שלי",
@@ -41921,6 +42647,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5003004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה עוזר לי כשאני מוצף/ת?",
@@ -42081,6 +42809,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5004004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מד הרגשות האישי שלי",
@@ -42243,6 +42973,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5005004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית ההמשך שלי",
@@ -42401,6 +43133,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5006004,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס התוכנית האישית שלי",
@@ -42527,6 +43261,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 1000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שלב 1 — קובץ מאוחד",
@@ -42653,6 +43389,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 2000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שלב 2 — קובץ מאוחד",
@@ -42779,6 +43517,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 3000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שלב 3 — קובץ מאוחד",
@@ -42905,6 +43645,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 4000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שלב 4 — קובץ מאוחד",
@@ -43031,6 +43773,8 @@
     "clinicalDomain": "general_cbt",
     "displayOrder": 5000003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שלב 5 — קובץ מאוחד",
@@ -43149,6 +43893,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "נפרדים בשלום",
@@ -43266,6 +44012,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס הפרידה הבטוחה שלי",
@@ -43383,6 +44131,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הולכים לבית הספר באומץ",
@@ -43500,6 +44250,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "ישנים במיטה שלי באומץ",
@@ -43617,6 +44369,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "חפץ הנחמה שלי",
@@ -43734,6 +44488,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית צעדי הפרידה שלי",
@@ -43851,6 +44607,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבות דאגה כשאנחנו נפרדים",
@@ -43968,6 +44726,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה הגוף שלי מרגיש",
@@ -44085,6 +44845,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מי עוזר לי להרגיש בטוח/ה?",
@@ -44202,6 +44964,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "סולם האומץ שלי לפרידה",
@@ -44319,6 +45083,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כשאני מפחד/ת מכלבים",
@@ -44436,6 +45202,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "להיות אמיץ/ה בכל יום",
@@ -44553,6 +45321,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "צעדי אומץ במעלית",
@@ -44670,6 +45440,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "צעדים אמיצים לזריקות",
@@ -44787,6 +45559,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית אומץ לרעשים חזקים",
@@ -44904,6 +45678,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מפת הפחד שלי",
@@ -45021,6 +45797,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבות מול מציאות",
@@ -45138,6 +45916,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה עוזר לי להתקרב",
@@ -45255,6 +46035,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "סולם האומץ שלי",
@@ -45372,6 +46154,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "פותרים בעיות באומץ",
@@ -45489,6 +46273,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לדבר בכיתה באומץ",
@@ -45606,6 +46392,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס האומץ החברתי שלי",
@@ -45723,6 +46511,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כשאני דואג/ת שיצחקו עליי",
@@ -45840,6 +46630,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מותר לי לטעות",
@@ -45957,6 +46749,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "להצטרף למשחק",
@@ -46072,6 +46866,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לבקש עזרה",
@@ -46189,6 +46985,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "המחשבות החברתיות שלי",
@@ -46306,6 +47104,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה הגוף שלי מרגיש ברגעים חברתיים",
@@ -46423,6 +47223,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "משפטים חברתיים שעוזרים",
@@ -46540,6 +47342,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הצעדים החברתיים הקטנים שלי",
@@ -46657,6 +47461,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לפני המבחן",
@@ -46774,6 +47580,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס הביטחון שלי",
@@ -46891,6 +47699,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מותר לי לטעות",
@@ -47008,6 +47818,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כשאני חושב/ת: אני לא אצליח",
@@ -47125,6 +47937,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מתארגנים לפני משימה",
@@ -47242,6 +48056,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "נושמים לפני מבחן",
@@ -47359,6 +48175,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "משימה אחת בחלקים קטנים",
@@ -47476,6 +48294,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "אחרי המבחן",
@@ -47593,6 +48413,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הצלחה היא לא שלמות",
@@ -47710,6 +48532,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "התוכנית שלי",
@@ -47823,6 +48647,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דאגות יומיומיות",
@@ -47938,6 +48764,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס \"אני יכול/ה להתמודד\"",
@@ -48050,6 +48878,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דאגות על המשפחה",
@@ -48162,6 +48992,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דאגות על העתיד",
@@ -48277,6 +49109,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה בשליטה שלי?",
@@ -48392,6 +49226,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "זמן הדאגה הקצר שלי",
@@ -48507,6 +49343,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבת דאגה או מחשבה עוזרת?",
@@ -48622,6 +49460,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הגוף שלי והדאגה",
@@ -48737,6 +49577,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "העוגן המרגיע שלי",
@@ -48852,6 +49694,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הדאגה שלי",
@@ -48967,6 +49811,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לעצור לפני שאני פועל/ת",
@@ -49082,6 +49928,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס עצור-חשוב-בחר שלי",
@@ -49197,6 +50045,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לחשוב לפני שאני עושה",
@@ -49312,6 +50162,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "ידיים שקטות",
@@ -49427,6 +50279,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הפה שלי מחכה לתורו",
@@ -49542,6 +50396,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לבחור לפני הדחף",
@@ -49657,6 +50513,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מה קורה אחרי שפעלתי מהר?",
@@ -49772,6 +50630,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "אדום, צהוב, ירוק",
@@ -49887,6 +50747,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לחכות קצת",
@@ -50002,6 +50864,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מתקנים אחרי שפעלתי מהר",
@@ -50117,6 +50981,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבות על עצמי",
@@ -50232,6 +51098,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס הערך העצמי שלי",
@@ -50347,6 +51215,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "\"אני לא טוב/ה\" מול עובדות",
@@ -50462,6 +51332,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "החוזקות שלי",
@@ -50577,6 +51449,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דברים שאני לומד/ת",
@@ -50692,6 +51566,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הצלחה קטנה",
@@ -50807,6 +51683,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "טעות היא לא כישלון",
@@ -50922,6 +51800,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הקול הביקורתי שלי מול הקול הטוב שלי",
@@ -51037,6 +51917,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דברים שאחרים אוהבים בי",
@@ -51152,6 +52034,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "משפט עוזר בשבילי",
@@ -51269,6 +52153,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבה דביקה",
@@ -51388,6 +52274,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס האומץ שלי מול OCD",
@@ -51507,6 +52395,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הדחף לעשות טקס",
@@ -51626,6 +52516,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הספק חוזר",
@@ -51745,6 +52637,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "בדיקות חוזרות",
@@ -51864,6 +52758,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שטיפה או ניקוי חוזרים",
@@ -51983,6 +52879,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "סידור חוזר",
@@ -52102,6 +53000,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחכים לפני הטקס",
@@ -52221,6 +53121,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "סולם \"לא עכשיו\" שלי",
@@ -52340,6 +53242,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "בוחר/ת תגובה חדשה",
@@ -52462,6 +53366,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מרגיש/ה בטוח/ה עכשיו",
@@ -52584,6 +53490,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס העזרה והתמיכה שלי",
@@ -52706,6 +53614,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מזהה טריגר בלי פרטים",
@@ -52828,6 +53738,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "חוזר/ת אל הגוף שלי",
@@ -52950,6 +53862,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "המקום הבטוח שלי",
@@ -53072,6 +53986,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "האדם הבטוח שלי",
@@ -53194,6 +54110,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דברים שעוזרים לי עכשיו",
@@ -53316,6 +54234,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "סימני הגוף שלי אחרי פחד",
@@ -53438,6 +54358,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית הקרקוע שלי",
@@ -53560,6 +54482,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "משפט הביטחון שלי",
@@ -53675,6 +54599,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מחשבות לפני השינה",
@@ -53790,6 +54716,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית השינה האישית שלי",
@@ -53902,6 +54830,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "פחד מהחושך",
@@ -54017,6 +54947,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שגרת השינה שלי",
@@ -54132,6 +55064,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הגוף שלי מתכונן לשינה",
@@ -54247,6 +55181,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דברים שמרגיעים אותי",
@@ -54362,6 +55298,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס הלילה המרגיע שלי",
@@ -54477,6 +55415,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כשאני מתעורר/ת בלילה",
@@ -54592,6 +55532,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "להישאר במיטה בבטחה",
@@ -54705,6 +55647,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דאגות לילה",
@@ -54826,6 +55770,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003014,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "בלי בושה, בלי אשמה",
@@ -54947,6 +55893,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003104,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כרטיס \"אני לומד/ת\" שלי",
@@ -55068,6 +56016,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003024,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הגוף לומד לאט",
@@ -55189,6 +56139,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003034,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "שגרת ערב רגועה שלי",
@@ -55310,6 +56262,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003044,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הגוף שלי שולח סימנים",
@@ -55431,6 +56385,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003054,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "מבקשים עזרה",
@@ -55552,6 +56508,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003064,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תוכנית השירותים הרגועה שלי",
@@ -55673,6 +56631,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003074,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "כשקורה פספוס",
@@ -55794,6 +56754,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003084,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "משפט טוב לעצמי",
@@ -55914,6 +56876,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003094,
     "isCombinedPdf": false,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "תמיכה מהורה",
@@ -56047,6 +57011,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "חרדת פרידה",
@@ -56178,6 +57144,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "פוביות ספציפיות",
@@ -56311,6 +57279,8 @@
     "clinicalDomain": "social",
     "displayOrder": 1003003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "חרדה חברתית",
@@ -56442,6 +57412,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1004003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "לחץ לפני מבחן וביצוע",
@@ -56572,6 +57544,8 @@
     "clinicalDomain": "anxiety",
     "displayOrder": 1005003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דאגות יומיומיות",
@@ -56704,6 +57678,8 @@
     "clinicalDomain": "anger_impulsivity",
     "displayOrder": 2003003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "אימפולסיביות",
@@ -56836,6 +57812,8 @@
     "clinicalDomain": "self_image",
     "displayOrder": 3001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "דימוי עצמי נמוך",
@@ -56968,6 +57946,8 @@
     "clinicalDomain": "ocd",
     "displayOrder": 4001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "OCD",
@@ -57101,6 +58081,8 @@
     "clinicalDomain": "trauma",
     "displayOrder": 4002003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "התמודדות בטוחה אחרי פחד או טראומה",
@@ -57228,6 +58210,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5001003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "קשיי שינה",
@@ -57366,6 +58350,8 @@
     "clinicalDomain": "body_sleep_stress",
     "displayOrder": 5003003,
     "isCombinedPdf": true,
+    "age_min": 5,
+    "age_max": 11,
     "localizedDisplay": {
       "he": {
         "title": "הרטבה, לכלוך ומתח",
