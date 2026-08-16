@@ -66,7 +66,7 @@ const SEND_VERB_PATTERN =
  *   Both forms must be matched explicitly.
  */
 const FORM_OBJECT_PATTERN =
-  /\b(?:forms?|worksheets?|workbooks?|pdfs?|handouts?|module\s*\d+|stage\s*\d+|series)\b|(?:טופס|טפסים)|דף\s*עבודה|דפי\s*עבודה|חוברת|שלב\s*\d+|מודול\s*\d*|סדרה\b|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|formulars?|arbeitsblätte?r?|moduli?|fogli?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho|cadernos?/i;
+  /\b(?:forms?|worksheets?|workbooks?|pdfs?|handouts?|module\s*\d+|stage\s*\d+|series)\b|(?:טופס|טפסים|הטופס|הטפסים)|דף\s*עבודה|דפי\s*עבודה|חוברת|שלב\s*\d+|מודול\s*\d*|סדרה\b|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|formulars?|arbeitsblätte?r?|moduli?|fogli?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho|cadernos?/i;
 
 /**
  * Short affirmative responses that signal acceptance of an earlier offer.
@@ -301,10 +301,11 @@ export function checkWorksheetEligibilityGate(form, context = {}) {
         // its audience (the clinician chose it knowing it's a children's form).
         // This allows valid titled-request workflows while still blocking unsolicited attachment.
         const formTitle = (form.title || form.name || '').trim();
+        const normalizedFormTitle = formTitle.replace(/[?!]+$/u, '').trim().toLowerCase();
+        const normalizedUserMessage = typeof userMessage === 'string' ? userMessage.toLowerCase() : '';
         const userNamedFormByTitle =
-          formTitle.length >= 4 &&
-          typeof userMessage === 'string' &&
-          userMessage.toLowerCase().includes(formTitle.toLowerCase());
+          normalizedFormTitle.length >= 4 &&
+          normalizedUserMessage.includes(normalizedFormTitle);
         if (!userNamedFormByTitle) {
           return {
             allowed: false,
