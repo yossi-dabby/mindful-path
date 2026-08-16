@@ -122,7 +122,7 @@ try {
 // ─── Section A — Version ──────────────────────────────────────────────────────
 
 describe('Therapist Constitution — Section A: Version', () => {
-  it('THERAPIST_WORKFLOW_VERSION is "3.3.0"', () => {
+  it('THERAPIST_WORKFLOW_VERSION is "3.7.0"', () => {
     expect(THERAPIST_WORKFLOW_VERSION).toBe('3.7.0');
   });
 });

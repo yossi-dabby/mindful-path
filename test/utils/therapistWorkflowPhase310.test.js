@@ -51,7 +51,7 @@ import {
 // ─── Section 1 — Version bump ─────────────────────────────────────────────────
 
 describe('Phase 3.1.0 — Version bump', () => {
-  it('THERAPIST_WORKFLOW_VERSION is "3.3.0"', () => {
+  it('THERAPIST_WORKFLOW_VERSION is "3.7.0"', () => {
     expect(THERAPIST_WORKFLOW_VERSION).toBe('3.7.0');
   });
 });

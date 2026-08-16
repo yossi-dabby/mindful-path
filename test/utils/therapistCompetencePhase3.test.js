@@ -223,7 +223,7 @@ const agentInstructions = agentData.instructions;
 // =============================================================================
 
 describe('SECTION A — version and flag', () => {
-  it('THERAPIST_WORKFLOW_VERSION is bumped to 3.4.0', () => {
+  it('THERAPIST_WORKFLOW_VERSION is bumped to 3.7.0', () => {
     expect(THERAPIST_WORKFLOW_VERSION).toBe('3.7.0');
   });
 
