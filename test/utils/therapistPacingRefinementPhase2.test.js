@@ -177,8 +177,8 @@ function readAgentInstructions() {
 // ─── Section A — Version ──────────────────────────────────────────────────────
 
 describe('Phase 2 Refinement — Section A: Version', () => {
-  it('THERAPIST_WORKFLOW_VERSION is "3.3.0"', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.6.0');
+  it('THERAPIST_WORKFLOW_VERSION is "3.7.0"', () => {
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.7.0');
   });
 });
 
