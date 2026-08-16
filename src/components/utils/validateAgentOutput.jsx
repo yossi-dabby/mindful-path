@@ -34,6 +34,7 @@ import {
   FORMULATION_CORRECTION_START,
 } from './formulationContractGuard.js';
 import { normalizeGeneratedFile } from '../chat/utils/normalizeGeneratedFile.js';
+import { isWorksheetBlockedByGate } from '../../lib/worksheetEligibilityGate.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -512,6 +513,43 @@ function removeGeneratedTherapeuticFormMetadata(metadata) {
   }
 
   return next;
+}
+
+/**
+ * Applies the worksheet eligibility gate to an assistant message's metadata.
+ *
+ * If the gate blocks the attached therapeutic form (missing consent, unknown
+ * audience for age-restricted worksheets, age-incompatibility, current-turn
+ * prohibition, or stale consent), all therapeutic-form metadata is removed.
+ * Non-form metadata is always preserved.
+ *
+ * The gate is shared and language-independent; it applies identically to
+ * responses generated in any locale.
+ *
+ * @param {object}      metadata                     - Assistant message metadata after all routing.
+ * @param {object}      gateCtx
+ * @param {string|null} gateCtx.userMessage          - Triggering user message.
+ * @param {string|null} gateCtx.previousUserContext  - Earlier user messages (anaphoric acceptance).
+ * @param {boolean}     gateCtx.currentTurnProhibits - True when explicit no-form suppression is already active.
+ * @returns {object} The metadata, with therapeutic-form entries removed when blocked.
+ */
+function applyEligibilityGateToMetadata(metadata, gateCtx) {
+  if (!metadata || typeof metadata !== 'object') return metadata;
+  const form = metadata.generated_file;
+  if (!form) return metadata; // no form attached — nothing to gate
+  try {
+    if (isWorksheetBlockedByGate(form, {
+      userMessage: gateCtx.userMessage,
+      previousUserContext: gateCtx.previousUserContext,
+      currentTurnProhibitsWorksheet: gateCtx.currentTurnProhibits,
+    })) {
+      return removeGeneratedTherapeuticFormMetadata(metadata);
+    }
+  } catch {
+    // Gate threw unexpectedly — fail closed.
+    return removeGeneratedTherapeuticFormMetadata(metadata);
+  }
+  return metadata;
 }
 
 function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }) {
@@ -1487,16 +1525,27 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         });
         // V8-D: final authority — explicit no-form suppression removes any form
         // card that was attached by either the marker path or the deterministic route.
-        const finalMetadata = formSuppressed
+        // Eligibility gate: also removes forms that were not explicitly requested or
+        // whose age/audience eligibility cannot be confirmed.
+        // The gate is only applied when a form was NEWLY resolved in this turn
+        // (via a [FORM:] marker or the deterministic route). Historical assistant
+        // messages that carry pre-existing form metadata pass through unchanged so
+        // that legitimately-delivered forms are not stripped on re-sanitization.
+        const newFormWasResolved1 =
+          generatedFile != null ||
+          ((deterministicFormRoute?.stats?.total ?? 0) > 0);
+        const postSuppression1 = formSuppressed
           ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
           : deterministicApplied.metadata;
+        const finalMetadata = newFormWasResolved1
+          ? applyEligibilityGateToMetadata(postSuppression1, { userMessage: triggeringUserMsg, previousUserContext, currentTurnProhibits: formSuppressed })
+          : postSuppression1;
         return {
           ...msg,
           content: deterministicApplied.content,
           metadata: finalMetadata
         };
-      }
-      
+      }      
       // Additional fallback for malformed JSON
       if (typeof msg.content === 'string' && msg.content.includes('"assistant_message"')) {
         try {
@@ -1527,9 +1576,16 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
             });
             // V8-D: final authority — explicit no-form suppression removes any form
             // card that was attached by either the marker path or the deterministic route.
-            const finalMetadata = formSuppressed
+            // Eligibility gate: only applied when a form was newly resolved in this turn.
+            const newFormWasResolved2 =
+              generatedFile != null ||
+              ((deterministicFormRoute?.stats?.total ?? 0) > 0);
+            const postSuppression2 = formSuppressed
               ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
               : deterministicApplied.metadata;
+            const finalMetadata = newFormWasResolved2
+              ? applyEligibilityGateToMetadata(postSuppression2, { userMessage: triggeringUserMsg, previousUserContext, currentTurnProhibits: formSuppressed })
+              : postSuppression2;
             return {
               ...msg,
               content: deterministicApplied.content,
@@ -1622,9 +1678,16 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         });
         // V8-D: final authority — explicit no-form suppression removes any form
         // card that was attached by either the marker path or the deterministic route.
-        const finalMetadata = formSuppressed
+        // Eligibility gate: only applied when a form was newly resolved in this turn.
+        const newFormWasResolved3 =
+          generatedFile != null ||
+          ((deterministicFormRoute?.stats?.total ?? 0) > 0);
+        const postSuppression3 = formSuppressed
           ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
           : deterministicApplied.metadata;
+        const finalMetadata = newFormWasResolved3
+          ? applyEligibilityGateToMetadata(postSuppression3, { userMessage: triggeringUserMsg, previousUserContext, currentTurnProhibits: formSuppressed })
+          : postSuppression3;
         return { ...msg, content: deterministicApplied.content, metadata: finalMetadata };
       }
     }
