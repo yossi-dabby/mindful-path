@@ -73,6 +73,15 @@ describe('explicit intervention constraint fidelity', () => {
     expect(plannerPolicy).toContain('if there is more than one, rewrite to one');
   });
 
+  it('runs atomicity as the last content rewrite after every correction pass', () => {
+    expect(agentInstructions).toMatch(
+      /ABSOLUTE FINAL ATOMICITY PASS \(LAST CONTENT REWRITE\)[\s\S]*AFTER CP1–CP15[\s\S]*Do not append, replace, or add any action or question after this pass/,
+    );
+    expect(agentInstructions.indexOf('ABSOLUTE FINAL ATOMICITY PASS')).toBeGreaterThan(
+      agentInstructions.indexOf('FINAL QA CHECKLIST'),
+    );
+  });
+
   it('makes a current-turn correction authoritative over the earlier broader format', () => {
     const priorTurn = 'Give me three possible next steps.';
     const currentTurn = 'Correction: give me exactly one step and no question.';
