@@ -49,6 +49,37 @@ describe('explicit intervention constraint fidelity', () => {
     expect(governingPolicy).toMatch(/no alternatives, examples, optional variants, menus, or concealed additional steps/);
   });
 
+  it.each([
+    {
+      rejected: 'Stand up, walk to the nearest window, and open it for one minute',
+      accepted: 'Open the nearest window for one minute',
+    },
+    {
+      rejected: 'קום, לך לחלון הקרוב ופתח אותו לדקה',
+      accepted: 'פתח את החלון הקרוב למשך דקה',
+    },
+  ])('defines one requested action as one atomic imperative clause: $rejected', ({ rejected, accepted }) => {
+    expect(governingPolicy).toContain('one externally observable target behavior');
+    expect(governingPolicy).toContain('a single imperative clause with one primary imperative verb');
+    expect(governingPolicy).toContain(`NEVER write "${rejected}"`);
+    expect(governingPolicy).toContain(`write only "${accepted}"`);
+    expect(plannerPolicy).toContain('One action means one imperative clause, one primary imperative verb');
+  });
+
+  it('requires a final atomicity rewrite when multiple imperatives survive', () => {
+    expect(governingPolicy).toMatch(/FINAL ATOMICITY CHECK:[\s\S]*count imperative\/action clauses/);
+    expect(governingPolicy).toMatch(/more than one primary imperative[\s\S]*rewrite it until only one remains/);
+    expect(governingPolicy).toContain('they must not become separate commands');
+    expect(plannerPolicy).toContain('if there is more than one, rewrite to one');
+  });
+
+  it('explicitly rejects the production-observed Hebrew compound instruction', () => {
+    const observedFailure = 'קום עכשיו ממקומך, הולך לחלון הקרוב ביותר ופתח אותו לדקה אחת.';
+    expect(observedFailure).toMatch(/קום[\s\S]*הולך[\s\S]*פתח/);
+    expect(governingPolicy).toContain('Do not chain preparatory or sequential commands');
+    expect(governingPolicy).toContain('Omit preparatory movement and state only the target behavior');
+  });
+
   it('makes a current-turn correction authoritative over the earlier broader format', () => {
     const priorTurn = 'Give me three possible next steps.';
     const currentTurn = 'Correction: give me exactly one step and no question.';
