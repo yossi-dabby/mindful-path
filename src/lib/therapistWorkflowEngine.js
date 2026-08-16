@@ -2403,7 +2403,7 @@ export function buildPlannerFirstInstructions() {
     '     Do NOT add alternatives, examples, optional variants, hidden steps, or chained setup commands.',
     '     Never require choosing/selecting first, and never chain stand/walk/prepare/do commands before the target.',
     '     Omit setup movement. Example: replace "Stand up, walk to the window, and open it" with',
-    '     "Open the nearest window"; replace "קום, לך לחלון ופתח אותו" with "פתח את החלון הקרוב".',
+    '     "Open the nearest window".',
     '     Before sending, count imperative/action clauses; if there is more than one, rewrite to one.',
     '  3. If the user requests exactly one sentence explaining why the action fits, provide',
     '     exactly one rationale sentence.',
