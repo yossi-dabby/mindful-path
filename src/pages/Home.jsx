@@ -230,7 +230,7 @@ export default function Home() {
         <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="bg-emerald-50 mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
         {/* Header */}
-        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] mt-6 mb-6 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
+        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] mb-6 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px] mt-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
@@ -326,7 +326,7 @@ export default function Home() {
         </div>
 
         {(goalsError || journalsError) &&
-          <div className="mt-6 space-y-3">
+            <div className="mt-6 space-y-3">
             {/* Error State for Goals */}
             {goalsError &&
               <Card className="border border-destructive/20 bg-destructive/5">
@@ -341,7 +341,7 @@ export default function Home() {
                   </Button>
                 </CardContent>
               </Card>
-            }
+              }
 
             {/* Error State for Journal */}
             {journalsError &&
@@ -357,9 +357,9 @@ export default function Home() {
                   </Button>
                 </CardContent>
               </Card>
-            }
+              }
           </div>
-        }
+            }
 
         </div>
 
