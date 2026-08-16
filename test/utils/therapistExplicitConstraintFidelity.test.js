@@ -55,8 +55,8 @@ describe('explicit intervention constraint fidelity', () => {
       accepted: 'Open the nearest window for one minute',
     },
     {
-      rejected: 'קום, לך לחלון הקרוב ופתח אותו לדקה',
-      accepted: 'פתח את החלון הקרוב למשך דקה',
+      rejected: 'קום עכשיו ממקומך, הולך לחלון הקרוב ביותר ופתח אותו לדקה אחת.',
+      accepted: 'פתח את החלון הקרוב למשך דקה.',
     },
   ])('defines one requested action as one atomic imperative clause: $rejected', ({ rejected, accepted }) => {
     expect(governingPolicy).toContain('one externally observable target behavior');
@@ -71,13 +71,6 @@ describe('explicit intervention constraint fidelity', () => {
     expect(governingPolicy).toMatch(/more than one primary imperative[\s\S]*rewrite it until only one remains/);
     expect(governingPolicy).toContain('they must not become separate commands');
     expect(plannerPolicy).toContain('if there is more than one, rewrite to one');
-  });
-
-  it('explicitly rejects the production-observed Hebrew compound instruction', () => {
-    const observedFailure = 'קום עכשיו ממקומך, הולך לחלון הקרוב ביותר ופתח אותו לדקה אחת.';
-    expect(observedFailure).toMatch(/קום[\s\S]*הולך[\s\S]*פתח/);
-    expect(governingPolicy).toContain('Do not chain preparatory or sequential commands');
-    expect(governingPolicy).toContain('Omit preparatory movement and state only the target behavior');
   });
 
   it('makes a current-turn correction authoritative over the earlier broader format', () => {
