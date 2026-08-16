@@ -1,62 +1,98 @@
 /**
- * Regression coverage for explicit intervention output constraints.
+ * Regression coverage for the current-turn output-shape authority contract.
+ *
+ * These tests inspect both instruction layers because the session context is sent
+ * as user content while cbt_therapist.jsonc is the governing agent instruction.
  */
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { THERAPIST_PLANNER_FIRST_INSTRUCTIONS } from '../../src/lib/therapistWorkflowEngine.js';
 import { buildActionFirstDemotedSessionContentAsync } from '../../src/lib/workflowContextInjector.js';
 
-function constraintSection(instructions) {
-  const start = instructions.indexOf('--- EXPLICIT INTERVENTION OUTPUT CONSTRAINTS ---');
-  const end = instructions.indexOf('--- COMPETING-HYPOTHESES DIFFERENTIATION', start);
-  if (start < 0 || end <= start) {
-    throw new Error('Explicit intervention output constraint section is missing');
-  }
+const agentPath = fileURLToPath(
+  new URL('../../base44/agents/cbt_therapist.jsonc', import.meta.url),
+);
+const agentInstructions = JSON.parse(readFileSync(agentPath, 'utf8')).instructions;
+
+function section(instructions, startMarker, endMarker) {
+  const start = instructions.indexOf(startMarker);
+  const end = instructions.indexOf(endMarker, start);
+  if (start < 0 || end <= start) throw new Error(`Missing policy section: ${startMarker}`);
   return instructions.slice(start, end);
 }
 
-describe('explicit intervention constraint fidelity', () => {
-  const policy = constraintSection(THERAPIST_PLANNER_FIRST_INSTRUCTIONS);
+const plannerPolicy = section(
+  THERAPIST_PLANNER_FIRST_INSTRUCTIONS,
+  '--- EXPLICIT INTERVENTION OUTPUT CONSTRAINTS ---',
+  '--- COMPETING-HYPOTHESES DIFFERENTIATION',
+);
+const governingPolicy = section(
+  agentInstructions,
+  '========== CURRENT-TURN EXPLICIT OUTPUT-SHAPE EXCEPTION ==========',
+  '========== CORRECTION PASS',
+);
+const outcomeRules = section(
+  agentInstructions,
+  '========== STRUCTURED OUTCOME PATTERNS',
+  '========== PROGRESSION RULE',
+);
 
+describe('explicit intervention constraint fidelity', () => {
   it.each([
     'Give me exactly ONE concrete action, one sentence explaining why it fits, and no follow-up question.',
     'תן לי בדיוק פעולה מעשית אחת, משפט אחד שמסביר למה היא מתאימה, ובלי שאלת המשך.',
-  ])('applies the same exact-output contract for multilingual requests: %s', (_request) => {
-    expect(policy).toContain('Apply this policy in every language');
-    expect(policy).toContain('exactly one concrete action');
-    expect(policy).toContain('exactly one rationale sentence');
-    expect(policy).toContain('no follow-up question, ask none');
+  ])('governs the requested one-action response shape in every language: %s', (request) => {
+    expect(request).toMatch(/exactly ONE|בדיוק פעולה מעשית אחת/);
+    expect(governingPolicy).toMatch(/exactly one action\/step[\s\S]*exactly one rationale sentence[\s\S]*zero follow-up questions/);
+    expect(governingPolicy).toMatch(/no alternatives, examples, optional variants, menus, or concealed additional steps/);
   });
 
-  it('forbids turning one action into a menu or concealed extra steps', () => {
-    expect(policy).toContain('Do NOT add alternatives, examples, optional variants, or hidden additional steps');
-    expect(policy).toContain('do NOT reinterpret one requested action as permission to provide a menu');
+  it('makes a current-turn correction authoritative over the earlier broader format', () => {
+    const priorTurn = 'Give me three possible next steps.';
+    const currentTurn = 'Correction: give me exactly one step and no question.';
+    expect(priorTurn).not.toBe(currentTurn);
+    expect(governingPolicy).toContain('A correction in the current user message is authoritative');
+    expect(plannerPolicy).toContain('A current-turn correction is authoritative');
   });
 
-  it('preserves bounded duration, energy, concentration, and response counts', () => {
-    expect(policy).toContain('duration, energy, concentration, number of actions');
-    expect(policy).toContain('number of rationale sentences, and follow-up questions');
+  it('keeps the ordinary 2–3 alternatives rules when the current turn is unconstrained', () => {
+    expect(governingPolicy).toContain('If the current visible user message has no explicit output-shape constraint, this exception does nothing');
+    expect(outcomeRules).toContain('step_too_hard --- D: Reduce significantly. E: 2–3 specific smaller alternatives. Recommend one.');
+    expect(outcomeRules).toContain('step_too_easy --- D: Progress one level. E: 2–3 specific harder versions. Recommend one.');
   });
 
-  it('makes the latest explicit correction authoritative', () => {
-    expect(policy).toContain('latest explicit user output constraint overrides');
-    expect(policy).toContain('follow the latest explicit constraint');
-    expect(policy).toContain('do not preserve a conflicting earlier format');
+  it.each(['earlier turn', 'memory', 'summary', 'continuity context'])(
+    'does not activate for a constraint found only in %s',
+    (source) => {
+      expect(governingPolicy).toContain(source);
+      expect(governingPolicy).toContain('MUST NOT activate this exception');
+      expect(plannerPolicy).toContain('Never activate it from an earlier turn, memory, summary, or continuity context');
+    },
+  );
+
+  it('gives safety precedence rather than truncating crisis output', () => {
+    expect(governingPolicy).toMatch(/Crisis and safety behavior has strict precedence[\s\S]*MUST NOT be truncated or suppressed/);
   });
 
-  it('keeps readiness, formulation, grounding, quality, and safety precedence intact', () => {
-    expect(policy).toContain('only after existing readiness, grounding');
-    expect(policy).toContain('formulation, pacing, and therapeutic-quality requirements permit it');
-    expect(policy).toContain('They never create permission to intervene');
-    expect(policy).toContain('Crisis and safety behavior retains strict precedence');
+  it('does not bypass formulation/readiness or grant permission to intervene', () => {
+    expect(governingPolicy).toMatch(/Grounding, formulation, therapeutic readiness, pacing, intervention selection, and quality requirements are unchanged/);
+    expect(governingPolicy).toMatch(/never creates permission to intervene[\s\S]*readiness\/formulation gate/);
+    expect(plannerPolicy).toContain('They never create permission to intervene');
   });
 
-  it('is present in the active universal therapist instruction path', async () => {
+  it('resolves the governing step outcome conflict only while the exception is active', () => {
+    expect(governingPolicy).toMatch(/When active[\s\S]*overrides CP3[\s\S]*step_too_hard and step_too_easy/);
+    expect(governingPolicy).toMatch(/NON-ACTIVATION[\s\S]*step_too_hard still requires 2–3[\s\S]*step_too_easy still requires 2–3/);
+  });
+
+  it('keeps the scoped planner policy in the active universal therapist path', async () => {
     const content = await buildActionFirstDemotedSessionContentAsync(
       { name: 'cbt_therapist' },
       {},
       null,
     );
-    expect(content).toContain(policy);
+    expect(content).toContain(plannerPolicy);
   });
 });
