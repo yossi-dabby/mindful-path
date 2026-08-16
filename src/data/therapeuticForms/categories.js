@@ -20,21 +20,30 @@ export const AUDIENCE_GROUPS = [
     /** User-facing Hebrew label */
     label_he: 'ילדים',
     label_en: 'Children',
+    /** Canonical age range for eligibility gate (inclusive). age_max: 11 per clinical spec. */
+    age_min: 5,
+    age_max: 11,
   },
   {
     value: 'adolescents',
     label_he: 'מתבגרים',
     label_en: 'Adolescents',
+    age_min: 12,
+    age_max: 17,
   },
   {
     value: 'adults',
     label_he: 'מבוגרים',
     label_en: 'Adults',
+    age_min: 18,
+    age_max: null,
   },
   {
     value: 'older_adults',
     label_he: 'קשישים',
     label_en: 'Older Adults',
+    age_min: 65,
+    age_max: null,
   },
 ];
 

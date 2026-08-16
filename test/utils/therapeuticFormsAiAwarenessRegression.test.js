@@ -508,31 +508,35 @@ describe('PR-9 Phase 6: multi-form and combined PDF awareness', () => {
 // ─── Phase 7: Chat Integration Regression ─────────────────────────────────────
 
 describe('PR-9 Phase 7: chat integration regression', () => {
-  it('Hebrew exact-title request attaches a Hebrew form', () => {
+  // UPDATED: Hebrew exact-title request — the resolved form is age-restricted
+  // (audience: adolescents or children, age_max ≤ 17).  Without an explicit
+  // numeric age in the user message the eligibility gate MUST block attachment.
+  // New expected behavior: no generated_file.
+  it('Hebrew exact-title request without age — no attachment (age-restricted form)', () => {
     const messages = [
       { role: 'user', content: 'שלח לי את הטופס מה עובר עליי עכשיו', metadata: { session_language: 'he' } },
       { role: 'assistant', content: 'כמובן' },
     ];
     const result = sanitizeConversationMessages(messages, 'he');
     const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.metadata?.generated_file).toBeTruthy();
-    expect(assistant.metadata.generated_file.language).toBe('he');
-    expect(String(assistant.metadata.generated_file.url || '')).toMatch(/^\/forms\//);
+    // Gate blocks: audience is children or adolescents but no numeric age provided.
+    expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
-  it('Hebrew clinical-need request attaches a Hebrew form', () => {
+  // UPDATED: Hebrew clinical-need request without age — children forms require explicit age.
+  it('Hebrew clinical-need request without age — no attachment (blocker 1 enforcement)', () => {
     const messages = [
       { role: 'user', content: 'אני צריך טופס לילד עם חרדה', metadata: { session_language: 'he' } },
       { role: 'assistant', content: 'כמובן' },
     ];
     const result = sanitizeConversationMessages(messages, 'he');
     const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.metadata?.generated_file).toBeTruthy();
-    expect(assistant.metadata.generated_file.language).toBe('he');
-    expect(assistant.metadata.generated_file.audience).toBe('children');
+    // "לילד" → audience confirmed as children, but no age → gate blocks.
+    expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
-  it('Hebrew multi-form request attaches generated_files', () => {
+  // UPDATED: Hebrew multi-form request without age — all children forms blocked.
+  it('Hebrew multi-form request without age — no attachment (children forms blocked)', () => {
     const messages = [
       {
         role: 'user',
@@ -543,22 +547,23 @@ describe('PR-9 Phase 7: chat integration regression', () => {
     ];
     const result = sanitizeConversationMessages(messages, 'he');
     const assistant = result.find((m) => m.role === 'assistant');
+    // All resolved forms are children-audience; no numeric age → gate blocks all.
     const generatedFiles = assistant?.metadata?.generated_files;
-    expect(Array.isArray(generatedFiles)).toBe(true);
-    expect(generatedFiles.length).toBeGreaterThan(0);
-    expect(generatedFiles.length).toBeLessThanOrEqual(MAX_GENERATED_FILES_PER_RESPONSE);
-    expect(generatedFiles.every((f) => f.language === 'he')).toBe(true);
+    const noFiles = !generatedFiles || generatedFiles.length === 0;
+    const noFile = !assistant?.metadata?.generated_file;
+    expect(noFiles && noFile).toBe(true);
   });
 
-  it('English first-message clinical-need request attaches an English form', () => {
+  // UPDATED: English clinical-need request for children without age — blocked.
+  it('English clinical-need request for children without age — no attachment (blocker 1)', () => {
     const messages = [
       { role: 'user', content: 'Send me a CBT form for children with anxiety', metadata: { session_language: 'en' } },
       { role: 'assistant', content: 'Sure, I can help with that.' },
     ];
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.metadata?.generated_file).toBeTruthy();
-    expect(assistant.metadata.generated_file.language).toBe('en');
+    // children audience + no numeric age → gate blocks.
+    expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
   it('Hebrew session does not attach English forms when Hebrew alternatives exist', () => {
@@ -571,6 +576,7 @@ describe('PR-9 Phase 7: chat integration regression', () => {
     if (assistant?.metadata?.generated_file) {
       expect(assistant.metadata.generated_file.language).toBe('he');
     }
+    // No assertion on attachment because children forms without age are now blocked.
   });
 });
 

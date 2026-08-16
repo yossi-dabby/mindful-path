@@ -17,6 +17,15 @@ const OUTPUT_FILE = path.join(ROOT, 'src/generated/therapeutic-forms-index.json'
 const FORMS_INDEX_PILOT_VARIANTS = process.env.FORMS_INDEX_PILOT_VARIANTS === 'true';
 
 const KNOWN_AUDIENCES = new Set(['children', 'adolescents', 'adults', 'older_adults', 'parents']);
+
+/** Canonical age ranges per audience, mirrored in src/lib/worksheetEligibilityGate.js. */
+const AUDIENCE_AGE_RANGES = Object.freeze({
+  children:    { age_min: 5,  age_max: 11 },
+  adolescents: { age_min: 12, age_max: 17 },
+  adults:      { age_min: 18, age_max: null },
+  older_adults:{ age_min: 65, age_max: null },
+  parents:     { age_min: 18, age_max: null },
+});
 const SUPPORTED_FORM_LANGUAGES = new Set(['en', 'he', 'es', 'fr', 'de', 'it', 'pt']);
 const KNOWN_CATEGORIES = new Set([
   'children_cbt_core',
@@ -629,6 +638,13 @@ function enrichHierarchyMetadata(entries) {
     const isCombinedPdf = ['module_pdf', 'stage_combined_pdf', 'workbook_package'].includes(entry?.type);
     const localizedDisplay = buildLocalizedDisplay(entry);
 
+    // Attach canonical age range from AUDIENCE_AGE_RANGES so the eligibility
+    // gate can compare recipientAge without a separate lookup.
+    const audienceAgeRange = AUDIENCE_AGE_RANGES[entry.audience] || null;
+    const ageRangeFields = audienceAgeRange
+      ? { age_min: audienceAgeRange.age_min, age_max: audienceAgeRange.age_max }
+      : {};
+
     return {
       ...entry,
       collectionId,
@@ -637,6 +653,7 @@ function enrichHierarchyMetadata(entries) {
       clinicalDomain,
       displayOrder,
       isCombinedPdf,
+      ...ageRangeFields,
       ...(localizedDisplay ? { localizedDisplay } : {}),
     };
   });
