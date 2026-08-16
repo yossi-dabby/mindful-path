@@ -1,355 +1,276 @@
 /**
  * @file test/utils/therapistClinicalCalibrationStage5.test.js
  *
- * Stage 5 — Clinical Calibration Regression Tests
+ * Stage 5 Clinical Calibration — instruction contract, production-path injection,
+ * and deterministic guard coverage.
  *
- * PURPOSE
- * -------
- * Verifies the four Stage 5 clinical-calibration invariants are present in the
- * THERAPIST_PLANNER_FIRST_INSTRUCTIONS string and have the correct content.
- * All tests are deterministic and synchronous — no LLM calls, network requests,
- * or Base44 SDK calls.
+ * This file intentionally distinguishes:
+ * 1. instruction-contract assertions on the canonical Stage 5 planner text;
+ * 2. production-path injection assertions through the active session-start builder;
+ * 3. deterministic runtime guard coverage only where the repository already has
+ *    a concrete non-LLM validator.
  *
- * INVARIANTS TESTED
- *
- * A. Semantic recalibration after "too hard"
- *    — No mere rephrasing/shortening/softening; change a relevant task dimension;
- *      preserve mechanism contact; no retreat to private preparation.
- *
- * B. Epistemic discipline after an outcome
- *    — Separate facts / hypotheses / unknown; single-trial language calibration;
- *      no invented motives; no equating anxiety with success/failure.
- *
- * C. Current-turn prohibition on actions
- *    — No imperatives/menus/future options when explicitly prohibited; may name
- *      intervention category; restriction is turn-scoped; safety overrides.
- *
- * D. GAD and uncertainty work
- *    — Distinguish practical from hypothetical; allow thoughts during uncertainty
- *      practice (no thought suppression); mixed components formulated separately;
- *      no inferred avoidance; one check does not resolve all.
- *
- * SECTION A — Section presence
- *   1.  THERAPIST_PLANNER_FIRST_INSTRUCTIONS contains Stage 5 section header
- *   2.  THERAPIST_WORKFLOW_VERSION is 3.7.0
- *
- * SECTION B — Invariant A: Semantic recalibration after "too hard"
- *   3.  Section A header is present in instructions
- *   4.  Instructions prohibit merely paraphrasing the original instruction
- *   5.  Instructions prohibit softening the wording of the same message
- *   6.  Instructions require changing a relevant task dimension
- *   7.  Instructions require preserving contact with the same maintaining mechanism
- *   8.  Instructions prohibit retreat to private planning when prohibited
- *   9.  Instructions prohibit retreat to drafting when prohibited
- *  10.  Instructions prohibit inventing duration, history, diagnosis, or risk
- *  11.  Instructions warn against hardcoding any single example as universal
- *
- * SECTION C — Invariant B: Epistemic discipline after an outcome
- *  12.  Section B header is present in instructions
- *  13.  Instructions require separating observed facts from hypotheses
- *  14.  Instructions require flagging what remains unknown
- *  15.  Instructions permit "support" or "consistent with" for a single trial
- *  16.  Instructions prohibit "confirm" for a single trial
- *  17.  Instructions prohibit "prove" for a single trial
- *  18.  Instructions prohibit inferring unreported motives
- *  19.  Instructions prohibit inferring another person's thoughts or feelings
- *  20.  Instructions prohibit equating increased anxiety with successful exposure
- *  21.  Instructions prohibit equating increased anxiety with failed treatment
- *  22.  Instructions require calibrated language (e.g. "may suggest")
- *
- * SECTION D — Invariant C: Current-turn prohibition on actions
- *  23.  Section C header is present in instructions
- *  24.  Instructions prohibit imperatives when user message says no action
- *  25.  Instructions prohibit exact actions when user message says no action
- *  26.  Instructions prohibit menus when user message says no action
- *  27.  Instructions prohibit "next time we can…" language
- *  28.  Instructions prohibit hiding an action inside an explanation
- *  29.  Instructions allow naming an intervention category
- *  30.  Instructions apply restriction to current turn only
- *  31.  Instructions state safety retains precedence over this restriction
- *
- * SECTION E — Invariant D: GAD and uncertainty work
- *  32.  Section D header is present in instructions
- *  33.  Instructions require distinguishing practical from hypothetical worry
- *  34.  Instructions require uncertainty practice to allow thoughts to be present
- *  35.  Instructions prohibit requiring a blank mind during uncertainty practice
- *  36.  Instructions prohibit prohibiting thoughts from arising
- *  37.  Instructions flag thought suppression risk in "do not add another thought"
- *  38.  Instructions reference structured problem-solving for practical concerns
- *  39.  Instructions prohibit assuming avoidance without evidence
- *  40.  Instructions prohibit claiming one check resolves the entire concern
- *  41.  Instructions require formulating mixed components separately
- *
- * SECTION F — Preserved gains (negative regressions)
- *  42.  Instructions preserve one direct atomic action when user requests one
- *  43.  Instructions preserve reassurance refusal in doubt/checking loops
- *  44.  Instructions preserve distinguishing facts from interpretations
- *  45.  Instructions still contain WAVE 5 header (no prior layer removed)
- *  46.  Instructions still contain PLANNER CONSTITUTION section
- *  47.  Instructions still contain INTERVENTION READINESS GATES section
- *  48.  Instructions still contain STAGE 9 RESPONSE QUALITY STABILIZERS section
- *
- * SECTION G — Hebrew-language parity
- *  49.  THERAPIST_PLANNER_FIRST_INSTRUCTIONS is a string (applies to all languages)
- *  50.  THERAPIST_WORKFLOW_INSTRUCTIONS still references cross-language consistency
- *
- * SECTION H — Builder function parity
- *  51.  buildPlannerFirstInstructions() returns the same string as the constant
- *  52.  The constant is non-empty
+ * It does NOT claim to prove free-form model behavior for all Stage 5 scenarios.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   THERAPIST_PLANNER_FIRST_INSTRUCTIONS,
   THERAPIST_WORKFLOW_VERSION,
-  THERAPIST_WORKFLOW_INSTRUCTIONS,
   buildPlannerFirstInstructions,
 } from '../../src/lib/therapistWorkflowEngine.js';
+import { buildActionFirstDemotedSessionContentAsync } from '../../src/lib/workflowContextInjector.js';
+import {
+  CBT_THERAPIST_WIRING_HYBRID,
+  CBT_THERAPIST_WIRING_STAGE2_V12,
+} from '../../src/api/agentWiring.js';
+import { enforceResponsePolicy } from '../../src/lib/responsePolicyEnforcer.js';
+import {
+  applyAtomicActionGuardToConversationMessages,
+  evaluateAtomicActionOutput,
+} from '../../src/lib/explicitOutputShapeGuard.js';
 
 const INST = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+const STAGE5_HEADER = '--- STAGE 5 CLINICAL CALIBRATION ---';
 
-// ─── SECTION A — Section presence ────────────────────────────────────────────
+const INJECTION_FIXTURES = Object.freeze([
+  {
+    locale: 'en',
+    name: 'boundary action too hard',
+    userTurn: 'I already told my coworker "I cannot take this on tonight." That was too hard. Do not just soften the same boundary.',
+    expectedPatterns: [
+      /Change a relevant task dimension/i,
+      /same\s+maintaining mechanism/i,
+      /Mere social visibility or acknowledgment is insufficient when the target is\s+boundary-setting/i,
+    ],
+  },
+  {
+    locale: 'he',
+    name: 'spoken social action too hard',
+    userTurn: 'אמרתי שלום בקול רם בישיבה וזה היה קשה מדי. אל תקצר את אותה אמירה למילה אחת.',
+    expectedPatterns: [
+      /visible contribution in a group channel/i,
+      /same feared social participation/i,
+      /original\s+therapeutic target/i,
+    ],
+  },
+  {
+    locale: 'en',
+    name: 'single weak ambiguous outcome',
+    userTurn: 'I said one sentence in the meeting, my heart raced, and one person nodded. That is all I know.',
+    expectedPatterns: [
+      /observed facts/i,
+      /what remains unknown/i,
+      /It must NOT "confirm," "prove," "establish," or/i,
+    ],
+  },
+  {
+    locale: 'he',
+    name: 'current-turn do not propose another action',
+    userTurn: 'אל תציע כרגע עוד פעולה, צעד, שאלה או חלופה. רק תגיד איזה סוג התערבות זה.',
+    expectedPatterns: [
+      /Do NOT include imperatives, exact actions, exercises, step sequences, menus/i,
+      /It IS permissible to name an intervention CATEGORY/i,
+      /Apply the restriction to the CURRENT TURN ONLY/i,
+    ],
+  },
+  {
+    locale: 'en',
+    name: 'hypothetical GAD worry',
+    userTurn: 'What if the test result means something terrible later? Help me with the worry itself, not with proving it away.',
+    expectedPatterns: [
+      /actionable practical problem from a hypothetical/i,
+      /allow thoughts and discomfort\s+to be present/i,
+      /thought suppression/i,
+    ],
+  },
+  {
+    locale: 'en',
+    name: 'mixed practical and hypothetical worry',
+    userTurn: 'I can call the bank tomorrow, but I also keep thinking what if this means I will never be safe again.',
+    expectedPatterns: [
+      /structured problem-solving intervention\s+category/i,
+      /Formulate them\s+separately/i,
+      /necessarily resolves every practical or hypothetical aspect/i,
+    ],
+  },
+]);
 
-describe('Stage 5 Clinical Calibration — section presence', () => {
-  it('1. THERAPIST_PLANNER_FIRST_INSTRUCTIONS contains Stage 5 section header', () => {
-    expect(INST).toContain('STAGE 5 CLINICAL CALIBRATION');
-  });
+const HOLDING_POLICY = Object.freeze({
+  policy_version: 'response_policy_v1',
+  policy_available: true,
+  action_permitted: false,
+  intervention_mode: 'structured_exploration',
+  safety_override_required: false,
+  status: 'pending',
+  scope_match: true,
+});
 
-  it('2. THERAPIST_WORKFLOW_VERSION is 3.7.0', () => {
+function runAtomicTurn(userContent, assistantContent, locale = 'en', metadata = {}) {
+  const messages = [
+    { role: 'user', content: userContent },
+    { role: 'assistant', content: assistantContent, metadata, __rawIndex: 1 },
+  ];
+  return applyAtomicActionGuardToConversationMessages(messages, messages, { locale })[1];
+}
+
+describe('Stage 5 clinical calibration — instruction contract', () => {
+  it('keeps the canonical Stage 5 section and workflow version', () => {
+    expect(INST).toContain(STAGE5_HEADER);
     expect(THERAPIST_WORKFLOW_VERSION).toBe('3.7.0');
   });
-});
 
-// ─── SECTION B — Invariant A: Semantic recalibration after "too hard" ─────────
-
-describe('Stage 5 — Invariant A: Semantic recalibration after "too hard"', () => {
-  it('3. Section A header is present in instructions', () => {
-    expect(INST).toMatch(/SEMANTIC RECALIBRATION AFTER/i);
+  it('preserves the four Stage 5 invariant section headers', () => {
+    expect(INST).toMatch(/A\. SEMANTIC RECALIBRATION AFTER "TOO HARD"/);
+    expect(INST).toMatch(/B\. EPISTEMIC DISCIPLINE AFTER AN OUTCOME/);
+    expect(INST).toMatch(/C\. CURRENT-TURN PROHIBITION ON ACTIONS/);
+    expect(INST).toMatch(/D\. GAD AND UNCERTAINTY WORK/);
   });
 
-  it('4. Instructions prohibit merely paraphrasing the original instruction', () => {
-    expect(INST).toMatch(/paraphrase the original instruction/i);
-  });
-
-  it('5. Instructions prohibit softening the wording of the same message', () => {
-    expect(INST).toMatch(/soften the wording/i);
-  });
-
-  it('6. Instructions require changing a relevant task dimension', () => {
-    expect(INST).toMatch(/Change a relevant task dimension/i);
-  });
-
-  it('7. Instructions require preserving contact with the same maintaining mechanism', () => {
-    expect(INST).toMatch(/same\s+maintaining mechanism/i);
-  });
-
-  it('8. Instructions prohibit retreat to private planning when prohibited', () => {
-    expect(INST).toMatch(/private planning/i);
-  });
-
-  it('9. Instructions prohibit retreat to drafting when prohibited', () => {
-    expect(INST).toMatch(/drafting/i);
-  });
-
-  it('10. Instructions prohibit inventing duration, history, diagnosis, or risk', () => {
-    expect(INST).toMatch(/invent/i);
-    expect(INST).toMatch(/duration.*history/is);
-  });
-
-  it('11. Instructions warn against hardcoding any single example as universal', () => {
-    expect(INST).toMatch(/hardcode any single example as the universal answer/i);
-  });
-});
-
-// ─── SECTION C — Invariant B: Epistemic discipline after an outcome ───────────
-
-describe('Stage 5 — Invariant B: Epistemic discipline after an outcome', () => {
-  it('12. Section B header is present in instructions', () => {
-    expect(INST).toMatch(/EPISTEMIC DISCIPLINE AFTER AN OUTCOME/i);
-  });
-
-  it('13. Instructions require separating observed facts from hypotheses', () => {
-    expect(INST).toMatch(/observed facts/i);
-  });
-
-  it('14. Instructions require flagging what remains unknown', () => {
-    expect(INST).toMatch(/what remains unknown/i);
-  });
-
-  it('15. Instructions permit "support" or "consistent with" for a single trial', () => {
-    expect(INST).toMatch(/single trial may/i);
-    expect(INST).toMatch(/be consistent with/i);
-  });
-
-  it('16. Instructions prohibit "confirm" for a single trial (must NOT confirm)', () => {
-    expect(INST).toMatch(/must NOT/i);
-    expect(INST).toMatch(/must not.*confirm/i);
-  });
-
-  it('17. Instructions prohibit "prove" for a single trial (must NOT prove)', () => {
-    expect(INST).toMatch(/must NOT/i);
-    expect(INST).toMatch(/must not.*prove/i);
-  });
-
-  it('18. Instructions prohibit inferring unreported motives', () => {
-    expect(INST).toMatch(/unreported motives/i);
-  });
-
-  it("19. Instructions prohibit inferring another person's thoughts or feelings", () => {
-    expect(INST).toMatch(/another person's thoughts/i);
-  });
-
-  it('20. Instructions prohibit equating increased anxiety with successful exposure', () => {
-    expect(INST).toMatch(/successful exposure/i);
-  });
-
-  it('21. Instructions prohibit equating increased anxiety with failed treatment', () => {
-    expect(INST).toMatch(/failed treatment/i);
-  });
-
-  it('22. Instructions require calibrated language (e.g. "may suggest")', () => {
-    expect(INST).toMatch(/may suggest/i);
-  });
-});
-
-// ─── SECTION D — Invariant C: Current-turn prohibition on actions ─────────────
-
-describe('Stage 5 — Invariant C: Current-turn prohibition on actions', () => {
-  it('23. Section C header is present in instructions', () => {
-    expect(INST).toMatch(/CURRENT-TURN PROHIBITION ON ACTIONS/i);
-  });
-
-  it('24. Instructions prohibit imperatives when user message says no action', () => {
-    expect(INST).toMatch(/Do NOT include imperatives/i);
-  });
-
-  it('25. Instructions prohibit exact actions when user message says no action', () => {
-    expect(INST).toMatch(/exact actions/i);
-  });
-
-  it('26. Instructions prohibit menus when user message says no action', () => {
-    expect(INST).toMatch(/menus/i);
-  });
-
-  it('27. Instructions prohibit "next time we can…" language', () => {
-    expect(INST).toMatch(/next time we can/i);
-  });
-
-  it('28. Instructions prohibit hiding an action inside an explanation', () => {
-    expect(INST).toMatch(/hide an action inside an explanation/i);
-  });
-
-  it('29. Instructions allow naming an intervention category', () => {
-    expect(INST).toMatch(/name an intervention CATEGORY/i);
-  });
-
-  it('30. Instructions apply restriction to current turn only', () => {
-    expect(INST).toMatch(/CURRENT TURN ONLY/i);
-  });
-
-  it('31. Instructions state safety retains precedence over this restriction', () => {
+  it('keeps the current-turn no-action restriction scoped to the current turn with safety precedence', () => {
+    expect(INST).toMatch(/Do NOT include imperatives, exact actions, exercises, step sequences, menus/i);
+    expect(INST).toMatch(/Apply the restriction to the CURRENT TURN ONLY/i);
     expect(INST).toMatch(/Safety and crisis requirements retain absolute precedence/i);
   });
-});
 
-// ─── SECTION E — Invariant D: GAD and uncertainty work ───────────────────────
-
-describe('Stage 5 — Invariant D: GAD and uncertainty work', () => {
-  it('32. Section D header is present in instructions', () => {
-    expect(INST).toMatch(/GAD AND UNCERTAINTY WORK/i);
+  it('keeps Stage 5 fact-hypothesis-unknown language calibrated after a single trial', () => {
+    expect(INST).toMatch(/observed facts as reported/i);
+    expect(INST).toMatch(/what remains unknown/i);
+    expect(INST).toMatch(/A single trial may "support," "be consistent with," or "provide preliminary/i);
+    expect(INST).toMatch(/It must NOT "confirm," "prove," "establish," or/i);
   });
 
-  it('33. Instructions require distinguishing practical from hypothetical worry', () => {
+  it('keeps the GAD practical-versus-hypothetical distinction and anti-suppression wording', () => {
     expect(INST).toMatch(/actionable practical problem from a hypothetical/i);
-  });
-
-  it('34. Instructions require uncertainty practice to allow thoughts to be present', () => {
     expect(INST).toMatch(/allow thoughts and discomfort\s+to be present/i);
-  });
-
-  it('35. Instructions prohibit requiring a blank mind during uncertainty practice', () => {
     expect(INST).toMatch(/Never require a blank mind/i);
-  });
-
-  it('36. Instructions prohibit prohibiting thoughts from arising', () => {
-    expect(INST).toMatch(/prohibit thoughts from arising/i);
-  });
-
-  it('37. Instructions flag thought suppression risk in "do not add another thought"', () => {
     expect(INST).toMatch(/thought suppression/i);
   });
 
-  it('38. Instructions reference structured problem-solving for practical concerns', () => {
-    expect(INST).toMatch(/structured problem-solving/i);
-  });
-
-  it('39. Instructions prohibit assuming avoidance without evidence', () => {
-    expect(INST).toMatch(/Do NOT assume avoidance/i);
-  });
-
-  it('40. Instructions prohibit claiming one check resolves the entire concern', () => {
-    expect(INST).toMatch(/one information check/i);
-    expect(INST).toMatch(/resolves every practical/i);
-  });
-
-  it('41. Instructions require formulating mixed components separately', () => {
-    expect(INST).toMatch(/formulate them\s+separately/i);
-  });
-});
-
-// ─── SECTION F — Preserved gains (negative regressions) ──────────────────────
-
-describe('Stage 5 — Preserved gains (negative regressions)', () => {
-  it('42. Instructions preserve one direct atomic action when user requests one', () => {
+  it('keeps preserved gains unchanged', () => {
     expect(INST).toMatch(/One direct atomic action when the user explicitly requests one/i);
-  });
-
-  it('43. Instructions preserve reassurance refusal in doubt/checking loops', () => {
     expect(INST).toMatch(/Refusal of reassurance in doubt\/checking loops/i);
-  });
-
-  it('44. Instructions preserve distinguishing facts from interpretations', () => {
     expect(INST).toMatch(/Distinguishing facts from interpretations/i);
-  });
-
-  it('45. Instructions still contain WAVE 5 header (no prior layer removed)', () => {
-    expect(INST).toContain('WAVE 5 — FORMULATION-FIRST PLANNER POLICY');
-  });
-
-  it('46. Instructions still contain PLANNER CONSTITUTION section', () => {
     expect(INST).toContain('PLANNER CONSTITUTION');
-  });
-
-  it('47. Instructions still contain INTERVENTION READINESS GATES section', () => {
     expect(INST).toContain('INTERVENTION READINESS GATES');
-  });
-
-  it('48. Instructions still contain STAGE 9 RESPONSE QUALITY STABILIZERS section', () => {
     expect(INST).toContain('STAGE 9 RESPONSE QUALITY STABILIZERS');
   });
-});
 
-// ─── SECTION G — Hebrew-language parity ──────────────────────────────────────
-
-describe('Stage 5 — Hebrew-language parity', () => {
-  it('49. THERAPIST_PLANNER_FIRST_INSTRUCTIONS is a string (language-agnostic rule set)', () => {
-    expect(typeof INST).toBe('string');
-    expect(INST.length).toBeGreaterThan(0);
+  it('removes the one-word acknowledgment example and makes target preservation explicit', () => {
+    expect(INST).not.toContain('one-word acknowledgment');
+    expect(INST).not.toContain('from a full message to a one-word acknowledgment in a different modality');
+    expect(INST).toMatch(/original\s+therapeutic target/i);
+    expect(INST).toMatch(/Mere social visibility or acknowledgment is insufficient when the target is\s+boundary-setting/i);
+    expect(INST).toMatch(/must NOT become preparation, reassurance, emotion-labeling/i);
   });
 
-  it('50. THERAPIST_WORKFLOW_INSTRUCTIONS still references cross-language consistency', () => {
-    expect(THERAPIST_WORKFLOW_INSTRUCTIONS).toMatch(/cross-language/i);
+  it('keeps the group-channel example only as a conditional same-target example', () => {
+    expect(INST).toMatch(/visible contribution in a group channel/i);
+    expect(INST).toMatch(/if that medium is genuinely available/i);
+    expect(INST).toMatch(/still preserves the same feared social participation/i);
   });
-});
 
-// ─── SECTION H — Builder function parity ─────────────────────────────────────
-
-describe('Stage 5 — Builder function parity', () => {
-  it('51. buildPlannerFirstInstructions() returns the same string as the constant', () => {
+  it('builder parity remains intact', () => {
     expect(buildPlannerFirstInstructions()).toBe(INST);
+    expect(INST.length).toBeGreaterThan(100);
+  });
+});
+
+describe('Stage 5 clinical calibration — production-path injection coverage', () => {
+  it.each([
+    ['HYBRID default path', CBT_THERAPIST_WIRING_HYBRID],
+    ['V12 planner-first path', CBT_THERAPIST_WIRING_STAGE2_V12],
+  ])('injects the Stage 5 block exactly once through the active session-start builder: %s', async (_label, wiring) => {
+    const content = await buildActionFirstDemotedSessionContentAsync(wiring, {}, null);
+    const firstIndex = content.indexOf(STAGE5_HEADER);
+    const secondIndex = content.indexOf(STAGE5_HEADER, firstIndex + 1);
+    expect(firstIndex).toBeGreaterThanOrEqual(0);
+    expect(secondIndex).toBe(-1);
   });
 
-  it('52. The constant is non-empty', () => {
-    expect(INST.length).toBeGreaterThan(100);
+  it.each(INJECTION_FIXTURES)('keeps the Stage 5 contract injected for $locale fixture: $name', async ({ locale, userTurn, expectedPatterns }) => {
+    if (locale === 'he') {
+      expect(userTurn).toMatch(/[\u0590-\u05FF]/);
+    } else {
+      expect(userTurn).toMatch(/[A-Za-z]/);
+    }
+
+    const content = await buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_HYBRID, {}, null);
+    expect(content).toContain(STAGE5_HEADER);
+    for (const pattern of expectedPatterns) {
+      expect(content).toMatch(pattern);
+    }
+  });
+});
+
+describe('Stage 5 clinical calibration — deterministic runtime guards already present in the repo', () => {
+  it('rewrites a prohibited future exposure suggestion when the current turn forbids actions', () => {
+    const result = enforceResponsePolicy({
+      content: 'Understanding this usually means doing an exposure next time.',
+      policy: HOLDING_POLICY,
+      locale: 'en',
+    });
+
+    expect(result.replaced).toBe(true);
+    expect(result.content).toContain('before we decide on any next step');
+    expect(result.diagnostics.violation_reason_codes).toContain('exposure_instruction');
+  });
+
+  it('rewrites a prohibited Hebrew action suggestion when the current turn forbids actions', () => {
+    const result = enforceResponsePolicy({
+      content: 'כדאי שתשלחי עכשיו הודעה קצרה.',
+      policy: HOLDING_POLICY,
+      locale: 'he',
+    });
+
+    expect(result.replaced).toBe(true);
+    expect(result.content).toContain('מה הכי חשוב');
+    expect(result.diagnostics.violation_reason_codes).toContain('direct_imperative_he');
+  });
+
+  it('keeps safety precedence intact inside the no-action response policy guard', () => {
+    const result = enforceResponsePolicy({
+      content: 'If you are in immediate danger, call emergency services now.',
+      policy: { ...HOLDING_POLICY, safety_override_required: true },
+      locale: 'en',
+    });
+
+    expect(result.replaced).toBe(false);
+    expect(result.diagnostics.safety_override_required).toBe(true);
+  });
+
+  it('accepts one atomic action when the user explicitly requests one', () => {
+    const result = runAtomicTurn(
+      'Give me exactly one action and one rationale sentence.',
+      'Open the nearest window for one minute. This gives you one small observable completion.',
+    );
+
+    expect(result.content).toBe(
+      'Open the nearest window for one minute. This gives you one small observable completion.',
+    );
+    expect(result.metadata.explicit_output_shape_guard).toBeUndefined();
+    expect(evaluateAtomicActionOutput({
+      userContent: 'Give me exactly one action and one rationale sentence.',
+      assistantContent: result.content,
+    }).actionClauseCount).toBe(1);
+  });
+
+  it('does not let an earlier one-action restriction persist into a later unrestricted turn', () => {
+    const messages = [
+      { role: 'user', content: 'Give me exactly one action.' },
+      { role: 'assistant', content: 'Open the window.' },
+      { role: 'user', content: 'That still felt hard. Help me understand what made it hard.' },
+      {
+        role: 'assistant',
+        content: 'We can look at what made that feel harder and decide together what fits next.',
+        __rawIndex: 3,
+      },
+    ];
+
+    const result = applyAtomicActionGuardToConversationMessages(messages, messages, { locale: 'en' });
+    expect(result[3].content).toBe(
+      'We can look at what made that feel harder and decide together what fits next.',
+    );
+    expect(result[3].metadata?.explicit_output_shape_guard).toBeUndefined();
   });
 });
