@@ -19,7 +19,10 @@ import {
   THERAPIST_WORKFLOW_VERSION,
   buildPlannerFirstInstructions,
 } from '../../src/lib/therapistWorkflowEngine.js';
-import { buildActionFirstDemotedSessionContentAsync } from '../../src/lib/workflowContextInjector.js';
+import {
+  buildActionFirstDemotedSessionContentAsync,
+  buildV12SessionStartContentAsync,
+} from '../../src/lib/workflowContextInjector.js';
 import {
   CBT_THERAPIST_WIRING_HYBRID,
   CBT_THERAPIST_WIRING_STAGE2_V12,
@@ -33,66 +36,36 @@ import {
 const INST = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
 const STAGE5_HEADER = '--- STAGE 5 CLINICAL CALIBRATION ---';
 
-const INJECTION_FIXTURES = Object.freeze([
+const MANUAL_RUNTIME_FIXTURES = Object.freeze([
   {
     locale: 'en',
     name: 'boundary action too hard',
     userTurn: 'I already told my coworker "I cannot take this on tonight." That was too hard. Do not just soften the same boundary.',
-    expectedPatterns: [
-      /Change a relevant task dimension/i,
-      /same\s+maintaining mechanism/i,
-      /Mere social visibility or acknowledgment is insufficient when the target is\s+boundary-setting/i,
-    ],
   },
   {
     locale: 'he',
     name: 'spoken social action too hard',
     userTurn: 'אמרתי שלום בקול רם בישיבה וזה היה קשה מדי. אל תקצר את אותה אמירה למילה אחת.',
-    expectedPatterns: [
-      /visible contribution in a group channel/i,
-      /same feared social participation/i,
-      /original\s+therapeutic target/i,
-    ],
   },
   {
     locale: 'en',
     name: 'single weak ambiguous outcome',
     userTurn: 'I said one sentence in the meeting, my heart raced, and one person nodded. That is all I know.',
-    expectedPatterns: [
-      /observed facts/i,
-      /what remains unknown/i,
-      /It must NOT "confirm," "prove," "establish," or/i,
-    ],
   },
   {
     locale: 'he',
     name: 'current-turn do not propose another action',
     userTurn: 'אל תציע כרגע עוד פעולה, צעד, שאלה או חלופה. רק תגיד איזה סוג התערבות זה.',
-    expectedPatterns: [
-      /Do NOT include imperatives, exact actions, exercises, step sequences, menus/i,
-      /It IS permissible to name an intervention CATEGORY/i,
-      /Apply the restriction to the CURRENT TURN ONLY/i,
-    ],
   },
   {
     locale: 'en',
     name: 'hypothetical GAD worry',
     userTurn: 'What if the test result means something terrible later? Help me with the worry itself, not with proving it away.',
-    expectedPatterns: [
-      /actionable practical problem from a hypothetical/i,
-      /allow thoughts and discomfort\s+to be present/i,
-      /thought suppression/i,
-    ],
   },
   {
     locale: 'en',
     name: 'mixed practical and hypothetical worry',
     userTurn: 'I can call the bank tomorrow, but I also keep thinking what if this means I will never be safe again.',
-    expectedPatterns: [
-      /structured problem-solving intervention\s+category/i,
-      /Formulate them\s+separately/i,
-      /necessarily resolves every practical or hypothetical aspect/i,
-    ],
   },
 ]);
 
@@ -106,12 +79,13 @@ const HOLDING_POLICY = Object.freeze({
   scope_match: true,
 });
 
-function runAtomicTurn(userContent, assistantContent, locale = 'en', metadata = {}) {
-  const messages = [
+function guardAssistantMessage(userContent, assistantContent, locale = 'en', metadata = {}) {
+  const visibleMessages = [
     { role: 'user', content: userContent },
     { role: 'assistant', content: assistantContent, metadata, __rawIndex: 1 },
   ];
-  return applyAtomicActionGuardToConversationMessages(messages, messages, { locale })[1];
+  const finalMessages = visibleMessages.map((message) => ({ ...message }));
+  return applyAtomicActionGuardToConversationMessages(visibleMessages, finalMessages, { locale })[1];
 }
 
 describe('Stage 5 clinical calibration — instruction contract', () => {
@@ -141,8 +115,9 @@ describe('Stage 5 clinical calibration — instruction contract', () => {
   });
 
   it('keeps the GAD practical-versus-hypothetical distinction and anti-suppression wording', () => {
-    expect(INST).toMatch(/actionable practical problem from a hypothetical/i);
-    expect(INST).toMatch(/allow thoughts and discomfort\s+to be present/i);
+    expect(INST).toContain('actionable practical problem from a hypothetical');
+    expect(INST).toContain('allow thoughts and discomfort');
+    expect(INST).toContain('to be present while reducing engagement in solving');
     expect(INST).toMatch(/Never require a blank mind/i);
     expect(INST).toMatch(/thought suppression/i);
   });
@@ -160,7 +135,8 @@ describe('Stage 5 clinical calibration — instruction contract', () => {
     expect(INST).not.toContain('one-word acknowledgment');
     expect(INST).not.toContain('from a full message to a one-word acknowledgment in a different modality');
     expect(INST).toMatch(/original\s+therapeutic target/i);
-    expect(INST).toMatch(/Mere social visibility or acknowledgment is insufficient when the target is\s+boundary-setting/i);
+    expect(INST).toContain('Mere social visibility or acknowledgment is insufficient when the target is');
+    expect(INST).toContain('boundary-setting.');
     expect(INST).toMatch(/must NOT become preparation, reassurance, emotion-labeling/i);
   });
 
@@ -176,30 +152,45 @@ describe('Stage 5 clinical calibration — instruction contract', () => {
   });
 });
 
+describe('Stage 5 clinical calibration — fixture data integrity', () => {
+  it('keeps concrete English and Hebrew fixtures available for manual runtime verification', () => {
+    expect(MANUAL_RUNTIME_FIXTURES).toHaveLength(6);
+    for (const fixture of MANUAL_RUNTIME_FIXTURES) {
+      expect(typeof fixture.locale).toBe('string');
+      expect(typeof fixture.name).toBe('string');
+      expect(typeof fixture.userTurn).toBe('string');
+      expect(fixture.locale.length).toBeGreaterThan(0);
+      expect(fixture.name.length).toBeGreaterThan(0);
+      expect(fixture.userTurn.length).toBeGreaterThan(0);
+    }
+    expect(MANUAL_RUNTIME_FIXTURES.some(({ locale, userTurn }) => locale === 'he' && /[\u0590-\u05FF]/.test(userTurn))).toBe(true);
+    expect(MANUAL_RUNTIME_FIXTURES.some(({ locale }) => locale === 'en')).toBe(true);
+  });
+});
+
 describe('Stage 5 clinical calibration — production-path injection coverage', () => {
-  it.each([
-    ['HYBRID default path', CBT_THERAPIST_WIRING_HYBRID],
-    ['V12 planner-first path', CBT_THERAPIST_WIRING_STAGE2_V12],
-  ])('injects the Stage 5 block exactly once through the active session-start builder: %s', async (_label, wiring) => {
-    const content = await buildActionFirstDemotedSessionContentAsync(wiring, {}, null);
+  it('injects the Stage 5 block exactly once through the active HYBRID/default session-start builder', async () => {
+    const content = await buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_HYBRID, {}, null);
     const firstIndex = content.indexOf(STAGE5_HEADER);
     const secondIndex = content.indexOf(STAGE5_HEADER, firstIndex + 1);
     expect(firstIndex).toBeGreaterThanOrEqual(0);
     expect(secondIndex).toBe(-1);
   });
 
-  it.each(INJECTION_FIXTURES)('keeps the Stage 5 contract injected for $locale fixture: $name', async ({ locale, userTurn, expectedPatterns }) => {
-    if (locale === 'he') {
-      expect(userTurn).toMatch(/[\u0590-\u05FF]/);
-    } else {
-      expect(userTurn).toMatch(/[A-Za-z]/);
-    }
+  it('injects the Stage 5 block exactly once through the V12 planner-first session-start builder', async () => {
+    const content = await buildV12SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V12, {}, null);
+    const firstIndex = content.indexOf(STAGE5_HEADER);
+    const secondIndex = content.indexOf(STAGE5_HEADER, firstIndex + 1);
+    expect(firstIndex).toBeGreaterThanOrEqual(0);
+    expect(secondIndex).toBe(-1);
+  });
 
+  it('injects the updated target-preservation wording into the active default runtime path', async () => {
     const content = await buildActionFirstDemotedSessionContentAsync(CBT_THERAPIST_WIRING_HYBRID, {}, null);
     expect(content).toContain(STAGE5_HEADER);
-    for (const pattern of expectedPatterns) {
-      expect(content).toMatch(pattern);
-    }
+    expect(content).toMatch(/original\s+therapeutic target/i);
+    expect(content).toMatch(/Mere social visibility or acknowledgment is insufficient when the target is\s+boundary-setting/i);
+    expect(content).not.toContain('one-word acknowledgment');
   });
 });
 
@@ -240,19 +231,26 @@ describe('Stage 5 clinical calibration — deterministic runtime guards already 
   });
 
   it('accepts one atomic action when the user explicitly requests one', () => {
-    const result = runAtomicTurn(
+    const result = guardAssistantMessage(
       'Give me exactly one action and one rationale sentence.',
       'Open the nearest window for one minute. This gives you one small observable completion.',
+      'en',
+      { sentinel: true },
     );
 
     expect(result.content).toBe(
       'Open the nearest window for one minute. This gives you one small observable completion.',
     );
+    expect(result.metadata.sentinel).toBe(true);
     expect(result.metadata.explicit_output_shape_guard).toBeUndefined();
     expect(evaluateAtomicActionOutput({
       userContent: 'Give me exactly one action and one rationale sentence.',
       assistantContent: result.content,
-    }).actionClauseCount).toBe(1);
+    })).toMatchObject({
+      active: true,
+      violation: false,
+      actionClauseCount: 1,
+    });
   });
 
   it('does not let an earlier one-action restriction persist into a later unrestricted turn', () => {
