@@ -79,16 +79,20 @@ const SHORT_AFFIRMATIVE_PATTERN =
  *
  * "Explicit request" means:
  *   a) A send/request/need verb is present AND a form object is mentioned, OR
- *   b) The message is a short affirmative acceptance AND a prior context message
- *      mentioned forms/worksheets (anaphoric acceptance of an earlier offer).
+ *   b) The message is a short affirmative acceptance AND a *prior assistant message*
+ *      offered a form (anaphoric acceptance of a proven assistant offer).
+ *
+ * Note: `previousAssistantOffer` must be text from an assistant turn, not user messages.
+ * A generic earlier user-side worksheet mention is insufficient (see invariant rule 1).
  *
  * This function is language-independent: it tests both EN and HE patterns.
  *
- * @param {string|null} userMessage       - The current user turn text.
- * @param {string|null} previousContext   - Earlier user messages (for anaphoric acceptance).
+ * @param {string|null} userMessage            - The current user turn text.
+ * @param {string|null} previousAssistantOffer - Text of the immediately preceding assistant
+ *                                               message that offered or mentioned a form.
  * @returns {boolean}
  */
-export function hasExplicitWorksheetRequest(userMessage, previousContext) {
+export function hasExplicitWorksheetRequest(userMessage, previousAssistantOffer) {
   if (!userMessage || typeof userMessage !== 'string') return false;
   const msg = userMessage.trim();
   if (!msg) return false;
@@ -96,9 +100,10 @@ export function hasExplicitWorksheetRequest(userMessage, previousContext) {
   // (a) Explicit send verb + form object in current message
   if (SEND_VERB_PATTERN.test(msg) && FORM_OBJECT_PATTERN.test(msg)) return true;
 
-  // (b) Short affirmative + prior context mentioned forms (acceptance of an earlier offer)
+  // (b) Short affirmative + ASSISTANT offered a form in the preceding turn.
+  // Acceptance is only valid when the assistant has already offered the exact form.
   if (SHORT_AFFIRMATIVE_PATTERN.test(msg)) {
-    if (typeof previousContext === 'string' && FORM_OBJECT_PATTERN.test(previousContext)) {
+    if (typeof previousAssistantOffer === 'string' && FORM_OBJECT_PATTERN.test(previousAssistantOffer)) {
       return true;
     }
   }
@@ -129,12 +134,12 @@ const ADULT_AUDIENCES = new Set(['adults', 'older_adults', 'parents']);
  * form's stated audience.
  *
  * Compatibility rules:
+ *   - Exact same audience is always compatible.
+ *   - Children (5–11) and adolescents (12–17) are DISTINCT age groups and are
+ *     NOT interchangeable. Numeric age checks are the only path to cross-group
+ *     compatibility (i.e., a form for 5–11 cannot be given to a 12-year-old).
+ *   - A minor audience (children or adolescents) is incompatible with an adult form.
  *   - An adult audience is incompatible with a minor (children/adolescents) form.
- *   - A minor audience is incompatible with an adult form.
- *   - Adjacent minor groups (children ↔ adolescents) are treated as compatible
- *     because the AI resolver may select the closest valid form; the age check
- *     will catch explicit numeric mismatches independently.
- *   - Same audience is always compatible.
  *
  * @param {string} formAudience       - The form's audience field.
  * @param {string} confirmedAudience  - The audience extracted from the user's message.
@@ -150,7 +155,11 @@ export function isAudienceCompatible(formAudience, confirmedAudience) {
   // Block cross-group mismatch between minor and adult
   if (formIsMinor && confirmedIsAdult) return false;
   if (formIsAdult && confirmedIsMinor) return false;
-  // Same group (both minor or both adult): compatible
+  // Within the minor group: children ↔ adolescents are NOT interchangeable.
+  // They serve distinct age windows (5–11 vs 12–17) with different clinical norms.
+  // A numeric age check (above) is the correct vehicle for cross-minor compatibility.
+  if (formIsMinor && confirmedIsMinor) return false;
+  // Same adult sub-group (e.g., adults ↔ older_adults / parents): compatible
   return true;
 }
 
@@ -233,14 +242,23 @@ function deriveAudienceFromAge(age) {
  * @param {object|null} form  - Resolved form metadata (from the therapeutic forms registry).
  *   Expected fields: { audience, age_max?, age_min?, form_id?, id?, slug? }
  * @param {object} context
- *   @param {string|null}  context.userMessage                 - Current user turn.
- *   @param {string|null}  context.previousUserContext         - Earlier user turns (for anaphoric acceptance).
- *   @param {string|null}  [context.confirmedAudience]         - Explicitly confirmed recipient audience.
- *                                                               Derived from userMessage when not provided.
- *   @param {number|null}  [context.recipientAge]              - Explicitly known recipient age.
- *                                                               Derived from userMessage when not provided.
+ *   @param {string|null}  context.userMessage                    - Current user turn.
+ *   @param {string|null}  [context.previousAssistantOffer]        - Text of the immediately
+ *                                                                    preceding assistant message
+ *                                                                    that offered/mentioned a form.
+ *                                                                    Required for short-affirmative
+ *                                                                    acceptance; user-side messages
+ *                                                                    do not count.
+ *   @param {string|null}  [context.confirmedAudience]             - Explicitly confirmed recipient audience.
+ *                                                                    Derived from userMessage when not provided.
+ *   @param {number|null}  [context.recipientAge]                  - Explicitly known recipient age.
+ *                                                                    Derived from userMessage when not provided.
  *   @param {boolean}      [context.currentTurnProhibitsWorksheet] - True when current turn has explicit no-form suppression.
- *   @param {string|null}  [context.consentedFormId]           - Specific form ID consented to in a prior offer, if any.
+ *   @param {string|null}  [context.consentedFormId]               - Specific form ID consented to in a prior offer, if any.
+ *   @param {boolean}      [context.clinicallyRelevant]            - True when the resolver/registry has provided
+ *                                                                    authoritative evidence that this form is relevant
+ *                                                                    to the current clinical goal/domain. Defaults to
+ *                                                                    false (fail closed) when not supplied.
  *
  * @returns {{ allowed: boolean, reason: string }}
  */
@@ -248,9 +266,10 @@ export function checkWorksheetEligibilityGate(form, context = {}) {
   const safeContext = context && typeof context === 'object' ? context : {};
   const {
     userMessage = null,
-    previousUserContext = null,
+    previousAssistantOffer = null,
     currentTurnProhibitsWorksheet = false,
     consentedFormId = null,
+    clinicallyRelevant = false,
   } = safeContext;
 
   // Derive audience and age from message when not passed explicitly
@@ -277,45 +296,45 @@ export function checkWorksheetEligibilityGate(form, context = {}) {
   }
 
   // Rule 1: Worksheet attachment requires explicit user request in this turn.
-  if (!hasExplicitWorksheetRequest(userMessage, previousUserContext)) {
+  // Short affirmatives are only valid when the immediately preceding ASSISTANT message
+  // offered the exact form (previousAssistantOffer). User-side prior mentions are insufficient.
+  if (!hasExplicitWorksheetRequest(userMessage, previousAssistantOffer)) {
     return { allowed: false, reason: 'no_explicit_request' };
+  }
+
+  // Rule 4: Clinical relevance must be evidenced by the resolver/registry for the
+  // current clinical goal/domain. Fail closed when not explicitly confirmed.
+  if (!clinicallyRelevant) {
+    return { allowed: false, reason: 'clinical_relevance_unconfirmed' };
   }
 
   // Rules 2 + 3 + 4: For age-restricted forms the recipient audience must be known
   // and age-compatible. Fail closed when eligibility cannot be confirmed.
-  //
-  // Strict audience confirmation (audience must be confirmed in the message) applies
-  // only to children forms, because:
-  //   a) children forms have the tightest age ceiling (age_max: 11 per clinical spec),
-  //   b) the presenting defect was a children form attached to an adult-like scenario, and
-  //   c) requiring audience confirmation for adolescent forms breaks valid therapeutic
-  //      workflows where a clinician asks for an adolescent form without restating audience.
-  //
-  // For all age-restricted forms: if the recipient's audience is explicitly stated AND is
-  // incompatible with the form, or the recipient's age is known and incompatible, block.
   if (form && isAgeRestrictedAudience(form.audience)) {
-    // Strict audience confirmation gate for CHILDREN forms only
+    // Children forms (age_max: 11) require:
+    //   1. Confirmed children audience, AND
+    //   2. Explicit numeric age within the children range.
+    // Exact form-title knowledge is NOT a substitute for age confirmation.
     if (form.audience === 'children') {
       if (!confirmedAudience) {
-        // When the user explicitly names the form by its title, they implicitly know
-        // its audience (the clinician chose it knowing it's a children's form).
-        // This allows valid titled-request workflows while still blocking unsolicited attachment.
-        const formTitle = (form.title || form.name || '').trim();
-        const normalizedFormTitle = formTitle.replace(/[?!]+$/u, '').trim().toLowerCase();
-        const normalizedUserMessage = typeof userMessage === 'string' ? userMessage.toLowerCase() : '';
-        const userNamedFormByTitle =
-          normalizedFormTitle.length >= 4 &&
-          normalizedUserMessage.includes(normalizedFormTitle);
-        if (!userNamedFormByTitle) {
-          return {
-            allowed: false,
-            reason: 'age_restricted_unknown_audience',
-            shouldAskClarification: true,
-          };
-        }
+        return {
+          allowed: false,
+          reason: 'age_restricted_unknown_audience',
+          shouldAskClarification: true,
+        };
       }
-      if (confirmedAudience && !isAudienceCompatible(form.audience, confirmedAudience)) {
+      if (!isAudienceCompatible(form.audience, confirmedAudience)) {
         return { allowed: false, reason: 'audience_incompatible' };
+      }
+      // Children forms require an explicit numeric age — audience label alone is not enough
+      // because children and adolescents span different numeric windows and the age boundary
+      // (≤ 11) is clinically meaningful.
+      if (typeof recipientAge !== 'number') {
+        return {
+          allowed: false,
+          reason: 'age_restricted_unknown_age',
+          shouldAskClarification: true,
+        };
       }
     } else {
       // For other age-restricted audiences (adolescents): only block when the

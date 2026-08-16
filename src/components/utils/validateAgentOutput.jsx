@@ -526,30 +526,63 @@ function removeGeneratedTherapeuticFormMetadata(metadata) {
  * The gate is shared and language-independent; it applies identically to
  * responses generated in any locale.
  *
- * @param {object}      metadata                     - Assistant message metadata after all routing.
+ * @param {object}      metadata                        - Assistant message metadata after all routing.
  * @param {object}      gateCtx
- * @param {string|null} gateCtx.userMessage          - Triggering user message.
- * @param {string|null} gateCtx.previousUserContext  - Earlier user messages (anaphoric acceptance).
- * @param {boolean}     gateCtx.currentTurnProhibits - True when explicit no-form suppression is already active.
+ * @param {string|null} gateCtx.userMessage             - Triggering user message.
+ * @param {string|null} gateCtx.previousAssistantOffer  - Preceding assistant message text (for short-affirmative provenance).
+ * @param {boolean}     gateCtx.currentTurnProhibits    - True when explicit no-form suppression is already active.
+ * @param {boolean}     gateCtx.clinicallyRelevant      - True when the resolver found explicit intent-match evidence.
  * @returns {object} The metadata, with therapeutic-form entries removed when blocked.
  */
 function applyEligibilityGateToMetadata(metadata, gateCtx) {
   if (!metadata || typeof metadata !== 'object') return metadata;
   const form = metadata.generated_file;
-  if (!form) return metadata; // no form attached — nothing to gate
+  if (!form && !Array.isArray(metadata.generated_files)) return metadata; // nothing to gate
   try {
-    if (isWorksheetBlockedByGate(form, {
+    const ctx = {
       userMessage: gateCtx.userMessage,
-      previousUserContext: gateCtx.previousUserContext,
+      previousAssistantOffer: gateCtx.previousAssistantOffer,
       currentTurnProhibitsWorksheet: gateCtx.currentTurnProhibits,
-    })) {
-      return removeGeneratedTherapeuticFormMetadata(metadata);
+      consentedFormId: gateCtx.consentedFormId ?? null,
+      confirmedAudience: gateCtx.confirmedAudience ?? undefined,
+      recipientAge: gateCtx.recipientAge ?? undefined,
+      clinicallyRelevant: gateCtx.clinicallyRelevant === true,
+    };
+
+    // Gate the primary single attachment
+    let nextMetadata = metadata;
+    if (form && isWorksheetBlockedByGate(form, ctx)) {
+      nextMetadata = removeGeneratedTherapeuticFormMetadata(nextMetadata);
     }
+
+    // Gate every entry in generated_files independently — no unvalidated secondary attachment survives.
+    if (Array.isArray(nextMetadata.generated_files)) {
+      const passing = nextMetadata.generated_files.filter(f => !isWorksheetBlockedByGate(f, ctx));
+      if (passing.length !== nextMetadata.generated_files.length) {
+        nextMetadata = { ...nextMetadata };
+        if (passing.length === 0) {
+          // Capture the first element before deletion so the comparison below works correctly.
+          const firstOfList = nextMetadata.generated_files[0];
+          delete nextMetadata.generated_files;
+          // If the primary was derived from generated_files, remove it too.
+          if (!form || nextMetadata.generated_file === firstOfList) {
+            delete nextMetadata.generated_file;
+          }
+        } else {
+          nextMetadata.generated_files = passing;
+          // Ensure generated_file is still from the surviving list
+          if (nextMetadata.generated_file && !passing.includes(nextMetadata.generated_file)) {
+            nextMetadata.generated_file = passing[0];
+          }
+        }
+      }
+    }
+
+    return nextMetadata;
   } catch {
     // Gate threw unexpectedly — fail closed.
     return removeGeneratedTherapeuticFormMetadata(metadata);
   }
-  return metadata;
 }
 
 function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }) {
@@ -1482,6 +1515,15 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
           .map(m => m.content)
           .slice(-2)
           .join(' ') || null;
+      // The immediately preceding ASSISTANT message (if any) — used to confirm that a
+      // short affirmative in the current user turn is a response to a proven assistant offer,
+      // not a free-floating agreement to a generic earlier user-side worksheet mention.
+      const previousAssistantOffer =
+        sourceMessages
+          .slice(0, index - 1)
+          .filter(m => m.role === 'assistant' && typeof m.content === 'string')
+          .slice(-1)
+          .map(m => m.content)[0] || null;
       const deterministicFormRoute =
         (
           !triggeringUserMsg ||
@@ -1531,14 +1573,24 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         // (via a [FORM:] marker or the deterministic route). Historical assistant
         // messages that carry pre-existing form metadata pass through unchanged so
         // that legitimately-delivered forms are not stripped on re-sanitization.
+        // NOTE: stats.total reflects registry size (always > 0); use actual resolution
+        // evidence: generatedFile from marker OR generatedFile from deterministic route.
         const newFormWasResolved1 =
           generatedFile != null ||
-          ((deterministicFormRoute?.stats?.total ?? 0) > 0);
+          deterministicFormRoute?.generatedFile != null;
+        const clinicallyRelevant1 =
+          (deterministicFormRoute?.matches?.length ?? 0) > 0 ||
+          generatedFile != null;
         const postSuppression1 = formSuppressed
           ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
           : deterministicApplied.metadata;
         const finalMetadata = newFormWasResolved1
-          ? applyEligibilityGateToMetadata(postSuppression1, { userMessage: triggeringUserMsg, previousUserContext, currentTurnProhibits: formSuppressed })
+          ? applyEligibilityGateToMetadata(postSuppression1, {
+              userMessage: triggeringUserMsg,
+              previousAssistantOffer,
+              currentTurnProhibits: formSuppressed,
+              clinicallyRelevant: clinicallyRelevant1,
+            })
           : postSuppression1;
         return {
           ...msg,
@@ -1579,12 +1631,20 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
             // Eligibility gate: only applied when a form was newly resolved in this turn.
             const newFormWasResolved2 =
               generatedFile != null ||
-              ((deterministicFormRoute?.stats?.total ?? 0) > 0);
+              deterministicFormRoute?.generatedFile != null;
+            const clinicallyRelevant2 =
+              (deterministicFormRoute?.matches?.length ?? 0) > 0 ||
+              generatedFile != null;
             const postSuppression2 = formSuppressed
               ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
               : deterministicApplied.metadata;
             const finalMetadata = newFormWasResolved2
-              ? applyEligibilityGateToMetadata(postSuppression2, { userMessage: triggeringUserMsg, previousUserContext, currentTurnProhibits: formSuppressed })
+              ? applyEligibilityGateToMetadata(postSuppression2, {
+                  userMessage: triggeringUserMsg,
+                  previousAssistantOffer,
+                  currentTurnProhibits: formSuppressed,
+                  clinicallyRelevant: clinicallyRelevant2,
+                })
               : postSuppression2;
             return {
               ...msg,
@@ -1681,12 +1741,20 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
         // Eligibility gate: only applied when a form was newly resolved in this turn.
         const newFormWasResolved3 =
           generatedFile != null ||
-          ((deterministicFormRoute?.stats?.total ?? 0) > 0);
+          deterministicFormRoute?.generatedFile != null;
+        const clinicallyRelevant3 =
+          (deterministicFormRoute?.matches?.length ?? 0) > 0 ||
+          generatedFile != null;
         const postSuppression3 = formSuppressed
           ? removeGeneratedTherapeuticFormMetadata(deterministicApplied.metadata)
           : deterministicApplied.metadata;
         const finalMetadata = newFormWasResolved3
-          ? applyEligibilityGateToMetadata(postSuppression3, { userMessage: triggeringUserMsg, previousUserContext, currentTurnProhibits: formSuppressed })
+          ? applyEligibilityGateToMetadata(postSuppression3, {
+              userMessage: triggeringUserMsg,
+              previousAssistantOffer,
+              currentTurnProhibits: formSuppressed,
+              clinicallyRelevant: clinicallyRelevant3,
+            })
           : postSuppression3;
         return { ...msg, content: deterministicApplied.content, metadata: finalMetadata };
       }

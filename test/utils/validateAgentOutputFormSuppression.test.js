@@ -333,8 +333,8 @@ describe('V8-D — suppression is current-turn-only (test 9)', () => {
     // Previous turn: do not send a form
     makeUserMsg(ENGLISH_PRODUCTION_MSG, 'en'),
     makeAssistantPlainText('I hear you.'),
-    // Current turn: explicit positive request for a worksheet
-    makeUserMsg('Please attach a worksheet for children with anxiety.', 'en'),
+    // Current turn: explicit positive request for a worksheet (adolescents — compatible with EN_MARKER)
+    makeUserMsg('Please attach a worksheet for teens with anxiety.', 'en'),
     makeAssistantPlainText(`Here is your worksheet. ${EN_MARKER}`),
   ];
 
@@ -648,15 +648,16 @@ describe('V8-D — PR #860 regression: deterministic path unaffected (test 24)',
 // 25. Positive form requests preserve generated_file — not weakened
 // ─────────────────────────────────────────────────────────────────────────────
 describe('V8-D — positive form requests still work (test 25)', () => {
-  it('25a. "Send me a CBT form for children" still attaches a form', () => {
+  it('25a. "Send me a CBT form for children" without age — gate blocks (no numeric age)', () => {
+    // UPDATED: children forms require explicit numeric age.
+    // "children" confirms audience but no age → gate blocks with age_restricted_unknown_age.
     const messages = [
       makeUserMsg('Send me a CBT form for children with anxiety', 'en'),
       makeAssistantPlainText('Sure! Here you go.'),
     ];
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = getAssistant(result);
-    // Deterministic route should fire for this positive request
-    expect(assistant?.metadata?.generated_file?.form_id).toBeTruthy();
+    expect(assistant?.metadata?.generated_file?.form_id).toBeFalsy();
   });
 
   it('25b. marker-based form delivery still works without suppression', () => {
