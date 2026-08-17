@@ -247,8 +247,6 @@ function _parseContinuityFromRawRecords(rawRecords) {
 
   // Score each record and separate into useful vs. weak in a single pass.
   // Records are already in recency order (most-recent-first from CompanionMemory.list).
-  // We sort useful records by score (descending), using original list position
-  // as the tiebreaker so that among equally-scored records the most recent wins.
   const { usefulScored, weakScored } = allValidRecords.reduce(
     (acc, record, index) => {
       const score = scoreTherapistMemoryRecord(record);
@@ -263,12 +261,20 @@ function _parseContinuityFromRawRecords(rawRecords) {
     { usefulScored: [], weakScored: [] },
   );
 
-  // Sort useful records: highest score first; equal scores preserve original recency order.
-  usefulScored.sort((a, b) => b.score - a.score || a.index - b.index);
+  // Stage 6 fix — guaranteed recency slot:
+  // Always include the most-recent useful session (usefulScored[0], recency index
+  // lowest = most recent) so that a streak of high-scoring older sessions cannot
+  // displace the current-session context.  Sort only the remaining useful records
+  // by richness score; fill remaining slots with the richest of those, then weak.
+  const mostRecentUseful = usefulScored.length > 0 ? usefulScored[0] : null;
+  const olderUseful = usefulScored.length > 1 ? usefulScored.slice(1) : [];
+  olderUseful.sort((a, b) => b.score - a.score || a.index - b.index);
 
-  // Select up to CONTINUITY_MAX_PRIOR_SESSIONS records.
-  // Prefer useful records; supplement with weak records (in recency order) when needed.
-  const selectedScored = usefulScored.slice(0, CONTINUITY_MAX_PRIOR_SESSIONS);
+  const selectedScored = mostRecentUseful ? [mostRecentUseful] : [];
+  const richSlots = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
+  selectedScored.push(...olderUseful.slice(0, richSlots));
+
+  // Supplement with weak records (in recency order) when useful records are scarce.
   if (selectedScored.length < CONTINUITY_MAX_PRIOR_SESSIONS) {
     const weakNeeded = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
     selectedScored.push(...weakScored.slice(0, weakNeeded));
@@ -500,6 +506,8 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
     continuity_block_emitted: false,
     continuity_fail_safe: false,
     continuity_failure_reason_code: CONTINUITY_FAILURE_REASONS.none,
+    // Stage 6: most-recent useful session is always pinned as slot 0 in selection.
+    most_recent_session_pinned: true,
   };
 
   try {

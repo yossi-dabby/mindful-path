@@ -670,3 +670,199 @@ describe('Section 9: Flag regression — V6 and below paths unaffected', () => {
     expect(typeof result).toBe('string');
   });
 });
+
+// ─── Section 10: Stage 6 — most-recent useful session always pinned ───────────
+
+describe('Section 10: Stage 6 — most-recent useful session is always included in selected set', () => {
+  it('includes the most-recent useful session even when older sessions have higher richness scores', async () => {
+    // Most-recent useful session: lower score (core_patterns + summary = 5)
+    const mostRecentUseful = makeRichRecord({
+      session_id: 'sess-most-recent',
+      session_date: '2026-08-01',
+      session_summary: 'Most recent session summary content here',
+      core_patterns: ['most-recent-pattern'],
+      follow_up_tasks: ['most-recent-follow-up'],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: [],
+    });
+    // 3 older sessions with higher richness (working_hypotheses + interventions added = +4 each)
+    const olderA = makeRichRecord({
+      session_id: 'sess-older-a',
+      session_date: '2026-07-01',
+      session_summary: 'Older session A content here for testing',
+      core_patterns: ['older-pattern-a'],
+      follow_up_tasks: ['older-task-a'],
+      working_hypotheses: ['older-hyp-a'],
+      interventions_used: ['exposure'],
+      risk_flags: [],
+    });
+    const olderB = makeRichRecord({
+      session_id: 'sess-older-b',
+      session_date: '2026-06-01',
+      session_summary: 'Older session B content here for testing',
+      core_patterns: ['older-pattern-b'],
+      follow_up_tasks: ['older-task-b'],
+      working_hypotheses: ['older-hyp-b'],
+      interventions_used: ['behavioral_activation'],
+      risk_flags: [],
+    });
+    const olderC = makeRichRecord({
+      session_id: 'sess-older-c',
+      session_date: '2026-05-01',
+      session_summary: 'Older session C content here for testing',
+      core_patterns: ['older-pattern-c'],
+      follow_up_tasks: ['older-task-c'],
+      working_hypotheses: ['older-hyp-c'],
+      interventions_used: ['thought_record'],
+      risk_flags: [],
+    });
+
+    // mostRecentUseful at index 0 (most recent); olderA, olderB, olderC follow.
+    // Without Stage 6 fix, the 3 higher-scoring older sessions fill all 3 slots and
+    // the most-recent session is excluded.
+    const entities = makeEntities([mostRecentUseful, olderA, olderB, olderC]);
+
+    const result = await readCrossSessionContinuity(entities);
+
+    expect(result).not.toBeNull();
+    // The most-recent session's patterns and follow-ups MUST appear.
+    expect(result.recurringPatterns).toContain('most-recent-pattern');
+    expect(result.openFollowUpTasks).toContain('most-recent-follow-up');
+    // recentSummary MUST be from the most-recent session.
+    expect(result.recentSummary).toContain('Most recent session summary');
+    // Total selected must not exceed MAX.
+    expect(result.sessionCount).toBeLessThanOrEqual(CONTINUITY_MAX_PRIOR_SESSIONS);
+  });
+
+  it('recentSummary is always from the most-recent selected session even when older sessions have higher scores', async () => {
+    const mostRecent = makeRichRecord({
+      session_id: 'sess-newest',
+      session_summary: 'Newest session summary text for recent anchor',
+      core_patterns: ['new-pattern'],
+      follow_up_tasks: ['new-task'],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: [],
+    });
+    const older = makeRichRecord({
+      session_id: 'sess-old-rich',
+      session_summary: 'Older session rich summary text here',
+      core_patterns: ['old-pattern'],
+      follow_up_tasks: ['old-task'],
+      working_hypotheses: ['old-hyp'],
+      interventions_used: ['exposure'],
+      risk_flags: [],
+    });
+
+    // most-recent at index 0, older at index 1 (higher score)
+    const entities = makeEntities([mostRecent, older]);
+
+    const result = await readCrossSessionContinuity(entities);
+
+    expect(result).not.toBeNull();
+    // recentSummary should be the most-recent session's summary
+    expect(result.recentSummary).toContain('Newest session summary');
+    expect(result.recentSummary).not.toContain('Older session rich');
+  });
+
+  it('still surfaces risk_flags from older sessions when the most-recent session has none', async () => {
+    const recentNoRisk = makeRichRecord({
+      session_id: 'sess-recent-safe',
+      session_summary: 'Recent session without risk flags content text',
+      core_patterns: ['recent-pattern'],
+      follow_up_tasks: ['recent-task'],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: [],
+    });
+    const olderWithRisk = makeRichRecord({
+      session_id: 'sess-older-risk',
+      session_summary: 'Older session with risk content here for testing',
+      core_patterns: ['older-risk-pattern'],
+      follow_up_tasks: [],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: ['passive_ideation'],
+    });
+
+    const entities = makeEntities([recentNoRisk, olderWithRisk]);
+
+    const result = await readCrossSessionContinuity(entities);
+
+    expect(result).not.toBeNull();
+    // Risk flag from older session should still appear in selected set
+    expect(result.riskFlags).toContain('passive_ideation');
+    // And the most-recent session's content is present
+    expect(result.recurringPatterns).toContain('recent-pattern');
+  });
+
+  it('handles single useful record with no older sessions correctly (no regression)', async () => {
+    const onlyRecord = makeRichRecord({
+      session_id: 'sess-only',
+      session_summary: 'Only session summary content here for testing',
+      core_patterns: ['only-pattern'],
+      follow_up_tasks: ['only-task'],
+    });
+
+    const entities = makeEntities([onlyRecord]);
+
+    const result = await readCrossSessionContinuity(entities);
+
+    expect(result).not.toBeNull();
+    expect(result.sessionCount).toBe(1);
+    expect(result.recurringPatterns).toContain('only-pattern');
+    expect(result.recentSummary).toContain('Only session summary');
+  });
+
+  it('V7 session-start includes most-recent-session content when older sessions have higher scores', async () => {
+    const mostRecent = makeRichRecord({
+      session_id: 'sess-v7-recent',
+      session_summary: 'Stage 6 most recent session summary here for V7 test',
+      core_patterns: ['stage6-recent-pattern'],
+      follow_up_tasks: ['stage6-recent-task'],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: [],
+    });
+    const olderRich = makeRichRecord({
+      session_id: 'sess-v7-older',
+      session_summary: 'Stage 6 older richer session content for testing',
+      core_patterns: ['stage6-older-pattern'],
+      follow_up_tasks: ['stage6-older-task'],
+      working_hypotheses: ['stage6-older-hyp'],
+      interventions_used: ['exposure', 'thought_record'],
+      risk_flags: [],
+    });
+    const olderRich2 = makeRichRecord({
+      session_id: 'sess-v7-older-2',
+      session_summary: 'Stage 6 older session 2 content for testing',
+      core_patterns: ['stage6-older2-pattern'],
+      follow_up_tasks: ['stage6-older2-task'],
+      working_hypotheses: ['stage6-older2-hyp'],
+      interventions_used: ['behavioral_activation'],
+      risk_flags: [],
+    });
+    const olderRich3 = makeRichRecord({
+      session_id: 'sess-v7-older-3',
+      session_summary: 'Stage 6 older session 3 content for testing',
+      core_patterns: ['stage6-older3-pattern'],
+      follow_up_tasks: ['stage6-older3-task'],
+      working_hypotheses: ['stage6-older3-hyp'],
+      interventions_used: ['mindfulness'],
+      risk_flags: [],
+    });
+
+    const entities = {
+      CompanionMemory: { list: vi.fn().mockResolvedValue([mostRecent, olderRich, olderRich2, olderRich3]) },
+      CaseFormulation: { list: vi.fn().mockResolvedValue([]) },
+    };
+
+    const result = await buildV7SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V7, entities, {});
+
+    // Stage 6 fix: most-recent session content must be injected
+    expect(result).toContain('stage6-recent-pattern');
+    expect(result).toContain('stage6-recent-task');
+    expect(result).toContain('CROSS-SESSION CONTINUITY CONTEXT');
+  });
+});
