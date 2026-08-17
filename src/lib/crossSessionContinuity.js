@@ -247,8 +247,6 @@ function _parseContinuityFromRawRecords(rawRecords) {
 
   // Score each record and separate into useful vs. weak in a single pass.
   // Records are already in recency order (most-recent-first from CompanionMemory.list).
-  // We sort useful records by score (descending), using original list position
-  // as the tiebreaker so that among equally-scored records the most recent wins.
   const { usefulScored, weakScored } = allValidRecords.reduce(
     (acc, record, index) => {
       const score = scoreTherapistMemoryRecord(record);
@@ -263,12 +261,26 @@ function _parseContinuityFromRawRecords(rawRecords) {
     { usefulScored: [], weakScored: [] },
   );
 
-  // Sort useful records: highest score first; equal scores preserve original recency order.
-  usefulScored.sort((a, b) => b.score - a.score || a.index - b.index);
+  // Stage 6 fix — guaranteed recency slot with safety precedence:
+  // Always include the most-recent useful session (usefulScored[0], recency index
+  // lowest = most recent) so that a streak of high-scoring older sessions cannot
+  // displace the current-session context.  Sort only the remaining useful records
+  // with risk-bearing records first (safety precedence), then by richness score.
+  // This prevents the recency slot from causing historical risk signals to disappear.
+  const mostRecentUseful = usefulScored.length > 0 ? usefulScored[0] : null;
+  const olderUseful = usefulScored.length > 1 ? usefulScored.slice(1) : [];
+  olderUseful.sort((a, b) => {
+    const aRisk = Array.isArray(a.record.risk_flags) && a.record.risk_flags.length > 0 ? 1 : 0;
+    const bRisk = Array.isArray(b.record.risk_flags) && b.record.risk_flags.length > 0 ? 1 : 0;
+    if (bRisk !== aRisk) return bRisk - aRisk; // risk-bearing records always win a slot first
+    return b.score - a.score || a.index - b.index;
+  });
 
-  // Select up to CONTINUITY_MAX_PRIOR_SESSIONS records.
-  // Prefer useful records; supplement with weak records (in recency order) when needed.
-  const selectedScored = usefulScored.slice(0, CONTINUITY_MAX_PRIOR_SESSIONS);
+  const selectedScored = mostRecentUseful ? [mostRecentUseful] : [];
+  const richSlots = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
+  selectedScored.push(...olderUseful.slice(0, richSlots));
+
+  // Supplement with weak records (in recency order) when useful records are scarce.
   if (selectedScored.length < CONTINUITY_MAX_PRIOR_SESSIONS) {
     const weakNeeded = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
     selectedScored.push(...weakScored.slice(0, weakNeeded));
