@@ -28,6 +28,7 @@ export const NumericSafety = {
   },
 
   clamp(value, min, max) {
+    if (Number.isNaN(value)) return Number.isFinite(min) ? min : Number.isFinite(max) ? max : 0;
     return Math.max(min, Math.min(max, value));
   },
 
