@@ -424,7 +424,7 @@ export default function StandaloneDailyCheckIn() {
           background: 'linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(235, 248, 243, 0.94) 62%, rgba(247, 251, 249, 0.98) 100%)',
           boxShadow: '0 20px 56px rgba(77, 125, 111, 0.14), 0 8px 22px rgba(77, 125, 111, 0.08)'
         }}>
-        <CardHeader className="bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(238,247,243,0.52)_100%)] border-b border-border/50" style={{ padding: '20px 24px' }}>
+        <CardHeader className="bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(238,247,243,0.52)_100%)] border-b border-border/50 py-6 px-6" style={{ padding: '20px 24px' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 flex items-center justify-center" style={{
