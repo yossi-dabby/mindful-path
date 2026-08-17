@@ -631,7 +631,7 @@ export default function StandaloneDailyCheckIn() {
             }
 
           {/* Navigation */}
-          <div className="bg-teal-500 text-teal-800 mt-6 rounded-2xl flex gap-3">
+          <div className="bg-teal-500 text-teal-800 mt-6 rounded-2xl flex gap-3 mb-1">
             {step > 1 &&
               <Button
                 onClick={handleReturn}
