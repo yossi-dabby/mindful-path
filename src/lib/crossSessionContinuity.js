@@ -261,14 +261,20 @@ function _parseContinuityFromRawRecords(rawRecords) {
     { usefulScored: [], weakScored: [] },
   );
 
-  // Stage 6 fix — guaranteed recency slot:
+  // Stage 6 fix — guaranteed recency slot with safety precedence:
   // Always include the most-recent useful session (usefulScored[0], recency index
   // lowest = most recent) so that a streak of high-scoring older sessions cannot
   // displace the current-session context.  Sort only the remaining useful records
-  // by richness score; fill remaining slots with the richest of those, then weak.
+  // with risk-bearing records first (safety precedence), then by richness score.
+  // This prevents the recency slot from causing historical risk signals to disappear.
   const mostRecentUseful = usefulScored.length > 0 ? usefulScored[0] : null;
   const olderUseful = usefulScored.length > 1 ? usefulScored.slice(1) : [];
-  olderUseful.sort((a, b) => b.score - a.score || a.index - b.index);
+  olderUseful.sort((a, b) => {
+    const aRisk = Array.isArray(a.record.risk_flags) && a.record.risk_flags.length > 0 ? 1 : 0;
+    const bRisk = Array.isArray(b.record.risk_flags) && b.record.risk_flags.length > 0 ? 1 : 0;
+    if (bRisk !== aRisk) return bRisk - aRisk; // risk-bearing records always win a slot first
+    return b.score - a.score || a.index - b.index;
+  });
 
   const selectedScored = mostRecentUseful ? [mostRecentUseful] : [];
   const richSlots = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
@@ -506,8 +512,6 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
     continuity_block_emitted: false,
     continuity_fail_safe: false,
     continuity_failure_reason_code: CONTINUITY_FAILURE_REASONS.none,
-    // Stage 6: most-recent useful session is always pinned as slot 0 in selection.
-    most_recent_session_pinned: true,
   };
 
   try {

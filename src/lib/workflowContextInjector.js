@@ -1978,7 +1978,6 @@ function _emitV7ContinuityDiagnosticIfEnabled(wiring, diagnostic) {
     console.log('continuity_block_emitted         :', d.continuity_block_emitted ?? false);
     console.log('continuity_fail_safe             :', d.continuity_fail_safe ?? false);
     console.log('continuity_failure_reason_code   :', d.continuity_failure_reason_code ?? 'unknown');
-    console.log('most_recent_session_pinned       :', d.most_recent_session_pinned ?? true);
     console.groupEnd();
   } catch (_e) {
     // Diagnostic emission must never propagate — fail silently.

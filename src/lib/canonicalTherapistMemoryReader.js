@@ -103,7 +103,6 @@ function _continuitySafeFallback() {
       continuity_block_emitted: false,
       continuity_fail_safe: true,
       continuity_failure_reason_code: CONTINUITY_FAILURE_REASONS.read_error,
-      most_recent_session_pinned: true,
     },
   };
 }

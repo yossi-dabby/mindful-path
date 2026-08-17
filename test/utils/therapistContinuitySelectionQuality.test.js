@@ -797,6 +797,66 @@ describe('Section 10: Stage 6 — most-recent useful session is always included 
     expect(result.recurringPatterns).toContain('recent-pattern');
   });
 
+  it('four-record slot competition: recentSummary is from most-recent session and passive_ideation is not lost (MAX=3)', async () => {
+    // Exact scenario from the problem statement with genuine slot competition.
+    // Record 1 — most-recent session: useful but low score, no risk flag (score ≈ 5)
+    const mostRecentLowScore = makeRichRecord({
+      session_id: 'sess-comp-recent',
+      session_summary: 'Most recent session summary for slot competition test',
+      core_patterns: ['recent-comp-pattern'],
+      follow_up_tasks: ['recent-comp-task'],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: [],
+    });
+    // Record 2 — older rich session A: high score, no risk (score ≈ 12)
+    const olderRichA = makeRichRecord({
+      session_id: 'sess-comp-rich-a',
+      session_summary: 'Older rich session A for slot competition test',
+      core_patterns: ['rich-a-pattern'],
+      follow_up_tasks: ['rich-a-task'],
+      working_hypotheses: ['rich-a-hypothesis'],
+      interventions_used: ['exposure'],
+      risk_flags: [],
+    });
+    // Record 3 — older rich session B: high score, no risk (score ≈ 12)
+    const olderRichB = makeRichRecord({
+      session_id: 'sess-comp-rich-b',
+      session_summary: 'Older rich session B for slot competition test',
+      core_patterns: ['rich-b-pattern'],
+      follow_up_tasks: ['rich-b-task'],
+      working_hypotheses: ['rich-b-hypothesis'],
+      interventions_used: ['behavioral_activation'],
+      risk_flags: [],
+    });
+    // Record 4 — older session with passive_ideation: would have held the third
+    // slot under pure richness ranking but has lower total score than rich A/B.
+    const olderRiskOnly = makeRichRecord({
+      session_id: 'sess-comp-risk',
+      session_summary: 'Older risk session for slot competition test here',
+      core_patterns: [],
+      follow_up_tasks: [],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: ['passive_ideation'],
+    });
+
+    // Input order: most-recent first (index 0), then olderRichA, olderRichB, olderRiskOnly.
+    // Without safety-precedence sort, recent + richA + richB fill all 3 slots and
+    // passive_ideation is lost.
+    const entities = makeEntities([mostRecentLowScore, olderRichA, olderRichB, olderRiskOnly]);
+
+    const result = await readCrossSessionContinuity(entities);
+
+    expect(result).not.toBeNull();
+    // recentSummary MUST come from the most-recent useful session.
+    expect(result.recentSummary).toContain('Most recent session summary for slot competition test');
+    // passive_ideation MUST NOT be displaced by the two high-scoring rich sessions.
+    expect(result.riskFlags).toContain('passive_ideation');
+    // Session count must not exceed MAX.
+    expect(result.sessionCount).toBeLessThanOrEqual(CONTINUITY_MAX_PRIOR_SESSIONS);
+  });
+
   it('handles single useful record with no older sessions correctly (no regression)', async () => {
     const onlyRecord = makeRichRecord({
       session_id: 'sess-only',

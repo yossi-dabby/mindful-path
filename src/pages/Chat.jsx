@@ -52,7 +52,6 @@ import {
   prependPendingPolicyRefreshToUserContent,
 } from '@/lib/therapeuticFormsPolicy.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
-// Stage 6 — Selection: most-recent useful session always pinned as slot 0 (crossSessionContinuity.js).
 import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
