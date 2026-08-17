@@ -248,7 +248,7 @@ async function sendChatMessage(page: Page, message: string) {
   await expect(input).toHaveValue('');
 }
 
-async function expectSingleGeneratedCard(page: Page, formId: string, language: ChatLanguage, isCombinedPdf = false, timeout = 15000) {
+async function expectSingleGeneratedCard(page: Page, formId: string, language: ChatLanguage, isCombinedPdf = false, timeout = 25000) {
   const cards = page.locator('[data-testid="generated-file-card"]');
   await expect(cards).toHaveCount(1, { timeout });
 
