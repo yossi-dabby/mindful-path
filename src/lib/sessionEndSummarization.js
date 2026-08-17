@@ -959,16 +959,24 @@ export function triggerConversationEndSummarization(
       const { base44 } = await import('../api/base44Client.js');
 
       // Stage 6 — bounded write timeout: fail-open if backend hangs.
-      const _writeTimeout = new Promise((_, reject) =>
-        setTimeout(
+      // The timer handle is captured so it can be cancelled once the race
+      // settles, preventing the callback from lingering in the event loop.
+      let _writeTimeoutHandle;
+      const _writeTimeout = new Promise((_, reject) => {
+        _writeTimeoutHandle = setTimeout(
           () => reject(new Error('session_memory_write_timeout')),
           SESSION_MEMORY_WRITE_TIMEOUT_MS,
-        )
-      );
-      const summaryRaw = await Promise.race([
-        base44.functions.invoke('generateSessionSummary', record),
-        _writeTimeout,
-      ]);
+        );
+      });
+      let summaryRaw;
+      try {
+        summaryRaw = await Promise.race([
+          base44.functions.invoke('generateSessionSummary', record),
+          _writeTimeout,
+        ]);
+      } finally {
+        clearTimeout(_writeTimeoutHandle);
+      }
       const summaryResult = unwrapBase44FunctionData(summaryRaw);
 
       // Wave 3B: only recompute and upsert the LTS snapshot when the summary
