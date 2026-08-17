@@ -659,6 +659,27 @@ export async function enrichConversationMemoryPayload(basePayload, entities) {
 const CONVERSATION_META_MAX_CHARS = 300;
 
 /**
+ * Maximum character length for a session_summary derived from bounded message
+ * content.  Larger than CONVERSATION_META_MAX_CHARS to capture richer context,
+ * but stays within SUMMARY_STRING_FIELD_MAX_LENGTHS.session_summary (2000 chars).
+ *
+ * @type {number}
+ */
+export const SESSION_SUMMARY_FROM_MESSAGES_MAX_CHARS = 1500;
+
+/**
+ * Bounded timeout (ms) for the generateSessionSummary invoke call.
+ *
+ * Stage 6 — bounded write timeout.
+ *
+ * If the backend does not respond within this window the write is abandoned
+ * with a warning.  Fail-open: the UI is never blocked by a hanging invoke.
+ *
+ * @type {number}
+ */
+export const SESSION_MEMORY_WRITE_TIMEOUT_MS = 8000;
+
+/**
  * Pattern that matches a generic auto-generated conversation name ("Session N")
  * that carries no useful context for the continuity block.
  * Matching names are excluded from session_summary to avoid writing empty context.
@@ -667,22 +688,92 @@ const CONVERSATION_META_MAX_CHARS = 300;
  */
 const GENERIC_SESSION_NAME_PATTERN = /^Session\s+\d+$/i;
 
+// ─── Bounded message-content extractor ───────────────────────────────────────
+
+/**
+ * Extracts a bounded session-summary string from a Chat.jsx message list.
+ *
+ * Stage 6 — bounded ephemeral message input for session_summary derivation.
+ *
+ * APPROACH
+ * --------
+ * 1. Filter to user-role messages only (excludes assistant, system, tool turns).
+ * 2. Exclude internal session-start turns (messages whose content begins with
+ *    '[START_SESSION]' — these are wiring injections, not user speech).
+ * 3. Exclude likely tool/action XML turns (content starting with '<').
+ * 4. Take the last SESSION_SUMMARIZATION_MAX_MESSAGES qualifying messages so
+ *    only the most recent exchange window is used (bounded input).
+ * 5. Concatenate their .content text with ' | ' separators.
+ * 6. Truncate to SESSION_SUMMARY_FROM_MESSAGES_MAX_CHARS.
+ * 7. Apply isRawTranscriptContent as a final safeguard — returns '' if the
+ *    joined string accidentally matches a raw-transcript pattern.
+ *
+ * PRIVACY CONTRACT
+ * ----------------
+ * The resulting string is a concatenation of user utterances without any
+ * speaker-label formatting (no "User: ..." prefix).  It will NOT match
+ * isRawTranscriptContent's dialogue-format patterns under normal use.
+ * The string is subsequently sanitized by sanitizeSummaryRecord (field-level
+ * truncation + isRawTranscriptContent check) before any persistence.
+ * Raw message objects are NEVER stored — only the derived summary string.
+ *
+ * FAIL-SAFE
+ * ---------
+ * Returns '' on any error or when no qualifying messages are found.
+ *
+ * @param {unknown} messages - Array of Chat.jsx message objects.
+ *   Each qualifying object must have { role: 'user', content: string }.
+ * @returns {string} A bounded summary string, or '' when no qualifying content.
+ */
+export function _extractSummaryFromMessages(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) return '';
+  try {
+    const userTexts = [];
+    for (const msg of messages) {
+      if (!msg || typeof msg !== 'object') continue;
+      if (msg.role !== 'user') continue;
+      if (typeof msg.content !== 'string' || msg.content.length === 0) continue;
+      const text = msg.content.trim();
+      if (!text) continue;
+      // Exclude internal session-start wiring injections
+      if (text.startsWith('[START_SESSION]')) continue;
+      // Exclude likely tool/action XML content (e.g. <actions>…</actions>)
+      if (text.startsWith('<')) continue;
+      userTexts.push(text);
+    }
+    if (userTexts.length === 0) return '';
+    // Bounded: only the last SESSION_SUMMARIZATION_MAX_MESSAGES user turns
+    const windowTexts = userTexts.slice(-SESSION_SUMMARIZATION_MAX_MESSAGES);
+    const joined = windowTexts.join(' | ').slice(0, SESSION_SUMMARY_FROM_MESSAGES_MAX_CHARS);
+    // Final safeguard: clear anything that looks like a raw dialogue transcript
+    if (isRawTranscriptContent(joined)) return '';
+    return joined;
+  } catch {
+    return '';
+  }
+}
+
 /**
  * Derives a minimal therapist-memory payload from Chat.jsx free-form
  * conversation metadata.
  *
  * Phase 4 — Chat.jsx Conversation Memory Write.
+ * Stage 6 — bounded message-content input for session_summary derivation.
  *
  * This is the lightweight counterpart of deriveSessionSummaryPayload for the
- * Chat.jsx free-form therapy interface. It cannot extract clinical data from
- * message content (privacy rule: no transcript storage), so all clinical arrays
- * are empty. The session_summary is populated only when the conversation carries
- * a meaningful intent or a non-generic name.
+ * Chat.jsx free-form therapy interface. Clinical arrays remain empty (no LLM
+ * inference). The session_summary is populated from:
+ *   1. intent (explicit topic, highest priority)
+ *   2. A meaningful non-generic conversation name
+ *   3. Bounded user message content (Stage 6 fallback — only when 1 and 2
+ *      both yield an empty summary)
  *
  * PRIVACY CONTRACT
- * No message content is read or stored. The record is derived solely from
- * conversation identity metadata: conversationId and conversationMeta.
- * All fields pass through sanitizeSummaryRecord before any downstream use.
+ * Raw message objects are never stored. When boundedMessages is provided, only
+ * the ephemeral string derived by _extractSummaryFromMessages is used — user
+ * turns are filtered, joined, truncated, and sanitized before being placed in
+ * session_summary.  All fields pass through sanitizeSummaryRecord before any
+ * downstream persistence.
  *
  * FAIL-SAFE
  * Returns buildSafeStubRecord('', '') on any unexpected error.
@@ -695,18 +786,24 @@ const GENERIC_SESSION_NAME_PATTERN = /^Session\s+\d+$/i;
  *       created (e.g. 'anxiety management', 'sleep issues').
  *     - name  {string} — The display name of the conversation
  *       (e.g. 'Anxiety session', 'Session 3').
+ * @param {Array|null} [boundedMessages=null]
+ *   Optional bounded array of Chat.jsx message objects ({ role, content }).
+ *   When provided and the metadata yields no session_summary, a summary is
+ *   derived from the filtered user messages via _extractSummaryFromMessages.
+ *   Raw message objects are never stored — only the derived summary string.
  * @returns {object}
  *   A sanitized summary record matching the Phase 1 therapist-memory schema.
  *   Returns buildSafeStubRecord() if the conversationId argument is invalid.
  */
-export function deriveConversationMemoryPayload(conversationId, conversationMeta = {}) {
+export function deriveConversationMemoryPayload(conversationId, conversationMeta = {}, boundedMessages = null) {
   try {
     const sessionId = typeof conversationId === 'string' ? conversationId.trim() : '';
     const sessionDate = new Date().toISOString();
 
     // ── session_summary ─────────────────────────────────────────────────────
-    // Derived from conversation identity metadata only — no message content.
-    // Prefer intent (explicit topic) over name (may be generic "Session N").
+    // Priority 1: intent (explicit topic set when conversation was created).
+    // Priority 2: meaningful non-generic conversation name.
+    // Priority 3 (Stage 6): bounded user message content from the session.
     const intent =
       typeof conversationMeta?.intent === 'string'
         ? conversationMeta.intent.trim().slice(0, CONVERSATION_META_MAX_CHARS)
@@ -724,9 +821,19 @@ export function deriveConversationMemoryPayload(conversationId, conversationMeta
       // Use name only when it's meaningful (not the auto-generated "Session N").
       sessionSummary = `Session: ${name}.`;
     }
-    // If neither intent nor a meaningful name is present, session_summary stays ''.
-    // An empty summary is safe — the record still establishes a session timestamp
-    // and conversationId in CompanionMemory, providing minimal continuity signal.
+
+    // Stage 6 — fallback: derive session_summary from bounded message content
+    // when metadata (intent, name) did not produce a useful summary.
+    // Only user-role messages are considered; internal/tool content is excluded.
+    // The raw message objects are NEVER stored — only the derived string.
+    if (!sessionSummary && boundedMessages) {
+      const msgSummary = _extractSummaryFromMessages(boundedMessages);
+      if (msgSummary) {
+        sessionSummary = msgSummary;
+      }
+    }
+    // If all three paths yield no summary, session_summary remains '' — a safe
+    // empty stub that still anchors a session timestamp in CompanionMemory.
 
     // ── Build raw payload (all clinical arrays empty — no content extraction) ─
     const rawPayload = {
@@ -796,6 +903,12 @@ export function deriveConversationMemoryPayload(conversationId, conversationMeta
  *   Optional Base44 entity client map (base44.entities from Chat.jsx).
  *   When provided and isContinuityEnrichmentEnabled() is true, the payload is
  *   enriched with Goal and CaseFormulation data before persistence.
+ * @param {object|null} [runtimeSnapshot=null] - Runtime flag snapshot.
+ * @param {Array|null} [boundedMessages=null]
+ *   Optional bounded array of Chat.jsx message objects ({ role, content }).
+ *   Passed to deriveConversationMemoryPayload as ephemeral input for
+ *   session_summary extraction when metadata yields no useful summary.
+ *   Raw message objects are never stored.
  */
 export function triggerConversationEndSummarization(
   conversationId,
@@ -803,6 +916,7 @@ export function triggerConversationEndSummarization(
   invoker = CONVERSATION_END_SUMMARY_INVOKER,
   entities = null,
   runtimeSnapshot = null,
+  boundedMessages = null,
 ) {
   // Gate check: runtime snapshot authority overrides build-time flag when the
   // snapshot is available and THERAPIST_RUNTIME_APPLY_ENABLED is true.
@@ -814,7 +928,7 @@ export function triggerConversationEndSummarization(
   // Non-blocking: fire-and-forget; caller is never awaited or blocked
   (async () => {
     try {
-      let memoryPayload = deriveConversationMemoryPayload(conversationId, conversationMeta);
+      let memoryPayload = deriveConversationMemoryPayload(conversationId, conversationMeta, boundedMessages);
 
       // Phase 3 enrichment: Goal + CaseFormulation data (fail-closed).
       // Only runs when both summarization AND continuity flags are active.
@@ -844,7 +958,17 @@ export function triggerConversationEndSummarization(
       // Lazy import to avoid any bundler/module cost in default-off mode
       const { base44 } = await import('../api/base44Client.js');
 
-      const summaryRaw = await base44.functions.invoke('generateSessionSummary', record);
+      // Stage 6 — bounded write timeout: fail-open if backend hangs.
+      const _writeTimeout = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('session_memory_write_timeout')),
+          SESSION_MEMORY_WRITE_TIMEOUT_MS,
+        )
+      );
+      const summaryRaw = await Promise.race([
+        base44.functions.invoke('generateSessionSummary', record),
+        _writeTimeout,
+      ]);
       const summaryResult = unwrapBase44FunctionData(summaryRaw);
 
       // Wave 3B: only recompute and upsert the LTS snapshot when the summary

@@ -304,6 +304,8 @@ function _parseContinuityFromRawRecords(rawRecords) {
 
   return {
     sessionCount: memoryRecords.length,
+    allValidCount: allValidRecords.length,
+    usefulCount: usefulScored.length,
     recurringPatterns: dedupeAndTrim(allPatterns),
     openFollowUpTasks: dedupeAndTrim(allFollowUps),
     interventionsUsed: dedupeAndTrim(allInterventions),
@@ -323,7 +325,12 @@ export async function readCrossSessionContinuity(entities) {
       CONTINUITY_MAX_PRIOR_SESSIONS * 3, // over-fetch to account for non-therapist records
     );
 
-    return _parseContinuityFromRawRecords(rawRecords);
+    // Return only the public-facing continuity fields (strip diagnostic-only
+    // allValidCount / usefulCount which are used by buildCrossSessionContinuityBlockWithDiagnostic).
+    const parsed = _parseContinuityFromRawRecords(rawRecords);
+    if (!parsed) return null;
+    const { sessionCount, recurringPatterns, openFollowUpTasks, interventionsUsed, riskFlags, recentSummary } = parsed;
+    return { sessionCount, recurringPatterns, openFollowUpTasks, interventionsUsed, riskFlags, recentSummary };
   } catch {
     return null;
   }
@@ -558,7 +565,9 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
     }
 
     // Populate diagnostic counts (numbers only — no text values)
-    diagnostic.selected_prior_session_count  = continuity.sessionCount;
+    // valid_therapist_memory_record_count: all successfully-parsed records found in
+    // CompanionMemory, regardless of their richness score.
+    diagnostic.valid_therapist_memory_record_count = continuity.allValidCount;
     diagnostic.recurring_pattern_count       = continuity.recurringPatterns.length;
     diagnostic.open_follow_up_count          = continuity.openFollowUpTasks.length;
     diagnostic.prior_intervention_count      = continuity.interventionsUsed.length;
@@ -566,6 +575,8 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
     // working_hypothesis_count is not directly available from _parseContinuityFromRawRecords
     // (it aggregates only the displayed fields).  Report 0 as a safe fallback.
     diagnostic.working_hypothesis_count = 0;
+    // selected_prior_session_count is set only when the block IS emitted (see below).
+    // When the block is not emitted, the count stays 0 so diagnostics are truthful.
 
     // Build the block string
     let block = '';
@@ -597,6 +608,10 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
       return { block: '', diagnostic };
     }
 
+    // Only record a non-zero selected_prior_session_count when the block is
+    // actually emitted — avoids the misleading state where "3 sessions selected"
+    // appears alongside continuity_block_emitted: false (Stage 6 diagnostic fix).
+    diagnostic.selected_prior_session_count = continuity.sessionCount;
     diagnostic.continuity_block_emitted = true;
     diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.none;
     // Also return structured continuity data so callers (canonical adapter) can

@@ -37,6 +37,7 @@ export function triggerConversationMemoryWriteOnce({
     invoker,
     entities,
     runtimeSnapshot,
+    Array.isArray(messages) ? messages : null,
   );
   return true;
 }

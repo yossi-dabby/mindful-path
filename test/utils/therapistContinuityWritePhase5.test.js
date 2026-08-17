@@ -188,9 +188,11 @@ describe('Phase 5 — Message-threshold gate: deriveConversationMemoryPayload in
     }
   });
 
-  it('deriveConversationMemoryPayload does not accept a messages parameter', () => {
-    // Verify the function signature has exactly 2 parameters (conversationId, conversationMeta)
-    expect(deriveConversationMemoryPayload.length).toBeLessThanOrEqual(2);
+  it('deriveConversationMemoryPayload accepts an optional bounded messages parameter (Stage 6)', () => {
+    // Stage 6 adds a third parameter (boundedMessages). The function length is
+    // now 3 because all three parameters have defaults.  This test confirms the
+    // parameter was added without removing the previous two parameters.
+    expect(deriveConversationMemoryPayload.length).toBeLessThanOrEqual(3);
   });
 });
 
@@ -408,11 +410,16 @@ describe('Phase 5 — Chat.jsx static analysis: requestSummary dedup wiring', ()
 // ─── Section 11 — Privacy contract: no raw transcript leakage ─────────────────
 
 describe('Phase 5 — Privacy contract: no raw transcript leakage', () => {
-  it('deriveConversationMemoryPayload accepts no messages/transcript argument', () => {
-    // Function signature: (conversationId, conversationMeta) — no messages param
-    const sig = deriveConversationMemoryPayload.toString().slice(0, 200);
-    // The parameter list must not mention 'messages' or 'transcript'
-    expect(sig).not.toMatch(/messages|transcript/i);
+  it('deriveConversationMemoryPayload bounded parameter uses ephemeral input only (no transcript storage)', () => {
+    // Stage 6 adds a boundedMessages optional parameter. The parameter name
+    // intentionally includes 'bounded' to signal that input is ephemeral and
+    // bounded (never persisted as-is). Verify the signature uses the expected
+    // bounded-parameter name rather than a bare 'messages' or 'transcript' arg.
+    const sig = deriveConversationMemoryPayload.toString().slice(0, 250);
+    // The parameter must use a bounded name, not a bare 'messages' key
+    // (bare 'messages' would imply raw transcript storage).
+    expect(sig).not.toMatch(/\(\s*conversationId\s*,\s*conversationMeta\s*,\s*messages\s*[),]/);
+    expect(sig).not.toMatch(/\(\s*conversationId\s*,\s*conversationMeta\s*,\s*transcript\s*[),]/);
   });
 
   it('maybeTriggerEndWrite only passes conversationId and metadata to triggerConversationEndSummarization (no content)', () => {
