@@ -386,6 +386,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'הסיבה היא',
       'גורם',
       'מוביל',
+      'porque', 'esto explica', 'por lo tanto', 'por eso', 'causa', 'lleva a', 'da lugar a',
+      'parce que', 'cela explique', 'donc', 'c’est pourquoi', "c'est pourquoi", 'provoque', 'mène à', 'entraîne',
+      'weil', 'das erklärt', 'daher', 'deshalb', 'verursacht', 'führt zu', 'ergibt sich aus',
+      'perché', 'questo spiega', 'quindi', 'per questo', 'porta a', 'determina',
+      'isso explica', 'portanto', 'por isso', 'leva a', 'resulta em',
     ],
     userTerms: [
       'because',
@@ -398,6 +403,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'connection between',
       'what causes',
       'explain the connection',
+      'porque', 'causa', 'qué causa', 'relación entre', 'explica la relación',
+      'parce que', 'cause', 'qu’est-ce qui provoque', "qu'est-ce qui provoque", 'lien entre', 'explique le lien',
+      'weil', 'ursache', 'was verursacht', 'zusammenhang zwischen', 'erkläre den zusammenhang',
+      'perché', 'causa', 'che cosa causa', 'relazione tra', 'spiega la relazione',
+      'porque', 'causa', 'o que causa', 'relação entre', 'explique a relação',
     ],
   },
   {
@@ -411,6 +421,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'ערך עצמי',
       'מי שאתה',
       'מי אתה',
+      'identidad', 'quién eres', 'autoestima', 'valor como persona',
+      'identité', 'qui vous êtes', 'estime de soi', 'valeur en tant que personne',
+      'identität', 'wer du bist', 'selbstwert', 'wert als mensch',
+      'identità', 'chi sei', 'autostima', 'valore come persona',
+      'identidade', 'quem você é', 'valor como pessoa',
     ],
     userTerms: [
       'identity',
@@ -422,6 +437,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'ערך עצמי',
       'מי אני',
       'מי אתה',
+      'identidad', 'quién soy', 'quién eres', 'autoestima', 'valor como persona',
+      'identité', 'qui je suis', 'qui vous êtes', 'estime de soi', 'valeur en tant que personne',
+      'identität', 'wer ich bin', 'wer du bist', 'selbstwert', 'wert als mensch',
+      'identità', 'chi sono', 'chi sei', 'autostima', 'valore come persona',
+      'identidade', 'quem eu sou', 'quem você é', 'autoestima', 'valor como pessoa',
     ],
   },
   {
@@ -442,6 +462,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'דחייה',
       'מערכת היחסים',
       'הקשר',
+      'dañar la relación', 'la relación se dañará', 'disponibilidad emocional', 'rechazo', 'relación',
+      'nuire à la relation', 'la relation sera endommagée', 'disponibilité émotionnelle', 'rejet', 'relation',
+      'die beziehung schädigen', 'die beziehung wird beschädigt', 'emotionale verfügbarkeit', 'zurückweisung', 'beziehung',
+      'danneggiare la relazione', 'la relazione sarà danneggiata', 'disponibilità emotiva', 'rifiuto', 'relazione',
+      'prejudicar o relacionamento', 'o relacionamento será prejudicado', 'disponibilidade emocional', 'rejeição', 'relacionamento',
     ],
     userTerms: [
       'relationship',
@@ -462,6 +487,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'דחייה',
       'הקשר',
       'לפגוע בקשר',
+      'relación', 'pareja', 'matrimonio', 'novio', 'novia', 'marido', 'esposa', 'rechazo',
+      'relation', 'partenaire', 'couple', 'mariage', 'petit ami', 'petite amie', 'mari', 'femme', 'rejet',
+      'beziehung', 'partner', 'partnerin', 'ehe', 'freund', 'freundin', 'ehemann', 'ehefrau', 'zurückweisung',
+      'relazione', 'partner', 'coniuge', 'matrimonio', 'fidanzato', 'fidanzata', 'marito', 'moglie', 'rifiuto',
+      'relacionamento', 'parceiro', 'parceira', 'casamento', 'namorado', 'namorada', 'marido', 'esposa', 'rejeição',
     ],
   },
   {
@@ -487,6 +517,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'סכנה ממשית',
       'סכנה מיידית',
       'סיכון אמיתי',
+      'estás en peligro', 'hay peligro', 'esto es peligroso', 'amenaza real', 'peligro inmediato', 'riesgo real',
+      'vous êtes en danger', 'il y a un danger', 'c’est dangereux', "c'est dangereux", 'menace réelle', 'danger immédiat', 'risque réel',
+      'du bist in gefahr', 'es besteht gefahr', 'das ist gefährlich', 'reale bedrohung', 'unmittelbare gefahr', 'reales risiko',
+      'sei in pericolo', 'c’è pericolo', "c'è pericolo", 'questo è pericoloso', 'minaccia reale', 'pericolo immediato', 'rischio reale',
+      'você está em perigo', 'há perigo', 'isso é perigoso', 'ameaça real', 'perigo imediato', 'risco real',
     ],
     userTerms: [
       'danger',
@@ -501,6 +536,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'סיכון',
       'מפחד',
       'פחד',
+      'peligro', 'amenaza', 'peligroso', 'riesgo', 'miedo',
+      'danger', 'menace', 'dangereux', 'risque', 'peur',
+      'gefahr', 'bedrohung', 'gefährlich', 'risiko', 'angst',
+      'pericolo', 'minaccia', 'pericoloso', 'rischio', 'paura',
+      'perigo', 'ameaça', 'perigoso', 'risco', 'medo',
     ],
   },
   {
@@ -519,6 +559,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'פרפקציוניזם',
       'לא מספיק טוב',
       'חייב להיות נכון',
+      'respuesta correcta', 'perfecto', 'perfecta', 'perfección', 'lo bastante bueno', 'debe ser correcto',
+      'bonne réponse', 'parfait', 'parfaite', 'perfection', 'assez bon', 'doit être correct',
+      'richtige antwort', 'perfekt', 'perfektion', 'gut genug', 'muss richtig sein',
+      'risposta giusta', 'perfetto', 'perfetta', 'perfezione', 'abbastanza buono', 'deve essere giusto',
+      'resposta certa', 'perfeito', 'perfeita', 'perfeição', 'bom o suficiente', 'tem de estar certo',
     ],
     userTerms: [
       'right response',
@@ -533,6 +578,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'פרפקציוניזם',
       'לא מספיק טוב',
       'נכון',
+      'respuesta correcta', 'perfecto', 'perfecta', 'perfección', 'correcto', 'lo bastante bueno',
+      'bonne réponse', 'parfait', 'parfaite', 'perfection', 'correct', 'assez bon',
+      'richtige antwort', 'perfekt', 'perfektion', 'richtig', 'gut genug',
+      'risposta giusta', 'perfetto', 'perfetta', 'perfezione', 'corretto', 'abbastanza buono',
+      'resposta certa', 'perfeito', 'perfeita', 'perfeição', 'correto', 'bom o suficiente',
     ],
   },
   {
@@ -554,6 +604,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'זה משמר',
       'הימנעות משמרת',
       'הימנעות',
+      'ciclo', 'bucle', 'patrón', 'evitación', 'aplazamiento', 'comprobación repetida',
+      'cycle', 'boucle', 'schéma', 'évitement', 'report', 'vérification répétée',
+      'kreislauf', 'schleife', 'muster', 'vermeidung', 'aufschub', 'wiederholtes prüfen',
+      'ciclo', 'schema', 'evitamento', 'rinvio', 'controllo ripetuto',
+      'ciclo', 'padrão', 'evitação', 'adiamento', 'verificação repetida',
     ],
     userTerms: [
       'cycle',
@@ -576,6 +631,11 @@ const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
       'עיכוב',
       'בדיקה חוזרת',
       'בודק שוב',
+      'ciclo', 'bucle', 'patrón', 'evitación', 'aplazar', 'comprobación repetida', 'comprobar de nuevo',
+      'cycle', 'boucle', 'schéma', 'évitement', 'reporter', 'vérification répétée', 'vérifier à nouveau',
+      'kreislauf', 'schleife', 'muster', 'vermeidung', 'aufschieben', 'wiederholtes prüfen', 'erneut prüfen',
+      'ciclo', 'schema', 'evitamento', 'rinviare', 'controllo ripetuto', 'controllare di nuovo',
+      'ciclo', 'padrão', 'evitação', 'adiar', 'verificação repetida', 'verificar novamente',
     ],
   },
 ];
@@ -933,6 +993,17 @@ const _USER_NEGATION_PHRASES_OTHER = [
   'non ', 'senza ', 'não ', 'sem ',
 ];
 
+function _hasBoundedNegationPhrase(windowBefore, phrase) {
+  let idx = windowBefore.indexOf(phrase);
+  while (idx !== -1) {
+    if (idx === 0 || /[\s,.;:!?()[\]{}"'“”‘’]/u.test(windowBefore[idx - 1])) {
+      return true;
+    }
+    idx = windowBefore.indexOf(phrase, idx + 1);
+  }
+  return false;
+}
+
 function _findAffirmativeUserTerm(content, terms) {
   if (typeof content !== 'string') return null;
   const lower = content.toLowerCase();
@@ -947,7 +1018,7 @@ function _findAffirmativeUserTerm(content, terms) {
       const negated =
         _USER_NEGATION_PHRASES_HE.some((n) => windowBefore.includes(n)) ||
         _USER_NEGATION_PHRASES_EN.some((n) => windowBefore.includes(n)) ||
-        _USER_NEGATION_PHRASES_OTHER.some((n) => windowBefore.includes(n));
+        _USER_NEGATION_PHRASES_OTHER.some((n) => _hasBoundedNegationPhrase(windowBefore, n));
       if (!negated) return normalized;
       idx = lower.indexOf(normLower, idx + 1);
     }
@@ -962,6 +1033,14 @@ function _findAffirmativeUserTerm(content, terms) {
  */
 const STRICT_GROUNDING_TRIGGERS_HE = ['התייחס למה שקורה עכשיו בלבד', 'התייחס רק למה שתיארתי עכשיו'];
 const STRICT_GROUNDING_TRIGGERS_EN = ['current information only'];
+const STRICT_GROUNDING_TRIGGERS_OTHER = [
+  'solo la información actual', 'solo lo que describí ahora',
+  'uniquement les informations actuelles', 'seulement ce que j’ai décrit maintenant',
+  "seulement ce que j'ai décrit maintenant",
+  'nur die aktuellen informationen', 'nur was ich gerade beschrieben habe',
+  'solo le informazioni attuali', 'solo ciò che ho descritto ora',
+  'apenas as informações atuais', 'apenas o que descrevi agora',
+];
 const THREAT_APPRAISAL_TERMS_HE = ['הערכת איום', 'תחושת איום', 'המוח מפרש', 'מתפרש כאיום'];
 const THREAT_APPRAISAL_TERMS_EN = ['threat appraisal', 'sense of threat', 'brain interprets', 'interprets as threat'];
 const CURRENT_TURN_EXPLANATION_TERMS_HE = ['מחשבה', 'מתח', 'לחץ', 'עיכוב', 'התנהגות', 'תגובה', 'הימנעות'];
@@ -991,7 +1070,8 @@ function _isStrictGroundingMode(rawUserContent) {
   if (!visible) return false;
   if (STRICT_GROUNDING_TRIGGERS_HE.some(t => visible.includes(t))) return true;
   const lower = visible.toLowerCase();
-  return STRICT_GROUNDING_TRIGGERS_EN.some(t => lower.includes(t));
+  return STRICT_GROUNDING_TRIGGERS_EN.some(t => lower.includes(t)) ||
+    STRICT_GROUNDING_TRIGGERS_OTHER.some(t => lower.includes(t));
 }
 
 function _hasThreatAppraisalTerminology(sentence, visibleUser) {
