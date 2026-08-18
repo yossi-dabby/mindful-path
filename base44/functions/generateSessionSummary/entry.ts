@@ -702,7 +702,7 @@ Deno.serve(async (req) => {
     // Return a structured error; the caller must discard or log it non-blockingly.
     console.error(
       '[generateSessionSummary] Failed:',
-      error instanceof Error ? error.name : 'UnknownError',
+      error instanceof Error ? error.message : String(error),
     );
     return Response.json(
       { success: false, error: 'Session summary persistence failed.' },

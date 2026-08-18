@@ -909,7 +909,7 @@ export function triggerConversationEndSummarization(
       // Chat.jsx requestSummary UX is independent of this function.
       console.warn(
         '[Phase 3] Conversation-end summarization failed (non-fatal) [' + invoker + ']:',
-        error instanceof Error ? error.name : 'UnknownError',
+        error instanceof Error ? error.message : String(error),
       );
       return false;
     }
