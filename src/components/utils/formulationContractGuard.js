@@ -39,7 +39,7 @@
  *
  * LOCALE SUPPORT
  * --------------
- * Hebrew and English only.  Other locales pass through unchanged.
+ * Hebrew, English, Spanish, French, German, Italian, and Portuguese.
  */
 
 // ─── Internal marker bounds ────────────────────────────────────────────────────
@@ -97,6 +97,45 @@ const HEBREW_CURRENT_TURN_GROUNDING_FALLBACK =
 const ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK =
   'There is not yet enough information to determine what is causing this tension. What is the first thing that goes through your mind or body at the moment the tension starts?';
 
+const FORMULATION_FALLBACKS = Object.freeze({
+  he: HEBREW_FALLBACK,
+  en: ENGLISH_FALLBACK,
+  es: 'Escucho que todavía falta algo importante en nuestra comprensión. Lo que sigue sin saberse es el significado personal que atribuyes a la posibilidad de que el resultado no sea lo bastante bueno. No quiero inventar ese significado por ti. Cuando imaginas ese resultado, ¿qué sería lo más difícil que podría decir sobre ti?',
+  fr: 'J’entends qu’il manque encore quelque chose d’important à notre compréhension. Ce qui reste inconnu, c’est le sens personnel que vous attribuez à la possibilité que le résultat ne soit pas assez bon. Je ne veux pas inventer ce sens à votre place. Lorsque vous imaginez ce résultat, quelle serait la chose la plus difficile qu’il pourrait dire de vous ?',
+  de: 'Ich höre, dass in unserem Verständnis noch etwas Wichtiges fehlt. Noch unbekannt ist, welche persönliche Bedeutung du der Möglichkeit beimisst, dass das Ergebnis nicht gut genug sein könnte. Ich möchte diese Bedeutung nicht an deiner Stelle erfinden. Wenn du dir dieses Ergebnis vorstellst, was wäre das Schwierigste, das es über dich aussagen könnte?',
+  it: 'Sento che manca ancora qualcosa di importante nella nostra comprensione. Ciò che resta sconosciuto è il significato personale che attribuisci alla possibilità che il risultato non sia abbastanza buono. Non voglio inventare quel significato al posto tuo. Quando immagini quel risultato, quale sarebbe la cosa più difficile che potrebbe dire di te?',
+  pt: 'Percebo que ainda falta algo importante em nossa compreensão. O que permanece desconhecido é o significado pessoal que você atribui à possibilidade de o resultado não ser bom o suficiente. Não quero inventar esse significado por você. Quando imagina esse resultado, qual seria a coisa mais difícil que ele poderia dizer sobre você?',
+});
+
+const FORMULATION_CONTINUATION_FALLBACKS = Object.freeze({
+  he: HEBREW_CONTINUATION_FALLBACK,
+  en: ENGLISH_CONTINUATION_FALLBACK,
+  es: 'Escucho que la parte más difícil es el pensamiento «no soy lo bastante bueno». Ya está claro que este pensamiento duele; lo que aún no está claro es si aparece principalmente en torno al rendimiento y las tareas o si refleja algo más amplio, y no quiero decidirlo sin comprobarlo contigo. ¿Este pensamiento aparece principalmente cuando tienes que demostrar tu capacidad o también en otras situaciones?',
+  fr: 'J’entends que la partie la plus difficile est la pensée « je ne suis pas assez bon ». Il est déjà clair que cette pensée est douloureuse ; ce qui reste incertain, c’est si elle apparaît surtout autour des performances et des tâches ou si elle reflète quelque chose de plus large, et je ne veux pas en décider sans le vérifier avec vous. Cette pensée apparaît-elle surtout lorsque vous devez prouver vos capacités, ou également dans d’autres situations ?',
+  de: 'Ich höre, dass der schwierigste Teil der Gedanke „Ich bin nicht gut genug“ ist. Klar ist bereits, dass dieser Gedanke schmerzhaft ist; noch unklar ist, ob er vor allem bei Leistung und Aufgaben auftritt oder etwas Umfassenderes widerspiegelt, und ich möchte das nicht entscheiden, ohne es mit dir zu prüfen. Taucht dieser Gedanke hauptsächlich auf, wenn du deine Fähigkeiten beweisen musst, oder auch in anderen Situationen?',
+  it: 'Sento che la parte più difficile è il pensiero «non sono abbastanza bravo». È già chiaro che questo pensiero fa male; ciò che non è ancora chiaro è se compaia soprattutto in relazione alle prestazioni e ai compiti o se rifletta qualcosa di più ampio, e non voglio deciderlo senza verificarlo con te. Questo pensiero emerge soprattutto quando devi dimostrare le tue capacità, oppure anche in altre situazioni?',
+  pt: 'Percebo que a parte mais difícil é o pensamento “não sou bom o suficiente”. Já está claro que esse pensamento é doloroso; o que ainda não está claro é se ele aparece principalmente em situações de desempenho e tarefas ou se reflete algo mais amplo, e não quero decidir isso sem verificar com você. Esse pensamento surge principalmente quando você precisa provar sua capacidade ou também em outras situações?',
+});
+
+const CURRENT_TURN_GROUNDING_FALLBACKS = Object.freeze({
+  he: HEBREW_CURRENT_TURN_GROUNDING_FALLBACK,
+  en: ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK,
+  es: 'Todavía no hay suficiente información para determinar qué está causando esta tensión. ¿Qué es lo primero que pasa por tu mente o por tu cuerpo cuando empieza la tensión?',
+  fr: 'Il n’y a pas encore assez d’informations pour déterminer ce qui provoque cette tension. Quelle est la première chose qui vous traverse l’esprit ou le corps au moment où la tension commence ?',
+  de: 'Es gibt noch nicht genügend Informationen, um festzustellen, was diese Anspannung verursacht. Was geht dir als Erstes durch den Kopf oder den Körper, wenn die Anspannung beginnt?',
+  it: 'Non ci sono ancora informazioni sufficienti per determinare che cosa provochi questa tensione. Qual è la prima cosa che ti passa per la mente o nel corpo quando la tensione inizia?',
+  pt: 'Ainda não há informações suficientes para determinar o que está causando essa tensão. Qual é a primeira coisa que passa pela sua mente ou pelo seu corpo quando a tensão começa?',
+});
+
+function _normalizeSupportedLocale(locale) {
+  const language = typeof locale === 'string'
+    ? locale.trim().toLowerCase().split(/[-_]/)[0]
+    : 'en';
+  return Object.prototype.hasOwnProperty.call(FORMULATION_FALLBACKS, language)
+    ? language
+    : 'en';
+}
+
 // ─── Phase A: Prohibited certainty phrases ────────────────────────────────────
 
 /**
@@ -129,6 +168,30 @@ const PROHIBITED_PHRASES_EN = [
   'the question of who you are',
 ];
 
+const PROHIBITED_PHRASES_OTHER = [
+  // Spanish
+  'la verdadera amenaza', 'la verdadera razón', 'esto es exactamente lo que falta',
+  'el patrón funciona así', 'esto explica por qué',
+  'descubrir algo sobre ti que no puedes soportar', 'la cuestión de quién eres',
+  // French
+  'la véritable menace', 'la vraie raison', 'c’est exactement ce qui manque',
+  "c'est exactement ce qui manque", 'le schéma fonctionne ainsi',
+  'cela explique pourquoi', 'découvrir quelque chose sur vous que vous ne pouvez pas supporter',
+  'la question de qui vous êtes',
+  // German
+  'die wahre bedrohung', 'der wahre grund', 'genau das fehlt',
+  'das muster funktioniert so', 'das erklärt, warum',
+  'etwas über dich entdecken, das du nicht ertragen kannst', 'die frage, wer du bist',
+  // Italian
+  'la vera minaccia', 'la vera ragione', 'questo è esattamente ciò che manca',
+  'lo schema funziona così', 'questo spiega perché',
+  'scoprire qualcosa su di te che non puoi sopportare', 'la questione di chi sei',
+  // Portuguese
+  'a verdadeira ameaça', 'a verdadeira razão', 'é exatamente isso que falta',
+  'o padrão funciona assim', 'isso explica por que',
+  'descobrir algo sobre você que não consegue suportar', 'a questão de quem você é',
+];
+
 const EXPLICIT_CONCLUSION_BLOCKERS_HE = [
   'אל תקבע עדיין מסקנה',
   'בלי לקבוע מסקנה',
@@ -140,6 +203,14 @@ const EXPLICIT_CONCLUSION_BLOCKERS_EN = [
   "don't draw a conclusion yet",
   'do not reach a conclusion yet',
   'without drawing a conclusion',
+];
+
+const EXPLICIT_CONCLUSION_BLOCKERS_OTHER = [
+  'no saques una conclusión todavía', 'sin sacar una conclusión',
+  'ne tirez pas encore de conclusion', 'sans tirer de conclusion',
+  'ziehe noch keine schlussfolgerung', 'ohne eine schlussfolgerung zu ziehen',
+  'non trarre ancora una conclusione', 'senza trarre una conclusione',
+  'não tire uma conclusão ainda', 'sem tirar uma conclusão',
 ];
 
 const BLOCKED_CONCLUSION_PHRASES_HE = [
@@ -159,6 +230,22 @@ const BLOCKED_CONCLUSION_PHRASES_EN = [
   'became a place where something about you could be confirmed',
 ];
 
+const BLOCKED_CONCLUSION_PHRASES_OTHER = [
+  'aquí es donde vive todo el patrón', 'esto no es perfeccionismo',
+  'esto es algo mucho más personal', 'se convirtió en un lugar donde algo sobre ti podía confirmarse',
+  'c’est là que vit tout le schéma', "c'est là que vit tout le schéma",
+  'ce n’est pas du perfectionnisme', "ce n'est pas du perfectionnisme",
+  'c’est quelque chose de beaucoup plus personnel', "c'est quelque chose de beaucoup plus personnel",
+  'est devenu un endroit où quelque chose sur vous pouvait être confirmé',
+  'hier liegt das ganze muster', 'das ist kein perfektionismus',
+  'das ist etwas viel persönlicheres', 'wurde zu einem ort, an dem etwas über dich bestätigt werden konnte',
+  'è qui che vive l’intero schema', "è qui che vive l'intero schema",
+  'questo non è perfezionismo', 'questo è qualcosa di molto più personale',
+  'è diventato un luogo in cui qualcosa su di te poteva essere confermato',
+  'é aqui que vive todo o padrão', 'isso não é perfeccionismo',
+  'isso é algo muito mais pessoal', 'tornou-se um lugar onde algo sobre você poderia ser confirmado',
+];
+
 const EXPLICIT_NO_EXERCISE_REQUESTS_HE = [
   'אל תציע לי תרגיל',
   'בלי תרגיל',
@@ -173,6 +260,16 @@ const EXPLICIT_NO_EXERCISE_REQUESTS_EN = [
   "don't suggest an exercise",
   'no exercise yet',
   'without an exercise',
+];
+
+const EXPLICIT_NO_EXERCISE_REQUESTS_OTHER = [
+  'no me des un ejercicio', 'no sugieras un ejercicio', 'sin ejercicio todavía', 'sin un ejercicio',
+  'ne me donnez pas d’exercice', "ne me donnez pas d'exercice",
+  'ne proposez pas d’exercice', "ne proposez pas d'exercice", 'pas encore d’exercice',
+  "pas encore d'exercice", 'sans exercice',
+  'gib mir keine übung', 'schlagen sie keine übung vor', 'noch keine übung', 'ohne übung',
+  'non darmi un esercizio', 'non suggerire un esercizio', 'non ancora un esercizio', 'senza esercizio',
+  'não me dê um exercício', 'não sugira um exercício', 'ainda sem exercício', 'sem exercício',
 ];
 
 // ─── Phase B: Deeper hypothesis indicators ────────────────────────────────────
@@ -207,6 +304,19 @@ const DEEPER_INDICATORS_EN = [
   'cannot bear',
 ];
 
+const DEEPER_INDICATORS_OTHER = [
+  'autoestima', 'valor como persona', 'identidad', 'quién eres', 'significado personal',
+  'descubrir algo sobre ti', 'no puedes soportar',
+  'estime de soi', 'valeur en tant que personne', 'identité', 'qui vous êtes',
+  'sens personnel', 'découvrir quelque chose sur vous', 'ne pouvez pas supporter',
+  'selbstwert', 'wert als mensch', 'identität', 'wer du bist', 'persönliche bedeutung',
+  'etwas über dich entdecken', 'nicht ertragen',
+  'autostima', 'valore come persona', 'identità', 'chi sei', 'significato personale',
+  'scoprire qualcosa su di te', 'non puoi sopportare',
+  'valor como pessoa', 'identidade', 'quem você é', 'significado pessoal',
+  'descobrir algo sobre você', 'não consegue suportar',
+];
+
 // ─── Phase B: Tentative markers ───────────────────────────────────────────────
 
 /**
@@ -234,8 +344,28 @@ const TENTATIVE_MARKERS_EN = [
   'needs to be checked',
 ];
 
+const TENTATIVE_MARKERS_OTHER = [
+  'me pregunto si', 'una posibilidad es', 'esto sigue siendo una hipótesis',
+  'aún no está claro', 'puede estar relacionado con', 'necesita comprobarse',
+  'je me demande si', 'une possibilité est', 'cela reste une hypothèse',
+  'ce n’est pas encore clair', "ce n'est pas encore clair", 'peut être lié à', 'doit être vérifié',
+  'ich frage mich, ob', 'eine möglichkeit ist', 'dies ist noch eine hypothese',
+  'es ist noch unklar', 'könnte damit zusammenhängen', 'muss überprüft werden',
+  'mi chiedo se', 'una possibilità è', 'questa è ancora un’ipotesi',
+  "questa è ancora un'ipotesi", 'non è ancora chiaro', 'può essere collegato a', 'deve essere verificato',
+  'eu me pergunto se', 'uma possibilidade é', 'isso ainda é uma hipótese',
+  'ainda não está claro', 'pode estar relacionado a', 'precisa ser verificado',
+];
+
 const CURRENT_TURN_TENTATIVE_EXTRA_HE = ['אולי', 'יכול להיות', 'ייתכן'];
 const CURRENT_TURN_TENTATIVE_EXTRA_EN = ['maybe', 'perhaps', 'might', 'could it be', 'it may be'];
+const CURRENT_TURN_TENTATIVE_EXTRA_OTHER = [
+  'quizá', 'tal vez', 'podría', 'puede que',
+  'peut-être', 'pourrait', 'il se peut',
+  'vielleicht', 'könnte', 'möglicherweise',
+  'forse', 'potrebbe', 'può darsi',
+  'talvez', 'poderia', 'pode ser que',
+];
 
 const CURRENT_TURN_GROUNDING_CLAIM_GROUPS = [
   {
@@ -477,6 +607,18 @@ const EXERCISE_TERMS_EN = [
   'action step',
 ];
 
+const EXERCISE_TERMS_OTHER = [
+  'ejercicio', 'tarea para casa', 'experimento conductual', 'técnica de anclaje',
+  'escala de valoración', 'paso práctico',
+  'exercice', 'devoirs', 'expérience comportementale', 'ancrage',
+  'échelle d’évaluation', "échelle d'évaluation", 'étape pratique',
+  'übung', 'hausaufgabe', 'verhaltensexperiment', 'erdung', 'bewertungsskala', 'handlungsschritt',
+  'esercizio', 'compito', 'esperimento comportamentale', 'radicamento',
+  'scala di valutazione', 'passo pratico',
+  'exercício', 'tarefa de casa', 'experimento comportamental', 'ancoragem',
+  'escala de avaliação', 'passo prático',
+];
+
 /**
  * Negation phrases that, when found in the 60 characters immediately before an
  * exercise term, indicate the term is being explicitly declined rather than proposed.
@@ -484,6 +626,13 @@ const EXERCISE_TERMS_EN = [
 const NEGATION_WINDOW_CHARS = 60;
 const NEGATION_PHRASES_HE = ['\u05DC\u05D0 ', '\u05DC\u05DC\u05D0 ', '\u05D0\u05D9\u05DF ']; // לא / ללא / אין
 const NEGATION_PHRASES_EN = ['no ', 'not ', "won't ", 'will not ', 'without ', "don't ", 'not propose', 'not suggest', 'not offer', 'not provide'];
+const NEGATION_PHRASES_OTHER = [
+  'sin ', 'no propondré', 'no sugeriré',
+  'pas de ', 'sans ', 'ne proposerai pas', 'ne suggérerai pas',
+  'keine ', 'nicht ', 'ohne ', 'werde keine ',
+  'non ', 'senza ', 'non proporrò', 'non suggerirò',
+  'não ', 'sem ', 'não vou propor', 'não vou sugerir',
+];
 
 // ─── Phase E: Internal marker substrings ──────────────────────────────────────
 
@@ -623,6 +772,9 @@ function _hasExplicitNoExerciseRequest(rawUserContent) {
   for (const phrase of EXPLICIT_NO_EXERCISE_REQUESTS_EN) {
     if (lower.includes(phrase)) return true;
   }
+  for (const phrase of EXPLICIT_NO_EXERCISE_REQUESTS_OTHER) {
+    if (lower.includes(phrase)) return true;
+  }
 
   return false;
 }
@@ -652,6 +804,9 @@ function _hasProhibitedCertaintyPhrase(content) {
   for (const phrase of PROHIBITED_PHRASES_EN) {
     if (lower.includes(phrase)) return true;
   }
+  for (const phrase of PROHIBITED_PHRASES_OTHER) {
+    if (lower.includes(phrase)) return true;
+  }
   return false;
 }
 
@@ -673,6 +828,9 @@ function _hasDeepHypothesisIndicator(content) {
   for (const indicator of DEEPER_INDICATORS_EN) {
     if (lower.includes(indicator)) return true;
   }
+  for (const indicator of DEEPER_INDICATORS_OTHER) {
+    if (lower.includes(indicator)) return true;
+  }
   return false;
 }
 
@@ -691,6 +849,9 @@ function _hasAnyTentativeMarker(content) {
   for (const marker of TENTATIVE_MARKERS_EN) {
     if (lower.includes(marker)) return true;
   }
+  for (const marker of TENTATIVE_MARKERS_OTHER) {
+    if (lower.includes(marker)) return true;
+  }
   return false;
 }
 
@@ -704,6 +865,9 @@ function _hasCurrentTurnTentativeMarker(content) {
 
   const lower = content.toLowerCase();
   for (const marker of CURRENT_TURN_TENTATIVE_EXTRA_EN) {
+    if (lower.includes(marker)) return true;
+  }
+  for (const marker of CURRENT_TURN_TENTATIVE_EXTRA_OTHER) {
     if (lower.includes(marker)) return true;
   }
   return false;
@@ -764,6 +928,10 @@ function _splitSentences(text) {
  */
 const _USER_NEGATION_PHRASES_HE = ['אל ', 'בלי '];
 const _USER_NEGATION_PHRASES_EN = ["don't ", "do not ", 'without '];
+const _USER_NEGATION_PHRASES_OTHER = [
+  'no ', 'sin ', 'ne ', 'pas ', 'sans ', 'nicht ', 'keine ', 'ohne ',
+  'non ', 'senza ', 'não ', 'sem ',
+];
 
 function _findAffirmativeUserTerm(content, terms) {
   if (typeof content !== 'string') return null;
@@ -778,7 +946,8 @@ function _findAffirmativeUserTerm(content, terms) {
       const windowBefore = lower.slice(windowStart, idx);
       const negated =
         _USER_NEGATION_PHRASES_HE.some((n) => windowBefore.includes(n)) ||
-        _USER_NEGATION_PHRASES_EN.some((n) => windowBefore.includes(n));
+        _USER_NEGATION_PHRASES_EN.some((n) => windowBefore.includes(n)) ||
+        _USER_NEGATION_PHRASES_OTHER.some((n) => windowBefore.includes(n));
       if (!negated) return normalized;
       idx = lower.indexOf(normLower, idx + 1);
     }
@@ -948,6 +1117,22 @@ function _statesPersonalMeaningUnknown(content) {
   for (const ind of UNKNOWN_INDICATORS_EN) {
     if (lower.includes(ind)) return true;
   }
+  const UNKNOWN_INDICATORS_OTHER = [
+    'lo que sigue sin saberse', 'el significado personal aún se desconoce',
+    'no conozco el significado personal', 'todavía no se conoce el significado personal',
+    'ce qui reste inconnu', 'le sens personnel reste inconnu',
+    'je ne connais pas le sens personnel', 'le sens personnel n’est pas encore connu',
+    "le sens personnel n'est pas encore connu",
+    'noch unbekannt ist', 'die persönliche bedeutung ist noch unbekannt',
+    'ich kenne die persönliche bedeutung nicht', 'die persönliche bedeutung ist noch nicht bekannt',
+    'ciò che resta sconosciuto', 'il significato personale è ancora sconosciuto',
+    'non conosco il significato personale', 'il significato personale non è ancora noto',
+    'o que permanece desconhecido', 'o significado pessoal ainda é desconhecido',
+    'não conheço o significado pessoal', 'o significado pessoal ainda não é conhecido',
+  ];
+  for (const ind of UNKNOWN_INDICATORS_OTHER) {
+    if (lower.includes(ind)) return true;
+  }
   return false;
 }
 
@@ -1015,6 +1200,13 @@ function _hasExerciseSuggestion(content) {
       idx = lower.indexOf(term, idx + 1);
     }
   }
+  for (const term of EXERCISE_TERMS_OTHER) {
+    let idx = lower.indexOf(term);
+    while (idx !== -1) {
+      if (_isTermUnnegated(lower, idx, NEGATION_PHRASES_OTHER)) return true;
+      idx = lower.indexOf(term, idx + 1);
+    }
+  }
   return false;
 }
 
@@ -1049,6 +1241,9 @@ function _hasExplicitConclusionBlocker(rawUserContent, guardMode) {
   for (const phrase of EXPLICIT_CONCLUSION_BLOCKERS_EN) {
     if (lower.includes(phrase)) return true;
   }
+  for (const phrase of EXPLICIT_CONCLUSION_BLOCKERS_OTHER) {
+    if (lower.includes(phrase)) return true;
+  }
 
   return false;
 }
@@ -1062,6 +1257,9 @@ function _hasBlockedConclusionPhrase(content) {
 
   const lower = content.toLowerCase();
   for (const phrase of BLOCKED_CONCLUSION_PHRASES_EN) {
+    if (lower.includes(phrase)) return true;
+  }
+  for (const phrase of BLOCKED_CONCLUSION_PHRASES_OTHER) {
     if (lower.includes(phrase)) return true;
   }
 
@@ -1145,7 +1343,7 @@ export function evaluateFormulationResponseContract(
  *
  * Each fallback contains exactly one question mark.
  *
- * @param {'he'|'en'} locale
+ * @param {'he'|'en'|'es'|'fr'|'de'|'it'|'pt'|string} locale
  * @param {'initial_formulation'|'correction_followup'} [guardMode='initial_formulation']
  * @returns {string}
  */
@@ -1153,17 +1351,16 @@ export function buildFormulationSafeFallback(
   locale,
   guardMode = INITIAL_FORMULATION_GUARD_MODE
 ) {
+  const effectiveLocale = _normalizeSupportedLocale(locale);
   if (guardMode === CORRECTION_FOLLOWUP_GUARD_MODE) {
-    return locale === 'he' ? HEBREW_CONTINUATION_FALLBACK : ENGLISH_CONTINUATION_FALLBACK;
+    return FORMULATION_CONTINUATION_FALLBACKS[effectiveLocale];
   }
 
-  return locale === 'he' ? HEBREW_FALLBACK : ENGLISH_FALLBACK;
+  return FORMULATION_FALLBACKS[effectiveLocale];
 }
 
 export function buildCurrentTurnGroundingFallback(locale) {
-  return locale === 'he'
-    ? HEBREW_CURRENT_TURN_GROUNDING_FALLBACK
-    : ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK;
+  return CURRENT_TURN_GROUNDING_FALLBACKS[_normalizeSupportedLocale(locale)];
 }
 
 // ─── Phase 7: Next-turn correction block ────────────────────────────────────
@@ -1315,15 +1512,14 @@ function _findPrecedingRawUser(rawMessages, beforeIdx) {
  *
  * The function never mutates its inputs.
  * The function is deterministic and idempotent.
- * For locales other than 'he' or 'en', the function returns finalMessages unchanged.
  *
  * @param {Array<object>}  rawMessages     Original Base44 messages (full content).
  * @param {Array<object>}  finalMessages   Sanitized + processed messages (raw-index aligned).
  * @param {object}         [options]
- * @param {'he'|'en'|string} [options.locale='en']  Session locale.
+ * @param {'he'|'en'|'es'|'fr'|'de'|'it'|'pt'|string} [options.locale='en']  Session locale.
  * @returns {{
  *   messages: Array<object>,
- *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null
+ *   pendingCorrection: { fallbackText: string, locale: string } | null
  * }}
  */
 export function applyFormulationGuardToConversationMessages(
@@ -1332,12 +1528,7 @@ export function applyFormulationGuardToConversationMessages(
   options
 ) {
   const locale = (typeof options?.locale === 'string' ? options.locale : 'en');
-  const effectiveLocale = locale.startsWith('he') ? 'he' : 'en';
-
-  // Guard is only defined for Hebrew and English.
-  if (effectiveLocale !== 'he' && effectiveLocale !== 'en') {
-    return { messages: finalMessages, pendingCorrection: null };
-  }
+  const effectiveLocale = _normalizeSupportedLocale(locale);
 
   if (!Array.isArray(rawMessages) || !Array.isArray(finalMessages)) {
     return { messages: Array.isArray(finalMessages) ? finalMessages : [], pendingCorrection: null };
@@ -1439,10 +1630,10 @@ export function applyFormulationGuardToConversationMessages(
  * @param {Array<object>} rawMessages
  * @param {Array<object>} finalMessages
  * @param {object} [options]
- * @param {'he'|'en'|string} [options.locale='en']
+ * @param {'he'|'en'|'es'|'fr'|'de'|'it'|'pt'|string} [options.locale='en']
  * @returns {{
  *   messages: Array<object>,
- *   pendingCorrection: { fallbackText: string, locale: 'he'|'en' } | null
+ *   pendingCorrection: { fallbackText: string, locale: string } | null
  * }}
  */
 export function applyCurrentTurnGroundingGuardToConversationMessages(
@@ -1451,7 +1642,7 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
   options
 ) {
   const locale = (typeof options?.locale === 'string' ? options.locale : 'en');
-  const effectiveLocale = locale.startsWith('he') ? 'he' : 'en';
+  const effectiveLocale = _normalizeSupportedLocale(locale);
 
   if (!Array.isArray(rawMessages) || !Array.isArray(finalMessages)) {
     return {
