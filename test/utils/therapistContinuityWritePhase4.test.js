@@ -378,16 +378,16 @@ describe('Phase 4 — Chat.jsx integration (static analysis)', () => {
     expect(chatSrc).toContain('sessionEndSummarization');
   });
 
-  it('Chat.jsx calls triggerConversationMemoryWriteOnce in the requestSummary context', () => {
+  it('Chat.jsx delegates requestSummary through maybeTriggerEndWrite', () => {
     const requestSummaryIdx = chatSrc.indexOf('const requestSummary');
-    const callIdx = chatSrc.indexOf('triggerConversationMemoryWriteOnce({', requestSummaryIdx);
+    const callIdx = chatSrc.indexOf('maybeTriggerEndWrite(', requestSummaryIdx);
     expect(requestSummaryIdx).toBeGreaterThan(-1);
     expect(callIdx).toBeGreaterThan(requestSummaryIdx);
   });
 
-  it('Chat.jsx passes currentConversationId into the requestSummary dedup helper call', () => {
+  it('Chat.jsx passes currentConversationId into the requestSummary write helper', () => {
     const requestSummaryIdx = chatSrc.indexOf('const requestSummary');
-    const conversationIdIdx = chatSrc.indexOf('conversationId: currentConversationId', requestSummaryIdx);
+    const conversationIdIdx = chatSrc.indexOf('currentConversationId,', requestSummaryIdx);
     expect(conversationIdIdx).toBeGreaterThan(requestSummaryIdx);
   });
 

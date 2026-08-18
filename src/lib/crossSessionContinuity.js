@@ -126,6 +126,15 @@ function parseTherapistMemoryFromCompanionRecord(raw) {
   return parsed;
 }
 
+function countValidTherapistMemoryRecords(rawRecords) {
+  if (!Array.isArray(rawRecords)) return 0;
+  let count = 0;
+  for (const raw of rawRecords) {
+    if (parseTherapistMemoryFromCompanionRecord(raw)) count += 1;
+  }
+  return count;
+}
+
 /**
  * Deduplicates and trims an array of strings.
  * Returns at most CONTINUITY_MAX_ITEMS_PER_FIELD unique non-empty items.
@@ -548,6 +557,9 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
       return { block: '', diagnostic };
     }
 
+    diagnostic.valid_therapist_memory_record_count =
+      countValidTherapistMemoryRecords(rawRecords);
+
     // Parse continuity data from the already-fetched records (no second list call).
     const continuity = _parseContinuityFromRawRecords(rawRecords);
 
@@ -558,7 +570,6 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
     }
 
     // Populate diagnostic counts (numbers only — no text values)
-    diagnostic.selected_prior_session_count  = continuity.sessionCount;
     diagnostic.recurring_pattern_count       = continuity.recurringPatterns.length;
     diagnostic.open_follow_up_count          = continuity.openFollowUpTasks.length;
     diagnostic.prior_intervention_count      = continuity.interventionsUsed.length;
@@ -597,6 +608,7 @@ export async function buildCrossSessionContinuityBlockWithDiagnostic(entities) {
       return { block: '', diagnostic };
     }
 
+    diagnostic.selected_prior_session_count = continuity.sessionCount;
     diagnostic.continuity_block_emitted = true;
     diagnostic.continuity_failure_reason_code = CONTINUITY_FAILURE_REASONS.none;
     // Also return structured continuity data so callers (canonical adapter) can

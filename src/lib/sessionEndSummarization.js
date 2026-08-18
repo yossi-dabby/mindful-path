@@ -37,8 +37,8 @@
  *        Produces a valid record matching the Phase 1 schema; session_summary
  *        is populated when a meaningful intent or name is available.
  *
- *   D. triggerConversationEndSummarization(conversationId, conversationMeta, invoker, entities)   [Phase 4/Phase 3]
- *      — Non-blocking, gated memory-write trigger for Chat.jsx conversation ends.
+ *   D. triggerConversationEndSummarization(conversationId, conversationMeta, invoker, entities, runtimeSnapshot, messages)   [Phase 4/Phase 3]
+ *      — Promise-returning, gated memory-write trigger for Chat.jsx conversation ends.
  *        Called from Chat.jsx's requestSummary function (the natural
  *        end-of-chat boundary). Gated by the same isSummarizationEnabled() check.
  *        Inert in default mode (flags off). Fail-closed.
@@ -73,21 +73,22 @@
  * -----------------------------------------------------
  * triggerConversationEndSummarization is called from Chat.jsx's requestSummary
  * function — the point where a user explicitly signals the end of a therapy
- * conversation. This is the natural end-of-chat boundary in the free-form
- * therapy interface. It fires once per requestSummary call, is non-blocking,
- * and the Chat.jsx UI is completely unaffected whether it succeeds or fails.
+ * conversation. Automatic switch callers may await it for a bounded period;
+ * failures remain non-fatal and the UI proceeds fail-open.
  *
  * BOUNDED INPUT
  * -------------
- * - Only the last SESSION_SUMMARIZATION_MAX_MESSAGES messages are included
- *   (CoachingSession path; no messages are read for the Conversation path).
+ * - Only the last SESSION_SUMMARIZATION_MAX_MESSAGES messages are considered.
+ * - Chat.jsx sends a character-capped, role-filtered input to the backend only
+ *   for transient summarization; the input is never persisted.
  * - Session/conversation metadata is used for structured extraction.
  * - No full transcript is dumped; no raw message content is ever stored.
  *
  * PRIVACY
  * -------
  * - Neither derive function stores raw message content.
- * - session_summary is built from structured metadata fields only.
+ * - The fallback session_summary is built from structured metadata fields.
+ * - Raw message content is never written to CompanionMemory.
  * - The output is sanitized through the Phase 2 sanitizeSummaryRecord contract
  *   before any persistence.
  * - Forbidden fields (transcript, messages, etc.) are never included in output.
@@ -99,7 +100,7 @@
  * - The session/conversation UX is independent of these functions.
  *
  * This file contains no Deno APIs and no runtime side effects beyond async
- * functions that fire-and-forget. It is safe to import in Vitest unit tests
+ * functions with caught failures and no module-load side effects. It is safe to import in Vitest unit tests
  * (the base44 dependency is only imported lazily inside the trigger functions).
  *
  * See docs/therapist-upgrade-stage2-plan.md — Phase 2.1 for CoachingSession context.
@@ -159,6 +160,43 @@ export function unwrapBase44FunctionData(result) {
  * @type {number}
  */
 export const SESSION_SUMMARIZATION_MAX_MESSAGES = 40;
+
+export const CONVERSATION_SUMMARY_MAX_TOTAL_CHARS = 12000;
+export const CONVERSATION_SUMMARY_MAX_MESSAGE_CHARS = 1500;
+
+const INTERNAL_SUMMARY_INPUT_PATTERN = /^\s*(?:\[START_SESSION\]|\[INTERNAL|User clicked:)/i;
+const ACTION_BLOCK_PATTERN = /<actions>[\s\S]*?<\/actions>/gi;
+
+/**
+ * Builds bounded, ephemeral input from already-visible Chat.jsx messages.
+ * This transport object is never part of the persisted memory record.
+ */
+export function buildConversationSummaryInput(messages = []) {
+  if (!Array.isArray(messages)) return { version: 1, turns: [] };
+
+  const turns = [];
+  let remaining = CONVERSATION_SUMMARY_MAX_TOTAL_CHARS;
+  const candidates = messages.slice(-SESSION_SUMMARIZATION_MAX_MESSAGES);
+  for (let index = candidates.length - 1; index >= 0; index -= 1) {
+    const message = candidates[index];
+    if (!message || (message.role !== 'user' && message.role !== 'assistant')) continue;
+    if (message.pending || message.isPending || message.streaming || message.isStreaming) continue;
+    if (typeof message.content !== 'string') continue;
+
+    let content = message.content.replace(ACTION_BLOCK_PATTERN, '').trim();
+    if (!content || INTERNAL_SUMMARY_INPUT_PATTERN.test(content)) continue;
+    content = content.slice(0, Math.min(CONVERSATION_SUMMARY_MAX_MESSAGE_CHARS, remaining));
+    if (!content) break;
+
+    // Iterate newest-first so a late correction cannot be displaced by the
+    // total-character cap, then unshift to restore chronological order.
+    turns.unshift({ role: message.role, content });
+    remaining -= content.length;
+    if (remaining <= 0) break;
+  }
+
+  return { version: 1, turns };
+}
 
 /**
  * Maximum character length for free-text session metadata fields
@@ -760,7 +798,7 @@ export function deriveConversationMemoryPayload(conversationId, conversationMeta
 }
 
 /**
- * Triggers a non-blocking memory write for a Chat.jsx free-form therapy
+ * Triggers a promise-returning memory write for a Chat.jsx free-form therapy
  * conversation end.
  *
  * Phase 4 — Chat.jsx Conversation Memory Write.
@@ -772,10 +810,10 @@ export function deriveConversationMemoryPayload(conversationId, conversationMeta
  *
  * The call is:
  *   - Gated: checks isSummarizationEnabled() first; returns immediately if false.
- *   - Non-blocking: fires-and-forgets; the Chat.jsx UI is never awaited or blocked.
+ *   - Bounded by callers: switch paths may wait briefly before continuity read.
  *   - Safe: all errors are caught; the summary request UX is unaffected.
  *   - Inert in default mode: when flags are off, this function is a no-op.
- *   - Privacy-preserving: no message content is read or stored.
+ *   - Privacy-preserving: bounded messages are transient input and never stored.
  *
  * WHY THIS MATTERS (Phase 4 gap closure)
  * Chat.jsx's V7 session-start path (buildV7SessionStartContentAsync) reads
@@ -803,6 +841,7 @@ export function triggerConversationEndSummarization(
   invoker = CONVERSATION_END_SUMMARY_INVOKER,
   entities = null,
   runtimeSnapshot = null,
+  messages = [],
 ) {
   // Gate check: runtime snapshot authority overrides build-time flag when the
   // snapshot is available and THERAPIST_RUNTIME_APPLY_ENABLED is true.
@@ -811,8 +850,9 @@ export function triggerConversationEndSummarization(
     return;
   }
 
-  // Non-blocking: fire-and-forget; caller is never awaited or blocked
-  (async () => {
+  // Return the promise so switch callers can wait for a bounded period before
+  // starting the next session's continuity read.
+  return (async () => {
     try {
       let memoryPayload = deriveConversationMemoryPayload(conversationId, conversationMeta);
 
@@ -844,8 +884,14 @@ export function triggerConversationEndSummarization(
       // Lazy import to avoid any bundler/module cost in default-off mode
       const { base44 } = await import('../api/base44Client.js');
 
-      const summaryRaw = await base44.functions.invoke('generateSessionSummary', record);
+      const summaryInput = buildConversationSummaryInput(messages);
+      const summaryRaw = await base44.functions.invoke('generateSessionSummary', {
+        ...record,
+        ...(summaryInput.turns.length > 0 ? { summary_input: summaryInput } : {}),
+      });
       const summaryResult = unwrapBase44FunctionData(summaryRaw);
+
+      if (!summaryResult || summaryResult.success !== true) return false;
 
       // Wave 3B: only recompute and upsert the LTS snapshot when the summary
       // write did NOT explicitly fail (success !== false).  If the invoke threw,
@@ -853,10 +899,11 @@ export function triggerConversationEndSummarization(
       // the Chat.jsx requestSummary path.
       if (
         resolveRuntimeLongitudinalFlag(runtimeSnapshot) &&
-        !(summaryResult && typeof summaryResult === 'object' && summaryResult.success === false)
+        summaryResult.success === true
       ) {
         _fireLTSWrite(base44, invoker);
       }
+      return true;
     } catch (error) {
       // Summarization failure must never propagate to the caller.
       // Chat.jsx requestSummary UX is independent of this function.
@@ -864,6 +911,7 @@ export function triggerConversationEndSummarization(
         '[Phase 3] Conversation-end summarization failed (non-fatal) [' + invoker + ']:',
         error instanceof Error ? error.message : String(error),
       );
+      return false;
     }
   })();
 }
