@@ -2865,10 +2865,9 @@ export default function Chat() {
       // was already called for the same conversation.
       const leavingId = currentConversationId;
       const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
-      await waitForConversationMemoryWrite(
-        maybeTriggerEndWrite(leavingId, leavingMeta, messages),
-      );
+      const endWritePromise = maybeTriggerEndWrite(leavingId, leavingMeta, messages);
       clearLocalAudioDraft();
+      await waitForConversationMemoryWrite(endWritePromise);
       sessionStartOpenerFallbackRef.current?.stop('conversation_switch', {
         clearLoading: true,
         clearLoadingTimeout: true,
