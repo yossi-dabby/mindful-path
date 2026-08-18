@@ -47,6 +47,53 @@ describe('final explicit output-shape guard', () => {
     });
   });
 
+  it.each([
+    [
+      'es-MX',
+      'Propón exactamente una sola acción práctica.',
+      'Ponte de pie, camina hasta la ventana y abre la ventana durante un minuto.',
+      'Abre la ventana durante un minuto.',
+    ],
+    [
+      'fr-FR',
+      'Proposez exactement une seule action pratique.',
+      'Levez-vous, marchez jusqu’à la fenêtre et ouvrez-la pendant une minute.',
+      'Ouvrez-la pendant une minute.',
+    ],
+    [
+      'de-DE',
+      'Nennen Sie genau eine einzige Handlung.',
+      'Stehen Sie auf, gehen Sie zum Fenster und öffnen Sie es für eine Minute.',
+      'Öffnen Sie es für eine Minute.',
+    ],
+    [
+      'it-IT',
+      'Suggerisci esattamente una sola azione pratica.',
+      'Alzati, cammina fino alla finestra e apri la finestra per un minuto.',
+      'Apri la finestra per un minuto.',
+    ],
+    [
+      'pt-BR',
+      'Sugira exatamente uma única ação prática.',
+      'Levante-se, caminhe até a janela e abra a janela por um minuto.',
+      'Abra a janela por um minuto.',
+    ],
+  ])('collapses a chained command in %s without changing Hebrew or English behavior', (
+    locale,
+    userContent,
+    assistantContent,
+    expectedContent,
+  ) => {
+    const result = runTurn(userContent, assistantContent, locale);
+    expect(result.content).toBe(expectedContent);
+    expect(result.metadata.explicit_output_shape_guard).toMatchObject({
+      active: true,
+      action_clause_count: 3,
+      violation_detected: true,
+      replacement_applied: true,
+    });
+  });
+
   it('recounts after a later correction command and leaves only the last action', () => {
     const result = runTurn(
       'Reply with exactly one action and one rationale sentence.',
