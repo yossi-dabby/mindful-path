@@ -294,13 +294,13 @@ describe('Phase 5 — Chat.jsx static analysis: conversationMemoryWrittenRef', (
     expect(chatSrc).toMatch(/conversationMemoryWrittenRef\s*=\s*useRef\(/);
   });
 
-  it('conversationMemoryWrittenRef is initialized as a Set', () => {
-    expect(chatSrc).toMatch(/conversationMemoryWrittenRef\s*=\s*useRef\(\s*new\s+Set\(\)/);
+  it('conversationMemoryWrittenRef is initialized as a state Map', () => {
+    expect(chatSrc).toMatch(/conversationMemoryWrittenRef\s*=\s*useRef\(\s*new\s+Map\(\)/);
   });
 
-  it('Chat.jsx references conversationMemoryWrittenRef.current at least twice (write + read)', () => {
+  it('Chat.jsx passes the shared tracker into the coordinated write helper', () => {
     const matches = (chatSrc.match(/conversationMemoryWrittenRef\.current/g) || []).length;
-    expect(matches).toBeGreaterThanOrEqual(2);
+    expect(matches).toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -392,9 +392,9 @@ describe('Phase 5 — Chat.jsx static analysis: startNewConversationWithIntent i
 // ─── Section 10 — Chat.jsx static analysis: requestSummary dedup mark ────────
 
 describe('Phase 5 — Chat.jsx static analysis: requestSummary dedup wiring', () => {
-  it('requestSummary delegates dedup to triggerConversationMemoryWriteOnce', () => {
+  it('requestSummary delegates through maybeTriggerEndWrite', () => {
     const reqSummaryIdx = chatSrc.indexOf('const requestSummary');
-    const triggerIdx = chatSrc.indexOf('triggerConversationMemoryWriteOnce({', reqSummaryIdx);
+    const triggerIdx = chatSrc.indexOf('maybeTriggerEndWrite(', reqSummaryIdx);
     expect(triggerIdx).toBeGreaterThan(reqSummaryIdx);
   });
 

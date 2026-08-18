@@ -126,7 +126,10 @@ import {
   fetchTherapistRuntimeFlagSnapshot,
   buildTherapistRuntimeFlagTransportDiagnostic,
 } from '@/lib/therapistRuntimeFlagTransport.js';
-import { triggerConversationMemoryWriteOnce } from '@/lib/conversationMemoryWriteDedup.js';
+import {
+  triggerConversationMemoryWriteOnce,
+  waitForConversationMemoryWrite,
+} from '@/lib/conversationMemoryWriteDedup.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -463,11 +466,9 @@ export default function Chat() {
   const processedIntentRef = useRef(null);
   const sessionTriggeredRef = useRef(new Set());
   const inFlightIntentRef = useRef(false);
-  // Phase 5 — Dedup Set: tracks conversationIds that have already had a
-  // conversation-end memory write triggered (from any path: switch, requestSummary).
-  // Prevents double-writes when both a switch trigger and requestSummary fire for
-  // the same conversation.
-  const conversationMemoryWrittenRef = useRef(new Set());
+  // Tracks pending/succeeded/failed memory writes by conversation ID. Pending
+  // callers share one promise; success is recorded only after persistence.
+  const conversationMemoryWrittenRef = useRef(new Map());
   // Formulation contract guard — tracks the most recent unresolved pending
   // correction.  Set by buildVisibleConversationMessages after each guard pass;
   // consumed and cleared by handleSendMessage when the next user message is sent.
@@ -2738,13 +2739,15 @@ export default function Chat() {
 
   const startNewConversationWithIntent = async (intentParam) => {
     try {
-      // Phase 5 — Fire a non-blocking memory write for the conversation the user
-      // is leaving before starting a new one. Capture current id/meta/messages
+      // Stage 6 — wait only for the bounded memory-write window for the session
+      // being left before starting a new one. Capture current id/meta/messages
       // synchronously so values are stable. Inert when flags are off or messages
       // are below the meaningful-exchange threshold.
       const leavingId = currentConversationId;
       const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
-      maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+      await waitForConversationMemoryWrite(
+        maybeTriggerEndWrite(leavingId, leavingMeta, messages),
+      );
 
       const intentMessages = {
         'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
@@ -2853,8 +2856,8 @@ export default function Chat() {
 
   const loadConversation = async (conversationId) => {
     try {
-      // Phase 5 — Fire a non-blocking memory write for the conversation the user
-      // is switching AWAY from before loading the new one. Capture the current
+      // Stage 6 — wait only for the bounded memory-write window for the session
+      // being left before loading the new one. Capture the current
       // id/meta/messages synchronously (before any state updates) so the correct
       // values are used in the trigger call. Inert when flags are off or messages
       // are below the meaningful-exchange threshold. Deduped via
@@ -2862,7 +2865,9 @@ export default function Chat() {
       // was already called for the same conversation.
       const leavingId = currentConversationId;
       const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
-      maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+      await waitForConversationMemoryWrite(
+        maybeTriggerEndWrite(leavingId, leavingMeta, messages),
+      );
       clearLocalAudioDraft();
       sessionStartOpenerFallbackRef.current?.stop('conversation_switch', {
         clearLoading: true,
@@ -4505,17 +4510,22 @@ export default function Chat() {
   //   (b) messages had at least CONVERSATION_MIN_MESSAGES_FOR_MEMORY entries
   //       (ensures a real exchange happened before the session ended),
   //   (c) convId has NOT already been written (dedup via conversationMemoryWrittenRef).
-  // The call is non-blocking and fail-closed (errors are caught inside
-  // triggerConversationEndSummarization). Inert when flags are off.
-  const maybeTriggerEndWrite = (convId, convMeta, msgList) => {
-    triggerConversationMemoryWriteOnce({
+  // Pending calls share one promise. Switch callers wait for a bounded period;
+  // failures remain fail-open and flags-off mode stays inert.
+  const maybeTriggerEndWrite = (
+    convId,
+    convMeta,
+    msgList,
+    invoker = 'chat_conversation_switch',
+  ) => {
+    return triggerConversationMemoryWriteOnce({
       writeTracker: conversationMemoryWrittenRef.current,
       conversationId: convId,
       conversationMeta: convMeta || {},
       messages: msgList,
       minMessages: CONVERSATION_MIN_MESSAGES_FOR_MEMORY,
       trigger: triggerConversationEndSummarization,
-      invoker: 'chat_conversation_switch',
+      invoker,
       entities: base44.entities,
       runtimeSnapshot: runtimeSnapshotRef.current,
     });
@@ -4535,15 +4545,12 @@ export default function Chat() {
     const convForMemory = conversations?.find((c) => c.id === currentConversationId);
     // Phase 5/6 — Claim the conversation ID before triggering so repeated
     // requestSummary calls and any later switch-trigger de-dupe against it.
-    triggerConversationMemoryWriteOnce({
-      writeTracker: conversationMemoryWrittenRef.current,
-      conversationId: currentConversationId,
-      conversationMeta: convForMemory?.metadata || {},
-      trigger: triggerConversationEndSummarization,
-      invoker: 'chat_request_summary',
-      entities: base44.entities,
-      runtimeSnapshot: runtimeSnapshotRef.current,
-    });
+    void maybeTriggerEndWrite(
+      currentConversationId,
+      convForMemory?.metadata || {},
+      messages,
+      'chat_request_summary',
+    );
 
     // Build a language-aware summary request
     const userLang = i18n.language || 'en';
