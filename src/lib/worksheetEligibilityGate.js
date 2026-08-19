@@ -43,6 +43,41 @@ export const AUDIENCE_AGE_RANGES = Object.freeze({
 /** Audiences that carry age restrictions and require confirmed audience/age before attachment. */
 const AGE_RESTRICTED_AUDIENCES = new Set(['children', 'adolescents']);
 
+const WORKSHEET_LANGUAGE_ALIASES = Object.freeze({
+  en: 'en', english: 'en', inglés: 'en', ingles: 'en', anglais: 'en', englisch: 'en', inglese: 'en', inglês: 'en',
+  he: 'he', hebrew: 'he', עברית: 'he',
+  es: 'es', spanish: 'es', español: 'es', espanol: 'es', espagnol: 'es', spanisch: 'es', spagnolo: 'es', espanhol: 'es',
+  fr: 'fr', french: 'fr', français: 'fr', francais: 'fr', französisch: 'fr', francese: 'fr', francês: 'fr',
+  de: 'de', german: 'de', deutsch: 'de', alemán: 'de', aleman: 'de', allemand: 'de', tedesco: 'de', alemão: 'de',
+  it: 'it', italian: 'it', italiano: 'it', italien: 'it', italienisch: 'it', italien: 'it',
+  pt: 'pt', portuguese: 'pt', português: 'pt', portugues: 'pt', portugais: 'pt', portugiesisch: 'pt', portoghese: 'pt',
+});
+
+function normalizeWorksheetLanguage(value) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const normalized = value.trim().toLowerCase().replace('_', '-');
+  const primary = normalized.split('-')[0];
+  return WORKSHEET_LANGUAGE_ALIASES[normalized] || WORKSHEET_LANGUAGE_ALIASES[primary] || null;
+}
+
+function extractExplicitWorksheetLanguage(userMessage) {
+  if (typeof userMessage !== 'string' || !userMessage.trim()) return null;
+  const text = userMessage.toLowerCase();
+  const languagePatterns = [
+    ['en', /\b(?:english|inglés|ingles|anglais|englisch|inglese|inglês)\b/i],
+    ['he', /\b(?:hebrew)\b|עברית/i],
+    ['es', /\b(?:spanish|español|espanol|espagnol|spanisch|spagnolo|espanhol)\b/i],
+    ['fr', /\b(?:french|français|francais|französisch|francese|francês)\b/i],
+    ['de', /\b(?:german|deutsch|alemán|aleman|allemand|tedesco|alemão)\b/i],
+    ['it', /\b(?:italian|italiano|italien|italienisch)\b/i],
+    ['pt', /\b(?:portuguese|português|portugues|portugais|portugiesisch|portoghese)\b/i],
+  ];
+  for (const [language, pattern] of languagePatterns) {
+    if (pattern.test(text)) return language;
+  }
+  return null;
+}
+
 // ─── Explicit request detection ────────────────────────────────────────────────
 // Multi-signal: explicit send verbs (EN+HE+ES+FR+DE+IT+PT), explicit need/want,
 // or a short affirmative following a prior message that mentioned worksheets/forms.
@@ -66,7 +101,7 @@ const SEND_VERB_PATTERN =
  *   Both forms must be matched explicitly.
  */
 const FORM_OBJECT_PATTERN =
-  /\b(?:forms?|worksheets?|workbooks?|pdfs?|handouts?|module\s*\d+|stage\s*\d+|series)\b|(?:טופס|טפסים|הטופס|הטפסים)|דף\s*עבודה|דפי\s*עבודה|חוברת|שלב\s*\d+|מודול\s*\d*|סדרה\b|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|formulars?|arbeitsblätte?r?|moduli?|fogli?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho|cadernos?/i;
+  /\b(?:forms?|worksheets?|workbooks?|pdfs?|handouts?|module\s*\d+|stage\s*\d+|series)\b|(?:טופס|טפסים|הטופס|הטפסים)|דף\s*עבודה|דפי\s*עבודה|חוברת|שלב\s*\d+|מודול\s*\d*|סדרה\b|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|formulars?|arbeitsbl(?:att|ätter?|aetter?)|moduli?|fogli(?:o)?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho|cadernos?/i;
 
 /**
  * Short affirmative responses that signal acceptance of an earlier offer.
@@ -308,6 +343,25 @@ export function checkWorksheetEligibilityGate(form, context = {}) {
     return { allowed: false, reason: 'clinical_relevance_unconfirmed' };
   }
 
+  // Rule 10: The attachment language must match either the language explicitly
+  // requested in the current turn or, when none was requested, the active
+  // session language. This is the final authority for both deterministic routes
+  // and model-emitted [FORM:...] markers.
+  const sessionLanguage = normalizeWorksheetLanguage(safeContext.sessionLanguage);
+  const requestedLanguage =
+    normalizeWorksheetLanguage(safeContext.requestedLanguage) ||
+    extractExplicitWorksheetLanguage(userMessage);
+  const requiredLanguage = requestedLanguage || sessionLanguage;
+  const formLanguage = normalizeWorksheetLanguage(form?.language || form?.form_language);
+  if (requiredLanguage && formLanguage && formLanguage !== requiredLanguage) {
+    return {
+      allowed: false,
+      reason: 'language_incompatible',
+      required_language: requiredLanguage,
+      form_language: formLanguage,
+    };
+  }
+
   // Rules 2 + 3 + 4: For age-restricted forms the recipient audience must be known
   // and age-compatible. Fail closed when eligibility cannot be confirmed.
   if (form && isAgeRestrictedAudience(form.audience)) {
@@ -397,3 +451,5 @@ export function isWorksheetBlockedByGate(form, context = {}) {
     return true;
   }
 }
+
+

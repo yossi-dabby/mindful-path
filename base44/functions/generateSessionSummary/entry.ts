@@ -299,6 +299,8 @@ async function extractStructuredSessionMemory(
 
 Rules:
 - Treat USER turns as the only authority for user facts, preferences, reported outcomes, corrections, commitments, and explicit unknowns.
+- Determine the memory language from USER turns only. Do not let assistant language override it.
+- Preserve user-authored names, exact numbers, corrections, and material quotes in their original language; never translate or transliterate them.
 - ASSISTANT turns may identify interventions actually used, but assistant suggestions, hypotheses, recommendations, or wording must never become user facts or follow-up tasks.
 - Apply correction precedence: when the user corrects an earlier detail, retain only the latest corrected value and omit every superseded value everywhere.
 - session_summary may contain only user-authoritative facts and explicit unknowns, never recommendations or hypotheses.

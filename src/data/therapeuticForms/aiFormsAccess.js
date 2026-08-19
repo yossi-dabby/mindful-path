@@ -11,19 +11,33 @@ const VALID_AUDIENCE_SET = new Set(VALID_AUDIENCE_VALUES);
 const LANGUAGE_ALIAS_MAP = Object.freeze({
   en: 'en',
   english: 'en',
+  inglés: 'en',
+  ingles: 'en',
+  anglais: 'en',
+  englisch: 'en',
+  inglese: 'en',
+  inglês: 'en',
   he: 'he',
   hebrew: 'he',
   עברית: 'he',
   es: 'es',
   spanish: 'es',
+  español: 'es',
+  espanol: 'es',
   fr: 'fr',
   french: 'fr',
+  français: 'fr',
+  francais: 'fr',
   de: 'de',
   german: 'de',
+  deutsch: 'de',
   it: 'it',
   italian: 'it',
+  italiano: 'it',
   pt: 'pt',
   portuguese: 'pt',
+  português: 'pt',
+  portugues: 'pt',
 });
 
 const AUDIENCE_ALIAS_MAP = Object.freeze({
@@ -48,9 +62,21 @@ const AUDIENCE_ALIAS_MAP = Object.freeze({
 });
 
 const FORM_INTENT_PATTERNS = Object.freeze({
-  list: /\b(what forms|which forms|list forms|forms do you have|איזה טפסים|רשימת טפסים|show forms|available forms)\b/i,
-  send: /(?:\b(send|share|attach|give me)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/i,
+  list: /(?:\b(?:what forms|which forms|list forms|forms do you have|show forms|available forms)\b|איזה טפסים|רשימת טפסים|qu[eé]\s+(?:formularios|hojas\s+de\s+trabajo)|lista\s+de\s+(?:formularios|hojas\s+de\s+trabajo)|quels?\s+(?:formulaires|feuilles\s+de\s+travail)|liste\s+des?\s+(?:formulaires|feuilles\s+de\s+travail)|welche\s+(?:formulare|arbeitsblätter|arbeitsblaetter)|liste\s+der\s+(?:formulare|arbeitsblätter|arbeitsblaetter)|quali\s+(?:moduli|fogli\s+di\s+lavoro)|elenco\s+(?:dei|delle)\s+(?:moduli|schede)|quais\s+(?:formulários|formularios|folhas\s+de\s+trabalho)|lista\s+de\s+(?:formulários|formularios|folhas\s+de\s+trabalho))/iu,
+  send: /(?:\b(?:send|share|attach|give\s+me)\b|תשלח(?:י)?|שלח(?:י)?|תן\s+לי|תני\s+לי|envía(?:me)?|envia(?:me)?|comparte|adjunta|dame|(?:envoie|envoyez)(?:-moi)?|partage|jo(?:ins|ignez)|sende|schick|teile|gib\s+mir|invia(?:mi)?|condividi|allega|dammi|envie(?:-me)?|envia(?:-me)?|compartilhe|anexe|dê-me|de-me)/iu,
 });
+
+const FORM_OBJECT_PATTERN =
+  /(?:\b(?:forms?|worksheets?|workbooks?|handouts?)\b|טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|cadernos?)/iu;
+
+const MODULE_SCOPE_PATTERN =
+  /(?:module|stage|מודול|שלב|módulo|modulo|étape|etape|stufe)\s*0?([1-9]|10)\b/iu;
+
+const MULTILINGUAL_MULTI_FORM_REQUEST_PATTERN =
+  /(?:varios?|varias?|algunos?|algunas?|todos?|todas?|plusieurs|quelques|tous|toutes|mehrere|einige|alle|diversi|diverse|alcuni|alcune|tutti|tutte|vários?|várias?|alguns?|algumas?)\s+(?:formularios?|hojas?\s+de\s+trabajo|formulaires?|feuilles?\s+de\s+travail|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho)/iu;
+
+const MULTI_FORM_CAPABILITY_PATTERN =
+  /(?:puedes|puede|peux-tu|pouvez-vous|kannst\s+du|können\s+sie|puoi|può|você\s+pode|podes).{0,80}(?:varios?|varias?|plusieurs|mehrere|diversi|diverse|vários?|várias?).{0,40}(?:formularios?|hojas?\s+de\s+trabajo|formulaires?|feuilles?\s+de\s+travail|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho)/iu;
 
 const CATEGORY_SYNONYMS = Object.freeze({
   ocd: ['ocd', 'intrusive thoughts', 'sticky thoughts', 'ritual', 'compulsion'],
@@ -80,8 +106,45 @@ export const MAX_GENERATED_FILES_PER_RESPONSE = 5;
 export const MAX_MODEL_CANDIDATE_FORMS = 8;
 const MULTI_FORM_CAPABILITY_RESPONSE_HE = 'כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת. אם יש קובץ מאוחד מתאים, אעדיף לשלוח אותו במקום להציף בכמה קבצים.';
 const MULTI_FORM_CAPABILITY_RESPONSE_EN = 'Yes. I can send several forms together, up to 5 forms in one response. If a combined module PDF exists, I will prefer that instead of sending many separate files.';
+const ADDITIONAL_LOCALE_FORM_RESPONSES = Object.freeze({
+  es: Object.freeze({
+    capability: 'Sí. Puedo enviar varios formularios juntos, hasta 5 por respuesta.',
+    noExactList: 'No encontré formularios instalados que coincidan con el idioma y el público solicitados.',
+    noExactSearch: 'No encontré una coincidencia exacta entre los formularios instalados.',
+    noExactSend: 'No encontré todavía un formulario compatible que pueda adjuntar.',
+    broad: 'La colección es muy amplia. Indica un tema, módulo o público para limitar la selección a un máximo de 5 formularios.',
+  }),
+  fr: Object.freeze({
+    capability: 'Oui. Je peux envoyer plusieurs formulaires ensemble, jusqu’à 5 par réponse.',
+    noExactList: 'Je n’ai trouvé aucun formulaire installé correspondant à la langue et au public demandés.',
+    noExactSearch: 'Je n’ai trouvé aucune correspondance exacte parmi les formulaires installés.',
+    noExactSend: 'Je n’ai pas encore trouvé de formulaire compatible à joindre.',
+    broad: 'La collection est très vaste. Indiquez un thème, un module ou un public afin de limiter la sélection à 5 formulaires.',
+  }),
+  de: Object.freeze({
+    capability: 'Ja. Ich kann mehrere Formulare zusammen senden, bis zu 5 pro Antwort.',
+    noExactList: 'Ich habe keine installierten Formulare gefunden, die zur gewünschten Sprache und Zielgruppe passen.',
+    noExactSearch: 'Ich habe unter den installierten Formularen keine genaue Übereinstimmung gefunden.',
+    noExactSend: 'Ich habe noch kein passendes Formular zum Anhängen gefunden.',
+    broad: 'Die Sammlung ist sehr groß. Nenne ein Thema, Modul oder eine Zielgruppe, um die Auswahl auf höchstens 5 Formulare einzugrenzen.',
+  }),
+  it: Object.freeze({
+    capability: 'Sì. Posso inviare più moduli insieme, fino a 5 per risposta.',
+    noExactList: 'Non ho trovato moduli installati che corrispondano alla lingua e al pubblico richiesti.',
+    noExactSearch: 'Non ho trovato una corrispondenza esatta tra i moduli installati.',
+    noExactSend: 'Non ho ancora trovato un modulo compatibile da allegare.',
+    broad: 'La raccolta è molto ampia. Indica un argomento, un modulo o un pubblico per limitare la selezione a un massimo di 5 moduli.',
+  }),
+  pt: Object.freeze({
+    capability: 'Sim. Posso enviar vários formulários juntos, até 5 por resposta.',
+    noExactList: 'Não encontrei formulários instalados que correspondam ao idioma e ao público solicitados.',
+    noExactSearch: 'Não encontrei uma correspondência exata entre os formulários instalados.',
+    noExactSend: 'Ainda não encontrei um formulário compatível para anexar.',
+    broad: 'A coleção é muito ampla. Indique um tema, módulo ou público para limitar a seleção a no máximo 5 formulários.',
+  }),
+});
 const ENGLISH_MULTI_FORM_REQUEST_PATTERN = /\b(all forms|all worksheets|several forms|multiple forms|few forms|several worksheets|multiple worksheets)\b/i;
-const NUMERIC_MULTI_FORM_REQUEST_PATTERN = /\b\d{1,2}\s*(forms|worksheets|טפסים|דפי\s*עבודה)\b/i;
+const NUMERIC_MULTI_FORM_REQUEST_PATTERN = /\b\d{1,2}\s*(?:forms?|worksheets?|טפסים|דפי\s*עבודה|formularios?|hojas?\s+de\s+trabajo|formulaires?|feuilles?\s+de\s+travail|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho)\b/iu;
 const HEBREW_MULTI_FORM_REQUEST_PATTERN = /(?:כמה|מספר)\s*(טפסים|דפים|דפי\s*עבודה)|כל\s*(הטפסים|שלב|מודול)|שלח(?:י)?\s*לי\s*כמה\s*טפסים|שלח(?:י)?\s*לי\s*מספר\s*טפסים|תן(?:י)?\s*לי\s*כמה\s*טפסים|אני\s*צריך\s*כמה\s*טפסים|כמה\s*דפים\s*שמתאימים|מספר\s*דפי\s*עבודה/i;
 
 const NUMBER_WORD_MAP = Object.freeze({
@@ -137,22 +200,22 @@ function dedupeFormsById(forms) {
 function extractRequestedLanguage(text) {
   const normalized = normalizeText(text);
   if (!normalized) return null;
-  if (/\benglish\b/.test(normalized) || /באנגלית|אנגלית/.test(normalized)) return 'en';
+  if (/\b(?:english|inglés|ingles|anglais|englisch|inglese|inglês)\b/u.test(normalized) || /באנגלית|אנגלית/.test(normalized)) return 'en';
   if (/\bhebrew\b/.test(normalized) || /עברית/.test(normalized)) return 'he';
-  if (/\bspanish\b/.test(normalized)) return 'es';
-  if (/\bfrench\b/.test(normalized)) return 'fr';
-  if (/\bgerman\b/.test(normalized)) return 'de';
-  if (/\bitalian\b/.test(normalized)) return 'it';
-  if (/\bportuguese\b/.test(normalized)) return 'pt';
+  if (/\b(?:spanish|español|espanol)\b/u.test(normalized)) return 'es';
+  if (/\b(?:french|français|francais)\b/u.test(normalized)) return 'fr';
+  if (/\b(?:german|deutsch)\b/u.test(normalized)) return 'de';
+  if (/\b(?:italian|italiano)\b/u.test(normalized)) return 'it';
+  if (/\b(?:portuguese|português|portugues)\b/u.test(normalized)) return 'pt';
   return null;
 }
 
 function extractRequestedAudience(text) {
   const normalized = normalizeText(text);
   if (!normalized) return null;
-  if (/\b(children|child|kids|kid)\b/.test(normalized) || /ילד|ילדים/.test(normalized)) return 'children';
-  if (/\b(adolescents|adolescent|teens|teen|teenager)\b/.test(normalized) || /מתבגר|מתבגרים/.test(normalized)) return 'adolescents';
-  if (/\b(adults|adult)\b/.test(normalized)) return 'adults';
+  if (/\b(?:children|child|kids|kid|niños?|niñas?|enfants?|kinder|kind|bambin[ioae]|crianças?|crianca|criancas)\b/u.test(normalized) || /ילד|ילדים/.test(normalized)) return 'children';
+  if (/\b(?:adolescents?|teens?|teenagers?|adolescentes?|jugendliche|adolescenti)\b/u.test(normalized) || /מתבגר|מתבגרים/.test(normalized)) return 'adolescents';
+  if (/\b(?:adults?|adultes?|erwachsene|adulti)\b/u.test(normalized)) return 'adults';
   return null;
 }
 
@@ -167,15 +230,15 @@ function extractRequestedCount(text) {
     if (new RegExp(`\\b${word}\\b`, 'i').test(normalized)) return count;
   }
 
-  if (/\b(several|few|multiple|some|כמה|מספר)\b/i.test(normalized)) return 3;
-  if (/\b(all|every|כול|כל)\b/i.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
+  if (/\b(?:several|few|multiple|some|כמה|מספר|varios?|varias?|algunos?|algunas?|plusieurs|quelques|mehrere|einige|diversi|diverse|alcuni|alcune|vários?|várias?|alguns?|algumas?)\b/iu.test(normalized)) return 3;
+  if (/\b(?:all|every|כול|כל|todos?|todas?|tous|toutes|alle|tutti|tutte)\b/iu.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
   return null;
 }
 
 function extractRequestedModuleNumber(text) {
   const normalized = normalizeText(text);
   if (!normalized) return null;
-  const match = normalized.match(/(?:module|stage|מודול|שלב)\s*0?([1-9]|10)\b/i);
+  const match = normalized.match(MODULE_SCOPE_PATTERN);
   if (!match) return null;
   return Number(match[1]);
 }
@@ -183,7 +246,7 @@ function extractRequestedModuleNumber(text) {
 function requestsModuleOrStageScope(text) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
-  return /(?:module|stage|מודול|שלב)\s*0?([1-9]|10)\b/i.test(normalized);
+  return MODULE_SCOPE_PATTERN.test(normalized);
 }
 
 function requestsManyForms(text) {
@@ -192,7 +255,8 @@ function requestsManyForms(text) {
   return (
     ENGLISH_MULTI_FORM_REQUEST_PATTERN.test(normalized) ||
     NUMERIC_MULTI_FORM_REQUEST_PATTERN.test(normalized) ||
-    HEBREW_MULTI_FORM_REQUEST_PATTERN.test(normalized)
+    HEBREW_MULTI_FORM_REQUEST_PATTERN.test(normalized) ||
+    MULTILINGUAL_MULTI_FORM_REQUEST_PATTERN.test(normalized)
   );
 }
 
@@ -201,15 +265,16 @@ function asksMultiFormCapability(text) {
   if (!normalized) return false;
   return (
     /(?:\bcan you\b|\bare you able\b|\bdo you support\b|האם\s*את(?:ה|)\s*יכול|אפשר)\s*(?:.*?)(?:send|share|attach|לשלוח|לשלח)\s*(?:.*?)(?:multiple|several|כמה|מספר)\s*(?:forms|worksheets|טפסים|דפי\s*עבודה)/i.test(normalized) ||
-    /(?:רק\s*טופס\s*אחד|only\s*one\s*form\s*at\s*a\s*time|one\s*form\s*at\s*a\s*time)/i.test(normalized)
+    /(?:רק\s*טופס\s*אחד|only\s*one\s*form\s*at\s*a\s*time|one\s*form\s*at\s*a\s*time)/i.test(normalized) ||
+    MULTI_FORM_CAPABILITY_PATTERN.test(normalized)
   );
 }
 
 function isBroadAllFormsRequest(intent) {
   const raw = normalizeText(intent?.rawQuery || intent?.query || '');
   if (!raw) return false;
-  const asksAll = /\b(all forms|all worksheets)\b|כל\s*הטפסים/i.test(raw);
-  const hasScope = /\b(module|stage|children|child|kids|adolescents|teens|anxiety|ocd|anger|sleep)\b|(?:מודול|שלב|ילד|ילדים|מתבגר|מתבגרים|חרדה|כעס|שינה|היפרדות)/i.test(raw);
+  const asksAll = /\b(?:all forms|all worksheets)\b|כל\s*הטפסים|(?:todos?|todas?|tous|toutes|alle|tutti|tutte)\s+(?:formularios?|hojas?\s+de\s+trabajo|formulaires?|feuilles?\s+de\s+travail|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|formulários?|folhas?\s+de\s+trabalho)/iu.test(raw);
+  const hasScope = MODULE_SCOPE_PATTERN.test(raw) || /\b(?:children|child|kids|adolescents|teens|anxiety|ocd|anger|sleep|niños?|niñas?|enfants?|kinder|jugendliche|bambin[ioae]|crianças?|adolescentes?|ansiedad|anxiété|angst|ansia|ansiedade)\b|(?:מודול|שלב|ילד|ילדים|מתבגר|מתבגרים|חרדה|כעס|שינה|היפרדות)/iu.test(raw);
   return asksAll && !hasScope;
 }
 
@@ -239,6 +304,12 @@ function normalizeLegacyWorksheetAlias(candidate) {
 
 function getDefaultLanguage(language) {
   return normalizeLanguage(language) || 'en';
+}
+
+function getMultiFormCapabilityResponse(language) {
+  const normalized = getDefaultLanguage(language);
+  if (normalized === 'he') return MULTI_FORM_CAPABILITY_RESPONSE_HE;
+  return ADDITIONAL_LOCALE_FORM_RESPONSES[normalized]?.capability || MULTI_FORM_CAPABILITY_RESPONSE_EN;
 }
 
 function flattenFormFields(form) {
@@ -580,7 +651,10 @@ export function hasExplicitFormSuppressionIntent(text) {
     /\b(?:forms?|therapeutic\s+forms?|worksheets?|exercises?|homework|workbooks?|structured\s+exercises?|handouts?)\b/i;
   // Form object terms — Hebrew
   const FORM_OBJ_HE =
-    /(?:טפסים|טופס(?:\s+טיפולי)?|דפי?\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
+    /(?:טפסים|טופס(?:\s+טיפולי)?|דף\s*עבודה|דפי\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
+  // Form object terms — Spanish, French, German, Italian, and Portuguese.
+  const FORM_OBJ_ADDITIONAL =
+    /(?:formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|cadernos?)/iu;
 
   // Hebrew cross-line continuation pattern:
   // "ואל תציע\nאו תצרף <form-object>" — the negation verb and the form objects
@@ -603,7 +677,7 @@ export function hasExplicitFormSuppressionIntent(text) {
     // clause. This prevents "I do not want to wait; send me the worksheet" from
     // being suppressed: the negation is in the first clause, the form object is
     // only in the second clause.
-    if (!FORM_OBJ_EN.test(clause) && !FORM_OBJ_HE.test(clause)) continue;
+    if (!FORM_OBJ_EN.test(clause) && !FORM_OBJ_HE.test(clause) && !FORM_OBJ_ADDITIONAL.test(clause)) continue;
 
     const hasSuppression =
       // English: "don't" / "do not" / "please don't" / "please do not"
@@ -623,7 +697,21 @@ export function hasExplicitFormSuppressionIntent(text) {
       // Hebrew: בלי (without)
       /(?:^|\s)בלי(?:\s|$)/.test(clause) ||
       // Hebrew: לא עכשיו / לא כרגע
-      /לא\s+(?:עכשיו|כרגע)/.test(clause);
+      /לא\s+(?:עכשיו|כרגע)/.test(clause) ||
+      // Spanish: no envíes/adjuntes/ofrezcas; sin/ningún formulario.
+      /\bno\s+(?:me\s+)?(?:envíes|envies|adjuntes|compartas|ofrezcas|propongas)\b/iu.test(clause) ||
+      /\b(?:sin|ning[uú]n(?:a)?)\b/iu.test(clause) ||
+      // French: ne ... pas; sans/aucun formulaire.
+      /\bne\b.{0,60}\b(?:pas|plus)\b/iu.test(clause) ||
+      /\b(?:sans|aucun(?:e)?)\b/iu.test(clause) ||
+      // German: kein Formular / ohne Arbeitsblatt.
+      /\b(?:kein(?:e[nsr]?)?|ohne)\b/iu.test(clause) ||
+      // Italian: non inviare/allegare/proporre; senza/nessun modulo.
+      /\bnon\s+(?:inviare|inviarmi|invia|allegare|allega|proporre|proponi|condividere)\b/iu.test(clause) ||
+      /\b(?:senza|nessun(?:a|o)?)\b/iu.test(clause) ||
+      // Portuguese: não envie/anexe/ofereça; sem/nenhum formulário.
+      /\bnão\s+(?:me\s+)?(?:envie|envia|anexe|anexa|compartilhe|ofereça|proponha)\b/iu.test(clause) ||
+      /\b(?:sem|nenhum(?:a)?)\b/iu.test(clause);
 
     if (hasSuppression) return true;
   }
@@ -642,9 +730,10 @@ export function detectFormIntent(userMessage) {
   const requestedLanguage = extractRequestedLanguage(text);
   const asksList = FORM_INTENT_PATTERNS.list.test(text);
   const asksSend = FORM_INTENT_PATTERNS.send.test(text)
-    || /\bform\b|\bworksheet\b|טופס/.test(text)
-    || /שלב\s*[1-6]|קובץ\s*מאוחד|כל\s*שלב/.test(text);
-  const mentionsCategory = /\b(category|group|groups|category|קטגור)/.test(text);
+    || FORM_OBJECT_PATTERN.test(text)
+    || MODULE_SCOPE_PATTERN.test(text)
+    || /קובץ\s*מאוחד|כל\s*שלב/.test(text);
+  const mentionsCategory = /(?:\b(?:category|group|groups|categoría|categoria|catégorie|categorie|kategorie|categoria)\b|קטגור)/iu.test(text);
   const explicitIdMatch = text.match(/\b([a-z0-9]+(?:[_-][a-z0-9]+){2,})\b/);
   const requestedCount = extractRequestedCount(text);
   const requestedModuleNumber = extractRequestedModuleNumber(text);
@@ -673,7 +762,7 @@ export function detectFormIntent(userMessage) {
       rawQuery: text,
     };
   }
-  if (asksSend && explicitIdMatch && /(?:\b(send|share|attach)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/.test(text)) {
+  if (asksSend && explicitIdMatch && FORM_INTENT_PATTERNS.send.test(text)) {
     return { type: 'send_specific_form', audience: requestedAudience, language: requestedLanguage, query: explicitIdMatch[1], rawQuery: text };
   }
   if (asksSend && asksModuleScope) {
@@ -700,7 +789,7 @@ export function detectFormIntent(userMessage) {
   if (asksSend) {
     return { type: 'send_best_matching_form', audience: requestedAudience, language: requestedLanguage, query: text };
   }
-  if (/\bform\b|\bworksheet\b|טופס/.test(text)) {
+  if (FORM_OBJECT_PATTERN.test(text)) {
     return { type: 'search_forms_by_need', audience: requestedAudience, language: requestedLanguage, query: text };
   }
 
@@ -773,9 +862,7 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   let generatedFiles = generatedFile ? [generatedFile] : [];
 
   if (intent.type === 'forms_capability_query') {
-    const capabilityText = activeLanguage === 'he'
-      ? MULTI_FORM_CAPABILITY_RESPONSE_HE
-      : MULTI_FORM_CAPABILITY_RESPONSE_EN;
+    const capabilityText = getMultiFormCapabilityResponse(activeLanguage);
     return {
       intent,
       stats,
@@ -806,8 +893,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     }
 
     const combinedCandidates = getCombinedForms(multiCandidates);
-    const prefersAllScope = /\b(all|כול|כל)\b/i.test(intent.rawQuery || '');
-    const explicitlyWantsWorksheets = /\b(worksheet|worksheets|טפסים|טופס)\b/i.test(intent.rawQuery || '');
+    const prefersAllScope = /\b(?:all|כול|כל|todos?|todas?|tous|toutes|alle|tutti|tutte)\b/iu.test(intent.rawQuery || '');
+    const explicitlyWantsWorksheets = FORM_OBJECT_PATTERN.test(intent.rawQuery || '');
     const worksheetOnlyCandidates = explicitlyWantsWorksheets
       ? multiCandidates.filter((form) => !combinedCandidates.includes(form))
       : multiCandidates;
@@ -834,6 +921,7 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   }
 
   const groups = getAvailableFormGroups(filters);
+  const localizedFormsCopy = ADDITIONAL_LOCALE_FORM_RESPONSES[activeLanguage] || null;
   const languagesText = groups.languages.length > 0 ? groups.languages.join(', ') : 'none';
   const categoriesText = groups.categories.length > 0 ? groups.categories.join(', ') : 'none';
   const hasSameLanguageForms = groups.languages.includes(activeLanguage);
@@ -841,20 +929,22 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     ? ''
     : (hasSameLanguageForms ? '' : `\nI currently found available worksheets in: ${languagesText}.`);
 
-  const listText = [
-    `I found ${groups.total} approved forms in this scope.`,
-    `Languages: ${languagesText}.`,
-    `Audiences: ${groups.audiences.join(', ') || 'none'}.`,
-    `Categories: ${categoriesText}.`,
-    groups.examples.length > 0 ? `Examples:\n${groups.examples.map((example) => `- ${example.title} (${example.audience}, ${example.category})`).join('\n')}` : '',
-    fallbackNote,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  const listText = groups.total === 0 && localizedFormsCopy
+    ? localizedFormsCopy.noExactList
+    : [
+        `I found ${groups.total} approved forms in this scope.`,
+        `Languages: ${languagesText}.`,
+        `Audiences: ${groups.audiences.join(', ') || 'none'}.`,
+        `Categories: ${categoriesText}.`,
+        groups.examples.length > 0 ? `Examples:\n${groups.examples.map((example) => `- ${example.title} (${example.audience}, ${example.category})`).join('\n')}` : '',
+        fallbackNote,
+      ]
+        .filter(Boolean)
+        .join('\n');
 
   const searchText = best
     ? `I found a close match: ${best.title || best.id} (${best.audience}, ${best.language}, ${best.category}).`
-    : `I couldn't find an exact match. Nearby installed options:\n${formatNearestMatches(nearestMatches) || '- none found'}`;
+    : (localizedFormsCopy?.noExactSearch || `I couldn't find an exact match. Nearby installed options:\n${formatNearestMatches(nearestMatches) || '- none found'}`);
 
   const sendText = generatedFile
     ? (generatedFile.language !== activeLanguage && !requestedLanguage
@@ -864,8 +954,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
         : 'I found a matching worksheet and attached it.')
     : (
       intent.type === 'send_multiple_forms' && isBroadAllFormsRequest(intent)
-        ? 'The forms collection is very large, so I won’t send dozens at once. Tell me a topic, module, or audience and I can send up to 5 of the most relevant forms.'
-        : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+        ? (localizedFormsCopy?.broad || 'The forms collection is very large, so I won’t send dozens at once. Tell me a topic, module, or audience and I can send up to 5 of the most relevant forms.')
+        : (localizedFormsCopy?.noExactSend || `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`)
     );
 
   const responseByIntent = {
@@ -877,7 +967,7 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     send_best_matching_form: sendText,
     send_multiple_forms: sendText,
     send_module_forms: sendText,
-    forms_capability_query: activeLanguage === 'he' ? MULTI_FORM_CAPABILITY_RESPONSE_HE : MULTI_FORM_CAPABILITY_RESPONSE_EN,
+    forms_capability_query: getMultiFormCapabilityResponse(activeLanguage),
   };
 
   return {

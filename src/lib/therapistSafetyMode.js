@@ -138,6 +138,36 @@ export const SAFETY_TRIGGER_PATTERNS = Object.freeze([
   { pattern: /\bpanic(king|ked)?\b/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
   { pattern: /\bscreaming\s+inside\b/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
   { pattern: /\bcan'?t\s+stop\s+crying\b/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
+
+  // ── Spanish ───────────────────────────────────────────────────────────────
+  { pattern: /(?:^|[\s,.;:!?])(?:nada\s+(?:va\s+a|puede|podrá)\s+mejorar|no\s+(?:queda|hay)\s+esperanza|sin\s+esperanza|no\s+veo\s+(?:una\s+)?salida|la\s+vida\s+no\s+vale\s+la\s+pena)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SEVERE_HOPELESSNESS },
+  { pattern: /(?:^|[\s,.;:!?])(?:me\s+estoy\s+derrumbando|completamente\s+rot[oa]|no\s+puedo\s+(?:funcionar|afrontarlo|seguir)|me\s+he\s+rendido)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SHUTDOWN_BREAKDOWN },
+  { pattern: /(?:^|[\s,.;:!?])(?:todo\s+está\s+(?:arruinado|destruido|perdido)|mi\s+vida\s+está\s+(?:arruinada|destruida)|no\s+hay\s+vuelta\s+atrás|irreversible|nunca\s+me\s+recuperaré)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.CATASTROPHIC_LANGUAGE },
+  { pattern: /(?:^|[\s,.;:!?])(?:abrumad[oa]|no\s+puedo\s+(?:respirar|pensar|moverme)|fuera\s+de\s+control|pánico|no\s+puedo\s+dejar\s+de\s+llorar)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
+
+  // ── French ────────────────────────────────────────────────────────────────
+  { pattern: /(?:^|[\s,.;:!?])(?:rien\s+ne\s+s’améliorera|rien\s+ne\s+s'ameliorera|aucun\s+espoir|sans\s+espoir|je\s+ne\s+vois\s+pas\s+d’issue|je\s+ne\s+vois\s+pas\s+d'issue|la\s+vie\s+ne\s+vaut\s+pas\s+la\s+peine)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SEVERE_HOPELESSNESS },
+  { pattern: /(?:^|[\s,.;:!?])(?:je\s+m’effondre|je\s+m'effondre|complètement\s+bris[ée]|je\s+ne\s+peux\s+pas\s+(?:fonctionner|faire\s+face|continuer)|j’ai\s+abandonné|j'ai\s+abandonné)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SHUTDOWN_BREAKDOWN },
+  { pattern: /(?:^|[\s,.;:!?])(?:tout\s+est\s+(?:ruiné|détruit|fini)|ma\s+vie\s+est\s+(?:ruinée|détruite)|aucun\s+retour\s+en\s+arrière|irréversible|je\s+ne\s+m’en\s+remettrai\s+jamais|je\s+ne\s+m'en\s+remettrai\s+jamais)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.CATASTROPHIC_LANGUAGE },
+  { pattern: /(?:^|[\s,.;:!?])(?:submerg[ée]|débord[ée]|je\s+ne\s+peux\s+pas\s+(?:respirer|penser|bouger)|hors\s+de\s+contrôle|panique|je\s+n’arrête\s+pas\s+de\s+pleurer|je\s+n'arrête\s+pas\s+de\s+pleurer)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
+
+  // ── German ────────────────────────────────────────────────────────────────
+  { pattern: /(?:^|[\s,.;:!?])(?:nichts\s+wird\s+besser|keine\s+hoffnung|hoffnungslos|ich\s+sehe\s+keinen\s+ausweg|das\s+leben\s+ist\s+nicht\s+lebenswert)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SEVERE_HOPELESSNESS },
+  { pattern: /(?:^|[\s,.;:!?])(?:ich\s+breche\s+zusammen|völlig\s+gebrochen|ich\s+kann\s+nicht\s+(?:funktionieren|damit\s+umgehen|weitermachen)|ich\s+habe\s+aufgegeben)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SHUTDOWN_BREAKDOWN },
+  { pattern: /(?:^|[\s,.;:!?])(?:alles\s+ist\s+(?:ruiniert|zerstört|vorbei)|mein\s+leben\s+ist\s+(?:ruiniert|zerstört)|es\s+gibt\s+keinen\s+weg\s+zurück|irreversibel|ich\s+werde\s+mich\s+nie\s+erholen)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.CATASTROPHIC_LANGUAGE },
+  { pattern: /(?:^|[\s,.;:!?])(?:überwältigt|ich\s+kann\s+nicht\s+(?:atmen|denken|mich\s+bewegen)|außer\s+kontrolle|panik|ich\s+kann\s+nicht\s+aufhören\s+zu\s+weinen)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
+
+  // ── Italian ───────────────────────────────────────────────────────────────
+  { pattern: /(?:^|[\s,.;:!?])(?:niente\s+migliorerà|nessuna\s+speranza|senza\s+speranza|non\s+vedo\s+(?:una\s+)?via\s+d’uscita|non\s+vedo\s+(?:una\s+)?via\s+d'uscita|la\s+vita\s+non\s+vale\s+la\s+pena)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SEVERE_HOPELESSNESS },
+  { pattern: /(?:^|[\s,.;:!?])(?:sto\s+crollando|completamente\s+distrutt[oa]|non\s+riesco\s+a\s+(?:funzionare|farvi\s+fronte|andare\s+avanti)|ho\s+rinunciato)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SHUTDOWN_BREAKDOWN },
+  { pattern: /(?:^|[\s,.;:!?])(?:tutto\s+è\s+(?:rovinato|distrutto|finito)|la\s+mia\s+vita\s+è\s+(?:rovinata|distrutta)|non\s+c’è\s+modo\s+di\s+tornare\s+indietro|non\s+c'è\s+modo\s+di\s+tornare\s+indietro|irreversibile|non\s+mi\s+riprenderò\s+mai)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.CATASTROPHIC_LANGUAGE },
+  { pattern: /(?:^|[\s,.;:!?])(?:sopraffatt[oa]|non\s+riesco\s+a\s+(?:respirare|pensare|muovermi)|fuori\s+controllo|panico|non\s+riesco\s+a\s+smettere\s+di\s+piangere)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
+
+  // ── Portuguese ────────────────────────────────────────────────────────────
+  { pattern: /(?:^|[\s,.;:!?])(?:nada\s+vai\s+melhorar|sem\s+esperança|não\s+vejo\s+(?:uma\s+)?saída|a\s+vida\s+não\s+vale\s+a\s+pena)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SEVERE_HOPELESSNESS },
+  { pattern: /(?:^|[\s,.;:!?])(?:estou\s+desmoronando|completamente\s+quebrad[oa]|não\s+consigo\s+(?:funcionar|lidar\s+com\s+isso|continuar)|desisti)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.SHUTDOWN_BREAKDOWN },
+  { pattern: /(?:^|[\s,.;:!?])(?:tudo\s+está\s+(?:arruinado|destruído|acabado)|minha\s+vida\s+está\s+(?:arruinada|destruída)|não\s+há\s+volta|irreversível|nunca\s+vou\s+me\s+recuperar)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.CATASTROPHIC_LANGUAGE },
+  { pattern: /(?:^|[\s,.;:!?])(?:sobrecarregad[oa]|não\s+consigo\s+(?:respirar|pensar|me\s+mover)|fora\s+de\s+controle|pânico|não\s+consigo\s+parar\s+de\s+chorar)(?=$|[\s,.;:!?])/i, category: SAFETY_TRIGGER_CATEGORIES.HIGH_DISTRESS },
 ]);
 
 // ─── Safety mode instructions ─────────────────────────────────────────────────
