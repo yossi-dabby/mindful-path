@@ -651,7 +651,7 @@ export function hasExplicitFormSuppressionIntent(text) {
     /\b(?:forms?|therapeutic\s+forms?|worksheets?|exercises?|homework|workbooks?|structured\s+exercises?|handouts?)\b/i;
   // Form object terms — Hebrew
   const FORM_OBJ_HE =
-    /(?:טפסים|טופס(?:\s+טיפולי)?|דפי?\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
+    /(?:טפסים|טופס(?:\s+טיפולי)?|דף\s*עבודה|דפי\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
   // Form object terms — Spanish, French, German, Italian, and Portuguese.
   const FORM_OBJ_ADDITIONAL =
     /(?:formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|cadernos?)/iu;
