@@ -172,6 +172,8 @@ export function getTherapeuticFormsPolicyPayload(options = {}) {
         `[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`,
         'Therapeutic forms are installed, but no exact form matches the current language/audience filters.',
         'Do NOT say you have no access to forms.',
+        'Do NOT emit [FORM:...] markers or attach a form in another language unless the user explicitly requests that installed language in the current turn.',
+        'When the active language has no installed form, explain the limitation in the active session language without attaching a fallback form.',
         'If no exact match exists, say you could not find an exact form and suggest nearby available forms from the approved catalog.',
         '',
         buildTherapistFormCatalog(approvedForms),

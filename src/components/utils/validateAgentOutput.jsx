@@ -547,6 +547,8 @@ function applyEligibilityGateToMetadata(metadata, gateCtx) {
       confirmedAudience: gateCtx.confirmedAudience ?? undefined,
       recipientAge: gateCtx.recipientAge ?? undefined,
       clinicallyRelevant: gateCtx.clinicallyRelevant === true,
+      sessionLanguage: gateCtx.sessionLanguage ?? null,
+      requestedLanguage: gateCtx.requestedLanguage ?? null,
     };
 
     // Gate the primary single attachment
@@ -1590,6 +1592,8 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
               previousAssistantOffer,
               currentTurnProhibits: formSuppressed,
               clinicallyRelevant: clinicallyRelevant1,
+              sessionLanguage: effectiveLang,
+              requestedLanguage: deterministicFormRoute?.intent?.language || null,
             })
           : postSuppression1;
         return {
@@ -1644,6 +1648,8 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
                   previousAssistantOffer,
                   currentTurnProhibits: formSuppressed,
                   clinicallyRelevant: clinicallyRelevant2,
+                  sessionLanguage: effectiveLang,
+                  requestedLanguage: deterministicFormRoute?.intent?.language || null,
                 })
               : postSuppression2;
             return {
@@ -1754,6 +1760,8 @@ export function sanitizeConversationMessagesAligned(messages, sessionLanguage = 
               previousAssistantOffer,
               currentTurnProhibits: formSuppressed,
               clinicallyRelevant: clinicallyRelevant3,
+              sessionLanguage: effectiveLang,
+              requestedLanguage: deterministicFormRoute?.intent?.language || null,
             })
           : postSuppression3;
         return { ...msg, content: deterministicApplied.content, metadata: finalMetadata };
