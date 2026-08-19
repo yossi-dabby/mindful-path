@@ -63,11 +63,13 @@ const AUDIENCE_ALIAS_MAP = Object.freeze({
 
 const FORM_INTENT_PATTERNS = Object.freeze({
   list: /(?:\b(?:what forms|which forms|list forms|forms do you have|show forms|available forms)\b|איזה טפסים|רשימת טפסים|qu[eé]\s+(?:formularios|hojas\s+de\s+trabajo)|lista\s+de\s+(?:formularios|hojas\s+de\s+trabajo)|quels?\s+(?:formulaires|feuilles\s+de\s+travail)|liste\s+des?\s+(?:formulaires|feuilles\s+de\s+travail)|welche\s+(?:formulare|arbeitsblätter|arbeitsblaetter)|liste\s+der\s+(?:formulare|arbeitsblätter|arbeitsblaetter)|quali\s+(?:moduli|fogli\s+di\s+lavoro)|elenco\s+(?:dei|delle)\s+(?:moduli|schede)|quais\s+(?:formulários|formularios|folhas\s+de\s+trabalho)|lista\s+de\s+(?:formulários|formularios|folhas\s+de\s+trabalho))/iu,
-  send: /(?:\b(?:send|share|attach|give\s+me)\b|תשלח(?:י)?|שלח(?:י)?|תן\s+לי|תני\s+לי|envía(?:me)?|envia(?:me)?|comparte|adjunta|dame|(?:envoie|envoyez)(?:-moi)?|partage|jo(?:ins|ignez)|sende|schick|teile|gib\s+mir|invia(?:mi)?|condividi|allega|dammi|envie(?:-me)?|envia(?:-me)?|compartilhe|anexe|dê-me|de-me)/iu,
+  // Keep Latin-script send verbs inside word boundaries. Without the leading
+  // boundary, Spanish "dame" also matched inside Portuguese "repetidamente".
+  send: /(?:\b(?:send|share|attach|give\s+me|envía(?:me)?|envia(?:me)?|comparte|adjunta|dame|(?:envoie|envoyez)(?:-moi)?|partage|jo(?:ins|ignez)|sende|schick|teile|gib\s+mir|invia(?:mi)?|condividi|allega|dammi|envie(?:-me)?|envia(?:-me)?|compartilhe|anexe|dê-me|de-me)\b|תשלח(?:י)?|שלח(?:י)?|תן\s+לי|תני\s+לי)/iu,
 });
 
 const FORM_OBJECT_PATTERN =
-  /(?:\b(?:forms?|worksheets?|workbooks?|handouts?)\b|טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|cadernos?)/iu;
+  /(?:\b(?:forms?|worksheets?|workbooks?|handouts?)\b|טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|fichas?\s+de\s+trabalho|exercícios?|cadernos?)/iu;
 
 const MODULE_SCOPE_PATTERN =
   /(?:module|stage|מודול|שלב|módulo|modulo|étape|etape|stufe)\s*0?([1-9]|10)\b/iu;
@@ -654,7 +656,7 @@ export function hasExplicitFormSuppressionIntent(text) {
     /(?:טפסים|טופס(?:\s+טיפולי)?|דף\s*עבודה|דפי\s*עבודה|תרגילים|תרגיל|שיעורי\s+בית|חוברת|קובץ\s+עבודה)/;
   // Form object terms — Spanish, French, German, Italian, and Portuguese.
   const FORM_OBJ_ADDITIONAL =
-    /(?:formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|cadernos?)/iu;
+    /(?:formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|fichas?\s+de\s+trabalho|exercícios?|cadernos?)/iu;
 
   // Hebrew cross-line continuation pattern:
   // "ואל תציע\nאו תצרף <form-object>" — the negation verb and the form objects
