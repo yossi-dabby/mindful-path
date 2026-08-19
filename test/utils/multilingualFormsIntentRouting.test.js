@@ -68,6 +68,25 @@ const CASES = Object.freeze([
 ]);
 
 describe('Multilingual deterministic therapeutic-form routing', () => {
+  it('does not misroute the Portuguese runtime prohibition as a form request', () => {
+    const runtimePrompt =
+      'Ultimamente verifico repetidamente um relatório importante do trabalho porque tenho medo de ter deixado passar algum erro. ' +
+      'Cada verificação me acalma por alguns minutos, mas depois a dúvida volta. ' +
+      'Explique brevemente o mecanismo que mantém esse padrão e o tipo de intervenção adequado. ' +
+      'Não proponha nenhuma ação, exercício, pergunta ou ficha de trabalho.';
+
+    expect(hasExplicitFormSuppressionIntent(runtimePrompt)).toBe(true);
+    expect(detectFormIntent(runtimePrompt)).toBeNull();
+    expect(resolveFormForAIRequest(runtimePrompt, { language: 'pt' }).intent).toBeNull();
+  });
+
+  it('keeps an explicit Portuguese worksheet request positive', () => {
+    expect(hasExplicitFormSuppressionIntent('Envie-me uma ficha de trabalho.')).toBe(false);
+    expect(detectFormIntent('Envie-me uma ficha de trabalho.')).toMatchObject({
+      type: 'send_best_matching_form',
+    });
+  });
+
   it('detects list and single-send intent in every additional locale', () => {
     for (const item of CASES) {
       expect(detectFormIntent(item.list), `list intent: ${item.locale}`).toMatchObject({
