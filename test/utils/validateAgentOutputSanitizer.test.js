@@ -29,6 +29,7 @@ import {
   validateAgentOutput,
   extractAssistantMessage,
   sanitizeConversationMessages,
+  sanitizeConversationMessagesAligned,
   parseCounters,
 } from '../../src/components/utils/validateAgentOutput.jsx';
 
@@ -368,5 +369,57 @@ describe('sanitizeConversationMessages — user attachment metadata recovery', (
       url: 'https://files.example.com/voice-note.webm',
       name: 'voice-note.webm',
     });
+  });
+});
+
+describe('sanitizeConversationMessagesAligned - session-start extraction', () => {
+  it('preserves user text after trailing runtime policy blocks', () => {
+    const visibleUserText =
+      '\u05d0\u05e0\u05d9 \u05dc\u05d7\u05d5\u05e5 \u05dc\u05e7\u05e8\u05d0\u05ea \u05e4\u05d2\u05d9\u05e9\u05d4 \u05d7\u05e9\u05d5\u05d1\u05d4 \u05de\u05d7\u05e8.';
+
+    const messages = [
+      {
+        id: 'u-1',
+        role: 'user',
+        content: [
+          '[START_SESSION]',
+          '',
+          '=== WAVE 5 - FORMULATION-FIRST PLANNER POLICY ===',
+          '',
+          'Internal planner policy.',
+          '',
+          '=== END WAVE 5 - FORMULATION-FIRST PLANNER POLICY ===',
+          '',
+          '[ATTACHMENT_HANDLING_POLICY]',
+          'Internal attachment policy.',
+          '',
+          '[THERAPEUTIC_FORMS_POLICY]',
+          'Internal forms policy.',
+          '',
+          '[SESSION_LANGUAGE: he. Open and respond entirely in Hebrew for this session.]',
+          '',
+          visibleUserText,
+        ].join('\n'),
+        metadata: { status: 'completed', completed: true },
+        status: 'completed',
+      },
+      {
+        id: 'a-1',
+        role: 'assistant',
+        content: 'I hear you.',
+        metadata: { status: 'completed', completed: true },
+        status: 'completed',
+      },
+    ];
+
+    const sanitized = sanitizeConversationMessagesAligned(messages, 'he');
+
+    expect(sanitized[0]).not.toBeNull();
+    expect(sanitized[0]?.role).toBe('user');
+    expect(sanitized[0]?.content).toBe(visibleUserText);
+    expect(sanitized[0]?.content).not.toContain('[ATTACHMENT_HANDLING_POLICY]');
+    expect(sanitized[0]?.content).not.toContain('[THERAPEUTIC_FORMS_POLICY]');
+    expect(sanitized[0]?.content).not.toContain('[SESSION_LANGUAGE:');
+    expect(sanitized[1]?.role).toBe('assistant');
   });
 });

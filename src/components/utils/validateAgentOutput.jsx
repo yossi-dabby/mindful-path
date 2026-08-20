@@ -395,8 +395,9 @@ function extractVisibleUserContentFromSessionStart(rawContent) {
     }
   }
 
-  if (!lastEndMarkerMatch) {
+  if (!lastEndMarkerMatch || splitPos !== -1) {
     const markerRegex = /\[(ATTACHMENT_HANDLING_POLICY|THERAPEUTIC_FORMS_POLICY|SESSION_LANGUAGE:[^\]]*)\]/g;
+    markerRegex.lastIndex = lastEndMarkerMatch ? splitPos + 2 : 0;
     let lastMarkerMatch = null;
     let markerMatch = markerRegex.exec(content);
     while (markerMatch) {
