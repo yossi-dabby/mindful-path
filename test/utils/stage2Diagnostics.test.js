@@ -51,6 +51,7 @@ function withWindow(search, fn, hostname = 'localhost') {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 // ─── Section 1 — No window: returns null ─────────────────────────────────────
@@ -165,7 +166,8 @@ describe('Stage 2 Diagnostics — payload field correctness', () => {
     }, 'localhost');
   });
 
-  it('isPreviewStagingHost is true for a *.base44.app subdomain', () => {
+  it('isPreviewStagingHost is true for an exact configured preview host', () => {
+    vi.stubEnv('VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS', 'myapp.base44.app');
     withWindow('?_s2debug=true', () => {
       const p = getStage2DiagnosticPayload();
       expect(p.isPreviewStagingHost).toBe(true);
