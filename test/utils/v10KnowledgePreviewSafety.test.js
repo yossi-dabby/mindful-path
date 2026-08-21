@@ -151,6 +151,74 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     );
   });
 
+  it('injects clinical content from a real eligible seed unit', async () => {
+    const seedPath = fileURLToPath(
+      new URL('../../src/data/cbt-curriculum-seed-wave4.json', import.meta.url),
+    );
+    const seedUnits = JSON.parse(readFileSync(seedPath, 'utf8'));
+    const realSeedUnit = seedUnits.find(unit => (
+      unit.planner_domain === 'anxiety' &&
+      unit.runtime_eligible_first_wave === true &&
+      unit.is_active === true &&
+      Array.isArray(unit.languages) &&
+      unit.languages.includes('en') &&
+      Array.isArray(unit.safety_tags) &&
+      unit.safety_tags.length === 0
+    ));
+
+    expect(realSeedUnit).toBeTruthy();
+    expect(realSeedUnit.content_summary).toBeUndefined();
+    expect(typeof realSeedUnit.content).toBe('string');
+    expect(realSeedUnit.content.trim().length).toBeGreaterThan(0);
+
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([realSeedUnit]),
+      PLAN,
+      'en',
+    );
+
+    const expectedExcerpt = realSeedUnit.content.trim().slice(0, 80);
+
+    expect(block).toContain(realSeedUnit.title);
+    expect(block).toContain(expectedExcerpt);
+    expect(block).not.toContain(realSeedUnit.admin_notes);
+  });
+
+  it('bounds the content fallback to 300 characters', async () => {
+    const boundedPrefix = 'A'.repeat(300);
+    const contentBeyondBound = `${boundedPrefix}BIDDEN_AFTER_LIMIT`;
+
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([
+        makeSeedContractUnit({
+          content_summary: '',
+          content: contentBeyondBound,
+        }),
+      ]),
+      PLAN,
+      'en',
+    );
+
+    expect(block).toContain(`Summary: ${boundedPrefix}`);
+    expect(block).not.toContain(`${boundedPrefix}B`);
+    expect(block).not.toContain('BIDDEN_AFTER_LIMIT');
+  });
+
+  it('prefers content_summary over content when both are present', async () => {
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([
+        makeSeedContractUnit({
+          content_summary: 'Preferred bounded summary',
+          content: 'Fallback content must not be selected',
+        }),
+      ]),
+      PLAN,
+      'en',
+    );
+
+    expect(block).toContain('Summary: Preferred bounded summary');
+    expect(block).not.toContain('Fallback content must not be selected');
+  });
   it.each([
     'distress_suitability',
     'evidence_level',

@@ -1040,7 +1040,7 @@ describe('Wave 4D — Version bumps', () => {
     expect(CBT_KNOWLEDGE_PLANNER_VERSION).toBe('1.1.0');
   });
 
-  it('cbtKnowledgeRetrieval version is 1.1.0', () => {
-    expect(CBT_KNOWLEDGE_RETRIEVAL_VERSION).toBe('1.1.0');
+  it('cbtKnowledgeRetrieval version is 1.1.1', () => {
+    expect(CBT_KNOWLEDGE_RETRIEVAL_VERSION).toBe('1.1.1');
   });
 });
