@@ -155,7 +155,7 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     'distress_suitability',
     'evidence_level',
     'safety_tags',
-  ])('defines schema key "$key" exactly once', (key) => {
+  ])('defines schema key "%s" exactly once', (key) => {
     const schemaPath = fileURLToPath(
       new URL('../../base44/entities/CBTCurriculumUnit.jsonc', import.meta.url),
     );
