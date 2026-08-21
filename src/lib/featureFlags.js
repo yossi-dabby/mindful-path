@@ -285,8 +285,8 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
  * Recognised patterns:
  *   - localhost       — local development server
  *   - 127.0.0.1       — local development / CI runner
- *   - *.base44.app    — Base44 platform hosts (preview and staging environments)
- *   - base44.app      — Base44 root domain (edge case)
+ *   - exact hostnames listed in VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS
+ *     (comma-separated; wildcards are rejected)
  *
  * Any other hostname (including custom production domains) returns false.
  * An absent or non-string hostname always returns false (fail-closed).
@@ -296,10 +296,25 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
  */
 function _isPreviewStagingHost(hostname) {
   if (!hostname || typeof hostname !== 'string') return false;
-  const h = hostname.toLowerCase();
-  if (h === 'localhost' || h === '127.0.0.1') return true;
-  if (h === 'base44.app' || h.endsWith('.base44.app')) return true;
-  return false;
+
+  const normalizedHostname = hostname.trim().toLowerCase();
+  if (!normalizedHostname) return false;
+
+  if (
+    normalizedHostname === 'localhost' ||
+    normalizedHostname === '127.0.0.1'
+  ) {
+    return true;
+  }
+
+  const configuredHosts = String(
+    import.meta.env?.VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS ?? '',
+  )
+    .split(',')
+    .map((host) => host.trim().toLowerCase())
+    .filter((host) => host.length > 0 && !host.includes('*'));
+
+  return configuredHosts.includes(normalizedHostname);
 }
 
 /**
@@ -322,7 +337,7 @@ function _isPreviewStagingHost(hostname) {
  * URL parameter format (staging/preview only):
  *   ?_s2=FLAG1,FLAG2,...
  *
- * Example — enable master gate + memory phase on a Base44 preview host:
+ * Example — enable master gate + memory phase on an explicitly configured preview host:
  *   https://myapp.base44.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED
  *
  * The override is additive: a flag set to true via the URL takes precedence

@@ -11,7 +11,7 @@
  *
  * The override reads the `_s2` URL query parameter (e.g. ?_s2=FLAG1,FLAG2) and
  * treats listed flag names as true — but ONLY on explicitly recognised
- * preview/staging hosts (localhost, 127.0.0.1, *.base44.app).
+ * local hosts or exact hosts listed in VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS.
  * All other hosts (including production custom domains) are always fail-closed.
  *
  * NOTE: The previous guard was `import.meta.env.PROD === true` which incorrectly
@@ -66,6 +66,7 @@ function withWindowSearch(search, fn, hostname = 'localhost') {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 // ─── Section 1 — No window: override returns nothing ─────────────────────────
@@ -352,13 +353,18 @@ describe('Stage 2 Runtime Override — host-based preview/staging detection', ()
     }, '127.0.0.1');
   });
 
-  it('_s2 override works on a *.base44.app subdomain (Base44 preview host)', () => {
+  it('_s2 override is blocked on an unconfigured *.base44.app subdomain', () => {
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
     }, 'myapp.base44.app');
   });
 
-  it('_s2 override works on another *.base44.app subdomain (Base44 preview host)', () => {
+  it('_s2 override works on an exact configured Base44 preview host', () => {
+    vi.stubEnv(
+      'VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS',
+      'preview-v2.base44.app',
+    );
+
     withWindowSearch(
       '?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED',
       () => {
@@ -367,6 +373,39 @@ describe('Stage 2 Runtime Override — host-based preview/staging detection', ()
       },
       'preview-v2.base44.app',
     );
+  });
+
+  it('_s2 override works on an exact configured custom preview host', () => {
+    vi.stubEnv(
+      'VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS',
+      'preview.mindfulpath.internal',
+    );
+
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+    }, 'preview.mindfulpath.internal');
+  });
+
+  it('_s2 override blocks an unconfigured sibling of an allowed host', () => {
+    vi.stubEnv(
+      'VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS',
+      'preview-v2.base44.app',
+    );
+
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    }, 'preview-v3.base44.app');
+  });
+
+  it('_s2 override ignores wildcard host entries', () => {
+    vi.stubEnv(
+      'VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS',
+      '*.base44.app',
+    );
+
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    }, 'unlisted.base44.app');
   });
 
   it('_s2 override is blocked on a non-preview production host', () => {
@@ -410,9 +449,9 @@ describe('Stage 2 Runtime Override — host-based preview/staging detection', ()
     }, 'production.myapp.com');
   });
 
-  it('base44.app root domain is recognised as a preview/staging host', () => {
+  it('base44.app root domain is blocked unless explicitly configured', () => {
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
     }, 'base44.app');
   });
 });
