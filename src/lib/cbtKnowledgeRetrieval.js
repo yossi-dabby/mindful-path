@@ -12,7 +12,7 @@
  *     planCBTKnowledgeRetrieval() from a raw CaseFormulation entity record.
  *     Never throws.  Returns safe defaults when the record is absent or thin.
  *
- *   retrieveBoundedCBTKnowledgeBlock(entities, plan)
+ *   retrieveBoundedCBTKnowledgeBlock(entities, plan, sessionLanguage)
  *     Async function.  Fetches CBTCurriculumUnit records from the entity store,
  *     applies Wave 4A.2 safety/clinical filters in-memory, hard-caps the result
  *     to CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS, and returns a formatted knowledge
@@ -106,6 +106,7 @@ export const CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND = 20;
  * established clinical consensus are included.
  * - 'established'      → supported by RCT evidence or meta-analytic review.
  * - 'expert_consensus' → clinical consensus without formal trial support.
+ * - 'gold_standard'    → current seed contract for the strongest evidence tier.
  *
  * 'emerging' and 'unclassified' are excluded from the first-wave activation
  * because the evidence base is insufficient or not yet assessed.
@@ -113,23 +114,33 @@ export const CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND = 20;
  * @type {ReadonlySet<string>}
  */
 const CBT_EVIDENCE_LEVEL_FIRST_WAVE_ALLOWED = Object.freeze(
-  new Set(['established', 'expert_consensus'])
+  new Set(['established', 'expert_consensus', 'gold_standard'])
 );
 
-// ─── Safety tag exclusion set ─────────────────────────────────────────────────
+// ─── V10 Preview language isolation ──────────────────────────────────────────
 
 /**
- * safety_tags that unconditionally exclude a unit from retrieval.
+ * Requires an exact unit/session language match. The explicit `all` value is
+ * language-neutral. Missing or malformed language metadata fails closed.
  *
- * Defense-in-depth: these tags should never appear in retrieved results even
- * though the planner has already gated on safety_mode / containment / high-distress.
- *
- * @type {ReadonlySet<string>}
+ * @private
+ * @param {unknown} languages
+ * @param {string} sessionLanguage
+ * @returns {boolean}
  */
-const CBT_SAFETY_TAG_EXCLUDE_FIRST_WAVE = Object.freeze(
-  new Set(['not_for_crisis', 'not_for_high_distress'])
-);
+function _isLanguageMatch(languages, sessionLanguage) {
+  if (!Array.isArray(languages) || !sessionLanguage) return false;
 
+  const normalizedLanguages = languages
+    .filter(language => typeof language === 'string')
+    .map(language => language.trim().toLowerCase())
+    .filter(Boolean);
+
+  return (
+    normalizedLanguages.includes('all') ||
+    normalizedLanguages.includes(sessionLanguage)
+  );
+}
 // ─── Wave 4D — Unit type preference → entity unit_type mapping ────────────────
 
 /**
@@ -223,8 +234,9 @@ export function extractFormulationHintsForPlanner(formulationRecord) {
  * planner's distressFilter.
  *
  * Mapping:
- *   planFilter 'any'              → all suitability values accepted (TIER_LOW)
- *   planFilter 'low_distress_only'→ 'any' and 'mild_and_below' accepted (TIER_MILD);
+ *   planFilter 'any'              → all known suitability values accepted (TIER_LOW)
+ *   planFilter 'low_distress_only'→ 'any', 'mild_and_below', and
+ *                                   'not_in_crisis' accepted (TIER_MILD);
  *                                   'low_only' excluded (requires TIER_LOW)
  *   planFilter 'none'             → nothing accepted (should never be reached; planner skips)
  *
@@ -234,18 +246,27 @@ export function extractFormulationHintsForPlanner(formulationRecord) {
  * @returns {boolean}
  */
 function _isDistressSuitable(distressSuitability, planFilter) {
+  const isKnownSuitability = (
+    distressSuitability === CBT_DISTRESS_SUITABILITY.ANY ||
+    distressSuitability === CBT_DISTRESS_SUITABILITY.MILD_AND_BELOW ||
+    distressSuitability === CBT_DISTRESS_SUITABILITY.LOW_ONLY ||
+    distressSuitability === 'not_in_crisis'
+  );
+
+  if (!isKnownSuitability) return false;
+
   if (planFilter === CBT_DISTRESS_FILTERS.ANY) {
-    // TIER_LOW: all suitability values accepted
     return true;
   }
+
   if (planFilter === CBT_DISTRESS_FILTERS.LOW_DISTRESS_ONLY) {
-    // TIER_MILD: 'any' and 'mild_and_below' accepted; 'low_only' excluded
     return (
       distressSuitability === CBT_DISTRESS_SUITABILITY.ANY ||
-      distressSuitability === CBT_DISTRESS_SUITABILITY.MILD_AND_BELOW
+      distressSuitability === CBT_DISTRESS_SUITABILITY.MILD_AND_BELOW ||
+      distressSuitability === 'not_in_crisis'
     );
   }
-  // planFilter 'none' (or unknown): exclude everything
+
   return false;
 }
 
@@ -274,45 +295,61 @@ function _isArcMatch(unitArc, planArc) {
  * Wave 4C retrieval given the current plan.
  *
  * Filters applied (all must pass):
- *   1. runtime_eligible_first_wave !== false         (explicit opt-out check)
- *   2. unit.cbt_domain === plan.domainHint           (domain match)
- *   3. evidence_level in CBT_EVIDENCE_LEVEL_FIRST_WAVE_ALLOWED
- *   4. distress_suitability compatible with plan.distressFilter
- *   5. safety_tags does not contain a Wave 4C excluded tag
- *   6. treatment_arc_position compatible with plan.treatmentArcFilter
+ *   1. runtime_eligible_first_wave !== false
+ *   2. unit language exactly matches sessionLanguage, or includes `all`
+ *   3. planner_domain or unambiguous legacy cbt_domain matches plan.domainHint
+ *   4. evidence_level is in CBT_EVIDENCE_LEVEL_FIRST_WAVE_ALLOWED
+ *   5. distress_suitability is compatible with plan.distressFilter
+ *   6. safety_tags is absent or an empty array
+ *   7. treatment_arc_position is compatible with plan.treatmentArcFilter
  *
  * @private
  * @param {object} unit - A CBTCurriculumUnit entity record.
  * @param {object} plan - Output of planCBTKnowledgeRetrieval().
+ * @param {string} sessionLanguage - Normalized exact session language.
  * @returns {boolean}
  */
-function _isUnitEligible(unit, plan) {
+function _isUnitEligible(unit, plan, sessionLanguage) {
   // 1. runtime_eligible_first_wave: explicitly false → exclude
   if (unit.runtime_eligible_first_wave === false) return false;
 
-  // 2. Domain match: unit.cbt_domain must equal the planner's domainHint
-  const unitDomain = typeof unit.cbt_domain === 'string' ? unit.cbt_domain.trim() : '';
+  // 2. Exact language match; missing or mismatched language fails closed.
+  if (!_isLanguageMatch(unit.languages, sessionLanguage)) return false;
+
+  // 3. Prefer the seed contract while retaining unambiguous legacy support.
+  const plannerDomain = typeof unit.planner_domain === 'string'
+    ? unit.planner_domain.trim()
+    : '';
+  const legacyDomain = typeof unit.cbt_domain === 'string'
+    ? unit.cbt_domain.trim()
+    : '';
+
+  if (plannerDomain && legacyDomain && plannerDomain !== legacyDomain) {
+    return false;
+  }
+
+  const unitDomain = plannerDomain || legacyDomain;
   if (unitDomain !== plan.domainHint) return false;
 
-  // 3. Evidence level: must be in the first-wave allowlist
+  // 4. Evidence level: must be in the Preview allowlist.
   const evidenceLevel = typeof unit.evidence_level === 'string'
-    ? unit.evidence_level
+    ? unit.evidence_level.trim()
     : 'unclassified';
   if (!CBT_EVIDENCE_LEVEL_FIRST_WAVE_ALLOWED.has(evidenceLevel)) return false;
 
-  // 4. Distress suitability
+  // 5. Distress suitability
   const distressSuitability = typeof unit.distress_suitability === 'string'
-    ? unit.distress_suitability
+    ? unit.distress_suitability.trim()
     : CBT_DISTRESS_SUITABILITY.ANY;
   if (!_isDistressSuitable(distressSuitability, plan.distressFilter)) return false;
 
-  // 5. Safety tags: defense-in-depth exclusions
-  const safetyTags = Array.isArray(unit.safety_tags) ? unit.safety_tags : [];
-  for (const tag of safetyTags) {
-    if (CBT_SAFETY_TAG_EXCLUDE_FIRST_WAVE.has(tag)) return false;
-  }
+  // 6. Conservative Preview policy: any safety tag excludes the unit.
+  if (unit.safety_tags != null && !Array.isArray(unit.safety_tags)) return false;
 
-  // 6. Treatment arc position
+  const safetyTags = Array.isArray(unit.safety_tags) ? unit.safety_tags : [];
+  if (safetyTags.length > 0) return false;
+
+  // 7. Treatment arc position
   const arcPosition = typeof unit.treatment_arc_position === 'string'
     ? unit.treatment_arc_position
     : 'any';
@@ -493,17 +530,24 @@ function _sanitizeUnit(unit) {
  *
  * @param {object} entities - Base44 entity client map (from workflowContextInjector).
  * @param {object} plan     - Output of planCBTKnowledgeRetrieval() with shouldRetrieve: true.
+ * @param {string} sessionLanguage - Exact language required for Preview retrieval.
  * @returns {Promise<string>} Formatted knowledge block string, or '' when empty/error.
  */
-export async function retrieveBoundedCBTKnowledgeBlock(entities, plan) {
+export async function retrieveBoundedCBTKnowledgeBlock(entities, plan, sessionLanguage) {
   try {
     // Guard 1: plan must say shouldRetrieve
     if (!plan || plan.shouldRetrieve !== true) return '';
 
-    // Guard 2: domain must be in the first-wave allowed set
+    // Guard 2: session language is mandatory and normalized once.
+    const normalizedSessionLanguage = typeof sessionLanguage === 'string'
+      ? sessionLanguage.trim().toLowerCase()
+      : '';
+    if (!normalizedSessionLanguage) return '';
+
+    // Guard 3: domain must be in the first-wave allowed set
     if (!CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.has(plan.domainHint)) return '';
 
-    // Guard 3: entity access must be available
+    // Guard 4: entity access must be available
     if (!entities || typeof entities !== 'object') return '';
     const entityClient = entities.CBTCurriculumUnit;
     if (!entityClient) return '';
@@ -529,7 +573,7 @@ export async function retrieveBoundedCBTKnowledgeBlock(entities, plan) {
     if (!Array.isArray(rawUnits) || rawUnits.length === 0) return '';
 
     // Step 5: Apply Wave 4A.2 filters in-memory
-    const eligible = rawUnits.filter(u => u && typeof u === 'object' && _isUnitEligible(u, plan));
+    const eligible = rawUnits.filter(u => u && typeof u === 'object' && _isUnitEligible(u, plan, normalizedSessionLanguage));
     if (eligible.length === 0) return '';
 
     // Step 5b (Wave 4D): Rank by unit type preference before capping.

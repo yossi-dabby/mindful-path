@@ -58,6 +58,7 @@ function withWindow(search, fn, hostname = 'localhost') {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 // ─── Section 1 — No window: returns null ─────────────────────────────────────
@@ -521,6 +522,7 @@ describe('Phase 4 Diagnostics — payload safety', () => {
       const p = getActivationDiagnostics();
       expect(p.isPreviewStagingHost).toBe(true);
     }, 'localhost');
+    vi.stubEnv('VITE_STAGE2_RUNTIME_OVERRIDE_HOSTS', 'myapp.base44.app');
     withWindow('?_s2debug=true', () => {
       const p = getActivationDiagnostics();
       expect(p.isPreviewStagingHost).toBe(true);

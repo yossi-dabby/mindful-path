@@ -2891,7 +2891,11 @@ export async function buildV10SessionStartContentAsync(
 
     // Step 10: Retrieve bounded knowledge block and append when non-empty.
     // retrieveBoundedCBTKnowledgeBlock is fully fail-open (returns '' on error).
-    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(
+      entities,
+      plan,
+      v10Options?.sessionLanguage
+    );
     if (knowledgeBlock && knowledgeBlock.trim()) {
       return _appendWithComposer(v10Options, v9Base, {
         id: 'cbt_knowledge_context',

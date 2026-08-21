@@ -308,6 +308,7 @@ function _makeUnit(overrides = {}) {
     title: 'Test Unit',
     clinical_topic: 'anxiety',
     cbt_domain: 'anxiety',
+    languages: ['en'],
     unit_type: 'intervention',
     evidence_level: 'established',
     distress_suitability: 'any',
@@ -668,7 +669,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'technique' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     // Block should contain content; the 'intervention' unit (u2) should be ranked first
     expect(block).toContain('=== CBT KNOWLEDGE REFERENCE');
     // u2 is the only 'intervention' unit — it should appear as entry [1]
@@ -683,7 +684,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'any' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(block).toContain('First');
     // First in output should be 'First' (original order)
     expect(block.indexOf('First')).toBeLessThan(block.indexOf('Second'));
@@ -697,7 +698,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'worksheet' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(block).toContain('BlockerUnit');
     expect(block).toContain('InterventionUnit');
     // BlockerUnit should appear before InterventionUnit
@@ -712,7 +713,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'technique' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(block.indexOf('InterventionUnit')).toBeLessThan(block.indexOf('PsychoUnit'));
   });
 
@@ -724,7 +725,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'psychoeducation' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(block.indexOf('PsychoUnit')).toBeLessThan(block.indexOf('InterventionUnit'));
   });
 
@@ -736,7 +737,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'case_example' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(block.indexOf('OutcomeUnit')).toBeLessThan(block.indexOf('InterventionUnit'));
   });
 
@@ -748,7 +749,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'worksheet' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     // BlockerUnit (exact match) should appear before NoTypeUnit (neutral)
     expect(block.indexOf('BlockerUnit')).toBeLessThan(block.indexOf('NoTypeUnit'));
   });
@@ -765,7 +766,7 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const entities = _mockEntities(units);
     const plan = _makePlan({ unitTypePreference: 'worksheet' });
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     // Count [N] occurrences — should be exactly CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS (3)
     const matches = block.match(/\[\d+\]/g) ?? [];
     expect(matches.length).toBe(CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS);
@@ -781,10 +782,10 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
 
     // Run twice with fresh mocks
     const entities1 = _mockEntities([...units]);
-    const block1 = await retrieveBoundedCBTKnowledgeBlock(entities1, plan);
+    const block1 = await retrieveBoundedCBTKnowledgeBlock(entities1, plan, 'en');
 
     const entities2 = _mockEntities([...units]);
-    const block2 = await retrieveBoundedCBTKnowledgeBlock(entities2, plan);
+    const block2 = await retrieveBoundedCBTKnowledgeBlock(entities2, plan, 'en');
 
     expect(block1).toBe(block2);
   });
@@ -970,10 +971,13 @@ describe('Wave 4D — Group J: deterministic repeatability', () => {
       const entities = {
         CBTCurriculumUnit: { filter: vi.fn().mockResolvedValue([...units]) },
       };
-      return retrieveBoundedCBTKnowledgeBlock(entities, plan);
+      return retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     };
 
     const [r1, r2] = await Promise.all([run(), run()]);
+    expect(r1).not.toBe('');
+    expect(r1).toContain('Unit1');
+    expect(r1).toContain('Unit2');
     expect(r1).toBe(r2);
   });
 });
@@ -1001,7 +1005,7 @@ describe('Wave 4D — Group K: 3-unit cap unchanged', () => {
       skipReason: '',
     };
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     const matches = block.match(/\[\d+\]/g) ?? [];
     expect(matches.length).toBe(3);
   });
@@ -1023,7 +1027,7 @@ describe('Wave 4D — Group K: 3-unit cap unchanged', () => {
       skipReason: '',
     };
 
-    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     const matches = block.match(/\[\d+\]/g) ?? [];
     expect(matches.length).toBe(3);
   });

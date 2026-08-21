@@ -139,6 +139,7 @@ const FIXTURE_UNIT_ANXIETY = {
   content_summary: 'Identifies and challenges maladaptive thought patterns maintaining anxiety.',
   unit_type: 'intervention',
   cbt_domain: 'anxiety',
+  languages: ['en'],
   evidence_level: 'established',
   distress_suitability: 'any',
   runtime_eligible_first_wave: true,
@@ -270,12 +271,12 @@ describe('Group A — extractFormulationHintsForPlanner', () => {
 describe('Group B — retrieveBoundedCBTKnowledgeBlock guards', () => {
   it('B1. plan.shouldRetrieve=false → returns ""', async () => {
     const plan = { ...FIXTURE_PLAN_RETRIEVE, shouldRetrieve: false };
-    const result = await retrieveBoundedCBTKnowledgeBlock(buildMockEntities(), plan);
+    const result = await retrieveBoundedCBTKnowledgeBlock(buildMockEntities(), plan, 'en');
     expect(result).toBe('');
   });
 
   it('B2. plan=null → returns ""', async () => {
-    const result = await retrieveBoundedCBTKnowledgeBlock(buildMockEntities(), null);
+    const result = await retrieveBoundedCBTKnowledgeBlock(buildMockEntities(), null, 'en');
     expect(result).toBe('');
   });
 
@@ -291,18 +292,18 @@ describe('Group B — retrieveBoundedCBTKnowledgeBlock guards', () => {
     expect(CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.has(deferredDomain)).toBe(false);
 
     const plan = { ...FIXTURE_PLAN_RETRIEVE, domainHint: deferredDomain };
-    const result = await retrieveBoundedCBTKnowledgeBlock(buildMockEntities(), plan);
+    const result = await retrieveBoundedCBTKnowledgeBlock(buildMockEntities(), plan, 'en');
     expect(result).toBe('');
   });
 
   it('B4. entities=null → returns ""', async () => {
-    const result = await retrieveBoundedCBTKnowledgeBlock(null, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(null, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
   it('B5. entities without CBTCurriculumUnit → returns ""', async () => {
     const entities = { CaseFormulation: {} }; // no CBTCurriculumUnit
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
@@ -312,7 +313,7 @@ describe('Group B — retrieveBoundedCBTKnowledgeBlock guards', () => {
         filter: vi.fn().mockRejectedValue(new Error('Entity fetch failed')),
       },
     };
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
@@ -322,7 +323,7 @@ describe('Group B — retrieveBoundedCBTKnowledgeBlock guards', () => {
         filter: vi.fn().mockResolvedValue([]),
       },
     };
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 });
@@ -333,63 +334,63 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
   it('C1. runtime_eligible_first_wave=false → unit excluded', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, runtime_eligible_first_wave: false };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
   it('C2. runtime_eligible_first_wave=true → unit included', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, runtime_eligible_first_wave: true };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toBe('');
   });
 
   it('C3. runtime_eligible_first_wave absent → unit included (fail-open default)', async () => {
     const { runtime_eligible_first_wave: _removed, ...unitNoFlag } = FIXTURE_UNIT_ANXIETY;
     const entities = buildMockEntities([unitNoFlag]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toBe('');
   });
 
   it('C4. evidence_level="unclassified" → unit excluded', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, evidence_level: 'unclassified' };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
   it('C5. evidence_level="emerging" → unit excluded', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, evidence_level: 'emerging' };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
   it('C6. evidence_level="established" → unit included', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, evidence_level: 'established' };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toBe('');
   });
 
   it('C7. evidence_level="expert_consensus" → unit included', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, evidence_level: 'expert_consensus' };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toBe('');
   });
 
   it('C8. safety_tag "not_for_crisis" → unit excluded (defense-in-depth)', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, safety_tags: ['not_for_crisis'] };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
   it('C9. safety_tag "not_for_high_distress" → unit excluded (defense-in-depth)', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, safety_tags: ['not_for_high_distress'] };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
@@ -397,7 +398,7 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
     const unit = { ...FIXTURE_UNIT_ANXIETY, distress_suitability: 'low_only' };
     const entities = buildMockEntities([unit]);
     const plan = { ...FIXTURE_PLAN_RETRIEVE, distressFilter: CBT_DISTRESS_FILTERS.LOW_DISTRESS_ONLY };
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(result).toBe('');
   });
 
@@ -405,7 +406,7 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
     const unit = { ...FIXTURE_UNIT_ANXIETY, distress_suitability: 'mild_and_below' };
     const entities = buildMockEntities([unit]);
     const plan = { ...FIXTURE_PLAN_RETRIEVE, distressFilter: CBT_DISTRESS_FILTERS.LOW_DISTRESS_ONLY };
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(result).not.toBe('');
   });
 
@@ -415,7 +416,7 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
     // Both filter modes
     for (const filterMode of [CBT_DISTRESS_FILTERS.ANY, CBT_DISTRESS_FILTERS.LOW_DISTRESS_ONLY]) {
       const plan = { ...FIXTURE_PLAN_RETRIEVE, distressFilter: filterMode };
-      const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+      const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
       expect(result).not.toBe('');
     }
   });
@@ -424,7 +425,7 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
     const unit = { ...FIXTURE_UNIT_ANXIETY, treatment_arc_position: 'late' };
     const entities = buildMockEntities([unit]);
     const plan = { ...FIXTURE_PLAN_RETRIEVE, treatmentArcFilter: 'early' };
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
     expect(result).toBe('');
   });
 
@@ -433,7 +434,7 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
     const entities = buildMockEntities([unit]);
     for (const arc of ['early', 'middle', 'late', 'any']) {
       const plan = { ...FIXTURE_PLAN_RETRIEVE, treatmentArcFilter: arc };
-      const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+      const result = await retrieveBoundedCBTKnowledgeBlock(entities, plan, 'en');
       expect(result).not.toBe('');
     }
   });
@@ -441,14 +442,14 @@ describe('Group C — retrieveBoundedCBTKnowledgeBlock Wave 4A.2 filters', () =>
   it('C15. cbt_domain mismatch → unit excluded', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, cbt_domain: 'depression' }; // plan asks for 'anxiety'
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
   });
 
   it('C16. cbt_domain match → unit included', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, cbt_domain: 'anxiety' };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toBe('');
   });
 });
@@ -464,7 +465,7 @@ describe('Group D — hard cap and block format', () => {
       title: `Unit ${i + 1}`,
     }));
     const entities = buildMockEntities(units);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     // Count "[N]" markers in the output
     const markers = (result.match(/^\[\d+\]/gm) || []).length;
     expect(markers).toBeLessThanOrEqual(CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS);
@@ -473,33 +474,33 @@ describe('Group D — hard cap and block format', () => {
 
   it('D2. block contains opening header delimiter', async () => {
     const entities = buildMockEntities([FIXTURE_UNIT_ANXIETY]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toContain('=== CBT KNOWLEDGE REFERENCE');
   });
 
   it('D3. block contains closing delimiter', async () => {
     const entities = buildMockEntities([FIXTURE_UNIT_ANXIETY]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toContain('=== END CBT KNOWLEDGE REFERENCE ===');
   });
 
   it('D4. block contains "supporting context, read-only" label', async () => {
     const entities = buildMockEntities([FIXTURE_UNIT_ANXIETY]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toContain('supporting context, read-only');
   });
 
   it('D5. admin_notes is NOT present in block output (stripped)', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, admin_notes: 'SENSITIVE_ADMIN_CONTENT_XYZ' };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toContain('SENSITIVE_ADMIN_CONTENT_XYZ');
   });
 
   it('D6. source_chunk_ids is NOT present in block output (stripped)', async () => {
     const unit = { ...FIXTURE_UNIT_ANXIETY, source_chunk_ids: ['chunk-secret-1'] };
     const entities = buildMockEntities([unit]);
-    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).not.toContain('chunk-secret-1');
     expect(result).not.toContain('source_chunk_ids');
   });
@@ -675,7 +676,7 @@ describe('Group F — buildV10 regression / isolation', () => {
       CaseFormulation: { list: mockCaseFormulationList },
     };
 
-    await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE);
+    await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
 
     // Only CBTCurriculumUnit should be accessed
     expect(mockCurriculumFilter).toHaveBeenCalled();
