@@ -72,7 +72,7 @@ import { CBT_DISTRESS_SUITABILITY } from './cbtCurriculumUnitSchema.js';
  *
  * @type {string}
  */
-export const CBT_KNOWLEDGE_RETRIEVAL_VERSION = '1.1.0';
+export const CBT_KNOWLEDGE_RETRIEVAL_VERSION = '1.1.1';
 
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
@@ -427,7 +427,7 @@ function _rankByUnitTypePreference(units, unitTypePreference) {
  *
  *   [1] <title>
  *       Topic: <clinical_topic>
- *       Summary: <content_summary (≤ 300 chars)>
+ *       Summary: <content_summary or content fallback (≤ 300 chars)>
  *
  *   [2] ...
  *   === END CBT KNOWLEDGE REFERENCE ===
@@ -435,7 +435,8 @@ function _rankByUnitTypePreference(units, unitTypePreference) {
  * OMISSIONS
  * ---------
  * - admin_notes and source_chunk_ids are never included (stripped upstream).
- * - content_summary is truncated at 300 characters to avoid bloat.
+ * - content_summary is preferred; content is used only when the summary is blank.
+ * - The selected text is truncated at 300 characters to avoid bloat.
  * - If a unit has no title, a numeric placeholder is used.
  *
  * FAIL-OPEN: returns '' on any error.
@@ -464,9 +465,13 @@ function _formatKnowledgeBlock(units) {
       const topic = typeof unit.clinical_topic === 'string' && unit.clinical_topic.trim()
         ? unit.clinical_topic.trim()
         : '';
-      const summary = typeof unit.content_summary === 'string' && unit.content_summary.trim()
-        ? unit.content_summary.trim().slice(0, 300)
-        : '';
+      let summarySource = '';
+      if (typeof unit.content_summary === 'string' && unit.content_summary.trim()) {
+        summarySource = unit.content_summary;
+      } else if (typeof unit.content === 'string' && unit.content.trim()) {
+        summarySource = unit.content;
+      }
+      const summary = summarySource.trim().slice(0, 300);
 
       lines.push(`[${num}] ${title}`);
       if (topic) lines.push(`    Topic: ${topic}`);
