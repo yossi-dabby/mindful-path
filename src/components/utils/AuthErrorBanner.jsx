@@ -15,9 +15,8 @@ import { base44 } from '@/api/base44Client';
 export default function AuthErrorBanner({ onDismiss }) {
   const handleSignIn = () => {
     try {
-      // Use current path as nextUrl to return user to same page after login
-      const currentPath = window.location.pathname + window.location.search;
-      base44.auth.redirectToLogin(currentPath);
+      // Preserve the current origin, path, query, and hash after login.
+      base44.auth.redirectToLogin(window.location.href);
     } catch (error) {
       // Fallback: redirect to root login (if redirectToLogin fails)
       console.error('[AuthErrorBanner] redirectToLogin failed:', error);
