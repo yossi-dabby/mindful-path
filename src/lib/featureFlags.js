@@ -278,6 +278,20 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
   CONTEXT_COMPOSER_V2_ENABLED: import.meta.env?.VITE_CONTEXT_COMPOSER_V2_ENABLED === 'true',
 });
 
+// Temporary, preview-only V10 Knowledge activation.
+// The exact hostname comparison prevents sibling/subdomain matches.
+// Returning these fixed overrides before parsing `_s2` also prevents
+// URL parameters from escalating this host into V11, V12, or other phases.
+const V10_KNOWLEDGE_PREVIEW_HOST =
+  'mindful-path-v10-preview.base44.app';
+
+const V10_KNOWLEDGE_PREVIEW_OVERRIDES = Object.freeze({
+  THERAPIST_UPGRADE_ENABLED: true,
+  THERAPIST_UPGRADE_STRATEGY_ENABLED: true,
+  THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: true,
+  THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: true,
+});
+
 /**
  * Returns true when the given hostname is an explicitly recognised
  * preview/staging host where the `_s2` URL override is permitted.
@@ -299,6 +313,10 @@ function _isPreviewStagingHost(hostname) {
 
   const normalizedHostname = hostname.trim().toLowerCase();
   if (!normalizedHostname) return false;
+
+  if (normalizedHostname === V10_KNOWLEDGE_PREVIEW_HOST) {
+    return true;
+  }
 
   if (
     normalizedHostname === 'localhost' ||
@@ -355,6 +373,15 @@ function _readStagingRuntimeOverrides() {
     // Allow override only on explicitly recognised preview/staging hosts.
     // Unknown hosts (including production custom domains) always fail-closed.
     const hostname = window.location?.hostname ?? '';
+    const normalizedHostname =
+      typeof hostname === 'string' ? hostname.trim().toLowerCase() : '';
+
+    // This isolated Preview host receives exactly the four V10 Knowledge
+    // flags. Do not parse `_s2` here: URL input must not enable later phases.
+    if (normalizedHostname === V10_KNOWLEDGE_PREVIEW_HOST) {
+      return { ...V10_KNOWLEDGE_PREVIEW_OVERRIDES };
+    }
+
     if (!_isPreviewStagingHost(hostname)) return {};
 
     const search = window.location?.search ?? '';
@@ -405,6 +432,18 @@ export function isUpgradeEnabled(flagName) {
   if (!(flagName in THERAPIST_UPGRADE_FLAGS)) {
     logUpgradeEvent('flag_isolation_failure', { flagName, reason: 'unknown_flag' });
     return false;
+  }
+
+  const hostname =
+    typeof window !== 'undefined' ? window.location?.hostname ?? '' : '';
+  const normalizedHostname =
+    typeof hostname === 'string' ? hostname.trim().toLowerCase() : '';
+
+  // The isolated V10 Knowledge Preview is pinned to exactly four flags.
+  // This early return blocks both URL overrides and build-time variables from
+  // activating V11, V12, or any unrelated upgrade capability on this host.
+  if (normalizedHostname === V10_KNOWLEDGE_PREVIEW_HOST) {
+    return V10_KNOWLEDGE_PREVIEW_OVERRIDES[flagName] === true;
   }
 
   // Layer 2: preview/staging-only runtime overrides (always {} on unrecognised hosts).
