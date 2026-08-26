@@ -78,7 +78,7 @@ import {
   extractMessageSignals,
   scoreDistressTier,
   determineTherapistStrategy,
-  extractLTSStrategyInputs,
+  extractLTSStrategyInputs, extractResponsePolicyFromStrategyState,
   buildStrategyContextSection,
   buildStrategyDiagnosticSnapshot,
   buildLTSDiagnosticSnapshot,
@@ -94,16 +94,17 @@ import { buildCrossSessionContinuityBlockWithDiagnostic, CONTINUITY_FAILURE_REAS
 // Phase 4 — Canonical Therapist Memory Adapter (no longer imports isLTSWarmingUp
 // here; that is only used in canonicalTherapistMemoryReader.js).
 import { readCanonicalTherapistMemory, buildCanonicalMemoryDiagnosticSnapshot } from './canonicalTherapistMemoryReader.js';
-// Phase 4.1 — LTS Reader Contract (leaf module, no circular dependency).
-// LTS_READ_RESULTS, isLTSWeak and readLTSSnapshotWithDiagnostic are now sourced
-// from ltsReaderContract.js so both this file and canonicalTherapistMemoryReader
-// share the same implementation without a circular import.
+// Phase 4.1 — LTS Reader Contract (leaf module): LTS_READ_RESULTS / isLTSWeak /
+// readLTSSnapshotWithDiagnostic sourced from ltsReaderContract.js (no circular import).
+// L5 readiness: checkInterventionReadiness (cbtKnowledgePlanner.js) is a leaf module.
+import { checkInterventionReadiness } from './cbtKnowledgePlanner.js'; import { extractReadinessSignals } from './readinessSignalReader.js';
 import {
   LTS_READ_RESULTS,
   LTS_SNAPSHOT_OVERFETCH_BOUND,
   isLTSWeak,
   readLTSSnapshotWithDiagnostic,
 } from './ltsReaderContract.js';
+import { readBestFormulationRecordForConversation, readFormulationsForContextBlock } from './formulationRecordSelector.js';
 
 
 const CONTEXT_COMPOSER_V2_SECTION_ORDER = Object.freeze({
@@ -1306,26 +1307,26 @@ export const FORMULATION_MIN_FIELD_LENGTH = 8;
 export const FORMULATION_MIN_USEFUL_FIELDS = 2;
 
 /**
- * Returns the number of CaseFormulation fields that pass the
- * FORMULATION_MIN_FIELD_LENGTH threshold.
- *
- * Only the four fields surfaced in the context block are scored:
- *   presenting_problem, core_belief, maintaining_cycle, treatment_goals
- *
+ * Scores 0–4 populated CaseFormulation dimensions. Each dimension counts once
+ * when EITHER its legacy string OR canonical equivalent is non-empty:
+ *   presenting_problem | presenting_themes (string[]); core_belief |
+ *   core_belief_hypotheses (array of {belief}); maintaining_cycle |
+ *   maintaining_behaviors ({avoidance/safety_behaviors/reassurance_seeking});
+ *   treatment_goals | goals (string[]). cbt_domain never contributes.
  * Returns 0 for null/invalid input (fail-safe).
- *
- * @param {object|null} cf - A CaseFormulation entity record.
- * @returns {number} Count of usable fields (0–4).
  */
 export function scoreFormulationRecord(cf) {
   if (!cf || typeof cf !== 'object') return 0;
-  const fields = ['presenting_problem', 'core_belief', 'maintaining_cycle', 'treatment_goals'];
+  const strMin = (v) => typeof v === 'string' && v.trim().length >= FORMULATION_MIN_FIELD_LENGTH;
+  const arrNonEmpty = (a, fn) => Array.isArray(a) && a.some(fn);
+  const mb = cf.maintaining_behaviors;
+  const hasMb = mb && typeof mb === 'object' && ['avoidance', 'safety_behaviors', 'reassurance_seeking']
+    .some((k) => Array.isArray(mb[k]) && mb[k].some((s) => typeof s === 'string' && s.trim().length > 0));
   let score = 0;
-  for (const field of fields) {
-    if (typeof cf[field] === 'string' && cf[field].trim().length >= FORMULATION_MIN_FIELD_LENGTH) {
-      score += 1;
-    }
-  }
+  if (strMin(cf.presenting_problem) || arrNonEmpty(cf.presenting_themes, (t) => typeof t === 'string' && t.trim().length > 0)) score += 1;
+  if (strMin(cf.core_belief) || arrNonEmpty(cf.core_belief_hypotheses, (h) => h && typeof h === 'object' && strMin(h.belief))) score += 1;
+  if (strMin(cf.maintaining_cycle) || hasMb) score += 1;
+  if (strMin(cf.treatment_goals) || arrNonEmpty(cf.goals, (g) => typeof g === 'string' && g.trim().length > 0)) score += 1;
   return score;
 }
 
@@ -1348,25 +1349,20 @@ export function scoreFormulationRecord(cf) {
  * @param {object} entities - Base44 entity client map
  * @returns {Promise<string>} Formatted CaseFormulation context block, or ''
  */
-async function buildFormulationContextBlock(entities) {
+async function buildFormulationContextBlock(entities, conversationId) {
   try {
     if (!entities || typeof entities !== 'object') return '';
-    if (!entities.CaseFormulation || typeof entities.CaseFormulation.list !== 'function') return '';
+    if (!entities.CaseFormulation) return '';
 
-    // Over-fetch 2 records so we can select the richer one when the most-recent
-    // is thin or placeholder-filled.
-    const formulations = await entities.CaseFormulation.list('-created_date', 2);
-    if (!Array.isArray(formulations) || formulations.length === 0) return '';
+    // Phase 6b (Correction 2): conversation-scoped read+select via the selector
+    // module so a richer/newer record from a DIFFERENT conversation cannot supply
+    // cbt_domain/goals/beliefs for this opener.
+    const formulations = await readFormulationsForContextBlock(entities, conversationId);
+    if (!formulations.length) return '';
 
-    // Select the record with the highest quality score.
-    // Among equal-score records, the first (most-recent) wins.
     let cf = formulations[0];
-    if (formulations.length > 1) {
-      const score0 = scoreFormulationRecord(formulations[0]);
-      const score1 = scoreFormulationRecord(formulations[1]);
-      if (score1 > score0) {
-        cf = formulations[1];
-      }
+    if (formulations.length > 1 && scoreFormulationRecord(formulations[1]) > scoreFormulationRecord(formulations[0])) {
+      cf = formulations[1];
     }
 
     // Build lines — only include fields that pass the minimum length threshold.
@@ -1522,49 +1518,44 @@ const _MODE_OVERRIDE_PRECEDENCE_THRESHOLD = PRECEDENCE_LEVELS.INTERVENTION_READI
  * @param {object|null} formulationRecord - Best CaseFormulation record, or null
  * @param {object|null} safetyResult      - Output of determineSafetyMode(), or null
  * @param {string|null} distressTier      - One of DISTRESS_TIERS values, or null
- * @param {object}      [sessionOptions]  - Options bag from the session call site
- *   Optional fields:
- *     case_type            {string}  - One of THERAPIST_CASE_TYPE_POSTURES ids
- *     is_first_disclosure  {boolean} - Person is making a first disclosure
- *     has_been_understood  {boolean} - Person has felt genuinely understood
- *     intervention_ready   {boolean} - All intervention readiness gates passed
+ * @param {object}      [sessionOptions]  - Session options. Bounded, fail-closed detectors:
+ *     case_type, is_first_disclosure, has_been_understood (→ person_feels_understood),
+ *     readiness_signal, rationale_is_clear, holding_complete (high-protection only).
+ *   `intervention_ready` is DERIVED from the canonical checklist (fail-closed, no opaque
+ *   passthrough). L2 (formulation_in_place) and L5 (intervention_ready) are distinct levels.
  * @returns {object} Planner context for evaluatePlannerPrecedence()
  */
 export function buildPlannerContext(formulationRecord, safetyResult, distressTier, sessionOptions) {
   try {
     const opts = sessionOptions && typeof sessionOptions === 'object' ? sessionOptions : {};
     const formulationInPlace = scoreFormulationRecord(formulationRecord) >= FORMULATION_MIN_USEFUL_FIELDS;
-    // has_been_understood: when explicitly provided in options, use that value.
-    // Otherwise: if formulation is in place (from prior sessions), infer that
-    // understanding was established in the prior session where the formulation was built.
-    // At session start, prior formulation implies prior understanding.
-    // This prevents FORMULATION_FIRST level from over-blocking session-start contexts
-    // where formulation legitimately exists from prior sessions.
-    const hasBeenUnderstood =
-      typeof opts.has_been_understood === 'boolean'
-        ? opts.has_been_understood
-        : formulationInPlace;
+    const caseType = typeof opts.case_type === 'string' ? opts.case_type.trim().toLowerCase() : '';
+    const effectiveDistressTier = typeof distressTier === 'string' && distressTier ? distressTier : 'tier_low';
+    // Phase 6: detectors come from persisted structured CaseFormulation fields
+    // (extractReadinessSignals) with a staleness guard — never from formulation
+    // richness. Boolean opts overrides are a unit-test DI seam only; the live Chat.jsx
+    // runtime never passes them. No continuation_session_id at a fresh opener => every
+    // signal false. checkInterventionReadiness remains the sole aggregator.
+    const produced = extractReadinessSignals(formulationRecord, { continuation_session_id: opts.continuation_session_id });
+    const hasBeenUnderstood = typeof opts.has_been_understood === 'boolean' ? opts.has_been_understood === true : produced.has_been_understood;
+    const readinessSignal = typeof opts.readiness_signal === 'boolean' ? opts.readiness_signal === true : produced.readiness_signal;
+    const rationaleIsClear = typeof opts.rationale_is_clear === 'boolean' ? opts.rationale_is_clear === true : produced.rationale_is_clear;
+    const holdingComplete = typeof opts.holding_complete === 'boolean' ? opts.holding_complete === true : produced.holding_complete;
+    const distressAllowsTask = effectiveDistressTier === 'tier_low' || effectiveDistressTier === 'tier_mild';
+    const readinessResult = checkInterventionReadiness({ formulation_in_place: formulationInPlace, person_feels_understood: hasBeenUnderstood, readiness_signal: readinessSignal, rationale_is_clear: rationaleIsClear, distress_allows_task: distressAllowsTask, holding_complete: holdingComplete, case_type: caseType });
     return {
       safety_mode_active: safetyResult?.safety_mode_active === true,
-      distress_tier: typeof distressTier === 'string' && distressTier ? distressTier : 'tier_low',
-      // Formulation is "in place" only when the record has enough usable content.
+      distress_tier: effectiveDistressTier,
       formulation_in_place: formulationInPlace,
       has_been_understood: hasBeenUnderstood,
-      case_type: typeof opts.case_type === 'string' ? opts.case_type.trim().toLowerCase() : '',
+      case_type: caseType,
       is_first_disclosure: opts.is_first_disclosure === true,
-      intervention_ready: opts.intervention_ready === true,
+      intervention_ready: readinessResult.ready,
     };
   } catch (_e) {
     // Fail-closed: unknown state → highest caution (formulation not in place)
-    return {
-      safety_mode_active: false,
-      distress_tier: 'tier_low',
-      formulation_in_place: false,
-      has_been_understood: false,
-      case_type: '',
-      is_first_disclosure: false,
-      intervention_ready: false,
-    };
+    return { safety_mode_active: false, distress_tier: 'tier_low', formulation_in_place: false,
+      has_been_understood: false, case_type: '', is_first_disclosure: false, intervention_ready: false };
   }
 }
 
@@ -1781,7 +1772,7 @@ export async function buildV6SessionStartContentAsync(
   // Step 2: Inject CaseFormulation context (read-only, fail-closed)
   let formulationBlock = '';
   try {
-    formulationBlock = await buildFormulationContextBlock(entities);
+    formulationBlock = await buildFormulationContextBlock(entities, options?.conversation_id);
   } catch {
     // Fail-closed: formulation injection failure must never block session start
     formulationBlock = '';
@@ -2157,23 +2148,11 @@ function _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs, extraMeta) {
  * @param {object} entities - Base44 entity client map
  * @returns {Promise<object|null>} The best CaseFormulation record, or null
  */
-async function readBestFormulationRecord(entities) {
-  try {
-    if (!entities || typeof entities !== 'object') return null;
-    if (!entities.CaseFormulation || typeof entities.CaseFormulation.list !== 'function') return null;
-
-    const formulations = await entities.CaseFormulation.list('-created_date', 2);
-    if (!Array.isArray(formulations) || formulations.length === 0) return null;
-
-    if (formulations.length === 1) return formulations[0];
-
-    // Select the richer record using the same scoring logic as buildFormulationContextBlock
-    return scoreFormulationRecord(formulations[1]) > scoreFormulationRecord(formulations[0])
-      ? formulations[1]
-      : formulations[0];
-  } catch {
-    return null;
-  }
+// Phase 6b (Correction 2): conversation-scoped + session_instance_id defence —
+// see formulationRecordSelector.js.  A richer/newer record from a DIFFERENT
+// conversation can no longer supply readiness/domain/goals for this opener.
+async function readBestFormulationRecord(entities, conversationId, sessionInstanceId) {
+  return readBestFormulationRecordForConversation(entities, conversationId, sessionInstanceId, scoreFormulationRecord);
 }
 
 /**
@@ -2255,8 +2234,8 @@ export async function buildV8SessionStartContentAsync(
 
   // Steps 2–8: Compute the strategy section (fail-open: any error returns v7Base)
   try {
-    // Step 2: Read the best CaseFormulation record (read-only, bounded)
-    const formulationRecord = await readBestFormulationRecord(entities);
+    // Step 2: Read the best CaseFormulation record (conversation-scoped, fail-closed)
+    const formulationRecord = await readBestFormulationRecord(entities, options?.conversation_id, options?.continuation_session_id);
 
     // Step 3: Read cross-session continuity data (read-only, bounded)
     // Phase 4.1: if a canonical memory result is available (pre-read by V10/V9),
@@ -2798,7 +2777,7 @@ export async function buildV10SessionStartContentAsync(
   try {
     // Step 2: Read CaseFormulation (bounded, read-only, fail-open — same entity
     // that V8 reads; no new entity type introduced here).
-    const formulationRecord = await readBestFormulationRecord(entities);
+    const formulationRecord = await readBestFormulationRecord(entities, options?.conversation_id, options?.continuation_session_id);
 
     // Step 3: Import helpers (dynamic import — only needed on V10 path)
     const [{ extractFormulationHintsForPlanner, retrieveBoundedCBTKnowledgeBlock }, { planCBTKnowledgeRetrieval }] =
@@ -2864,38 +2843,14 @@ export async function buildV10SessionStartContentAsync(
       ltsInputsForPlanner,   // Wave 4D: LTS-aware strategy for knowledge path
     );
 
-    // Precedence enforcement pass — block legacy shortcuts before knowledge
-    // retrieval routing.  applyStrategyPrecedenceGuard overrides the mode to
-    // stabilisation when any action-enabling gate is blocked, which causes
-    // planCBTKnowledgeRetrieval (step 8) to return a skip plan because
-    // stabilisation is not in the retrieval-allowed modes list.
-    // This prevents domain_to_intervention_template and micro_step_defaulting
-    // from triggering domain-based retrieval prematurely.
+    // Precedence pass — host-agnostic. The L5 gate is derived inside buildPlannerContext;
+    // no host-specific readiness bypass on any host (Preview or Production).
     const plannerCtxForKnowledge = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
     const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtxForKnowledge);
-
-    // Step 8: Run the CBT knowledge planner with bounded structured inputs.
-    // flagEnabled is true because we only reach V10 when knowledge_layer_enabled
-    // === true (the wiring gate already confirmed the flag state).
-    const plan = planCBTKnowledgeRetrieval({
-      flagEnabled: true,
-      strategyState,
-      ltsInputs: ltsInputsForPlanner, // Wave 4D: LTS arc + unit type preference
-      formulationHints,
-      distressTier,
-      safetyActive,
-    });
-
-    // Step 9: Short-circuit when planner says skip
+    // flagEnabled is true only on V10 wiring (knowledge_layer_enabled === true).
+    const plan = planCBTKnowledgeRetrieval({ flagEnabled: true, strategyState, ltsInputs: ltsInputsForPlanner, formulationHints, distressTier, safetyActive });
     if (!plan.shouldRetrieve) return v9Base;
-
-    // Step 10: Retrieve bounded knowledge block and append when non-empty.
-    // retrieveBoundedCBTKnowledgeBlock is fully fail-open (returns '' on error).
-    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(
-      entities,
-      plan,
-      v10Options?.sessionLanguage
-    );
+    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(entities, plan, v10Options?.sessionLanguage);
     if (knowledgeBlock && knowledgeBlock.trim()) {
       return _appendWithComposer(v10Options, v9Base, {
         id: 'cbt_knowledge_context',

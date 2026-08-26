@@ -182,7 +182,7 @@
         "mixed",
         "other"
       ],
-      "description": "Wave 4A.2 — Primary CBT intervention family this unit belongs to. Used to match retrieval context to appropriate technique type."
+      "description": "Wave 4A.2 \u2014 Primary CBT intervention family this unit belongs to. Used to match retrieval context to appropriate technique type."
     },
     "treatment_arc_position": {
       "type": "string",
@@ -193,7 +193,7 @@
         "any"
       ],
       "default": "any",
-      "description": "Wave 4A.2 — Optimal position in the treatment arc for this unit. Mirrors CBT_TREATMENT_ARC_FILTERS. any = arc-agnostic."
+      "description": "Wave 4A.2 \u2014 Optimal position in the treatment arc for this unit. Mirrors CBT_TREATMENT_ARC_FILTERS. any = arc-agnostic."
     },
     "admin_notes": {
       "type": "string",

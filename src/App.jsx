@@ -15,6 +15,11 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from 'next-themes';
@@ -47,17 +52,13 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
 
-  // Handle authentication errors (checked after loading completes)
-  if (!isLoadingPublicSettings && !isLoadingAuth && authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
-    }
+  // Only render the explicit "not registered" error screen here. All other
+  // unauthenticated states are handled by the ProtectedRoute layout route
+  // below, which navigates to /login.
+  if (!isLoadingPublicSettings && !isLoadingAuth && authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
   // Always render the main app routes so that the Layout shell (including
@@ -85,27 +86,35 @@ const AuthenticatedApp = () => {
       )}
       <Suspense fallback={<PageLoadingFallback />}>
         <Routes>
-          <Route path="/" element={
-            <LayoutWrapper currentPageName={mainPageKey}>
-              <MainPage />
-            </LayoutWrapper>
-          } />
-          {Object.entries(Pages).map(([path, Page]) => (
-            <Route
-              key={path}
-              path={`/${path}`}
-              element={
-                <LayoutWrapper currentPageName={path}>
-                  <Page />
-                </LayoutWrapper>
-              }
-            />
-          ))}
-          <Route path="/KnowledgeStudio" element={<LayoutWrapper currentPageName="KnowledgeStudio"><KnowledgeStudio /></LayoutWrapper>} />
-          <Route path="/AdminFeatureFlags" element={<LayoutWrapper currentPageName="AdminFeatureFlags"><AdminFeatureFlags /></LayoutWrapper>} />
-          <Route path="/TherapistTraining" element={<LayoutWrapper currentPageName="TherapistTraining"><TherapistTraining /></LayoutWrapper>} />
-          <Route path="/pdf-viewer" element={<PdfViewer />} />
-          <Route path="*" element={<PageNotFound />} />
+          {/* Every app route is gated by ProtectedRoute: unauthenticated users
+              are redirected to /login instead of hitting an external firewall. */}
+          <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route path="/" element={
+              <LayoutWrapper currentPageName={mainPageKey}>
+                <MainPage />
+              </LayoutWrapper>
+            } />
+            {Object.entries(Pages).map(([path, Page]) => (
+              <Route
+                key={path}
+                path={`/${path}`}
+                element={
+                  <LayoutWrapper currentPageName={path}>
+                    <Page />
+                  </LayoutWrapper>
+                }
+              />
+            ))}
+            <Route path="/KnowledgeStudio" element={<LayoutWrapper currentPageName="KnowledgeStudio"><KnowledgeStudio /></LayoutWrapper>} />
+            <Route path="/AdminFeatureFlags" element={<LayoutWrapper currentPageName="AdminFeatureFlags"><AdminFeatureFlags /></LayoutWrapper>} />
+            <Route path="/TherapistTraining" element={<LayoutWrapper currentPageName="TherapistTraining"><TherapistTraining /></LayoutWrapper>} />
+            <Route path="/pdf-viewer" element={<PdfViewer />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
         </Routes>
       </Suspense>
     </>
@@ -128,11 +137,10 @@ function App() {
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <RouteMetadata />
           <Routes>
-            <Route path="/about" element={<About />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/*" element={<ProtectedApp />} />
           </Routes>
         </Router>

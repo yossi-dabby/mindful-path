@@ -444,7 +444,8 @@ describe('Wave 2E — Response posture is separate from action permission', () =
     );
     const ctx = buildPlannerContext(RICH_FORMULATION, null, DISTRESS_TIERS.TIER_LOW, {
       has_been_understood: true,
-      intervention_ready: true,
+      readiness_signal: true,
+      rationale_is_clear: true,
     });
     const guarded = applyStrategyPrecedenceGuard(state, ctx);
     expect(guarded.action_permitted).toBe(true);
