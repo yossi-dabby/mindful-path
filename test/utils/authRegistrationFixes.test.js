@@ -320,3 +320,23 @@ describe('Fix 3 – WelcomeWizard optimistic onboarding completion', () => {
     expect(onComplete).toHaveBeenCalledOnce();
   });
 });
+
+
+describe('Fix 5 – email login completes the custom-auth navigation', () => {
+  const loginSource = fs.readFileSync(
+    path.resolve(process.cwd(), 'src/pages/Login.jsx'),
+    'utf8',
+  );
+
+  it('requires the SDK access token before completing sign-in', () => {
+    expect(loginSource).toContain(
+      'const loginResult = await base44.auth.loginViaEmailPassword(email.trim(), password)',
+    );
+    expect(loginSource).toContain('if (!loginResult?.access_token)');
+  });
+
+  it('navigates through the bounded same-origin return target after sign-in', () => {
+    expect(loginSource).toContain('window.location.replace(safeReturnTo())');
+    expect(loginSource).not.toContain('Do not add a manual redirect');
+  });
+});
