@@ -21,6 +21,27 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+
+describe('Fix 4 – custom auth has exactly one login layer', () => {
+  const authContextSource = fs.readFileSync(
+    path.resolve(process.cwd(), 'src/lib/AuthContext.jsx'),
+    'utf8',
+  );
+  const appSource = fs.readFileSync(path.resolve(process.cwd(), 'src/App.jsx'), 'utf8');
+
+  it('never invokes the legacy hosted login from AuthContext', () => {
+    expect(authContextSource).not.toContain('redirectToLogin(');
+    expect(authContextSource).not.toContain('authRedirectGuard');
+  });
+
+  it('leaves unauthenticated routing to the single in-app /login page', () => {
+    expect(appSource).toContain('<Navigate to="/login" replace />');
+    expect(authContextSource).toContain('if (status === 401 || status === 403)');
+    expect(authContextSource).toContain('setIsAuthenticated(false)');
+  });
+});
 
 // ─── Fix 1: updateMe via SDK entity update ────────────────────────────────────
 // Pure logic: the override calls base44.auth.me() then base44.entities.User.update()
