@@ -19,6 +19,7 @@ const CRISIS_UI_STRINGS = {
   en: {
     title: "We're Here to Help",
     body: "This AI cannot provide emergency support. If you're in crisis, please reach out to a professional immediately.",
+    blockedNotice: 'Your message was not sent to the AI. Emergency resources are shown below.',
     button: 'Return to Chat',
     disclaimer: 'This AI is not a substitute for professional crisis care.',
     chooseRegionLabel: 'Choose country/region',
@@ -35,6 +36,7 @@ const CRISIS_UI_STRINGS = {
   he: {
     title: 'אנחנו כאן בשבילך',
     body: 'בינה מלאכותית זו אינה יכולה לספק סיוע חירום. אם אתה/את במשבר, פנה/י לאיש מקצוע באופן מיידי.',
+    blockedNotice: 'ההודעה לא נשלחה ל-AI. משאבי חירום מוצגים להלן.',
     button: "חזרה לצ'אט",
     disclaimer: 'בינה מלאכותית זו אינה תחליף לטיפול מקצועי בעת משבר.',
     chooseRegionLabel: 'בחר/י מדינה/אזור',
@@ -51,6 +53,7 @@ const CRISIS_UI_STRINGS = {
   es: {
     title: 'Estamos aquí para ayudarte',
     body: 'Esta IA no puede proporcionar apoyo de emergencia. Si estás en crisis, comunícate con un profesional de inmediato.',
+    blockedNotice: 'Tu mensaje no se envió a la IA. A continuación se muestran recursos de emergencia.',
     button: 'Volver al chat',
     disclaimer: 'Esta IA no reemplaza la atención profesional en situaciones de crisis.',
     chooseRegionLabel: 'Elige país/región',
@@ -67,6 +70,7 @@ const CRISIS_UI_STRINGS = {
   fr: {
     title: 'Nous sommes là pour vous aider',
     body: "Cette IA ne peut pas fournir un soutien d'urgence. Si vous êtes en crise, contactez immédiatement un professionnel.",
+    blockedNotice: "Votre message n’a pas été envoyé à l’IA. Les ressources d’urgence sont affichées ci-dessous.",
     button: 'Retour au chat',
     disclaimer: 'Cette IA ne remplace pas une prise en charge professionnelle en situation de crise.',
     chooseRegionLabel: 'Choisir un pays/une région',
@@ -83,6 +87,7 @@ const CRISIS_UI_STRINGS = {
   de: {
     title: 'Wir sind für dich da',
     body: 'Diese KI kann keine Notfallunterstützung bieten. Wenn du dich in einer Krise befindest, wende dich sofort an eine Fachkraft.',
+    blockedNotice: 'Deine Nachricht wurde nicht an die KI gesendet. Notfallressourcen werden unten angezeigt.',
     button: 'Zurück zum Chat',
     disclaimer: 'Diese KI ersetzt keine professionelle Krisenunterstützung.',
     chooseRegionLabel: 'Land/Region auswählen',
@@ -99,6 +104,7 @@ const CRISIS_UI_STRINGS = {
   it: {
     title: 'Siamo qui per aiutarti',
     body: 'Questa IA non può fornire supporto di emergenza. Se sei in crisi, contatta immediatamente un professionista.',
+    blockedNotice: 'Il messaggio non è stato inviato all’IA. Le risorse di emergenza sono mostrate di seguito.',
     button: 'Torna alla chat',
     disclaimer: "Questa IA non sostituisce l'assistenza professionale in situazioni di crisi.",
     chooseRegionLabel: 'Scegli paese/regione',
@@ -115,6 +121,7 @@ const CRISIS_UI_STRINGS = {
   pt: {
     title: 'Estamos aqui para ajudar',
     body: 'Esta IA não pode fornecer suporte de emergência. Se estiver em crise, contacte imediatamente um profissional.',
+    blockedNotice: 'A sua mensagem não foi enviada à IA. Os recursos de emergência são apresentados abaixo.',
     button: 'Voltar ao chat',
     disclaimer: 'Esta IA não substitui o apoio profissional em situações de crise.',
     chooseRegionLabel: 'Escolha país/região',
@@ -246,8 +253,15 @@ export default function InlineRiskPanel({ onDismiss }) {
             <h3 className="text-base md:text-lg font-semibold mb-2" style={{ color: '#7F1D1D' }}>
               {s.title}
             </h3>
-            <p className="text-sm md:text-base leading-relaxed mb-4" style={{ color: '#991B1B' }}>
+            <p className="text-sm md:text-base leading-relaxed mb-3" style={{ color: '#991B1B' }}>
               {s.body}
+            </p>
+            <p
+              data-testid="risk-message-blocked-notice"
+              className="text-sm font-semibold mb-4 p-3 rounded-xl"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.72)', color: '#7F1D1D' }}
+            >
+              {s.blockedNotice}
             </p>
 
             {resources ? (
