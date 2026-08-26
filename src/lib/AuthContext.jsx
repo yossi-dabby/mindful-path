@@ -1,23 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { checkAndArmRedirectGuard } from '@/lib/authRedirectGuard';
 
 const AuthContext = createContext();
-
-// Wraps base44.auth.redirectToLogin with a loop guard that prevents the
-// "auth-fail → redirect → auth-fail" infinite cycle. See authRedirectGuard.js.
-function safeRedirectToLogin(nextUrl) {
-  if (!checkAndArmRedirectGuard()) {
-    return false;
-  }
-  base44.auth.redirectToLogin(nextUrl);
-  return true;
-}
-
-function getSafeReturnPath() {
-  if (typeof window === 'undefined') return '/';
-  return `${window.location.pathname}${window.location.search}${window.location.hash}` || '/';
-}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -60,10 +44,10 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
 
       if (status === 401 || status === 403) {
-        const redirectAllowed = safeRedirectToLogin(getSafeReturnPath());
-        if (!redirectAllowed) {
-          console.warn('[AuthContext] Redirect to login suppressed by cooldown guard (loop prevention).');
-        }
+        // Custom-auth app: do not invoke Base44's legacy hosted login here.
+        // Once loading settles, ProtectedRoute renders the single in-app
+        // /login route. Calling redirectToLogin would stack a second auth
+        // flow on top of the custom Login page (especially in incognito).
         setIsLoadingAuth(false);
         return;
       }
@@ -84,10 +68,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const navigateToLogin = () => {
-    safeRedirectToLogin(getSafeReturnPath());
-  };
-
   return (
     <AuthContext.Provider value={{
       user,
@@ -97,7 +77,6 @@ export const AuthProvider = ({ children }) => {
       authError,
       appPublicSettings,
       logout,
-      navigateToLogin,
       checkAppState: checkAuth
     }}>
       {children}
