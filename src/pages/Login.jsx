@@ -20,9 +20,11 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      // loginViaEmailPassword sets the token and hard-redirects to the resolved
-      // same-origin returnTo (falling back to "/"). Do not add a manual redirect.
-      await base44.auth.loginViaEmailPassword(email, password);
+      const loginResult = await base44.auth.loginViaEmailPassword(email.trim(), password);
+      if (!loginResult?.access_token) {
+        throw new Error("Sign-in did not complete. Please try again.");
+      }
+      window.location.replace(safeReturnTo());
     } catch (err) {
       setError(err.message || "Invalid email or password");
       setLoading(false);
