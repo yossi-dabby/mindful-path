@@ -40,7 +40,7 @@ export default function Settings() {
   useEffect(() => {
     base44.auth.me().then(async (userData) => {
       if (!userData) {
-        base44.auth.redirectToLogin(window.location.href);
+        base44.auth.redirectToLogin(window.location.pathname);
         return;
       }
       setUser(userData);
@@ -87,7 +87,7 @@ export default function Settings() {
         }
       } catch (e) { /* non-critical */ }
     }).catch(() => {
-      base44.auth.redirectToLogin(window.location.href);
+      base44.auth.redirectToLogin(window.location.pathname);
     });
   }, []);
 

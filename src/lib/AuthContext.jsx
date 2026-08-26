@@ -16,7 +16,7 @@ function safeRedirectToLogin(nextUrl) {
 
 function getSafeReturnPath() {
   if (typeof window === 'undefined') return '/';
-  return window.location.href || '/';
+  return `${window.location.pathname}${window.location.search}${window.location.hash}` || '/';
 }
 
 export const AuthProvider = ({ children }) => {

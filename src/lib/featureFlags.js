@@ -282,10 +282,10 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
 // The exact hostname comparison prevents sibling/subdomain matches.
 // Returning these fixed overrides before parsing `_s2` also prevents
 // URL parameters from escalating this host into V11, V12, or other phases.
-const V10_KNOWLEDGE_PREVIEW_HOST =
+export const V10_KNOWLEDGE_PREVIEW_HOST =
   'mindful-path-v10-preview.base44.app';
 
-const V10_KNOWLEDGE_PREVIEW_OVERRIDES = Object.freeze({
+export const V10_KNOWLEDGE_PREVIEW_OVERRIDES = Object.freeze({
   THERAPIST_UPGRADE_ENABLED: true,
   THERAPIST_UPGRADE_STRATEGY_ENABLED: true,
   THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: true,
@@ -308,7 +308,7 @@ const V10_KNOWLEDGE_PREVIEW_OVERRIDES = Object.freeze({
  * @param {string} hostname
  * @returns {boolean}
  */
-function _isPreviewStagingHost(hostname) {
+export function _isPreviewStagingHost(hostname) {
   if (!hostname || typeof hostname !== 'string') return false;
 
   const normalizedHostname = hostname.trim().toLowerCase();

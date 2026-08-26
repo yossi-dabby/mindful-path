@@ -1168,7 +1168,8 @@ describe('applyStrategyPrecedenceGuard — core enforcement', () => {
     const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
       case_type: 'anxiety',
       has_been_understood: true,
-      intervention_ready: true,
+      readiness_signal: true,
+      rationale_is_clear: true,
     });
     const raw = { intervention_mode: 'structured_exploration' };
     const result = applyStrategyPrecedenceGuard(raw, ctx);
@@ -1625,7 +1626,8 @@ describe('Runtime Enforcement 11: Leakage-informed — legacy shortcut sequence 
     const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
       case_type: 'anxiety',
       has_been_understood: true,
-      intervention_ready: true,
+      readiness_signal: true,
+      rationale_is_clear: true,
     });
     const raw = { intervention_mode: 'structured_exploration', precedence_enforced: false, blocked_gates: [] };
     const block = buildPrecedenceEnforcementBlock(raw);
@@ -1644,7 +1646,8 @@ describe('Runtime Enforcement 12: Preserved gains — prior gains are not regres
     const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
       case_type: 'anxiety',
       has_been_understood: true,
-      intervention_ready: true,
+      readiness_signal: true,
+      rationale_is_clear: true,
     });
     const raw = { intervention_mode: 'structured_exploration' };
     const result = applyStrategyPrecedenceGuard(raw, ctx);
@@ -1657,7 +1660,8 @@ describe('Runtime Enforcement 12: Preserved gains — prior gains are not regres
     const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
       case_type: 'depression',
       has_been_understood: true,
-      intervention_ready: true,
+      readiness_signal: true,
+      rationale_is_clear: true,
     });
     const raw = { intervention_mode: 'formulation_deepening' };
     const result = applyStrategyPrecedenceGuard(raw, ctx);

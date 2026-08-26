@@ -18,6 +18,7 @@ import { resolveWorkbookIntentWithContext, resolveEnglishWorkbookIntentWithConte
 import { getAllTherapeuticForms, SUPPORTED_LANGUAGES, MAX_GENERATED_FILES_PER_RESPONSE } from '../../data/therapeuticForms/index.js';
 import { THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER } from '../../lib/therapeuticFormsPolicy.js';
 import { normalizeGeneratedFile } from '../chat/utils/normalizeGeneratedFile.js';
+import { sanitizeCaseFormulationUpdateForClient } from '../../lib/caseFormulationValidator.js';
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
     /\b(you (have|might have) (depression|anxiety|PTSD|bipolar|schizophrenia))\b/gi,
@@ -678,6 +679,10 @@ export function validateAgentOutput(rawContent) {
                 anxiety: parsed.emotion_ratings_after?.anxiety ?? null
             },
             homework: [],
+            // Phase 6b: bound the optional agent-emitted case_formulation_update to
+            // an explicit allowlist (signal flags only; provenance stripped).  The
+            // backend upsertCaseFormulation writer re-stamps provenance server-side.
+            case_formulation_update: sanitizeCaseFormulationUpdateForClient(parsed.case_formulation_update) || undefined,
             journal_save_candidate: {
                 should_offer_save: false,
                 save_title: parsed.journal_save_candidate?.save_title || null,
