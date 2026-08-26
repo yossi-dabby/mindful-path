@@ -411,6 +411,7 @@ export default function Chat() {
   currentConversationIdRef.current = currentConversationId;
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const riskPanelRef = useRef(null);
   const formsPolicyVersionCacheRef = useRef(new Map());
   const pendingTherapeuticFormsPolicyRefreshRef = useRef(new Map());
   const [visibleCount, setVisibleCount] = useState(50);
@@ -750,6 +751,17 @@ export default function Chat() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Crisis hard-stops render above the conversation. Move the viewport and
+  // keyboard/screen-reader focus to the emergency resources immediately.
+  useEffect(() => {
+    if (!showRiskPanel) return undefined;
+    const frameId = requestAnimationFrame(() => {
+      riskPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      riskPanelRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, [showRiskPanel, currentConversationId]);
 
   // Emit mandatory one-line stability proof after each send cycle
   const emitStabilitySummary = () => {
@@ -3515,6 +3527,8 @@ export default function Chat() {
       enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
       enhancedCheck.data.confidence > 0.7) {
         setShowRiskPanel(true);
+        setInputMessage('');
+        setIsLoading(false);
         base44.entities.CrisisAlert.create({
           surface: 'chat',
           conversation_id: currentConversationId || 'none',
@@ -4860,7 +4874,13 @@ export default function Chat() {
 
         {/* Risk Panel — rendered outside conversation gate so it shows even before a conversation is created */}
         {showRiskPanel && !currentConversationId &&
-          <div className="px-4 md:px-6 pt-3">
+          <div
+            ref={riskPanelRef}
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+            tabIndex={-1}
+            className="px-4 md:px-6 pt-3">
             <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
           </div>
           }
@@ -4932,7 +4952,14 @@ export default function Chat() {
                 }
                 {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
                 {showRiskPanel &&
-                <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+                <div
+                  ref={riskPanelRef}
+                  role="alert"
+                  aria-live="assertive"
+                  aria-atomic="true"
+                  tabIndex={-1}>
+                  <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+                </div>
                 }
                 {/* Profile-specific periodic disclaimer */}
                 <ProfileSpecificDisclaimer messageCount={messages.length} />
