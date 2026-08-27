@@ -332,12 +332,12 @@ export function sanitizeCaseFormulationUpdateForClient(raw) {
 
 /**
  * Validates a writer payload where provenance is supplied by the server (not the
- * client).  Stamps `session_id` = source_message_id and ISO timestamps onto every
- * producer, then delegates to validateCaseFormulationPayload for shape/canonical
- * evidence validation.
+ * client).  Stamps `session_id` = source_session_id and ISO timestamps onto every
+ * producer, while source_message_id remains separate idempotency evidence, then
+ * delegates to validateCaseFormulationPayload for shape/canonical validation.
  *
  * @param {object} clientPayload - { conversation_id, case_formulation_update? | ...fields }
- * @param {{ source_message_id: string, nowMs?: number }} provenance
+ * @param {{ source_session_id: string, source_message_id: string, nowMs?: number }} provenance
  * @returns {{ valid: boolean, payload: object, errors: string[] }}
  */
 export function validateWriterPayload(clientPayload, provenance) {
