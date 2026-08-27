@@ -220,7 +220,7 @@ function splitIntoClauses(text) {
  * directly (within at most three intervening tokens). It must never suppress
  * another affirmative occurrence later in the same clause.
  */
-const DIRECT_NEGATION_BEFORE_MATCH_RE = /(?:^|\s)(?:לא|אינ\S*|אין|איני|לאו|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3}$/i;
+const DIRECT_NEGATION_BEFORE_MATCH_RE = /(?:^|\s)(?:ו?(?:לא|אינ\S*|אין|איני|לאו)|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3}$/i;
 
 function collectCrisisOccurrences(text) {
     const occurrences = new Map();
