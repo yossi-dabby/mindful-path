@@ -297,10 +297,24 @@ const CURRENT_SAFETY_ASSERTION_PATTERNS = [
     /\b(?:i\s+am|i'?m)\s+(?:(?:currently|right\s+now)\s+)?safe\b/i,
     /(?:אני\s+)?בטוח(?:ה)?(?:\s+(?:כרגע|עכשיו))?/i,
     /\b(?:estoy|me\s+siento)\s+(?:a\s+salvo|segur[oa])\b/i,
-    /\bje\s+suis\s+(?:en\s+s[eé]curit[eé]|hors\s+de\s+danger)\b/i,
+    /\bje\s+suis\s+(?:en\s+s[eé]curit[eé]|hors\s+de\s+danger)(?=$|[\s.,!?;:])/i,
     /\bich\s+bin\s+(?:jetzt\s+|derzeit\s+)?sicher\b/i,
     /\bsono\s+al\s+sicuro\b/i,
     /\bestou\s+(?:em\s+seguran[çc]a|segur[oa])\b/i,
+];
+
+// A safety assertion may be matched as a substring of its own negation in
+// languages where the negator precedes the positive phrase (for example,
+// "לא בטוח", "no estoy seguro", or "non sono al sicuro"). Any explicit
+// negation wins before the positive assertion can suppress Layer 2.
+const NEGATED_CURRENT_SAFETY_ASSERTION_PATTERNS = [
+    /\b(?:i\s+am|i'?m)\s+not\s+(?:(?:currently|right\s+now)\s+)?safe\b/i,
+    /(?:לא|אינ(?:י|ני))\s+(?:ממש\s+)?בטוח(?:ה)?/i,
+    /\bno\s+(?:estoy|me\s+siento)\s+(?:a\s+salvo|segur[oa])\b/i,
+    /\bje\s+ne\s+suis\s+pas\s+(?:en\s+s[eé]curit[eé]|hors\s+de\s+danger)(?=$|[\s.,!?;:])/i,
+    /\bich\s+bin\s+(?:jetzt\s+|derzeit\s+)?nicht\s+sicher\b/i,
+    /\bnon\s+sono\s+al\s+sicuro\b/i,
+    /\bn[aã]o\s+estou\s+(?:em\s+seguran[çc]a|segur[oa])\b/i,
 ];
 
 const CURRENT_SAFETY_CONTRADICTION_PATTERNS = [
@@ -310,11 +324,24 @@ const CURRENT_SAFETY_CONTRADICTION_PATTERNS = [
     /(?:יש\s+לי)\s+(?:תוכנית|תכנית)\b/i,
     /\b(?:access\s+to|have|got)\b[^.!?]{0,40}\b(?:gun|weapon|pills?|medication|means)\b/i,
     /(?:גישה\s+ל|יש\s+לי)[^.!?]{0,40}(?:נשק|אקדח|כדורים|תרופות|אמצעי)/i,
+    /\b(?:tengo|he\s+preparado)\s+(?:un\s+)?plan\b/i,
+    /\b(?:tengo|acceso\s+a)\b[^.!?]{0,40}\b(?:arma|pistola|pastillas?|medicamentos?|medios)\b/i,
+    /\bj['’]ai\s+(?:un\s+)?plan\b/i,
+    /\b(?:j['’]ai|acc[eè]s\s+[aà])\b[^.!?]{0,40}\b(?:arme|pistolet|pilules?|m[eé]dicaments?|moyens)\b/i,
+    /\bich\s+habe\s+(?:einen?\s+)?plan\b/i,
+    /\b(?:ich\s+habe|zugang\s+zu)\b[^.!?]{0,40}\b(?:waffe|pistole|tabletten|medikamente|mittel)\b/i,
+    /\bho\s+(?:un\s+)?piano\b/i,
+    /\b(?:ho|accesso\s+a)\b[^.!?]{0,40}\b(?:arma|pistola|pillole|farmaci|mezzi)\b/i,
+    /\btenho\s+(?:um\s+)?plano\b/i,
+    /\b(?:tenho|acesso\s+a)\b[^.!?]{0,40}\b(?:arma|pistola|comprimidos|medicamentos|meios)\b/i,
 ];
 
 export function isExplicitCurrentSafetyDenial(message) {
     if (!message || typeof message !== 'string') return false;
     if (!isDirectNegationFalsePositive(message)) return false;
+
+    const hasNegatedSafetyAssertion = NEGATED_CURRENT_SAFETY_ASSERTION_PATTERNS.some(pattern => pattern.test(message));
+    if (hasNegatedSafetyAssertion) return false;
 
     const hasCurrentSafetyAssertion = CURRENT_SAFETY_ASSERTION_PATTERNS.some(pattern => pattern.test(message));
     if (!hasCurrentSafetyAssertion) return false;

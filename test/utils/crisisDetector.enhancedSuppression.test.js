@@ -48,4 +48,39 @@ describe('Layer-2 hard-stop suppression for explicit current-safety denials', ()
       )
     ).toBe(true);
   });
+
+  it('does not mistake Hebrew current-safety uncertainty for a safety assertion', () => {
+    expect(isExplicitCurrentSafetyDenial(
+      'אני לא בטוח שאצליח לעבור את הלילה, אבל אין לי מחשבות לפגוע בעצמי.'
+    )).toBe(false);
+  });
+
+  it.each([
+    ['Spanish', 'Estoy seguro y no quiero matarme, pero tengo un plan y pastillas.'],
+    ['French', "Je suis en sécurité et je ne veux pas me tuer, mais j’ai un plan et des pilules."],
+    ['German', 'Ich bin sicher und ich will nicht mich umbringen, aber ich habe einen Plan und Tabletten.'],
+    ['Italian', 'Sono al sicuro e non voglio uccidermi, ma ho un piano e pillole.'],
+    ['Portuguese', 'Estou seguro e não quero me matar, mas tenho um plano e comprimidos.'],
+  ])('does not suppress %s plan-and-means contradictions', (_language, message) => {
+    expect(isExplicitCurrentSafetyDenial(message)).toBe(false);
+  });
+
+  it.each([
+    ['Hebrew', 'אני לא בטוח ואין לי מחשבות לפגוע בעצמי.'],
+    ['Spanish', 'No estoy seguro y no quiero matarme.'],
+    ['Italian', 'Non sono al sicuro e non voglio uccidermi.'],
+    ['Portuguese', 'Não estou seguro e não quero me matar.'],
+  ])('does not treat a negated %s safety assertion as affirmative', (_language, message) => {
+    expect(isExplicitCurrentSafetyDenial(message)).toBe(false);
+  });
+
+  it.each([
+    ['Spanish', 'Estoy seguro y no quiero matarme.'],
+    ['French', 'Je suis en sécurité et je ne veux pas me tuer.'],
+    ['German', 'Ich bin sicher und ich will nicht mich umbringen.'],
+    ['Italian', 'Sono al sicuro e non voglio uccidermi.'],
+    ['Portuguese', 'Estou seguro e não quero me matar.'],
+  ])('preserves a non-contradictory explicit %s safety denial', (_language, message) => {
+    expect(isExplicitCurrentSafetyDenial(message)).toBe(true);
+  });
 });
