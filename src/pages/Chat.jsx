@@ -31,7 +31,7 @@ import InlineConsentBanner from '../components/chat/InlineConsentBanner';
 import ThoughtWorkSaveHandler from '../components/chat/ThoughtWorkSaveHandler';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
-import { detectCrisisWithReason } from '../components/utils/crisisDetector';
+import { detectCrisisWithReason, isExplicitCurrentSafetyDenial } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
@@ -3523,9 +3523,11 @@ export default function Chat() {
         console.warn('[Enhanced Crisis Detection] Function invoke failed:', err?.message);
       }
 
+      const suppressEnhancedHardStop = isExplicitCurrentSafetyDenial(rawInputText);
       if (enhancedCheck.data?.is_crisis && (
       enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
-      enhancedCheck.data.confidence > 0.7) {
+      enhancedCheck.data.confidence > 0.7 &&
+      !suppressEnhancedHardStop) {
         setShowRiskPanel(true);
         setInputMessage('');
         setIsLoading(false);

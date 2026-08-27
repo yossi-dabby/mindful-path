@@ -220,7 +220,7 @@ function splitIntoClauses(text) {
  * directly (within at most three intervening tokens). It must never suppress
  * another affirmative occurrence later in the same clause.
  */
-const DIRECT_NEGATION_BEFORE_MATCH_RE = /(?:^|\s)(?:לא|אינ\S*|אין|איני|לאו|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3}$/i;
+const DIRECT_NEGATION_BEFORE_MATCH_RE = /(?:^|\s)(?:ו?(?:לא|אינ\S*|אין|איני|לאו)|not|no|never|don'?t|do\s+not|am\s+not|i'?m\s+not|i\s+am\s+not|cannot|can'?t|non|não|nao|nicht|nie|ne|jamais|nunca)\s+(?:\S+\s+){0,3}$/i;
 
 function collectCrisisOccurrences(text) {
     const occurrences = new Map();
@@ -282,6 +282,45 @@ export function isDirectNegationFalsePositive(message) {
     }
 
     return foundNegatedCrisis;
+}
+
+/**
+ * Returns true only for an explicit, present-tense safety denial that is safe
+ * to use as a deterministic false-positive guard for the Layer-2 classifier.
+ *
+ * This is deliberately narrower than isDirectNegationFalsePositive:
+ * - every concrete crisis occurrence must be directly negated;
+ * - the user must explicitly state that they are safe now; and
+ * - uncertainty about staying safe, a plan, or available means always wins.
+ */
+const CURRENT_SAFETY_ASSERTION_PATTERNS = [
+    /\b(?:i\s+am|i'?m)\s+(?:(?:currently|right\s+now)\s+)?safe\b/i,
+    /(?:אני\s+)?בטוח(?:ה)?(?:\s+(?:כרגע|עכשיו))?/i,
+    /\b(?:estoy|me\s+siento)\s+(?:a\s+salvo|segur[oa])\b/i,
+    /\bje\s+suis\s+(?:en\s+s[eé]curit[eé]|hors\s+de\s+danger)\b/i,
+    /\bich\s+bin\s+(?:jetzt\s+|derzeit\s+)?sicher\b/i,
+    /\bsono\s+al\s+sicuro\b/i,
+    /\bestou\s+(?:em\s+seguran[çc]a|segur[oa])\b/i,
+];
+
+const CURRENT_SAFETY_CONTRADICTION_PATTERNS = [
+    /\b(?:not\s+sure|unsure|don'?t\s+know|do\s+not\s+know|afraid)\b[^.!?]{0,80}\b(?:stay|remain|keep\s+myself|be)\s+safe\b/i,
+    /(?:לא\s+בטוח|אינ(?:י|ני)\s+בטוח|לא\s+יודע|חושש)[^.!?]{0,80}(?:לשמור\s+על\s+עצמי\s+בטוח|להישאר\s+בטוח|אהיה\s+בטוח)/i,
+    /\b(?:i\s+have|i'?ve\s+got)\s+(?:a\s+)?(?:suicide\s+)?plan\b/i,
+    /(?:יש\s+לי)\s+(?:תוכנית|תכנית)\b/i,
+    /\b(?:access\s+to|have|got)\b[^.!?]{0,40}\b(?:gun|weapon|pills?|medication|means)\b/i,
+    /(?:גישה\s+ל|יש\s+לי)[^.!?]{0,40}(?:נשק|אקדח|כדורים|תרופות|אמצעי)/i,
+];
+
+export function isExplicitCurrentSafetyDenial(message) {
+    if (!message || typeof message !== 'string') return false;
+    if (!isDirectNegationFalsePositive(message)) return false;
+
+    const hasCurrentSafetyAssertion = CURRENT_SAFETY_ASSERTION_PATTERNS.some(pattern => pattern.test(message));
+    if (!hasCurrentSafetyAssertion) return false;
+
+    const hasContradictingDanger = CURRENT_SAFETY_CONTRADICTION_PATTERNS.some(pattern => pattern.test(message));
+    return !hasContradictingDanger;
 }
 
 export function detectCrisisLanguage(message) {
