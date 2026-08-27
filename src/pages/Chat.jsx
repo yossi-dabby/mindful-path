@@ -130,6 +130,11 @@ import {
   triggerConversationMemoryWriteOnce,
   waitForConversationMemoryWrite,
 } from '@/lib/conversationMemoryWriteDedup.js';
+import {
+  createSessionInstanceId,
+  maybePersistCaseFormulationUpdatesForMessages,
+  resolveConversationSessionInstanceId,
+} from '@/lib/caseFormulationInvocation.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -409,6 +414,8 @@ export default function Chat() {
   const sessionLanguageRef = useRef(i18n.language || 'en');
   const currentConversationIdRef = useRef(currentConversationId);
   currentConversationIdRef.current = currentConversationId;
+  const sessionInstanceIdByConversationRef = useRef(new Map());
+  const formulationPersistedMessageIdsByConversationRef = useRef(new Map());
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const riskPanelRef = useRef(null);
@@ -470,6 +477,35 @@ export default function Chat() {
   // Tracks pending/succeeded/failed memory writes by conversation ID. Pending
   // callers share one promise; success is recorded only after persistence.
   const conversationMemoryWrittenRef = useRef(new Map());
+
+  const rememberConversationSessionIdentity = useCallback((conversationId, sessionInstanceId) => {
+    if (!conversationId) return '';
+    if (typeof sessionInstanceId !== 'string' || !sessionInstanceId.trim()) {
+      return sessionInstanceIdByConversationRef.current.get(conversationId) || '';
+    }
+    const normalized = sessionInstanceId.trim();
+    sessionInstanceIdByConversationRef.current.set(conversationId, normalized);
+    return normalized;
+  }, []);
+
+  const persistFinalizedCaseFormulationUpdates = useCallback(async (conversationId, committedMessages) => {
+    const sessionInstanceId = sessionInstanceIdByConversationRef.current.get(conversationId) || '';
+    if (!conversationId || !sessionInstanceId || !Array.isArray(committedMessages)) {
+      return { attempted: 0, persisted: 0, failed: 0 };
+    }
+    let persistedIds = formulationPersistedMessageIdsByConversationRef.current.get(conversationId);
+    if (!persistedIds) {
+      persistedIds = new Set();
+      formulationPersistedMessageIdsByConversationRef.current.set(conversationId, persistedIds);
+    }
+    return maybePersistCaseFormulationUpdatesForMessages(
+      base44,
+      conversationId,
+      sessionInstanceId,
+      committedMessages,
+      persistedIds,
+    );
+  }, []);
   // Formulation contract guard — tracks the most recent unresolved pending
   // correction.  Set by buildVisibleConversationMessages after each guard pass;
   // consumed and cleared by handleSendMessage when the next user message is sent.
@@ -2030,6 +2066,8 @@ export default function Chat() {
             // Phase 0.2A: lock and consume the effective wiring for this session.
             const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
             const agentName = effectiveWiring.name;
+            const newSessionInstanceId = createSessionInstanceId();
+            if (!newSessionInstanceId) throw new Error('Unable to create a secure session identity');
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
@@ -2042,10 +2080,12 @@ export default function Chat() {
                 `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
                 intent: intentParam,
-                safety_profile: safetyProfile
+                safety_profile: safetyProfile,
+                session_instance_id: newSessionInstanceId
               }
             });
 
+            rememberConversationSessionIdentity(conversation.id, newSessionInstanceId);
             setCurrentConversationId(conversation.id);
             setMessages([]);
             clearLocalAudioDraft();
@@ -2075,6 +2115,8 @@ export default function Chat() {
                   base44,
                   {
                     sessionLanguage: i18n.language,
+                    conversation_id: conversation.id,
+                    continuation_session_id: newSessionInstanceId,
                     runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
                     onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); },
                   }
@@ -2097,6 +2139,8 @@ export default function Chat() {
             // Phase 0.2A: lock and consume the effective wiring for this session.
             const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
             const agentName = effectiveWiring.name;
+            const newSessionInstanceId = createSessionInstanceId();
+            if (!newSessionInstanceId) throw new Error('Unable to create a secure session identity');
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
@@ -2109,10 +2153,12 @@ export default function Chat() {
                 `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
                 intent: intentParam,
-                safety_profile: safetyProfile
+                safety_profile: safetyProfile,
+                session_instance_id: newSessionInstanceId
               }
             });
 
+            rememberConversationSessionIdentity(conversation.id, newSessionInstanceId);
             setCurrentConversationId(conversation.id);
             setMessages([]);
             clearLocalAudioDraft();
@@ -2142,6 +2188,8 @@ export default function Chat() {
                   base44,
                   {
                     sessionLanguage: i18n.language,
+                    conversation_id: conversation.id,
+                    continuation_session_id: newSessionInstanceId,
                     runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
                     onStrategyPolicy: (policy) => { captureCurrentTurnResponsePolicy({ policy, conversationId: conversation.id, generationIdentity: `legacy-${conversation.id}` }); },
                   }
@@ -2188,6 +2236,7 @@ export default function Chat() {
               // V8-K: finalize only when finality is verified.
               if (visibilityFinality.isFinal) {
                 markAssistantMessagesFinalized(currentConversationId, guarded);
+                await persistFinalizedCaseFormulationUpdates(currentConversationId, guarded);
                 sessionStartOpenerFallbackRef.current?.stop('visibility_visible_commit', {
                   clearLoading: true,
                   clearLoadingTimeout: true,
@@ -2243,7 +2292,7 @@ export default function Chat() {
 
     const unsubscribe = base44.agents.subscribeToConversation(
       currentConversationId,
-      (data) => {
+      async (data) => {
         if (!isSubscribed || !mountedRef.current) {
           console.log('[Subscription] Ignoring update - unsubscribed or unmounted');
           return;
@@ -2475,6 +2524,7 @@ export default function Chat() {
             // callbacks (e.g. reconnect replays) cannot overwrite the bubble.
             if (subscriptionFinality.isFinal) {
               markAssistantMessagesFinalized(currentConversationId, processedMessages);
+              await persistFinalizedCaseFormulationUpdates(currentConversationId, processedMessages);
               sessionStartOpenerFallbackRef.current?.stop('subscription_visible_commit', {
                 clearLoading: true,
                 clearLoadingTimeout: true,
@@ -2633,6 +2683,14 @@ export default function Chat() {
   });
 
   useEffect(() => {
+    if (!currentConversationId || !currentConversationData) return;
+    rememberConversationSessionIdentity(
+      currentConversationId,
+      resolveConversationSessionInstanceId(currentConversationData),
+    );
+  }, [currentConversationData, currentConversationId, rememberConversationSessionIdentity]);
+
+  useEffect(() => {
     // Skip hydration once local message state already exists so subscription/polling
     // updates remain authoritative for the active in-memory session.
     if (!currentConversationId || !currentConversationData || messages.length > 0) return;
@@ -2780,6 +2838,8 @@ export default function Chat() {
       // Phase 0.2A: lock and consume the effective wiring for this session.
       const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
       const agentName = effectiveWiring.name;
+      const newSessionInstanceId = createSessionInstanceId();
+      if (!newSessionInstanceId) throw new Error('Unable to create a secure session identity');
 
       // Track agent profile usage
       if (appParams.appId) {
@@ -2800,10 +2860,12 @@ export default function Chat() {
           name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
           description: 'CBT Therapy Session',
           intent: intentParam,
-          safety_profile: safetyProfile
+          safety_profile: safetyProfile,
+          session_instance_id: newSessionInstanceId
         }
       });
 
+      rememberConversationSessionIdentity(conversation.id, newSessionInstanceId);
       setCurrentConversationId(conversation.id);
       setMessages([]);
       clearLocalAudioDraft();
@@ -2844,6 +2906,8 @@ export default function Chat() {
           base44,
           {
             sessionLanguage: i18n.language,
+            conversation_id: conversation.id,
+            continuation_session_id: newSessionInstanceId,
             runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
             ...(initialMessage ? { message_text: initialMessage } : {}),
           }
@@ -2886,6 +2950,10 @@ export default function Chat() {
       });
 
       let conversation = await base44.agents.getConversation(conversationId);
+      rememberConversationSessionIdentity(
+        conversationId,
+        resolveConversationSessionInstanceId(conversation),
+      );
       const isSameConversation = conversationId === currentConversationId;
       setCurrentConversationId(conversationId);
 
@@ -3678,6 +3746,7 @@ export default function Chat() {
       // Phase 0.2A: holds the locked effective wiring when a new conversation is created.
       // Set in the isNewConversation block; used in the session-start content block below.
       let newConversationEffectiveWiring = null;
+      let newSessionInstanceId = '';
       if (!convId) {
         isNewConversation = true;
         sessionLanguageRef.current = i18n.language || 'en';
@@ -3687,6 +3756,8 @@ export default function Chat() {
         // Phase 0.2A: lock and consume the effective wiring for this session.
         newConversationEffectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
         const agentName = newConversationEffectiveWiring.name;
+        newSessionInstanceId = createSessionInstanceId();
+        if (!newSessionInstanceId) throw new Error('Unable to create a secure session identity');
 
         const conversation = await base44.agents.createConversation({
           agent_name: agentName,
@@ -3694,10 +3765,12 @@ export default function Chat() {
           metadata: {
             name: `Session ${conversations?.length + 1 || 1}`,
             description: 'Therapy session',
-            safety_profile: safetyProfile
+            safety_profile: safetyProfile,
+            session_instance_id: newSessionInstanceId
           }
         });
         convId = conversation.id;
+        rememberConversationSessionIdentity(convId, newSessionInstanceId);
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
@@ -3705,6 +3778,10 @@ export default function Chat() {
       let conversation = null;
       try {
         conversation = await base44.agents.getConversation(convId);
+        rememberConversationSessionIdentity(
+          convId,
+          resolveConversationSessionInstanceId(conversation),
+        );
       } catch (conversationLookupError) {
         if (isNewConversation) {
           console.warn('[Send] New conversation lookup failed on first send; continuing with created conversation context.', conversationLookupError);
@@ -3787,6 +3864,8 @@ export default function Chat() {
             base44,
             {
               sessionLanguage: i18n.language,
+              conversation_id: convId,
+              continuation_session_id: newSessionInstanceId,
               runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
               message_text: messageText,
               onStrategyPolicy: (policy) => {
@@ -4273,6 +4352,7 @@ export default function Chat() {
                 // subscription callbacks (late streaming chunks or socket reconnects)
                 // cannot overwrite the bubble that was just atomically rendered.
                 markAssistantMessagesFinalized(convId, guardedPoll);
+                await persistFinalizedCaseFormulationUpdates(convId, guardedPoll);
                 emitStabilitySummary();
               } else if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
                 // Spec §1: safeUpdateMessages rejected — rejection is non-terminal.

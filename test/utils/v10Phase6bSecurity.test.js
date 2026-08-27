@@ -26,9 +26,11 @@ import {
 } from '../../src/lib/continuationSessionResolver.js';
 import {
   buildUpsertPayload,
+  createSessionInstanceId,
   isFinalAssistantMessage,
   persistCaseFormulationUpdate,
   maybePersistCaseFormulationUpdatesForMessages,
+  resolveConversationSessionInstanceId,
 } from '../../src/lib/caseFormulationInvocation.js';
 import {
   sanitizeCaseFormulationUpdateForClient,
@@ -79,6 +81,20 @@ function richCFU(domain = 'anxiety') {
 }
 
 const AUTH = { sid: 'session-instance-A', mid: 'msg-final-1' };
+
+describe('Gate 1 runtime session identity', () => {
+  it('creates a prefixed canonical ID and fails closed when secure generation is unavailable', () => {
+    expect(createSessionInstanceId(() => 'uuid-123')).toBe('sess_uuid-123');
+    expect(createSessionInstanceId(null)).toBe('');
+    expect(createSessionInstanceId(() => { throw new Error('unavailable'); })).toBe('');
+  });
+
+  it('reads identity only from stored conversation metadata', () => {
+    expect(resolveConversationSessionInstanceId({ metadata: { session_instance_id: AUTH.sid } })).toBe(AUTH.sid);
+    expect(resolveConversationSessionInstanceId({ session_instance_id: 'forged-top-level' })).toBe('');
+    expect(resolveConversationSessionInstanceId(null)).toBe('');
+  });
+});
 
 describe('Correction 1 — message ID is not session ID', () => {
   it('deriveContinuationSessionId returns the canonical session_instance_id, never a message id', () => {
@@ -290,6 +306,37 @@ describe('Correction 4 / observable persistence — idempotency and stale orderi
     expect(r1.attempted).toBe(1);
     expect(r2.attempted).toBe(0);
     expect(r1.persisted).toBe(1);
+  });
+
+  it('persists only the newest eligible finalized update from a full conversation snapshot', async () => {
+    const invokedPayloads = [];
+    const base44 = {
+      functions: {
+        invoke: async (_name, payload) => {
+          invokedPayloads.push(payload);
+          return { data: { success: true, upserted: 'updated' } };
+        },
+      },
+    };
+    const makeMessage = (id, domain) => ({
+      id,
+      role: 'assistant',
+      status: 'completed',
+      metadata: { structured_data: { case_formulation_update: richCFU(domain) } },
+    });
+
+    const result = await maybePersistCaseFormulationUpdatesForMessages(
+      base44,
+      'conv-A',
+      AUTH.sid,
+      [makeMessage('msg-old', 'depression'), makeMessage('msg-new', 'anxiety')],
+      new Set(),
+    );
+
+    expect(result.attempted).toBe(1);
+    expect(invokedPayloads).toHaveLength(1);
+    expect(invokedPayloads[0].source_message_id).toBe('msg-new');
+    expect(invokedPayloads[0].case_formulation_update.cbt_domain).toBe('anxiety');
   });
 
   it('persistence failure is observable (bounded status code) and does not throw', async () => {

@@ -62,6 +62,31 @@ function _isStr(v) {
 }
 
 /**
+ * Creates the canonical identity stored on one agent conversation.  Failure is
+ * deliberately fail-closed: callers must not persist formulation state without
+ * a stable, cryptographically generated conversation/session identity.
+ */
+export function createSessionInstanceId(randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto)) {
+  try {
+    if (typeof randomUUID !== 'function') return '';
+    const value = String(randomUUID()).trim();
+    return value ? `sess_${value}` : '';
+  } catch {
+    return '';
+  }
+}
+
+/** Returns the stored canonical identity for an agent conversation. */
+export function resolveConversationSessionInstanceId(conversation) {
+  try {
+    const value = conversation?.metadata?.session_instance_id;
+    return _isStr(value) ? String(value).trim() : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
  * Predicate: does `msg` represent a FINALIZED assistant result suitable for
  * persisting a CaseFormulationUpdate?  Partial/streaming/non-final messages
  * MUST NOT invoke the writer.  This is the client-side lifecycle boundary; the
@@ -172,6 +197,10 @@ export async function maybePersistCaseFormulationUpdatesForMessages(base44, conv
     if (!_isStr(conversationId) || !_isStr(sourceSessionId) || !Array.isArray(messages) || !(persistedIdsRef instanceof Set)) {
       return summary;
     }
+    // A committed snapshot contains the whole conversation.  Persist only the
+    // newest eligible finalized assistant turn.  Replaying every historical
+    // update newest-to-oldest could let an old turn overwrite the current
+    // formulation after a reload or subscription reconnect.
     for (let i = messages.length - 1; i >= 0; i -= 1) {
       const msg = messages[i];
       if (!isFinalAssistantMessage(msg)) continue;
@@ -185,6 +214,7 @@ export async function maybePersistCaseFormulationUpdatesForMessages(base44, conv
       const result = await persistCaseFormulationUpdate(base44, payload);
       if (result.status === 'persisted') summary.persisted += 1;
       else if (result.status === 'error' || result.status === 'rejected') summary.failed += 1;
+      break;
     }
   } catch {
     // Fail-safe: never surface writer errors in the chat path.
