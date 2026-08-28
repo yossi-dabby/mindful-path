@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import {
+  CBT_KNOWLEDGE_SUPPORTED_LANGUAGES,
   retrieveBoundedCBTKnowledgeBlock,
 } from '../../src/lib/cbtKnowledgeRetrieval.js';
 
@@ -87,14 +88,61 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).toBe('');
   });
 
-  it('allows a unit explicitly marked for all languages', async () => {
+  it('does not treat languages=[all] as permission to inject English into Hebrew', async () => {
     const block = await retrieveBoundedCBTKnowledgeBlock(
       makeEntities([makeLegacyUnit({ languages: ['all'] })]),
       PLAN,
       'he',
     );
 
-    expect(block).toContain('Legacy anxiety unit');
+    expect(block).toBe('');
+  });
+
+  it('uses the exact Hebrew variant without leaking English title, topic, or content', async () => {
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeLegacyUnit({
+        languages: ['en', 'he'],
+        language_variants: { he: 'חרדה היא מערכת הגנה פעילה מדי, ולא סימן לפגם באדם.' },
+      })]),
+      PLAN,
+      'he',
+    );
+
+    expect(block).toContain('חרדה היא מערכת הגנה פעילה מדי');
+    expect(block).toContain('תקציר:');
+    expect(block).not.toContain('Legacy anxiety unit');
+    expect(block).not.toContain('Legacy summary');
+    expect(block).not.toContain('Topic: anxiety');
+  });
+
+  it.each(['he', 'es', 'fr', 'de', 'it', 'pt'])(
+    'fails closed for %s when the exact language variant is missing or blank',
+    async (language) => {
+      for (const language_variants of [undefined, {}, { [language]: '   ' }]) {
+        const block = await retrieveBoundedCBTKnowledgeBlock(
+          makeEntities([makeLegacyUnit({
+            languages: CBT_KNOWLEDGE_SUPPORTED_LANGUAGES,
+            language_variants,
+          })]),
+          PLAN,
+          language,
+        );
+        expect(block).toBe('');
+      }
+    },
+  );
+
+  it('fails closed for unsupported session languages', async () => {
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeLegacyUnit({
+        languages: ['en', 'nl'],
+        language_variants: { nl: 'Nederlandse inhoud' },
+      })]),
+      PLAN,
+      'nl',
+    );
+
+    expect(block).toBe('');
   });
 
   it('fails closed when planner_domain and cbt_domain conflict', async () => {
@@ -183,6 +231,34 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).toContain(expectedExcerpt);
     expect(block).not.toContain(realSeedUnit.admin_notes);
   });
+
+  it.each(['he', 'es', 'fr', 'de', 'it', 'pt'])(
+    'injects the exact %s variant from a real eligible seed without English fallback',
+    async (language) => {
+      const seedPath = fileURLToPath(
+        new URL('../../src/data/cbt-curriculum-seed-wave4.json', import.meta.url),
+      );
+      const seedUnits = JSON.parse(readFileSync(seedPath, 'utf8'));
+      const realSeedUnit = seedUnits.find(unit => (
+        unit.planner_domain === 'anxiety' &&
+        unit.runtime_eligible_first_wave === true &&
+        unit.is_active === true &&
+        Array.isArray(unit.safety_tags) &&
+        unit.safety_tags.length === 0
+      ));
+
+      const block = await retrieveBoundedCBTKnowledgeBlock(
+        makeEntities([realSeedUnit]),
+        PLAN,
+        language,
+      );
+
+      expect(block).toContain(realSeedUnit.language_variants[language].slice(0, 80));
+      expect(block).not.toContain(realSeedUnit.title);
+      expect(block).not.toContain(realSeedUnit.content.slice(0, 80));
+      expect(block).not.toContain(realSeedUnit.admin_notes);
+    },
+  );
 
   it('bounds the content fallback to 300 characters', async () => {
     const boundedPrefix = 'A'.repeat(300);

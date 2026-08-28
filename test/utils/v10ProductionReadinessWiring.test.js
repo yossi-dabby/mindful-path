@@ -317,6 +317,32 @@ describe('Phase 4/5 — production seed first-wave contract', () => {
       'Trauma-Focused CBT: Overview of CPT Approach',
     ]);
   });
+
+  it('11e. every first-wave row declares all seven supported languages with six explicit variants', () => {
+    const SUPPORTED = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
+    const VARIANT_LANGUAGES = SUPPORTED.filter((language) => language !== 'en');
+
+    for (const unit of eligible) {
+      expect([...unit.languages].sort()).toEqual([...SUPPORTED].sort());
+      expect(unit.languages).not.toContain('all');
+      expect(unit.language_variants).toBeTruthy();
+      expect(Object.keys(unit.language_variants).sort()).toEqual(
+        [...VARIANT_LANGUAGES].sort(),
+      );
+      for (const language of VARIANT_LANGUAGES) {
+        expect(typeof unit.language_variants[language]).toBe('string');
+        expect(unit.language_variants[language].trim().length).toBeGreaterThan(120);
+      }
+    }
+  });
+
+  it('11f. excluded high-guard rows remain English-only and carry no runtime translation variants', () => {
+    const excluded = seed.filter((u) => u.runtime_eligible_first_wave !== true);
+    for (const unit of excluded) {
+      expect(unit.languages).toEqual(['en']);
+      expect(unit.language_variants).toBeUndefined();
+    }
+  });
 });
 
 // ─── 12/13. Feature-flag Preview activation is exact-host scoped ──────────────
