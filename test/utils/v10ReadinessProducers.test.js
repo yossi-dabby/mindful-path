@@ -267,7 +267,12 @@ describe('Phase 6 — runtime wiring + opaque override immunity', () => {
 
   it('14. V11/V12 remain disabled (preview override set is exactly the four V10 flags)', async () => {
     const mod = await import('../../src/lib/featureFlags.js');
-    const { V10_KNOWLEDGE_PREVIEW_OVERRIDES, _isPreviewStagingHost, V10_KNOWLEDGE_PREVIEW_HOST } = mod;
+    const {
+      V10_KNOWLEDGE_PREVIEW_OVERRIDES,
+      V10_KNOWLEDGE_PREVIEW_HOST,
+      V10_KNOWLEDGE_PRODUCTION_HOST,
+      _isPreviewStagingHost,
+    } = mod;
     expect(Object.isFrozen(V10_KNOWLEDGE_PREVIEW_OVERRIDES)).toBe(true);
     const keys = Object.keys(V10_KNOWLEDGE_PREVIEW_OVERRIDES).sort();
     expect(keys).toEqual([
@@ -281,6 +286,7 @@ describe('Phase 6 — runtime wiring + opaque override immunity', () => {
     // Production & lookalike hosts receive no Preview activation.
     expect(_isPreviewStagingHost('mindful-path-75aeaf7d.base44.app')).toBe(false);
     expect(_isPreviewStagingHost('mindfulpath.com')).toBe(false);
+    expect(_isPreviewStagingHost(V10_KNOWLEDGE_PRODUCTION_HOST)).toBe(false);
     expect(_isPreviewStagingHost(`${V10_KNOWLEDGE_PREVIEW_HOST}.evil.com`)).toBe(false);
   });
 
