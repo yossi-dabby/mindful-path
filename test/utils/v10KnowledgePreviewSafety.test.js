@@ -299,6 +299,44 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).not.toContain('FRAGMENTO_FINAL');
   });
 
+  it('does not mistake a decimal point for a sentence boundary', async () => {
+    const content = `${'Contexto clínico '.repeat(15)}tasa 7.5 ${'continuación '.repeat(20)}`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([
+        makeSeedContractUnit({
+          languages: ['en', 'es'],
+          language_variants: { es: content },
+        }),
+      ]),
+      PLAN,
+      'es',
+    );
+    const summary = block.split('\n').find((line) => line.startsWith('    Resumen:'));
+
+    expect(summary).toContain('tasa 7.5');
+    expect(summary).not.toMatch(/tasa 7\.$/);
+    expect(summary).toMatch(/…$/);
+  });
+
+  it('preserves a complete opening sentence shorter than the word fallback threshold', async () => {
+    const completeSentence = 'Primera oración completa.';
+    const content = `${completeSentence} ${'La segunda oración continúa '.repeat(20)}FRAGMENTO_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([
+        makeSeedContractUnit({
+          languages: ['en', 'es'],
+          language_variants: { es: content },
+        }),
+      ]),
+      PLAN,
+      'es',
+    );
+
+    expect(block).toContain(`Resumen: ${completeSentence}`);
+    expect(block).not.toContain('La segunda oración');
+    expect(block).not.toContain('FRAGMENTO_FINAL');
+  });
+
   it('prefers content_summary over content when both are present', async () => {
     const block = await retrieveBoundedCBTKnowledgeBlock(
       makeEntities([

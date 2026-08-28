@@ -275,12 +275,21 @@ function _truncateKnowledgeText(text) {
   if (normalized.length <= _KNOWLEDGE_TEXT_MAX_LENGTH) return normalized;
 
   const bounded = normalized.slice(0, _KNOWLEDGE_TEXT_MAX_LENGTH);
-  const sentenceBoundary = Math.max(
-    bounded.lastIndexOf('.'),
-    bounded.lastIndexOf('!'),
-    bounded.lastIndexOf('?'),
-  );
-  if (sentenceBoundary >= _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY) {
+  let sentenceBoundary = -1;
+  for (let index = 0; index < bounded.length; index += 1) {
+    const character = bounded[index];
+    if (!'.!?'.includes(character)) continue;
+
+    const previousCharacter = bounded[index - 1] ?? '';
+    const nextCharacter = bounded[index + 1] ?? '';
+    const isDecimalPoint = character === '.'
+      && /\d/.test(previousCharacter)
+      && /\d/.test(nextCharacter);
+    const isTerminated = index === bounded.length - 1 || /\s/.test(nextCharacter);
+
+    if (!isDecimalPoint && isTerminated) sentenceBoundary = index;
+  }
+  if (sentenceBoundary >= 0) {
     return bounded.slice(0, sentenceBoundary + 1).trimEnd();
   }
 
