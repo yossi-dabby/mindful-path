@@ -339,6 +339,46 @@ describe('Correction 4 / observable persistence — idempotency and stale orderi
     expect(invokedPayloads[0].case_formulation_update.cbt_domain).toBe('anxiety');
   });
 
+  it('does not replay an older update when the newest eligible update was already handled', async () => {
+    const invokedPayloads = [];
+    const base44 = {
+      functions: {
+        invoke: async (_name, payload) => {
+          invokedPayloads.push(payload);
+          return { data: { success: true, upserted: 'updated' } };
+        },
+      },
+    };
+    const makeMessage = (id, domain) => ({
+      id,
+      role: 'assistant',
+      status: 'completed',
+      metadata: { structured_data: { case_formulation_update: richCFU(domain) } },
+    });
+    const snapshot = [makeMessage('msg-old', 'depression'), makeMessage('msg-new', 'anxiety')];
+    const persisted = new Set();
+
+    const first = await maybePersistCaseFormulationUpdatesForMessages(
+      base44,
+      'conv-A',
+      AUTH.sid,
+      snapshot,
+      persisted,
+    );
+    const replay = await maybePersistCaseFormulationUpdatesForMessages(
+      base44,
+      'conv-A',
+      AUTH.sid,
+      snapshot,
+      persisted,
+    );
+
+    expect(first.attempted).toBe(1);
+    expect(replay.attempted).toBe(0);
+    expect(invokedPayloads).toHaveLength(1);
+    expect(invokedPayloads[0].source_message_id).toBe('msg-new');
+  });
+
   it('persistence failure is observable (bounded status code) and does not throw', async () => {
     const failingBase44 = {
       functions: { invoke: async () => { throw new Error('boom'); } },

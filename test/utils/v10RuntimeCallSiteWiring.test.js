@@ -12,6 +12,13 @@ describe('V10 Gate 1 — live Chat runtime wiring', () => {
     expect(chatSource).toContain('maybePersistCaseFormulationUpdatesForMessages(');
   });
 
+  it('persists the polling snapshot after safeUpdateMessages has tagged it final', () => {
+    expect(chatSource).toMatch(
+      /const updated = [\s\S]*?safeUpdateMessages\(guardedPoll, 'Polling', \{ pollFinality \}\);[\s\S]*?if \(updated\) \{[\s\S]*?const committedPoll = lastConfirmedMessagesRef\.current;[\s\S]*?persistFinalizedCaseFormulationUpdates\(convId, committedPoll\);/,
+    );
+    expect(chatSource).not.toContain('persistFinalizedCaseFormulationUpdates(convId, guardedPoll);');
+  });
+
   it('creates and stores a canonical session_instance_id on every conversation path', () => {
     const createCalls = chatSource.match(/agents\.createConversation\(\{/g) ?? [];
     const metadataBindings = chatSource.match(/session_instance_id:\s*newSessionInstanceId/g) ?? [];
