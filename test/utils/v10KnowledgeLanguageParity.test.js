@@ -53,13 +53,16 @@ describe('V10 Knowledge — seven-language seed retrieval parity', () => {
     'retrieves all eight eligible rows in %s from exact variants only',
     async (language) => {
       for (const unit of eligible) {
+        const variant = unit.language_variants[language];
         const block = await retrieveBoundedCBTKnowledgeBlock(
           makeEntities(unit),
           makePlan(unit.planner_domain),
           language,
         );
 
-        expect(block).toContain(unit.language_variants[language].slice(0, 80));
+        expect(variant.length).toBeLessThanOrEqual(300);
+        expect(variant).toMatch(/[.!?]$/);
+        expect(block).toContain(variant);
         expect(block).not.toContain(unit.title);
         expect(block).not.toContain(unit.content.slice(0, 80));
       }

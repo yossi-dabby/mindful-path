@@ -159,14 +159,6 @@ const _KNOWLEDGE_BLOCK_COPY = Object.freeze({
   }),
 });
 
-const _KNOWLEDGE_TEXT_MAX_LENGTH = 300;
-const _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY = 120;
-const _KNOWLEDGE_SENTENCE_CLOSERS = '"\'”’»›)]}';
-const _KNOWLEDGE_PERIOD_ABBREVIATIONS = new Set([
-  'dr', 'mr', 'mrs', 'ms', 'prof', 'sr', 'jr', 'st', 'vs', 'etc',
-  'e.g', 'i.e', 'm', 'mme', 'mlle', 'sra', 'dott', 'sig', 'sig.ra', 'dr.a',
-]);
-
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
 /**
@@ -263,70 +255,6 @@ function _getLocalizedContent(unit, sessionLanguage) {
   if (!variants || typeof variants !== 'object' || Array.isArray(variants)) return '';
   const variant = variants[sessionLanguage];
   return typeof variant === 'string' ? variant.trim() : '';
-}
-
-/**
- * Keeps the established 300-character context bound without returning a
- * malformed partial sentence. When a sentence boundary is unavailable, a
- * word boundary is preferred; opaque unbroken tokens retain the legacy hard
- * cap behavior.
- *
- * @private
- * @param {string} text
- * @returns {string}
- */
-function _truncateKnowledgeText(text) {
-  const normalized = typeof text === 'string' ? text.trim() : '';
-  if (normalized.length <= _KNOWLEDGE_TEXT_MAX_LENGTH) return normalized;
-
-  const bounded = normalized.slice(0, _KNOWLEDGE_TEXT_MAX_LENGTH);
-  let sentenceBoundary = -1;
-  for (let index = 0; index < bounded.length; index += 1) {
-    const character = bounded[index];
-    if (!'.!?'.includes(character)) continue;
-
-    const previousCharacter = bounded[index - 1] ?? '';
-    const nextCharacter = normalized[index + 1] ?? '';
-    const isDecimalPoint = character === '.'
-      && /\d/.test(previousCharacter)
-      && /\d/.test(nextCharacter);
-    let boundaryEnd = index;
-    while (_KNOWLEDGE_SENTENCE_CLOSERS.includes(normalized[boundaryEnd + 1] ?? '')) {
-      boundaryEnd += 1;
-    }
-    const characterAfterBoundary = normalized[boundaryEnd + 1] ?? '';
-    const nextTokenCharacter = normalized.slice(boundaryEnd + 1).trimStart()[0] ?? '';
-    const precedingToken = normalized.slice(0, index).match(/([\p{L}.]+)$/u)?.[1]
-      ?.toLocaleLowerCase('en') ?? '';
-    const isMultiInitialAbbreviation = /^(?:\p{L}\.)+\p{L}$/u.test(precedingToken);
-    const isAbbreviation = character === '.'
-      && /\p{L}/u.test(nextTokenCharacter)
-      && (_KNOWLEDGE_PERIOD_ABBREVIATIONS.has(precedingToken)
-        || /^\p{L}$/u.test(precedingToken)
-        || isMultiInitialAbbreviation);
-    const isEmbeddedDelimitedContinuation = boundaryEnd > index
-      && /\p{Ll}/u.test(nextTokenCharacter);
-    const isWithinBound = boundaryEnd < _KNOWLEDGE_TEXT_MAX_LENGTH;
-    const isTerminated = isWithinBound
-      && (characterAfterBoundary === '' || /\s/.test(characterAfterBoundary));
-
-    if (!isDecimalPoint
-      && !isAbbreviation
-      && !isEmbeddedDelimitedContinuation
-      && isTerminated) {
-      sentenceBoundary = boundaryEnd;
-    }
-  }
-  if (sentenceBoundary >= 0) {
-    return bounded.slice(0, sentenceBoundary + 1).trimEnd();
-  }
-
-  const wordBoundary = bounded.lastIndexOf(' ');
-  if (wordBoundary >= _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY) {
-    return `${bounded.slice(0, wordBoundary).trimEnd()}…`;
-  }
-
-  return bounded;
 }
 // ─── Wave 4D — Unit type preference → entity unit_type mapping ────────────────
 
@@ -661,9 +589,7 @@ function _formatKnowledgeBlock(units, sessionLanguage) {
       const topic = isEnglish && typeof unit.clinical_topic === 'string' && unit.clinical_topic.trim()
         ? unit.clinical_topic.trim()
         : '';
-      const summary = _truncateKnowledgeText(
-        _getLocalizedContent(unit, sessionLanguage),
-      );
+      const summary = _getLocalizedContent(unit, sessionLanguage).slice(0, 300);
 
       lines.push(`[${num}] ${title}`);
       if (topic) lines.push(`    ${copy.topic}: ${topic}`);
