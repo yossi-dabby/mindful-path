@@ -38,6 +38,7 @@ import {
 import {
   CBT_THERAPIST_WIRING_HYBRID,
   CBT_THERAPIST_WIRING_STAGE2_V1,
+  CBT_THERAPIST_WIRING_STAGE2_V10,
   CBT_THERAPIST_WIRING_STAGE2_V12,
 } from '../../src/api/agentWiring.js';
 
@@ -363,6 +364,45 @@ describe('resolveTherapistRuntimeActivation decision API (tests 14–20)', () =>
       });
       expect(decision.wiring).toBe(expectedWiring);
     }
+  });
+
+  it('20a. Base44 Production runtime authority cannot escalate V10 to V11/V12', () => {
+    const allFlagsTrue = {};
+    for (const key of THERAPIST_RUNTIME_FLAG_KEYS) {
+      allFlagsTrue[key] = true;
+    }
+
+    const decision = resolveTherapistRuntimeActivation({
+      snapshot: makeAvailableSnapshot(allFlagsTrue),
+      fallbackWiring: CBT_THERAPIST_WIRING_HYBRID,
+      hostname: 'app.mindful-path.me',
+    });
+
+    expect(decision.wiring).toBe(CBT_THERAPIST_WIRING_STAGE2_V10);
+    expect(decision.applied).toBe(true);
+    expect(decision.reason).toBe('runtime_snapshot_applied');
+  });
+
+  it('20b. Base44 Production runtime authority cannot downgrade V10 to HYBRID', () => {
+    const decision = resolveTherapistRuntimeActivation({
+      snapshot: makeAvailableSnapshot({ THERAPIST_RUNTIME_APPLY_ENABLED: true }),
+      fallbackWiring: CBT_THERAPIST_WIRING_HYBRID,
+      hostname: 'APP.MINDFUL-PATH.ME',
+    });
+
+    expect(decision.wiring).toBe(CBT_THERAPIST_WIRING_STAGE2_V10);
+    expect(decision.applied).toBe(true);
+  });
+
+  it('20c. production lookalikes remain governed by the backend snapshot', () => {
+    const decision = resolveTherapistRuntimeActivation({
+      snapshot: makeAvailableSnapshot({ THERAPIST_RUNTIME_APPLY_ENABLED: true }),
+      fallbackWiring: CBT_THERAPIST_WIRING_STAGE2_V10,
+      hostname: 'app.mindful-path.me.evil.com',
+    });
+
+    expect(decision.wiring).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(decision.applied).toBe(true);
   });
 });
 
