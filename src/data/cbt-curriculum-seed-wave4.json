@@ -13,11 +13,11 @@
     "languages": ["en", "he", "es", "fr", "de", "it", "pt"],
     "language_variants": {
       "he": "חרדה ומערכת הפחד: חרדה היא מערכת זיהוי האיומים של המוח, המפעילה תגובת הילחם־או־ברח מול סכנה אמיתית או מדומיינת. בהפרעות חרדה המערכת נעשית רגישה מדי ומפעילה אזעקות שווא. CBT מסייע להבחין בין איום אמיתי לאזעקת שווא באמצעות חשיפה והבניה קוגניטיבית.",
-      "es": "Ansiedad y miedo: el sistema cerebral de amenazas activa la lucha o huida ante peligro real o imaginado. En la ansiedad se vuelve hipersensible y produce falsas alarmas. La CBT ayuda a distinguirlas mediante exposición y reestructuración cognitiva.",
-      "fr": "Anxiété et peur : le système cérébral de détection des menaces active la lutte ou la fuite face au danger réel ou imaginé. Dans l’anxiété, il déclenche de fausses alertes. La CBT aide à les distinguer par l’exposition et la restructuration cognitive.",
+      "es": "Ansiedad y miedo: el sistema cerebral de amenazas activa la lucha o huida ante peligro real o imaginado. En los trastornos de ansiedad se vuelve hipersensible y produce falsas alarmas. La CBT ayuda a distinguirlas mediante exposición y reestructuración cognitiva.",
+      "fr": "Anxiété et peur : le système cérébral de détection des menaces active la lutte ou la fuite face au danger réel ou imaginé. Dans les troubles anxieux, il déclenche de fausses alertes. La CBT aide à les distinguer par l’exposition et la restructuration cognitive.",
       "de": "Angst und Furchtsystem: Das Bedrohungssystem aktiviert bei realer oder vorgestellter Gefahr Kampf oder Flucht. Bei Angststörungen löst es Fehlalarme aus. CBT hilft durch Exposition und kognitive Umstrukturierung, echte Gefahr davon zu unterscheiden.",
-      "it": "Ansia e paura: il sistema cerebrale delle minacce attiva l’attacco o la fuga davanti a pericoli reali o immaginati. Nell’ansia genera falsi allarmi. La CBT aiuta a distinguerli tramite esposizione e ristrutturazione cognitiva.",
-      "pt": "Ansiedade e medo: o sistema cerebral de ameaças ativa luta ou fuga diante de perigo real ou imaginado. Na ansiedade, dispara alarmes falsos. A CBT ajuda a distingui-los por meio de exposição e reestruturação cognitiva."
+      "it": "Ansia e paura: il sistema cerebrale delle minacce attiva l’attacco o la fuga davanti a pericoli reali o immaginati. Nei disturbi d’ansia genera falsi allarmi. La CBT aiuta a distinguerli tramite esposizione e ristrutturazione cognitiva.",
+      "pt": "Ansiedade e medo: o sistema cerebral de ameaças ativa luta ou fuga diante de perigo real ou imaginado. Nos transtornos de ansiedade, dispara alarmes falsos. A CBT ajuda a distingui-los por meio de exposição e reestruturação cognitiva."
     },
     "priority_score": 8,
     "is_active": true,
