@@ -118,8 +118,8 @@
     "distress_suitability": "not_in_crisis",
     "evidence_level": "gold_standard",
     "safety_tags": ["cardiac_precaution", "respiratory_precaution"],
-    "runtime_eligible_first_wave": true,
-    "admin_notes": "Wave 4B seed — first-wave panic domain"
+    "runtime_eligible_first_wave": false,
+    "admin_notes": "Wave 4B seed — panic domain deferred from first-wave runtime because safety_tags are non-empty"
   },
   {
     "unit_type": "psychoeducation",
@@ -179,8 +179,8 @@
     "distress_suitability": "not_in_crisis",
     "evidence_level": "gold_standard",
     "safety_tags": ["contraindicated_in_crisis"],
-    "runtime_eligible_first_wave": true,
-    "admin_notes": "Wave 4B seed — first-wave phobia domain"
+    "runtime_eligible_first_wave": false,
+    "admin_notes": "Wave 4B seed — phobia domain deferred from first-wave runtime because safety_tags are non-empty"
   },
   {
     "unit_type": "psychoeducation",
