@@ -318,6 +318,34 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(summary).toMatch(/…$/);
   });
 
+  it('uses original-text lookahead when a decimal point lands at the output cap', async () => {
+    const content = `${'A'.repeat(297)} 7.5 ${'continuation '.repeat(20)}`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeSeedContractUnit({ content_summary: content })]),
+      PLAN,
+      'en',
+    );
+    const summary = block.split('\n').find((line) => line.startsWith('    Summary:'));
+
+    expect(summary).not.toMatch(/7\.$/);
+    expect(summary).toContain('A'.repeat(297));
+    expect(summary).toMatch(/…$/);
+  });
+
+  it('includes closing quotes in a complete sentence boundary', async () => {
+    const completeSentence = "The client asks, 'Am I looking anxious? Am I being boring? Are they judging me?'";
+    const content = `${completeSentence} ${'The next sentence continues '.repeat(20)}FRAGMENT_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeSeedContractUnit({ content_summary: content })]),
+      PLAN,
+      'en',
+    );
+
+    expect(block).toContain(`Summary: ${completeSentence}`);
+    expect(block).not.toContain('The next sentence');
+    expect(block).not.toContain('FRAGMENT_FINAL');
+  });
+
   it('preserves a complete opening sentence shorter than the word fallback threshold', async () => {
     const completeSentence = 'Primera oración completa.';
     const content = `${completeSentence} ${'La segunda oración continúa '.repeat(20)}FRAGMENTO_FINAL`;

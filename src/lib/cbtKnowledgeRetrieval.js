@@ -161,6 +161,7 @@ const _KNOWLEDGE_BLOCK_COPY = Object.freeze({
 
 const _KNOWLEDGE_TEXT_MAX_LENGTH = 300;
 const _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY = 120;
+const _KNOWLEDGE_SENTENCE_CLOSERS = '"\'”’)]}';
 
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
@@ -281,13 +282,20 @@ function _truncateKnowledgeText(text) {
     if (!'.!?'.includes(character)) continue;
 
     const previousCharacter = bounded[index - 1] ?? '';
-    const nextCharacter = bounded[index + 1] ?? '';
+    const nextCharacter = normalized[index + 1] ?? '';
     const isDecimalPoint = character === '.'
       && /\d/.test(previousCharacter)
       && /\d/.test(nextCharacter);
-    const isTerminated = index === bounded.length - 1 || /\s/.test(nextCharacter);
+    let boundaryEnd = index;
+    while (_KNOWLEDGE_SENTENCE_CLOSERS.includes(normalized[boundaryEnd + 1] ?? '')) {
+      boundaryEnd += 1;
+    }
+    const characterAfterBoundary = normalized[boundaryEnd + 1] ?? '';
+    const isWithinBound = boundaryEnd < _KNOWLEDGE_TEXT_MAX_LENGTH;
+    const isTerminated = isWithinBound
+      && (characterAfterBoundary === '' || /\s/.test(characterAfterBoundary));
 
-    if (!isDecimalPoint && isTerminated) sentenceBoundary = index;
+    if (!isDecimalPoint && isTerminated) sentenceBoundary = boundaryEnd;
   }
   if (sentenceBoundary >= 0) {
     return bounded.slice(0, sentenceBoundary + 1).trimEnd();
