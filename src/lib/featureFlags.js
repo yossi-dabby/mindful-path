@@ -300,7 +300,7 @@ export const V10_KNOWLEDGE_PINNED_OVERRIDES = Object.freeze({
 export const V10_KNOWLEDGE_PREVIEW_OVERRIDES =
   V10_KNOWLEDGE_PINNED_OVERRIDES;
 
-function _isPinnedV10KnowledgeHost(hostname) {
+export function isPinnedV10KnowledgeHost(hostname) {
   if (!hostname || typeof hostname !== 'string') return false;
 
   const normalizedHostname = hostname.trim().toLowerCase();
@@ -395,7 +395,7 @@ function _readStagingRuntimeOverrides() {
     // The isolated Preview and Base44 Production hosts receive exactly the
     // four V10 Knowledge flags. Do not parse `_s2` here: URL input must not
     // enable later phases.
-    if (_isPinnedV10KnowledgeHost(normalizedHostname)) {
+    if (isPinnedV10KnowledgeHost(normalizedHostname)) {
       return { ...V10_KNOWLEDGE_PINNED_OVERRIDES };
     }
 
@@ -459,7 +459,7 @@ export function isUpgradeEnabled(flagName) {
   // The isolated V10 Knowledge Preview and Base44 Production host are pinned
   // to exactly four flags. This early return blocks both URL overrides and
   // build-time variables from activating V11, V12, or unrelated capabilities.
-  if (_isPinnedV10KnowledgeHost(normalizedHostname)) {
+  if (isPinnedV10KnowledgeHost(normalizedHostname)) {
     return V10_KNOWLEDGE_PINNED_OVERRIDES[flagName] === true;
   }
 
