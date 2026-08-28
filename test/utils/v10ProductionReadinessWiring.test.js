@@ -281,7 +281,7 @@ describe('Phase 4/5 — production seed first-wave contract', () => {
   const eligible = seed.filter((u) => u.runtime_eligible_first_wave === true);
 
   it('11a. every first-wave row has a valid (or absent) treatment_arc_position', () => {
-    expect(eligible.length).toBe(10);
+    expect(eligible.length).toBe(8);
     for (const unit of eligible) {
       if (Object.prototype.hasOwnProperty.call(unit, 'treatment_arc_position')) {
         expect(ALLOWED_ARC.has(unit.treatment_arc_position)).toBe(true);
@@ -290,16 +290,11 @@ describe('Phase 4/5 — production seed first-wave contract', () => {
     }
   });
 
-  it('11b. documented data-consistency blocker: 2 first-wave rows carry non-empty safety_tags', () => {
+  it('11b. no first-wave row carries non-empty safety_tags', () => {
     const nonEmpty = eligible.filter(
       (u) => Array.isArray(u.safety_tags) && u.safety_tags.length > 0,
     );
-    // These two rows are excluded at retrieval time by the safety_tags filter.
-    expect(nonEmpty.length).toBe(2);
-    expect(nonEmpty.map((u) => u.title).sort()).toEqual([
-      'Panic Disorder: Interoceptive Exposure Introduction',
-      'Phobia: Graded Exposure Hierarchy',
-    ]);
+    expect(nonEmpty).toHaveLength(0);
   });
 
   it('11c. every first-wave row has an allowlisted planner_domain, evidence_level, and is_active', () => {
@@ -312,9 +307,15 @@ describe('Phase 4/5 — production seed first-wave contract', () => {
     }
   });
 
-  it('11d. exactly one non-eligible reference row is excluded from first-wave retrieval', () => {
+  it('11d. safety-tagged and trauma reference rows are explicitly excluded from first-wave retrieval', () => {
     expect(seed.length).toBe(11);
-    expect(seed.filter((u) => u.runtime_eligible_first_wave !== true).length).toBe(1);
+    const excluded = seed.filter((u) => u.runtime_eligible_first_wave !== true);
+    expect(excluded).toHaveLength(3);
+    expect(excluded.map((u) => u.title).sort()).toEqual([
+      'Panic Disorder: Interoceptive Exposure Introduction',
+      'Phobia: Graded Exposure Hierarchy',
+      'Trauma-Focused CBT: Overview of CPT Approach',
+    ]);
   });
 });
 
