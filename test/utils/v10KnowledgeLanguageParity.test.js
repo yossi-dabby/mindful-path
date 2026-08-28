@@ -16,6 +16,7 @@ const excluded = seed.filter((unit) => unit.runtime_eligible_first_wave !== true
 
 const requiredTakeawayPatterns = {
   'Anxiety Disorder Psychoeducation: The Fear System': [
+    /בהפרעות חרדה|trastornos de ansiedad|troubles anxieux|Angststörungen|disturbi d’ansia|transtornos de ansiedade/i,
     /חשיפ|exposici|exposit|Exposition|esposizi|exposiç/i,
     /קוגניט|cognitiv|kognitiv/i,
   ],
