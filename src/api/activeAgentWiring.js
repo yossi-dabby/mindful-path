@@ -80,6 +80,8 @@ import {
   isCompanionUpgradeEnabled,
   logCompanionUpgradeEvent,
   registerCompanionUpgradeAnalyticsTracker,
+  isPinnedV10KnowledgeHost,
+  V10_KNOWLEDGE_PINNED_OVERRIDES,
 } from '../lib/featureFlags.js';
 
 // ─── Phase 0.1 — Analytics registration ─────────────────────────────────────
@@ -585,10 +587,10 @@ export const ACTIVE_AGENT_WIRINGS = {
  *   runtime_snapshot_applied — snapshot available and APPLY === true; wiring resolved
  *                              through the canonical resolver
  *
- * @param {{ snapshot: object|null, fallbackWiring: object }} options
+ * @param {{ snapshot: object|null, fallbackWiring: object, hostname?: string }} options
  * @returns {{ wiring: object, applied: boolean, reason: string }}
  */
-export function resolveTherapistRuntimeActivation({ snapshot, fallbackWiring }) {
+export function resolveTherapistRuntimeActivation({ snapshot, fallbackWiring, hostname = '' }) {
   const safe = fallbackWiring ?? ACTIVE_CBT_THERAPIST_WIRING;
 
   if (!snapshot || snapshot.transport_status !== 'available' || !snapshot.received) {
@@ -607,9 +609,18 @@ export function resolveTherapistRuntimeActivation({ snapshot, fallbackWiring }) 
   }
 
   // APPLY=true — delegate to the canonical resolver for V1–V12 selection.
-  // The APPLY flag itself is excluded from the reader so it cannot alter V1–V12 routing.
+  // The exact pinned V10 hosts remain constrained to their four approved flags;
+  // a backend snapshot cannot downgrade them to HYBRID or escalate them to V11/V12.
+  // The APPLY flag itself is excluded from the reader so it cannot alter routing.
+  const pinnedV10Host = isPinnedV10KnowledgeHost(hostname);
   const resolvedWiring = resolveTherapistWiringFromFlagReader(
-    (flagName) => flagName === 'THERAPIST_RUNTIME_APPLY_ENABLED' ? false : (flags[flagName] === true),
+    (flagName) => {
+      if (flagName === 'THERAPIST_RUNTIME_APPLY_ENABLED') return false;
+      if (pinnedV10Host) {
+        return V10_KNOWLEDGE_PINNED_OVERRIDES[flagName] === true;
+      }
+      return flags[flagName] === true;
+    },
   );
 
   return { wiring: resolvedWiring, applied: true, reason: 'runtime_snapshot_applied' };

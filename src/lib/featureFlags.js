@@ -278,19 +278,35 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
   CONTEXT_COMPOSER_V2_ENABLED: import.meta.env?.VITE_CONTEXT_COMPOSER_V2_ENABLED === 'true',
 });
 
-// Temporary, preview-only V10 Knowledge activation.
-// The exact hostname comparison prevents sibling/subdomain matches.
-// Returning these fixed overrides before parsing `_s2` also prevents
-// URL parameters from escalating this host into V11, V12, or other phases.
+// Pinned V10 Knowledge activation for the isolated Preview and Base44
+// Production hosts. Base44 Application Secrets are backend-only, so VITE_*
+// values are not compiled into the published browser bundle. Exact hostname
+// comparisons preserve fail-closed behavior for siblings and lookalikes.
+// Returning these fixed overrides before parsing `_s2` also prevents URL
+// parameters from escalating either host into V11, V12, or other phases.
 export const V10_KNOWLEDGE_PREVIEW_HOST =
   'mindful-path-v10-preview.base44.app';
 
-export const V10_KNOWLEDGE_PREVIEW_OVERRIDES = Object.freeze({
+export const V10_KNOWLEDGE_PRODUCTION_HOST = 'app.mindful-path.me';
+
+export const V10_KNOWLEDGE_PINNED_OVERRIDES = Object.freeze({
   THERAPIST_UPGRADE_ENABLED: true,
   THERAPIST_UPGRADE_STRATEGY_ENABLED: true,
   THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: true,
   THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: true,
 });
+
+// Backward-compatible export retained for the existing Preview audit surface.
+export const V10_KNOWLEDGE_PREVIEW_OVERRIDES =
+  V10_KNOWLEDGE_PINNED_OVERRIDES;
+
+export function isPinnedV10KnowledgeHost(hostname) {
+  if (!hostname || typeof hostname !== 'string') return false;
+
+  const normalizedHostname = hostname.trim().toLowerCase();
+  return normalizedHostname === V10_KNOWLEDGE_PREVIEW_HOST ||
+    normalizedHostname === V10_KNOWLEDGE_PRODUCTION_HOST;
+}
 
 /**
  * Returns true when the given hostname is an explicitly recognised
@@ -376,10 +392,11 @@ function _readStagingRuntimeOverrides() {
     const normalizedHostname =
       typeof hostname === 'string' ? hostname.trim().toLowerCase() : '';
 
-    // This isolated Preview host receives exactly the four V10 Knowledge
-    // flags. Do not parse `_s2` here: URL input must not enable later phases.
-    if (normalizedHostname === V10_KNOWLEDGE_PREVIEW_HOST) {
-      return { ...V10_KNOWLEDGE_PREVIEW_OVERRIDES };
+    // The isolated Preview and Base44 Production hosts receive exactly the
+    // four V10 Knowledge flags. Do not parse `_s2` here: URL input must not
+    // enable later phases.
+    if (isPinnedV10KnowledgeHost(normalizedHostname)) {
+      return { ...V10_KNOWLEDGE_PINNED_OVERRIDES };
     }
 
     if (!_isPreviewStagingHost(hostname)) return {};
@@ -439,11 +456,11 @@ export function isUpgradeEnabled(flagName) {
   const normalizedHostname =
     typeof hostname === 'string' ? hostname.trim().toLowerCase() : '';
 
-  // The isolated V10 Knowledge Preview is pinned to exactly four flags.
-  // This early return blocks both URL overrides and build-time variables from
-  // activating V11, V12, or any unrelated upgrade capability on this host.
-  if (normalizedHostname === V10_KNOWLEDGE_PREVIEW_HOST) {
-    return V10_KNOWLEDGE_PREVIEW_OVERRIDES[flagName] === true;
+  // The isolated V10 Knowledge Preview and Base44 Production host are pinned
+  // to exactly four flags. This early return blocks both URL overrides and
+  // build-time variables from activating V11, V12, or unrelated capabilities.
+  if (isPinnedV10KnowledgeHost(normalizedHostname)) {
+    return V10_KNOWLEDGE_PINNED_OVERRIDES[flagName] === true;
   }
 
   // Layer 2: preview/staging-only runtime overrides (always {} on unrecognised hosts).

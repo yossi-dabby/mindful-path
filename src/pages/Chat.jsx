@@ -678,6 +678,7 @@ export default function Chat() {
       const decision = resolveTherapistRuntimeActivation({
         snapshot,
         fallbackWiring: ACTIVE_CBT_THERAPIST_WIRING,
+        hostname: window.location?.hostname ?? '',
       });
       sessionWiringControllerRef.current.tryApply(decision);
 

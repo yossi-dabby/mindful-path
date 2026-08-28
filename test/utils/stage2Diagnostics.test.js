@@ -28,6 +28,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import {
   THERAPIST_UPGRADE_FLAGS,
+  V10_KNOWLEDGE_PRODUCTION_HOST,
   getStage2DiagnosticPayload,
   logStage2Diagnostics,
 } from '../../src/lib/featureFlags.js';
@@ -145,6 +146,22 @@ describe('Stage 2 Diagnostics — _s2debug=true activates the diagnostic', () =>
 // ─── Section 4 — Payload field correctness ───────────────────────────────────
 
 describe('Stage 2 Diagnostics — payload field correctness', () => {
+  it('reports the exact V10-only route on the pinned Base44 Production host', () => {
+    withWindow('?_s2debug=true', () => {
+      const p = getStage2DiagnosticPayload();
+      expect(p.isPreviewStagingHost).toBe(false);
+      expect(p.parsedS2Flags).toEqual([]);
+      expect(p.masterGateOn).toBe(true);
+      expect(p.routeHint).toBe('STAGE2_V10 (knowledge retrieval)');
+      expect(p.computedFlags.THERAPIST_UPGRADE_ENABLED).toBe(true);
+      expect(p.computedFlags.THERAPIST_UPGRADE_STRATEGY_ENABLED).toBe(true);
+      expect(p.computedFlags.THERAPIST_UPGRADE_LONGITUDINAL_ENABLED).toBe(true);
+      expect(p.computedFlags.THERAPIST_UPGRADE_KNOWLEDGE_ENABLED).toBe(true);
+      expect(p.computedFlags.THERAPIST_UPGRADE_COMPETENCE_ENABLED).toBe(false);
+      expect(p.computedFlags.THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED).toBe(false);
+    }, V10_KNOWLEDGE_PRODUCTION_HOST);
+  });
+
   it('hostname reflects window.location.hostname', () => {
     withWindow('?_s2debug=true', () => {
       const p = getStage2DiagnosticPayload();

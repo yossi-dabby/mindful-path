@@ -31,7 +31,7 @@
  * performed by this file — pure unit / static source assertions only.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
@@ -55,6 +55,7 @@ import {
   THERAPIST_UPGRADE_FLAGS,
   isUpgradeEnabled,
   V10_KNOWLEDGE_PREVIEW_HOST,
+  V10_KNOWLEDGE_PRODUCTION_HOST,
   V10_KNOWLEDGE_PREVIEW_OVERRIDES,
   _isPreviewStagingHost,
 } from '../../src/lib/featureFlags.js';
@@ -375,10 +376,60 @@ describe('Phase 5 — feature-flag preview activation is exact-host scoped', () 
     expect(_isPreviewStagingHost('mindful-path-75aeaf7d.base44.app')).toBe(false);
     // custom production domain
     expect(_isPreviewStagingHost('mindfulpath.com')).toBe(false);
+    expect(_isPreviewStagingHost(V10_KNOWLEDGE_PRODUCTION_HOST)).toBe(false);
     // empties / non-strings
     expect(_isPreviewStagingHost('')).toBe(false);
     expect(_isPreviewStagingHost(null)).toBe(false);
     expect(_isPreviewStagingHost(undefined)).toBe(false);
+  });
+
+  it('13a. Base44 Production is pinned to V10 only and ignores URL escalation', () => {
+    vi.stubGlobal('window', {
+      location: {
+        hostname: V10_KNOWLEDGE_PRODUCTION_HOST,
+        search: '?_s2=THERAPIST_UPGRADE_COMPETENCE_ENABLED,THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED',
+      },
+    });
+
+    try {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_KNOWLEDGE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_COMPETENCE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('13aa. Base44 Production pin is exact-host and case-insensitive', () => {
+    vi.stubGlobal('window', {
+      location: {
+        hostname: ` ${V10_KNOWLEDGE_PRODUCTION_HOST.toUpperCase()} `,
+        search: '',
+      },
+    });
+
+    try {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+
+    vi.stubGlobal('window', {
+      location: {
+        hostname: `${V10_KNOWLEDGE_PRODUCTION_HOST}.evil.com`,
+        search: '',
+      },
+    });
+
+    try {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('13b. in a non-browser (test) environment isUpgradeEnabled is fail-closed', () => {
