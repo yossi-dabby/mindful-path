@@ -4351,8 +4351,13 @@ export default function Chat() {
                 // V8-K: Finalize all committed assistant messages so that subsequent
                 // subscription callbacks (late streaming chunks or socket reconnects)
                 // cannot overwrite the bubble that was just atomically rendered.
-                markAssistantMessagesFinalized(convId, guardedPoll);
-                await persistFinalizedCaseFormulationUpdates(convId, guardedPoll);
+                // safeUpdateMessages synchronously records the exact sanitized,
+                // finality-tagged snapshot in lastConfirmedMessagesRef. Persist
+                // that committed snapshot so a status-less reply accepted after
+                // stable polling reaches the writer as finalized.
+                const committedPoll = lastConfirmedMessagesRef.current;
+                markAssistantMessagesFinalized(convId, committedPoll);
+                await persistFinalizedCaseFormulationUpdates(convId, committedPoll);
                 emitStabilitySummary();
               } else if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
                 // Spec §1: safeUpdateMessages rejected — rejection is non-terminal.
