@@ -159,6 +159,9 @@ const _KNOWLEDGE_BLOCK_COPY = Object.freeze({
   }),
 });
 
+const _KNOWLEDGE_TEXT_MAX_LENGTH = 300;
+const _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY = 120;
+
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
 /**
@@ -255,6 +258,38 @@ function _getLocalizedContent(unit, sessionLanguage) {
   if (!variants || typeof variants !== 'object' || Array.isArray(variants)) return '';
   const variant = variants[sessionLanguage];
   return typeof variant === 'string' ? variant.trim() : '';
+}
+
+/**
+ * Keeps the established 300-character context bound without returning a
+ * malformed partial sentence. When a sentence boundary is unavailable, a
+ * word boundary is preferred; opaque unbroken tokens retain the legacy hard
+ * cap behavior.
+ *
+ * @private
+ * @param {string} text
+ * @returns {string}
+ */
+function _truncateKnowledgeText(text) {
+  const normalized = typeof text === 'string' ? text.trim() : '';
+  if (normalized.length <= _KNOWLEDGE_TEXT_MAX_LENGTH) return normalized;
+
+  const bounded = normalized.slice(0, _KNOWLEDGE_TEXT_MAX_LENGTH);
+  const sentenceBoundary = Math.max(
+    bounded.lastIndexOf('.'),
+    bounded.lastIndexOf('!'),
+    bounded.lastIndexOf('?'),
+  );
+  if (sentenceBoundary >= _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY) {
+    return bounded.slice(0, sentenceBoundary + 1).trimEnd();
+  }
+
+  const wordBoundary = bounded.lastIndexOf(' ');
+  if (wordBoundary >= _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY) {
+    return `${bounded.slice(0, wordBoundary).trimEnd()}…`;
+  }
+
+  return bounded;
 }
 // ─── Wave 4D — Unit type preference → entity unit_type mapping ────────────────
 
@@ -589,7 +624,9 @@ function _formatKnowledgeBlock(units, sessionLanguage) {
       const topic = isEnglish && typeof unit.clinical_topic === 'string' && unit.clinical_topic.trim()
         ? unit.clinical_topic.trim()
         : '';
-      const summary = _getLocalizedContent(unit, sessionLanguage).slice(0, 300);
+      const summary = _truncateKnowledgeText(
+        _getLocalizedContent(unit, sessionLanguage),
+      );
 
       lines.push(`[${num}] ${title}`);
       if (topic) lines.push(`    ${copy.topic}: ${topic}`);

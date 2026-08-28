@@ -280,6 +280,25 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).not.toContain('BIDDEN_AFTER_LIMIT');
   });
 
+  it('truncates long localized content at a complete sentence boundary', async () => {
+    const completeSentence = 'Este resumen clínico conserva una explicación completa, equilibrada y comprensible para apoyar la sesión sin sustituir el juicio clínico.';
+    const partialSentence = ` ${'contenido adicional '.repeat(20)}FRAGMENTO_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([
+        makeSeedContractUnit({
+          languages: ['en', 'es'],
+          language_variants: { es: `${completeSentence}${partialSentence}` },
+        }),
+      ]),
+      PLAN,
+      'es',
+    );
+
+    expect(block).toContain(`Resumen: ${completeSentence}`);
+    expect(block).not.toContain('contenido adicional');
+    expect(block).not.toContain('FRAGMENTO_FINAL');
+  });
+
   it('prefers content_summary over content when both are present', async () => {
     const block = await retrieveBoundedCBTKnowledgeBlock(
       makeEntities([
