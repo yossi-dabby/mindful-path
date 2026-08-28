@@ -379,6 +379,34 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).not.toContain('FRAGMENT_FINAL');
   });
 
+  it('does not stop at a quoted question when the containing sentence continues', async () => {
+    const content = `The therapist asks "What happened?" to help ${'the client examine the pattern '.repeat(20)}FRAGMENT_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeSeedContractUnit({ content_summary: content })]),
+      PLAN,
+      'en',
+    );
+    const summary = block.split('\n').find((line) => line.startsWith('    Summary:'));
+
+    expect(summary).toContain('"What happened?" to help');
+    expect(summary).not.toMatch(/"What happened\?"$/);
+    expect(summary).toMatch(/…$/);
+  });
+
+  it('does not treat a multi-initial abbreviation as a sentence boundary', async () => {
+    const content = `Guidance developed for U.S. adults ${'supports careful clinical adaptation '.repeat(20)}FRAGMENT_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeSeedContractUnit({ content_summary: content })]),
+      PLAN,
+      'en',
+    );
+    const summary = block.split('\n').find((line) => line.startsWith('    Summary:'));
+
+    expect(summary).toContain('U.S. adults');
+    expect(summary).not.toMatch(/U\.S\.$/);
+    expect(summary).toMatch(/…$/);
+  });
+
   it('preserves a complete opening sentence shorter than the word fallback threshold', async () => {
     const completeSentence = 'Primera oración completa.';
     const content = `${completeSentence} ${'La segunda oración continúa '.repeat(20)}FRAGMENTO_FINAL`;

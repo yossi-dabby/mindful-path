@@ -298,15 +298,22 @@ function _truncateKnowledgeText(text) {
     const nextTokenCharacter = normalized.slice(boundaryEnd + 1).trimStart()[0] ?? '';
     const precedingToken = normalized.slice(0, index).match(/([\p{L}.]+)$/u)?.[1]
       ?.toLocaleLowerCase('en') ?? '';
+    const isMultiInitialAbbreviation = /^(?:\p{L}\.)+\p{L}$/u.test(precedingToken);
     const isAbbreviation = character === '.'
       && /\p{L}/u.test(nextTokenCharacter)
       && (_KNOWLEDGE_PERIOD_ABBREVIATIONS.has(precedingToken)
-        || /^\p{L}$/u.test(precedingToken));
+        || /^\p{L}$/u.test(precedingToken)
+        || isMultiInitialAbbreviation);
+    const isEmbeddedDelimitedContinuation = boundaryEnd > index
+      && /\p{Ll}/u.test(nextTokenCharacter);
     const isWithinBound = boundaryEnd < _KNOWLEDGE_TEXT_MAX_LENGTH;
     const isTerminated = isWithinBound
       && (characterAfterBoundary === '' || /\s/.test(characterAfterBoundary));
 
-    if (!isDecimalPoint && !isAbbreviation && isTerminated) {
+    if (!isDecimalPoint
+      && !isAbbreviation
+      && !isEmbeddedDelimitedContinuation
+      && isTerminated) {
       sentenceBoundary = boundaryEnd;
     }
   }
