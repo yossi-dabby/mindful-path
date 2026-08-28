@@ -346,6 +346,39 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).not.toContain('FRAGMENT_FINAL');
   });
 
+  it('does not treat an abbreviation period as a complete sentence', async () => {
+    const content = `Ask Dr. Smith to explore ${'the current pattern '.repeat(20)}FRAGMENT_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([makeSeedContractUnit({ content_summary: content })]),
+      PLAN,
+      'en',
+    );
+    const summary = block.split('\n').find((line) => line.startsWith('    Summary:'));
+
+    expect(summary).toContain('Ask Dr. Smith');
+    expect(summary).not.toMatch(/Ask Dr\.$/);
+    expect(summary).toMatch(/…$/);
+  });
+
+  it('includes a closing guillemet in a localized sentence boundary', async () => {
+    const completeSentence = 'Le client demande : « Est-ce possible ?»';
+    const content = `${completeSentence} ${'La phrase suivante continue '.repeat(20)}FRAGMENT_FINAL`;
+    const block = await retrieveBoundedCBTKnowledgeBlock(
+      makeEntities([
+        makeSeedContractUnit({
+          languages: ['en', 'fr'],
+          language_variants: { fr: content },
+        }),
+      ]),
+      PLAN,
+      'fr',
+    );
+
+    expect(block).toContain(`Résumé: ${completeSentence}`);
+    expect(block).not.toContain('La phrase suivante');
+    expect(block).not.toContain('FRAGMENT_FINAL');
+  });
+
   it('preserves a complete opening sentence shorter than the word fallback threshold', async () => {
     const completeSentence = 'Primera oración completa.';
     const content = `${completeSentence} ${'La segunda oración continúa '.repeat(20)}FRAGMENTO_FINAL`;

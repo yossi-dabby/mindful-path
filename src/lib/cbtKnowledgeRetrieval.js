@@ -161,7 +161,11 @@ const _KNOWLEDGE_BLOCK_COPY = Object.freeze({
 
 const _KNOWLEDGE_TEXT_MAX_LENGTH = 300;
 const _KNOWLEDGE_TEXT_MIN_SAFE_BOUNDARY = 120;
-const _KNOWLEDGE_SENTENCE_CLOSERS = '"\'”’)]}';
+const _KNOWLEDGE_SENTENCE_CLOSERS = '"\'”’»›)]}';
+const _KNOWLEDGE_PERIOD_ABBREVIATIONS = new Set([
+  'dr', 'mr', 'mrs', 'ms', 'prof', 'sr', 'jr', 'st', 'vs', 'etc',
+  'e.g', 'i.e', 'm', 'mme', 'mlle', 'sra', 'dott', 'sig', 'sig.ra', 'dr.a',
+]);
 
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
@@ -291,11 +295,20 @@ function _truncateKnowledgeText(text) {
       boundaryEnd += 1;
     }
     const characterAfterBoundary = normalized[boundaryEnd + 1] ?? '';
+    const nextTokenCharacter = normalized.slice(boundaryEnd + 1).trimStart()[0] ?? '';
+    const precedingToken = normalized.slice(0, index).match(/([\p{L}.]+)$/u)?.[1]
+      ?.toLocaleLowerCase('en') ?? '';
+    const isAbbreviation = character === '.'
+      && /\p{L}/u.test(nextTokenCharacter)
+      && (_KNOWLEDGE_PERIOD_ABBREVIATIONS.has(precedingToken)
+        || /^\p{L}$/u.test(precedingToken));
     const isWithinBound = boundaryEnd < _KNOWLEDGE_TEXT_MAX_LENGTH;
     const isTerminated = isWithinBound
       && (characterAfterBoundary === '' || /\s/.test(characterAfterBoundary));
 
-    if (!isDecimalPoint && isTerminated) sentenceBoundary = boundaryEnd;
+    if (!isDecimalPoint && !isAbbreviation && isTerminated) {
+      sentenceBoundary = boundaryEnd;
+    }
   }
   if (sentenceBoundary >= 0) {
     return bounded.slice(0, sentenceBoundary + 1).trimEnd();
