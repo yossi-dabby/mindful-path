@@ -204,11 +204,14 @@ export async function maybePersistCaseFormulationUpdatesForMessages(base44, conv
     for (let i = messages.length - 1; i >= 0; i -= 1) {
       const msg = messages[i];
       if (!isFinalAssistantMessage(msg)) continue;
-      if (persistedIdsRef.has(msg.id)) continue;
       const sd = msg.metadata && msg.metadata.structured_data;
       if (!sd || typeof sd !== 'object') continue;
       const payload = buildUpsertPayload(sd, conversationId, sourceSessionId, msg.id, msg.metadata?.source_turn_id);
       if (!payload) continue;
+      // The newest eligible update is authoritative for a full snapshot. If
+      // it was already handled, stop here rather than walking backward and
+      // replaying an older formulation update on a reconnect/re-subscription.
+      if (persistedIdsRef.has(msg.id)) break;
       persistedIdsRef.add(msg.id);
       summary.attempted += 1;
       const result = await persistCaseFormulationUpdate(base44, payload);
