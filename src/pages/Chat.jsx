@@ -32,6 +32,10 @@ import ThoughtWorkSaveHandler from '../components/chat/ThoughtWorkSaveHandler';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
 import { detectCrisisWithReason, isExplicitCurrentSafetyDenial } from '../components/utils/crisisDetector';
+import {
+  clearSubmittedDraftIfUnchanged,
+  createCrisisDetectionLifecycle,
+} from '../lib/crisisDetectionLifecycle';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
@@ -420,6 +424,7 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const riskPanelRef = useRef(null);
+  const crisisDetectionLifecycleRef = useRef(createCrisisDetectionLifecycle());
   const formsPolicyVersionCacheRef = useRef(new Map());
   const pendingTherapeuticFormsPolicyRefreshRef = useRef(new Map());
   const [visibleCount, setVisibleCount] = useState(50);
@@ -794,12 +799,13 @@ export default function Chat() {
   // keyboard/screen-reader focus to the emergency resources immediately.
   useEffect(() => {
     if (!showRiskPanel) return undefined;
+    riskPanelRef.current?.focus({ preventScroll: true });
     const frameId = requestAnimationFrame(() => {
       riskPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       riskPanelRef.current?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frameId);
-  }, [showRiskPanel, currentConversationId]);
+  }, [showRiskPanel, currentConversationId, messages.length]);
 
   // Emit mandatory one-line stability proof after each send cycle
   const emitStabilitySummary = () => {
@@ -2788,6 +2794,8 @@ export default function Chat() {
   }, [currentConversationId, messages.length]);
 
   const startNewConversationWithIntent = async (intentParam) => {
+    crisisDetectionLifecycleRef.current.invalidate();
+    setShowRiskPanel(false);
     try {
       // Stage 6 — wait only for the bounded memory-write window for the session
       // being left before starting a new one. Capture current id/meta/messages
@@ -2911,6 +2919,8 @@ export default function Chat() {
   };
 
   const loadConversation = async (conversationId) => {
+    crisisDetectionLifecycleRef.current.invalidate();
+    setShowRiskPanel(false);
     try {
       // Stage 6 — wait only for the bounded memory-write window for the session
       // being left before loading the new one. Capture the current
@@ -3529,6 +3539,10 @@ export default function Chat() {
       return;
     }
 
+    const crisisDetectionRequest = crisisDetectionLifecycleRef.current.begin(
+      currentConversationIdRef.current,
+    );
+
     // Increment send counter for this cycle
     instrumentationRef.current.SEND_COUNT++;
     console.log('[Send] 📤 Starting send #', instrumentationRef.current.SEND_COUNT);
@@ -3571,13 +3585,26 @@ export default function Chat() {
         console.warn('[Enhanced Crisis Detection] Function invoke failed:', err?.message);
       }
 
+      if (
+        !mountedRef.current
+        || !crisisDetectionLifecycleRef.current.isCurrent(
+          crisisDetectionRequest,
+          currentConversationIdRef.current,
+        )
+      ) {
+        console.log('[Enhanced Crisis Detection] Ignoring stale Layer 2 result');
+        return;
+      }
+
       const suppressEnhancedHardStop = isExplicitCurrentSafetyDenial(rawInputText);
       if (enhancedCheck.data?.is_crisis && (
       enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
       enhancedCheck.data.confidence > 0.7 &&
       !suppressEnhancedHardStop) {
         setShowRiskPanel(true);
-        setInputMessage('');
+        setInputMessage((currentDraft) => (
+          clearSubmittedDraftIfUnchanged(currentDraft, rawInputText)
+        ));
         setIsLoading(false);
         base44.entities.CrisisAlert.create({
           surface: 'chat',
