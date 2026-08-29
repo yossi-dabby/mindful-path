@@ -159,6 +159,12 @@ const _KNOWLEDGE_BLOCK_COPY = Object.freeze({
   }),
 });
 
+export const CBT_KNOWLEDGE_BLOCK_BOUNDS = Object.freeze(
+  Object.values(_KNOWLEDGE_BLOCK_COPY).map(({ opening, closing }) =>
+    Object.freeze([opening, closing])
+  )
+);
+
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
 /**

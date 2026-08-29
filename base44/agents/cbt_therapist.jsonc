@@ -73,9 +73,6 @@
     },
     {
       "function_name": "writeTherapistMemory"
-    },
-    {
-      "function_name": "retrieveCurriculumUnit"
     }
   ]
 }

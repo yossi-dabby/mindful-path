@@ -573,7 +573,7 @@ describe('Group E — buildV10SessionStartContentAsync V9 delegation', () => {
     expect(v10Result).toContain('[START_SESSION]');
   });
 
-  it('E5. V10 wiring + formulation has no cbt_domain → no-domain planner skip → returns exact v9Base', async () => {
+  it('E5. V10 wiring + formulation has no cbt_domain → no retrieval, authority remains active', async () => {
     const entitiesNoDomain = {
       CaseFormulation: {
         list: vi.fn().mockResolvedValue([{ presenting_problem: 'social anxiety' }]), // no cbt_domain
@@ -592,11 +592,14 @@ describe('Group E — buildV10SessionStartContentAsync V9 delegation', () => {
       entitiesNoDomain,
       null,
     );
-    // Without a domain, the planner skips. V10 must return exact v9Base (no knowledge block).
-    expect(v10Result).toBe(v9Result);
+    // Without a domain, the planner skips. V10 retains only its runtime authority
+    // after the V9 base so the legacy direct tool cannot bypass the domain gate.
+    expect(v10Result.startsWith(v9Result)).toBe(true);
+    expect(v10Result).toContain('V10 KNOWLEDGE RUNTIME AUTHORITY');
+    expect(v10Result).not.toContain('=== CBT KNOWLEDGE REFERENCE');
   });
 
-  it('E6. V10 wiring + crisis_signal=true → planner blocks → returns exact v9Base', async () => {
+  it('E6. V10 wiring + crisis_signal=true → planner blocks retrieval and retains authority', async () => {
     const entitiesWithFormulation = {
       CaseFormulation: { list: vi.fn().mockResolvedValue([FIXTURE_FORMULATION_ANXIETY]) },
       CompanionMemory: { list: vi.fn().mockResolvedValue([]) },
@@ -616,8 +619,10 @@ describe('Group E — buildV10SessionStartContentAsync V9 delegation', () => {
       null,
       options,
     );
-    // Crisis active → planner returns containment skip → V10 output = V9 output
-    expect(v10Result).toBe(v9Result);
+    // Crisis active → planner returns containment skip; authority remains present
+    // to prevent any direct legacy curriculum call.
+    expect(v10Result.startsWith(v9Result)).toBe(true);
+    expect(v10Result).toContain('V10 KNOWLEDGE RUNTIME AUTHORITY');
     // Must not contain knowledge block
     expect(v10Result).not.toContain('CBT KNOWLEDGE REFERENCE');
   });

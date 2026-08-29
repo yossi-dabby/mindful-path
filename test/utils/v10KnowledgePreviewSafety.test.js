@@ -195,7 +195,7 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     const injectorSource = readFileSync(injectorPath, 'utf8');
 
     expect(injectorSource).toMatch(
-      /retrieveBoundedCBTKnowledgeBlock\(\s*entities,\s*plan,\s*v10Options\?\.sessionLanguage\s*\)/,
+      /retrieveBoundedCBTKnowledgeBlock\(\s*entities,\s*plan,\s*options\?\.sessionLanguage,?\s*\)/,
     );
   });
 

@@ -2,6 +2,7 @@ import {
   getAssistantIdentityKey,
   selectLatestAssistantResponse,
 } from './chatRuntimeLifecycle.js';
+import { evaluateAssistantReplyFinality } from './pollingAssistantFinality.js';
 
 const DEFAULT_SESSION_START_FALLBACK_DELAYS = Object.freeze([250, 500, 1000, 2000, 4000]);
 
@@ -91,31 +92,12 @@ export function createSessionStartOpenerFallbackController(options) {
   };
 
   const evaluateFallbackPollingAssistantFinality = (messages) => {
-    const latestAssistant = selectLatestAssistantResponse(messages);
-    if (!latestAssistant || typeof latestAssistant.msg?.content !== 'string') {
-      fallbackFinalityState = {
-        assistantKey: null,
-        content: null,
-        stableCount: 0,
-      };
-      return { isFinal: false, reason: 'missing_assistant_message' };
-    }
-
-    const key = getAssistantIdentityKey(latestAssistant.msg, latestAssistant.index);
-    const content = String(latestAssistant.msg.content);
-    const unchanged =
-      fallbackFinalityState.assistantKey === key &&
-      fallbackFinalityState.content === content;
-    const stableCount = unchanged ? fallbackFinalityState.stableCount + 1 : 1;
-    fallbackFinalityState = { assistantKey: key, content, stableCount };
-
-    if (isFinalAssistantMessage(latestAssistant.msg)) {
-      return { isFinal: true, reason: 'explicit_final_status' };
-    }
-    if (stableCount >= 2) {
-      return { isFinal: true, reason: 'stable_across_poll_snapshots' };
-    }
-    return { isFinal: false, reason: 'assistant_still_mutating' };
+    const result = evaluateAssistantReplyFinality(messages, fallbackFinalityState, {
+      getAssistantKey: getAssistantIdentityKey,
+      isExplicitlyFinal: isFinalAssistantMessage,
+    });
+    fallbackFinalityState = result.nextState;
+    return result.finality;
   };
   const evaluatePollingAssistantFinality =
     typeof injectedEvaluatePollingAssistantFinality === 'function'

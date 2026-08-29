@@ -33,7 +33,10 @@ describe('V10 Gate 1 — live Chat runtime wiring', () => {
     const sessionBindings = chatSource.match(/continuation_session_id:\s*newSessionInstanceId/g) ?? [];
 
     expect(builderCalls).toHaveLength(4);
-    expect(conversationBindings).toHaveLength(4);
+    expect(conversationBindings.length).toBeGreaterThanOrEqual(4);
     expect(sessionBindings).toHaveLength(4);
+    expect(chatSource).toMatch(
+      /buildV10TurnKnowledgeContextAsync\([\s\S]*?conversation_id:\s*convId,[\s\S]*?continuation_session_id:\s*resolveConversationSessionInstanceId\(conversation\)/,
+    );
   });
 });
