@@ -320,6 +320,11 @@ const NEGATED_CURRENT_SAFETY_ASSERTION_PATTERNS = [
 const CURRENT_SAFETY_CONTRADICTION_PATTERNS = [
     /\b(?:not\s+sure|unsure|don'?t\s+know|do\s+not\s+know|afraid)\b[^.!?]{0,80}\b(?:stay|remain|keep\s+myself|be)\s+safe\b/i,
     /(?:לא\s+בטוח|אינ(?:י|ני)\s+בטוח|לא\s+יודע|חושש)[^.!?]{0,80}(?:לשמור\s+על\s+עצמי\s+בטוח|להישאר\s+בטוח|אהיה\s+בטוח)/i,
+    /\b(?:no\s+estoy\s+segur[oa]|no\s+s[eé]|temo)\b[^.!?]{0,100}\b(?:mantenerme|seguir|permanecer|estar)\s+(?:a\s+salvo|segur[oa])\b/i,
+    /\b(?:je\s+ne\s+suis\s+pas\s+s[uû]r(?:e)?|je\s+ne\s+sais\s+pas|j['’]ai\s+peur)\b[^.!?]{0,100}\b(?:rester|demeurer|me\s+maintenir)\s+en\s+s[eé]curit[eé](?=$|[\s.,!?;:])/i,
+    /\b(?:ich\s+bin\s+(?:mir\s+)?nicht\s+sicher|ich\s+wei(?:ß|ss)\s+nicht|ich\s+habe\s+angst)\b[^.!?]{0,100}\b(?:sicher\s+bleiben|mich\s+sicher\s+halten)\b/i,
+    /\b(?:non\s+sono\s+sicur[oa]|non\s+so|temo)\b[^.!?]{0,100}\b(?:restare|rimanere|tenermi)\s+al\s+sicuro\b/i,
+    /\b(?:n[aã]o\s+estou\s+cert[oa]|n[aã]o\s+tenho\s+certeza|n[aã]o\s+sei|tenho\s+medo)\b[^.!?]{0,100}\b(?:ficar|permanecer|manter-me|me\s+manter)\s+(?:em\s+seguran[çc]a|segur[oa])\b/i,
     /\b(?:i\s+have|i'?ve\s+got)\s+(?:a\s+)?(?:suicide\s+)?plan\b/i,
     /(?:יש\s+לי)\s+(?:תוכנית|תכנית)\b/i,
     /\b(?:access\s+to|have|got)\b[^.!?]{0,40}\b(?:gun|weapon|pills?|medication|means)\b/i,
@@ -369,8 +374,15 @@ export function detectCrisisLanguage(message) {
     const hasCrisis = CRISIS_PATTERNS.some(pattern => pattern.test(original) || pattern.test(stripped) || pattern.test(normalized));
     if (!hasCrisis) return false;
     // Crisis pattern matched — check whether every match is directly negated
-    // within its own clause. If so, suppress Layer-1 escalation and let Layer-2 decide.
-    if (isDirectNegationFalsePositive(message)) return false;
+    // within its own clause. A current-safety contradiction always wins over
+    // that denial: uncertainty about staying safe, a plan, or available means
+    // must hard-stop deterministically instead of depending on Layer 2.
+    if (isDirectNegationFalsePositive(message)) {
+        const hasCurrentSafetyContradiction = CURRENT_SAFETY_CONTRADICTION_PATTERNS
+            .some(pattern => pattern.test(message));
+        if (hasCurrentSafetyContradiction) return true;
+        return false;
+    }
     return true;
 }
 /**
