@@ -33,7 +33,19 @@ describe('crisis hard-stop visibility and composer state', () => {
       'riskPanelRef.current?.focus({ preventScroll: true })',
     );
     expect(chatSource).toContain(
-      '}, [showRiskPanel, currentConversationId]);',
+      '}, [showRiskPanel, currentConversationId, messages.length]);',
+    );
+  });
+
+  it('invalidates pending Layer 2 checks when a conversation changes', () => {
+    expect(chatSource.match(/crisisDetectionLifecycleRef\.current\.invalidate\(\)/g)).toHaveLength(2);
+    expect(chatSource.match(/setShowRiskPanel\(false\)/g).length).toBeGreaterThanOrEqual(4);
+    expect(chatSource).toContain('Ignoring stale Layer 2 result');
+  });
+
+  it('preserves a newer composer draft when Layer 2 returns', () => {
+    expect(chatSource).toContain(
+      'clearSubmittedDraftIfUnchanged(currentDraft, rawInputText)',
     );
   });
 
