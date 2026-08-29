@@ -1640,7 +1640,7 @@ describe('Chat monotonic guarded-message merge regressions', () => {
 
   it('15. no second Agent request or retry call is introduced', async () => {
     const fs = await import('node:fs');
-    const source = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages/Chat.jsx', 'utf8');
+    const source = fs.readFileSync(new URL('../../src/pages/Chat.jsx', import.meta.url), 'utf8');
     const addMessageCalls = (source.match(/base44\.agents\.addMessage\(/g) || []).length;
     expect(addMessageCalls).toBe(6);
   });

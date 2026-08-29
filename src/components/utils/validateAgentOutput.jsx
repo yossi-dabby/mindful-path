@@ -33,6 +33,11 @@ import {
   FORMULATION_CORRECTION_END,
   FORMULATION_CORRECTION_START,
 } from './formulationContractGuard.js';
+import { CBT_KNOWLEDGE_BLOCK_BOUNDS } from '../../lib/cbtKnowledgeRetrieval.js';
+import {
+  V10_KNOWLEDGE_RUNTIME_AUTHORITY_END,
+  V10_KNOWLEDGE_RUNTIME_AUTHORITY_START,
+} from '../../lib/workflowContextInjector.js';
 import { normalizeGeneratedFile } from '../chat/utils/normalizeGeneratedFile.js';
 import { isWorksheetBlockedByGate } from '../../lib/worksheetEligibilityGate.js';
 
@@ -321,6 +326,8 @@ export function stripAgentOnlyRuntimeBlocksFromUserContent(content) {
     [FORMULATION_CORRECTION_START, FORMULATION_CORRECTION_END],
     [CURRENT_TURN_GROUNDING_CORRECTION_START, CURRENT_TURN_GROUNDING_CORRECTION_END],
     [THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_START, THERAPEUTIC_FORMS_POLICY_REFRESH_BLOCK_END],
+    [V10_KNOWLEDGE_RUNTIME_AUTHORITY_START, V10_KNOWLEDGE_RUNTIME_AUTHORITY_END],
+    ...CBT_KNOWLEDGE_BLOCK_BOUNDS,
   ];
 
   let result = content;

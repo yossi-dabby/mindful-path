@@ -123,6 +123,7 @@ const CONTEXT_COMPOSER_V2_SECTION_ORDER = Object.freeze({
   strategy_guidance: 130,
   precedence_enforcement: 140,
   longitudinal_state_context: 150,
+  v10_knowledge_runtime_authority: 155,
   cbt_knowledge_context: 160,
   competence_instructions: 170,
   planner_first_instructions: 180,
@@ -146,12 +147,31 @@ const CONTEXT_COMPOSER_V2_SECTION_PRIORITY = Object.freeze({
   strategy_guidance: 700,
   precedence_enforcement: 995,
   longitudinal_state_context: 680,
+  v10_knowledge_runtime_authority: 995,
   cbt_knowledge_context: 660,
   competence_instructions: 640,
   planner_first_instructions: 970,
   attachment_context_instructions: 620,
   therapeutic_forms_policy: 600,
 });
+
+export const V10_KNOWLEDGE_RUNTIME_AUTHORITY_START =
+  '=== V10 KNOWLEDGE RUNTIME AUTHORITY — THIS TURN ONLY ===';
+export const V10_KNOWLEDGE_RUNTIME_AUTHORITY_END =
+  '=== END V10 KNOWLEDGE RUNTIME AUTHORITY ===';
+
+export function buildV10KnowledgeRuntimeAuthority(wiring) {
+  if (!wiring || wiring.knowledge_layer_enabled !== true) return '';
+  return [
+    V10_KNOWLEDGE_RUNTIME_AUTHORITY_START,
+    'The application runtime is the only authority allowed to retrieve CBT curriculum knowledge in V10.',
+    'Do NOT call retrieveCurriculumUnit and do NOT emit tool-call or function-call markup.',
+    'If no bounded CBT knowledge reference follows this block, retrieval is unavailable or the intervention-readiness gate is closed for this turn.',
+    'In that case, reply in the session language as ordinary user-facing plain text, remain formulation-first, and do not introduce an exercise, homework, exposure, or technique.',
+    'If a bounded reference follows, use only that reference as supporting context and preserve all safety, language, domain, and readiness constraints.',
+    V10_KNOWLEDGE_RUNTIME_AUTHORITY_END,
+  ].join('\n');
+}
 
 function _getContextComposerV2(options) {
   return options?.context_composer_v2 ?? null;
@@ -2677,6 +2697,98 @@ export async function buildV9SessionStartContentAsync(
   }
 }
 
+async function buildV10KnowledgeReferenceForTurn(wiring, entities, options = {}, canonicalResult = null) {
+  const authority = buildV10KnowledgeRuntimeAuthority(wiring);
+  if (!authority) return '';
+
+  try {
+    const formulationRecord = await readBestFormulationRecord(
+      entities,
+      options?.conversation_id,
+      options?.continuation_session_id,
+    );
+    const [{ extractFormulationHintsForPlanner, retrieveBoundedCBTKnowledgeBlock }, { planCBTKnowledgeRetrieval }] =
+      await Promise.all([
+        import('./cbtKnowledgeRetrieval.js'),
+        import('./cbtKnowledgePlanner.js'),
+      ]);
+    const formulationHints = extractFormulationHintsForPlanner(formulationRecord);
+
+    let safetyResult;
+    try {
+      safetyResult = determineSafetyMode({
+        crisis_signal: options.crisis_signal ?? false,
+        low_retrieval_confidence: options.low_retrieval_confidence ?? false,
+        allowlist_rejection: options.allowlist_rejection ?? false,
+        flag_override: options.flag_override ?? false,
+        message_text: options.message_text ?? '',
+      });
+    } catch {
+      safetyResult = SAFETY_MODE_FAIL_CLOSED_RESULT;
+    }
+    const safetyActive = safetyResult?.safety_mode === true;
+    const messageSignals = extractMessageSignals(options.message_text ?? '');
+    const distressTier = scoreDistressTier(safetyResult, messageSignals);
+
+    let ltsRecord = null;
+    try {
+      if (canonicalResult && typeof canonicalResult === 'object' && canonicalResult.lts) {
+        ltsRecord = canonicalResult.lts.record ?? null;
+      } else {
+        ltsRecord = await readLTSSnapshot(entities);
+      }
+    } catch {
+      ltsRecord = null;
+    }
+    const ltsInputsForPlanner = extractLTSStrategyInputs(ltsRecord);
+    const rawStrategyState = determineTherapistStrategy(
+      null,
+      formulationRecord,
+      distressTier,
+      messageSignals,
+      ltsInputsForPlanner,
+    );
+    const plannerContext = buildPlannerContext(
+      formulationRecord,
+      safetyResult,
+      distressTier,
+      options,
+    );
+
+    // Knowledge may support an intervention only after the canonical L5 gate.
+    // Formulation readiness alone must never promote retrieval.
+    if (plannerContext.intervention_ready !== true) return authority;
+
+    const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerContext);
+    const plan = planCBTKnowledgeRetrieval({
+      flagEnabled: true,
+      strategyState,
+      ltsInputs: ltsInputsForPlanner,
+      formulationHints,
+      distressTier,
+      safetyActive,
+    });
+    if (!plan.shouldRetrieve) return authority;
+
+    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(
+      entities,
+      plan,
+      options?.sessionLanguage,
+    );
+    return knowledgeBlock?.trim()
+      ? `${authority}\n\n${knowledgeBlock}`
+      : authority;
+  } catch {
+    // Fail closed for knowledge and fail open for the chat response: the agent
+    // still receives the authority block and must remain in formulation mode.
+    return authority;
+  }
+}
+
+export async function buildV10TurnKnowledgeContextAsync(wiring, entities, options = {}) {
+  return buildV10KnowledgeReferenceForTurn(wiring, entities, options);
+}
+
 // ─── Wave 4C — CBT Knowledge Retrieval read path and V10 session-start injection
 
 /**
@@ -2773,99 +2885,21 @@ export async function buildV10SessionStartContentAsync(
     v10Options,
   );
 
-  // Steps 2–9: Compute knowledge retrieval decision and append block (fail-open)
-  try {
-    // Step 2: Read CaseFormulation (bounded, read-only, fail-open — same entity
-    // that V8 reads; no new entity type introduced here).
-    const formulationRecord = await readBestFormulationRecord(entities, options?.conversation_id, options?.continuation_session_id);
-
-    // Step 3: Import helpers (dynamic import — only needed on V10 path)
-    const [{ extractFormulationHintsForPlanner, retrieveBoundedCBTKnowledgeBlock }, { planCBTKnowledgeRetrieval }] =
-      await Promise.all([
-        import('./cbtKnowledgeRetrieval.js'),
-        import('./cbtKnowledgePlanner.js'),
-      ]);
-
-    const formulationHints = extractFormulationHintsForPlanner(formulationRecord);
-
-    // Step 4: Evaluate safety mode from options (no entity read — options-only)
-    let safetyResult;
-    try {
-      safetyResult = determineSafetyMode({
-        crisis_signal: options.crisis_signal ?? false,
-        low_retrieval_confidence: options.low_retrieval_confidence ?? false,
-        allowlist_rejection: options.allowlist_rejection ?? false,
-        flag_override: options.flag_override ?? false,
-        message_text: options.message_text ?? '',
-      });
-    } catch {
-      safetyResult = SAFETY_MODE_FAIL_CLOSED_RESULT;
-    }
-    const safetyActive = !!(safetyResult && safetyResult.safety_mode === true);
-
-    // Step 5: Score distress tier
-    const messageSignals = extractMessageSignals(options.message_text ?? '');
-    const distressTier = scoreDistressTier(safetyResult, messageSignals);
-
-    // Step 6 (Wave 4D / Phase 4): Reuse the canonical LTS record pre-read by V10
-    // (v10CanonicalResult), avoiding a duplicate CompanionMemory read.
-    // v10CanonicalResult is set before calling V9, so this is always the same
-    // result that V9 used — one read orchestration per session-start operation.
-    // continuityData = null (intentional): avoids a duplicate CompanionMemory
-    // read for the full cross-session window; the strategy engine returns
-    // STRUCTURED_EXPLORATION when a formulation is present without continuity.
-    let ltsRecord = null;
-    try {
-      if (v10CanonicalResult && typeof v10CanonicalResult === 'object' && v10CanonicalResult.lts) {
-        // Reuse the pre-read canonical result — no duplicate CompanionMemory fetch.
-        ltsRecord = v10CanonicalResult.lts.record ?? null;
-      } else {
-        // Fallback: canonical read failed — perform the bounded read directly.
-        ltsRecord = await readLTSSnapshot(entities);
-      }
-    } catch {
-      // Fail-open: LTS read error must never block session start.
-      // The outer try/catch will return v9Base unchanged on any downstream error.
-      ltsRecord = null;
-    }
-    const ltsInputsForPlanner = extractLTSStrategyInputs(ltsRecord);
-
-    // Step 7: Determine strategy state.
-    // ltsInputsForPlanner is passed so that stagnation/fluctuation guards in the
-    // strategy engine are LTS-aware for this knowledge path.  When the LTS record
-    // is absent or weak, extractLTSStrategyInputs returns lts_valid: false and
-    // the strategy engine falls back to exact Wave 2C behavior.
-    const rawStrategyState = determineTherapistStrategy(
-      null,                  // continuityData — no re-read (see above)
-      formulationRecord,
-      distressTier,
-      messageSignals,
-      ltsInputsForPlanner,   // Wave 4D: LTS-aware strategy for knowledge path
-    );
-
-    // Precedence pass — host-agnostic. The L5 gate is derived inside buildPlannerContext;
-    // no host-specific readiness bypass on any host (Preview or Production).
-    const plannerCtxForKnowledge = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
-    const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtxForKnowledge);
-    // flagEnabled is true only on V10 wiring (knowledge_layer_enabled === true).
-    const plan = planCBTKnowledgeRetrieval({ flagEnabled: true, strategyState, ltsInputs: ltsInputsForPlanner, formulationHints, distressTier, safetyActive });
-    if (!plan.shouldRetrieve) return v9Base;
-    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(entities, plan, v10Options?.sessionLanguage);
-    if (knowledgeBlock && knowledgeBlock.trim()) {
-      return _appendWithComposer(v10Options, v9Base, {
-        id: 'cbt_knowledge_context',
-        order: CONTEXT_COMPOSER_V2_SECTION_ORDER.cbt_knowledge_context,
-        retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.cbt_knowledge_context,
-        required: false,
-        source_layer: 'v10_knowledge',
-        content: knowledgeBlock,
-      });
-    }
-    return v9Base;
-  } catch {
-    // Fail-open: any error returns V9 base content unchanged
-    return v9Base;
-  }
+  const v10KnowledgeContext = await buildV10KnowledgeReferenceForTurn(
+    wiring,
+    entities,
+    v10Options,
+    v10CanonicalResult,
+  );
+  if (!v10KnowledgeContext.trim()) return v9Base;
+  return _appendWithComposer(v10Options, v9Base, {
+    id: 'cbt_knowledge_context',
+    order: CONTEXT_COMPOSER_V2_SECTION_ORDER.cbt_knowledge_context,
+    retention_priority: CONTEXT_COMPOSER_V2_SECTION_PRIORITY.cbt_knowledge_context,
+    required: true,
+    source_layer: 'v10_knowledge_runtime',
+    content: v10KnowledgeContext,
+  });
 }
 
 // ─── Phase 3 Competence Architecture — V11 session-start injection ────────────

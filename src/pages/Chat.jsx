@@ -43,7 +43,8 @@ import {
 import { ACTIVE_CBT_THERAPIST_WIRING, predictTherapistWiringFromRuntimeFlags, resolveTherapistRuntimeActivation } from '@/api/activeAgentWiring.js';
 import { createTherapistSessionWiringController } from '@/lib/therapistSessionWiringController.js';
 import { createContextComposerV2SessionSelectionController } from '@/lib/contextComposerV2SessionSelectionController.js';
-import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement, buildRuntimeFormulationSupplement, buildV10TurnKnowledgeContextAsync } from '@/lib/workflowContextInjector.js';
+import { evaluateAssistantReplyFinality } from '@/lib/pollingAssistantFinality.js';
 import {
   consumePendingPolicyRefreshAfterSuccessfulSend,
   ensureTherapeuticFormsPolicyInjected,
@@ -1059,38 +1060,16 @@ export default function Chat() {
   };
 
   const evaluatePollingAssistantFinality = (msgs) => {
-    const assistantEntries = (Array.isArray(msgs) ? msgs : [])
-      .map((msg, index) => ({ msg, index }))
-      .filter(({ msg }) => msg && msg.role === 'assistant');
-    const latest = assistantEntries.length > 0 ? assistantEntries[assistantEntries.length - 1] : null;
-
-    if (!latest || typeof latest.msg.content !== 'string') {
-      pollingFinalityStateRef.current = {
-        assistantKey: null,
-        content: null,
-        stableCount: 0,
-      };
-      return { isFinal: false, reason: 'missing_assistant_message' };
-    }
-
-    const key = getAssistantIdentityKey(latest.msg, latest.index);
-    const content = String(latest.msg.content);
-    const previous = pollingFinalityStateRef.current || {
-      assistantKey: null,
-      content: null,
-      stableCount: 0,
-    };
-    const unchanged = previous.assistantKey === key && previous.content === content;
-    const stableCount = unchanged ? previous.stableCount + 1 : 1;
-    pollingFinalityStateRef.current = { assistantKey: key, content, stableCount };
-
-    if (isExplicitlyFinalAssistantMessage(latest.msg)) {
-      return { isFinal: true, reason: 'explicit_final_status' };
-    }
-    if (stableCount >= 2) {
-      return { isFinal: true, reason: 'stable_across_poll_snapshots' };
-    }
-    return { isFinal: false, reason: 'assistant_still_mutating' };
+    const result = evaluateAssistantReplyFinality(
+      msgs,
+      pollingFinalityStateRef.current,
+      {
+        getAssistantKey: getAssistantIdentityKey,
+        isExplicitlyFinal: isExplicitlyFinalAssistantMessage,
+      },
+    );
+    pollingFinalityStateRef.current = result.nextState;
+    return result.finality;
   };
 
   const buildAssistantLookupByIdentity = (msgs) => {
@@ -3849,6 +3828,22 @@ export default function Chat() {
         formulationSupplement,
         messageText,
       });
+      if (!isNewConversation) {
+        const effectiveSessionWiring = sessionWiringControllerRef.current.getEffectiveWiring();
+        const v10TurnKnowledgeContext = await buildV10TurnKnowledgeContextAsync(
+          effectiveSessionWiring,
+          base44.entities,
+          {
+            sessionLanguage: sessionLanguageRef.current,
+            conversation_id: convId,
+            continuation_session_id: resolveConversationSessionInstanceId(conversation),
+            message_text: messageText,
+          },
+        );
+        if (v10TurnKnowledgeContext) {
+          messageContent = `${v10TurnKnowledgeContext}\n\n${messageContent}`;
+        }
+      }
       const deterministicFormRoute = resolveFormIntentRequest(messageText, {
         language: sessionLanguageRef.current,
       });

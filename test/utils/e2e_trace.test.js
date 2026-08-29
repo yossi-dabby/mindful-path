@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeConversationMessagesAligned } from '/home/runner/work/mindful-path/mindful-path/src/components/utils/validateAgentOutput.jsx';
+import { sanitizeConversationMessagesAligned } from '../../src/components/utils/validateAgentOutput.jsx';
 
 const HE_FORM_URL = '/forms/module-01/adolescents_cbt_specialized_he_01_04.pdf';
 const HE_FORM_ID = 'adolescents-cbt-specialized-he-01-04';
