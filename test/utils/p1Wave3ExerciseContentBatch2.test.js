@@ -3,7 +3,7 @@ import {
   EXERCISE_CONTENT_BATCH_2_IDS,
   EXERCISE_CONTENT_TRANSLATIONS_BATCH_2
 } from '../../src/components/exercises/exerciseContentTranslationsBatch2.js';
-import { localizeExercise } from '../../src/components/exercises/exerciseLocalization.js';
+import { localizeExercise, localizeExerciseCollection } from '../../src/components/exercises/exerciseLocalization.js';
 
 const LOCALES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 const REQUIRED_FIELDS = ['title', 'description', 'tags', 'steps', 'benefits', 'tips'];
@@ -64,7 +64,39 @@ describe('P1 wave 3 exercise content batch 2', () => {
     }
   });
 
-  it('preserves the priority of explicit entity translations', () => {
+  it('localizes and deduplicates API records that use a different id', () => {
+    const localized = localizeExercise({
+      id: 'api-record-123',
+      title: 'Evidence-Based Reality Testing',
+      category: 'cognitive_restructuring',
+      language: 'en'
+    }, 'he');
+
+    expect(localized.title).toBe('בדיקת מציאות מבוססת ראיות');
+    expect(localized.steps).toHaveLength(6);
+
+    const collection = localizeExerciseCollection([
+      {
+        id: 'local-cognitive-evidence-testing',
+        title: 'Evidence-Based Reality Testing',
+        category: 'cognitive_restructuring',
+        language: 'en'
+      },
+      {
+        id: 'api-record-123',
+        title: 'Evidence-Based Reality Testing',
+        category: 'cognitive_restructuring',
+        language: 'en',
+        completed_count: 3
+      }
+    ], 'he');
+
+    expect(collection).toHaveLength(1);
+    expect(collection[0].id).toBe('api-record-123');
+    expect(collection[0].title).toBe('בדיקת מציאות מבוססת ראיות');
+  });
+
+  it('preserves the priority of explicit entity translations',
     const localized = localizeExercise({
       id: 'local-cognitive-thought-record',
       title: 'Thought Record',
