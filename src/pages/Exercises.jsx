@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap, ChevronRight } from 'lucide-react';
+import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPageUrl } from '../utils';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
@@ -58,12 +58,32 @@ export default function Exercises() {
   const tabsListRef = useRef(null);
 
   useEffect(() => {
-    if (!tabsListRef.current) return;
-    const activeTab = tabsListRef.current.querySelector('[data-state="active"]');
-    if (activeTab) {
-      activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-  }, [selectedCategory]);
+    const tabsList = tabsListRef.current;
+    if (!tabsList) return undefined;
+
+    let frameId;
+    const keepActiveCategoryVisible = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(() => {
+        const activeTab = tabsList.querySelector('[data-state="active"]');
+        activeTab?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
+    };
+
+    keepActiveCategoryVisible();
+    const resizeTarget = tabsList.parentElement;
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(keepActiveCategoryVisible)
+      : null;
+    if (resizeTarget) resizeObserver?.observe(resizeTarget);
+    window.addEventListener('resize', keepActiveCategoryVisible);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', keepActiveCategoryVisible);
+    };
+  }, [selectedCategory, appLocale]);
 
   const getStoredLocalFavorites = () => {
     try {
@@ -244,7 +264,7 @@ export default function Exercises() {
         <div className="bg-teal-100 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full">
       {/* Header */}
       <div className="mb-10 mt-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
                   variant="ghost"
@@ -257,7 +277,7 @@ export default function Exercises() {
               <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </Button>
             <div className="min-w-0">
-              <h1 className="text-teal-600 text-2xl font-semibold md:text-3xl lg:text-4xl break-words">{t('exercises.page_title')}</h1>
+              <h1 className="text-teal-600 text-2xl font-semibold md:text-3xl lg:text-4xl whitespace-nowrap">{t('exercises.page_title')}</h1>
               <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
             </div>
           </div>
@@ -304,13 +324,14 @@ export default function Exercises() {
       </div>
 
       {/* Category Filter */}
-      <div
-            id="exercises_category_switcher"
-            className="mb-7 overflow-x-auto"
-            style={{ overscrollBehaviorX: 'contain' }}>
+      <div className="relative mb-7">
+        <div
+              id="exercises_category_switcher"
+              className="overflow-x-auto px-6 lg:px-0"
+              style={{ overscrollBehaviorX: 'contain', scrollbarWidth: 'thin' }}>
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList ref={tabsListRef} className="inline-flex w-auto min-w-full">
+          <TabsList ref={tabsListRef} className="inline-flex w-max min-w-full">
             {categories.map((cat) =>
                 <TabsTrigger
                   key={cat.value}
@@ -322,6 +343,13 @@ export default function Exercises() {
                 )}
           </TabsList>
         </Tabs>
+        </div>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-1 left-0 z-10 flex w-7 items-center justify-start bg-gradient-to-r from-teal-100 via-teal-100/90 to-transparent lg:hidden">
+          <ChevronLeft className="h-4 w-4 text-teal-700" />
+        </div>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-1 right-0 z-10 flex w-7 items-center justify-end bg-gradient-to-l from-teal-100 via-teal-100/90 to-transparent lg:hidden">
+          <ChevronRight className="h-4 w-4 text-teal-700" />
+        </div>
       </div>
 
       {/* Quick Start Panel */}
