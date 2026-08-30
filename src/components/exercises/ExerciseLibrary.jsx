@@ -29,8 +29,8 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
               <button
                 type="button"
                 aria-pressed={!!exercise.favorite}
-                aria-label={t(exercise.favorite ? 'exercises.library.remove_favorite' : 'exercises.library.add_favorite')}
-                title={t(exercise.favorite ? 'exercises.library.remove_favorite' : 'exercises.library.add_favorite')}
+                aria-label={t(exercise.favorite ? 'exercises.remove_favorite' : 'exercises.add_favorite')}
+                title={t(exercise.favorite ? 'exercises.remove_favorite' : 'exercises.add_favorite')}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -66,7 +66,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                   </div>
                   {exercise.completed_count > 0 &&
                   <Badge variant="secondary" className="bg-green-100 text-green-700 mx-auto my-1 px-2 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
-                      ✓ {t('exercises.library.completed_times', { count: exercise.completed_count })}
+                      ✓ {t('exercises.completed_times', { count: exercise.completed_count })}
                     </Badge>
                   }
                 </div>
