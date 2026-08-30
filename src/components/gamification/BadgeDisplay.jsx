@@ -5,13 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Award, Sparkles, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const rarityColors = {
-  common: 'from-gray-400 to-gray-500',
-  rare: 'from-blue-400 to-blue-600',
-  epic: 'from-purple-400 to-pink-600',
-  legendary: 'from-yellow-400 to-orange-600'
-};
+import { useTranslation } from 'react-i18next';
 
 const rarityBgColors = {
   common: 'rgba(156, 163, 175, 0.15)',
@@ -21,6 +15,7 @@ const rarityBgColors = {
 };
 
 export default function BadgeDisplay({ compact = false }) {
+  const { t } = useTranslation();
   const { data: badges, isLoading } = useQuery({
     queryKey: ['userBadges'],
     queryFn: async () => {
@@ -54,9 +49,9 @@ export default function BadgeDisplay({ compact = false }) {
             <Award className="text-teal-600 mx-auto lucide lucide-award w-8 h-8" strokeWidth={2} />
           </div>
           <p className="text-teal-600 mb-1 text-2xl font-bold">{earnedBadges.length}</p>
-          <p className="text-teal-600 text-xs">Badges</p>
+          <p className="text-teal-600 text-xs">{t('gamification.badges.badges')}</p>
           {inProgressBadges.length > 0 &&
-          <p className="text-xs mt-1 text-muted-foreground">{inProgressBadges.length} in progress</p>
+          <p className="text-xs mt-1 text-muted-foreground">{t('gamification.badges.in_progress_count', { count: inProgressBadges.length })}</p>
           }
         </CardContent>
       </Card>);
@@ -72,9 +67,9 @@ export default function BadgeDisplay({ compact = false }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
             <Trophy className="w-5 h-5" style={{ color: '#ECC94B' }} />
-            Earned Badges
+            {t('gamification.badges.earned_badges')}
             <Badge className="ml-auto text-xs" style={{ background: 'rgba(236, 201, 75, 0.2)', color: '#B7791F' }}>
-              {earnedBadges.length} earned
+              {t('gamification.badges.earned_count', { count: earnedBadges.length })}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -82,7 +77,7 @@ export default function BadgeDisplay({ compact = false }) {
           {earnedBadges.length === 0 ?
           <div className="text-center py-8">
               <Award className="w-12 h-12 mx-auto mb-3 opacity-30" style={{ color: '#7A9A92' }} />
-              <p className="text-sm" style={{ color: '#7A9A92' }}>Complete activities to earn your first badge!</p>
+              <p className="text-sm" style={{ color: '#7A9A92' }}>{t('gamification.badges.first_badge_prompt')}</p>
             </div> :
 
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4">
@@ -103,7 +98,7 @@ export default function BadgeDisplay({ compact = false }) {
                 }}>
 
                     <span className="text-2xl sm:text-3xl mb-1">{badge.icon}</span>
-                    <p className="text-xs font-medium text-center line-clamp-2" style={{ color: '#1A3A34' }}>{badge.name}</p>
+                    <p dir="auto" className="text-xs font-medium text-center line-clamp-2" style={{ color: '#1A3A34' }}>{badge.name}</p>
                     <Badge className="mt-1 text-xs capitalize" style={{
                   background: badge.rarity === 'legendary' ? 'rgba(245, 158, 11, 0.2)' :
                   badge.rarity === 'epic' ? 'rgba(168, 85, 247, 0.2)' :
@@ -112,7 +107,7 @@ export default function BadgeDisplay({ compact = false }) {
                   badge.rarity === 'epic' ? '#7C3AED' :
                   badge.rarity === 'rare' ? '#2563EB' : '#4B5563'
                 }}>
-                      {badge.rarity}
+                      {t(`gamification.badges.rarity.${badge.rarity}`, { defaultValue: badge.rarity })}
                     </Badge>
                   </div>
                 </motion.div>
@@ -130,7 +125,7 @@ export default function BadgeDisplay({ compact = false }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
               <Sparkles className="w-5 h-5" style={{ color: '#F6AD55' }} />
-              In Progress
+              {t('gamification.badges.in_progress')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -151,13 +146,13 @@ export default function BadgeDisplay({ compact = false }) {
                       <span className="text-xl grayscale">{badge.icon}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate" style={{ color: '#1A3A34' }}>{badge.name}</p>
-                      <p className="text-xs line-clamp-1" style={{ color: '#5A7A72' }}>{badge.description}</p>
+                      <p dir="auto" className="font-semibold text-sm truncate" style={{ color: '#1A3A34' }}>{badge.name}</p>
+                      <p dir="auto" className="text-xs line-clamp-1" style={{ color: '#5A7A72' }}>{badge.description}</p>
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs" style={{ color: '#7A9A92' }}>Progress</p>
+                      <p className="text-xs" style={{ color: '#7A9A92' }}>{t('gamification.badges.progress')}</p>
                       <p className="text-xs font-semibold" style={{ color: '#26A69A' }}>{badge.progress || 0}%</p>
                     </div>
                     <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(200, 230, 225, 0.5)' }}>
