@@ -252,6 +252,20 @@ export default function Exercises() {
     setSelectedCategory('all');
   }, []);
 
+  const handleCategoryChange = useCallback((category) => {
+    setSelectedCategory(category);
+    if (category === 'breathing') {
+      setShowFavoritesOnly(false);
+      setSearchQuery('');
+      setShowBreathingTool(true);
+    }
+  }, []);
+
+  const closeBreathingTool = useCallback(() => {
+    setShowBreathingTool(false);
+    setSelectedCategory('all');
+  }, []);
+
 
   if (isLoading) {
     return (
@@ -337,7 +351,7 @@ export default function Exercises() {
               className="overflow-x-auto px-6 lg:px-0"
               style={{ overscrollBehaviorX: 'contain', scrollbarWidth: 'thin' }}>
 
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+        <Tabs value={selectedCategory} onValueChange={handleCategoryChange}>
           <TabsList ref={tabsListRef} className="inline-flex w-max min-w-full">
             {categories.map((cat) =>
                 <TabsTrigger
@@ -365,68 +379,6 @@ export default function Exercises() {
             exercises={exercises}
             onSelectExercise={setSelectedExercise} />
 
-          }
-
-      {/* ── Interactive Breathing Tool Card ────────────────────────────── */}
-      {!showFavoritesOnly && (selectedCategory === 'all' || selectedCategory === 'breathing') &&
-          <div className="mb-6">
-          <button
-              onClick={() => setShowBreathingTool(true)}
-              className="w-full text-left transition-transform active:scale-[0.99]"
-              aria-label={t('breathing_tool.open_tool')}>
-
-            <Card className="bg-primary text-primary-foreground rounded-[48px] backdrop-blur-[10px] overflow-hidden border border-border/80 shadow-[var(--shadow-lg)]">
-              <CardContent className="bg-teal-600 pt-5 pr-5 pb-5 pl-5 p-6 opacity-100 rounded-[32px] md:p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-white/15 border border-white/10">
-                      <Wind className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-base md:text-lg font-semibold text-white">
-                        {t('breathing_tool.card_title')}
-                      </h3>
-                      <p className="text-sm text-white/80 truncate">
-                        {t('breathing_tool.card_subtitle')}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-white/70 flex-shrink-0" />
-                </div>
-              </CardContent>
-            </Card>
-          </button>
-        </div>
-          }
-
-      {/* When breathing category tab is selected, show the tool directly */}
-      {selectedCategory === 'breathing' && !showBreathingTool &&
-          <div className="mb-6">
-          <button
-              onClick={() => setShowBreathingTool(true)}
-              className="w-full text-left">
-
-            <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-              <CardContent className="bg-teal-300 p-12 text-center">
-                <div className="bg-teal-600 text-primary-foreground mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
-                  <Wind className="w-10 h-10 text-white" />
-                </div>
-                <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
-                  {t('breathing_tool.card_title')}
-                </h2>
-                <p className="text-teal-600 mb-4 font-medium">
-                  {t('breathing_tool.card_subtitle')}
-                </p>
-                <span className="bg-teal-600 text-primary-foreground px-6 py-3 text-base font-semibold rounded-2xl inline-flex items-center gap-2">
-
-
-                  <Wind className="w-4 h-4" />
-                  {t('breathing_tool.open_tool')}
-                </span>
-              </CardContent>
-            </Card>
-          </button>
-        </div>
           }
 
       {/* AI Recommendations */}
@@ -501,8 +453,8 @@ export default function Exercises() {
         {/* Interactive Breathing Tool */}
         {showBreathingTool &&
           <InteractiveBreathingTool
-            onClose={() => setShowBreathingTool(false)}
-            onComplete={() => setShowBreathingTool(false)} />
+            onClose={closeBreathingTool}
+            onComplete={closeBreathingTool} />
 
           }
         </div>
