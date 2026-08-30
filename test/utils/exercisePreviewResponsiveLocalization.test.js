@@ -51,6 +51,8 @@ describe('exercise preview localization and responsive fixes', () => {
     expect(source).toContain('lg:flex-row lg:items-center');
     expect(source).toContain('lg:text-4xl whitespace-nowrap');
     expect(source).toContain('new ResizeObserver(keepActiveCategoryVisible)');
+    expect(source).toContain('const resizeTarget = categoryScrollerRef.current');
+    expect(source).toContain('ref={categoryScrollerRef}');
     expect(source).toContain("window.addEventListener('resize', keepActiveCategoryVisible)");
     expect(source).toContain("scrollbarWidth: 'thin'");
     expect(source).toContain('bg-gradient-to-r from-teal-100');
