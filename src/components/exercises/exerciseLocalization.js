@@ -100,7 +100,27 @@ export function localizeExerciseCollection(exercises, requestedLocale) {
     }
   }
 
-  return Array.from(localizedByIdentity.values(), ({ exercise }) => localizeExercise(exercise, locale));
+  const localizedBySourceTitle = new Map();
+
+  for (const { exercise } of localizedByIdentity.values()) {
+    const sourceTitle = String(exercise?.title || '').trim().toLocaleLowerCase('en');
+    const sourceCategory = String(exercise?.category || '');
+    const deduplicationKey = sourceTitle ? `${sourceCategory}::${sourceTitle}` : getExerciseIdentity(exercise);
+    const existing = localizedBySourceTitle.get(deduplicationKey);
+    const priority =
+      (String(exercise?.id || '').startsWith('local-') ? 0 : 10) +
+      (exercise?.favorite ? 2 : 0) +
+      (Number(exercise?.completed_count) > 0 ? 1 : 0);
+
+    if (!existing || priority > existing.priority) {
+      localizedBySourceTitle.set(deduplicationKey, {
+        exercise: localizeExercise(exercise, locale),
+        priority
+      });
+    }
+  }
+
+  return Array.from(localizedBySourceTitle.values(), ({ exercise }) => exercise);
 }
 
 export function hasExerciseLocale(exercise, requestedLocale) {
