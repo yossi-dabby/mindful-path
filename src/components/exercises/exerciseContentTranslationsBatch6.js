@@ -2,6 +2,7 @@ import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_1 } from "./exerciseContentTranslat
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_2 } from "./exerciseContentTranslationsBatch2.js";
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_3A } from "./exerciseContentTranslationsBatch3A.js";
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_3B } from "./exerciseContentTranslationsBatch3B.js";
+import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_5A } from "./exerciseContentTranslationsBatch5A.js";
 
 const LOCALES = ["en", "he", "es", "fr", "de", "it", "pt"];
 
@@ -79,7 +80,7 @@ export const EXERCISE_CONTENT_TRANSLATIONS_BATCH_6 = {
     }
   ),
   "69505868395719979d90c8c0": retitle(
-    EXERCISE_CONTENT_TRANSLATIONS_BATCH_3B["local-mindfulness-urge-surfing"],
+    EXERCISE_CONTENT_TRANSLATIONS_BATCH_5A["local-stress-worry-postponement"],
     {
       en: "Scheduled Worry Time",
       he: "זמן דאגה מתוכנן",
