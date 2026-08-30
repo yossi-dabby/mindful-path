@@ -1,4 +1,5 @@
 import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '../i18n/appLocale.js';
+import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_1 } from './exerciseContentTranslationsBatch1.js';
 
 const TRANSLATABLE_FIELDS = [
   'title',
@@ -6,6 +7,7 @@ const TRANSLATABLE_FIELDS = [
   'detailed_description',
   'instructions',
   'detailed_steps',
+  'steps',
   'tips',
   'benefits',
   'tags',
@@ -17,6 +19,8 @@ const TRANSLATABLE_FIELDS = [
 ];
 
 function getLocaleObject(exercise, locale) {
+  const identity = getExerciseIdentity(exercise);
+  const catalogLocalized = EXERCISE_CONTENT_TRANSLATIONS_BATCH_1[identity]?.[locale] || {};
   const containers = [
     exercise?.translations,
     exercise?.localized_content,
@@ -25,7 +29,7 @@ function getLocaleObject(exercise, locale) {
 
   for (const container of containers) {
     if (container && typeof container === 'object' && container[locale] && typeof container[locale] === 'object') {
-      return container[locale];
+      return { ...catalogLocalized, ...container[locale] };
     }
   }
 
@@ -36,7 +40,7 @@ function getLocaleObject(exercise, locale) {
       fieldVariant[field] = localizedValue;
     }
   }
-  return fieldVariant;
+  return { ...catalogLocalized, ...fieldVariant };
 }
 
 export function getExerciseIdentity(exercise) {
