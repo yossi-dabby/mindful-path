@@ -29,7 +29,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "Behavioral", emotional: "Emotional", social: "Social", cognitive: "Cognitive", lifestyle: "Lifestyle" }
       }
     },
-    exercises: { quick_start: { title: "Quick Start", subtitle: "Your go-to exercises" }, library: { add_favorite: "Add to favorites", remove_favorite: "Remove from favorites", completed_times: "Completed {{count}} times" }, difficulty: { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" } },
+    exercises: { add_favorite: "Add to favorites", remove_favorite: "Remove from favorites", completed_times: "Completed {{count}} times", quick_start: { title: "Quick Start", subtitle: "Your go-to exercises" }, library: { add_favorite: "Add to favorites", remove_favorite: "Remove from favorites", completed_times: "Completed {{count}} times" }, difficulty: { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" } },
     date_picker: { placeholder: "Pick a date", select_date: "Select Date", clear: "Clear", cancel: "Cancel", confirm: "Confirm" }
   },
   he: {
@@ -62,7 +62,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "התנהגותית", emotional: "רגשית", social: "חברתית", cognitive: "קוגניטיבית", lifestyle: "אורח חיים" }
       }
     },
-    exercises: { quick_start: { title: "התחלה מהירה", subtitle: "התרגילים הקבועים שלכם" }, library: { add_favorite: "הוספה למועדפים", remove_favorite: "הסרה מהמועדפים", completed_times: "הושלם {{count}} פעמים" }, difficulty: { beginner: "מתחילים", intermediate: "בינוני", advanced: "מתקדם" } },
+    exercises: { add_favorite: "הוספה למועדפים", remove_favorite: "הסרה מהמועדפים", completed_times: "הושלם {{count}} פעמים", quick_start: { title: "התחלה מהירה", subtitle: "התרגילים הקבועים שלכם" }, library: { add_favorite: "הוספה למועדפים", remove_favorite: "הסרה מהמועדפים", completed_times: "הושלם {{count}} פעמים" }, difficulty: { beginner: "מתחילים", intermediate: "בינוני", advanced: "מתקדם" } },
     date_picker: { placeholder: "בחירת תאריך", select_date: "בחירת תאריך", clear: "ניקוי", cancel: "ביטול", confirm: "אישור" }
   },
   es: {
@@ -95,7 +95,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "Conductual", emotional: "Emocional", social: "Social", cognitive: "Cognitivo", lifestyle: "Estilo de vida" }
       }
     },
-    exercises: { quick_start: { title: "Inicio rápido", subtitle: "Tus ejercicios habituales" }, library: { add_favorite: "Añadir a favoritos", remove_favorite: "Quitar de favoritos", completed_times: "Completado {{count}} veces" }, difficulty: { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzado" } },
+    exercises: { add_favorite: "Añadir a favoritos", remove_favorite: "Quitar de favoritos", completed_times: "Completado {{count}} veces", quick_start: { title: "Inicio rápido", subtitle: "Tus ejercicios habituales" }, library: { add_favorite: "Añadir a favoritos", remove_favorite: "Quitar de favoritos", completed_times: "Completado {{count}} veces" }, difficulty: { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzado" } },
     date_picker: { placeholder: "Elegir fecha", select_date: "Seleccionar fecha", clear: "Borrar", cancel: "Cancelar", confirm: "Confirmar" }
   },
   fr: {
@@ -128,7 +128,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "Comportemental", emotional: "Émotionnel", social: "Social", cognitive: "Cognitif", lifestyle: "Mode de vie" }
       }
     },
-    exercises: { quick_start: { title: "Démarrage rapide", subtitle: "Vos exercices habituels" }, library: { add_favorite: "Ajouter aux favoris", remove_favorite: "Retirer des favoris", completed_times: "Terminé {{count}} fois" }, difficulty: { beginner: "Débutant", intermediate: "Intermédiaire", advanced: "Avancé" } },
+    exercises: { add_favorite: "Ajouter aux favoris", remove_favorite: "Retirer des favoris", completed_times: "Terminé {{count}} fois", quick_start: { title: "Démarrage rapide", subtitle: "Vos exercices habituels" }, library: { add_favorite: "Ajouter aux favoris", remove_favorite: "Retirer des favoris", completed_times: "Terminé {{count}} fois" }, difficulty: { beginner: "Débutant", intermediate: "Intermédiaire", advanced: "Avancé" } },
     date_picker: { placeholder: "Choisir une date", select_date: "Sélectionner une date", clear: "Effacer", cancel: "Annuler", confirm: "Confirmer" }
   },
   de: {
@@ -161,7 +161,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "Verhalten", emotional: "Emotional", social: "Sozial", cognitive: "Kognitiv", lifestyle: "Lebensstil" }
       }
     },
-    exercises: { quick_start: { title: "Schnellstart", subtitle: "Deine bevorzugten Übungen" }, library: { add_favorite: "Zu Favoriten hinzufügen", remove_favorite: "Aus Favoriten entfernen", completed_times: "{{count}}-mal abgeschlossen" }, difficulty: { beginner: "Anfänger", intermediate: "Mittel", advanced: "Fortgeschritten" } },
+    exercises: { add_favorite: "Zu Favoriten hinzufügen", remove_favorite: "Aus Favoriten entfernen", completed_times: "{{count}}-mal abgeschlossen", quick_start: { title: "Schnellstart", subtitle: "Deine bevorzugten Übungen" }, library: { add_favorite: "Zu Favoriten hinzufügen", remove_favorite: "Aus Favoriten entfernen", completed_times: "{{count}}-mal abgeschlossen" }, difficulty: { beginner: "Anfänger", intermediate: "Mittel", advanced: "Fortgeschritten" } },
     date_picker: { placeholder: "Datum auswählen", select_date: "Datum auswählen", clear: "Löschen", cancel: "Abbrechen", confirm: "Bestätigen" }
   },
   it: {
@@ -194,7 +194,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "Comportamentale", emotional: "Emotivo", social: "Sociale", cognitive: "Cognitivo", lifestyle: "Stile di vita" }
       }
     },
-    exercises: { quick_start: { title: "Avvio rapido", subtitle: "I tuoi esercizi preferiti" }, library: { add_favorite: "Aggiungi ai preferiti", remove_favorite: "Rimuovi dai preferiti", completed_times: "Completato {{count}} volte" }, difficulty: { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzato" } },
+    exercises: { add_favorite: "Aggiungi ai preferiti", remove_favorite: "Rimuovi dai preferiti", completed_times: "Completato {{count}} volte", quick_start: { title: "Avvio rapido", subtitle: "I tuoi esercizi preferiti" }, library: { add_favorite: "Aggiungi ai preferiti", remove_favorite: "Rimuovi dai preferiti", completed_times: "Completato {{count}} volte" }, difficulty: { beginner: "Principiante", intermediate: "Intermedio", advanced: "Avanzato" } },
     date_picker: { placeholder: "Scegli una data", select_date: "Seleziona data", clear: "Cancella", cancel: "Annulla", confirm: "Conferma" }
   },
   pt: {
@@ -227,7 +227,7 @@ export const wave3Batch3Translations = {
         categories: { behavioral: "Comportamental", emotional: "Emocional", social: "Social", cognitive: "Cognitivo", lifestyle: "Estilo de vida" }
       }
     },
-    exercises: { quick_start: { title: "Início rápido", subtitle: "Seus exercícios habituais" }, library: { add_favorite: "Adicionar aos favoritos", remove_favorite: "Remover dos favoritos", completed_times: "Concluído {{count}} vezes" }, difficulty: { beginner: "Iniciante", intermediate: "Intermediário", advanced: "Avançado" } },
+    exercises: { add_favorite: "Adicionar aos favoritos", remove_favorite: "Remover dos favoritos", completed_times: "Concluído {{count}} vezes", quick_start: { title: "Início rápido", subtitle: "Seus exercícios habituais" }, library: { add_favorite: "Adicionar aos favoritos", remove_favorite: "Remover dos favoritos", completed_times: "Concluído {{count}} vezes" }, difficulty: { beginner: "Iniciante", intermediate: "Intermediário", advanced: "Avançado" } },
     date_picker: { placeholder: "Escolher data", select_date: "Selecionar data", clear: "Limpar", cancel: "Cancelar", confirm: "Confirmar" }
   }
 };
