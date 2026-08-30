@@ -6,6 +6,11 @@ import { Bell, X, CheckCheck, ExternalLink, Target, Dumbbell, TrendingUp, Calend
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
+import { de, enUS, es, fr, he, it, ptBR } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
+import { getCurrentAppLocale } from '@/components/i18n/appLocale';
+
+const DATE_FNS_LOCALES = { en: enUS, he, es, fr, de, it, pt: ptBR };
 
 const TYPE_ICON = {
   goal_reminder: Target,
@@ -36,7 +41,7 @@ const PRIORITY_DOT = {
   low: 'bg-transparent'
 };
 
-function NotificationItem({ notification, onMarkRead, onDelete }) {
+function NotificationItem({ notification, onMarkRead, onDelete, dateLocale, deleteLabel }) {
   const Icon = TYPE_ICON[notification.type] || Info;
   const color = TYPE_COLOR[notification.type] || '#607D8B';
   const isUnread = !notification.is_read;
@@ -59,18 +64,19 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <p className={`text-sm font-medium leading-tight ${isUnread ? 'text-foreground' : 'text-foreground/80'}`}>{notification.title}</p>
+          <p dir="auto" className={`text-sm font-medium leading-tight ${isUnread ? 'text-foreground' : 'text-foreground/80'}`}>{notification.title}</p>
           <button
             onClick={(e) => {e.stopPropagation();onDelete(notification.id);}}
-            className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors">
+            className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
+            aria-label={deleteLabel}>
 
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
+        <p dir="auto" className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-muted-foreground/80">
-            {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
+            {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true, locale: dateLocale })}
           </span>
           {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
           {(notification.priority === 'high' || notification.priority === 'critical') &&
@@ -128,6 +134,9 @@ export default function NotificationBell() {
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
   const queryClient = useQueryClient();
+  const { t, i18n } = useTranslation();
+  const appLocale = getCurrentAppLocale(i18n);
+  const dateLocale = DATE_FNS_LOCALES[appLocale] || enUS;
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
@@ -202,15 +211,16 @@ export default function NotificationBell() {
         maxHeight: '480px',
         zIndex: 9999
       }}
-      className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden">
+      className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden"
+      dir={appLocale === 'he' ? 'rtl' : 'ltr'}>
 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/70 bg-secondary/55">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-foreground text-sm">Notifications</span>
+              <span className="font-semibold text-foreground text-sm">{t('settings.notifications.title')}</span>
               {unreadCount > 0 &&
-          <Badge className="text-xs px-1.5 py-0">{unreadCount} new</Badge>
+          <Badge className="text-xs px-1.5 py-0">{t('settings.notifications.panel.new_count', { count: unreadCount })}</Badge>
           }
             </div>
             {unreadCount > 0 &&
@@ -219,7 +229,7 @@ export default function NotificationBell() {
           className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium">
 
                 <CheckCheck className="w-3.5 h-3.5" />
-                Mark all read
+                {t('settings.notifications.panel.mark_all_read')}
               </button>
         }
           </div>
@@ -231,8 +241,8 @@ export default function NotificationBell() {
                 <div className="w-12 h-12 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center mb-3">
                   <Bell className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-sm font-medium text-foreground">All caught up!</p>
-                <p className="text-xs text-muted-foreground mt-1">No notifications yet. We'll let you know when something happens.</p>
+                <p className="text-sm font-medium text-foreground">{t('settings.notifications.panel.empty_title')}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('settings.notifications.panel.empty_message')}</p>
               </div> :
 
         <div className="p-2 space-y-1">
@@ -242,7 +252,9 @@ export default function NotificationBell() {
               key={n.id}
               notification={n}
               onMarkRead={(id) => markReadMutation.mutate(id)}
-              onDelete={(id) => deleteMutation.mutate(id)} />
+              onDelete={(id) => deleteMutation.mutate(id)}
+              dateLocale={dateLocale}
+              deleteLabel={t('settings.notifications.panel.delete_aria')} />
 
             )}
                 </AnimatePresence>
@@ -260,7 +272,7 @@ export default function NotificationBell() {
         ref={buttonRef}
         onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-3xl relative w-10 h-10 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground"
 
-        aria-label="Notifications"
+        aria-label={t('settings.notifications.panel.bell_aria')}
         aria-expanded={open}
         aria-haspopup="true">
 
