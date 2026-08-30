@@ -2,6 +2,7 @@ import React from 'react';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
 import { SIDEBAR_WIDTH } from './Sidebar';
 import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AppContent - Main content wrapper with proper spacing for navigation
@@ -24,6 +25,7 @@ import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
  */
 export default function AppContent({ children }) {
   const mainRef = React.useRef(null);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -32,7 +34,7 @@ export default function AppContent({ children }) {
         href="#app-scroll-container"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--radius-control)] focus:text-sm focus:font-medium focus:bg-primary focus:text-primary-foreground focus:shadow-[var(--shadow-md)]">
 
-        Skip to main content
+        {t('shell.skip_to_main')}
       </a>
       <MobileHeader />
       <main
