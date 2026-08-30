@@ -37,6 +37,16 @@ describe('crisis hard-stop visibility and composer state', () => {
     );
   });
 
+  it('does not autoscroll chat updates away from an open emergency panel', () => {
+    const autoScrollEffect = chatSource.slice(
+      chatSource.indexOf('// Emergency resources own the viewport'),
+      chatSource.indexOf('// Cleanup on unmount'),
+    );
+
+    expect(autoScrollEffect).toContain('if (showRiskPanel) return;');
+    expect(autoScrollEffect).toContain('[messages, isLoading, showRiskPanel]');
+  });
+
   it('invalidates pending Layer 2 checks when a conversation changes', () => {
     expect(chatSource.match(/crisisDetectionLifecycleRef\.current\.invalidate\(\)/g)).toHaveLength(2);
     expect(chatSource.match(/setShowRiskPanel\(false\)/g).length).toBeGreaterThanOrEqual(4);
