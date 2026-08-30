@@ -155,7 +155,15 @@ export const translations = {
           goal_reminders: "Goal Reminders",
           goal_reminders_description: "Notifications about goal deadlines",
           exercise_reminders: "Exercise Reminders",
-          exercise_reminders_description: "Suggested times for CBT exercises"
+          exercise_reminders_description: "Suggested times for CBT exercises",
+          panel: {
+            bell_aria: "Notifications",
+            new_count: "{{count}} new",
+            mark_all_read: "Mark all as read",
+            empty_title: "You're all caught up!",
+            empty_message: "No notifications yet. We'll let you know when something happens.",
+            delete_aria: "Delete notification"
+          }
         },
         account: {
           title: "Account",
@@ -1637,7 +1645,15 @@ export const translations = {
           goal_reminders: "תזכורות מטרות",
           goal_reminders_description: "התראות על מועדי יעד",
           exercise_reminders: "תזכורות תרגילים",
-          exercise_reminders_description: "זמנים מוצעים לתרגילי CBT"
+          exercise_reminders_description: "זמנים מוצעים לתרגילי CBT",
+          panel: {
+            bell_aria: "התראות",
+            new_count: "{{count}} חדשות",
+            mark_all_read: "סימון הכול כנקרא",
+            empty_title: "הכול מעודכן",
+            empty_message: "אין התראות חדשות. נעדכן אותך כשיקרה משהו.",
+            delete_aria: "מחיקת התראה"
+          }
         },
         account: {
           title: "חשבון",
@@ -3119,7 +3135,15 @@ export const translations = {
           goal_reminders: "Recordatorios de Objetivos",
           goal_reminders_description: "Notificaciones sobre plazos de objetivos",
           exercise_reminders: "Recordatorios de Ejercicios",
-          exercise_reminders_description: "Horarios sugeridos para ejercicios CBT"
+          exercise_reminders_description: "Horarios sugeridos para ejercicios CBT",
+          panel: {
+            bell_aria: "Notificaciones",
+            new_count: "{{count}} nuevas",
+            mark_all_read: "Marcar todas como leídas",
+            empty_title: "Todo está al día",
+            empty_message: "Aún no hay notificaciones. Te avisaremos cuando ocurra algo.",
+            delete_aria: "Eliminar notificación"
+          }
         },
         account: {
           title: "Cuenta",
@@ -4556,7 +4580,15 @@ export const translations = {
           goal_reminders: "Rappels d'Objectifs",
           goal_reminders_description: "Notifications sur les échéances d'objectifs",
           exercise_reminders: "Rappels d'Exercices",
-          exercise_reminders_description: "Horaires suggérés pour les exercices CBT"
+          exercise_reminders_description: "Horaires suggérés pour les exercices CBT",
+          panel: {
+            bell_aria: "Notifications",
+            new_count: "Nouvelles : {{count}}",
+            mark_all_read: "Tout marquer comme lu",
+            empty_title: "Tout est à jour",
+            empty_message: "Aucune notification pour le moment. Nous vous préviendrons lorsqu'il se passera quelque chose.",
+            delete_aria: "Supprimer la notification"
+          }
         },
         account: {
           title: "Compte",
@@ -5992,7 +6024,15 @@ export const translations = {
           goal_reminders: "Zielerinnerungen",
           goal_reminders_description: "Benachrichtigungen über Zielfristen",
           exercise_reminders: "Übungserinnerungen",
-          exercise_reminders_description: "Vorgeschlagene Zeiten für CBT-Übungen"
+          exercise_reminders_description: "Vorgeschlagene Zeiten für CBT-Übungen",
+          panel: {
+            bell_aria: "Benachrichtigungen",
+            new_count: "{{count}} neu",
+            mark_all_read: "Alle als gelesen markieren",
+            empty_title: "Alles auf dem neuesten Stand",
+            empty_message: "Noch keine Benachrichtigungen. Wir informieren Sie, sobald etwas passiert.",
+            delete_aria: "Benachrichtigung löschen"
+          }
         },
         account: {
           title: "Konto",
@@ -7428,7 +7468,15 @@ export const translations = {
           goal_reminders: "Promemoria Obiettivi",
           goal_reminders_description: "Notifiche sulle scadenze degli obiettivi",
           exercise_reminders: "Promemoria Esercizi",
-          exercise_reminders_description: "Orari suggeriti per esercizi CBT"
+          exercise_reminders_description: "Orari suggeriti per esercizi CBT",
+          panel: {
+            bell_aria: "Notifiche",
+            new_count: "{{count}} nuove",
+            mark_all_read: "Segna tutte come lette",
+            empty_title: "Tutto aggiornato",
+            empty_message: "Nessuna notifica per ora. Ti avviseremo quando succede qualcosa.",
+            delete_aria: "Elimina notifica"
+          }
         },
         account: {
           title: "Account",
@@ -8864,7 +8912,15 @@ export const translations = {
           goal_reminders: "Lembretes de Objetivos",
           goal_reminders_description: "Notificações sobre prazos de objetivos",
           exercise_reminders: "Lembretes de Exercícios",
-          exercise_reminders_description: "Horários sugeridos para exercícios CBT"
+          exercise_reminders_description: "Horários sugeridos para exercícios CBT",
+          panel: {
+            bell_aria: "Notificações",
+            new_count: "{{count}} novas",
+            mark_all_read: "Marcar todas como lidas",
+            empty_title: "Tudo em dia",
+            empty_message: "Ainda não há notificações. Avisaremos quando algo acontecer.",
+            delete_aria: "Excluir notificação"
+          }
         },
         account: {
           title: "Conta",
