@@ -83,7 +83,7 @@ function playBell(audioCtxRef) {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
     oscillator.start(ctx.currentTime);
     oscillator.stop(ctx.currentTime + 0.7);
-  } catch (_) {
+  } catch {
     // AudioContext not supported – silent fallback
   }
 }
