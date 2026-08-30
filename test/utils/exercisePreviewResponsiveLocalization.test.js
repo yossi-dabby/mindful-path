@@ -73,4 +73,17 @@ describe('exercise preview localization and responsive fixes', () => {
     expect(source).not.toContain("t('breathing_tool.card_title')");
     expect(source).not.toContain("t('breathing_tool.open_tool')");
   });
+
+  it('keeps breathing settings localized without hard-coded English units', () => {
+    const toolSource = readFileSync(new URL('../../src/components/exercises/InteractiveBreathingTool.jsx', import.meta.url), 'utf8');
+    const translationsSource = readFileSync(new URL('../../src/components/i18n/translations.jsx', import.meta.url), 'utf8');
+
+    expect(toolSource).toContain("t('breathing_tool.controls.stage')");
+    expect(toolSource).toContain("duration_value', { min: exercise.minMinutes }");
+    expect(toolSource).toContain("duration_value', { min: exercise.maxMinutes }");
+    expect(toolSource).not.toContain('{exercise.minMinutes}m');
+    expect(toolSource).not.toContain('{exercise.maxMinutes}m');
+    expect(translationsSource).toContain('stage: "שלב"');
+    expect(translationsSource).toContain('get_ready: "התכוננו..."');
+  });
 });
