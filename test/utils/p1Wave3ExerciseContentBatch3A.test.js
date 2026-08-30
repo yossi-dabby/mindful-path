@@ -69,7 +69,7 @@ describe('P1 wave 3 exercise content batch 3A', () => {
     const source = {
       id: 'api-behavioral-values-42',
       title: 'Values-Aligned Action',
-      category: 'behavioral_activation',
+      category: 'cbt_behavioral',
       language: 'en',
       completed_count: 4,
       instructions: 'English-only instructions'
