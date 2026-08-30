@@ -9,6 +9,11 @@ import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
 import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
 import i18n from './components/i18n/i18nConfig';
+import {
+  changeAppLocale,
+  getCurrentAppLocale,
+  normalizeAppLocale
+} from './components/i18n/appLocale';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -160,7 +165,10 @@ export default function Layout({ children, currentPageName }) {
       try {
         const { theme: t, lang } = JSON.parse(cached);
         setTheme(t || 'default');
-        if (lang && lang !== i18n.language) i18n.changeLanguage(lang);
+        const cachedLocale = normalizeAppLocale(lang);
+        if (cachedLocale && cachedLocale !== getCurrentAppLocale(i18n)) {
+          void changeAppLocale(i18n, cachedLocale);
+        }
       } catch (_) {}
     }
     base44.auth.me().then((user) => {
@@ -168,9 +176,9 @@ export default function Layout({ children, currentPageName }) {
       setTheme(userTheme);
 
       // Sync saved language preference → i18n (user profile wins over localStorage)
-      const savedLang = user?.preferences?.language;
-      if (savedLang && savedLang !== i18n.language) {
-        i18n.changeLanguage(savedLang);
+      const savedLang = normalizeAppLocale(user?.preferences?.language);
+      if (savedLang && savedLang !== getCurrentAppLocale(i18n)) {
+        void changeAppLocale(i18n, savedLang);
       }
 
       // Apply theme colors
