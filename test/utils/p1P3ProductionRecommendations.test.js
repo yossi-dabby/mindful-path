@@ -17,6 +17,8 @@ describe('P1–P3 production recommendations', () => {
     expect(source).toContain('disabled={isLoading || isConversationInitializing || isUploadingFile}');
     expect(source).toContain("setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText)");
     expect(source).not.toContain("if (!_isV2QueuedExecution) {\n        setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);");
+    expect(source).toContain('conversationId: currentConversationIdRef.current');
+    expect(source).toContain('if (currentConversationIdRef.current === sendConversationId)');
   });
 
   it('provides delivery, wait, feedback, voice, and experiment labels in all seven languages', () => {
