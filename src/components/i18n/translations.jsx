@@ -893,6 +893,7 @@ export const translations = {
           theme: "Theme",
           duration: "Duration",
           duration_value: "{{min}} min",
+          stage: "Stage",
           cycles: "Cycles",
           prev_exercise: "Previous exercise",
           next_exercise: "Next exercise"
@@ -2497,12 +2498,13 @@ export const translations = {
           theme: "ערכת נושא",
           duration: "משך",
           duration_value: "{{min}} דק׳",
+          stage: "שלב",
           cycles: "מחזורים",
           prev_exercise: "תרגיל קודם",
           next_exercise: "תרגיל הבא"
         },
         status: {
-          get_ready: "היכן להתכונן...",
+          get_ready: "התכוננו...",
           time_remaining: "נותר",
           cycle_count: "מחזור {{count}}",
           completed: "המפגש הושלם!",
@@ -4069,7 +4071,7 @@ export const translations = {
           close: "Cerrar", settings: "Configuración", sound: "Sonido",
           sound_on: "Activar sonido", sound_off: "Silenciar",
           reduce_motion: "Modo suave", reduce_motion_active: "Modo suave activo",
-          theme: "Tema", duration: "Duración", duration_value: "{{min}} min", cycles: "Ciclos",
+          theme: "Tema", duration: "Duración", duration_value: "{{min}} min", stage: "Etapa", cycles: "Ciclos",
           prev_exercise: "Ejercicio anterior", next_exercise: "Ejercicio siguiente"
         },
         status: {
@@ -5627,7 +5629,7 @@ export const translations = {
           close: "Fermer", settings: "Paramètres", sound: "Son",
           sound_on: "Activer le son", sound_off: "Couper le son",
           reduce_motion: "Mode doux", reduce_motion_active: "Mode doux actif",
-          theme: "Thème", duration: "Durée", duration_value: "{{min}} min", cycles: "Cycles",
+          theme: "Thème", duration: "Durée", duration_value: "{{min}} min", stage: "Étape", cycles: "Cycles",
           prev_exercise: "Exercice précédent", next_exercise: "Exercice suivant"
         },
         status: {
@@ -7185,7 +7187,7 @@ export const translations = {
           close: "Schließen", settings: "Einstellungen", sound: "Ton",
           sound_on: "Ton einschalten", sound_off: "Ton ausschalten",
           reduce_motion: "Sanfter Modus", reduce_motion_active: "Sanfter Modus aktiv",
-          theme: "Thema", duration: "Dauer", duration_value: "{{min}} Min", cycles: "Zyklen",
+          theme: "Thema", duration: "Dauer", duration_value: "{{min}} Min", stage: "Stufe", cycles: "Zyklen",
           prev_exercise: "Vorherige Übung", next_exercise: "Nächste Übung"
         },
         status: {
@@ -8743,7 +8745,7 @@ export const translations = {
           close: "Chiudi", settings: "Impostazioni", sound: "Suono",
           sound_on: "Attiva suono", sound_off: "Disattiva suono",
           reduce_motion: "Modalità delicata", reduce_motion_active: "Modalità delicata attiva",
-          theme: "Tema", duration: "Durata", duration_value: "{{min}} min", cycles: "Cicli",
+          theme: "Tema", duration: "Durata", duration_value: "{{min}} min", stage: "Fase", cycles: "Cicli",
           prev_exercise: "Esercizio precedente", next_exercise: "Esercizio successivo"
         },
         status: {
@@ -10301,7 +10303,7 @@ export const translations = {
           close: "Fechar", settings: "Configurações", sound: "Som",
           sound_on: "Ativar som", sound_off: "Silenciar",
           reduce_motion: "Modo suave", reduce_motion_active: "Modo suave ativo",
-          theme: "Tema", duration: "Duração", duration_value: "{{min}} min", cycles: "Ciclos",
+          theme: "Tema", duration: "Duração", duration_value: "{{min}} min", stage: "Etapa", cycles: "Ciclos",
           prev_exercise: "Exercício anterior", next_exercise: "Próximo exercício"
         },
         status: {
