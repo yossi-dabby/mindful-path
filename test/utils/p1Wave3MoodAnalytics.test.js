@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { translations } from '../../src/components/i18n/translations.jsx';
 
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
+const JOURNAL_FILTER_KEYS = ['type_label', 'tags_label'];
+const JOURNAL_ENTRY_TYPE_KEYS = ['all', 'cbt_standard', 'gratitude', 'anxiety_log', 'mood_journal', 'custom'];
+
 const ANALYTICS_KEYS = [
   'range_last_7_days',
   'range_last_2_weeks',
@@ -44,6 +47,14 @@ describe('P1 wave 3 — mood analytics localization', () => {
         expect(analytics[key], `${language}.mood_tracker.analytics.${key}`).toEqual(expect.any(String));
         expect(analytics[key].trim()).not.toBe('');
       }
+
+      const journalFilters = translations[language].translation.journal.filters;
+      for (const key of JOURNAL_FILTER_KEYS) {
+        expect(journalFilters[key], `${language}.journal.filters.${key}`).toEqual(expect.any(String));
+      }
+      for (const key of JOURNAL_ENTRY_TYPE_KEYS) {
+        expect(journalFilters.entry_types[key], `${language}.journal.filters.entry_types.${key}`).toEqual(expect.any(String));
+      }
     });
   }
 
@@ -58,6 +69,17 @@ describe('P1 wave 3 — mood analytics localization', () => {
     expect(source).not.toContain('>Mood Trends<');
     expect(source).not.toContain('>Mood & Stress Levels<');
     expect(source).not.toContain('>Energy & Intensity<');
+  });
+
+  it('translates the journal filters shown on the core journal route', () => {
+    const source = readFileSync('src/components/journal/JournalFilters.jsx', 'utf8');
+
+    expect(source).toContain("t('journal.filters.type_label')");
+    expect(source).toContain("t('journal.filters.tags_label')");
+    expect(source).toContain('journal.filters.entry_types.');
+    expect(source).toContain("t('journal.clear_filters')");
+    expect(source).not.toContain("label: 'All Types'");
+    expect(source).not.toContain('>Type:</span>');
   });
 
   it('translates trigger analysis and preserves dynamic text direction', () => {
