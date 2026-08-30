@@ -1,5 +1,6 @@
 // Updated Hebrew translations - rebuild [current date]
 import { sixStepGoalTranslations } from "./sixStepGoalTranslations";
+import { wave3Batch3Translations } from "./wave3Batch3Translations";
 
 export const translations = {
   en: {
@@ -774,6 +775,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.en.exercises,
         page_title: "Exercises Library",
         page_subtitle: "Practice CBT techniques",
         page_subtitle_full: "Browse and practice evidence-based CBT techniques",
@@ -1026,6 +1028,7 @@ export const translations = {
         session_label: "Session:"
       },
       goals: {
+        ...wave3Batch3Translations.en.goals,
         title: "Your Goals",
         nav_title: "Goals",
         subtitle: "Set intentions and track your progress",
@@ -2375,6 +2378,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.he.exercises,
         page_title: "ספריית תרגילים",
         page_subtitle: "תרגלו טכניקות CBT",
         page_subtitle_full: "עיינו ותרגלו טכניקות CBT מבוססות ראיות",
@@ -2627,6 +2631,7 @@ export const translations = {
         session_label: "מפגש:"
       },
       goals: {
+        ...wave3Batch3Translations.he.goals,
         title: "המטרות שלכם",
         nav_title: "מטרות",
         subtitle: "הגדירו כוונות ועקבו אחר ההתקדמות",
@@ -3976,6 +3981,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.es.exercises,
         page_title: "Biblioteca de Ejercicios",
         page_subtitle: "Practica técnicas CBT",
         page_subtitle_full: "Explora y practica técnicas CBT basadas en evidencia",
@@ -4185,6 +4191,7 @@ export const translations = {
         session_label: "Sesión:"
       },
       goals: {
+        ...wave3Batch3Translations.es.goals,
         title: "Tus Metas",
         nav_title: "Metas",
         subtitle: "Establece intenciones y sigue tu progreso",
@@ -5531,6 +5538,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.fr.exercises,
         page_title: "Bibliothèque d'Exercices",
         page_subtitle: "Pratiquer les techniques CBT",
         page_subtitle_full: "Parcourir et pratiquer les techniques CBT fondées sur des preuves",
@@ -5740,6 +5748,7 @@ export const translations = {
         session_label: "Séance :"
       },
       goals: {
+        ...wave3Batch3Translations.fr.goals,
         title: "Vos Objectifs",
         nav_title: "Objectifs",
         subtitle: "Définissez des intentions et suivez votre progression",
@@ -7086,6 +7095,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.de.exercises,
         page_title: "Übungsbibliothek",
         page_subtitle: "CBT-Techniken üben",
         page_subtitle_full: "Durchsuchen und üben Sie evidenzbasierte CBT-Techniken",
@@ -7295,6 +7305,7 @@ export const translations = {
         session_label: "Sitzung:"
       },
       goals: {
+        ...wave3Batch3Translations.de.goals,
         title: "Ihre Ziele",
         nav_title: "Ziele",
         subtitle: "Setzen Sie Absichten und verfolgen Sie Ihren Fortschritt",
@@ -8641,6 +8652,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.it.exercises,
         page_title: "Libreria Esercizi",
         page_subtitle: "Pratica tecniche CBT",
         page_subtitle_full: "Sfoglia e pratica tecniche CBT basate sull'evidenza",
@@ -8850,6 +8862,7 @@ export const translations = {
         session_label: "Sessione:"
       },
       goals: {
+        ...wave3Batch3Translations.it.goals,
         title: "I Tuoi Obiettivi",
         nav_title: "Obiettivi",
         subtitle: "Imposta intenzioni e monitora i tuoi progressi",
@@ -10196,6 +10209,7 @@ export const translations = {
         }
       },
       exercises: {
+        ...wave3Batch3Translations.pt.exercises,
         page_title: "Biblioteca de Exercícios",
         page_subtitle: "Pratique técnicas CBT",
         page_subtitle_full: "Navegue e pratique técnicas CBT baseadas em evidências",
@@ -10405,6 +10419,7 @@ export const translations = {
         session_label: "Sessão:"
       },
       goals: {
+        ...wave3Batch3Translations.pt.goals,
         title: "Seus Objetivos",
         nav_title: "Objetivos",
         subtitle: "Defina intenções e acompanhe seu progresso",
