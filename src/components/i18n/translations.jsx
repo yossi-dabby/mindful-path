@@ -1,4 +1,6 @@
 // Updated Hebrew translations - rebuild [current date]
+import { sixStepGoalTranslations } from "./sixStepGoalTranslations";
+
 export const translations = {
   en: {
     translation: {
@@ -1191,6 +1193,7 @@ export const translations = {
       },
       thought_coach: {
         title: "Thought Coach",
+        close_aria: "Close thought coach",
         step_thought_type_title: "What type of thought would you like to work on?",
         step_thought_type_subtitle: "Choose the category that best matches your current experience",
         step_details_title: "Tell me about this thought",
@@ -1258,6 +1261,7 @@ export const translations = {
           disappointed: "Disappointed"
         }
       },
+      six_step_goal: sixStepGoalTranslations.en,
       exercise_view: {
         not_found: "Exercise not found",
         nav_title: "Exercise",
@@ -2790,6 +2794,7 @@ export const translations = {
       },
       thought_coach: {
         title: "מאמן מחשבות",
+        close_aria: "סגירת מאמן המחשבות",
         step_thought_type_title: "איזה סוג מחשבה תרצו לעבוד עליו?",
         step_thought_type_subtitle: "בחרו את הקטגוריה שמתאימה ביותר לחוויה הנוכחית שלכם",
         step_details_title: "ספרו לי על המחשבה הזו",
@@ -2857,6 +2862,7 @@ export const translations = {
           disappointed: "מאוכזב"
         }
       },
+      six_step_goal: sixStepGoalTranslations.he,
       exercise_view: {
         not_found: "התרגיל לא נמצא",
         nav_title: "תרגיל",
@@ -4346,6 +4352,7 @@ export const translations = {
       },
       thought_coach: {
         title: "Coach de Pensamientos",
+        close_aria: "Cerrar el coach de pensamientos",
         step_thought_type_title: "¿Qué tipo de pensamiento quieres trabajar?",
         step_thought_type_subtitle: "Elige la categoría que mejor se adapte a tu experiencia actual",
         step_details_title: "Cuéntame sobre este pensamiento",
@@ -4413,6 +4420,7 @@ export const translations = {
           disappointed: "Decepcionado"
         }
       },
+      six_step_goal: sixStepGoalTranslations.es,
       exercise_view: {
         not_found: "Ejercicio no encontrado",
         nav_title: "Ejercicio",
@@ -5899,6 +5907,7 @@ export const translations = {
       },
       thought_coach: {
         title: "Coach de Pensées",
+        close_aria: "Fermer le coach de pensées",
         step_thought_type_title: "Sur quel type de pensée souhaitez-vous travailler ?",
         step_thought_type_subtitle: "Choisissez la catégorie qui correspond le mieux à votre expérience actuelle",
         step_details_title: "Parlez-moi de cette pensée",
@@ -5966,6 +5975,7 @@ export const translations = {
           disappointed: "Déçu"
         }
       },
+      six_step_goal: sixStepGoalTranslations.fr,
       exercise_view: {
         not_found: "Exercice introuvable",
         nav_title: "Exercice",
@@ -7452,6 +7462,7 @@ export const translations = {
       },
       thought_coach: {
         title: "Gedanken-Coach",
+        close_aria: "Gedanken-Coach schließen",
         step_thought_type_title: "An welcher Art von Gedanke möchten Sie arbeiten?",
         step_thought_type_subtitle: "Wählen Sie die Kategorie, die am besten zu Ihrer aktuellen Erfahrung passt",
         step_details_title: "Erzählen Sie mir von diesem Gedanken",
@@ -7519,6 +7530,7 @@ export const translations = {
           disappointed: "Enttäuscht"
         }
       },
+      six_step_goal: sixStepGoalTranslations.de,
       exercise_view: {
         not_found: "Übung nicht gefunden",
         nav_title: "Übung",
@@ -9005,6 +9017,7 @@ export const translations = {
       },
       thought_coach: {
         title: "Coach dei Pensieri",
+        close_aria: "Chiudi il coach dei pensieri",
         step_thought_type_title: "Su quale tipo di pensiero vorresti lavorare?",
         step_thought_type_subtitle: "Scegli la categoria che si adatta meglio alla tua esperienza attuale",
         step_details_title: "Parlami di questo pensiero",
@@ -9072,6 +9085,7 @@ export const translations = {
           disappointed: "Deluso"
         }
       },
+      six_step_goal: sixStepGoalTranslations.it,
       exercise_view: {
         not_found: "Esercizio non trovato",
         nav_title: "Esercizio",
@@ -10558,6 +10572,7 @@ export const translations = {
       },
       thought_coach: {
         title: "Coach de Pensamentos",
+        close_aria: "Fechar o coach de pensamentos",
         step_thought_type_title: "Que tipo de pensamento você gostaria de trabalhar?",
         step_thought_type_subtitle: "Escolha a categoria que melhor corresponde à sua experiência atual",
         step_details_title: "Conte-me sobre este pensamento",
@@ -10625,6 +10640,7 @@ export const translations = {
           disappointed: "Decepcionado"
         }
       },
+      six_step_goal: sixStepGoalTranslations.pt,
       exercise_view: {
         not_found: "Exercício não encontrado",
         nav_title: "Exercício",
