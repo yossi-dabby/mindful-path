@@ -49,7 +49,7 @@ export default function BottomNav({ currentPageName }) {
 
   return (
     <nav
-      aria-label="Main navigation"
+      aria-label={t('shell.main_navigation')}
       data-app-chrome
       data-mobile-bottom-nav
       className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]"
