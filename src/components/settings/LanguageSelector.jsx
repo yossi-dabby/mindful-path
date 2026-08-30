@@ -5,6 +5,7 @@ import { Languages, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
+import { changeAppLocale, getCurrentAppLocale } from '../i18n/appLocale';
 
 const languages = [
   { code: 'en', flag: '🇬🇧', native: 'English' },
@@ -18,11 +19,11 @@ const languages = [
 
 export default function LanguageSelector() {
   const { t, i18n } = useTranslation();
-  const currentLang = i18n.language;
+  const currentLang = getCurrentAppLocale(i18n);
 
   const handleLanguageChange = async (langCode) => {
-    // Change language in i18n
-    await i18n.changeLanguage(langCode);
+    // Change the UI language and all document/storage side effects atomically.
+    await changeAppLocale(i18n, langCode);
     
     // Save to user preferences (optional, non-blocking)
     try {
