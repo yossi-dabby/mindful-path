@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,6 +17,8 @@ import QuickStartPanel from '../components/exercises/QuickStartPanel';
 import InteractiveBreathingTool from '../components/exercises/InteractiveBreathingTool';
 import PullToRefresh from '../components/utils/PullToRefresh';
 import { mergeExercises, validateExercisesTaxonomy } from '../components/exercises/exercisesData';
+import { localizeExerciseCollection } from '../components/exercises/exerciseLocalization';
+import { getCurrentAppLocale } from '../components/i18n/appLocale';
 
 const categoryIcons = {
   breathing: Wind,
@@ -43,7 +45,8 @@ const categoryColors = {
 };
 
 export default function Exercises() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const appLocale = getCurrentAppLocale(i18n);
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedExercise, setSelectedExercise] = useState(null);
@@ -79,7 +82,7 @@ export default function Exercises() {
     );
   };
 
-  const { data: exercises, isLoading } = useQuery({
+  const { data: rawExercises, isLoading } = useQuery({
     queryKey: ['exercises'],
     queryFn: async () => {
       try {
@@ -92,6 +95,15 @@ export default function Exercises() {
     },
     initialData: applyLocalExerciseState(mergeExercises([]))
   });
+
+  const exercises = useMemo(
+    () => localizeExerciseCollection(rawExercises, appLocale),
+    [rawExercises, appLocale]
+  );
+
+  useEffect(() => {
+    setSelectedExercise((current) => current ? exercises.find((exercise) => exercise.id === current.id) || current : current);
+  }, [exercises]);
 
   // Dev-only taxonomy validation — runs once after exercises data is ready
   useEffect(() => {
