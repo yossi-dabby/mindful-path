@@ -11,16 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { X, Plus, Trash2, Target, CheckCircle, Sparkles } from 'lucide-react';
 import DatePickerMobile from '../ui/date-picker-mobile';
+import { useTranslation } from 'react-i18next';
 
-const categories = [
-  { value: 'behavioral', label: 'Behavioral' },
-  { value: 'emotional', label: 'Emotional' },
-  { value: 'social', label: 'Social' },
-  { value: 'cognitive', label: 'Cognitive' },
-  { value: 'lifestyle', label: 'Lifestyle' }
-];
+const CATEGORY_VALUES = ['behavioral', 'emotional', 'social', 'cognitive', 'lifestyle'];
 
 export default function GoalForm({ goal, prefilledData, onClose }) {
+  const { t } = useTranslation();
+  const categories = CATEGORY_VALUES.map((value) => ({ value, label: t(`goals.form.categories.${value}`) }));
   const [currentTab, setCurrentTab] = useState('basic');
   const abortControllerRef = useRef(null);
   const mountedRef = useRef(true);
@@ -98,7 +95,7 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
-        setSaveError(error.message || 'Failed to save goal');
+        setSaveError(error.message || t('goals.form.save_failed'));
       }
     },
     onSettled: () => {
@@ -174,7 +171,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
-        setSaveError('AI suggestion failed. Please try again or fill manually.');
+        setSaveError(t('goals.form.ai_failed'));
       }
     } finally {
       if (mountedRef.current) {
@@ -239,10 +236,10 @@ Provide SMART criteria answers and suggestions for milestones.`,
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>{goal ? 'Edit Goal' : 'Create SMART Goal'}</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">Set goals that are specific, measurable, and achievable</p>
+              <CardTitle>{goal ? t('goals.form.edit_title') : t('goals.form.create_title')}</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">{t('goals.form.subtitle')}</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close goal form">
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('goals.form.close_aria')}>
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -250,62 +247,62 @@ Provide SMART criteria answers and suggestions for milestones.`,
         <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="smart">SMART Criteria</TabsTrigger>
-              <TabsTrigger value="milestones">Action Steps</TabsTrigger>
+              <TabsTrigger value="basic">{t('goals.form.tabs.basic')}</TabsTrigger>
+              <TabsTrigger value="smart">{t('goals.form.tabs.smart')}</TabsTrigger>
+              <TabsTrigger value="milestones">{t('goals.form.tabs.milestones')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="basic" className="overflow-y-auto flex-1">
               <div className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Title</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.goal_title')}</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., Exercise 3 times per week for 30 minutes"
+                    placeholder={t('goals.form.goal_title_placeholder')}
                     className="rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Description</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.description')}</label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe what success looks like and why this matters to you..."
+                    placeholder={t('goals.form.description_placeholder')}
                     className="h-24 rounded-xl"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.category')}</label>
                     <BottomSheetSelect
                       value={formData.category}
                       onValueChange={(value) => setFormData({ ...formData, category: value })}
                       options={categories}
-                      title="Select Category"
-                      placeholder="Choose category"
+                      title={t('goals.form.select_category')}
+                      placeholder={t('goals.form.choose_category')}
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Target Date</label>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.target_date')}</label>
                     <DatePickerMobile
                       value={formData.target_date}
                       onChange={(date) => setFormData({ ...formData, target_date: date })}
-                      placeholder="Select target date"
+                      placeholder={t('goals.form.select_target_date')}
                       minDate={new Date().toISOString().split('T')[0]}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Personal Motivation</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.motivation')}</label>
                   <Textarea
                     value={formData.motivation || ''}
                     onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
-                    placeholder="Why is this goal important to you? How will achieving it improve your life?"
+                    placeholder={t('goals.form.motivation_placeholder')}
                     className="h-20 rounded-xl"
                   />
                 </div>
@@ -313,7 +310,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                 {goal && (
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Progress: {formData.progress}%
+                      {t('goals.form.progress')}: {formData.progress}%
                     </label>
                     <input
                       type="range"
@@ -334,11 +331,11 @@ Provide SMART criteria answers and suggestions for milestones.`,
                   className="w-full"
                 >
                   {aiSuggesting ? (
-                    <>Generating SMART criteria...</>
+                    <>{t('goals.form.generating')}</>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Generate Goal Suggestions
+                      {t('goals.form.generate')}
                     </>
                   )}
                 </Button>
@@ -350,16 +347,16 @@ Provide SMART criteria answers and suggestions for milestones.`,
                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
                   <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
                     <Target className="w-5 h-5 text-blue-600" />
-                    SMART Goal Framework
+                    {t('goals.form.framework_title')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Make your goal Specific, Measurable, Achievable, Relevant, and Time-bound for better success.
+                    {t('goals.form.framework_description')}
                   </p>
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                    📍 Specific - What exactly will you accomplish?
+                    {t('goals.form.specific_label')}
                   </label>
                   <Textarea
                     value={formData.smart_criteria?.specific || ''}
@@ -367,14 +364,14 @@ Provide SMART criteria answers and suggestions for milestones.`,
                       ...formData,
                       smart_criteria: { ...formData.smart_criteria, specific: e.target.value }
                     })}
-                    placeholder="Be clear and detailed. Who, what, where, when, why?"
+                    placeholder={t('goals.form.specific_placeholder')}
                     className="h-20 rounded-xl"
                   />
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                    📊 Measurable - How will you track progress?
+                    {t('goals.form.measurable_label')}
                   </label>
                   <Textarea
                     value={formData.smart_criteria?.measurable || ''}
@@ -382,14 +379,14 @@ Provide SMART criteria answers and suggestions for milestones.`,
                       ...formData,
                       smart_criteria: { ...formData.smart_criteria, measurable: e.target.value }
                     })}
-                    placeholder="Define numbers, milestones, or indicators of success"
+                    placeholder={t('goals.form.measurable_placeholder')}
                     className="h-20 rounded-xl"
                   />
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                    ✅ Achievable - Why is this realistic for you?
+                    {t('goals.form.achievable_label')}
                   </label>
                   <Textarea
                     value={formData.smart_criteria?.achievable || ''}
@@ -397,14 +394,14 @@ Provide SMART criteria answers and suggestions for milestones.`,
                       ...formData,
                       smart_criteria: { ...formData.smart_criteria, achievable: e.target.value }
                     })}
-                    placeholder="What resources, skills, or support do you have?"
+                    placeholder={t('goals.form.achievable_placeholder')}
                     className="h-20 rounded-xl"
                   />
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                    💡 Relevant - Why does this matter to you?
+                    {t('goals.form.relevant_label')}
                   </label>
                   <Textarea
                     value={formData.smart_criteria?.relevant || ''}
@@ -412,14 +409,14 @@ Provide SMART criteria answers and suggestions for milestones.`,
                       ...formData,
                       smart_criteria: { ...formData.smart_criteria, relevant: e.target.value }
                     })}
-                    placeholder="How does this align with your values and priorities?"
+                    placeholder={t('goals.form.relevant_placeholder')}
                     className="h-20 rounded-xl"
                   />
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                    ⏰ Time-bound - When will you achieve this?
+                    {t('goals.form.time_bound_label')}
                   </label>
                   <Textarea
                     value={formData.smart_criteria?.time_bound || ''}
@@ -427,7 +424,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                       ...formData,
                       smart_criteria: { ...formData.smart_criteria, time_bound: e.target.value }
                     })}
-                    placeholder="Set a deadline and any important dates"
+                    placeholder={t('goals.form.time_bound_placeholder')}
                     className="h-20 rounded-xl"
                   />
                 </div>
@@ -440,25 +437,25 @@ Provide SMART criteria answers and suggestions for milestones.`,
                 <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-4">
                   <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    Break Down Your Goal
+                    {t('goals.form.breakdown_title')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Define actionable steps to make your goal more achievable. Each step should be specific and measurable.
+                    {t('goals.form.breakdown_description')}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-medium text-gray-700">Action Steps / Milestones</label>
+                  <label className="text-sm font-medium text-gray-700">{t('goals.form.action_steps')}</label>
                   <Button variant="outline" size="sm" onClick={addMilestone} className="rounded-lg">
                     <Plus className="w-4 h-4 mr-1" />
-                    Add Step
+                    {t('goals.form.add_step')}
                   </Button>
                 </div>
 
                 <div className="space-y-3">
                   {formData.milestones.length === 0 && (
                     <div className="text-center py-8 text-gray-500 text-sm">
-                      No steps added yet. Break your goal into smaller, actionable steps.
+                      {t('goals.form.no_steps')}
                     </div>
                   )}
                   {formData.milestones.map((milestone, index) => (
@@ -470,7 +467,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                         <Input
                           value={milestone.title}
                           onChange={(e) => updateMilestone(index, 'title', e.target.value)}
-                          placeholder={`Step ${index + 1}: What will you do?`}
+                          placeholder={t('goals.form.step_placeholder', { number: index + 1 })}
                           className="flex-1 rounded-lg font-medium"
                         />
                         <Button
@@ -478,7 +475,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                           size="icon"
                           onClick={() => removeMilestone(index)}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                          aria-label={`Remove milestone ${index + 1}`}
+                          aria-label={t('goals.form.remove_milestone', { number: index + 1 })}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -487,7 +484,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                         <Textarea
                           value={milestone.description || ''}
                           onChange={(e) => updateMilestone(index, 'description', e.target.value)}
-                          placeholder="Describe this step in detail (optional)"
+                          placeholder={t('goals.form.step_description_placeholder')}
                           className="rounded-lg text-sm"
                           rows={2}
                         />
@@ -495,7 +492,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                           <DatePickerMobile
                             value={milestone.due_date || ''}
                             onChange={(date) => updateMilestone(index, 'due_date', date)}
-                            placeholder="Due date"
+                            placeholder={t('goals.form.due_date')}
                             minDate={new Date().toISOString().split('T')[0]}
                           />
                         </div>
@@ -514,7 +511,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
               </div>
             )}
             <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
+              {t('goals.form.cancel')}
             </Button>
             <Button
               onClick={() => {
@@ -526,7 +523,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
               disabled={!formData.title.trim() || isSavingRef.current || saveMutation.isPending}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              {saveMutation.isPending ? 'Saving...' : goal ? 'Update Goal' : 'Create Goal'}
+              {saveMutation.isPending ? t('goals.form.saving') : goal ? t('goals.form.update_goal') : t('goals.form.create_goal')}
             </Button>
           </div>
         </CardContent>
