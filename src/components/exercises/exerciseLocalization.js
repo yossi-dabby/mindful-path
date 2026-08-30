@@ -1,4 +1,4 @@
-import { SUPPORTED_LOCALES, normalizeAppLocale } from '@/components/i18n/appLocale';
+import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '@/components/i18n/appLocale';
 
 const TRANSLATABLE_FIELDS = [
   'title',
@@ -80,7 +80,7 @@ export function localizeExerciseCollection(exercises, requestedLocale) {
 
 export function hasExerciseLocale(exercise, requestedLocale) {
   const locale = normalizeAppLocale(requestedLocale);
-  if (!SUPPORTED_LOCALES.includes(locale)) return false;
+  if (!SUPPORTED_APP_LOCALES.includes(locale)) return false;
   return localizeExercise(exercise, locale)?.localization_available === true;
 }
 
