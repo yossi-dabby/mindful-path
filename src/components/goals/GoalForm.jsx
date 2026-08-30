@@ -116,14 +116,14 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
     setSaveError(null);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Help make this goal SMART (Specific, Measurable, Achievable, Relevant, Time-bound):
+        prompt: `${t('goals.form.ai_prompt_intro')}
 
-**Goal:** ${formData.title}
-**Description:** ${formData.description}
-**Category:** ${formData.category}
-${formData.target_date ? `**Target Date:** ${formData.target_date}` : ''}
+**${t('goals.form.ai_prompt_goal')}:** ${formData.title}
+**${t('goals.form.ai_prompt_description')}:** ${formData.description}
+**${t('goals.form.ai_prompt_category')}:** ${t(`goals.form.categories.${formData.category}`)}
+${formData.target_date ? `**${t('goals.form.ai_prompt_date')}:** ${formData.target_date}` : ''}
 
-Provide SMART criteria answers and suggestions for milestones.`,
+${t('goals.form.ai_prompt_request')}`,
         response_json_schema: {
           type: "object",
           properties: {
