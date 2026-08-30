@@ -99,19 +99,22 @@ export function localizeExercise(exercise, requestedLocale) {
   };
 }
 
-function getCatalogDeduplicationKey(exercise) {
+function getCatalogDeduplicationKey(exercise, localizedExercise, locale) {
   const sourceTitle = String(exercise?.title || '').trim().toLocaleLowerCase('en');
-  if (!sourceTitle) return getExerciseIdentity(exercise);
+  const localizedTitle = String(localizedExercise?.title || '').trim().toLocaleLowerCase(locale);
+  if (!sourceTitle && !localizedTitle) return getExerciseIdentity(exercise);
 
-  const isCanonicalCatalogTitle = EXERCISE_CONTENT_CATALOGS.some((catalog) =>
-    Object.values(catalog).some(
-      (translations) => String(translations.en?.title || '').trim().toLocaleLowerCase('en') === sourceTitle
-    )
+  const matchesCatalogTitle = EXERCISE_CONTENT_CATALOGS.some((catalog) =>
+    Object.values(catalog).some((translations) => {
+      const canonicalSourceTitle = String(translations.en?.title || '').trim().toLocaleLowerCase('en');
+      const canonicalLocalizedTitle = String(translations[locale]?.title || '').trim().toLocaleLowerCase(locale);
+      return canonicalSourceTitle === sourceTitle || canonicalLocalizedTitle === localizedTitle;
+    })
   );
 
-  return isCanonicalCatalogTitle
-    ? `catalog::${sourceTitle}`
-    : `${String(exercise?.category || '')}::${sourceTitle}`;
+  return matchesCatalogTitle
+    ? `catalog::${localizedTitle || sourceTitle}`
+    : `${String(exercise?.category || '')}::${sourceTitle || localizedTitle}`;
 }
 
 export function localizeExerciseCollection(exercises, requestedLocale) {
@@ -133,7 +136,8 @@ export function localizeExerciseCollection(exercises, requestedLocale) {
   const localizedBySourceTitle = new Map();
 
   for (const { exercise } of localizedByIdentity.values()) {
-    const deduplicationKey = getCatalogDeduplicationKey(exercise);
+    const localizedExercise = localizeExercise(exercise, locale);
+    const deduplicationKey = getCatalogDeduplicationKey(exercise, localizedExercise, locale);
     const existing = localizedBySourceTitle.get(deduplicationKey);
     const priority =
       (String(exercise?.id || '').startsWith('local-') ? 0 : 10) +
@@ -142,7 +146,7 @@ export function localizeExerciseCollection(exercises, requestedLocale) {
 
     if (!existing || priority > existing.priority) {
       localizedBySourceTitle.set(deduplicationKey, {
-        exercise: localizeExercise(exercise, locale),
+        exercise: localizedExercise,
         priority
       });
     }
