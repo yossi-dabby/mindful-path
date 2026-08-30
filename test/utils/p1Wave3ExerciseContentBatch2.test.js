@@ -69,11 +69,16 @@ describe('P1 wave 3 exercise content batch 2', () => {
       id: 'api-record-123',
       title: 'Evidence-Based Reality Testing',
       category: 'cognitive_restructuring',
-      language: 'en'
+      language: 'en',
+      instructions: 'English instructions',
+      detailed_steps: [{ step_number: 1, title: 'English step', description: 'English description' }]
     }, 'he');
 
     expect(localized.title).toBe('בדיקת מציאות מבוססת ראיות');
     expect(localized.steps).toHaveLength(6);
+    expect(localized.detailed_steps).toHaveLength(6);
+    expect(localized.detailed_steps[0].title).toBe('זיהוי המחשבה');
+    expect(localized.instructions).toContain('1. זיהוי המחשבה:');
 
     const collection = localizeExerciseCollection([
       {
