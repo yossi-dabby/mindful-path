@@ -1175,6 +1175,18 @@ export const translations = {
         browse_templates: "Browse Templates",
         no_entries_match: "No entries match your filters",
         clear_filters: "Clear Filters",
+        filters: {
+          type_label: "Type",
+          tags_label: "Tags",
+          entry_types: {
+            all: "All Types",
+            cbt_standard: "CBT Standard",
+            gratitude: "Gratitude",
+            anxiety_log: "Anxiety Log",
+            mood_journal: "Mood Journal",
+            custom: "Custom"
+          }
+        },
         go_back_aria: "Go back"
       },
       thought_coach: {
@@ -2735,6 +2747,18 @@ export const translations = {
         browse_templates: "עיינו בתבניות",
         no_entries_match: "אין רשומות התואמות את הסינון",
         clear_filters: "נקו סינון",
+        filters: {
+          type_label: "סוג",
+          tags_label: "תגיות",
+          entry_types: {
+            all: "כל הסוגים",
+            cbt_standard: "CBT סטנדרטי",
+            gratitude: "הכרת תודה",
+            anxiety_log: "יומן חרדה",
+            mood_journal: "יומן מצב רוח",
+            custom: "מותאם אישית"
+          }
+        },
         go_back_aria: "חזרה"
       },
       thought_coach: {
@@ -4252,6 +4276,18 @@ export const translations = {
         browse_templates: "Explorar Plantillas",
         no_entries_match: "Ninguna entrada coincide con tus filtros",
         clear_filters: "Limpiar Filtros",
+        filters: {
+          type_label: "Tipo",
+          tags_label: "Etiquetas",
+          entry_types: {
+            all: "Todos los tipos",
+            cbt_standard: "CBT estándar",
+            gratitude: "Gratitud",
+            anxiety_log: "Registro de ansiedad",
+            mood_journal: "Diario de ánimo",
+            custom: "Personalizado"
+          }
+        },
         go_back_aria: "Volver"
       },
       thought_coach: {
@@ -5766,6 +5802,18 @@ export const translations = {
         browse_templates: "Parcourir les Modèles",
         no_entries_match: "Aucune entrée ne correspond à vos filtres",
         clear_filters: "Effacer les Filtres",
+        filters: {
+          type_label: "Type",
+          tags_label: "Étiquettes",
+          entry_types: {
+            all: "Tous les types",
+            cbt_standard: "CBT standard",
+            gratitude: "Gratitude",
+            anxiety_log: "Journal d’anxiété",
+            mood_journal: "Journal d’humeur",
+            custom: "Personnalisé"
+          }
+        },
         go_back_aria: "Retour"
       },
       thought_coach: {
@@ -7280,6 +7328,18 @@ export const translations = {
         browse_templates: "Vorlagen durchsuchen",
         no_entries_match: "Keine Einträge entsprechen Ihren Filtern",
         clear_filters: "Filter löschen",
+        filters: {
+          type_label: "Typ",
+          tags_label: "Tags",
+          entry_types: {
+            all: "Alle Typen",
+            cbt_standard: "CBT-Standard",
+            gratitude: "Dankbarkeit",
+            anxiety_log: "Angstprotokoll",
+            mood_journal: "Stimmungstagebuch",
+            custom: "Benutzerdefiniert"
+          }
+        },
         go_back_aria: "Zurück"
       },
       thought_coach: {
@@ -8794,6 +8854,18 @@ export const translations = {
         browse_templates: "Sfoglia Modelli",
         no_entries_match: "Nessuna voce corrisponde ai tuoi filtri",
         clear_filters: "Cancella Filtri",
+        filters: {
+          type_label: "Tipo",
+          tags_label: "Tag",
+          entry_types: {
+            all: "Tutti i tipi",
+            cbt_standard: "CBT standard",
+            gratitude: "Gratitudine",
+            anxiety_log: "Diario dell’ansia",
+            mood_journal: "Diario dell’umore",
+            custom: "Personalizzato"
+          }
+        },
         go_back_aria: "Indietro"
       },
       thought_coach: {
@@ -10308,6 +10380,18 @@ export const translations = {
         browse_templates: "Explorar Modelos",
         no_entries_match: "Nenhuma entrada corresponde aos seus filtros",
         clear_filters: "Limpar Filtros",
+        filters: {
+          type_label: "Tipo",
+          tags_label: "Etiquetas",
+          entry_types: {
+            all: "Todos os tipos",
+            cbt_standard: "CBT padrão",
+            gratitude: "Gratidão",
+            anxiety_log: "Registro de ansiedade",
+            mood_journal: "Diário de humor",
+            custom: "Personalizado"
+          }
+        },
         go_back_aria: "Voltar"
       },
       thought_coach: {
