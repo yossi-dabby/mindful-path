@@ -564,7 +564,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
             {calmLadderStage && (
               <div>
                 <p className="text-xs uppercase tracking-wider" style={{ color: theme.textSecondary }}>
-                  Stage
+                  {t('breathing_tool.controls.stage')}
                 </p>
                 <p className="text-sm font-medium" style={{ color: theme.textPrimary }}>
                   {calmLadderStage}
@@ -656,8 +656,8 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
                   aria-label={t('breathing_tool.controls.duration')}
                 />
                 <div className="flex justify-between text-xs mt-1" style={{ color: theme.textSecondary }}>
-                  <span>{exercise.minMinutes}m</span>
-                  <span>{exercise.maxMinutes}m</span>
+                  <span>{t('breathing_tool.controls.duration_value', { min: exercise.minMinutes })}</span>
+                  <span>{t('breathing_tool.controls.duration_value', { min: exercise.maxMinutes })}</span>
                 </div>
               </div>
 
