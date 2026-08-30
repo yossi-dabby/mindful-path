@@ -4650,9 +4650,7 @@ export default function Chat() {
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
       setDeliveryStatus('failed');
-      if (!_isV2QueuedExecution) {
-        setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);
-      }
+      setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);
       // V2: Mark the active turn as failed and drain the queue.
       if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
         const failedNext = chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
