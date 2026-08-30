@@ -242,25 +242,25 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="outline" className="bg-teal-200 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
-                    {exercise.difficulty || 'beginner'}
+                    {t(`exercises.difficulty.${String(exercise.difficulty || 'beginner').toLowerCase()}`)}
                   </Badge>
-                  {exercise.difficulty === 'advanced' && <PremiumBadge />}
+                  {String(exercise.difficulty || '').toLowerCase() === 'advanced' && <PremiumBadge />}
                   <ExerciseMediaBadge mediaType={exercise.media_type} size="md" />
                   {exercise.duration_options?.length > 0 ?
                     <Badge variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {exercise.duration_options.join(', ')} min options
+                      {exercise.duration_options.join(', ')} {t('exercises.detail.duration_options_suffix')}
                     </Badge> :
                     exercise.duration_minutes &&
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {exercise.duration_minutes} minutes
+                      {exercise.duration_minutes} {t('exercises.detail.minutes_suffix')}
                     </Badge>
                     }
                   {exercise.video_url &&
                     <Badge className="flex items-center gap-1 bg-purple-100 text-purple-700">
                       <Video className="w-3 h-3" />
-                      Video
+                      {t('exercises.detail.video_label')}
                     </Badge>
                     }
                 </div>
