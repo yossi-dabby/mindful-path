@@ -1,4 +1,4 @@
-import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '@/components/i18n/appLocale';
+import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '../i18n/appLocale.js';
 
 const TRANSLATABLE_FIELDS = [
   'title',
