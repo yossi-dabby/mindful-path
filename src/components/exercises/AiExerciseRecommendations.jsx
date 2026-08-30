@@ -10,28 +10,10 @@ import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, T
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { normalizeExerciseRecommendations } from '@/components/utils/aiDataNormalizer';
+import { useTranslation } from 'react-i18next';
 
-const MOOD_OPTIONS = [
-  { value: 'anxious', label: 'Anxious' },
-  { value: 'stressed', label: 'Stressed' },
-  { value: 'sad', label: 'Sad / Low' },
-  { value: 'overwhelmed', label: 'Overwhelmed' },
-  { value: 'angry', label: 'Angry / Irritable' },
-  { value: 'restless', label: 'Restless' },
-  { value: 'neutral', label: 'Neutral / Calm' },
-  { value: 'energized', label: 'Energized' },
-];
-
-const FOCUS_AREA_OPTIONS = [
-  { value: 'reduce_anxiety', label: 'Reduce Anxiety' },
-  { value: 'manage_stress', label: 'Manage Stress' },
-  { value: 'improve_mood', label: 'Improve Mood' },
-  { value: 'better_sleep', label: 'Better Sleep' },
-  { value: 'emotional_regulation', label: 'Emotional Regulation' },
-  { value: 'focus', label: 'Improve Focus' },
-  { value: 'self_compassion', label: 'Self-Compassion' },
-  { value: 'confidence', label: 'Build Confidence' },
-];
+const MOOD_VALUES = ['anxious', 'stressed', 'sad', 'overwhelmed', 'angry', 'restless', 'neutral', 'energized'];
+const FOCUS_AREA_VALUES = ['reduce_anxiety', 'manage_stress', 'improve_mood', 'better_sleep', 'emotional_regulation', 'focus', 'self_compassion', 'confidence'];
 
 const categoryIcons = {
   breathing: Wind,
@@ -49,6 +31,17 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   const [showFilters, setShowFilters] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({});
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const moodOptions = MOOD_VALUES.map((value) => ({
+    value,
+    label: t(`exercises.recommendations.moods.${value}`)
+  }));
+  const focusAreaOptions = FOCUS_AREA_VALUES.map((value) => ({
+    value,
+    label: t(`exercises.recommendations.focus.${value}`)
+  }));
+  const selectedMoodLabel = moodOptions.find((option) => option.value === selectedMood)?.label || selectedMood;
+  const selectedGoalLabel = focusAreaOptions.find((option) => option.value === selectedGoal)?.label || selectedGoal;
 
   // Fetch user context
   const { data: recentMoods = [] } = useQuery({
@@ -105,7 +98,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['exerciseFeedback'] });
       setFeedbackGiven((prev) => ({ ...prev, [variables.exerciseId]: variables.feedbackType }));
-      toast.success('Thanks for your feedback!');
+      toast.success(t('exercises.recommendations.feedback_thanks'));
     }
   });
 
@@ -187,7 +180,7 @@ IMPORTANT GUIDELINES:
 Provide recommendations with:
 1. Why this exercise is recommended for this user specifically
 2. How it relates to their current state, mood, goals, or progression
-3. What benefit they can expect`;
+3. What benefit they can expect\n\n${t('exercises.recommendations.output_language')}`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -241,7 +234,7 @@ Provide recommendations with:
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="text-teal-600 lucide lucide-sparkles w-5 h-5" />
-            <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">AI Recommendations</CardTitle>
+            <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">{t('exercises.recommendations.title')}</CardTitle>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -252,7 +245,7 @@ Provide recommendations with:
 
 
               <Sparkles className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Customize</span>
+              <span className="hidden sm:inline">{t('exercises.recommendations.customize')}</span>
             </Button>
             <Button
               onClick={handleGenerate}
@@ -263,14 +256,14 @@ Provide recommendations with:
               {generateMutation.isPending ?
               <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  <span className="hidden sm:inline">Analyzing...</span>
+                  <span className="hidden sm:inline">{t('exercises.recommendations.analyzing')}</span>
                   <span className="sm:hidden">...</span>
                 </> :
 
               <>
                   <RefreshCw className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{recommendations ? 'Refresh' : 'Get Recommendations'}</span>
-                  <span className="sm:hidden">{recommendations ? 'Refresh' : 'Get'}</span>
+                  <span className="hidden sm:inline">{recommendations ? t('exercises.recommendations.refresh') : t('exercises.recommendations.get_recommendations')}</span>
+                  <span className="sm:hidden">{recommendations ? t('exercises.recommendations.refresh') : t('exercises.recommendations.get')}</span>
                 </>
               }
             </Button>
@@ -289,23 +282,23 @@ Provide recommendations with:
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                 <div>
-                  <Label className="text-sm font-medium mb-2">How are you feeling right now?</Label>
+                  <Label className="text-sm font-medium mb-2">{t('exercises.recommendations.feeling_question')}</Label>
                   <BottomSheetSelect
                     value={selectedMood}
                     onValueChange={setSelectedMood}
-                    options={MOOD_OPTIONS}
-                    placeholder="Select current mood…"
-                    title="Current Mood"
+                    options={moodOptions}
+                    placeholder={t('exercises.recommendations.mood_placeholder')}
+                    title={t('exercises.recommendations.mood_title')}
                   />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium mb-2">What do you want to work on?</Label>
+                  <Label className="text-sm font-medium mb-2">{t('exercises.recommendations.focus_question')}</Label>
                   <BottomSheetSelect
                     value={selectedGoal}
                     onValueChange={setSelectedGoal}
-                    options={FOCUS_AREA_OPTIONS}
-                    placeholder="Select focus area…"
-                    title="Focus Area"
+                    options={focusAreaOptions}
+                    placeholder={t('exercises.recommendations.focus_placeholder')}
+                    title={t('exercises.recommendations.focus_title')}
                   />
                 </div>
               </div>
@@ -314,10 +307,10 @@ Provide recommendations with:
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
                     {selectedMood && selectedGoal ?
-                `Recommendations will focus on "${selectedGoal}" while feeling "${selectedMood}"` :
+                t('exercises.recommendations.context_both', { goal: selectedGoalLabel, mood: selectedMoodLabel }) :
                 selectedMood ?
-                `Recommendations will address feeling "${selectedMood}"` :
-                `Recommendations will focus on "${selectedGoal}"`}
+                t('exercises.recommendations.context_mood', { mood: selectedMoodLabel }) :
+                t('exercises.recommendations.context_goal', { goal: selectedGoalLabel })}
                   </span>
                   <Button
                 size="sm"
@@ -328,7 +321,7 @@ Provide recommendations with:
                 }}
                 className="ml-auto h-6 px-2">
 
-                    Clear
+                    {t('exercises.recommendations.clear')}
                   </Button>
                 </div>
             }
@@ -339,9 +332,7 @@ Provide recommendations with:
         {!recommendations && !generateMutation.isPending &&
         <div className="text-center py-8 px-4">
             <Sparkles className="text-teal-600 mb-3 mx-auto lucide lucide-sparkles w-12 h-12" />
-            <p className="text-teal-600 mb-4 text-sm sm:text-base">Get personalized exercise recommendations based on your activity, favorites, mood, and goals
-
-          </p>
+            <p className="text-teal-600 mb-4 text-sm sm:text-base">{t('exercises.recommendations.intro')}</p>
           </div>
         }
 
@@ -357,7 +348,7 @@ Provide recommendations with:
 
         {generateMutation.isError &&
         <div className="text-center py-6">
-            <p className="text-gray-600 font-medium">Couldn&apos;t fetch recommendations. Please try again.</p>
+            <p className="text-gray-600 font-medium">{t('exercises.recommendations.fetch_error')}</p>
           </div>
         }
 
@@ -392,7 +383,7 @@ Provide recommendations with:
                               {rec.exercise_title}
                             </h4>
                             <Badge className={`text-xs ${priorityColors[rec.priority] || priorityColors.medium}`}>
-                              {rec.priority}
+                              {t(`exercises.recommendations.priority.${rec.priority || 'medium'}`)}
                             </Badge>
                           </div>
                           {rec.reason ?
@@ -414,7 +405,7 @@ Provide recommendations with:
                               onSelectExercise(exercise);
                             }}>
 
-                                Try This Exercise
+                                {t('exercises.recommendations.try_exercise')}
                               </Button>
 
                               {/* Feedback Buttons */}
@@ -430,7 +421,7 @@ Provide recommendations with:
                               disabled={!!feedbackGiven[feedbackKey]}>
 
                                   <ThumbsUp className="w-3 h-3 mr-1" />
-                                  Helpful
+                                  {t('exercises.recommendations.helpful')}
                                 </Button>
                                 <Button
                               size="sm"
@@ -443,13 +434,13 @@ Provide recommendations with:
                               disabled={!!feedbackGiven[feedbackKey]}>
 
                                   <ThumbsDown className="w-3 h-3 mr-1" />
-                                  Not Relevant
+                                  {t('exercises.recommendations.not_relevant')}
                                 </Button>
                               </div>
                             </> :
 
                         <p className="mt-3 text-xs text-gray-400 italic">
-                              Exercise not found in library — browse the Exercises section to find similar ones.
+                              {t('exercises.recommendations.not_found')}
                             </p>
                         }
                         </div>
@@ -464,7 +455,7 @@ Provide recommendations with:
 
         {Array.isArray(recommendations) && recommendations.length === 0 &&
         <div className="text-center py-6">
-            <p className="text-gray-600">No recommendations yet — try again.</p>
+            <p className="text-gray-600">{t('exercises.recommendations.none')}</p>
           </div>
         }
       </CardContent>
