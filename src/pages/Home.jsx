@@ -238,7 +238,7 @@ export default function Home() {
               </h1>
               <div className="bg-[linear-gradient(180deg,rgba(214,239,231,0.96)_0%,rgba(242,235,223,0.92)_100%)] text-teal-600 px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-2 border border-[rgba(110,169,154,0.34)] shadow-[0_10px_24px_rgba(68,108,96,0.12)]">
                 <Sparkles className="w-3.5 h-3.5" />
-                Calm Oasis
+                {t('home.oasis_label')}
               </div>
             </div>
             <div className="hidden md:flex h-14 w-14 items-center justify-center rounded-[20px] bg-[linear-gradient(180deg,rgba(43,154,133,0.98)_0%,rgba(34,128,111,0.98)_100%)] text-primary-foreground shadow-[0_18px_36px_rgba(38,134,116,0.32)]">
@@ -269,7 +269,7 @@ export default function Home() {
                       size="icon"
                       variant="ghost"
                       className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
-                      aria-label="View goal details">
+                      aria-label={t('home.aria.view_goal_details')}>
 
                     <Target className="w-4 h-4" />
                   </Button>
@@ -285,8 +285,8 @@ export default function Home() {
                   size="icon"
                   variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 h-6 w-6 md:h-7 md:w-7 hover:bg-accent/20"
 
-                  title="Watch help video"
-                  aria-label="Watch goals help video">
+                  title={t('home.aria.watch_help_video')}
+                  aria-label={t('home.aria.watch_goals_help_video')}>
 
               <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
@@ -299,7 +299,7 @@ export default function Home() {
                       size="icon"
                       variant="ghost"
                       className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
-                      aria-label="View journal entry">
+                      aria-label={t('home.aria.view_journal_entry')}>
 
                     <BookOpen className="text-teal-600 lucide lucide-book-open w-4 h-4" />
                   </Button>
@@ -315,8 +315,8 @@ export default function Home() {
                   size="icon"
                   variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 h-6 w-6 md:h-7 md:w-7 hover:bg-accent/20"
 
-                  title="Watch help video"
-                  aria-label="Watch journal help video">
+                  title={t('home.aria.watch_help_video')}
+                  aria-label={t('home.aria.watch_journal_help_video')}>
 
               <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
