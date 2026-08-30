@@ -164,6 +164,10 @@ const LANG_FULL_NAMES = {
 };
 const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
+const MESSAGE_SEND_FAILED_FALLBACK = Object.freeze({
+  title: 'Message send failed',
+  description: 'Please retry sending your message.',
+});
 const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
 const getAudioContextConstructor = () => window.AudioContext || window.webkitAudioContext || null;
 const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
@@ -299,7 +303,10 @@ function hasUserAttachment(message) {
 function addLangDirective(sessionContent, lang) {
   const name = LANG_FULL_NAMES[lang];
   if (!name) return sessionContent;
-  return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use another language unless the user explicitly asks to change the session language.]`;
+  const spanishRegister = lang === 'es'
+    ? '\n[SPANISH_REGISTER: Use neutral international Spanish consistently. Use the tú paradigm unless the user explicitly requests another register. Never mix tú with voseo; avoid vos, sentís, querés, podés, llevás, mantené, tenés, hacés, decís, venís, sos. Prefer tú, sientes, quieres, puedes, llevas, mantén, tienes, haces, dices, vienes, eres.]'
+    : '';
+  return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use another language unless the user explicitly asks to change the session language.]${spanishRegister}`;
 }
 
 function resolveAttachmentType(fileName) {
@@ -380,6 +387,9 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isConversationInitializing, setIsConversationInitializing] = useState(false);
+  const [deliveryStatus, setDeliveryStatus] = useState('idle');
+  const [responseWaitSeconds, setResponseWaitSeconds] = useState(0);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
@@ -419,6 +429,7 @@ export default function Chat() {
   const sessionLanguageRef = useRef(i18n.language || 'en');
   const currentConversationIdRef = useRef(currentConversationId);
   currentConversationIdRef.current = currentConversationId;
+  const conversationInitializingRef = useRef(false);
   const sessionInstanceIdByConversationRef = useRef(new Map());
   const formulationPersistedMessageIdsByConversationRef = useRef(new Map());
   const messagesEndRef = useRef(null);
@@ -856,6 +867,24 @@ export default function Chat() {
   useEffect(() => {
     isLoadingRef.current = isLoading;
   }, [isLoading]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setResponseWaitSeconds(0);
+      return undefined;
+    }
+    const startedAt = Date.now();
+    const timer = setInterval(() => {
+      setResponseWaitSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (deliveryStatus !== 'sent') return undefined;
+    const timer = setTimeout(() => setDeliveryStatus('idle'), 4000);
+    return () => clearTimeout(timer);
+  }, [deliveryStatus]);
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
@@ -2046,6 +2075,9 @@ export default function Chat() {
         }
 
         inFlightIntentRef.current = true;
+        conversationInitializingRef.current = true;
+        setIsConversationInitializing(true);
+        setIsLoading(true);
 
         try {
           console.log(`[Intent Detected] ${intentParam}`);
@@ -2089,8 +2121,7 @@ export default function Chat() {
             // Trigger AI to send opening message based on intent (one-time only)
             if (!sessionTriggeredRef.current.has(conversation.id)) {
               sessionTriggeredRef.current.add(conversation.id);
-              setTimeout(async () => {
-                setIsLoading(true);
+              {
                 // Safety fallback: clear loading after 10 s if subscription does not respond.
                 if (!loadingTimeoutRef.current) {
                   loadingTimeoutRef.current = setTimeout(() => {
@@ -2118,10 +2149,7 @@ export default function Chat() {
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
                 emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
-                inFlightIntentRef.current = false;
-              }, 100);
-            } else {
-              inFlightIntentRef.current = false;
+              }
             }
           } else {
             // Active conversation exists - create new conversation with intent instead
@@ -2162,8 +2190,7 @@ export default function Chat() {
             // Trigger AI to send opening message (one-time only)
             if (!sessionTriggeredRef.current.has(conversation.id)) {
               sessionTriggeredRef.current.add(conversation.id);
-              setTimeout(async () => {
-                setIsLoading(true);
+              {
                 // Safety fallback: clear loading after 10 s if subscription does not respond.
                 if (!loadingTimeoutRef.current) {
                   loadingTimeoutRef.current = setTimeout(() => {
@@ -2191,16 +2218,21 @@ export default function Chat() {
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
                 emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
-                inFlightIntentRef.current = false;
-              }, 100);
-            } else {
-              inFlightIntentRef.current = false;
+              }
             }
           }
         } catch (error) {
           console.error('[Intent Error]', error);
           setIsLoading(false);
+          toast({
+            title: t('chat.session_start.failed_title'),
+            description: t('chat.session_start.failed_description'),
+            variant: 'destructive',
+          });
+        } finally {
           inFlightIntentRef.current = false;
+          conversationInitializingRef.current = false;
+          setIsConversationInitializing(false);
         }
       };
 
@@ -2800,6 +2832,10 @@ export default function Chat() {
   }, [currentConversationId, messages.length]);
 
   const startNewConversationWithIntent = async (intentParam) => {
+    if (conversationInitializingRef.current) return;
+    conversationInitializingRef.current = true;
+    setIsConversationInitializing(true);
+    setIsLoading(true);
     crisisDetectionLifecycleRef.current.invalidate();
     setShowRiskPanel(false);
     try {
@@ -2877,9 +2913,7 @@ export default function Chat() {
       // Always send [START_SESSION] so the agent initialises correctly on all
       // wiring paths (HYBRID and all upgrade phases).  If there is also an intent
       // message, append it to the same turn so the agent handles both together.
-      setTimeout(async () => {
-        setIsLoading(true);
-        clearLoadingTimeout();
+      clearLoadingTimeout();
         // Safety fallback: if the subscription does not deliver a reply within
         // 10 s (e.g. in CI / test environments where the WebSocket is rejected),
         // clear the loading state so the send button is not stuck disabled.
@@ -2893,30 +2927,38 @@ export default function Chat() {
             }
           }, 10000);
         }
-        const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
-        const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
-          effectiveWiring,
-          base44.entities,
-          base44,
-          {
-            sessionLanguage: i18n.language,
-            conversation_id: conversation.id,
-            continuation_session_id: newSessionInstanceId,
-            runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
-            ...(initialMessage ? { message_text: initialMessage } : {}),
-          }
-        );
-        await base44.agents.addMessage(conversation, {
-          role: 'user',
-          content: initialMessage ?
-          addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
-          addLangDirective(sessionStartContent, sessionLanguageRef.current)
-        });
-        sessionStartOpenerFallbackRef.current?.start(conversation.id);
-        emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
-      }, 100);
+      const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
+      const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
+        effectiveWiring,
+        base44.entities,
+        base44,
+        {
+          sessionLanguage: i18n.language,
+          conversation_id: conversation.id,
+          continuation_session_id: newSessionInstanceId,
+          runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
+          ...(initialMessage ? { message_text: initialMessage } : {}),
+        }
+      );
+      await base44.agents.addMessage(conversation, {
+        role: 'user',
+        content: initialMessage ?
+        addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
+        addLangDirective(sessionStartContent, sessionLanguageRef.current)
+      });
+      sessionStartOpenerFallbackRef.current?.start(conversation.id);
+      emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
     } catch (error) {
       console.error('Error creating conversation:', error);
+      setIsLoading(false);
+      toast({
+        title: t('chat.session_start.failed_title'),
+        description: t('chat.session_start.failed_description'),
+        variant: 'destructive',
+      });
+    } finally {
+      conversationInitializingRef.current = false;
+      setIsConversationInitializing(false);
     }
   };
 
@@ -3690,6 +3732,7 @@ export default function Chat() {
       v2ActiveTurn = chatCoordinatorV2Ref.current.getActiveTurn();
     }
 
+    setDeliveryStatus('saving');
     setIsLoading(true);
 
     // Phase 7.1 — Explicit safety layer precedence (documented and enforced):
@@ -4023,6 +4066,7 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      setDeliveryStatus('sent');
       // Consume the correction intent only after successful addMessage.
       // If addMessage throws, the pending intent is retained so the user can retry.
       if (activePendingInternalCorrection) {
@@ -4605,6 +4649,10 @@ export default function Chat() {
       pollWithBackoff(0);
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
+      setDeliveryStatus('failed');
+      if (!_isV2QueuedExecution) {
+        setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);
+      }
       // V2: Mark the active turn as failed and drain the queue.
       if (chatOrchestratorV2EnabledRef.current && v2ActiveTurn) {
         const failedNext = chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
@@ -4625,8 +4673,8 @@ export default function Chat() {
         setShowAuthError(true);
       } else {
         toast({
-          title: 'Message send failed',
-          description: 'Please retry sending your message.',
+          title: t('chat.delivery.failed_title', MESSAGE_SEND_FAILED_FALLBACK.title),
+          description: t('chat.delivery.failed_description', MESSAGE_SEND_FAILED_FALLBACK.description),
           variant: 'destructive'
         });
       }
@@ -5117,7 +5165,7 @@ export default function Chat() {
                   conversationId={currentConversationId}
                   sessionLanguage={sessionLanguageRef.current}
                 />
-                {isLoading && messages.length > 0 && (() => {
+                {isLoading && currentConversationId && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
                     <div
@@ -5138,7 +5186,13 @@ export default function Chat() {
                         transition: 'none',
                         willChange: 'auto'
                       }}>
-                        <p className="text-sm text-muted-foreground">{t('chat.thinking')}</p>
+                        <p className="text-sm text-muted-foreground" aria-live="polite">
+                          {responseWaitSeconds >= 20
+                            ? t('chat.wait.still_working')
+                            : responseWaitSeconds >= 8
+                              ? t('chat.wait.checking_context')
+                              : t('chat.wait.preparing')}
+                        </p>
                       </div>
                     </div>);
 
@@ -5244,7 +5298,7 @@ export default function Chat() {
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
                       <span className="truncate max-w-[160px]">{attachedFile.name}</span>
-                      <button onClick={() => setAttachedFile(null)} className="ml-auto text-teal-500 hover:text-teal-700 flex-shrink-0">✕</button>
+                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ml-auto text-teal-500 hover:text-teal-700 flex-shrink-0">✕</button>
                     </div>
                   )}
                   <Textarea
@@ -5257,7 +5311,7 @@ export default function Chat() {
                     autoCapitalize="sentences"
                     autoComplete="off"
                     autoCorrect="on"
-                    disabled={isLoading || isUploadingFile} />
+                    disabled={isLoading || isConversationInitializing || isUploadingFile} />
                   <div className="flex items-center flex-wrap gap-2 px-1 py-1">
                     {audioDraftStatus === 'idle' &&
                         <Button
@@ -5265,35 +5319,35 @@ export default function Chat() {
                           variant="ghost"
                           size="sm"
                           onClick={handleStartRecording}
-                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
-                          aria-label="Record voice draft"
+                          disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
+                          aria-label={t('chat.voice.record_aria')}
                           className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
                         <Mic className="w-4 h-4 mr-1" />
-                        Record
+                        {t('chat.voice.record')}
                       </Button>
                     }
                     {audioDraftStatus === 'recording' &&
                       <>
                         <span className="inline-flex items-center gap-2 text-xs text-red-700 bg-red-50 border border-red-200 px-2 py-1 rounded-full">
                           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                          Recording
+                          {t('chat.voice.recording')}
                         </span>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={handleStopRecording}
-                          aria-label="Stop recording"
+                          aria-label={t('chat.voice.stop_aria')}
                           className="text-red-700 hover:bg-red-100 min-h-[44px] min-w-[44px] px-3">
                           <Square className="w-4 h-4 mr-1" />
-                          Stop
+                          {t('chat.voice.stop')}
                         </Button>
                       </>
                     }
                     {audioDraftStatus === 'recorded' && audioDraftUrl &&
                       <>
                         <span className="inline-flex items-center gap-1 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2 py-1 rounded-full">
-                          Voice draft ready
+                          {t('chat.voice.ready')}
                         </span>
                         <audio ref={audioDraftPlayerRef} src={audioDraftUrl} className="hidden" />
                         <Button
@@ -5301,33 +5355,33 @@ export default function Chat() {
                           variant="ghost"
                           size="sm"
                           onClick={handlePlayRecording}
-                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
-                          aria-label="Play recording"
+                          disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
+                          aria-label={t('chat.voice.play_aria')}
                           className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
                           <Play className="w-4 h-4 mr-1" />
-                          Play
+                          {t('chat.voice.play')}
                         </Button>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={handleTranscribeRecording}
-                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
-                          aria-label="Transcribe recording"
+                          disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
+                          aria-label={t('chat.voice.transcribe_aria')}
                           className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
                           {isTranscribingAudio ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
-                          {isTranscribingAudio ? 'Transcribing...' : 'Transcribe'}
+                          {isTranscribingAudio ? t('chat.voice.transcribing') : t('chat.voice.transcribe')}
                         </Button>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={handleDeleteRecording}
-                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
-                          aria-label="Delete recording"
+                          disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
+                          aria-label={t('chat.voice.delete_aria')}
                           className="text-red-700 hover:bg-red-100 min-h-[44px] min-w-[44px] px-3">
                           <Trash2 className="w-4 h-4 mr-1" />
-                          Delete
+                          {t('chat.voice.delete')}
                         </Button>
                       </>
                     }
@@ -5340,14 +5394,14 @@ export default function Chat() {
                     variant="ghost"
                     size="icon"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isLoading || isUploadingFile || isTranscribingAudio}
-                    aria-label="Attach file"
+                    disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
+                    aria-label={t('chat.attachments.attach_button_aria')}
                     className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
                     <Paperclip className="w-5 h-5" />
                   </Button>
                   <Button
                     onClick={handleSendMessage}
-                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isUploadingFile || isTranscribingAudio}
+                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                     data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
                     {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </Button>
@@ -5355,6 +5409,16 @@ export default function Chat() {
               </>
               }
           </div>
+          {deliveryStatus !== 'idle' && (
+            <p
+              role="status"
+              aria-live="polite"
+              data-testid="chat-delivery-status"
+              className={`text-center mt-1 text-xs ${deliveryStatus === 'failed' ? 'text-red-700' : 'text-muted-foreground'}`}
+            >
+              {t(`chat.delivery.${deliveryStatus}`)}
+            </p>
+          )}
           {/* Compact disclaimer */}
           <p className="text-center mt-1 text-xs text-muted-foreground">
             {t('chat.disclaimer.title')} — {t('chat.disclaimer.message')}
