@@ -1,5 +1,6 @@
 import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '../i18n/appLocale.js';
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_1 } from './exerciseContentTranslationsBatch1.js';
+import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_2 } from './exerciseContentTranslationsBatch2.js';
 
 const TRANSLATABLE_FIELDS = [
   'title',
@@ -20,7 +21,10 @@ const TRANSLATABLE_FIELDS = [
 
 function getLocaleObject(exercise, locale) {
   const identity = getExerciseIdentity(exercise);
-  const catalogLocalized = EXERCISE_CONTENT_TRANSLATIONS_BATCH_1[identity]?.[locale] || {};
+  const catalogLocalized =
+    EXERCISE_CONTENT_TRANSLATIONS_BATCH_2[identity]?.[locale] ||
+    EXERCISE_CONTENT_TRANSLATIONS_BATCH_1[identity]?.[locale] ||
+    {};
   const containers = [
     exercise?.translations,
     exercise?.localized_content,
