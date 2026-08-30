@@ -10,6 +10,7 @@ import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown';
 import GeneratedFileCard from './GeneratedFileCard';
+import ExperimentMetricsCard from './ExperimentMetricsCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { PDF_VIEWER_ROUTE_PATH } from './utils/formFileUrls';
 import {
@@ -545,6 +546,19 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                           generatedFile={generatedFile} />
                       ))}
                     </div>
+          }
+
+                  {/* Feedback for assistant messages */}
+                  {!isUser &&
+          conversationId &&
+          messageIndex !== undefined &&
+          message?.metadata?.feedback_finality_verified === true &&
+          Array.isArray(message?.metadata?.structured_data?.homework) &&
+          message.metadata.structured_data.homework.length > 0 &&
+          <ExperimentMetricsCard
+            structuredData={message.metadata.structured_data}
+            conversationId={conversationId}
+            messageIndex={messageIndex} />
           }
 
                   {/* Feedback for assistant messages */}
