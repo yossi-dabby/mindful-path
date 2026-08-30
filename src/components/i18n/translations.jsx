@@ -23,12 +23,19 @@ export const translations = {
         open_aria: "Open menu",
         close_aria: "Close menu"
       },
+      shell: {
+        skip_to_main: "Skip to main content",
+        main_navigation: "Main navigation",
+        sidebar_navigation: "Sidebar navigation",
+        additional_navigation: "Additional navigation"
+      },
       home: {
         greeting: {
           morning: "Good morning",
           afternoon: "Good afternoon",
           evening: "Good evening"
         },
+        oasis_label: "Calm Oasis",
         active_goals: "Active Goals",
         journal_entries: "Journal Entries",
         error: {
@@ -41,6 +48,37 @@ export const translations = {
           watch_help_video: "Watch help video",
           watch_goals_help_video: "Watch goals help video",
           watch_journal_help_video: "Watch journal help video"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "Day streak",
+          daily_title: "Daily Streak",
+          momentum: "Keep the momentum going!",
+          on_fire: "On Fire!",
+          current: "Current",
+          best: "Best",
+          days: "days",
+          seven_days: "7 days",
+          week_complete: "Week complete! 🎉",
+          check_ins: "Check-ins",
+          journals: "Journals",
+          exercises: "Exercises"
+        },
+        badges: {
+          badges: "Badges",
+          in_progress_count: "{{count}} in progress",
+          earned_badges: "Earned Badges",
+          earned_count: "{{count}} earned",
+          first_badge_prompt: "Complete activities to earn your first badge!",
+          in_progress: "In Progress",
+          progress: "Progress",
+          rarity: {
+            common: "Common",
+            rare: "Rare",
+            epic: "Epic",
+            legendary: "Legendary"
+          }
         }
       },
       quick_actions: {
@@ -1513,12 +1551,19 @@ export const translations = {
         open_aria: "פתח תפריט",
         close_aria: "סגור תפריט"
       },
+      shell: {
+        skip_to_main: "דלגו לתוכן הראשי",
+        main_navigation: "ניווט ראשי",
+        sidebar_navigation: "ניווט צדדי",
+        additional_navigation: "ניווט נוסף"
+      },
       home: {
         greeting: {
           morning: "בוקר טוב",
           afternoon: "אחר הצהריים טובים",
           evening: "ערב טוב"
         },
+        oasis_label: "מרחב של רוגע",
         active_goals: "מטרות פעילות",
         journal_entries: "רשומות יומן",
         error: {
@@ -1531,6 +1576,37 @@ export const translations = {
           watch_help_video: "צפה בוידאו עזרה",
           watch_goals_help_video: "צפה בוידאו עזרה למטרות",
           watch_journal_help_video: "צפה בוידאו עזרה ליומן"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "רצף יומי",
+          daily_title: "רצף יומי",
+          momentum: "המשיכו בתנופה!",
+          on_fire: "בשיא!",
+          current: "נוכחי",
+          best: "שיא",
+          days: "ימים",
+          seven_days: "7 ימים",
+          week_complete: "השבוע הושלם! 🎉",
+          check_ins: "צ׳ק-אינים",
+          journals: "יומנים",
+          exercises: "תרגילים"
+        },
+        badges: {
+          badges: "תגים",
+          in_progress_count: "{{count}} בתהליך",
+          earned_badges: "תגים שהושגו",
+          earned_count: "{{count}} הושגו",
+          first_badge_prompt: "השלימו פעילויות כדי להשיג את התג הראשון!",
+          in_progress: "בתהליך",
+          progress: "התקדמות",
+          rarity: {
+            common: "נפוץ",
+            rare: "נדיר",
+            epic: "אפי",
+            legendary: "אגדי"
+          }
         }
       },
       quick_actions: {
@@ -3003,12 +3079,19 @@ export const translations = {
         open_aria: "Abrir menú",
         close_aria: "Cerrar menú"
       },
+      shell: {
+        skip_to_main: "Saltar al contenido principal",
+        main_navigation: "Navegación principal",
+        sidebar_navigation: "Navegación lateral",
+        additional_navigation: "Navegación adicional"
+      },
       home: {
         greeting: {
           morning: "Buenos días",
           afternoon: "Buenas tardes",
           evening: "Buenas noches"
         },
+        oasis_label: "Oasis de calma",
         active_goals: "Objetivos Activos",
         journal_entries: "Entradas de Diario",
         error: {
@@ -3021,6 +3104,37 @@ export const translations = {
           watch_help_video: "Ver video de ayuda",
           watch_goals_help_video: "Ver video de ayuda de objetivos",
           watch_journal_help_video: "Ver video de ayuda de diario"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "Racha diaria",
+          daily_title: "Racha diaria",
+          momentum: "¡Mantén el impulso!",
+          on_fire: "¡En racha!",
+          current: "Actual",
+          best: "Mejor",
+          days: "días",
+          seven_days: "7 días",
+          week_complete: "¡Semana completada! 🎉",
+          check_ins: "Registros",
+          journals: "Diarios",
+          exercises: "Ejercicios"
+        },
+        badges: {
+          badges: "Insignias",
+          in_progress_count: "{{count}} en progreso",
+          earned_badges: "Insignias obtenidas",
+          earned_count: "{{count}} obtenidas",
+          first_badge_prompt: "¡Completa actividades para obtener tu primera insignia!",
+          in_progress: "En progreso",
+          progress: "Progreso",
+          rarity: {
+            common: "Común",
+            rare: "Rara",
+            epic: "Épica",
+            legendary: "Legendaria"
+          }
         }
       },
       quick_actions: {
@@ -4448,12 +4562,19 @@ export const translations = {
         open_aria: "Ouvrir le menu",
         close_aria: "Fermer le menu"
       },
+      shell: {
+        skip_to_main: "Accéder au contenu principal",
+        main_navigation: "Navigation principale",
+        sidebar_navigation: "Navigation latérale",
+        additional_navigation: "Navigation supplémentaire"
+      },
       home: {
         greeting: {
           morning: "Bonjour",
           afternoon: "Bon après-midi",
           evening: "Bonsoir"
         },
+        oasis_label: "Oasis de calme",
         active_goals: "Objectifs Actifs",
         journal_entries: "Entrées de Journal",
         error: {
@@ -4466,6 +4587,37 @@ export const translations = {
           watch_help_video: "Regarder la vidéo d'aide",
           watch_goals_help_video: "Regarder la vidéo d'aide des objectifs",
           watch_journal_help_video: "Regarder la vidéo d'aide du journal"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "Série quotidienne",
+          daily_title: "Série quotidienne",
+          momentum: "Gardez votre élan !",
+          on_fire: "En feu !",
+          current: "Actuelle",
+          best: "Meilleure",
+          days: "jours",
+          seven_days: "7 jours",
+          week_complete: "Semaine terminée ! 🎉",
+          check_ins: "Bilans",
+          journals: "Journaux",
+          exercises: "Exercices"
+        },
+        badges: {
+          badges: "Badges",
+          in_progress_count: "{{count}} en cours",
+          earned_badges: "Badges obtenus",
+          earned_count: "{{count}} obtenus",
+          first_badge_prompt: "Terminez des activités pour obtenir votre premier badge !",
+          in_progress: "En cours",
+          progress: "Progression",
+          rarity: {
+            common: "Ordinaire",
+            rare: "Rare",
+            epic: "Épique",
+            legendary: "Légendaire"
+          }
         }
       },
       quick_actions: {
@@ -5892,12 +6044,19 @@ export const translations = {
         open_aria: "Menü öffnen",
         close_aria: "Menü schließen"
       },
+      shell: {
+        skip_to_main: "Zum Hauptinhalt springen",
+        main_navigation: "Hauptnavigation",
+        sidebar_navigation: "Seitennavigation",
+        additional_navigation: "Zusätzliche Navigation"
+      },
       home: {
         greeting: {
           morning: "Guten Morgen",
           afternoon: "Guten Tag",
           evening: "Guten Abend"
         },
+        oasis_label: "Ruheoase",
         active_goals: "Aktive Ziele",
         journal_entries: "Tagebucheinträge",
         error: {
@@ -5910,6 +6069,37 @@ export const translations = {
           watch_help_video: "Hilfevideo ansehen",
           watch_goals_help_video: "Ziele-Hilfevideo ansehen",
           watch_journal_help_video: "Tagebuch-Hilfevideo ansehen"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "Tägliche Serie",
+          daily_title: "Tägliche Serie",
+          momentum: "Bleiben Sie dran!",
+          on_fire: "Voll in Fahrt!",
+          current: "Aktuell",
+          best: "Bestwert",
+          days: "Tage",
+          seven_days: "7 Tage",
+          week_complete: "Woche abgeschlossen! 🎉",
+          check_ins: "Check-ins",
+          journals: "Tagebücher",
+          exercises: "Übungen"
+        },
+        badges: {
+          badges: "Abzeichen",
+          in_progress_count: "{{count}} in Arbeit",
+          earned_badges: "Verdiente Abzeichen",
+          earned_count: "{{count}} verdient",
+          first_badge_prompt: "Schließen Sie Aktivitäten ab, um Ihr erstes Abzeichen zu verdienen!",
+          in_progress: "In Arbeit",
+          progress: "Fortschritt",
+          rarity: {
+            common: "Gewöhnlich",
+            rare: "Selten",
+            epic: "Episch",
+            legendary: "Legendär"
+          }
         }
       },
       quick_actions: {
@@ -7336,12 +7526,19 @@ export const translations = {
         open_aria: "Apri menu",
         close_aria: "Chiudi menu"
       },
+      shell: {
+        skip_to_main: "Vai al contenuto principale",
+        main_navigation: "Navigazione principale",
+        sidebar_navigation: "Navigazione laterale",
+        additional_navigation: "Navigazione aggiuntiva"
+      },
       home: {
         greeting: {
           morning: "Buongiorno",
           afternoon: "Buon pomeriggio",
           evening: "Buonasera"
         },
+        oasis_label: "Oasi di calma",
         active_goals: "Obiettivi Attivi",
         journal_entries: "Voci di Diario",
         error: {
@@ -7354,6 +7551,37 @@ export const translations = {
           watch_help_video: "Guarda video di aiuto",
           watch_goals_help_video: "Guarda video di aiuto obiettivi",
           watch_journal_help_video: "Guarda video di aiuto diario"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "Serie giornaliera",
+          daily_title: "Serie giornaliera",
+          momentum: "Mantieni lo slancio!",
+          on_fire: "Inarrestabile!",
+          current: "Attuale",
+          best: "Migliore",
+          days: "giorni",
+          seven_days: "7 giorni",
+          week_complete: "Settimana completata! 🎉",
+          check_ins: "Check-in",
+          journals: "Diari",
+          exercises: "Esercizi"
+        },
+        badges: {
+          badges: "Distintivi",
+          in_progress_count: "{{count}} in corso",
+          earned_badges: "Distintivi ottenuti",
+          earned_count: "{{count}} ottenuti",
+          first_badge_prompt: "Completa le attività per ottenere il tuo primo distintivo!",
+          in_progress: "In corso",
+          progress: "Progresso",
+          rarity: {
+            common: "Comune",
+            rare: "Raro",
+            epic: "Epico",
+            legendary: "Leggendario"
+          }
         }
       },
       quick_actions: {
@@ -8780,12 +9008,19 @@ export const translations = {
         open_aria: "Abrir menu",
         close_aria: "Fechar menu"
       },
+      shell: {
+        skip_to_main: "Ir para o conteúdo principal",
+        main_navigation: "Navegação principal",
+        sidebar_navigation: "Navegação lateral",
+        additional_navigation: "Navegação adicional"
+      },
       home: {
         greeting: {
           morning: "Bom dia",
           afternoon: "Boa tarde",
           evening: "Boa noite"
         },
+        oasis_label: "Oásis de calma",
         active_goals: "Objetivos Ativos",
         journal_entries: "Entradas de Diário",
         error: {
@@ -8798,6 +9033,37 @@ export const translations = {
           watch_help_video: "Assistir vídeo de ajuda",
           watch_goals_help_video: "Assistir vídeo de ajuda de objetivos",
           watch_journal_help_video: "Assistir vídeo de ajuda de diário"
+        }
+      },
+      gamification: {
+        streak: {
+          day_streak: "Sequência diária",
+          daily_title: "Sequência diária",
+          momentum: "Mantenha o ritmo!",
+          on_fire: "Em alta!",
+          current: "Atual",
+          best: "Melhor",
+          days: "dias",
+          seven_days: "7 dias",
+          week_complete: "Semana concluída! 🎉",
+          check_ins: "Check-ins",
+          journals: "Diários",
+          exercises: "Exercícios"
+        },
+        badges: {
+          badges: "Emblemas",
+          in_progress_count: "{{count}} em andamento",
+          earned_badges: "Emblemas conquistados",
+          earned_count: "{{count}} conquistados",
+          first_badge_prompt: "Conclua atividades para conquistar seu primeiro emblema!",
+          in_progress: "Em andamento",
+          progress: "Progresso",
+          rarity: {
+            common: "Comum",
+            rare: "Raro",
+            epic: "Épico",
+            legendary: "Lendário"
+          }
         }
       },
       quick_actions: {
