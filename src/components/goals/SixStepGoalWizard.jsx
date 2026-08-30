@@ -272,7 +272,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.problem_definition.emotions.map((emotion, i) => (
                   <Badge key={i} variant="secondary" className="gap-1">
                     {emotion}
-                    <button type="button" aria-label={`Remove ${emotion}`} onClick={() => removeFromArray('problem_definition.emotions', i)}>
+                    <button type="button" aria-label={t('six_step_goal.remove_item', { item: emotion })} onClick={() => removeFromArray('problem_definition.emotions', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
@@ -489,7 +489,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.obstacles.cognitive_distortions.map((dist, i) => (
                   <Badge key={i} variant="outline" className="gap-1">
                     {dist}
-                    <button type="button" aria-label={`Remove ${dist}`} onClick={() => removeFromArray('obstacles.cognitive_distortions', i)}>
+                    <button type="button" aria-label={t('six_step_goal.remove_item', { item: dist })} onClick={() => removeFromArray('obstacles.cognitive_distortions', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
@@ -622,7 +622,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.action_plan.coping_skills.map((skill, i) => (
                   <Badge key={i} className="gap-1">
                     {skill}
-                    <button type="button" aria-label={`Remove ${skill}`} onClick={() => removeFromArray('action_plan.coping_skills', i)}>
+                    <button type="button" aria-label={t('six_step_goal.remove_item', { item: skill })} onClick={() => removeFromArray('action_plan.coping_skills', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
@@ -698,7 +698,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.action_plan.support_system.map((support, i) => (
                   <Badge key={i} variant="secondary" className="gap-1">
                     {support}
-                    <button type="button" aria-label={`Remove ${support}`} onClick={() => removeFromArray('action_plan.support_system', i)}>
+                    <button type="button" aria-label={t('six_step_goal.remove_item', { item: support })} onClick={() => removeFromArray('action_plan.support_system', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
@@ -814,14 +814,14 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             <div className="bg-amber-50 p-4 rounded-lg">
               <h4 className="font-semibold text-amber-900 mb-2">{t('six_step_goal.daily_checkins')}</h4>
               <p className="text-sm text-amber-800">
-                After saving your goal, you'll be able to log daily check-ins including:
+                {t('six_step_goal.daily_checkins_description')}
               </p>
               <ul className="list-disc list-inside text-sm text-amber-800 mt-2 space-y-1">
-                <li>Effort rating (1-10)</li>
-                <li>Mood rating (1-10)</li>
-                <li>Progress notes</li>
-                <li>Obstacles faced</li>
-                <li>Coping strategies used</li>
+                <li>{t('six_step_goal.checkins.effort')}</li>
+                <li>{t('six_step_goal.checkins.mood')}</li>
+                <li>{t('six_step_goal.checkins.notes')}</li>
+                <li>{t('six_step_goal.checkins.obstacles')}</li>
+                <li>{t('six_step_goal.checkins.coping')}</li>
               </ul>
             </div>
           </div>
@@ -843,12 +843,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             <div className="bg-green-50 p-4 rounded-lg">
               <h4 className="font-semibold text-green-900 mb-2">{t('six_step_goal.reviews_include')}</h4>
               <ul className="list-disc list-inside text-sm text-green-800 space-y-1">
-                <li>Progress assessment</li>
-                <li>What's working well</li>
-                <li>What needs adjustment</li>
-                <li>Cognitive shifts noticed</li>
-                <li>Plan modifications</li>
-                <li>AI-generated insights from your conversations</li>
+                <li>{t('six_step_goal.reviews.progress')}</li>
+                <li>{t('six_step_goal.reviews.working')}</li>
+                <li>{t('six_step_goal.reviews.adjustment')}</li>
+                <li>{t('six_step_goal.reviews.shifts')}</li>
+                <li>{t('six_step_goal.reviews.modifications')}</li>
+                <li>{t('six_step_goal.reviews.ai_insights')}</li>
               </ul>
             </div>
 
@@ -858,27 +858,27 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {t('six_step_goal.ai_support')}
               </h4>
               <p className="text-sm text-purple-800">
-                Our AI agents will monitor your progress through conversations and can:
+                {t('six_step_goal.ai_support_description')}
               </p>
               <ul className="list-disc list-inside text-sm text-purple-800 mt-2 space-y-1">
-                <li>Suggest adjustments based on patterns</li>
-                <li>Identify obstacles you mention</li>
-                <li>Recommend relevant CBT techniques</li>
-                <li>Track cognitive shifts over time</li>
-                <li>Celebrate milestones with you</li>
+                <li>{t('six_step_goal.ai_items.adjustments')}</li>
+                <li>{t('six_step_goal.ai_items.obstacles')}</li>
+                <li>{t('six_step_goal.ai_items.techniques')}</li>
+                <li>{t('six_step_goal.ai_items.shifts')}</li>
+                <li>{t('six_step_goal.ai_items.celebrate')}</li>
               </ul>
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-900 mb-2">{t('six_step_goal.summary')}</h4>
               <div className="space-y-2 text-sm text-blue-800">
-                <p><strong>Goal:</strong> {goalData.title || 'Not set'}</p>
-                <p><strong>Category:</strong> {goalData.category}</p>
-                <p><strong>Target Date:</strong> {goalData.target_date || 'Not set'}</p>
-                <p><strong>Obstacles Identified:</strong> {goalData.obstacles.identified_obstacles.length}</p>
-                <p><strong>Strategies:</strong> {goalData.action_plan.strategies.length}</p>
-                <p><strong>Milestones:</strong> {goalData.milestones.length}</p>
-                <p><strong>Review Schedule:</strong> {goalData.review_and_adjust.review_schedule}</p>
+                <p><strong>{t('six_step_goal.summary_labels.goal')}</strong> {goalData.title || t('six_step_goal.not_set')}</p>
+                <p><strong>{t('six_step_goal.summary_labels.category')}</strong> {t(`six_step_goal.categories.${goalData.category}`)}</p>
+                <p><strong>{t('six_step_goal.summary_labels.target_date')}</strong> {goalData.target_date || t('six_step_goal.not_set')}</p>
+                <p><strong>{t('six_step_goal.summary_labels.obstacles')}</strong> {goalData.obstacles.identified_obstacles.length}</p>
+                <p><strong>{t('six_step_goal.summary_labels.strategies')}</strong> {goalData.action_plan.strategies.length}</p>
+                <p><strong>{t('six_step_goal.summary_labels.milestones')}</strong> {goalData.milestones.length}</p>
+                <p><strong>{t('six_step_goal.summary_labels.review_schedule')}</strong> {t(`six_step_goal.schedules.${goalData.review_and_adjust.review_schedule}`)}</p>
               </div>
             </div>
           </div>
