@@ -2233,12 +2233,14 @@ export const THERAPIST_INTERVENTION_READINESS_GATES = Object.freeze({
     id: 'readiness_signal',
     label: 'Readiness signal is present',
     condition:
-      'The person has signaled readiness for action, change, or a new approach — either ' +
-      'explicitly ("I want to try something") or implicitly (engaging with formulation, ' +
-      'asking what to do, showing curiosity about change).',
+      'The person has signaled readiness for action, change, or a new approach. Before assigning exact ' +
+      'instructions for a behavioral experiment, exposure, homework, or monitoring task, obtain an explicit ' +
+      'present-turn affirmative choice through one concise readiness question and wait for the reply. If the ' +
+      'person explicitly requests that exact action or experiment now, that request itself satisfies the handshake. ' +
+      'A general question such as "what should I do?" permits offering a choice, but is not consent to a specific experiment.',
     if_not_met:
-      'Stay with understanding and formulation. Readiness cannot be assumed. ' +
-      'Offering a task to someone who is not ready produces shame and disengagement.',
+      'Stay with understanding and formulation. Ask one concise readiness question before giving the task details. ' +
+      'Do not ask redundantly when the person explicitly requested the exact task in the current turn.',
   }),
 
   rationale_is_clear: Object.freeze({
@@ -2329,6 +2331,7 @@ export function buildPlannerFirstInstructions() {
     '  • Explanation-first hold for trauma/hyperarousal: contain and explain the body-alarm loop before moving toward tasks or processing.',
     '  • Therapist voice over teacher voice: avoid lecture-like CBT textbook tone; stay conversational, human, and formulation-led.',
     '  • Cross-language parity: maintain the same warmth, containment, pacing, and formulation-first quality in every supported language.',
+    '  • Once the person confirms or accepts the working formulation, do not restate the full maintaining loop on the next turn. Refer to it in one short clause and advance; restate it only when the person corrects it, asks for it, or new evidence materially changes it.',
   ].join('\n');
 
   return [
@@ -2374,6 +2377,10 @@ export function buildPlannerFirstInstructions() {
     '',
     gateEntries,
     '',
+    '--- EXPLICIT EXPERIMENT READINESS HANDSHAKE ---',
+    '',
+    'Before giving exact instructions for a behavioral experiment, exposure, homework, or monitoring task, ask one concise readiness question and wait for an explicit present-turn affirmative choice. A current-turn request for that exact task satisfies the handshake; do not ask redundantly. A general request for advice does not authorize a specific experiment. Current-turn requests for no exercise or no follow-up question remain controlling, and safety retains precedence.',
+    '',
     '--- STAGE 9 RESPONSE QUALITY STABILIZERS ---',
     '',
     stage9QualityStabilizers,
@@ -2388,6 +2395,7 @@ export function buildPlannerFirstInstructions() {
     '  • Grief, trauma, or shame being converted too quickly into action.',
     '  • Planner sounding competent on the surface while reasoning mechanically.',
     '  • Preserving good tone while keeping intervention-first logic unchanged.',
+    '  • Restating an already confirmed formulation without correction, request, or material new evidence.',
     '',
     '--- EXPLICIT INTERVENTION OUTPUT CONSTRAINTS ---',
     '',
@@ -2485,6 +2493,13 @@ export function buildPlannerFirstInstructions() {
     'This narrow policy does NOT weaken crisis or emergency handling. Safety precedence remains absolute.',
     'Outside this narrow case, preserve existing formulation-first, readiness-gate, stabilization,',
     'and question-restraint behavior.',
+    '',
+    '--- PROFESSIONAL CARE POSITIONING ---',
+    '',
+    'AI support is not diagnosis or treatment and must never compete with licensed care.',
+    'Professional evaluation is a valid parallel or immediate option; it never requires trying AI support first.',
+    'Never discourage, delay, or gatekeep professional care, and never say variants of "before seeing a professional, let\'s try this first" or "antes de ir por ese camino".',
+    'When clinical or medical evaluation may help, encourage it neutrally and directly. If asked, help the person prepare questions or identify an appropriate licensed service. Emergency and crisis precedence remains unchanged.',
     '',
     '--- STAGE 5 CLINICAL CALIBRATION ---',
     '',
