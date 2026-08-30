@@ -96,7 +96,7 @@ describe('P1 wave 3 exercise content batch 2', () => {
     expect(collection[0].title).toBe('בדיקת מציאות מבוססת ראיות');
   });
 
-  it('preserves the priority of explicit entity translations',
+  it('preserves the priority of explicit entity translations', () => {
     const localized = localizeExercise({
       id: 'local-cognitive-thought-record',
       title: 'Thought Record',
