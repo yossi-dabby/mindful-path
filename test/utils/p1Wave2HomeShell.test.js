@@ -78,11 +78,13 @@ describe('P1 wave 2 — localized home and shared shell', () => {
   it('uses translated home help labels and safe direction for dynamic badge copy', () => {
     const home = readFileSync('src/pages/Home.jsx', 'utf8');
     const badges = readFileSync('src/components/gamification/BadgeDisplay.jsx', 'utf8');
+    const mobileMenu = readFileSync('src/components/layout/MobileMenu.jsx', 'utf8');
 
     expect(home).toContain("t('home.oasis_label')");
     expect(home).toContain("t('home.aria.view_goal_details')");
     expect(home).toContain("t('home.aria.watch_goals_help_video')");
     expect(home).toContain("t('home.aria.watch_journal_help_video')");
     expect(badges.match(/dir="auto"/g)?.length).toBeGreaterThanOrEqual(3);
+    expect(mobileMenu).toContain('<DrawerTitle');
   });
 });
