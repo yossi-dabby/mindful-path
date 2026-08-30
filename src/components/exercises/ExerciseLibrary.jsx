@@ -29,8 +29,8 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
               <button
                 type="button"
                 aria-pressed={!!exercise.favorite}
-                aria-label={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
-                title={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                aria-label={t(exercise.favorite ? 'exercises.library.remove_favorite' : 'exercises.library.add_favorite')}
+                title={t(exercise.favorite ? 'exercises.library.remove_favorite' : 'exercises.library.add_favorite')}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -66,7 +66,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                   </div>
                   {exercise.completed_count > 0 &&
                   <Badge variant="secondary" className="bg-green-100 text-green-700 mx-auto my-1 px-2 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
-                      ✓ {exercise.completed_count}x
+                      ✓ {t('exercises.library.completed_times', { count: exercise.completed_count })}
                     </Badge>
                   }
                 </div>
@@ -106,7 +106,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
-                      {exercise.difficulty || 'beginner'}
+                      {t(`exercises.difficulty.${exercise.difficulty || 'beginner'}`)}
                     </Badge>
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-card/85">
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
