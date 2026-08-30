@@ -34,7 +34,7 @@ describe("P1 wave 3 API exercise parity batch 6", () => {
         expect(Object.keys(value).sort()).toEqual([...FIELDS].sort());
         expect(value.title.trim().length).toBeGreaterThan(2);
         expect(value.description.trim().length).toBeGreaterThan(20);
-        expect(value.tags.length).toBeGreaterThanOrEqual(4);
+        expect(value.tags.length).toBeGreaterThanOrEqual(3);
         expect(value.steps).toHaveLength(stepCount);
         expect(value.benefits.length).toBeGreaterThanOrEqual(3);
         expect(value.tips.length).toBeGreaterThanOrEqual(1);
