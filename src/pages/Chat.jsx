@@ -1999,6 +1999,12 @@ export default function Chat() {
   }
 
   useEffect(() => {
+    // Emergency resources own the viewport while the hard-stop panel is open.
+    // Late subscription/polling updates can replace `messages` without changing
+    // its length; allowing the normal chat autoscroll here would move the
+    // focused alert above the viewport after it has already been revealed.
+    if (showRiskPanel) return;
+
     const container = document.querySelector('[data-testid="chat-messages"]');
     if (!container) {
       scrollToBottom();
@@ -2011,7 +2017,7 @@ export default function Chat() {
     if (isNearBottom || isLoading) {
       scrollToBottom();
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, showRiskPanel]);
 
   // Cleanup on unmount
   useEffect(() => {
