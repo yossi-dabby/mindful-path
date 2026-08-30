@@ -1,6 +1,7 @@
 import { base44 } from '@/api/base44Client';
 import { detectCrisisLanguage } from './crisisDetector';
 import i18n from '../i18n/i18nConfig';
+import { getCurrentAppLocale } from '../i18n/appLocale';
 
 // Map i18n language codes to natural language names for AI prompts
 const LANGUAGE_NAMES = {
@@ -35,7 +36,7 @@ export async function safeInvokeLLM(params, skipRiskGate = false) {
   }
 
   // Inject user's selected language into every AI prompt
-  const lang = i18n.language || localStorage.getItem('language') || 'en';
+  const lang = getCurrentAppLocale(i18n);
   const langName = LANGUAGE_NAMES[lang] || 'English';
   const langInstruction = lang !== 'en'
     ? `IMPORTANT: You must respond entirely in ${langName}. All text, labels, and content must be in ${langName}.\n\n`
