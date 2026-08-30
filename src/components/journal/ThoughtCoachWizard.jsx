@@ -199,7 +199,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <p className="text-sm text-gray-500">{t('thought_coach.step_label', { step })}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('thought_coach.go_back_step_aria') : t('thought_coach.close_aria', 'Close')}>
+            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('thought_coach.go_back_step_aria') : t('thought_coach.close_aria')}>
               {step > 1 ? (
                 <ChevronLeft className="w-5 h-5" />
               ) : (
