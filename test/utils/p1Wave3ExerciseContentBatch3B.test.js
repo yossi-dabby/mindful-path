@@ -70,7 +70,7 @@ describe('P1 wave 3 exercise content batch 3B', () => {
     const apiRecord = {
       id: 'api-urge-surfing-81',
       title: 'Urge Surfing',
-      category: 'mindfulness',
+      category: 'emotion_regulation',
       language: 'en',
       favorite: true
     };
