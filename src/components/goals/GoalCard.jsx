@@ -7,7 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles, Bell, LayoutGrid } from 'lucide-react';
-import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+import { getCurrentAppLocale } from '@/components/i18n/appLocale';
 import { cn } from '@/lib/utils';
 import { safeText } from '@/components/utils/aiDataNormalizer';
 import { toBackendMilestone } from './milestoneSchemaAdapter';
@@ -27,6 +28,9 @@ const categoryColors = {
 };
 
 function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
+  const { t, i18n } = useTranslation();
+  const appLocale = getCurrentAppLocale(i18n);
+  const formatGoalDate = (date, options) => new Intl.DateTimeFormat(appLocale, options).format(date);
   const [showChart, setShowChart] = useState(false);
   const [showKanban, setShowKanban] = useState(false);
   const [showJournalEntries, setShowJournalEntries] = useState(false);
@@ -48,7 +52,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       m.completed === 'true' :
       Boolean(m.completed);
       return {
-        title: safeText(m.title || m, `Step ${i + 1}`),
+        title: safeText(m.title || m, t('goals.card.step_default', { number: i + 1 })),
         description: safeText(m.description, ''),
         completed,
         due_date: m.due_date || null,
@@ -93,7 +97,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       }
       // Revert local state on error
       setLocalMilestones(getNormalizedMilestones(goal.milestones));
-      alert('Failed to update: ' + (err.message || 'Unknown error'));
+      alert(t('goals.card.update_failed', { error: err.message || t('goals.card.unknown_error') }));
     },
     onSettled: () => {
       // Invalidate and refetch to ensure the cache reflects the true server state.
@@ -168,7 +172,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       setShowAiAdjustment(false);
     } catch (error) {
       console.error('Failed to apply adjustment:', error);
-      alert('Failed to apply changes. Please try again.');
+      alert(t('goals.card.adjustment_failed'));
     }
   };
 
@@ -188,7 +192,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             }
             <div className="flex items-center gap-2 flex-wrap">
                 <Badge className="bg-orange-100 text-orange-700 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60" variant="secondary">
-                  {goal.category}
+                  {t(`goals.card.categories.${goal.category}`, { defaultValue: goal.category })}
                 </Badge>
                 {goal.target_date && (() => {
                 try {
@@ -203,7 +207,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
 
                         <Calendar className="w-3 h-3" />
-                        {format(date, 'MMM d, yyyy')}
+                        {formatGoalDate(date, { year: 'numeric', month: 'short', day: 'numeric' })}
                       </Badge>);
 
                 } catch {
@@ -220,7 +224,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 e.stopPropagation();
                 onEdit(goal);
               }}
-              aria-label="Edit goal">
+              aria-label={t('goals.card.edit_aria')}>
 
               <Edit className="w-4 h-4 text-gray-400" />
             </Button>
@@ -230,12 +234,12 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               onClick={(e) => {
                 e.stopPropagation();
                 if (isDeleting) return;
-                if (confirm(`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`)) {
+                if (confirm(t('goals.card.delete_confirm', { title: goal.title }))) {
                   onDelete(goal.id);
                 }
               }}
               disabled={isDeleting}
-              aria-label="Delete goal">
+              aria-label={t('goals.card.delete_aria')}>
 
               <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
             </Button>
@@ -245,7 +249,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {/* Progress Bar */}
         <div className="mb-4">
            <div className="flex items-center justify-between mb-2">
-             <span className="text-sm font-medium text-gray-700">Progress {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
+             <span className="text-sm font-medium text-gray-700">{t('goals.card.progress')} {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">{t('goals.card.saving')}</span>}</span>
              <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
            </div>
            <Progress
@@ -258,7 +262,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {localMilestones.length > 0 &&
         <div className="space-y-3">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-gray-700">Tasks:</p>
+              <p className="text-sm font-medium text-gray-700">{t('goals.card.tasks')}</p>
               <div className="flex items-center gap-2">
                 <span className="text-gray-500 text-sm font-medium">
                   {localMilestones.filter((m) => m.completed).length}/{localMilestones.length}
@@ -329,7 +333,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                       'text-gray-700'
                     )}>
 
-                    {safeText(milestone.title, `Step ${index + 1}`)}
+                    {safeText(milestone.title, t('goals.card.step_default', { number: index + 1 }))}
                   </span>
                   {milestone.description &&
                   <p className="text-xs text-gray-500 mt-0.5">{safeText(milestone.description)}</p>
@@ -349,11 +353,11 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                           )}>
 
                           <Calendar className="w-3 h-3 mr-1" />
-                          {format(date, 'MMM d')}
+                          {formatGoalDate(date, { month: 'short', day: 'numeric' })}
                           {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 &&
-                          <span className="ml-1">• {daysUntil === 0 ? 'Today' : `${daysUntil}d`}</span>
+                          <span className="ml-1">• {daysUntil === 0 ? t('goals.card.today') : t('goals.card.days_short', { count: daysUntil })}</span>
                           }
-                          {isOverdue && <span className="ml-1">• Overdue</span>}
+                          {isOverdue && <span className="ml-1">• {t('goals.card.overdue')}</span>}
                         </Badge>);
 
                     } catch {
@@ -375,14 +379,14 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             onClick={() => setShowObstacles(!showObstacles)}
             className="flex items-center justify-center gap-2 w-full min-w-0">
 
-              <span className="flex-1 text-left font-medium min-w-0 break-words">Obstacles & CBT Work</span>
+              <span className="flex-1 text-left font-medium min-w-0 break-words">{t('goals.card.obstacles_work')}</span>
               {showObstacles ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
             </Button>
             {showObstacles &&
           <div className="mt-3 p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
                 {goal.obstacles.identified_obstacles?.length > 0 &&
             <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Identified Obstacles:</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('goals.card.identified_obstacles')}</p>
                     <ul className="space-y-1">
                       {goal.obstacles.identified_obstacles.map((obstacle, i) =>
                 <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
@@ -395,7 +399,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             }
                 {goal.obstacles.cognitive_distortions?.length > 0 &&
             <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Thinking Patterns:</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('goals.card.thinking_patterns')}</p>
                     <div className="flex flex-wrap gap-1">
                       {goal.obstacles.cognitive_distortions.map((dist, i) =>
                 <Badge key={i} variant="outline" className="text-xs bg-white">
@@ -407,7 +411,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             }
                 {goal.obstacles.balanced_thoughts?.length > 0 &&
             <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Balanced Thoughts:</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('goals.card.balanced_thoughts')}</p>
                     <ul className="space-y-1">
                       {goal.obstacles.balanced_thoughts.slice(0, 3).map((thought, i) =>
                 <li key={i} className="text-sm text-green-700 flex items-start gap-2">
@@ -432,7 +436,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             size="sm">
 
             <TrendingUp className="w-4 h-4" />
-            <span>{showChart ? 'Hide' : 'Show'} Chart</span>
+            <span>{t(showChart ? 'goals.card.hide' : 'goals.card.show')} {t('goals.card.chart')}</span>
           </Button>
           <Button
             variant="outline"
@@ -441,7 +445,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             size="sm">
 
             <LayoutGrid className="w-4 h-4" />
-            <span>{showKanban ? 'Hide' : 'Show'} Board</span>
+            <span>{t(showKanban ? 'goals.card.hide' : 'goals.card.show')} {t('goals.card.board')}</span>
           </Button>
           <Button
             variant="outline"
@@ -450,7 +454,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             size="sm">
 
             <BookOpen className="w-4 h-4" />
-            <span>{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
+            <span>{t(showJournalEntries ? 'goals.card.hide' : 'goals.card.show')} {t('goals.card.journal')}</span>
           </Button>
           <Button
             variant="outline"
@@ -459,7 +463,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             size="sm">
 
             <Sparkles className="w-4 h-4" />
-            <span>AI Adjust</span>
+            <span>{t('goals.card.ai_adjust')}</span>
           </Button>
           <Button
             variant="outline"
@@ -468,7 +472,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             size="sm">
 
             <Bell className="w-4 h-4" />
-            <span>Reminders</span>
+            <span>{t('goals.card.reminders')}</span>
           </Button>
         </div>
 
