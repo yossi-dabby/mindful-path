@@ -53,6 +53,8 @@ describe('exercise preview localization and responsive fixes', () => {
     expect(source).toContain('new ResizeObserver(keepActiveCategoryVisible)');
     expect(source).toContain('const resizeTarget = categoryScrollerRef.current');
     expect(source).toContain('ref={categoryScrollerRef}');
+    expect(source).toContain('dir="ltr"');
+    expect(source).toContain('scroller.scrollTo({ left: Math.max(0, centeredOffset)');
     expect(source).toContain("window.addEventListener('resize', keepActiveCategoryVisible)");
     expect(source).toContain("scrollbarWidth: 'thin'");
     expect(source).toContain('bg-gradient-to-r from-teal-100');
