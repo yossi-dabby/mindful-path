@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
 export default function MessageFeedback({ conversationId, messageIndex, agentName, context }) {
+  const { t } = useTranslation();
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,7 +46,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
 
   return (
     <div className="flex items-center gap-1 mt-2">
-      <span className="text-slate-50 mr-2 text-xs">Was this helpful?</span>
+      <span className="text-slate-50 mr-2 text-xs">{t('chat.feedback.prompt')}</span>
       <button
         onClick={() => handleFeedback('helpful')}
         disabled={feedback !== null}
@@ -55,7 +57,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
 
 
 
-        aria-label="Helpful">
+        aria-label={t('chat.feedback.helpful')}>
 
         <ThumbsUp className="w-3.5 h-3.5" />
       </button>
@@ -69,12 +71,12 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
 
 
 
-        aria-label="Not helpful">
+        aria-label={t('chat.feedback.not_helpful')}>
 
         <ThumbsDown className="w-3.5 h-3.5" />
       </button>
       {feedback &&
-      <span className="text-slate-50 ml-2 text-xs">Thanks for your feedback!</span>
+      <span className="text-slate-50 ml-2 text-xs">{t('chat.feedback.thanks')}</span>
       }
     </div>);
 
