@@ -60,4 +60,17 @@ describe('exercise preview localization and responsive fixes', () => {
     expect(source).toContain('bg-gradient-to-r from-teal-100');
     expect(source).toContain('bg-gradient-to-l from-teal-100');
   });
+
+  it('opens breathing directly from the category tab without duplicate cards', () => {
+    const source = readFileSync(new URL('../../src/pages/Exercises.jsx', import.meta.url), 'utf8');
+
+    expect(source).toContain('onValueChange={handleCategoryChange}');
+    expect(source).toContain("if (category === 'breathing')");
+    expect(source).toContain('setShowBreathingTool(true)');
+    expect(source).toContain('onClose={closeBreathingTool}');
+    expect(source).toContain('onComplete={closeBreathingTool}');
+    expect(source).not.toContain('Interactive Breathing Tool Card');
+    expect(source).not.toContain("t('breathing_tool.card_title')");
+    expect(source).not.toContain("t('breathing_tool.open_tool')");
+  });
 });
