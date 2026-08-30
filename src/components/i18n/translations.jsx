@@ -5,6 +5,7 @@ import { wave3Batch3Translations } from "./wave3Batch3Translations";
 export const translations = {
   en: {
     translation: {
+      ...wave3Batch3Translations.en,
       sidebar: {
         home: { name: "Home", description: "Dashboard & overview" },
         chat: { name: "Chat", description: "AI Therapist" },
@@ -1608,6 +1609,7 @@ export const translations = {
   },
   he: {
     translation: {
+      ...wave3Batch3Translations.he,
       sidebar: {
         home: { name: "בית", description: "לוח בקרה וסקירה" },
         chat: { name: "צ'אט", description: "מטפל בינה מלאכותית" },
@@ -3211,6 +3213,7 @@ export const translations = {
   },
   es: {
     translation: {
+      ...wave3Batch3Translations.es,
       sidebar: {
         home: { name: "Inicio", description: "Panel y resumen" },
         chat: { name: "Chat", description: "Terapeuta IA" },
@@ -4769,6 +4772,7 @@ export const translations = {
   },
   fr: {
     translation: {
+      ...wave3Batch3Translations.fr,
       sidebar: {
         home: { name: "Accueil", description: "Tableau de bord et aperçu" },
         chat: { name: "Chat", description: "Thérapeute IA" },
@@ -6326,6 +6330,7 @@ export const translations = {
   },
   de: {
     translation: {
+      ...wave3Batch3Translations.de,
       sidebar: {
         home: { name: "Startseite", description: "Dashboard & Übersicht" },
         chat: { name: "Chat", description: "KI-Therapeut" },
@@ -7883,6 +7888,7 @@ export const translations = {
   },
   it: {
     translation: {
+      ...wave3Batch3Translations.it,
       sidebar: {
         home: { name: "Home", description: "Dashboard e panoramica" },
         chat: { name: "Chat", description: "Terapeuta IA" },
@@ -9440,6 +9446,7 @@ export const translations = {
   },
   pt: {
     translation: {
+      ...wave3Batch3Translations.pt,
       sidebar: {
         home: { name: "Início", description: "Painel e visão geral" },
         chat: { name: "Chat", description: "Terapeuta IA" },
