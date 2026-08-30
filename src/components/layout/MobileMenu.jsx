@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Menu, X, Users, BookOpen, Settings } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerClose, DrawerOverlay, DrawerPortal } from '@/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerClose, DrawerOverlay, DrawerPortal, DrawerTitle } from '@/components/ui/drawer';
 import { useTranslation } from 'react-i18next';
 
 export default function MobileMenu() {
@@ -59,7 +59,7 @@ export default function MobileMenu() {
                   <span className="text-white font-bold text-lg">M</span>
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('mobile_menu.menu_title')}</h2>
+                  <DrawerTitle className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('mobile_menu.menu_title')}</DrawerTitle>
                 </div>
               </div>
               <DrawerClose asChild>
