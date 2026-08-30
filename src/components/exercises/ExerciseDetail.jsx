@@ -592,7 +592,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
-                      })}
+                      }) })}
                     </p>
                     }
                 </div>
