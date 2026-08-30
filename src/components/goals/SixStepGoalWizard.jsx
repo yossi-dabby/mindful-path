@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,59 +13,60 @@ import { ChevronLeft, ChevronRight, Check, Target, Brain, AlertTriangle, Map, Tr
 import { motion, AnimatePresence } from 'framer-motion';
 
 const GOAL_CATEGORY_OPTIONS = [
-  { value: 'behavioral', label: 'Behavioral' },
-  { value: 'emotional', label: 'Emotional' },
-  { value: 'social', label: 'Social' },
-  { value: 'cognitive', label: 'Cognitive' },
-  { value: 'lifestyle', label: 'Lifestyle' },
+  { value: 'behavioral', labelKey: 'six_step_goal.categories.behavioral' },
+  { value: 'emotional', labelKey: 'six_step_goal.categories.emotional' },
+  { value: 'social', labelKey: 'six_step_goal.categories.social' },
+  { value: 'cognitive', labelKey: 'six_step_goal.categories.cognitive' },
+  { value: 'lifestyle', labelKey: 'six_step_goal.categories.lifestyle' },
 ];
 
 const REVIEW_SCHEDULE_OPTIONS = [
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'biweekly', label: 'Every Two Weeks' },
-  { value: 'monthly', label: 'Monthly' },
+  { value: 'weekly', labelKey: 'six_step_goal.schedules.weekly' },
+  { value: 'biweekly', labelKey: 'six_step_goal.schedules.biweekly' },
+  { value: 'monthly', labelKey: 'six_step_goal.schedules.monthly' },
 ];
 
 const STEPS = [
   { 
     id: 1, 
-    title: 'Define Problem', 
+    titleKey: 'six_step_goal.steps.1.title', 
     icon: Brain,
-    description: 'Understand the current situation and its impact'
+    descriptionKey: 'six_step_goal.steps.1.description'
   },
   { 
     id: 2, 
-    title: 'Set SMART Goal', 
+    titleKey: 'six_step_goal.steps.2.title', 
     icon: Target,
-    description: 'Create a clear, measurable objective'
+    descriptionKey: 'six_step_goal.steps.2.description'
   },
   { 
     id: 3, 
-    title: 'Identify Obstacles', 
+    titleKey: 'six_step_goal.steps.3.title', 
     icon: AlertTriangle,
-    description: 'Recognize barriers and cognitive distortions'
+    descriptionKey: 'six_step_goal.steps.3.description'
   },
   { 
     id: 4, 
-    title: 'Develop Action Plan', 
+    titleKey: 'six_step_goal.steps.4.title', 
     icon: Map,
-    description: 'Create strategies with CBT techniques'
+    descriptionKey: 'six_step_goal.steps.4.description'
   },
   { 
     id: 5, 
-    title: 'Set Up Tracking', 
+    titleKey: 'six_step_goal.steps.5.title', 
     icon: TrendingUp,
-    description: 'Define metrics and check-ins'
+    descriptionKey: 'six_step_goal.steps.5.description'
   },
   { 
     id: 6, 
-    title: 'Schedule Reviews', 
+    titleKey: 'six_step_goal.steps.6.title', 
     icon: RefreshCw,
-    description: 'Plan regular evaluation and adjustment'
+    descriptionKey: 'six_step_goal.steps.6.description'
   }
 ];
 
 export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal = null }) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [goalData, setGoalData] = useState({
@@ -213,42 +215,42 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
         return (
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Current Situation</Label>
+              <Label>{t('six_step_goal.current_situation')}</Label>
               <Textarea
                 value={goalData.problem_definition.situation}
                 onChange={(e) => updateField('problem_definition.situation', e.target.value)}
-                placeholder="Describe the problem or situation you want to address..."
+                placeholder={t('six_step_goal.current_situation_placeholder')}
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Impact on Your Life</Label>
+              <Label>{t('six_step_goal.impact')}</Label>
               <Textarea
                 value={goalData.problem_definition.impact}
                 onChange={(e) => updateField('problem_definition.impact', e.target.value)}
-                placeholder="How does this affect your daily life, relationships, work, or well-being?"
+                placeholder={t('six_step_goal.impact_placeholder')}
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Your Thoughts About This</Label>
+              <Label>{t('six_step_goal.thoughts')}</Label>
               <Textarea
                 value={goalData.problem_definition.thoughts}
                 onChange={(e) => updateField('problem_definition.thoughts', e.target.value)}
-                placeholder="What thoughts go through your mind regarding this situation?"
+                placeholder={t('six_step_goal.thoughts_placeholder')}
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Emotions You Experience</Label>
+              <Label>{t('six_step_goal.emotions')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.emotion}
                   onChange={(e) => setTempInputs({ ...tempInputs, emotion: e.target.value })}
-                  placeholder="e.g., anxious, frustrated, sad"
+                  placeholder={t('six_step_goal.emotions_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('problem_definition.emotions', tempInputs.emotion);
@@ -263,7 +265,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, emotion: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -279,11 +281,11 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Current Behaviors</Label>
+              <Label>{t('six_step_goal.behaviors')}</Label>
               <Textarea
                 value={goalData.problem_definition.behaviors}
                 onChange={(e) => updateField('problem_definition.behaviors', e.target.value)}
-                placeholder="How do you currently respond to or cope with this situation?"
+                placeholder={t('six_step_goal.behaviors_placeholder')}
                 rows={3}
               />
             </div>
@@ -294,32 +296,32 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
         return (
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Goal Title</Label>
+              <Label>{t('six_step_goal.goal_title')}</Label>
               <Input
                 value={goalData.title}
                 onChange={(e) => updateField('title', e.target.value)}
-                placeholder="Brief, clear goal title"
+                placeholder={t('six_step_goal.goal_title_placeholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t('six_step_goal.category')}</Label>
               <BottomSheetSelect
                 value={goalData.category}
                 onValueChange={(value) => updateField('category', value)}
-                options={GOAL_CATEGORY_OPTIONS}
-                title="Goal Category"
+                options={GOAL_CATEGORY_OPTIONS.map((option) => ({ ...option, label: t(option.labelKey) }))}
+                title={t('six_step_goal.goal_category')}
               />
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg space-y-4">
               <h4 className="font-semibold text-blue-900 flex items-center gap-2">
                 <Lightbulb className="w-4 h-4" />
-                SMART Criteria
+                {t('six_step_goal.smart')}
               </h4>
 
               <div className="space-y-2">
-                <Label>Specific: What exactly will you accomplish?</Label>
+                <Label>{t('six_step_goal.specific')}</Label>
                 <Textarea
                   value={goalData.smart_criteria.specific}
                   onChange={(e) => updateField('smart_criteria.specific', e.target.value)}
@@ -328,7 +330,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
               </div>
 
               <div className="space-y-2">
-                <Label>Measurable: How will you track progress?</Label>
+                <Label>{t('six_step_goal.measurable')}</Label>
                 <Textarea
                   value={goalData.smart_criteria.measurable}
                   onChange={(e) => updateField('smart_criteria.measurable', e.target.value)}
@@ -337,7 +339,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
               </div>
 
               <div className="space-y-2">
-                <Label>Achievable: Why is this realistic?</Label>
+                <Label>{t('six_step_goal.achievable')}</Label>
                 <Textarea
                   value={goalData.smart_criteria.achievable}
                   onChange={(e) => updateField('smart_criteria.achievable', e.target.value)}
@@ -346,7 +348,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
               </div>
 
               <div className="space-y-2">
-                <Label>Relevant: Why does this matter to you?</Label>
+                <Label>{t('six_step_goal.relevant')}</Label>
                 <Textarea
                   value={goalData.smart_criteria.relevant}
                   onChange={(e) => updateField('smart_criteria.relevant', e.target.value)}
@@ -355,7 +357,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
               </div>
 
               <div className="space-y-2">
-                <Label>Time-Bound: When will you achieve this?</Label>
+                <Label>{t('six_step_goal.time_bound')}</Label>
                 <Input
                   type="date"
                   value={goalData.target_date}
@@ -365,11 +367,11 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Personal Motivation</Label>
+              <Label>{t('six_step_goal.motivation')}</Label>
               <Textarea
                 value={goalData.motivation}
                 onChange={(e) => updateField('motivation', e.target.value)}
-                placeholder="Why is achieving this goal important to you?"
+                placeholder={t('six_step_goal.motivation_placeholder')}
                 rows={3}
               />
             </div>
@@ -380,12 +382,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
         return (
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Potential Obstacles</Label>
+              <Label>{t('six_step_goal.obstacles')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.obstacle}
                   onChange={(e) => setTempInputs({ ...tempInputs, obstacle: e.target.value })}
-                  placeholder="What might get in the way?"
+                  placeholder={t('six_step_goal.obstacles_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('obstacles.identified_obstacles', tempInputs.obstacle);
@@ -400,7 +402,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, obstacle: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-1 mt-2">
@@ -420,12 +422,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Automatic Negative Thoughts</Label>
+              <Label>{t('six_step_goal.automatic_thoughts')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.automaticThought}
                   onChange={(e) => setTempInputs({ ...tempInputs, automaticThought: e.target.value })}
-                  placeholder="e.g., 'I'll never succeed at this'"
+                  placeholder={t('six_step_goal.automatic_thoughts_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('obstacles.automatic_thoughts', tempInputs.automaticThought);
@@ -440,7 +442,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, automaticThought: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-1 mt-2">
@@ -460,12 +462,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Cognitive Distortions</Label>
+              <Label>{t('six_step_goal.distortions')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.distortion}
                   onChange={(e) => setTempInputs({ ...tempInputs, distortion: e.target.value })}
-                  placeholder="e.g., all-or-nothing thinking, catastrophizing"
+                  placeholder={t('six_step_goal.distortions_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('obstacles.cognitive_distortions', tempInputs.distortion);
@@ -480,7 +482,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, distortion: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -496,22 +498,22 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Core Beliefs</Label>
+              <Label>{t('six_step_goal.core_beliefs')}</Label>
               <Textarea
                 value={goalData.obstacles.core_beliefs}
                 onChange={(e) => updateField('obstacles.core_beliefs', e.target.value)}
-                placeholder="What deeper beliefs might be holding you back? (e.g., 'I'm not capable', 'I don't deserve success')"
+                placeholder={t('six_step_goal.core_beliefs_placeholder')}
                 rows={2}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Balanced Alternative Thoughts</Label>
+              <Label>{t('six_step_goal.balanced_thoughts')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.balancedThought}
                   onChange={(e) => setTempInputs({ ...tempInputs, balancedThought: e.target.value })}
-                  placeholder="More realistic, helpful perspective"
+                  placeholder={t('six_step_goal.balanced_thoughts_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('obstacles.balanced_thoughts', tempInputs.balancedThought);
@@ -526,7 +528,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, balancedThought: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-1 mt-2">
@@ -551,12 +553,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
         return (
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Action Strategies</Label>
+              <Label>{t('six_step_goal.strategies')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.strategy}
                   onChange={(e) => setTempInputs({ ...tempInputs, strategy: e.target.value })}
-                  placeholder="Specific action or behavioral experiment"
+                  placeholder={t('six_step_goal.strategies_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('action_plan.strategies', { strategy: tempInputs.strategy, cbt_technique: '', behavioral_experiment: '' });
@@ -571,7 +573,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, strategy: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-2 mt-2">
@@ -593,12 +595,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Coping Skills & Emotion Regulation</Label>
+              <Label>{t('six_step_goal.coping_skills')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.copingSkill}
                   onChange={(e) => setTempInputs({ ...tempInputs, copingSkill: e.target.value })}
-                  placeholder="e.g., deep breathing, grounding, journaling"
+                  placeholder={t('six_step_goal.coping_skills_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('action_plan.coping_skills', tempInputs.copingSkill);
@@ -613,7 +615,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, copingSkill: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -629,12 +631,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Alternative Behaviors</Label>
+              <Label>{t('six_step_goal.alternative_behaviors')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.alternativeBehavior}
                   onChange={(e) => setTempInputs({ ...tempInputs, alternativeBehavior: e.target.value })}
-                  placeholder="New behaviors to replace old patterns"
+                  placeholder={t('six_step_goal.alternative_behaviors_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('action_plan.alternative_behaviors', tempInputs.alternativeBehavior);
@@ -649,7 +651,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, alternativeBehavior: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-1 mt-2">
@@ -669,12 +671,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-2">
-              <Label>Support System</Label>
+              <Label>{t('six_step_goal.support')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.support}
                   onChange={(e) => setTempInputs({ ...tempInputs, support: e.target.value })}
-                  placeholder="People or resources to help"
+                  placeholder={t('six_step_goal.support_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('action_plan.support_system', tempInputs.support);
@@ -689,7 +691,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, support: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -710,12 +712,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
         return (
           <div className="space-y-6">
             <div className="space-y-4">
-              <h4 className="font-semibold">Milestones & Metrics</h4>
+              <h4 className="font-semibold">{t('six_step_goal.milestones_metrics')}</h4>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.milestone}
                   onChange={(e) => setTempInputs({ ...tempInputs, milestone: e.target.value })}
-                  placeholder="Milestone title"
+                  placeholder={t('six_step_goal.milestone_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('milestones', { 
@@ -738,7 +740,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, milestone: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-2">
@@ -760,12 +762,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-semibold">Tracking Metrics</h4>
+              <h4 className="font-semibold">{t('six_step_goal.tracking_metrics')}</h4>
               <div className="flex gap-2">
                 <Input
                   value={tempInputs.metricName}
                   onChange={(e) => setTempInputs({ ...tempInputs, metricName: e.target.value })}
-                  placeholder="Metric name (e.g., 'Anxiety level', 'Exercise frequency')"
+                  placeholder={t('six_step_goal.metric_placeholder')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('tracking.quantitative_metrics', { 
@@ -788,7 +790,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     setTempInputs({ ...tempInputs, metricName: '' });
                   }}
                 >
-                  Add
+                  {t('six_step_goal.add')}
                 </Button>
               </div>
               <div className="space-y-2">
@@ -810,7 +812,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="bg-amber-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-amber-900 mb-2">Daily Check-Ins</h4>
+              <h4 className="font-semibold text-amber-900 mb-2">{t('six_step_goal.daily_checkins')}</h4>
               <p className="text-sm text-amber-800">
                 After saving your goal, you'll be able to log daily check-ins including:
               </p>
@@ -829,17 +831,17 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
         return (
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Review Schedule</Label>
+              <Label>{t('six_step_goal.review_schedule')}</Label>
               <BottomSheetSelect
                 value={goalData.review_and_adjust.review_schedule}
                 onValueChange={(value) => updateField('review_and_adjust.review_schedule', value)}
-                options={REVIEW_SCHEDULE_OPTIONS}
-                title="Review Schedule"
+                options={REVIEW_SCHEDULE_OPTIONS.map((option) => ({ ...option, label: t(option.labelKey) }))}
+                title={t('six_step_goal.review_schedule')}
               />
             </div>
 
             <div className="bg-green-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-green-900 mb-2">Regular Reviews Include:</h4>
+              <h4 className="font-semibold text-green-900 mb-2">{t('six_step_goal.reviews_include')}</h4>
               <ul className="list-disc list-inside text-sm text-green-800 space-y-1">
                 <li>Progress assessment</li>
                 <li>What's working well</li>
@@ -853,7 +855,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             <div className="bg-purple-50 p-4 rounded-lg">
               <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
                 <Brain className="w-5 h-5" />
-                AI-Powered Goal Support
+                {t('six_step_goal.ai_support')}
               </h4>
               <p className="text-sm text-purple-800">
                 Our AI agents will monitor your progress through conversations and can:
@@ -868,7 +870,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-900 mb-2">Summary</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">{t('six_step_goal.summary')}</h4>
               <div className="space-y-2 text-sm text-blue-800">
                 <p><strong>Goal:</strong> {goalData.title || 'Not set'}</p>
                 <p><strong>Category:</strong> {goalData.category}</p>
@@ -918,11 +920,11 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 <StepIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <CardTitle>Step {currentStep} of 6: {STEPS[currentStep - 1].title}</CardTitle>
-                <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
+                <CardTitle>{t('six_step_goal.step_of', { step: currentStep, title: t(STEPS[currentStep - 1].titleKey) })}</CardTitle>
+                <CardDescription>{t(STEPS[currentStep - 1].descriptionKey)}</CardDescription>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancel">
+            <Button variant="ghost" size="icon" onClick={onCancel} aria-label={t('six_step_goal.cancel')}>
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -950,7 +952,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
             disabled={currentStep === 1}
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
-            Back
+            {t('six_step_goal.back')}
           </Button>
           
           <div className="flex gap-2">
@@ -959,7 +961,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 onClick={handleNext}
                 disabled={!isStepValid()}
               >
-                Next
+                {t('six_step_goal.next')}
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
@@ -968,10 +970,10 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 disabled={isSubmitting || !isStepValid()}
                 className="bg-gradient-to-r from-purple-600 to-blue-600"
               >
-                {isSubmitting ? 'Saving...' : (
+                {isSubmitting ? t('six_step_goal.saving') : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Complete Goal Setup
+                    {t('six_step_goal.complete')}
                   </>
                 )}
               </Button>
