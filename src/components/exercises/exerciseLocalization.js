@@ -5,6 +5,7 @@ import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_3A } from './exerciseContentTransla
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_3B } from './exerciseContentTranslationsBatch3B.js';
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A } from './exerciseContentTranslationsBatch4A.js';
 import { EXERCISE_CONTENT_TRANSLATIONS_BATCH_4B } from './exerciseContentTranslationsBatch4B.js';
+import { EXERCISE_LEGACY_TITLE_TRANSLATIONS } from './exerciseLegacyTitleTranslations.js';
 
 const TRANSLATABLE_FIELDS = [
   'title',
@@ -24,6 +25,7 @@ const TRANSLATABLE_FIELDS = [
 ];
 
 const EXERCISE_CONTENT_CATALOGS = [
+  EXERCISE_LEGACY_TITLE_TRANSLATIONS,
   EXERCISE_CONTENT_TRANSLATIONS_BATCH_4B,
   EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A,
   EXERCISE_CONTENT_TRANSLATIONS_BATCH_3B,
