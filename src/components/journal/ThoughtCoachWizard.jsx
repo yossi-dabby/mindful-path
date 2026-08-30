@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -97,6 +98,7 @@ const emotionOptions = [
 ];
 
 export default function ThoughtCoachWizard({ onClose }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -193,11 +195,11 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-800">Thought Coach</h1>
-                <p className="text-sm text-gray-500">Step {step} of 4</p>
+                <h1 className="text-xl font-semibold text-gray-800">{t('thought_coach.title')}</h1>
+                <p className="text-sm text-gray-500">{t('thought_coach.step_label', { step })}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? "Go back" : "Close"}>
+            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('thought_coach.go_back_step_aria') : t('thought_coach.close_aria', 'Close')}>
               {step > 1 ? (
                 <ChevronLeft className="w-5 h-5" />
               ) : (
@@ -215,8 +217,8 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 1 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-1">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">What type of thought would you like to work on?</h3>
-                <p className="text-sm text-gray-600 mb-4">Choose the category that best matches your current experience</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_thought_type_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_thought_type_subtitle')}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -250,8 +252,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                           <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-800">{thought.label}</h4>
-                          <p className="text-xs text-gray-600 mt-1">{thought.description}</p>
+                          <h4 className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${thought.type}.label`)}</h4>
+                          <p className="text-xs text-gray-600 mt-1">{t(`thought_coach.thought_types.${thought.type}.description`)}</p>
                         </div>
                       </div>
                     </button>
@@ -265,8 +267,8 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 2 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-2">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Tell me about this thought</h3>
-                <p className="text-sm text-gray-600 mb-4">Let's explore what's happening</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_details_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_details_subtitle')}</p>
               </div>
 
               {selectedThought && (
@@ -280,8 +282,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{selectedThought.label}</p>
-                        <p className="text-xs text-gray-600">{selectedThought.description}</p>
+                        <p className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
+                        <p className="text-xs text-gray-600">{t(`thought_coach.thought_types.${selectedThought.type}.description`)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -295,7 +297,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <Textarea
                   value={formData.situation}
                   onChange={(e) => setFormData(prev => ({ ...prev, situation: e.target.value }))}
-                  placeholder="Describe the situation, event, or moment that triggered this thought..."
+                  placeholder={t('thought_coach.step_details_situation_placeholder')}
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-situation-input"
                 />
@@ -308,7 +310,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <Textarea
                   value={formData.automatic_thoughts}
                   onChange={(e) => setFormData(prev => ({ ...prev, automatic_thoughts: e.target.value }))}
-                  placeholder="Write down the thoughts exactly as they appear in your mind..."
+                  placeholder={t('thought_coach.step_details_thoughts_placeholder')}
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-thoughts-input"
                 />
@@ -331,7 +333,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       )}
                     >
-                      {emotion}
+                      {t(`thought_coach.emotion_options.${emotion}`)}
                     </Badge>
                   ))}
                 </div>
@@ -350,8 +352,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Mild</span>
-                  <span>Intense</span>
+                  <span>{t('thought_coach.step_intensity_mild')}</span>
+                  <span>{t('thought_coach.step_intensity_intense')}</span>
                 </div>
               </div>
             </div>
@@ -361,8 +363,8 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 3 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-3">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Let's look at this thought together</h3>
-                <p className="text-sm text-gray-600 mb-4">Examining your thoughts is an important CBT skill</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_analysis_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_analysis_subtitle')}</p>
               </div>
 
               {selectedThought && (
@@ -376,7 +378,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{selectedThought.label}</p>
+                        <p className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
                         <p className="text-xs text-gray-600 mt-1 italic">"{formData.automatic_thoughts}"</p>
                       </div>
                     </div>
@@ -386,19 +388,19 @@ export default function ThoughtCoachWizard({ onClose }) {
 
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
                 <div className="space-y-3">
-                  <p className="text-sm font-medium text-blue-900 mb-3">Reflect on these questions:</p>
+                  <p className="text-sm font-medium text-blue-900 mb-3">{t('thought_coach.reflect_questions_label')}</p>
                   <div className="space-y-2 text-sm text-blue-800">
                     <div className="flex gap-2">
                       <span className="text-blue-600">•</span>
-                      <p>What evidence supports this thought?</p>
+                      <p>{t('thought_coach.reflect_q1')}</p>
                     </div>
                     <div className="flex gap-2">
                       <span className="text-blue-600">•</span>
-                      <p>What evidence goes against it?</p>
+                      <p>{t('thought_coach.reflect_q2')}</p>
                     </div>
                     <div className="flex gap-2">
                       <span className="text-blue-600">•</span>
-                      <p>Is there a more balanced way to see this situation?</p>
+                      <p>{t('thought_coach.reflect_q3')}</p>
                     </div>
                   </div>
                 </div>
@@ -417,7 +419,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <Textarea
                   value={formData.balanced_thought}
                   onChange={(e) => setFormData(prev => ({ ...prev, balanced_thought: e.target.value }))}
-                  placeholder="Write a more balanced or helpful perspective... (e.g., 'I can prepare and even if I don't succeed perfectly, it doesn't define me.')"
+                  placeholder={t('thought_coach.step_analysis_balanced_placeholder')}
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-balanced-input"
                 />
@@ -432,8 +434,8 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 4 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Review your thought entry</h3>
-                <p className="text-sm text-gray-600 mb-4">Check everything before saving to your journal</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_review_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_review_subtitle')}</p>
               </div>
 
               {selectedThought && (
@@ -447,35 +449,35 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{selectedThought.label}</p>
+                        <p className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm">
                       <div>
-                        <span className="text-gray-600 font-medium">Situation:</span>
+                        <span className="text-gray-600 font-medium">{t('thought_coach.field_situation')}</span>
                         <p className="text-gray-800 mt-1">{formData.situation}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">Thoughts:</span>
+                        <span className="text-gray-600 font-medium">{t('thought_coach.field_thoughts')}</span>
                         <p className="text-gray-800 mt-1">{formData.automatic_thoughts}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">Emotions:</span>
+                        <span className="text-gray-600 font-medium">{t('thought_coach.field_emotions')}</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {formData.emotions.map((emotion) => (
                             <Badge key={emotion} variant="secondary" className="text-xs capitalize">
-                              {emotion}
+                              {t(`thought_coach.emotion_options.${emotion}`)}
                             </Badge>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">Intensity:</span>
+                        <span className="text-gray-600 font-medium">{t('thought_coach.field_intensity')}</span>
                         <span className="text-gray-800 ml-2">{formData.emotion_intensity}/10</span>
                       </div>
                       {formData.balanced_thought && formData.balanced_thought.trim() && (
                         <div>
-                          <span className="text-gray-600 font-medium">Balanced Thought:</span>
+                          <span className="text-gray-600 font-medium">{t('thought_coach.field_balanced')}</span>
                           <p className="text-gray-800 mt-1">{formData.balanced_thought}</p>
                         </div>
                       )}
@@ -488,10 +490,9 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-green-900 font-medium mb-1">What happens next?</p>
+                    <p className="text-sm text-green-900 font-medium mb-1">{t('thought_coach.what_next_label')}</p>
                     <p className="text-sm text-green-700">
-                      This entry will be saved to your journal. You can come back later to add balanced thoughts, 
-                      identify cognitive distortions, and track your progress over time.
+                      {t('thought_coach.what_next_text')}
                     </p>
                   </div>
                 </div>
@@ -516,7 +517,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 className="flex-1"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
+                {t('thought_coach.back_button')}
               </Button>
             )}
             {step < 4 ? (
@@ -527,7 +528,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 data-testid="thoughtcoach-next"
                 className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
-                Next
+                {t('thought_coach.next_button')}
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
@@ -541,12 +542,12 @@ export default function ThoughtCoachWizard({ onClose }) {
                 {createJournalMutation.isPending ? (
                   <>
                     <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                    Saving Entry...
+                    {t('thought_coach.saving_button')}
                   </>
                 ) : (
                   <>
                     <Brain className="w-4 h-4 mr-2" />
-                    Save to Journal
+                    {t('thought_coach.save_button')}
                   </>
                 )}
               </Button>
