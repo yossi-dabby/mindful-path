@@ -99,6 +99,21 @@ export function localizeExercise(exercise, requestedLocale) {
   };
 }
 
+function getCatalogDeduplicationKey(exercise) {
+  const sourceTitle = String(exercise?.title || '').trim().toLocaleLowerCase('en');
+  if (!sourceTitle) return getExerciseIdentity(exercise);
+
+  const isCanonicalCatalogTitle = EXERCISE_CONTENT_CATALOGS.some((catalog) =>
+    Object.values(catalog).some(
+      (translations) => String(translations.en?.title || '').trim().toLocaleLowerCase('en') === sourceTitle
+    )
+  );
+
+  return isCanonicalCatalogTitle
+    ? `catalog::${sourceTitle}`
+    : `${String(exercise?.category || '')}::${sourceTitle}`;
+}
+
 export function localizeExerciseCollection(exercises, requestedLocale) {
   const locale = normalizeAppLocale(requestedLocale);
   const source = Array.isArray(exercises) ? exercises : [];
@@ -118,9 +133,7 @@ export function localizeExerciseCollection(exercises, requestedLocale) {
   const localizedBySourceTitle = new Map();
 
   for (const { exercise } of localizedByIdentity.values()) {
-    const sourceTitle = String(exercise?.title || '').trim().toLocaleLowerCase('en');
-    const sourceCategory = String(exercise?.category || '');
-    const deduplicationKey = sourceTitle ? `${sourceCategory}::${sourceTitle}` : getExerciseIdentity(exercise);
+    const deduplicationKey = getCatalogDeduplicationKey(exercise);
     const existing = localizedBySourceTitle.get(deduplicationKey);
     const priority =
       (String(exercise?.id || '').startsWith('local-') ? 0 : 10) +
