@@ -31,6 +31,11 @@ describe('P1 wave 3 exercise content batch 1', () => {
         expect(content.benefits.length).toBeGreaterThanOrEqual(3);
         expect(content.tips.length).toBeGreaterThanOrEqual(1);
 
+        if (locale !== 'en') {
+          expect(content.title).not.toBe(EXERCISE_CONTENT_TRANSLATIONS_BATCH_1[id].en.title);
+          expect(content.description).not.toBe(EXERCISE_CONTENT_TRANSLATIONS_BATCH_1[id].en.description);
+        }
+
         for (const step of content.steps) {
           expect(step.title.trim().length).toBeGreaterThan(1);
           expect(step.description.trim().length).toBeGreaterThan(10);
@@ -55,6 +60,14 @@ describe('P1 wave 3 exercise content batch 1', () => {
     expect(localized.localization_available).toBe(true);
     expect(source.title).toBe('5-4-3-2-1 Sensory Grounding');
     expect(source.steps).toBeUndefined();
+
+    for (const locale of LOCALES) {
+      const resolved = localizeExercise(source, locale);
+      expect(resolved.title).toBe(
+        EXERCISE_CONTENT_TRANSLATIONS_BATCH_1['local-grounding-54321'][locale].title
+      );
+      expect(resolved.content_language).toBe(locale);
+    }
   });
 
   it('lets explicit entity translations override the versioned catalog', () => {
