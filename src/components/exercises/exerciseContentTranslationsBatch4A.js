@@ -7,7 +7,7 @@ const makeContent = (title, description, tags, steps, benefits, tips) => ({
   tips
 });
 
-export const EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A = {
+const EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A_BY_LOCALE = {
   en: {
     'local-exposure-fear-hierarchy': makeContent('Fear Hierarchy Building','Create a gradual, manageable plan for approaching a fear.',['exposure','anxiety','planning','CBT'],[['Name the fear','Describe the situation or trigger you want to approach.'],['List situations','Write 8–12 related situations, from easier to harder.'],['Rate distress','Give each item a 0–100 SUDS rating.'],['Order the list','Arrange items from about 20–30 up to 90–100.'],['Choose a first step','Plan one specific, repeatable practice from the lower-middle range.']],['Turns a broad fear into manageable steps','Supports gradual confidence building','Makes progress easier to track'],['Start with a mild-to-moderate item, often around 30–50 SUDS.','Work with a qualified clinician for trauma, severe phobia, or overwhelming distress.']),
     'local-exposure-systematic-desensitization': makeContent('Systematic Desensitization','Pair gradual exposure with relaxation skills at a tolerable pace.',['exposure','relaxation','anxiety','CBT'],[['Settle your body','Use slow breathing or another familiar skill until distress is below 20/100.'],['Imagine the first item','Picture the lowest fear-hierarchy item in clear but manageable detail.'],['Stay and observe','Remain with the image while noticing distress without forcing it away.'],['Return to safety','Shift to a calm or pleasant image and let your body settle.'],['Repeat gradually','When distress falls below about 25, repeat or move one small step higher.']],['Builds tolerance gradually','Links feared cues with regulation','Provides a structured pace'],['Keep practice within a planned, tolerable range.','Use professional support for severe phobia, trauma, dissociation, or panic.']),
@@ -73,6 +73,15 @@ export const EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A = {
   }
 };
 
+export const EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A = Object.fromEntries(
+  Object.keys(EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A_BY_LOCALE.en).map((id) => [
+    id,
+    Object.fromEntries(
+      Object.entries(EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A_BY_LOCALE).map(([locale, entries]) => [locale, entries[id]])
+    )
+  ])
+);
+
 export const EXERCISE_CONTENT_BATCH_4A_IDS = Object.freeze(
-  Object.keys(EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A.en)
+  Object.keys(EXERCISE_CONTENT_TRANSLATIONS_BATCH_4A_BY_LOCALE.en)
 );
