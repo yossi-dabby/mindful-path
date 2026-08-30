@@ -18,14 +18,6 @@ const moodValues = {
   very_low: 1
 };
 
-const moodColors = {
-  excellent: '#10b981',
-  good: '#3b82f6',
-  okay: '#fbbf24',
-  low: '#f97316',
-  very_low: '#ef4444'
-};
-
 export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }) {
   const { t, i18n } = useTranslation();
   const appLocale = getCurrentAppLocale(i18n);
