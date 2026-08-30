@@ -19,12 +19,29 @@ const TRANSLATABLE_FIELDS = [
   'evidence_base'
 ];
 
-function getLocaleObject(exercise, locale) {
+const EXERCISE_CONTENT_CATALOGS = [
+  EXERCISE_CONTENT_TRANSLATIONS_BATCH_2,
+  EXERCISE_CONTENT_TRANSLATIONS_BATCH_1
+];
+
+function findCatalogLocale(exercise, locale) {
   const identity = getExerciseIdentity(exercise);
-  const catalogLocalized =
-    EXERCISE_CONTENT_TRANSLATIONS_BATCH_2[identity]?.[locale] ||
-    EXERCISE_CONTENT_TRANSLATIONS_BATCH_1[identity]?.[locale] ||
-    {};
+
+  for (const catalog of EXERCISE_CONTENT_CATALOGS) {
+    const directMatch = catalog[identity];
+    if (directMatch?.[locale]) return directMatch[locale];
+
+    const titleMatch = Object.values(catalog).find(
+      (translations) => translations.en?.title === exercise?.title
+    );
+    if (titleMatch?.[locale]) return titleMatch[locale];
+  }
+
+  return {};
+}
+
+function getLocaleObject(exercise, locale) {
+  const catalogLocalized = findCatalogLocale(exercise, locale);
   const containers = [
     exercise?.translations,
     exercise?.localized_content,
