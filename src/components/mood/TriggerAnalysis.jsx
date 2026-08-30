@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, TrendingUp, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const COLORS = ['#ef4444', '#f97316', '#fbbf24', '#84cc16', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
 
 export default function TriggerAnalysis({ entries }) {
+  const { t } = useTranslation();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   const analysis = React.useMemo(() => {
@@ -69,7 +71,7 @@ export default function TriggerAnalysis({ entries }) {
       <Card className="border-0 shadow-xl">
         <CardContent className="p-12 text-center">
           <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">Start tracking your mood to see trigger analysis</p>
+          <p className="text-gray-500">{t('mood_tracker.analytics.start_tracking')}</p>
         </CardContent>
       </Card>);
 
@@ -82,9 +84,9 @@ export default function TriggerAnalysis({ entries }) {
         <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
           <CardTitle className="text-teal-600 text-lg font-semibold tracking-[-0.012em] flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-red-600" />
-            Mood Triggers
+            {t('mood_tracker.analytics.triggers_title')}
           </CardTitle>
-          <p className="text-teal-600 text-sm font-medium">What negatively affects your mood</p>
+          <p className="text-teal-600 text-sm font-medium">{t('mood_tracker.analytics.triggers_subtitle')}</p>
         </CardHeader>
         <CardContent className="bg-teal-100 p-6">
           {analysis.topTriggers.length > 0 ?
@@ -99,13 +101,13 @@ export default function TriggerAnalysis({ entries }) {
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px'
                 }}
-                formatter={(value) => [`Avg Mood: ${value.toFixed(1)}/5`, '']} />
+                formatter={(value) => [t('mood_tracker.analytics.average_mood_value', { value: value.toFixed(1) }), '']} />
 
                 <Bar dataKey="avgMood" fill="#ef4444" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer> :
 
-          <p className="text-center text-gray-500 py-8">No trigger data yet</p>
+          <p className="text-center text-gray-500 py-8">{t('mood_tracker.analytics.no_trigger_data')}</p>
           }
         </CardContent>
       </Card>
@@ -115,9 +117,9 @@ export default function TriggerAnalysis({ entries }) {
         <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
           <CardTitle className="text-teal-600 text-lg font-semibold tracking-[-0.012em] flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-green-600" />
-            Mood Boosters
+            {t('mood_tracker.analytics.boosters_title')}
           </CardTitle>
-          <p className="text-teal-600 text-sm font-medium">Activities that improve your mood</p>
+          <p className="text-teal-600 text-sm font-medium">{t('mood_tracker.analytics.boosters_subtitle')}</p>
         </CardHeader>
         <CardContent className="bg-teal-100 p-6">
           {analysis.topActivities.length > 0 ?
@@ -132,13 +134,13 @@ export default function TriggerAnalysis({ entries }) {
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px'
                 }}
-                formatter={(value) => [`Avg Mood: ${value.toFixed(1)}/5`, '']} />
+                formatter={(value) => [t('mood_tracker.analytics.average_mood_value', { value: value.toFixed(1) }), '']} />
 
                 <Bar dataKey="avgMood" fill="#10b981" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer> :
 
-          <p className="text-center text-gray-500 py-8">No activity data yet</p>
+          <p className="text-center text-gray-500 py-8">{t('mood_tracker.analytics.no_activity_data')}</p>
           }
         </CardContent>
       </Card>
@@ -148,9 +150,9 @@ export default function TriggerAnalysis({ entries }) {
         <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
           <CardTitle className="text-teal-600 text-lg font-semibold tracking-[-0.012em] flex items-center gap-2">
             <Activity className="text-teal-600 lucide lucide-activity w-5 h-5" />
-            Emotional Patterns
+            {t('mood_tracker.analytics.emotional_patterns')}
           </CardTitle>
-          <p className="text-teal-600 text-sm font-medium">Most frequently experienced emotions</p>
+          <p className="text-teal-600 text-sm font-medium">{t('mood_tracker.analytics.emotional_patterns_subtitle')}</p>
         </CardHeader>
         <CardContent className="bg-orange-100 p-4 sm:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -176,7 +178,7 @@ export default function TriggerAnalysis({ entries }) {
                   </PieChart>
                 </ResponsiveContainer> :
 
-              <p className="text-center text-gray-500 py-12">No emotion data yet</p>
+              <p className="text-center text-gray-500 py-12">{t('mood_tracker.analytics.no_emotion_data')}</p>
               }
             </div>
             <div className="flex flex-col justify-center space-y-3 min-w-0">
@@ -187,9 +189,9 @@ export default function TriggerAnalysis({ entries }) {
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }} />
 
-                    <span className="font-medium capitalize">{emotion.name}</span>
+                    <span dir="auto" className="font-medium capitalize">{emotion.name}</span>
                   </div>
-                  <Badge variant="secondary" className="bg-secondary/86 text-orange-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">{emotion.value} times</Badge>
+                  <Badge variant="secondary" className="bg-secondary/86 text-orange-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">{t('mood_tracker.analytics.times_count', { count: emotion.value })}</Badge>
                 </div>
               )}
             </div>
