@@ -2,12 +2,19 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function AgeGateModal({ onConfirm, onDecline }) {
+  const { t } = useTranslation();
+
   return (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[200]"
       style={{ animation: 'fadeIn 0.2s ease-out' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="age-gate-title"
+      aria-describedby="age-gate-description"
     >
       <Card 
         className="max-w-md w-full border-0 shadow-2xl"
@@ -33,14 +40,14 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
           </div>
 
           {/* Title */}
-          <h2 className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: '#1A3A34' }}>
-            Age Verification Required
+          <h2 id="age-gate-title" className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: '#1A3A34' }}>
+            {t('age_gate.title')}
           </h2>
 
           {/* Content */}
           <div className="space-y-3 mb-4 text-sm md:text-base" style={{ color: '#5A7A72' }}>
-            <p className="leading-relaxed text-center">
-              Our AI therapy features are designed for adults 18 and older. This helps ensure we provide appropriate support and maintain safety standards.
+            <p id="age-gate-description" className="leading-relaxed text-center">
+              {t('age_gate.message')}
             </p>
           </div>
           
@@ -53,12 +60,12 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
             }}
           >
             <p className="font-semibold mb-2" style={{ color: '#78350F' }}>
-              If you're under 18 and need support:
+              {t('age_gate.teen_support_heading')}
             </p>
             <ul className="space-y-1" style={{ color: '#92400E' }}>
-              <li>• School counselor or trusted adult</li>
-              <li>• Teen Line: 1-800-852-8336 (or text TEEN to 839863)</li>
-              <li>• Crisis Text Line: Text "HOME" to 741741</li>
+              <li>{t('age_gate.teen_support.counselor')}</li>
+              <li>{t('age_gate.teen_support.teen_line')}</li>
+              <li>{t('age_gate.teen_support.crisis_text_line')}</li>
             </ul>
           </div>
 
@@ -73,7 +80,7 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
                 boxShadow: '0 6px 20px rgba(38, 166, 154, 0.35)',
               }}
             >
-              I'm 18 or Older
+              {t('age_gate.confirm_button')}
             </Button>
             <Button
               onClick={onDecline}
@@ -84,7 +91,7 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
                 borderColor: 'rgba(38, 166, 154, 0.3)',
               }}
             >
-              I'm Under 18
+              {t('age_gate.decline_button')}
             </Button>
           </div>
         </div>
