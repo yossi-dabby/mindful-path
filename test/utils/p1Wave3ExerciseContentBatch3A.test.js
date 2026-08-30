@@ -94,6 +94,28 @@ describe('P1 wave 3 exercise content batch 3A', () => {
     expect(collection[0].title).toBe('פעולה בהתאם לערכים');
   });
 
+  it('deduplicates a title variant when its explicit localized title matches the catalog', () => {
+    const collection = localizeExerciseCollection([
+      {
+        id: 'local-behavioral-experiment',
+        title: 'Behavioral Experiment',
+        category: 'behavioral_activation',
+        language: 'en'
+      },
+      {
+        id: 'api-behavioral-experiment-variant',
+        title: 'Behavioral Experiment Practice',
+        category: 'cbt_experiment',
+        language: 'en',
+        translations: { he: { title: 'ניסוי התנהגותי' } }
+      }
+    ], 'he');
+
+    expect(collection).toHaveLength(1);
+    expect(collection[0].id).toBe('api-behavioral-experiment-variant');
+    expect(collection[0].title).toBe('ניסוי התנהגותי');
+  });
+
   it('keeps Hebrew scales, safety guidance, and non-judgmental wording explicit', () => {
     const catalog = EXERCISE_CONTENT_TRANSLATIONS_BATCH_3A;
     expect(catalog['local-behavioral-activity-scheduling'].he.steps[1].description).toContain('0 ל־10');
