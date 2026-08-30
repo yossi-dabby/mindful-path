@@ -23,17 +23,6 @@ const TYPE_ICON = {
   system: Info
 };
 
-const TYPE_COLOR = {
-  goal_reminder: '#26A69A',
-  exercise_reminder: '#9F7AEA',
-  progress_update: '#4CAF50',
-  daily_checkin: '#FF9800',
-  streak_alert: '#FF5722',
-  session_summary: '#2196F3',
-  mention: '#E91E63',
-  system: '#607D8B'
-};
-
 const PRIORITY_DOT = {
   critical: 'bg-red-500',
   high: 'bg-orange-400',
@@ -43,7 +32,6 @@ const PRIORITY_DOT = {
 
 function NotificationItem({ notification, onMarkRead, onDelete, dateLocale, deleteLabel }) {
   const Icon = TYPE_ICON[notification.type] || Info;
-  const color = TYPE_COLOR[notification.type] || '#607D8B';
   const isUnread = !notification.is_read;
 
   const handleClick = () => {
