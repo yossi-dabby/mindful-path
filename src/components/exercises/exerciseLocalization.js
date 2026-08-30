@@ -73,12 +73,23 @@ export function localizeExercise(exercise, requestedLocale) {
 
   const locale = normalizeAppLocale(requestedLocale);
   const localized = getLocaleObject(exercise, locale);
-  const hasLocalizedFields = Object.keys(localized).length > 0;
+  const localizedFields = { ...localized };
+
+  if (Array.isArray(localizedFields.steps) && localizedFields.steps.length > 0) {
+    localizedFields.detailed_steps = localizedFields.detailed_steps || localizedFields.steps.map(
+      (step, index) => ({ step_number: index + 1, ...step })
+    );
+    localizedFields.instructions = localizedFields.instructions || localizedFields.steps.map(
+      (step, index) => `${index + 1}. ${step.title}: ${step.description}`
+    ).join('\n\n');
+  }
+
+  const hasLocalizedFields = Object.keys(localizedFields).length > 0;
   const contentLanguage = normalizeAppLocale(exercise.language || 'en');
 
   return {
     ...exercise,
-    ...(hasLocalizedFields ? localized : {}),
+    ...(hasLocalizedFields ? localizedFields : {}),
     content_language: hasLocalizedFields ? locale : contentLanguage,
     localization_available: hasLocalizedFields || contentLanguage === locale || locale === 'en'
   };
