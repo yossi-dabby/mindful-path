@@ -67,7 +67,11 @@ export default function Exercises() {
       cancelAnimationFrame(frameId);
       frameId = requestAnimationFrame(() => {
         const activeTab = tabsList.querySelector('[data-state="active"]');
-        activeTab?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+        const scroller = categoryScrollerRef.current;
+        if (!activeTab || !scroller) return;
+
+        const centeredOffset = activeTab.offsetLeft - ((scroller.clientWidth - activeTab.offsetWidth) / 2);
+        scroller.scrollTo({ left: Math.max(0, centeredOffset), behavior: 'auto' });
       });
     };
 
@@ -328,6 +332,7 @@ export default function Exercises() {
       <div className="relative mb-7">
         <div
               ref={categoryScrollerRef}
+              dir="ltr"
               id="exercises_category_switcher"
               className="overflow-x-auto px-6 lg:px-0"
               style={{ overscrollBehaviorX: 'contain', scrollbarWidth: 'thin' }}>
