@@ -56,6 +56,7 @@ export default function Exercises() {
   const [showBreathingTool, setShowBreathingTool] = useState(false);
   const queryClient = useQueryClient();
   const tabsListRef = useRef(null);
+  const categoryScrollerRef = useRef(null);
 
   useEffect(() => {
     const tabsList = tabsListRef.current;
@@ -66,12 +67,12 @@ export default function Exercises() {
       cancelAnimationFrame(frameId);
       frameId = requestAnimationFrame(() => {
         const activeTab = tabsList.querySelector('[data-state="active"]');
-        activeTab?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        activeTab?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
       });
     };
 
     keepActiveCategoryVisible();
-    const resizeTarget = tabsList.parentElement;
+    const resizeTarget = categoryScrollerRef.current;
     const resizeObserver = typeof ResizeObserver !== 'undefined'
       ? new ResizeObserver(keepActiveCategoryVisible)
       : null;
@@ -326,6 +327,7 @@ export default function Exercises() {
       {/* Category Filter */}
       <div className="relative mb-7">
         <div
+              ref={categoryScrollerRef}
               id="exercises_category_switcher"
               className="overflow-x-auto px-6 lg:px-0"
               style={{ overscrollBehaviorX: 'contain', scrollbarWidth: 'thin' }}>
