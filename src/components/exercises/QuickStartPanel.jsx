@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Clock, Heart, Play, Headphones, Eye, Wind, Anchor, Brain, Sparkles, Moon, Users, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const categoryIcons = {
   breathing: Wind,
@@ -36,6 +37,7 @@ const mediaIcons = {
 };
 
 export default function QuickStartPanel({ exercises, onSelectExercise }) {
+  const { t } = useTranslation();
   // Get frequently used and favorite exercises
   const frequentExercises = [...exercises].
   filter((e) => e.completed_count > 0).
@@ -72,9 +74,9 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
 
             <Zap className="w-5 h-5 text-accent" />
           </motion.div>
-          Quick Start
+          {t('exercises.quick_start.title')}
           <Badge variant="warning" className="bg-warning/16 text-teal-600 ml-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-transparent">
-            Your go-to exercises
+            {t('exercises.quick_start.subtitle')}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -119,7 +121,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
-                    {exercise.duration_options?.[0] || 5} min
+                    {exercise.duration_options?.[0] || 5} {t('common.minutes_short')}
                     {exercise.completed_count > 0 &&
                     <span className="ml-auto">×{exercise.completed_count}</span>
                     }
