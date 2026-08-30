@@ -3553,11 +3553,11 @@ export default function Chat() {
    * A new active turn has already been atomically created before this is called.
    * This function only runs when chatOrchestratorV2EnabledRef.current is true.
    */
-  const handleSendMessageWithParams = async ({ messageText, attachmentToUpload, isVoiceDerivedSend }) => {
+  const handleSendMessageWithParams = async ({ messageText, attachmentToUpload, isVoiceDerivedSend, conversationId }) => {
     if (!mountedRef.current) return;
     // Delegate to handleSendMessage with the queued params via a special params arg.
     // handleSendMessage is defined below and will handle these directly.
-    await handleSendMessage({ _v2QueuedParams: { messageText, attachmentToUpload, isVoiceDerivedSend } });
+    await handleSendMessage({ _v2QueuedParams: { messageText, attachmentToUpload, isVoiceDerivedSend, conversationId } });
   };
 
   const handleSendMessage = async (_opts = {}) => {
@@ -3565,6 +3565,9 @@ export default function Chat() {
     // When _v2QueuedParams is set, the active turn is already created by _drainQueue.
     const _v2QueuedParams = _opts?._v2QueuedParams || null;
     const _isV2QueuedExecution = _v2QueuedParams !== null;
+    const sendConversationId = _isV2QueuedExecution
+      ? _v2QueuedParams.conversationId
+      : currentConversationIdRef.current;
 
     const hasRecordedAudioDraft = audioDraftStatus === 'recorded' && !!audioDraftFile;
     const isAndroidVoiceDraftSend =
@@ -3693,7 +3696,12 @@ export default function Chat() {
       const convIdForQueue = currentConversationId || '__pending__';
 
       // Capture full send parameters for potential queueing.
-      const capturedParams = { messageText, attachmentToUpload, isVoiceDerivedSend };
+      const capturedParams = {
+        messageText,
+        attachmentToUpload,
+        isVoiceDerivedSend,
+        conversationId: currentConversationIdRef.current,
+      };
 
       const { turn: regTurn, queued: regQueued, queue_full: regQueueFull } = chatCoordinatorV2Ref.current.registerSend({
         conversationId: convIdForQueue,
@@ -4650,7 +4658,7 @@ export default function Chat() {
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
       setDeliveryStatus('failed');
-      if (!_isV2QueuedExecution) {
+      if (currentConversationIdRef.current === sendConversationId) {
         setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);
       }
       // V2: Mark the active turn as failed and drain the queue.
