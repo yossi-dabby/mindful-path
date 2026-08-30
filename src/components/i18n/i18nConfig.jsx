@@ -3,6 +3,12 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { translations } from './translations';
 import { applyMindGamesTranslations } from './translationsBuilder';
+import {
+  applyAppLocaleSideEffects,
+  applyAppLocaleToDocument,
+  getCurrentAppLocale,
+  resolveInitialAppLocale
+} from './appLocale';
 
 // Apply mind games UI + content translations to all languages
 applyMindGamesTranslations(translations);
@@ -24,7 +30,7 @@ i18n
   .init({
     resources: translations,
     fallbackLng: 'en',
-    lng: localStorage.getItem('language') || 'en',
+    lng: resolveInitialAppLocale(),
     
     detection: {
       order: ['localStorage', 'navigator'],
@@ -51,15 +57,10 @@ i18n
 
 // Save language changes to localStorage
 i18n.on('languageChanged', (lng) => {
-  localStorage.setItem('language', lng);
-  
-  // Update HTML dir attribute for RTL support
-  document.documentElement.dir = lng === 'he' ? 'rtl' : 'ltr';
-  document.documentElement.lang = lng;
+  applyAppLocaleSideEffects(lng);
 });
 
-// Set initial dir on load
-document.documentElement.dir = i18n.language === 'he' ? 'rtl' : 'ltr';
-document.documentElement.lang = i18n.language;
+// Set initial language metadata on load through the same canonical resolver.
+applyAppLocaleToDocument(getCurrentAppLocale(i18n));
 
 export default i18n;
