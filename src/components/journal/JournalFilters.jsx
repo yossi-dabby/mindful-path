@@ -2,14 +2,9 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const entryTypes = [
-{ value: 'all', label: 'All Types' },
-{ value: 'cbt_standard', label: 'CBT Standard' },
-{ value: 'gratitude', label: 'Gratitude' },
-{ value: 'anxiety_log', label: 'Anxiety Log' },
-{ value: 'mood_journal', label: 'Mood Journal' },
-{ value: 'custom', label: 'Custom' }];
+const ENTRY_TYPE_VALUES = ['all', 'cbt_standard', 'gratitude', 'anxiety_log', 'mood_journal', 'custom'];
 
 
 export default function JournalFilters({
@@ -19,6 +14,12 @@ export default function JournalFilters({
   selectedType,
   onTypeChange
 }) {
+  const { t } = useTranslation();
+  const entryTypes = ENTRY_TYPE_VALUES.map((value) => ({
+    value,
+    label: t(`journal.filters.entry_types.${value}`)
+  }));
+
   const toggleTag = (tag) => {
     if (selectedTags.includes(tag)) {
       onTagsChange(selectedTags.filter((t) => t !== tag));
@@ -33,7 +34,7 @@ export default function JournalFilters({
     <div className="space-y-3">
       {/* Type Filter */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-teal-600 text-sm font-medium">Type:</span>
+        <span className="text-teal-600 text-sm font-medium">{t('journal.filters.type_label')}:</span>
         {entryTypes.map((type) =>
         <Badge
           key={type.value}
@@ -54,7 +55,7 @@ export default function JournalFilters({
       {/* Tag Filter */}
       {allTags.length > 0 &&
       <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-teal-600 text-sm font-medium">Tags:</span>
+          <span className="text-teal-600 text-sm font-medium">{t('journal.filters.tags_label')}:</span>
           {allTags.map((tag) =>
         <Badge
           key={tag}
@@ -67,7 +68,7 @@ export default function JournalFilters({
 
           onClick={() => toggleTag(tag)}>
 
-              {tag}
+              <span dir="auto">{tag}</span>
             </Badge>
         )}
         </div>
@@ -86,7 +87,7 @@ export default function JournalFilters({
           className="text-muted-foreground hover:text-foreground">
 
             <X className="w-4 h-4 mr-1" />
-            Clear All Filters
+            {t('journal.clear_filters')}
           </Button>
         </div>
       }
