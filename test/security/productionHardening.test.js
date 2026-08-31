@@ -67,4 +67,39 @@ describe('production security hardening', () => {
     expect(backend).toContain('await base44.auth.me()');
     expect(backend).toContain('filter.planner_domain = planner_domain');
   });
+
+  it('limits catalog records to authenticated users and admin-managed writes', () => {
+    for (const entity of ['AudioContent', 'GoalTemplate', 'Journey', 'Psychoeducation', 'Resource', 'Video', 'Exercise']) {
+      const schema = parseJsonc(`base44/entities/${entity}.jsonc`);
+      expect(schema.rls.create.user_condition.role).toBe('admin');
+      expect(schema.rls.update.user_condition.role).toBe('admin');
+      expect(schema.rls.delete.user_condition.role).toBe('admin');
+      expect(schema.rls.read).toBeTruthy();
+    }
+  });
+
+  it('stores exercise favorites and progress in an owner-only entity', () => {
+    const schema = parseJsonc('base44/entities/UserExerciseProgress.jsonc');
+    for (const operation of ['create', 'read', 'update', 'delete']) {
+      expect(schema.rls[operation].created_by).toBe('{{user.email}}');
+    }
+    expect(read('src/api/base44Client.js')).toContain('installExerciseProgressAdapter(base44)');
+  });
+
+  it('removes the embedded Firebase token and enables anti-framing headers', () => {
+    expect(read('base44/entities/Video.jsonc')).not.toContain('token=');
+    const serveConfig = JSON.parse(read('serve.json'));
+    const headers = Object.fromEntries(serveConfig.headers[0].headers.map(({ key, value }) => [key, value]));
+    expect(headers['Content-Security-Policy']).toBe("frame-ancestors 'none'");
+    expect(headers['X-Frame-Options']).toBe('DENY');
+    expect(read('railway.toml')).toContain('-c serve.json');
+  });
+
+  it('keeps emergency resources public but bounded and free of paid integrations', () => {
+    const source = read('base44/functions/emergencyResourceLayer/entry.ts');
+    expect(source).toContain("req.method !== 'POST'");
+    expect(source).toContain('declaredLength > 1_024');
+    expect(source).not.toContain('InvokeLLM');
+    expect(source).not.toContain('asServiceRole');
+  });
 });
