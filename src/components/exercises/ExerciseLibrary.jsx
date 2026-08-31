@@ -36,9 +36,10 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                   e.stopPropagation();
                   onToggleFavorite?.(exercise);
                 }}
-                className="mx-1 px-3 py-2 rounded-full absolute top-3 right-3 z-10 shadow-[var(--shadow-sm)] transition-all border border-border/70 bg-card/95 hover:bg-card">
+                data-favorite={exercise.favorite ? 'true' : 'false'}
+                className={`mx-1 p-2.5 min-h-[44px] min-w-[44px] rounded-full absolute top-3 right-3 z-10 shadow-[var(--shadow-sm)] transition-all duration-200 border flex items-center justify-center ${exercise.favorite ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-200' : 'border-border/70 bg-card/95 hover:bg-card'}`}>
                 
-                <Heart className={`w-4 h-4 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+                <Heart className={`w-5 h-5 transition-transform duration-200 ${exercise.favorite ? 'fill-red-500 text-red-500 scale-110' : 'text-muted-foreground'}`} />
               </button>
 
               {/* Image/Video Thumbnail */}
