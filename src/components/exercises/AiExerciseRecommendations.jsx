@@ -46,6 +46,8 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   const recommendableExercises = exercises.filter(
     (exercise) => exercise.category !== 'breathing' && exercise.localization_available !== false
   );
+  const localizedDifficulty = (difficulty = 'beginner') =>
+    t(`exercises.difficulty.${String(difficulty).toLowerCase()}`);
 
   // AI prose belongs to the language in which it was generated. Clear only
   // generated output on a language switch so stale copy never mixes locales.
@@ -125,6 +127,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
         title: e.title,
         count: e.completed_count,
         difficulty: e.difficulty || 'beginner',
+        difficultyLabel: localizedDifficulty(e.difficulty),
         category: e.category
       }));
 
@@ -132,16 +135,18 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
       const completedDifficulties = completedExercises.map((e) => e.difficulty);
       const hasCompletedBeginner = completedDifficulties.includes('beginner');
       const hasCompletedIntermediate = completedDifficulties.includes('intermediate');
-      const suggestedDifficulty = !hasCompletedBeginner ? 'beginner' :
-      !hasCompletedIntermediate ? 'intermediate or beginner' :
-      'intermediate or advanced';
+      const suggestedDifficulty = !hasCompletedBeginner
+        ? localizedDifficulty('beginner')
+        : !hasCompletedIntermediate
+          ? `${localizedDifficulty('intermediate')} / ${localizedDifficulty('beginner')}`
+          : `${localizedDifficulty('intermediate')} / ${localizedDifficulty('advanced')}`;
 
       const recentMoodSummary = recentMoods.length > 0 ?
-      `Recent moods (last 7 entries): ${recentMoods.map((m) => `${m.mood_level}/10 feeling ${m.primary_emotion || 'neutral'}`).join(', ')}` :
+      `Recent moods (last 7 entries): ${recentMoods.map((m) => `${m.mood_level}/10 — ${moodOptions.find((option) => option.value === m.primary_emotion)?.label || t('exercises.recommendations.moods.neutral')}`).join(', ')}` :
       'No recent mood data';
 
       const goalsSummary = activeGoals.length > 0 ?
-      `Active goals: ${activeGoals.map((g) => `${g.title} (${g.category})`).join(', ')}` :
+      `Active goals: ${activeGoals.map((g) => g.title).join(', ')}` :
       'No active goals';
 
       // User feedback analysis
@@ -159,20 +164,20 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
       const availableExercises = recommendableExercises.map((e) => ({
         title: e.title || 'Untitled',
         category: e.category,
-        difficulty: e.difficulty || 'beginner',
+        difficulty: localizedDifficulty(e.difficulty),
         description: e.description || '',
         tags: (e.tags || []).filter((t) => t && typeof t === 'string')
       }));
 
       const currentContext = selectedMood || selectedGoal ?
-      `\n\nCURRENT CONTEXT (HIGH PRIORITY):\n${selectedMood ? `- User is currently feeling: ${selectedMood}` : ''}${selectedGoal ? `\n- User wants to work on: ${selectedGoal}` : ''}\n` :
+      `\n\nCURRENT CONTEXT (HIGH PRIORITY):\n${selectedMood ? `- Current feeling: ${selectedMoodLabel}` : ''}${selectedGoal ? `\n- Current focus: ${selectedGoalLabel}` : ''}\n` :
       '';
 
       const prompt = `You are a CBT therapy assistant. Based on the user's activity and needs, recommend 3-5 exercises from the available list.
 ${currentContext}
 User History:
 - Favorite exercises: ${favoriteExercises.length > 0 ? favoriteExercises.join(', ') : 'None yet'}
-- Most completed: ${completedExercises.length > 0 ? completedExercises.map((e) => `${e.title} (${e.count}x, ${e.difficulty})`).join(', ') : 'None yet'}
+- Most completed: ${completedExercises.length > 0 ? completedExercises.map((e) => `${e.title} (${e.count}x, ${e.difficultyLabel})`).join(', ') : 'None yet'}
 - ${recentMoodSummary}
 - ${goalsSummary}
 - ${feedbackSummary}
