@@ -106,6 +106,7 @@ import {
   extractFormulationHintsForPlanner,
   retrieveBoundedCBTKnowledgeBlock,
   CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS,
+  CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND,
   CBT_KNOWLEDGE_RETRIEVAL_VERSION,
 } from '../../src/lib/cbtKnowledgeRetrieval.js';
 
@@ -325,6 +326,24 @@ describe('Group B — retrieveBoundedCBTKnowledgeBlock guards', () => {
     };
     const result = await retrieveBoundedCBTKnowledgeBlock(entities, FIXTURE_PLAN_RETRIEVE, 'en');
     expect(result).toBe('');
+  });
+
+  it('B8. authenticated function client is preferred over direct entity access', async () => {
+    const functionsClient = {
+      invoke: vi.fn().mockResolvedValue({ data: { units: [FIXTURE_UNIT_ANXIETY] } }),
+    };
+    const result = await retrieveBoundedCBTKnowledgeBlock(
+      null,
+      FIXTURE_PLAN_RETRIEVE,
+      'en',
+      functionsClient,
+    );
+    expect(functionsClient.invoke).toHaveBeenCalledWith('retrieveCurriculumUnit', {
+      planner_domain: FIXTURE_PLAN_RETRIEVE.domainHint,
+      language: 'en',
+      limit: CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND,
+    });
+    expect(result).toContain(FIXTURE_UNIT_ANXIETY.title);
   });
 });
 
