@@ -330,6 +330,66 @@ textarea:focus-visible,
   background-color: rgb(var(--primary, 0 0% 9%) / 0.15);
   color: inherit;
 }
+
+/* Home proportions: a tablet shares its width with the sidebar, so keep the
+   summary cards in two columns until a genuinely wide desktop viewport. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  [data-app-page-name="Home"] .md\:grid-cols-4,
+  [data-app-page-name="Home"] .md\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Two-column action cards remain spacious on narrow phones without changing
+   their information hierarchy or the desktop proportions. */
+@media (max-width: 639px) {
+  [data-app-page-name="Home"] .grid.grid-cols-2.md\:grid-cols-3 {
+    gap: 0.75rem;
+  }
+
+  [data-app-page-name="Home"] .grid.grid-cols-2.md\:grid-cols-3 .p-5 {
+    padding: 1rem;
+  }
+
+  [data-app-page-name="Home"] .grid.grid-cols-2.md\:grid-cols-3 .w-14 {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  [data-app-page-name="Home"] .grid.grid-cols-2.md\:grid-cols-3 .gap-3 {
+    gap: 0.5rem;
+  }
+
+  [data-app-page-name="Home"] .bg-teal-500.text-teal-800.mt-6.rounded-2xl.flex.gap-3 {
+    flex-direction: column-reverse;
+  }
+}
+
+/* Check-in and card actions must remain readable in all seven languages. */
+[data-app-page-name="Home"] .bg-teal-500.text-teal-800.mt-6.rounded-2xl.flex.gap-3 > button,
+[data-app-page-name="Home"] button.h-8.md\:min-h-0,
+[data-app-page-name="Home"] button.h-10.md\:min-h-0 {
+  min-height: 44px !important;
+  height: auto !important;
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.25;
+}
+
+[data-app-page-name="Home"] .bg-teal-500.text-teal-800.mt-6.rounded-2xl.flex.gap-3 > button {
+  min-height: 48px !important;
+  font-size: 1rem;
+}
+
+/* The Home page contains several compact help/detail controls. Keep them
+   comfortably operable after the mobile-only global touch rule stops applying. */
+@media (min-width: 769px) {
+  [data-app-page-name="Home"] button[aria-label] {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
 /* ─── Reduced Motion ─────────────────────────────────────────────────────── */
 /* Respect the OS-level "Reduce Motion" accessibility preference.
    This acts as a CSS-layer override for all CSS transitions/animations
