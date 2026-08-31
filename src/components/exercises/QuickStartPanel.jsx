@@ -81,7 +81,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           {quickStartExercises.map((exercise, index) => {
             const Icon = categoryIcons[exercise.category] || Sparkles;
             const colors = categoryColors[exercise.category] || categoryColors.mindfulness;
