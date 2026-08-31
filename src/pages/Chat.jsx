@@ -3923,6 +3923,7 @@ export default function Chat() {
             continuation_session_id: resolveConversationSessionInstanceId(conversation),
             message_text: messageText,
           },
+          base44,
         );
         if (v10TurnKnowledgeContext) {
           messageContent = `${v10TurnKnowledgeContext}\n\n${messageContent}`;
