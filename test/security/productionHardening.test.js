@@ -34,4 +34,20 @@ describe('production security hardening', () => {
     expect(source).toContain("caller.role !== 'admin'");
     expect(source).toContain("lastSent.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)");
   });
+
+  it('requires authentication and session ownership for phase transitions', () => {
+    const source = read('base44/functions/sessionPhaseEngine/entry.ts');
+    expect(source).toContain('await base44.auth.me()');
+    expect(source).toContain('base44.asServiceRole.entities.CoachingSession.get(session_id)');
+    expect(source).toContain("session.created_by !== caller.email");
+  });
+
+  it('requires authentication for deterministic safety processing', () => {
+    const safetyMode = read('base44/functions/therapistSafetyMode/entry.ts');
+    const postLlmFilter = read('base44/functions/postLlmSafetyFilter/entry.ts');
+    expect(safetyMode).toContain('await base44.auth.me()');
+    expect(safetyMode).toContain('body.message_text.length > 20_000');
+    expect(postLlmFilter).toContain('await base44.auth.me()');
+    expect(postLlmFilter).toContain('message_content.length > 100_000');
+  });
 });
