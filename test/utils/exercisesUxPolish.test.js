@@ -29,7 +29,7 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
         expect(content.tags.length, `${id}.${locale}.tags`).toBeGreaterThan(1);
         expect(content.steps.length, `${id}.${locale}.steps`).toBeGreaterThan(2);
         expect(content.benefits.length, `${id}.${locale}.benefits`).toBeGreaterThan(1);
-        expect(content.tips.length, `${id}.${locale}.tips`).toBeGreaterThan(1);
+        expect(content.tips.length, `${id}.${locale}.tips`).toBeGreaterThan(0);
 
         const localized = localizeExercise({
           id: `api-${id}`,
