@@ -85,6 +85,10 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
     expect(source).toContain("t('exercises.recommendations.show_aria')");
     expect(source).toContain('order-1 bg-teal-600');
     expect(source).toContain('order-2 bg-teal-50');
+    expect(source).toContain("exercise.category !== 'breathing'");
+    expect(source).toContain('exercise.localization_available !== false');
+    expect(source).toContain('setRecommendations(null)');
+    expect(source).toContain('exercise_title: matchedExercise.title');
 
     for (const locale of LOCALES) {
       const recommendations = wave3Batch3Translations[locale].exercises.recommendations;
