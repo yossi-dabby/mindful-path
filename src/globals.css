@@ -595,7 +595,7 @@ textarea:focus-visible,
 .exercise-card-art {
   background-color: hsl(var(--card));
   background-image:
-    linear-gradient(hsl(var(--card) / 0.86), hsl(var(--surface-tint) / 0.88)),
+    linear-gradient(hsl(var(--card) / 0.70), hsl(var(--surface-tint) / 0.76)),
     url('/assets/mindful-card-background.webp');
   background-position: center;
   background-repeat: no-repeat;
@@ -605,7 +605,7 @@ textarea:focus-visible,
 .exercise-card-art--subtle {
   background-color: hsl(var(--card));
   background-image:
-    linear-gradient(hsl(var(--card) / 0.92), hsl(var(--surface-tint) / 0.91)),
+    linear-gradient(hsl(var(--card) / 0.78), hsl(var(--surface-tint) / 0.82)),
     url('/assets/mindful-card-background.webp');
   background-position: center;
   background-repeat: no-repeat;
