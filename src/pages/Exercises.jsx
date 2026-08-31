@@ -280,7 +280,7 @@ export default function Exercises() {
   return (
     <PullToRefresh queryKeys={['exercises']}>
       <div className="min-h-dvh w-full bg-transparent">
-        <div className="bg-teal-100 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full">
+        <div className="bg-teal-50/35 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full backdrop-blur-[2px]">
       {/* Header */}
       <div className="mb-10 mt-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-2">

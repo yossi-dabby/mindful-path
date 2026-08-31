@@ -182,7 +182,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-dvh p-4 md:p-8 max-w-4xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <div className="min-h-dvh p-4 md:p-8 max-w-4xl mx-auto bg-teal-50/35 backdrop-blur-[2px]">
       {/* Header */}
       <motion.div 
         className="mb-10 mt-4"

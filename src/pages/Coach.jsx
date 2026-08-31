@@ -192,7 +192,7 @@ export default function Coach() {
       </motion.div>
 
       {/* Content */}
-      <div className="bg-teal-50 mx-auto pb-32 p-4 max-w-7xl md:p-6 md:pb-24 w-full">
+      <div className="bg-teal-50/40 mx-auto pb-32 p-4 max-w-7xl md:p-6 md:pb-24 w-full backdrop-blur-[2px]">
         {safeSessions.length === 0 ?
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

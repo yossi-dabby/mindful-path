@@ -235,7 +235,7 @@ export default function Layout({ children, currentPageName }) {
       {/* overflow-x-clip (not overflow-hidden) so the horizontal clip for page-transition
            animations does not create an ancestor overflow:hidden that would prevent
            iOS WKWebView touch-scroll events from reaching #app-scroll-container. */}
-      <div className="bg-slate-50 text-foreground min-h-dvh overflow-x-clip">
+      <div className="app-global-background text-foreground min-h-dvh overflow-x-clip">
         {/* Preserve scroll position between tab switches */}
         <ScrollPreservation />
 
@@ -265,7 +265,9 @@ export default function Layout({ children, currentPageName }) {
               initial="initial"
               animate="animate"
               exit="exit"
-              className="w-full min-h-full">
+              className="app-page-transition w-full min-h-full"
+              data-app-page-transition
+              data-app-page-name={currentPageName}>
               
             {children}
           </motion.div>
