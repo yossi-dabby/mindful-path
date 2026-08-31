@@ -210,11 +210,28 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Method not allowed.' }),
+      { status: 405, headers: { 'Content-Type': 'application/json', 'Allow': 'POST' } },
+    );
+  }
+
+  const declaredLength = Number(req.headers.get('content-length') || 0);
+  if (Number.isFinite(declaredLength) && declaredLength > 1_024) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Request too large.' }),
+      { status: 413, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   // ── Parse request body ───────────────────────────────────────────────────
   let locale: string | undefined;
   try {
     const body = await req.json();
-    locale = body?.locale;
+    locale = typeof body?.locale === 'string' && body.locale.length <= 35
+      ? body.locale
+      : undefined;
   } catch (_e) {
     // Missing or invalid body — use fallback locale
     locale = undefined;
