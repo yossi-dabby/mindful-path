@@ -659,10 +659,11 @@ function _sanitizeUnit(unit) {
  *
  * @param {object} entities - Base44 entity client map (from workflowContextInjector).
  * @param {object} plan     - Output of planCBTKnowledgeRetrieval() with shouldRetrieve: true.
- * @param {string} sessionLanguage - Exact language required for Preview retrieval.
+ * @param {string} sessionLanguage - Exact language required for retrieval.
+ * @param {object|null} functionsClient - Authenticated Base44 functions client.
  * @returns {Promise<string>} Formatted knowledge block string, or '' when empty/error.
  */
-export async function retrieveBoundedCBTKnowledgeBlock(entities, plan, sessionLanguage) {
+export async function retrieveBoundedCBTKnowledgeBlock(entities, plan, sessionLanguage, functionsClient = null) {
   try {
     // Guard 1: plan must say shouldRetrieve
     if (!plan || plan.shouldRetrieve !== true) return '';
@@ -676,21 +677,30 @@ export async function retrieveBoundedCBTKnowledgeBlock(entities, plan, sessionLa
     // Guard 3: domain must be in the first-wave allowed set
     if (!CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.has(plan.domainHint)) return '';
 
-    // Guard 4: entity access must be available
-    if (!entities || typeof entities !== 'object') return '';
-    const entityClient = entities.CBTCurriculumUnit;
-    if (!entityClient) return '';
+    // Guard 4: prefer the authenticated server read path. The entity fallback
+    // remains for deterministic tests and non-production adapters only.
+    const entityClient = entities?.CBTCurriculumUnit;
+    const canInvokeServer = typeof functionsClient?.invoke === 'function';
+    if (!canInvokeServer && !entityClient) return '';
 
     // Step 4: Over-fetch active units from the entity store
     let rawUnits = [];
     try {
-      if (typeof entityClient.filter === 'function') {
+      if (canInvokeServer) {
+        const response = await functionsClient.invoke('retrieveCurriculumUnit', {
+          planner_domain: plan.domainHint,
+          language: normalizedSessionLanguage,
+          limit: CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND,
+        });
+        const payload = response?.data ?? response;
+        rawUnits = Array.isArray(payload?.units) ? payload.units : [];
+      } else if (typeof entityClient?.filter === 'function') {
         rawUnits = await entityClient.filter(
           { is_active: true },
           '-priority_score',
           CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND
         );
-      } else if (typeof entityClient.list === 'function') {
+      } else if (typeof entityClient?.list === 'function') {
         // Fallback: list all and filter is_active in-memory
         const all = await entityClient.list('-priority_score', CBT_KNOWLEDGE_RETRIEVAL_OVERFETCH_BOUND);
         rawUnits = Array.isArray(all) ? all.filter(u => u && u.is_active !== false) : [];
