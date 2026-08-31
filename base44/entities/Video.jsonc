@@ -12,7 +12,6 @@
     },
     "thumbnailUrl": {
       "type": "string",
-      "default": "https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt-avatar.png.png?alt=media&token=395db7cd-fe30-450d-b76a-ed80dd4902d4",
       "description": "Video thumbnail image URL"
     },
     "order": {
@@ -47,5 +46,36 @@
     "title",
     "videoUrl",
     "order"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
