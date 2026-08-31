@@ -2697,7 +2697,7 @@ export async function buildV9SessionStartContentAsync(
   }
 }
 
-async function buildV10KnowledgeReferenceForTurn(wiring, entities, options = {}, canonicalResult = null) {
+async function buildV10KnowledgeReferenceForTurn(wiring, entities, options = {}, canonicalResult = null, baseClient = null) {
   const authority = buildV10KnowledgeRuntimeAuthority(wiring);
   if (!authority) return '';
 
@@ -2774,6 +2774,7 @@ async function buildV10KnowledgeReferenceForTurn(wiring, entities, options = {},
       entities,
       plan,
       options?.sessionLanguage,
+      baseClient?.functions,
     );
     return knowledgeBlock?.trim()
       ? `${authority}\n\n${knowledgeBlock}`
@@ -2785,8 +2786,8 @@ async function buildV10KnowledgeReferenceForTurn(wiring, entities, options = {},
   }
 }
 
-export async function buildV10TurnKnowledgeContextAsync(wiring, entities, options = {}) {
-  return buildV10KnowledgeReferenceForTurn(wiring, entities, options);
+export async function buildV10TurnKnowledgeContextAsync(wiring, entities, options = {}, baseClient = null) {
+  return buildV10KnowledgeReferenceForTurn(wiring, entities, options, null, baseClient);
 }
 
 // ─── Wave 4C — CBT Knowledge Retrieval read path and V10 session-start injection
@@ -2890,6 +2891,7 @@ export async function buildV10SessionStartContentAsync(
     entities,
     v10Options,
     v10CanonicalResult,
+    baseClient,
   );
   if (!v10KnowledgeContext.trim()) return v9Base;
   return _appendWithComposer(v10Options, v9Base, {
