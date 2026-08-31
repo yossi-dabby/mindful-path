@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, CheckCircle2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { normalizeExerciseRecommendations } from '@/components/utils/aiDataNormalizer';
@@ -30,6 +30,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   const [selectedGoal, setSelectedGoal] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({});
+  const [isExpanded, setIsExpanded] = useState(true);
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const moodOptions = MOOD_VALUES.map((value) => ({
@@ -228,6 +229,24 @@ Provide recommendations with:
     );
   };
 
+  if (!isExpanded) {
+    return (
+      <Card className="border border-border/80 bg-card/95 shadow-[var(--shadow-sm)]">
+        <button
+          type="button"
+          onClick={() => setIsExpanded(true)}
+          aria-label={t('exercises.recommendations.show_aria')}
+          className="w-full min-h-[64px] px-4 py-3 flex items-center justify-between gap-3 text-start rounded-[var(--radius-card)] hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
+          <span className="flex items-center gap-2 text-teal-700 font-semibold">
+            <Sparkles className="w-5 h-5" />
+            {t('exercises.recommendations.show')}
+          </span>
+          <span className="text-sm text-muted-foreground">{t('exercises.recommendations.title')}</span>
+        </button>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
       <CardHeader className="bg-teal-200 p-6 flex flex-col space-y-1.5 border-b border-border/70">
@@ -239,9 +258,10 @@ Provide recommendations with:
           <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
               disabled={generateMutation.isPending}
               size="sm"
-              variant="outline" className="bg-teal-500 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
+              variant="outline" className="order-2 bg-teal-50 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
 
 
               <Sparkles className="w-4 h-4 sm:mr-2" />
@@ -250,7 +270,7 @@ Provide recommendations with:
             <Button
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
-              size="sm" className="bg-teal-500 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
+              size="sm" className="order-1 bg-teal-600 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
 
 
               {generateMutation.isPending ?
@@ -266,6 +286,16 @@ Provide recommendations with:
                   <span className="sm:hidden">{recommendations ? t('exercises.recommendations.refresh') : t('exercises.recommendations.get')}</span>
                 </>
               }
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(false)}
+              aria-label={t('exercises.recommendations.close_aria')}
+              className="order-3 min-h-[44px] px-3 text-teal-800 hover:bg-teal-100">
+              <X className="w-4 h-4" />
+              <span className="sm:hidden">{t('exercises.recommendations.close')}</span>
             </Button>
           </div>
         </div>
