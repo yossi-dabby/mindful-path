@@ -68,6 +68,8 @@
  * See docs/therapist-upgrade-stage2-plan.md — Phase 7, Task 7.1
  */
 
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
 // ─── Safety trigger categories ────────────────────────────────────────────────
 
 const SAFETY_TRIGGER_CATEGORIES = {
@@ -213,6 +215,15 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
+  const base44 = createClientFromRequest(req);
+  const caller = await base44.auth.me().catch(() => null);
+  if (!caller?.email) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   // ── Parse request body ───────────────────────────────────────────────────
   let body: SafetyModeSignals;
   try {
@@ -221,6 +232,13 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response(
       JSON.stringify({ success: false, error: 'Invalid JSON body.' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
+  if (typeof body.message_text === 'string' && body.message_text.length > 20_000) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'message_text exceeds the allowed length.' }),
+      { status: 413, headers: { 'Content-Type': 'application/json' } },
     );
   }
 
