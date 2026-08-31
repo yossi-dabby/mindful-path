@@ -3,6 +3,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller?.email) {
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (caller.role !== 'admin') {
+      return Response.json({ success: false, error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
     
     // Get all active reminders
     const reminders = await base44.asServiceRole.entities.GoalReminder.filter({ active: true });
@@ -12,6 +19,12 @@ Deno.serve(async (req) => {
 
     for (const reminder of reminders) {
       try {
+        const lastSent = reminder.last_sent ? new Date(reminder.last_sent) : null;
+        if (lastSent && !Number.isNaN(lastSent.getTime()) &&
+            lastSent.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) {
+          continue;
+        }
+
         // Get the goal
         const goal = await base44.asServiceRole.entities.Goal.get(reminder.goal_id);
         if (!goal) continue;
@@ -46,7 +59,6 @@ Deno.serve(async (req) => {
             }
           }
         } else if (reminder.reminder_type === 'weekly_checkin' && reminder.frequency === 'weekly') {
-          const lastSent = reminder.last_sent ? new Date(reminder.last_sent) : null;
           const daysSinceLastSent = lastSent ? Math.floor((now - lastSent) / (1000 * 60 * 60 * 24)) : 999;
           
           if (daysSinceLastSent >= 7) {
