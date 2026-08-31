@@ -19,6 +19,7 @@ import PullToRefresh from '../components/utils/PullToRefresh';
 import { mergeExercises, validateExercisesTaxonomy } from '../components/exercises/exercisesData';
 import { localizeExerciseCollection } from '../components/exercises/exerciseLocalization';
 import { getCurrentAppLocale } from '../components/i18n/appLocale';
+import { mergeExerciseProgress } from '../lib/exerciseProgress';
 
 const categoryIcons = {
   breathing: Wind,
@@ -111,8 +112,14 @@ export default function Exercises() {
     queryKey: ['exercises'],
     queryFn: async () => {
       try {
-        const apiExercises = await base44.entities.Exercise.list();
-        return applyLocalExerciseState(mergeExercises(apiExercises));
+        const [apiExercises, userProgress] = await Promise.all([
+          base44.entities.Exercise.list(),
+          base44.entities.UserExerciseProgress.list('-updated_date', 500)
+        ]);
+        return mergeExerciseProgress(
+          applyLocalExerciseState(mergeExercises(apiExercises)),
+          userProgress
+        );
       } catch (error) {
         console.error('Error fetching exercises:', error);
         return applyLocalExerciseState(mergeExercises([]));
@@ -182,15 +189,6 @@ export default function Exercises() {
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (exercise) => {
       try {
-        if (exercise.id?.startsWith('local-')) {
-          const localFavorites = getStoredLocalFavorites();
-          localStorage.setItem('local_exercise_favorites', JSON.stringify({
-            ...localFavorites,
-            [exercise.id]: !exercise.favorite
-          }));
-          return { ...exercise, favorite: !exercise.favorite };
-        }
-
         return await base44.entities.Exercise.update(exercise.id, {
           favorite: !exercise.favorite
         });
