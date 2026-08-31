@@ -188,14 +188,14 @@ describe('V10 Knowledge Preview - contract and language safety', () => {
     expect(block).toBe('');
   });
 
-  it('threads sessionLanguage from V10 injector into retrieval', () => {
+  it('threads sessionLanguage and the authenticated function client into retrieval', () => {
     const injectorPath = fileURLToPath(
       new URL('../../src/lib/workflowContextInjector.js', import.meta.url),
     );
     const injectorSource = readFileSync(injectorPath, 'utf8');
 
     expect(injectorSource).toMatch(
-      /retrieveBoundedCBTKnowledgeBlock\(\s*entities,\s*plan,\s*options\?\.sessionLanguage,?\s*\)/,
+      /retrieveBoundedCBTKnowledgeBlock\(\s*entities,\s*plan,\s*options\?\.sessionLanguage,\s*baseClient\?\.functions,?\s*\)/,
     );
   });
 
