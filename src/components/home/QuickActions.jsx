@@ -145,7 +145,7 @@ export default function QuickActions() {
     color: '#6B7280',
     bgColor: 'rgba(107, 114, 128, 0.15)',
     videoUrl: null,
-    testIds: ['quickaction-therapeutic-forms'],
+    testIds: ['quickaction-therapeutic-forms']
   }];
 
 
@@ -206,7 +206,7 @@ export default function QuickActions() {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowStarterPathVideo(true);
-                  }} className="bg-teal-100 text-teal-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
+                  }} className="bg-teal-100 text-teal-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none mr-1"
 
                   aria-label="Guided introduction video"
                   title="Guided introduction video">
@@ -339,7 +339,7 @@ export default function QuickActions() {
                       </div>
                       
                       {/* Angel Button - next to icon */}
-                      {action.videoUrl && (
+                      {action.videoUrl &&
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -353,7 +353,7 @@ export default function QuickActions() {
 
                         <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
                       </button>
-                      )}
+                      }
                     </div>
                     <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{action.title}</h3>
                     <p className="text-teal-600 text-xs line-clamp-2 break-words">{action.description}</p>
