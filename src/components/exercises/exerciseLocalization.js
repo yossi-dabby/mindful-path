@@ -103,6 +103,24 @@ export function localizeExercise(exercise, requestedLocale) {
   const hasLocalizedFields = Object.keys(localizedFields).length > 0;
   const contentLanguage = normalizeAppLocale(exercise.language || 'en');
 
+  // Never let optional source-language prose leak into a translated exercise.
+  // Catalog translations intentionally replace the concise content; any absent
+  // long-form field is hidden instead of being shown in another language.
+  if (hasLocalizedFields && locale !== contentLanguage) {
+    [
+      'detailed_description',
+      'visualization_script',
+      'summary',
+      'when_to_use',
+      'contraindications',
+      'evidence_base'
+    ].forEach((field) => {
+      if (!Object.prototype.hasOwnProperty.call(localizedFields, field)) {
+        localizedFields[field] = '';
+      }
+    });
+  }
+
   return {
     ...exercise,
     ...(hasLocalizedFields ? localizedFields : {}),
