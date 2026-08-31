@@ -6,6 +6,7 @@ import {
 } from '../../src/components/exercises/exerciseLegacyTitleTranslations.js';
 import { localizeExercise } from '../../src/components/exercises/exerciseLocalization.js';
 import { wave3Batch3Translations } from '../../src/components/i18n/wave3Batch3Translations.js';
+import { normalizeExerciseRecommendations } from '../../src/components/utils/aiDataNormalizer.jsx';
 
 const LOCALES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 const SOURCE_TITLES = {
@@ -34,11 +35,15 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
         const localized = localizeExercise({
           id: `api-${id}`,
           title: SOURCE_TITLES[id],
-          language: 'en'
+          language: 'en',
+          detailed_description: 'Source-only English paragraph must not leak.'
         }, locale);
         expect(localized.title).toBe(content.title);
         expect(localized.description).toBe(content.description);
         expect(localized.content_language).toBe(locale);
+        if (locale !== 'en') {
+          expect(localized.detailed_description).toBe('');
+        }
       }
     }
   });
@@ -56,14 +61,17 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
     expect(page).toContain('onSelectExercise={setSelectedExercise}');
   });
 
-  it('makes the favorite state visually unmistakable and accessible', () => {
-    const source = readFileSync('src/components/exercises/ExerciseLibrary.jsx', 'utf8');
+  it('makes both favorite controls visually unmistakable and accessible', () => {
+    const cardSource = readFileSync('src/components/exercises/ExerciseLibrary.jsx', 'utf8');
+    const detailSource = readFileSync('src/components/exercises/ExerciseDetail.jsx', 'utf8');
 
-    expect(source).toContain('aria-pressed={!!exercise.favorite}');
-    expect(source).toContain("data-favorite={exercise.favorite ? 'true' : 'false'}");
-    expect(source).toContain('bg-rose-100 border-rose-300 ring-2 ring-rose-200');
-    expect(source).toContain('fill-red-500 text-red-500 scale-110');
-    expect(source).toContain('min-h-[44px] min-w-[44px]');
+    for (const source of [cardSource, detailSource]) {
+      expect(source).toContain('aria-pressed={!!exercise.favorite}');
+      expect(source).toContain("data-favorite={exercise.favorite ? 'true' : 'false'}");
+      expect(source).toContain('bg-rose-100 border-rose-300 ring-2 ring-rose-200');
+      expect(source).toContain('fill-red-500 text-red-500 scale-110');
+      expect(source).toContain('min-h-[44px] min-w-[44px]');
+    }
   });
 
   it('can close and reopen AI recommendations without clearing their state', () => {
@@ -80,11 +88,25 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
 
     for (const locale of LOCALES) {
       const recommendations = wave3Batch3Translations[locale].exercises.recommendations;
-      for (const key of ['close', 'close_aria', 'show', 'show_aria']) {
+      for (const key of ['close', 'close_aria', 'show', 'show_aria', 'reason_label', 'benefit_label']) {
         expect(recommendations[key], `${locale}.${key}`).toEqual(expect.any(String));
         expect(recommendations[key].trim()).not.toBe('');
       }
     }
+  });
+
+  it('parses JSON-string AI recommendations instead of exposing raw JSON', () => {
+    const raw = [
+      '{"exercise_title":"תכנון פעילויות","reason":"מתאים למטרה","benefit":"תומך בשגרה","priority":"high"}'
+    ];
+    expect(normalizeExerciseRecommendations(raw)).toEqual([
+      {
+        exercise_title: 'תכנון פעילויות',
+        reason: 'מתאים למטרה',
+        benefit: 'תומך בשגרה',
+        priority: 'high'
+      }
+    ]);
   });
 
   it('uses the shared lightweight artwork only on intended exercise surfaces', () => {
@@ -95,7 +117,8 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
 
     expect(existsSync('public/assets/mindful-card-background.webp')).toBe(true);
     expect(globals).toContain("url('/assets/mindful-card-background.webp')");
-    expect(globals).toContain('linear-gradient(hsl(var(--card) / 0.86)');
+    expect(globals).toContain('linear-gradient(hsl(var(--card) / 0.70)');
+    expect(globals).toContain('linear-gradient(hsl(var(--card) / 0.78)');
     expect(quickStart).toContain('exercise-card-art--subtle');
     expect(quickStart).toContain('exercise-card-art p-3');
     expect(library).toContain('exercise-card-art p-4');
