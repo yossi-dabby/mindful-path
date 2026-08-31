@@ -65,7 +65,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
   if (quickStartExercises.length === 0) return null;
 
   return (
-    <Card className="bg-teal-50 text-card-foreground mb-6 rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
+    <Card className="exercise-card-art--subtle text-card-foreground mb-6 rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
       <CardHeader className="pb-2">
         <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
           <motion.div
@@ -97,7 +97,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                 whileTap={{ scale: 0.98 }}>
 
                 <button
-                  onClick={() => onSelectExercise(exercise)} className="bg-teal-100 p-3 text-left rounded-2xl w-full sm:p-4 transition-all border border-border/60 shadow-[var(--shadow-sm)]">
+                  onClick={() => onSelectExercise(exercise)} className="exercise-card-art p-3 text-left rounded-2xl w-full sm:p-4 transition-all border border-border/60 shadow-[var(--shadow-sm)]">
 
 
                   <div className="flex items-start justify-between mb-2">
