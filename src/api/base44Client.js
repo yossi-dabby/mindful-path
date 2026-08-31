@@ -2,6 +2,7 @@
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 import { normalizeEntityList } from '@/lib/entityListNormalizer';
+import { installExerciseProgressAdapter } from '@/lib/exerciseProgress';
 
 const { appId, token, functionsVersion } = appParams;
 
@@ -83,4 +84,13 @@ try {
   }
 } catch (_) {
   // Normalization patching is best-effort — never crash client initialization.
+}
+
+// Keep the Exercise entity as an admin-managed content catalog. User-specific
+// favorites and completion metrics are transparently stored in the owner-only
+// UserExerciseProgress entity while existing UI callers keep the same API.
+try {
+  installExerciseProgressAdapter(base44);
+} catch (_) {
+  // Adapter setup is best-effort; catalog reads must never crash app startup.
 }
