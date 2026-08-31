@@ -234,10 +234,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       aria-pressed={!!exercise.favorite}
                       aria-label={exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}
                       title={exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}
-                      onClick={() => onToggleFavorite?.(exercise)} className="bg-red-50 mr-2 mb-16 ml-2 px-3 py-2 rounded-full hover:bg-white/50 transition-colors">
+                      onClick={() => onToggleFavorite?.(exercise)}
+                      data-favorite={exercise.favorite ? 'true' : 'false'}
+                      className={`mr-2 mb-16 ml-2 min-h-[44px] min-w-[44px] px-3 py-2 rounded-full border flex items-center justify-center shadow-[var(--shadow-sm)] transition-all duration-200 ${exercise.favorite ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-200' : 'bg-card/95 border-border/70 hover:bg-rose-50'}`}>
 
 
-                    <Heart className="bg-gray-50 text-red-500 lucide lucide-heart w-5 h-5" />
+                    <Heart className={`w-5 h-5 transition-transform duration-200 ${exercise.favorite ? 'fill-red-500 text-red-500 scale-110' : 'fill-none text-muted-foreground'}`} />
                   </button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
