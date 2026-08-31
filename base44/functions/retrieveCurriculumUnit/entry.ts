@@ -29,7 +29,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
  * FAIL-OPEN: any error returns { units: [], count: 0, ... } — never blocks agent.
  */
 
-const MAX_LIMIT = 8;
+const MAX_LIMIT = 20;
 const DEFAULT_LIMIT = 3;
 
 Deno.serve(async (req) => {
@@ -53,6 +53,7 @@ Deno.serve(async (req) => {
     const {
       unit_type,
       clinical_topic,
+      planner_domain,
       linked_hierarchy_level,
       linked_outcome_pattern,
       language,
@@ -68,6 +69,7 @@ Deno.serve(async (req) => {
     const filter = { is_active: true };
     if (unit_type) filter.unit_type = unit_type;
     if (clinical_topic) filter.clinical_topic = clinical_topic;
+    if (planner_domain) filter.planner_domain = planner_domain;
 
     // Fetch broader set then filter in-memory for array fields and language
     // (Base44 entity filter does not support array-contains natively)
@@ -128,7 +130,7 @@ Deno.serve(async (req) => {
     return Response.json({
       units,
       count: units.length,
-      query: { unit_type, clinical_topic, linked_hierarchy_level, linked_outcome_pattern, language, limit }
+      query: { unit_type, clinical_topic, planner_domain, linked_hierarchy_level, linked_outcome_pattern, language, limit }
     });
 
   } catch (error) {
