@@ -589,3 +589,25 @@ textarea:focus-visible,
   background-color: hsl(var(--primary) / 0.16);
   color: hsl(var(--foreground));
 }
+
+/* Shared, accessible artwork for exercise surfaces. The translucent gradient
+   preserves text contrast while allowing the supplied mint artwork to show. */
+.exercise-card-art {
+  background-color: hsl(var(--card));
+  background-image:
+    linear-gradient(hsl(var(--card) / 0.86), hsl(var(--surface-tint) / 0.88)),
+    url('/assets/mindful-card-background.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.exercise-card-art--subtle {
+  background-color: hsl(var(--card));
+  background-image:
+    linear-gradient(hsl(var(--card) / 0.92), hsl(var(--surface-tint) / 0.91)),
+    url('/assets/mindful-card-background.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
