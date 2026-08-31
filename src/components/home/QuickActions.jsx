@@ -194,7 +194,7 @@ export default function QuickActions() {
           style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(252,248,242,0.99) 0%, rgba(231,245,239,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
           onClick={() => setStarterPathExpanded((v) => !v)}>
 
-                <CardContent className="p-5 rounded-[20px]">
+                <CardContent className="rounded-[20px] py-5">
                   {/* Always-visible header row — same layout as other cards */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="bg-teal-400 text-teal-600 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
