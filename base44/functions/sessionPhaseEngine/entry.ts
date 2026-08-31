@@ -179,6 +179,15 @@ Deno.serve(async (req) => {
     );
   }
 
+  const base44 = createClientFromRequest(req);
+  const caller = await base44.auth.me().catch(() => null);
+  if (!caller?.email) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   // ── Parse request body ───────────────────────────────────────────────────
   let body;
   try {
@@ -203,6 +212,28 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ success: false, error: 'session_id is required.' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
+  if (session_id.length > 200) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Invalid session_id.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
+  try {
+    const session = await base44.asServiceRole.entities.CoachingSession.get(session_id);
+    if (!session || (caller.role !== 'admin' && session.created_by !== caller.email)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Session not found.' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+  } catch (_error) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Session not found.' }),
+      { status: 404, headers: { 'Content-Type': 'application/json' } },
     );
   }
 
