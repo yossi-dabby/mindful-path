@@ -390,22 +390,52 @@ export function normalizeCoachingInsights(insights) {
  * @returns {Array} - Normalized recommendations
  */
 export function normalizeExerciseRecommendations(recommendations) {
-  return safeArray(recommendations).map((item, i) => {
-    if (typeof item === 'object' && item !== null) {
+  const parseJsonObject = (value) => {
+    if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+    if (typeof value !== 'string') return null;
+
+    const cleaned = value
+      .trim()
+      .replace(/^\`\`\`(?:json)?\s*/i, '')
+      .replace(/\s*\`\`\`$/, '');
+    const start = cleaned.indexOf('{');
+    const end = cleaned.lastIndexOf('}');
+    const candidate = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
+
+    try {
+      const parsed = JSON.parse(candidate);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+
+  let source = recommendations;
+  if (typeof source === 'string') {
+    try {
+      source = JSON.parse(source.trim());
+    } catch {
+      source = [source];
+    }
+  }
+  if (source && typeof source === 'object' && !Array.isArray(source)) {
+    source = Array.isArray(source.recommendations) ? source.recommendations : [source];
+  }
+
+  return (Array.isArray(source) ? source : [])
+    .map((rawItem, i) => {
+      const item = parseJsonObject(rawItem);
+      if (!item) return null;
+
+      const priority = safeText(item.priority, 'medium').toLowerCase();
       return {
         exercise_title: safeText(item.exercise_title || item.title || item.name, `Exercise ${i + 1}`),
         reason: safeText(item.reason || item.description, ''),
         benefit: safeText(item.benefit || item.expected_benefit, ''),
-        priority: safeText(item.priority, 'medium')
+        priority: ['high', 'medium', 'low'].includes(priority) ? priority : 'medium'
       };
-    }
-    return {
-      exercise_title: safeText(item, `Exercise ${i + 1}`),
-      reason: '',
-      benefit: '',
-      priority: 'medium'
-    };
-  });
+    })
+    .filter((item) => item && item.exercise_title);
 }
 
 /**
