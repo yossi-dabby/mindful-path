@@ -127,7 +127,7 @@ export default function Journal() {
 
   return (
     <PullToRefresh queryKeys={['thoughtJournals', 'sessionSummaries', 'journalTemplates']}>
-      <div className="bg-teal-50 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-5xl w-full min-h-[100dvh]">
+      <div className="bg-teal-50/35 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-5xl w-full min-h-[100dvh] backdrop-blur-[2px]">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">

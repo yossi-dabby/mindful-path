@@ -4965,7 +4965,7 @@ export default function Chat() {
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
                                                 `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
                                                 (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
-      <div className="bg-teal-100 rounded-2xl flex relative"
+      <div className="bg-teal-50/55 rounded-2xl flex relative backdrop-blur-[2px]"
 
       data-testid="chat-root"
       data-page-ready={isPageReady}

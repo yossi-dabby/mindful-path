@@ -61,7 +61,7 @@ export default function Progress() {
 
   return (
     <PullToRefresh queryKeys={['moodEntries', 'journalEntries', 'goals', 'progressConversations', 'exercises']}>
-      <div className="bg-teal-50 text-teal-600 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-7xl w-full min-h-[100dvh]">
+      <div className="bg-teal-50/35 text-teal-600 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-7xl w-full min-h-[100dvh] backdrop-blur-[2px]">
       {/* Header */}
       <div className="mb-6 sm:mb-8 mt-4">
         <div className="flex items-center gap-3 mb-2">

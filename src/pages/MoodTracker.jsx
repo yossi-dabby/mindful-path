@@ -51,7 +51,7 @@ export default function MoodTracker() {
 
   return (
     <PullToRefresh queryKeys={['moodEntries']}>
-    <div className="bg-teal-50 pb-32 p-4 md:p-6 md:pb-24 w-full min-h-[100dvh]">
+    <div className="bg-teal-50/35 pb-32 p-4 md:p-6 md:pb-24 w-full min-h-[100dvh] backdrop-blur-[2px]">
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <motion.div
