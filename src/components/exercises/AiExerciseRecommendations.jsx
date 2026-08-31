@@ -24,6 +24,18 @@ const categoryIcons = {
   exposure: Heart
 };
 
+const categoryTranslationKeys = {
+  breathing: 'breathing',
+  grounding: 'grounding',
+  cognitive_restructuring: 'cognitive',
+  behavioral_activation: 'behavioral',
+  mindfulness: 'mindfulness',
+  exposure: 'exposure',
+  sleep: 'sleep',
+  relationships: 'relationships',
+  stress_management: 'stress'
+};
+
 export default function AiExerciseRecommendations({ exercises, onSelectExercise }) {
   const [recommendations, setRecommendations] = useState(null);
   const [selectedMood, setSelectedMood] = useState('');
@@ -48,6 +60,8 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   );
   const localizedDifficulty = (difficulty = 'beginner') =>
     t(`exercises.difficulty.${String(difficulty).toLowerCase()}`);
+  const localizedCategory = (category) =>
+    t(`exercises.categories.${categoryTranslationKeys[category] || 'all'}`);
 
   // AI prose belongs to the language in which it was generated. Clear only
   // generated output on a language switch so stale copy never mixes locales.
@@ -163,7 +177,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
 
       const availableExercises = recommendableExercises.map((e) => ({
         title: e.title || 'Untitled',
-        category: e.category,
+        category: localizedCategory(e.category),
         difficulty: localizedDifficulty(e.difficulty),
         description: e.description || '',
         tags: (e.tags || []).filter((t) => t && typeof t === 'string')
