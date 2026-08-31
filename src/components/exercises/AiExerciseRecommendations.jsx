@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +32,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   const [feedbackGiven, setFeedbackGiven] = useState({});
   const [isExpanded, setIsExpanded] = useState(true);
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const moodOptions = MOOD_VALUES.map((value) => ({
     value,
     label: t(`exercises.recommendations.moods.${value}`)
@@ -46,6 +46,13 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   const recommendableExercises = exercises.filter(
     (exercise) => exercise.category !== 'breathing' && exercise.localization_available !== false
   );
+
+  // AI prose belongs to the language in which it was generated. Clear only
+  // generated output on a language switch so stale copy never mixes locales.
+  useEffect(() => {
+    setRecommendations(null);
+    setFeedbackGiven({});
+  }, [i18n.resolvedLanguage, i18n.language]);
 
   // Fetch user context
   const { data: recentMoods = [] } = useQuery({
