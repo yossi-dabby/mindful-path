@@ -108,10 +108,19 @@ function stripForbiddenContent(text, userLanguage = 'en') {
 
 Deno.serve(async (req) => {
   try {
+    const base44 = createClientFromRequest(req);
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller?.email) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { message_content, conversation_metadata } = await req.json();
 
-    if (!message_content) {
+    if (!message_content || typeof message_content !== 'string') {
       return Response.json({ error: 'Missing message_content' }, { status: 400 });
+    }
+    if (message_content.length > 100_000) {
+      return Response.json({ error: 'message_content exceeds the allowed length' }, { status: 413 });
     }
 
     // Detect language from metadata or content
