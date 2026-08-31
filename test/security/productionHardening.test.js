@@ -50,4 +50,21 @@ describe('production security hardening', () => {
     expect(postLlmFilter).toContain('await base44.auth.me()');
     expect(postLlmFilter).toContain('message_content.length > 100_000');
   });
+
+  it('keeps internal clinical knowledge admin-only at the entity boundary', () => {
+    for (const entity of ['CBTCurriculumUnit', 'TrustedCBTChunk']) {
+      const schema = parseJsonc(`base44/entities/${entity}.jsonc`);
+      for (const operation of ['create', 'read', 'update', 'delete']) {
+        expect(schema.rls[operation].user_condition.role).toBe('admin');
+      }
+    }
+  });
+
+  it('routes runtime curriculum reads through an authenticated backend function', () => {
+    const retrieval = read('src/lib/cbtKnowledgeRetrieval.js');
+    const backend = read('base44/functions/retrieveCurriculumUnit/entry.ts');
+    expect(retrieval).toContain("functionsClient.invoke('retrieveCurriculumUnit'");
+    expect(backend).toContain('await base44.auth.me()');
+    expect(backend).toContain('filter.planner_domain = planner_domain');
+  });
 });
