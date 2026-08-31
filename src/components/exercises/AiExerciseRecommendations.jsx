@@ -177,6 +177,8 @@ IMPORTANT GUIDELINES:
 3. Avoid exercises previously marked as "not relevant"
 4. Provide specific, personalized reasons
 5. Balance variety with proven preferences
+6. Return exercise_title EXACTLY as it appears in Available exercises; do not translate, rephrase, add an English name, or add parentheses
+7. Keep every user-facing field in the current interface language only; never mix languages
 
 Provide recommendations with:
 1. Why this exercise is recommended for this user specifically
@@ -409,20 +411,30 @@ Provide recommendations with:
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="font-semibold text-foreground">
-                              {rec.exercise_title}
+                            <h4 className="text-lg font-bold leading-snug text-teal-800">
+                              {exercise?.title || rec.exercise_title}
                             </h4>
                             <Badge className={`text-xs ${priorityColors[rec.priority] || priorityColors.medium}`}>
                               {t(`exercises.recommendations.priority.${rec.priority || 'medium'}`)}
                             </Badge>
                           </div>
                           {rec.reason ?
-                        <p className="text-sm text-muted-foreground mb-2">{rec.reason}</p> :
+                        <div className="mb-3 rounded-lg border-s-4 border-teal-500 bg-teal-50/80 px-3 py-2">
+                              <p className="mb-1 text-xs font-bold uppercase tracking-wide text-teal-700">
+                                {t('exercises.recommendations.reason_label')}
+                              </p>
+                              <p className="text-sm leading-relaxed text-slate-700">{rec.reason}</p>
+                            </div> :
                         null}
                           {rec.benefit ?
-                        <div className="flex items-start gap-2 bg-secondary/45 rounded-lg p-2 border border-border/60">
-                              <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                              <p className="text-xs text-foreground/85">{rec.benefit}</p>
+                        <div className="rounded-lg border border-amber-200 bg-amber-50/85 px-3 py-2">
+                              <div className="mb-1 flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                                <p className="text-xs font-bold uppercase tracking-wide text-amber-800">
+                                  {t('exercises.recommendations.benefit_label')}
+                                </p>
+                              </div>
+                              <p className="text-sm leading-relaxed text-slate-700">{rec.benefit}</p>
                             </div> :
                         null}
                           {exercise ?
