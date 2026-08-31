@@ -43,6 +43,9 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   }));
   const selectedMoodLabel = moodOptions.find((option) => option.value === selectedMood)?.label || selectedMood;
   const selectedGoalLabel = focusAreaOptions.find((option) => option.value === selectedGoal)?.label || selectedGoal;
+  const recommendableExercises = exercises.filter(
+    (exercise) => exercise.category !== 'breathing' && exercise.localization_available !== false
+  );
 
   // Fetch user context
   const { data: recentMoods = [] } = useQuery({
@@ -146,7 +149,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
       `User has marked ${helpfulExercises.length} exercises as helpful and ${notRelevantExercises.length} as not relevant. Avoid recommending exercises the user found not relevant.` :
       'No feedback history yet.';
 
-      const availableExercises = exercises.map((e) => ({
+      const availableExercises = recommendableExercises.map((e) => ({
         title: e.title || 'Untitled',
         category: e.category,
         difficulty: e.difficulty || 'beginner',
@@ -207,7 +210,18 @@ Provide recommendations with:
       });
 
       const normalized = normalizeExerciseRecommendations(result.recommendations || []);
-      return normalized;
+      return normalized
+        .map((recommendation) => {
+          const requestedTitle = (recommendation.exercise_title || '').trim().toLocaleLowerCase();
+          const matchedExercise = recommendableExercises.find((exercise) => {
+            const title = (exercise.title || '').trim().toLocaleLowerCase();
+            return title === requestedTitle || title.includes(requestedTitle) || requestedTitle.includes(title);
+          });
+          return matchedExercise
+            ? { ...recommendation, exercise_title: matchedExercise.title }
+            : null;
+        })
+        .filter(Boolean);
     },
     onSuccess: (data) => {
       setRecommendations(data);
@@ -225,7 +239,7 @@ Provide recommendations with:
   };
 
   const getExerciseByTitle = (title) => {
-    return exercises.find((e) =>
+    return recommendableExercises.find((e) =>
     (e.title || '').toLowerCase() === (title || '').toLowerCase() ||
     (e.title || '').toLowerCase().includes((title || '').toLowerCase())
     );
