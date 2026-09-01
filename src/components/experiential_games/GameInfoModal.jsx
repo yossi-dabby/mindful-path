@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, Lightbulb, Play, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,18 @@ import { formatMindGameDuration, getMindGameMetadata } from './mindGameMetadata'
 
 export default function GameInfoModal({ game, onClose, onPlay }) {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (!game) return undefined;
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape, true);
+    return () => window.removeEventListener('keydown', handleEscape, true);
+  }, [game, onClose]);
 
   if (!game) return null;
 
