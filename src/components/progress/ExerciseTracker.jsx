@@ -1,99 +1,91 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Dumbbell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export default function ExerciseTracker({ exercises }) {
-  const completedExercises = exercises.filter((e) => e.completed_count > 0);
-  const totalCompletions = exercises.reduce((sum, e) => sum + (e.completed_count || 0), 0);
+const categoryColors = {
+  breathing: '#3b82f6', grounding: '#10b981', cognitive_restructuring: '#8b5cf6',
+  behavioral_activation: '#f59e0b', mindfulness: '#0891b2', exposure: '#db2777',
+  sleep: '#6366f1', relationships: '#e11d48', stress_management: '#0d9488', other: '#64748b'
+};
 
-  const topExercises = [...exercises].
-  sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0)).
-  slice(0, 5).
-  map((e) => ({
-    name: e.title.length > 20 ? e.title.substring(0, 20) + '...' : e.title,
-    count: e.completed_count || 0,
-    category: e.category
-  }));
-
-  const categoryColors = {
-    breathing: '#3b82f6',
-    grounding: '#10b981',
-    cognitive_restructuring: '#8b5cf6',
-    behavioral_activation: '#f59e0b',
-    mindfulness: '#06b6d4',
-    exposure: '#ec4899'
-  };
-
-  const categoryStats = exercises.reduce((acc, e) => {
-    if (e.completed_count > 0) {
-      acc[e.category] = (acc[e.category] || 0) + e.completed_count;
+export default function ExerciseTracker({ exercises = [] }) {
+  const { t } = useTranslation();
+  const safeExercises = Array.isArray(exercises) ? exercises : [];
+  const completedExercises = safeExercises.filter((exercise) => Number(exercise?.completed_count) > 0);
+  const totalCompletions = safeExercises.reduce((sum, exercise) => sum + (Number(exercise?.completed_count) || 0), 0);
+  const categoryStats = useMemo(() => safeExercises.reduce((acc, exercise) => {
+    const count = Number(exercise?.completed_count) || 0;
+    if (count > 0) {
+      const category = exercise?.category || 'other';
+      acc[category] = (acc[category] || 0) + count;
     }
     return acc;
-  }, {});
+  }, {}), [safeExercises]);
+  const topExercises = useMemo(() => [...safeExercises]
+    .filter((exercise) => Number(exercise?.completed_count) > 0)
+    .sort((a, b) => (Number(b.completed_count) || 0) - (Number(a.completed_count) || 0))
+    .slice(0, 5)
+    .map((exercise) => {
+      const title = exercise?.title || t('progress_ui.categories.other');
+      return { name: title.length > 22 ? `${title.slice(0, 22)}…` : title, count: Number(exercise.completed_count) || 0, category: exercise?.category || 'other' };
+    }), [safeExercises, t]);
 
   return (
-    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-      <CardHeader className="bg-green-50 p-6 flex flex-col space-y-1.5">
-        <CardTitle className="flex items-center gap-2">
-          <Dumbbell className="w-5 h-5 text-green-600" />
-          Exercise Activity
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] overflow-hidden" data-testid="progress-exercises">
+      <CardHeader className="bg-emerald-50/70 dark:bg-emerald-950/20 p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-foreground">
+          <Dumbbell className="h-5 w-5 text-emerald-700" />
+          {t('progress_ui.exercise.title')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="bg-green-50 pt-0 p-6">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 bg-green-50 rounded-xl">
-            <p className="text-3xl font-bold text-green-600">{completedExercises.length}</p>
-            <p className="text-sm text-gray-600 mt-1">Exercises Tried</p>
-          </div>
-          <div className="text-center p-4 bg-blue-50 rounded-xl">
-            <p className="text-3xl font-bold text-blue-600">{totalCompletions}</p>
-            <p className="text-sm text-gray-600 mt-1">Total Sessions</p>
-          </div>
-          <div className="text-center p-4 bg-purple-50 rounded-xl">
-            <p className="text-3xl font-bold text-purple-600">{Object.keys(categoryStats).length}</p>
-            <p className="text-sm text-gray-600 mt-1">Categories</p>
-          </div>
+      <CardContent className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3 mb-6">
+          {[
+            [completedExercises.length, t('progress_ui.exercise.tried'), 'text-emerald-700', 'bg-emerald-50'],
+            [totalCompletions, t('progress_ui.exercise.total_sessions'), 'text-blue-700', 'bg-blue-50'],
+            [Object.keys(categoryStats).length, t('progress_ui.exercise.categories'), 'text-violet-700', 'bg-violet-50']
+          ].map(([value, label, color, background]) => (
+            <div key={label} className={`min-w-0 rounded-xl p-3 sm:p-4 text-center ${background}`}>
+              <p className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</p>
+              <p className="mt-1 text-xs sm:text-sm text-slate-700 break-words">{label}</p>
+            </div>
+          ))}
         </div>
-
-        {topExercises.length > 0 &&
-        <>
-            <h4 className="font-semibold text-gray-800 mb-3">Most Practiced</h4>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={topExercises}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                  {topExercises.map((entry, index) =>
-                <Cell key={`cell-${index}`} fill={categoryColors[entry.category] || '#6b7280'} />
-                )}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-
+        {totalCompletions > 0 ? (
+          <>
+            <h3 className="mb-3 font-semibold text-foreground">{t('progress_ui.exercise.most_practiced')}</h3>
+            <div className="h-[240px] w-full min-w-0" role="img" aria-label={t('progress_ui.exercise.most_practiced')}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topExercises} layout="vertical" margin={{ top: 4, right: 12, left: 8, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis type="number" allowDecimals={false} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
+                  <Tooltip formatter={(value) => t('progress_ui.common.sessions', { count: value })} />
+                  <Bar dataKey="count" radius={[0, 8, 8, 0]}>
+                    {topExercises.map((entry, index) => <Cell key={`cell-${index}`} fill={categoryColors[entry.category] || categoryColors.other} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
             <div className="mt-4 space-y-2">
-              {Object.entries(categoryStats).map(([category, count]) =>
-            <div key={category} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                  <span className="text-gray-700 text-base font-medium capitalize">{category.replace(/_/g, ' ')}</span>
-                  <Badge style={{ backgroundColor: categoryColors[category] }} className="bg-primary/12 text-slate-950 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-primary/18">
-                    {count} sessions
-                  </Badge>
+              {Object.entries(categoryStats).map(([category, count]) => (
+                <div key={category} className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/60 bg-secondary/35 p-3">
+                  <span className="min-w-0 break-words text-sm font-medium text-foreground">{t(`progress_ui.categories.${category}`, { defaultValue: category.replace(/_/g, ' ') })}</span>
+                  <Badge style={{ backgroundColor: categoryColors[category] || categoryColors.other }} className="shrink-0 text-white">{t('progress_ui.common.sessions', { count })}</Badge>
                 </div>
-            )}
+              ))}
             </div>
           </>
-        }
-
-        {totalCompletions === 0 &&
-        <div className="text-center py-8 text-gray-500">
-            <Dumbbell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p>Start practicing exercises to see your activity</p>
+        ) : (
+          <div className="py-10 text-center">
+            <Dumbbell className="mx-auto mb-3 h-12 w-12 text-muted-foreground/35" />
+            <p className="text-muted-foreground">{t('progress_ui.exercise.empty')}</p>
           </div>
-        }
+        )}
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 }
