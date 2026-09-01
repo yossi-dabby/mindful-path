@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ShieldCheck } from 'lucide-react';
@@ -6,18 +6,38 @@ import { useTranslation } from 'react-i18next';
 
 export default function AgeGateModal({ onConfirm, onDecline }) {
   const { t } = useTranslation();
+  const dialogRef = useRef(null);
+  const confirmRef = useRef(null);
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    confirmRef.current?.focus();
+    const trapFocus = (event) => {
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = Array.from(dialogRef.current.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
+        .filter((element) => !element.disabled && element.getAttribute('aria-hidden') !== 'true');
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', trapFocus);
+    return () => { document.removeEventListener('keydown', trapFocus); previouslyFocused?.focus?.(); };
+  }, []);
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[200]"
+      className="age-gate-overlay fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[200]"
       style={{ animation: 'fadeIn 0.2s ease-out' }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="age-gate-title"
       aria-describedby="age-gate-description"
     >
-      <Card 
-        className="max-w-md w-full border-0 shadow-2xl"
+      <Card
+        ref={dialogRef}
+        className="age-gate-card max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto border-0 shadow-2xl"
         style={{
           borderRadius: '24px',
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
@@ -72,6 +92,7 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
           {/* Buttons */}
           <div className="space-y-3">
             <Button
+              ref={confirmRef}
               onClick={onConfirm}
               className="w-full py-6 text-base md:text-lg text-white font-medium"
               style={{
@@ -111,6 +132,9 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .age-gate-overlay, .age-gate-card { animation: none !important; }
         }
       `}</style>
     </div>
