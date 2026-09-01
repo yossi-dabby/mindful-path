@@ -71,10 +71,11 @@ test.describe('Chat Smoke Test', () => {
       return document.querySelector('[data-page-ready="true"]') !== null;
     }, { timeout: 20000 });
     
-    const welcome = page.locator('text=Welcome to Therapy');
+    const welcome = page.locator('[data-testid="chat-welcome"]');
     await expect(welcome).toBeVisible({ timeout: 10000 });
-    
-    const startButton = page.locator('text=Start Your First Session');
+
+    const startButton = page.locator('[data-testid="chat-start-first-session"]');
     await expect(startButton).toBeVisible();
+    await expect(startButton).toBeEnabled();
   });
 });
