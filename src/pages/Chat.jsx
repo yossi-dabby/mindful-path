@@ -5010,7 +5010,7 @@ export default function Chat() {
       {/* Main Chat Area */}
       <div className="rounded-2xl flex-1 flex flex-col min-h-0 min-w-0">
         {/* Header */}
-        <div className="bg-teal-50 px-4 py-1 rounded-2xl md:px-6 flex items-center gap-3 border-b border-border/70 backdrop-blur-xl">
+        <div className="bg-white/80 px-2 py-2 rounded-2xl sm:px-4 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-teal-100/80 backdrop-blur-xl shadow-[var(--shadow-sm)]">
           <Button
               variant="ghost"
               size="icon"
@@ -5027,9 +5027,14 @@ export default function Chat() {
 
             <Menu className="w-5 h-5" />
           </Button>
-          <div className="flex-1">
-            <h1 className="text-teal-600 text-xl font-semibold">{t('chat.title')}</h1>
-            <p className="text-teal-600 text-sm">{t('chat.subtitle')}</p>
+          <div className="hidden lg:flex flex-1 min-w-0 items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center border border-teal-200/80 shadow-[var(--shadow-sm)]">
+              <Sparkles className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-teal-700 text-lg font-semibold truncate">{t('chat.title')}</h1>
+              <p className="text-slate-600 text-xs truncate">{t('chat.subtitle')}</p>
+            </div>
             {isS2DebugEnabled() && (
               <span
                 data-testid="s2-v8-debug-badge"
@@ -5038,8 +5043,8 @@ export default function Chat() {
                 {`v8 ${s2DebugBadgeBuildSha || 'dev'} • ${s2DebugActiveStage}${s2DebugLatestTraceSource ? ` • src:${s2DebugLatestTraceSource}` : ''}`}
               </span>
             )}
+            </div>
           </div>
-        </div>
 
         {/* Risk Panel — rendered outside conversation gate so it shows even before a conversation is created */}
         {showRiskPanel && !currentConversationId &&
@@ -5057,21 +5062,21 @@ export default function Chat() {
         {/* Messages Area */}
         <div className="bg-teal-400 text-slate-50 my-1 px-1 py-1 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
-            <div className="my-8 h-full overflow-y-auto">
+            <div className="h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
-              <div className="bg-teal-100 p-4 flex-1 flex items-center justify-center md:p-6">
-                <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-2xl backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">
-                  <div className="bg-teal-600 text-primary mr-20 ml-24 rounded-[40px] w-16 h-16 flex items-center justify-center shadow-[var(--shadow-sm)]">
-                    <span className="mx-1 my-1 text-4xl">👋</span>
+              <div className="p-4 flex-1 flex items-center justify-center sm:p-6 lg:p-8 bg-gradient-to-b from-white/35 to-teal-50/45">
+                <Card className="bg-white/90 text-teal-700 p-6 sm:p-8 text-center rounded-3xl backdrop-blur-xl max-w-lg border border-white/90 shadow-[var(--shadow-lg)]">
+                  <div className="mx-auto mb-5 rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
+                    <span className="text-3xl" aria-hidden="true">👋</span>
                   </div>
-                  <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
+                  <h2 className="text-teal-700 mb-3 text-2xl sm:text-3xl font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p className="text-teal-600 mb-6">
+                  <p className="text-slate-600 mb-6 leading-relaxed">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
-                    onClick={startNewConversation} className="bg-teal-600 text-primary-foreground px-6 py-6 text-lg font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
+                    onClick={startNewConversation} className="bg-teal-600 text-white px-6 min-h-[52px] text-base sm:text-lg font-semibold tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-normal border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 shadow-[var(--shadow-md)] hover:bg-teal-700 hover:shadow-[var(--shadow-lg)] active:bg-teal-800 w-full sm:w-auto">
 
 
                     {t('chat.welcome.start_session', 'Start Your First Session')}
@@ -5094,7 +5099,7 @@ export default function Chat() {
               </div>
             </div> :
 
-            <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="my-5 flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+            <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="my-1 flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Therapy State Machine */}
               {showTherapyFlow && messages.length === 0 &&
               <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
@@ -5114,7 +5119,7 @@ export default function Chat() {
               }
 
               {/* Active Chat Messages */}
-              <div className="bg-teal-50 pb-8 p-4 md:p-6 space-y-6">
+              <div className="bg-transparent pb-8 p-3 sm:p-4 lg:p-6 space-y-3">
                 {/* Inline Consent Banner - Non-blocking, dismissible */}
                 {showConsentBanner &&
                 <InlineConsentBanner onAccept={handleConsentAccept} />
