@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Profile-specific disclaimer shown periodically during conversation
@@ -11,6 +12,7 @@ import { AlertCircle } from 'lucide-react';
  */
 
 export default function ProfileSpecificDisclaimer({ messageCount }) {
+  const { t } = useTranslation();
   const [safetyProfile, setSafetyProfile] = useState('standard');
   const [shouldShow, setShouldShow] = useState(false);
 
@@ -36,11 +38,6 @@ export default function ProfileSpecificDisclaimer({ messageCount }) {
     return null;
   }
 
-  const messages = {
-    strict: "Reminder: This AI cannot diagnose conditions or prescribe treatments. For medical concerns, consult a licensed professional.",
-    standard: "Reminder: This is AI-assisted support, not professional therapy. Emergency situations require immediate professional help."
-  };
-
   return (
     <Card 
       className="border-0 mb-4 animate-in fade-in-0 slide-in-from-top-2 duration-300"
@@ -55,7 +52,7 @@ export default function ProfileSpecificDisclaimer({ messageCount }) {
       <div className="p-3 flex items-start gap-2">
         <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#6B7280' }} />
         <p className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
-          {messages[safetyProfile]}
+          {t(`chat.disclaimer.${safetyProfile}`)}
         </p>
       </div>
     </Card>
