@@ -1,196 +1,283 @@
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Circle, Lock, Play } from 'lucide-react';
+import { DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertCircle,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  Circle,
+  Compass,
+  Gamepad2,
+  Lock,
+  Loader2,
+  Sparkles,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { getJourneyProgressPercentage } from './journeyUtils';
 
-export default function JourneyDetail({ journey, progress, onClose, onPlayGame }) {
+export default function JourneyDetail({
+  journey,
+  progress,
+  onClose,
+  onPlayGame,
+  onProgressChange,
+}) {
   const { t } = useTranslation();
+  const [localProgress, setLocalProgress] = useState(progress || null);
   const [reflection, setReflection] = useState('');
   const [savingStep, setSavingStep] = useState(null);
+  const [saveError, setSaveError] = useState('');
   const queryClient = useQueryClient();
+  const steps = Array.isArray(journey.steps) ? journey.steps : [];
 
-  const currentStepIndex = progress?.current_step || 0;
-  const completedStepIndices = new Set(
-    progress?.completed_steps?.map(s => s.step_index) || []
+  useEffect(() => {
+    setLocalProgress(progress || null);
+  }, [progress]);
+
+  const completedStepIndices = useMemo(
+    () => new Set(
+      (localProgress?.completed_steps || [])
+        .map((step) => Number(step?.step_index))
+        .filter((stepIndex) => Number.isInteger(stepIndex) && stepIndex >= 0)
+    ),
+    [localProgress]
   );
 
+  const currentStepIndex = Math.min(
+    Math.max(Number(localProgress?.current_step) || 0, 0),
+    Math.max(steps.length - 1, 0)
+  );
+  const progressPercentage = getJourneyProgressPercentage(localProgress, steps.length);
+
   const handleCompleteStep = async (stepIndex) => {
-    if (!progress) return;
-    
+    if (!localProgress || completedStepIndices.has(stepIndex) || savingStep !== null) return;
+
     setSavingStep(stepIndex);
+    setSaveError('');
+
+    const updatedCompletedSteps = [
+      ...(localProgress.completed_steps || []).filter((item) => Number(item?.step_index) !== stepIndex),
+      {
+        step_index: stepIndex,
+        completed_date: new Date().toISOString(),
+        reflection: reflection.trim(),
+      },
+    ];
+    const isLastStep = stepIndex === steps.length - 1;
+    const updates = {
+      completed_steps: updatedCompletedSteps,
+      current_step: isLastStep ? stepIndex : stepIndex + 1,
+      status: isLastStep ? 'completed' : 'in_progress',
+      completed_date: isLastStep ? new Date().toISOString().split('T')[0] : null,
+    };
+
     try {
-      const updatedCompletedSteps = [
-        ...(progress.completed_steps || []),
-        {
-          step_index: stepIndex,
-          completed_date: new Date().toISOString(),
-          reflection: reflection
-        }
-      ];
-
-      const isLastStep = stepIndex === journey.steps.length - 1;
-      
-      await base44.entities.UserJourneyProgress.update(progress.id, {
-        completed_steps: updatedCompletedSteps,
-        current_step: Math.min(stepIndex + 1, journey.steps.length - 1),
-        status: isLastStep ? 'completed' : 'in_progress',
-        completed_date: isLastStep ? new Date().toISOString() : null
-      });
-
+      const savedProgress = await base44.entities.UserJourneyProgress.update(localProgress.id, updates);
+      const nextProgress = { ...localProgress, ...updates, ...(savedProgress || {}) };
+      setLocalProgress(nextProgress);
       setReflection('');
+      onProgressChange?.(nextProgress);
       queryClient.invalidateQueries({ queryKey: ['journey_progress'] });
-      queryClient.invalidateQueries({ queryKey: ['journeys'] });
-    } catch (error) {
-      console.error('Failed to complete step:', error);
+    } catch {
+      setSaveError(t('journeys.detail.save_error'));
     } finally {
       setSavingStep(null);
     }
   };
 
   return (
-    <div className="space-y-6 max-h-[80vh] overflow-y-auto overflow-x-hidden">
-      <div>
-        <h2 className="text-2xl font-bold mb-2 break-words" style={{ color: '#1A3A34' }}>
-          {journey.title}
-        </h2>
-        <p className="text-sm mb-4 break-words" style={{ color: '#5A7A72' }}>
-          {journey.description}
-        </p>
-        
-        {journey.outcomes && journey.outcomes.length > 0 && (
-          <div className="mb-4">
-            <p className="text-sm font-semibold mb-2" style={{ color: '#26A69A' }}>
-              {t('journeys.detail.what_youll_gain')}
+    <div className="flex max-h-[calc(100dvh-0.5rem)] min-h-0 flex-col overflow-hidden sm:max-h-[calc(100vh-2rem)]" data-testid="journey-detail">
+      <header className="relative shrink-0 overflow-hidden border-b border-emerald-100/80 bg-white/75 px-5 pb-5 pt-6 pe-16 sm:px-7 sm:pb-6 sm:pt-7 sm:pe-20">
+        <div className="pointer-events-none absolute -end-14 -top-20 h-48 w-48 rounded-full bg-violet-200/35 blur-3xl" />
+        <div className="relative flex min-w-0 items-start gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)]">
+            <Compass className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-teal-700">
+              {t('journeys.premium.detail_eyebrow')}
             </p>
-            <ul className="space-y-1">
-              {journey.outcomes.map((outcome, i) => (
-                <li key={i} className="flex gap-2 text-sm" style={{ color: '#5A7A72' }}>
-                  <span>•</span>
-                  <span>{outcome}</span>
+            <DialogTitle className="break-words text-xl font-bold leading-tight text-teal-950 sm:text-2xl">
+              {journey.title}
+            </DialogTitle>
+            <DialogDescription className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {journey.description}
+            </DialogDescription>
+          </div>
+        </div>
+
+        {localProgress && (
+          <div className="relative mt-5 rounded-2xl border border-teal-800/10 bg-emerald-50/75 p-3">
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-teal-900">
+              <span>{t('journeys.card.progress')}</span>
+              <span dir="ltr">{progressPercentage}%</span>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-teal-900/10" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPercentage}>
+              <div className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-[width] duration-500" style={{ width: progressPercentage + '%' }} />
+            </div>
+          </div>
+        )}
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-5 sm:px-7 sm:py-6" style={{ overscrollBehavior: 'contain' }}>
+        {Array.isArray(journey.outcomes) && journey.outcomes.length > 0 && (
+          <section className="mb-6 rounded-[24px] border border-violet-700/10 bg-gradient-to-br from-violet-50/90 to-white/80 p-5" aria-labelledby="journey-outcomes-title">
+            <div className="mb-3 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-700" aria-hidden="true" />
+              <h3 id="journey-outcomes-title" className="font-bold text-teal-950">{t('journeys.detail.what_youll_gain')}</h3>
+            </div>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {journey.outcomes.map((outcome, index) => (
+                <li key={index} className="flex min-w-0 items-start gap-2 text-sm leading-6 text-slate-600">
+                  <Check className="mt-1 h-4 w-4 shrink-0 text-teal-600" aria-hidden="true" />
+                  <span className="min-w-0 break-words">{outcome}</span>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
-      </div>
 
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>
-          {t('journeys.detail.journey_steps')}
-        </h3>
-        
-        {journey.steps?.map((step, index) => {
-          const isCompleted = completedStepIndices.has(index);
-          const isCurrent = index === currentStepIndex && !isCompleted;
-          const isLocked = !progress || (index > currentStepIndex && !isCompleted);
+        <section aria-labelledby="journey-steps-title">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h3 id="journey-steps-title" className="text-lg font-bold text-teal-950">{t('journeys.detail.journey_steps')}</h3>
+              <p className="mt-1 text-sm text-slate-600">{t('journeys.premium.roadmap_description')}</p>
+            </div>
+            <span className="shrink-0 rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800">
+              {t('journeys.premium.steps_count', { count: steps.length })}
+            </span>
+          </div>
 
-          return (
-            <Card 
-              key={index}
-              className="p-4"
-              style={{
-                borderRadius: '16px',
-                border: isCurrent 
-                  ? '2px solid #26A69A' 
-                  : '1px solid rgba(38, 166, 154, 0.2)',
-                backgroundColor: isCompleted 
-                  ? 'rgba(34, 197, 94, 0.05)' 
-                  : 'white'
-              }}
-            >
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 pt-1">
-                  {isCompleted && <CheckCircle className="w-5 h-5 text-green-600" />}
-                  {!isCompleted && !isLocked && <Circle className="w-5 h-5 text-teal-600" />}
-                  {isLocked && <Lock className="w-5 h-5 text-gray-400" />}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div>
-                      <Badge variant="outline" className="mb-1">
-                        {t('journeys.detail.day')} {step.day}
-                      </Badge>
-                      <h4 className="font-semibold break-words" style={{ color: '#1A3A34' }}>
-                        {step.title}
-                      </h4>
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm mb-3 break-words" style={{ color: '#5A7A72' }}>
-                    {step.description}
-                  </p>
+          <div className="space-y-3">
+            {steps.map((step, index) => {
+              const isCompleted = completedStepIndices.has(index);
+              const isCurrent = Boolean(localProgress) && index === currentStepIndex && !isCompleted;
+              const isLocked = !localProgress || (index > currentStepIndex && !isCompleted);
+              const stateLabel = isCompleted
+                ? t('journeys.detail.completed_step')
+                : isCurrent
+                  ? t('journeys.detail.current_step')
+                  : t('journeys.detail.locked_step');
 
-                  {!isLocked && !isCompleted && (
-                    <div className="space-y-3">
-                      <Button
-                        onClick={() => onPlayGame(step.game_slug)}
-                        size="sm"
-                        style={{
-                          borderRadius: '10px',
-                          backgroundColor: '#9F7AEA',
-                          color: 'white'
-                        }}
-                      >
-                        <Play className="w-4 h-4 mr-1" />
-                        {t('journeys.detail.play_game')}
-                      </Button>
+              return (
+                <article
+                  key={index}
+                  className={
+                    'relative overflow-hidden rounded-[24px] border p-4 transition sm:p-5 ' +
+                    (isCurrent
+                      ? 'border-teal-500/55 bg-white shadow-[0_18px_42px_rgba(13,148,136,0.13)]'
+                      : isCompleted
+                        ? 'border-emerald-700/12 bg-emerald-50/65'
+                        : 'border-slate-200/80 bg-white/55')
+                  }
+                  data-testid={'journey-step-' + index}
+                >
+                  {isCurrent && <div className="absolute inset-y-0 start-0 w-1 bg-gradient-to-b from-teal-400 to-emerald-600" />}
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span
+                      className={
+                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ' +
+                        (isCompleted
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : isCurrent
+                            ? 'bg-teal-700 text-white shadow-md'
+                            : 'bg-slate-100 text-slate-400')
+                      }
+                      aria-hidden="true"
+                    >
+                      {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : isLocked ? <Lock className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                    </span>
 
-                      {step.reflection_prompt && (
-                        <div>
-                          <p className="text-xs mb-2" style={{ color: '#5A7A72' }}>
-                            {step.reflection_prompt}
-                          </p>
-                          <textarea
-                            value={reflection}
-                            onChange={(e) => setReflection(e.target.value)}
-                            placeholder={t('journeys.detail.reflection_placeholder')}
-                            rows={2}
-                            className="w-full p-2 text-sm rounded-lg border"
-                            style={{ borderColor: 'rgba(38, 166, 154, 0.3)' }}
-                          />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="inline-flex min-h-7 items-center rounded-full border border-teal-800/10 bg-white/80 px-2.5 py-1 text-[11px] font-bold text-teal-800">
+                            {t('journeys.detail.day')} {step.day || index + 1}
+                          </span>
+                          <h4 className="mt-2 break-words font-bold leading-6 text-teal-950">{step.title}</h4>
+                        </div>
+                        <span className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-slate-500">{stateLabel}</span>
+                      </div>
+
+                      <p className="mt-2 break-words text-sm leading-6 text-slate-600">{step.description}</p>
+
+                      {isCurrent && (
+                        <div className="mt-4 space-y-4 border-t border-teal-800/10 pt-4">
+                          {step.game_slug && (
+                            <Button
+                              type="button"
+                              onClick={() => onPlayGame(step.game_slug)}
+                              className="min-h-12 w-full rounded-2xl bg-violet-700 text-white shadow-md hover:bg-violet-800 sm:w-auto"
+                              data-testid={'journey-play-' + index}
+                            >
+                              <Gamepad2 className="h-4 w-4" aria-hidden="true" />
+                              {t('journeys.detail.play_game')}
+                            </Button>
+                          )}
+
+                          {step.reflection_prompt && (
+                            <div>
+                              <label htmlFor={'journey-reflection-' + index} className="block text-sm font-semibold leading-6 text-teal-950">
+                                {step.reflection_prompt}
+                              </label>
+                              <p className="mt-1 text-xs leading-5 text-slate-500">{t('journeys.detail.reflection_hint')}</p>
+                              <textarea
+                                id={'journey-reflection-' + index}
+                                value={reflection}
+                                onChange={(event) => setReflection(event.target.value)}
+                                placeholder={t('journeys.detail.reflection_placeholder')}
+                                rows={3}
+                                maxLength={1000}
+                                className="mt-2 min-h-24 w-full resize-y rounded-2xl border border-teal-900/15 bg-white/90 p-3 text-sm leading-6 text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/25"
+                                data-testid="journey-reflection"
+                              />
+                            </div>
+                          )}
+
+                          {saveError && (
+                            <div className="flex items-start gap-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-800" role="alert">
+                              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                              <span>{saveError}</span>
+                            </div>
+                          )}
+
+                          <Button
+                            type="button"
+                            onClick={() => handleCompleteStep(index)}
+                            disabled={savingStep !== null}
+                            className="min-h-12 w-full rounded-2xl bg-teal-700 text-white shadow-md hover:bg-teal-800 sm:w-auto"
+                            data-testid={'journey-complete-' + index}
+                          >
+                            {savingStep === index ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <CheckCircle2 className="h-4 w-4" aria-hidden="true" />}
+                            {savingStep === index ? t('journeys.detail.saving') : t('journeys.detail.mark_complete')}
+                            {savingStep !== index && <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />}
+                          </Button>
                         </div>
                       )}
 
-                      <Button
-                        onClick={() => handleCompleteStep(index)}
-                        disabled={savingStep === index}
-                        size="sm"
-                        variant="outline"
-                        style={{ borderRadius: '10px' }}
-                      >
-                        {savingStep === index ? t('journeys.detail.saving') : t('journeys.detail.mark_complete')}
-                      </Button>
+                      {isCompleted && (
+                        <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-100/70 p-3 text-xs font-semibold text-emerald-800">
+                          <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                          {t('journeys.detail.completed_step')}
+                        </div>
+                      )}
                     </div>
-                  )}
-
-                  {isCompleted && (
-                    <div className="text-xs p-2 rounded-lg" style={{
-                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                      color: '#5A7A72'
-                    }}>
-                      ✓ {t('journeys.tabs.completed')}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          );
-        })}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
-      <Button
-        onClick={onClose}
-        variant="outline"
-        className="w-full"
-        style={{ borderRadius: '12px' }}
-      >
-        {t('common.close')}
-      </Button>
+      <footer className="shrink-0 border-t border-white/80 bg-white/85 px-4 py-3 shadow-[0_-10px_30px_rgba(42,103,91,0.07)] backdrop-blur-xl sm:px-7" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+        <Button type="button" onClick={onClose} variant="outline" className="min-h-12 w-full rounded-2xl border-teal-800/15 bg-white text-teal-900 hover:bg-teal-50">
+          {t('common.close')}
+        </Button>
+      </footer>
     </div>
   );
 }
