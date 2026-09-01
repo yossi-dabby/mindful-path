@@ -3,39 +3,40 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Cloud, BookOpen, Target, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const OPTIONS = [
   {
     id: 1,
-    label: "I'm not feeling well and want help right now",
+    labelKey: 'chat.entry.option_1',
     icon: Heart,
     color: '#E57373',
     emoji: '❤️'
   },
   {
     id: 2,
-    label: "I have a thought that's bothering me",
+    labelKey: 'chat.entry.option_2',
     icon: Cloud,
     color: '#9F7AEA',
     emoji: '💭'
   },
   {
     id: 3,
-    label: "I want to write or reflect a bit",
+    labelKey: 'chat.entry.option_3',
     icon: BookOpen,
     color: '#4FC3F7',
     emoji: '📓'
   },
   {
     id: 4,
-    label: "I want to work on a goal",
+    labelKey: 'chat.entry.option_4',
     icon: Target,
     color: '#FFB74D',
     emoji: '🎯'
   },
   {
     id: 5,
-    label: "I just want something short and calming",
+    labelKey: 'chat.entry.option_5',
     icon: Leaf,
     color: '#81C784',
     emoji: '🌿'
@@ -43,6 +44,7 @@ const OPTIONS = [
 ];
 
 export default function TherapyEntryOptions({ onSelectOption }) {
+  const { t } = useTranslation();
   return (
     <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
       borderRadius: '28px',
@@ -52,10 +54,10 @@ export default function TherapyEntryOptions({ onSelectOption }) {
     }}>
       <div className="mb-6">
         <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
-          Welcome. I'm here to support you.
+          {t('chat.entry.welcome')}
         </p>
         <h3 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>
-          What would you like to do today?
+          {t('chat.entry.question')}
         </h3>
       </div>
 
@@ -70,7 +72,7 @@ export default function TherapyEntryOptions({ onSelectOption }) {
               transition={{ delay: index * 0.05 }}
             >
               <Button
-                onClick={() => onSelectOption(option)}
+                onClick={() => onSelectOption({ ...option, label: t(option.labelKey) })}
                 variant="ghost"
                 className="w-full h-auto min-h-[56px] justify-start text-left p-4 hover:bg-transparent"
                 style={{
@@ -103,7 +105,7 @@ export default function TherapyEntryOptions({ onSelectOption }) {
                     <Icon className="w-5 h-5" style={{ color: option.color }} strokeWidth={2} />
                   </div>
                   <span className="text-sm font-medium flex-1" style={{ color: '#1A3A34' }}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </span>
                 </div>
               </Button>
