@@ -134,7 +134,7 @@ export default function ConversationsList({
               onClick={onClose}
               size="icon"
               variant="ghost"
-              className="md:hidden flex-shrink-0"
+              className="xl:hidden flex-shrink-0"
               aria-label={t('chat.conversations_list.close_list_aria')}
             >
               <X className="w-5 h-5" />
