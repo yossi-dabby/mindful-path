@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Plus, BookOpen, Search, Settings, Bell, Sparkles, BarChart2 } from 'lucide-react';
+import { Plus, BookOpen, Search, Settings, Bell, Sparkles, BarChart2, ArrowLeft, RefreshCw } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import ThoughtRecordForm from '../components/journal/ThoughtRecordForm';
 import ThoughtRecordCard from '../components/journal/ThoughtRecordCard';
@@ -18,9 +18,12 @@ import AiJournalPrompts from '../components/journal/AiJournalPrompts';
 import AiTrendsSummary from '../components/journal/AiTrendsSummary';
 import PullToRefresh from '../components/utils/PullToRefresh';
 
+const actionClass = 'min-h-11 rounded-2xl gap-2 text-sm font-semibold shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2';
+
 export default function Journal() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -34,78 +37,76 @@ export default function Journal() {
   const [promptedSituation, setPromptedSituation] = useState('');
   const [focusedEntryId, setFocusedEntryId] = useState(null);
   const [focusedSummaryId, setFocusedSummaryId] = useState(null);
-  const queryClient = useQueryClient();
-  const primaryHeaderActionClass = "bg-teal-600 text-primary-foreground px-4 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:h-8 md:min-h-0 md:text-base md:w-auto w-full";
-  const secondaryHeaderActionClass = "bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-sm";
 
-  // Check URL for entry or summary parameters
-  React.useEffect(() => {
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const entryId = urlParams.get('entry');
-    const summaryId = urlParams.get('summary');
-    if (entryId) {
-      setFocusedEntryId(entryId);
-    } else if (summaryId) {
-      setFocusedSummaryId(summaryId);
-    }
+    setFocusedEntryId(urlParams.get('entry'));
+    setFocusedSummaryId(urlParams.get('summary'));
   }, []);
 
-  const { data: thoughtJournals, isLoading: isLoadingJournals } = useQuery({
-    queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 30),
+  const userQuery = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 300000
+  });
+  const userEmail = userQuery.data?.email;
+
+  const journalQuery = useQuery({
+    queryKey: ['thoughtJournals', userEmail],
+    queryFn: () => base44.entities.ThoughtJournal.filter({ created_by: userEmail }, '-created_date', 100),
+    enabled: Boolean(userEmail),
     initialData: [],
     refetchOnWindowFocus: false
   });
 
-  const { data: sessionSummaries, isLoading: isLoadingSummaries } = useQuery({
-    queryKey: ['sessionSummaries'],
-    queryFn: () => base44.entities.SessionSummary.list('-session_date'),
+  const summariesQuery = useQuery({
+    queryKey: ['sessionSummaries', userEmail],
+    queryFn: () => base44.entities.SessionSummary.filter({ created_by: userEmail }, '-session_date', 100),
+    enabled: Boolean(userEmail),
     initialData: [],
     refetchOnWindowFocus: false
   });
 
-  const entries = [...(Array.isArray(thoughtJournals) ? thoughtJournals : []), ...(Array.isArray(sessionSummaries) ? sessionSummaries : []).map((s) => ({
-    ...s,
-    entry_type: 'session_summary',
-    situation: `Session Summary: ${new Date(s.session_date).toLocaleDateString()}`,
-    isSummary: true
-  }))];
-
-  const { data: templates } = useQuery({
-    queryKey: ['journalTemplates'],
-    queryFn: () => base44.entities.JournalTemplate.list(),
+  const templatesQuery = useQuery({
+    queryKey: ['journalTemplates', userEmail],
+    queryFn: () => base44.entities.JournalTemplate.filter({ created_by: userEmail }, '-created_date', 100),
+    enabled: Boolean(userEmail),
     initialData: []
   });
 
-  // Get all unique tags from entries
-  const allTags = useMemo(() => {
-    return [...new Set(entries.flatMap((entry) => entry.tags || []))];
-  }, [entries]);
+  const entries = useMemo(() => {
+    const journals = Array.isArray(journalQuery.data) ? journalQuery.data : [];
+    const summaries = (Array.isArray(summariesQuery.data) ? summariesQuery.data : []).map((summary) => ({
+      ...summary,
+      entry_type: 'session_summary',
+      situation: t('journal_ui.main.session_summary_label', {
+        date: new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language).format(new Date(summary.session_date))
+      }),
+      isSummary: true
+    }));
+    return [...journals, ...summaries].sort((a, b) =>
+      new Date(b.created_date || b.session_date) - new Date(a.created_date || a.session_date)
+    );
+  }, [journalQuery.data, summariesQuery.data, t, i18n.resolvedLanguage, i18n.language]);
 
-  // Filter entries
-  const filteredEntries = useMemo(() => {
-    return entries.filter((entry) => {
-      // If there's a focused entry ID, only show that entry
-      if (focusedEntryId) {
-        return entry.id === focusedEntryId && !entry.isSummary;
-      } else if (focusedSummaryId) {
-        return entry.id === focusedSummaryId && entry.isSummary;
-      }
+  const allTags = useMemo(() => [...new Set(entries.flatMap((entry) => entry.tags || []))], [entries]);
 
-      const matchesSearch = !searchQuery ||
-      entry.situation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.automatic_thoughts?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.balanced_thought?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.summary_content?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredEntries = useMemo(() => entries.filter((entry) => {
+    if (focusedEntryId) return entry.id === focusedEntryId && !entry.isSummary;
+    if (focusedSummaryId) return entry.id === focusedSummaryId && entry.isSummary;
 
-      const matchesTags = selectedTags.length === 0 ||
-      selectedTags.some((tag) => entry.tags?.includes(tag));
-
-      const matchesType = selectedType === 'all' || entry.entry_type === selectedType || selectedType === 'session_summary' && entry.isSummary;
-
-      return matchesSearch && matchesTags && matchesType;
-    });
-  }, [entries, searchQuery, selectedTags, selectedType, focusedEntryId, focusedSummaryId]);
+    const normalizedSearch = searchQuery.trim().toLocaleLowerCase(i18n.resolvedLanguage || i18n.language);
+    const matchesSearch = !normalizedSearch || [
+      entry.situation,
+      entry.automatic_thoughts,
+      entry.balanced_thought,
+      entry.summary_content
+    ].some((value) => value?.toLocaleLowerCase(i18n.resolvedLanguage || i18n.language).includes(normalizedSearch));
+    const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => entry.tags?.includes(tag));
+    const matchesType = selectedType === 'all' || entry.entry_type === selectedType ||
+      (selectedType === 'session_summary' && entry.isSummary);
+    return matchesSearch && matchesTags && matchesType;
+  }), [entries, searchQuery, selectedTags, selectedType, focusedEntryId, focusedSummaryId, i18n.resolvedLanguage, i18n.language]);
 
   const handleEdit = useCallback((entry) => {
     setEditingEntry(entry);
@@ -125,253 +126,157 @@ export default function Journal() {
     setShowForm(true);
   }, []);
 
+  const clearFocusedEntry = () => {
+    setFocusedEntryId(null);
+    setFocusedSummaryId(null);
+    window.history.pushState({}, '', createPageUrl('Journal'));
+  };
+
+  const isLoading = userQuery.isLoading || journalQuery.isLoading || summariesQuery.isLoading;
+  const hasError = userQuery.isError || journalQuery.isError || summariesQuery.isError;
+
   return (
     <PullToRefresh queryKeys={['thoughtJournals', 'sessionSummaries', 'journalTemplates']}>
-      <div className="bg-teal-50/35 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-5xl w-full min-h-[100dvh] backdrop-blur-[2px]">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
-        <div className="flex items-center gap-3">
-          <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => window.history.back()}
-              style={{ borderRadius: '50%' }}
-              aria-label={t('journal.go_back_aria')}>
-
-            <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
-          </Button>
-          <div>
-            <h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl lg:text-4xl md:mb-2">
-              {focusedEntryId ? t('journal.title_entry') : focusedSummaryId ? t('journal.title_summary') : t('journal.title_default')}
-            </h1>
-            <p className="text-teal-600 text-sm font-medium md:text-base">
-              {focusedEntryId ? t('journal.subtitle_entry') : focusedSummaryId ? t('journal.subtitle_summary') : t('journal.subtitle_default')}
-            </p>
-            {(focusedEntryId || focusedSummaryId) &&
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setFocusedEntryId(null);
-                  setFocusedSummaryId(null);
-                  window.history.pushState({}, '', createPageUrl('Journal'));
-                }}
-                className="mt-2"
-                style={{ borderRadius: '16px' }}>
-
-                {t('journal.view_all_entries')}
+      <main data-testid="journal-page" className="mx-auto min-h-[100dvh] w-full max-w-6xl px-3 pb-32 pt-4 sm:px-5 md:px-8 md:pb-24">
+        <header className="mb-6 rounded-[28px] border border-white/65 bg-white/78 p-4 shadow-[0_18px_55px_rgba(20,92,82,0.12)] backdrop-blur-xl sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="min-h-11 min-w-11 shrink-0 rounded-full" aria-label={t('journal.go_back_aria')}>
+                <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
               </Button>
-              }
-          </div>
-        </div>
-        <div className="flex w-full md:w-auto flex-col gap-2 md:items-end">
-          <Button
-              onClick={() => navigate('/Chat?intent=thought_work')} className={primaryHeaderActionClass}
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold tracking-tight text-teal-800 sm:text-3xl lg:text-4xl">
+                  {focusedEntryId ? t('journal.title_entry') : focusedSummaryId ? t('journal.title_summary') : t('journal.title_default')}
+                </h1>
+                <p className="mt-1 max-w-2xl text-sm font-medium text-teal-700/80 sm:text-base">
+                  {focusedEntryId ? t('journal.subtitle_entry') : focusedSummaryId ? t('journal.subtitle_summary') : t('journal.subtitle_default')}
+                </p>
+                {(focusedEntryId || focusedSummaryId) && (
+                  <Button variant="outline" size="sm" onClick={clearFocusedEntry} className="mt-3 min-h-11 rounded-2xl">
+                    {t('journal.view_all_entries')}
+                  </Button>
+                )}
+              </div>
+            </div>
 
-              size="sm">
-
-            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-            {t('journal.new_entry')}
-          </Button>
-          <div className="flex gap-2 flex-wrap md:justify-end">
-          <Button
-              onClick={() => navigate('/JournalDashboard')}
-              variant="outline" className={secondaryHeaderActionClass}
-
-              size="sm">
-
-            <BarChart2 className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">Progress</span>
-          </Button>
-          <Button
-              onClick={() => setShowTrendsSummary(true)}
-              variant="outline" className={secondaryHeaderActionClass}
-
-              size="sm">
-
-            <Sparkles className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">{t('journal.ai_insights')}</span>
-          </Button>
-          <Button
-              onClick={() => setShowAiPrompts(true)}
-              variant="outline" className={secondaryHeaderActionClass}
-
-              size="sm">
-
-            <Sparkles className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">{t('journal.ai_prompts')}</span>
-          </Button>
-          <Button
-              onClick={() => setShowReminderManager(true)}
-              variant="outline" className="bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 hidden md:flex"
-
-              size="sm"
-              style={{ borderRadius: '24px' }}>
-
-            <Bell className="w-4 h-4 mr-2" />
-            {t('journal.reminders')}
-          </Button>
-          <Button
-              onClick={() => setShowTemplateManager(true)}
-              variant="outline" className="bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 hidden md:flex"
-
-              size="sm"
-              style={{ borderRadius: '24px' }}>
-
-            <Settings className="w-4 h-4 mr-2" />
+            <div className="w-full lg:w-auto">
+              <Button onClick={() => navigate('/Chat?intent=thought_work')} className={`${actionClass} w-full bg-teal-600 text-white hover:bg-teal-700 lg:w-auto`}>
+                <Plus className="h-4 w-4" />
+                {t('journal.new_entry')}
+              </Button>
+              <div role="group" aria-label={t('journal_ui.main.actions_aria')} className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:flex lg:justify-end">
+                <Button onClick={() => navigate('/JournalDashboard')} variant="outline" className={actionClass}>
+                  <BarChart2 className="h-4 w-4" />
+                  {t('journal_ui.main.progress')}
+                </Button>
+                <Button onClick={() => setShowTrendsSummary(true)} variant="outline" className={actionClass}>
+                  <Sparkles className="h-4 w-4" />
+                  {t('journal.ai_insights')}
+                </Button>
+                <Button onClick={() => setShowAiPrompts(true)} variant="outline" className={actionClass}>
+                  <Sparkles className="h-4 w-4" />
+                  {t('journal.ai_prompts')}
+                </Button>
+                <Button onClick={() => setShowReminderManager(true)} variant="outline" className={actionClass}>
+                  <Bell className="h-4 w-4" />
+                  {t('journal.reminders')}
+                </Button>
+              </div>
+              <Button onClick={() => setShowTemplateManager(true)} variant="ghost" className="mt-2 min-h-11 w-full rounded-2xl text-teal-800 lg:w-auto lg:float-end">
+                <Settings className="h-4 w-4" />
                 {t('journal.templates')}
               </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="mb-6 space-y-4">
-        <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
-            <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('journal.search_placeholder')} className="bg-teal-100 text-foreground mx-3 px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-2xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
-
-                style={{ borderRadius: '28px' }} />
-
-          </div>
-        </div>
-        
-        <JournalFilters
-            allTags={allTags}
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-            selectedType={selectedType}
-            onTypeChange={setSelectedType} />
-
-      </div>
-
-
-
-      {/* Entries List */}
-      {isLoadingJournals || isLoadingSummaries ?
-        <div className="py-12">
-          <div className="mx-auto max-w-2xl text-center space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">{t('journal.loading')}</p>
-          </div>
-        </div> :
-        entries.length === 0 ?
-        <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-          <CardContent className="bg-teal-100 p-12 text-center">
-            <div className="bg-teal-100 text-primary mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
-              <BookOpen className="bg-teal-100 text-teal-600 lucide lucide-book-open w-10 h-10" />
             </div>
-            <h2 className="text-teal-600 mb-2 text-2xl font-medium">{t('journal.first_entry_title')}</h2>
-            <p className="text-teal-600 mb-6 mx-auto font-medium max-w-md">
-              {t('journal.first_entry_description')}
-            </p>
-            <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
-              <Button
-                onClick={() => navigate('/Chat?intent=thought_work')} className="bg-teal-600 text-primary-foreground px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full">
+          </div>
+        </header>
 
+        <section aria-label={t('journal.search_placeholder')} className="mb-6 rounded-[24px] border border-white/60 bg-white/72 p-3 shadow-sm backdrop-blur-lg sm:p-4">
+          <div className="relative">
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-teal-700" />
+            <Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={t('journal.search_placeholder')} className="h-12 w-full rounded-2xl border-teal-100 bg-white/85 ps-11 text-base shadow-none" />
+          </div>
+          <div className="mt-4">
+            <JournalFilters allTags={allTags} selectedTags={selectedTags} onTagsChange={setSelectedTags}
+              selectedType={selectedType} onTypeChange={setSelectedType} />
+          </div>
+        </section>
 
-                {t('journal.create_entry')}
+        {hasError ? (
+          <Card className="border-red-200 bg-white/88 shadow-md">
+            <CardContent className="p-8 text-center">
+              <p className="font-medium text-red-800">{t('journal_ui.main.load_error')}</p>
+              <Button className="mt-4 min-h-11 rounded-2xl" onClick={() => {
+                userQuery.refetch();
+                journalQuery.refetch();
+                summariesQuery.refetch();
+              }}>
+                <RefreshCw className="h-4 w-4" />
+                {t('journal_ui.common.retry')}
               </Button>
-              <Button
-                onClick={() => setShowTemplateManager(true)}
-                variant="outline" className="bg-teal-600 text-slate-50 px-6 py-5 text-base font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full md:w-auto"
+            </CardContent>
+          </Card>
+        ) : isLoading ? (
+          <div className="py-14 text-center" role="status">
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-teal-100 border-t-teal-600" />
+            <p className="mt-3 text-sm font-medium text-teal-800">{t('journal.loading')}</p>
+          </div>
+        ) : entries.length === 0 ? (
+          <Card className="overflow-hidden border border-white/70 bg-white/82 shadow-lg backdrop-blur-xl">
+            <CardContent className="p-7 text-center sm:p-12">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-teal-100 text-teal-700 shadow-sm">
+                <BookOpen className="h-10 w-10" />
+              </div>
+              <h2 className="text-2xl font-bold text-teal-800">{t('journal.first_entry_title')}</h2>
+              <p className="mx-auto mt-2 max-w-md text-teal-800/75">{t('journal.first_entry_description')}</p>
+              <div className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
+                <Button onClick={() => navigate('/Chat?intent=thought_work')} className="min-h-12 flex-1 rounded-2xl bg-teal-600 text-white hover:bg-teal-700">
+                  {t('journal.create_entry')}
+                </Button>
+                <Button onClick={() => setShowTemplateManager(true)} variant="outline" className="min-h-12 flex-1 rounded-2xl">
+                  {t('journal.browse_templates')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : filteredEntries.length === 0 ? (
+          <Card className="border-white/70 bg-white/82 shadow-md">
+            <CardContent className="p-8 text-center">
+              <p className="mx-auto max-w-md text-muted-foreground">{t('journal.no_entries_match')}</p>
+              <div className="mx-auto mt-4 flex max-w-md flex-col gap-2 sm:flex-row sm:justify-center">
+                <Button variant="outline" className="min-h-11 rounded-2xl" onClick={() => {
+                  setSearchQuery('');
+                  setSelectedTags([]);
+                  setSelectedType('all');
+                }}>{t('journal.clear_filters')}</Button>
+                <Button className="min-h-11 rounded-2xl" onClick={() => navigate('/Chat?intent=thought_work')}>{t('journal.new_entry')}</Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <section aria-live="polite" className="space-y-4">
+            {filteredEntries.map((entry) => entry.isSummary ? (
+              <SessionSummaryCard key={entry.id} summary={entry} onDelete={() => {
+                queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] });
+                queryClient.invalidateQueries({ queryKey: ['journalCount'] });
+              }} />
+            ) : (
+              <ThoughtRecordCard key={entry.id} entry={entry} onEdit={handleEdit} />
+            ))}
+          </section>
+        )}
 
-                style={{ borderRadius: '32px' }}>
-
-                {t('journal.browse_templates')}
-              </Button>
-            </div>
-          </CardContent>
-        </Card> :
-
-        <>
-          {filteredEntries.length === 0 ?
-          <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-              <CardContent className="p-12 text-center">
-                <p className="text-muted-foreground max-w-md mx-auto">{t('journal.no_entries_match')}</p>
-                <div className="mt-4 flex max-w-md mx-auto flex-col sm:flex-row items-center justify-center gap-2.5">
-                  <Button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedTags([]);
-                      setSelectedType('all');
-                    }}
-                    variant="outline"
-                    className="w-full sm:w-auto">
-
-                    {t('journal.clear_filters')}
-                  </Button>
-                  <Button onClick={() => navigate('/Chat?intent=thought_work')} className="w-full sm:w-auto">
-                    {t('journal.new_entry')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card> :
-
-          <div className="space-y-4">
-              {filteredEntries.map((entry) =>
-            entry.isSummary ?
-            <SessionSummaryCard key={entry.id} summary={entry} onDelete={() => {queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] });queryClient.invalidateQueries({ queryKey: ['journalCount'] });}} /> :
-
-            <ThoughtRecordCard key={entry.id} entry={entry} onEdit={handleEdit} />
-
-            )}
-            </div>
-          }
-        </>
-        }
-
-      {/* Form Modal */}
-      {showForm &&
-        <ThoughtRecordForm
-          entry={editingEntry}
-          template={selectedTemplate}
-          templates={templates}
-          onClose={handleClose}
-          initialSituation={promptedSituation} />
-
-        }
-
-      {/* Template Manager */}
-      {showTemplateManager &&
-        <TemplateManager
-          templates={templates}
-          onClose={() => setShowTemplateManager(false)}
-          onSelectTemplate={(template) => {
-            setShowTemplateManager(false);
-            handleNewEntry(template);
-          }} />
-
-        }
-
-      {/* Reminder Manager */}
-      {showReminderManager &&
-        <ReminderManager
-          onClose={() => setShowReminderManager(false)} />
-
-        }
-
-      {/* AI Prompts */}
-      {showAiPrompts &&
-        <AiJournalPrompts
-          onSelectPrompt={(prompt) => {
-            setShowAiPrompts(false);
-            handleNewEntry(null, prompt);
-          }}
-          onClose={() => setShowAiPrompts(false)} />
-
-        }
-
-      {/* AI Trends Summary */}
-      {showTrendsSummary &&
-        <AiTrendsSummary
-          onClose={() => setShowTrendsSummary(false)} />
-
-        }
-      </div>
-    </PullToRefresh>);
-
+        {showForm && <ThoughtRecordForm entry={editingEntry} template={selectedTemplate} templates={templatesQuery.data || []}
+          onClose={handleClose} initialSituation={promptedSituation} />}
+        {showTemplateManager && <TemplateManager templates={templatesQuery.data || []} onClose={() => setShowTemplateManager(false)}
+          onSelectTemplate={(template) => { setShowTemplateManager(false); handleNewEntry(template); }} />}
+        {showReminderManager && <ReminderManager onClose={() => setShowReminderManager(false)} />}
+        {showAiPrompts && <AiJournalPrompts onSelectPrompt={(prompt) => {
+          setShowAiPrompts(false);
+          handleNewEntry(null, prompt);
+        }} onClose={() => setShowAiPrompts(false)} />}
+        {showTrendsSummary && <AiTrendsSummary onClose={() => setShowTrendsSummary(false)} />}
+      </main>
+    </PullToRefresh>
+  );
 }
