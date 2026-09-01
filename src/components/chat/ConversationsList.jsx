@@ -192,7 +192,7 @@ export default function ConversationsList({
           </div>
         )}
 
-        {/* Conversations List */
+        {/* Conversations List */}
         <div className="bg-teal-100 p-2 rounded-2xl flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
           {safeConversations.length === 0 ? (
             <div className="bg-teal-200 px-4 py-8 text-center rounded-2xl">
