@@ -24,6 +24,10 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
     <Dialog open={!!game} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent
         closeLabel={t('mind_games.close_aria')}
+        onEscapeKeyDown={(event) => {
+          event.preventDefault();
+          onClose();
+        }}
         className="max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-t-[28px] border-teal-700/15 bg-gradient-to-br from-white via-emerald-50 to-teal-50 p-0 sm:max-w-lg sm:rounded-[28px]"
         data-testid="mindgame-info-dialog"
       >
