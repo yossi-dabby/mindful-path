@@ -16,6 +16,7 @@ export default function BottomNav({ currentPageName }) {
   const navigate = useNavigate();
   const tabNav = useTabNavigation();
   const activeTab = tabNav?.activeTab ?? currentPageName;
+  const visibilityClass = currentPageName === 'Chat' ? 'lg:hidden' : 'md:hidden';
 
   // Memoised so icon/label objects aren't recreated on every render.
   const navItems = useMemo(() => [
@@ -52,7 +53,7 @@ export default function BottomNav({ currentPageName }) {
       aria-label={t('shell.main_navigation')}
       data-app-chrome
       data-mobile-bottom-nav
-      className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]"
+      className={`${visibilityClass} fixed bottom-0 left-0 right-0 border-t border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
       style={{
         zIndex: 35,
         height: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
