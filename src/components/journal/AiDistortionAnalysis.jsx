@@ -1,205 +1,183 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, Lightbulb, BookOpen } from 'lucide-react';
+import { AlertCircle, Loader2, Lightbulb, BookOpen, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { safeInvokeLLM } from '../utils/safeInvokeLLM';
 
-const commonDistortions = [
-  { name: 'All-or-Nothing Thinking', description: 'Seeing things in black and white categories' },
-  { name: 'Overgeneralization', description: 'Making broad conclusions from a single event' },
-  { name: 'Mental Filter', description: 'Focusing only on negative details' },
-  { name: 'Disqualifying the Positive', description: 'Rejecting positive experiences' },
-  { name: 'Jumping to Conclusions', description: 'Mind reading or fortune telling' },
-  { name: 'Catastrophizing', description: 'Expecting the worst possible outcome' },
-  { name: 'Emotional Reasoning', description: 'Believing emotions reflect reality' },
-  { name: 'Should Statements', description: 'Using "should" or "must" statements' },
-  { name: 'Labeling', description: 'Attaching negative labels to yourself or others' },
-  { name: 'Personalization', description: 'Blaming yourself for things outside your control' }
+const distortionCatalog = [
+  ['all_or_nothing', 'All-or-Nothing Thinking', 'Seeing things only in absolute categories'],
+  ['overgeneralization', 'Overgeneralization', 'Drawing a broad conclusion from one event'],
+  ['mental_filter', 'Mental Filter', 'Focusing only on negative details'],
+  ['disqualifying_positive', 'Disqualifying the Positive', 'Rejecting positive evidence'],
+  ['jumping_to_conclusions', 'Jumping to Conclusions', 'Mind reading or predicting without evidence'],
+  ['catastrophizing', 'Catastrophizing', 'Expecting the worst possible outcome'],
+  ['emotional_reasoning', 'Emotional Reasoning', 'Treating feelings as proof of facts'],
+  ['should_statements', 'Should Statements', 'Applying rigid should or must rules'],
+  ['labeling', 'Labeling', 'Attaching a global negative label'],
+  ['personalization', 'Personalization', 'Taking responsibility for what is outside one’s control']
 ];
 
+const canonicalById = Object.fromEntries(distortionCatalog.map(([id, canonical]) => [id, canonical]));
+const stripHtml = (value) => String(value || '').replace(/<[^>]*>/g, '').slice(0, 1200);
+
 export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
+  const { t } = useTranslation();
+  const languageName = t('journal_ui.ai.language_name');
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const hasAnalyzedRef = React.useRef(false);
-
-  useEffect(() => {
-    if (!hasAnalyzedRef.current) {
-      hasAnalyzedRef.current = true;
-      analyzeDistortions();
-    }
-     
-  }, []);
+  const [error, setError] = useState(false);
+  const hasAnalyzedRef = useRef(false);
 
   const analyzeDistortions = async () => {
+    setIsLoading(true);
+    setError(false);
     try {
-      const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
-
+      const catalog = distortionCatalog.map(([id, , description]) => ({ id, description }));
       const response = await safeInvokeLLM({
-        prompt: `You are a CBT therapist analyzing a journal entry for cognitive distortions (unhelpful thought patterns).
-
-**Journal Entry:**
-- Situation: ${stripHtml(entry.situation)}
-- Automatic Thoughts: ${stripHtml(entry.automatic_thoughts)}
-- Emotions: ${entry.emotions?.join(', ')}
-
-**Common Cognitive Distortions:**
-${commonDistortions.map(d => `- ${d.name}: ${d.description}`).join('\n')}
-
-Analyze the automatic thoughts and identify which cognitive distortions are present. For each distortion found:
-1. Name the distortion
-2. Explain specifically HOW it appears in the user's thoughts (quote relevant parts)
-3. Provide a brief challenge or alternative perspective (1-2 sentences)
-
-Only identify distortions that are clearly present. If no distortions are found, explain why the thoughts seem balanced.`,
+        prompt: [
+          'You are a supportive CBT journaling guide. Review the limited journal context for potentially unhelpful thinking patterns.',
+          'Write every user-visible field only in ' + languageName + '. Do not mix languages and never expose JSON keys.',
+          'Use a tentative, non-diagnostic tone. Do not claim certainty. Do not invent facts or quote text that is not present.',
+          'Return only patterns clearly supported by the entry. Keep each explanation and response concise.',
+          'Allowed pattern IDs: ' + JSON.stringify(catalog),
+          'Journal context: ' + JSON.stringify({
+            situation: stripHtml(entry?.situation),
+            automatic_thoughts: stripHtml(entry?.automatic_thoughts),
+            emotions: Array.isArray(entry?.emotions) ? entry.emotions.slice(0, 8) : []
+          })
+        ].join('\n\n'),
         response_json_schema: {
-          type: "object",
+          type: 'object',
+          required: ['distortions_found', 'overall_assessment', 'suggested_reframe'],
           properties: {
             distortions_found: {
-              type: "array",
+              type: 'array',
+              maxItems: 4,
               items: {
-                type: "object",
+                type: 'object',
+                required: ['id', 'title', 'evidence', 'challenge'],
                 properties: {
-                  name: { type: "string" },
-                  evidence: { type: "string" },
-                  challenge: { type: "string" }
+                  id: { type: 'string' },
+                  title: { type: 'string', maxLength: 80 },
+                  evidence: { type: 'string', maxLength: 320 },
+                  challenge: { type: 'string', maxLength: 320 }
                 }
               }
             },
-            overall_assessment: { type: "string" },
-            suggested_reframe: { type: "string" }
+            overall_assessment: { type: 'string', maxLength: 420 },
+            suggested_reframe: { type: 'string', maxLength: 420 }
           }
         }
-      }, true); // Skip risk gate - system-generated prompt
+      }, true);
 
-      setAnalysis(response);
-    } catch (error) {
-      console.error('Failed to analyze distortions:', error);
+      const items = Array.isArray(response?.distortions_found)
+        ? response.distortions_found.filter((item) => canonicalById[item?.id] && item?.title && item?.challenge).slice(0, 4)
+        : [];
+      if (!response?.overall_assessment) throw new Error('Invalid distortion analysis response');
+      setAnalysis({ ...response, distortions_found: items });
+    } catch (analysisError) {
+      console.error('Failed to analyze thinking patterns:', analysisError);
+      setError(true);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleApplyDistortions = () => {
-    const distortionNames = analysis.distortions_found.map(d => d.name);
-    onApplyDistortions(distortionNames, analysis.suggested_reframe);
+  useEffect(() => {
+    if (hasAnalyzedRef.current) return;
+    hasAnalyzedRef.current = true;
+    analyzeDistortions();
+  }, []);
+
+  const handleApply = () => {
+    const names = analysis.distortions_found.map((item) => canonicalById[item.id]).filter(Boolean);
+    onApplyDistortions(names, analysis.suggested_reframe);
   };
 
   if (isLoading) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border-2 border-amber-200"
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4" role="status">
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 text-amber-600 animate-spin" />
-          <p className="text-sm text-gray-600">AI is analyzing your thoughts for cognitive distortions...</p>
+          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-amber-700" />
+          <p className="text-sm font-medium text-slate-700">{t('journal_ui.ai.distortion_loading')}</p>
         </div>
       </motion.div>
     );
   }
 
-  if (!analysis) return null;
+  if (error || !analysis) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-4" role="alert">
+        <p className="mb-3 text-sm text-red-800">{t('journal_ui.common.ai_error')}</p>
+        <Button variant="outline" onClick={analyzeDistortions} className="min-h-11">
+          <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4"
-    >
-      {/* Overall Assessment */}
-      <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-600" />
-              Cognitive Distortion Analysis
-            </h4>
-          </div>
-          <p className="text-sm text-gray-700 mb-3">{analysis.overall_assessment}</p>
-          
-          {analysis.distortions_found?.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {analysis.distortions_found.map((d, i) => (
-                <Badge key={i} variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
-                  {d.name}
-                </Badge>
+    <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+      className="space-y-4" aria-labelledby="distortion-analysis-title">
+      <Card className="border-amber-200 bg-white/90">
+        <CardContent className="p-4 sm:p-5">
+          <h4 id="distortion-analysis-title" className="mb-2 flex items-center gap-2 text-base font-bold text-slate-900">
+            <AlertCircle className="h-5 w-5 text-amber-700" />{t('journal_ui.ai.distortion_title')}
+          </h4>
+          <p className="text-sm leading-relaxed text-slate-700">{analysis.overall_assessment}</p>
+          {analysis.distortions_found.length ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {analysis.distortions_found.map((item) => (
+                <Badge key={item.id} variant="outline" className="border-amber-300 bg-amber-50 text-amber-900">{item.title}</Badge>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-green-700 bg-green-50 p-3 rounded-lg">
-              ✓ No significant cognitive distortions detected
+            <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
+              {t('journal_ui.ai.no_distortions')}
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Detailed Analysis */}
-      {analysis.distortions_found?.length > 0 && (
-        <div className="space-y-3">
-          {analysis.distortions_found.map((distortion, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <Card className="border border-amber-200 bg-white">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <h5 className="font-semibold text-gray-800 mb-1">{distortion.name}</h5>
-                      <div className="space-y-2">
-                        <div>
-                          <p className="text-xs font-medium text-gray-500 mb-1">How it appears:</p>
-                          <p className="text-sm text-gray-700 italic bg-amber-50 p-2 rounded border-l-2 border-amber-400">
-                            "{distortion.evidence}"
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-gray-500 mb-1">Challenge this thought:</p>
-                          <p className="text-sm text-gray-700 bg-green-50 p-2 rounded border-l-2 border-green-400">
-                            {distortion.challenge}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      )}
+      {analysis.distortions_found.map((item) => (
+        <Card key={item.id} className="border-slate-200 bg-white/90">
+          <CardContent className="p-4 sm:p-5">
+            <h5 className="text-base font-bold text-slate-900">{item.title}</h5>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border-s-4 border-amber-500 bg-amber-50 p-3">
+                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-amber-900">{t('journal_ui.ai.how_appears')}</p>
+                <p className="text-sm leading-relaxed text-slate-700">{item.evidence}</p>
+              </div>
+              <div className="rounded-xl border-s-4 border-emerald-500 bg-emerald-50 p-3">
+                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-emerald-900">{t('journal_ui.ai.challenge')}</p>
+                <p className="text-sm leading-relaxed text-slate-700">{item.challenge}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
 
-      {/* Suggested Reframe */}
       {analysis.suggested_reframe && (
-        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-green-600" />
-              Suggested Balanced Perspective
+        <Card className="border-emerald-200 bg-emerald-50/90">
+          <CardContent className="p-4 sm:p-5">
+            <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-slate-900">
+              <Lightbulb className="h-5 w-5 text-emerald-700" />{t('journal_ui.ai.balanced_perspective')}
             </h4>
-            <p className="text-sm text-gray-700 leading-relaxed">{analysis.suggested_reframe}</p>
+            <p className="text-sm leading-relaxed text-slate-700">{analysis.suggested_reframe}</p>
           </CardContent>
         </Card>
       )}
 
-      {/* Action Buttons */}
-      {analysis.distortions_found?.length > 0 && (
-        <div className="flex gap-2">
-          <Button
-            onClick={handleApplyDistortions}
-            className="flex-1 bg-amber-600 hover:bg-amber-700"
-          >
-            <BookOpen className="w-4 h-4 mr-2" />
-            Apply to Journal Entry
-          </Button>
-        </div>
+      {analysis.distortions_found.length > 0 && (
+        <Button onClick={handleApply} className="min-h-12 w-full rounded-xl bg-amber-700 text-white hover:bg-amber-800">
+          <BookOpen className="h-5 w-5" />{t('journal_ui.ai.apply')}
+        </Button>
       )}
-    </motion.div>
+      <p className="text-xs leading-relaxed text-slate-500">{t('journal_ui.trends.professional_note')}</p>
+    </motion.section>
   );
 }
