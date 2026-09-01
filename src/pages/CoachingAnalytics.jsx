@@ -8,11 +8,13 @@ import { TrendingUp, Target, CheckCircle, Users, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+const COLORS = ['#0f9f8f', '#2a7f9e', '#7c6fd0', '#e49b3f', '#d86675'];
 
 export default function CoachingAnalytics() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const focusAreaLabels = {
     mood_improvement: t('coaching_analytics.focus_areas.mood_improvement'),
@@ -32,16 +34,37 @@ export default function CoachingAnalytics() {
     completed: t('coaching_analytics.stages.completed')
   };
 
-  const { data: sessions, isLoading } = useQuery({
-    queryKey: ['coachingSessions'],
-    queryFn: () => base44.entities.CoachingSession.list(),
+  const { data: user, isLoading: isUserLoading } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me()
+  });
+
+  const { data: sessions = [], isLoading: isSessionsLoading, isError, refetch } = useQuery({
+    queryKey: ['coachingSessions', user?.email],
+    queryFn: () => base44.entities.CoachingSession.filter({ created_by: user.email }, '-created_date'),
+    enabled: !!user?.email,
     initialData: []
   });
+
+  const isLoading = isUserLoading || isSessionsLoading;
 
   if (isLoading) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
-        <p className="text-gray-500">{t('coaching_analytics.loading')}</p>
+        <p className="text-slate-600" role="status" aria-live="polite">{t('coaching_analytics.loading')}</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-auto flex min-h-dvh max-w-3xl items-center justify-center p-4">
+        <Card className="w-full border border-red-200 bg-white/90 shadow-lg">
+          <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+            <p className="font-medium text-red-700" role="alert">{t('coach.load_error')}</p>
+            <Button variant="outline" onClick={() => refetch()}>{t('coach.retry')}</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -91,8 +114,8 @@ export default function CoachingAnalytics() {
 
   if (!hasSessionData) {
     return (
-      <div className="min-h-dvh p-4 md:p-8 max-w-7xl mx-auto">
-        <div className="mb-8 mt-4">
+      <div className="mx-auto min-h-dvh max-w-7xl p-4 sm:p-6 lg:p-8">
+        <header className="mb-6 mt-2 sm:mb-8 sm:mt-4">
           <Link to={createPageUrl('Coach')}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -103,7 +126,7 @@ export default function CoachingAnalytics() {
           <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
         </div>
 
-        <Card className="border-0 shadow-lg">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
           <CardContent className="p-8 md:p-12 text-center space-y-4">
             <p className="text-gray-500">{t('coaching_analytics.no_data')}</p>
             <Link to={createPageUrl('Coach')}>
@@ -119,9 +142,9 @@ export default function CoachingAnalytics() {
   }
 
   return (
-    <div className="min-h-dvh p-4 md:p-8 max-w-7xl mx-auto">
+    <div className="mx-auto min-h-dvh max-w-7xl p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8 mt-4">
+      <header className="mb-6 mt-2 sm:mb-8 sm:mt-4">
         <Link to={createPageUrl('Coach')}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -130,12 +153,12 @@ export default function CoachingAnalytics() {
         </Link>
         <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1>
         <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
-      </div>
+      </header>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.total_sessions')}</p>
@@ -148,8 +171,8 @@ export default function CoachingAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.active_sessions')}</p>
@@ -162,8 +185,8 @@ export default function CoachingAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.completion_rate')}</p>
@@ -176,8 +199,8 @@ export default function CoachingAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.action_completion')}</p>
@@ -195,9 +218,9 @@ export default function CoachingAnalytics() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-2 lg:gap-6">
         {/* Focus Areas */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
           <CardHeader>
             <CardTitle>{t('coaching_analytics.most_common_challenges')}</CardTitle>
           </CardHeader>
@@ -210,8 +233,8 @@ export default function CoachingAnalytics() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={80}
+                    label={isMobile ? false : ({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={isMobile ? 72 : 86}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -229,17 +252,17 @@ export default function CoachingAnalytics() {
         </Card>
 
         {/* Stage Distribution */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border border-white/70 bg-white/90 shadow-lg">
           <CardHeader>
             <CardTitle>{t('coaching_analytics.stage_distribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             {stageData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={stageData}>
+                <BarChart data={stageData} margin={{ top: 8, right: 8, left: -20, bottom: isMobile ? 24 : 8 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="stage" />
-                  <YAxis />
+                  <XAxis dataKey="stage" interval={0} angle={isMobile ? -20 : 0} textAnchor={isMobile ? 'end' : 'middle'} tick={{ fontSize: isMobile ? 10 : 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#8B5CF6" />
                 </BarChart>
@@ -260,7 +283,7 @@ export default function CoachingAnalytics() {
           {focusAreaData.length > 0 ? (
             <div className="space-y-4">
               {focusAreaData.slice(0, 5).map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
+                <div key={index} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                   <div className="flex items-center gap-3 flex-1">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold`} 
                          style={{ backgroundColor: COLORS[index % COLORS.length] }}>
@@ -268,8 +291,8 @@ export default function CoachingAnalytics() {
                     </div>
                     <span className="text-gray-700 font-medium">{item.name}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="hidden h-2 w-24 rounded-full bg-gray-200 sm:block lg:w-32">
                       <div
                         className="h-2 rounded-full"
                         style={{
@@ -278,7 +301,7 @@ export default function CoachingAnalytics() {
                         }}
                       />
                     </div>
-                    <span className="text-gray-600 font-semibold w-16 text-right">
+                    <span className="min-w-fit text-end text-sm font-semibold text-gray-600 sm:w-20">
                       {item.value} {item.value === 1 ? t('coaching_analytics.session_singular') : t('coaching_analytics.session_plural')}
                     </span>
                   </div>
