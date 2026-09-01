@@ -324,7 +324,11 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                     {isStarted ? (
                       <>
                         <Button asChild className="h-12 min-h-12 flex-1 rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800">
-                          <Link to={createPageUrl('StarterPath')} data-testid="starter-path-primary-action">
+                          <Link
+                            to={createPageUrl('StarterPath')}
+                            style={{ minHeight: '48px' }}
+                            data-testid="starter-path-primary-action"
+                          >
                             {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
                             <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
                           </Link>
