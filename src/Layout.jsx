@@ -253,7 +253,7 @@ export default function Layout({ children, currentPageName }) {
       <Sidebar currentPageName={currentPageName} />
       
       {/* Main Content - Single scroll container with page transitions */}
-      <AppContent>
+      <AppContent currentPageName={currentPageName}>
         <AnimatePresence mode="wait" initial={false}>
           {/* min-h-full (not h-full): lets page content taller than the viewport
                  drive #app-scroll-container's scrollHeight. With h-full the wrapper
