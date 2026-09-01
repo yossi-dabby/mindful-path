@@ -6,6 +6,7 @@ import { applyMindGamesTranslations } from './translationsBuilder';
 import { applyChatUiTranslations } from './chatUiTranslations';
 import { applyCoachUiTranslations } from './coachUiTranslations';
 import { applyMoodUiTranslations } from './moodUiTranslations';
+import { applyJournalUiTranslations } from './journalUiTranslations';
 import {
   applyAppLocaleSideEffects,
   applyAppLocaleToDocument,
@@ -18,6 +19,7 @@ applyMindGamesTranslations(translations);
 applyChatUiTranslations(translations);
 applyCoachUiTranslations(translations);
 applyMoodUiTranslations(translations);
+applyJournalUiTranslations(translations);
 
 /**
  * Convert a dot-notation key into a human-readable fallback label.
