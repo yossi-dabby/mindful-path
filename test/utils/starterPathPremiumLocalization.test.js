@@ -14,6 +14,8 @@ const requiredPaths = [
   'starter_path.premium.description_completed',
   'starter_path.premium.progress_label',
   'starter_path.premium.watch_intro',
+  'starter_path.premium.expand_aria',
+  'starter_path.premium.collapse_aria',
   'starter_path.premium.reset_button',
   'starter_path.premium.reset_title',
   'starter_path.premium.reset_description',
