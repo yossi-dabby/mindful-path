@@ -21,7 +21,7 @@ export default function Coach() {
   const [selectedSession, setSelectedSession] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: isUserLoading, isError: isUserError } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me()
   });
@@ -45,6 +45,8 @@ export default function Coach() {
   });
 
   const safeSessions = Array.isArray(sessions) ? sessions : [];
+  const isCoachLoading = isUserLoading || isSessionsLoading;
+  const isCoachError = isUserError || isSessionsError;
   const activeSessions = safeSessions.filter((s) => s.status === 'active');
   const completedSessions = safeSessions.filter((s) => s.status === 'completed');
 
@@ -96,9 +98,9 @@ export default function Coach() {
 
   // Main coach page
   return (
-    <div className="w-full min-h-[100dvh] bg-transparent">
+    <main className="min-h-[100dvh] w-full bg-transparent">
       {/* Mobile Header - Matches web structure */}
-      <motion.div className="bg-teal-50 p-4 md:hidden border-b border-border/70 backdrop-blur-2xl shadow-[var(--shadow-sm)]"
+      <motion.header className="border-b border-white/70 bg-white/80 p-3 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:hidden"
 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
@@ -142,10 +144,10 @@ export default function Coach() {
             </Button>
           </div>
         </div>
-      </motion.div>
+      </motion.header>
 
       {/* Desktop Header - Hidden on mobile */}
-      <motion.div className="bg-teal-100 p-4 hidden md:block border-b border-border/70 backdrop-blur-2xl shadow-[var(--shadow-sm)]"
+      <motion.header className="hidden border-b border-white/70 bg-white/78 p-4 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:block"
 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
@@ -189,16 +191,16 @@ export default function Coach() {
             </Button>
           </div>
         </div>
-      </motion.div>
+      </motion.header>
 
       {/* Content */}
-      <div className="bg-teal-50/40 mx-auto pb-32 p-4 max-w-7xl md:p-6 md:pb-24 w-full backdrop-blur-[2px]">
-        {isSessionsLoading ? (
+      <div className="mx-auto w-full max-w-7xl p-3 pb-32 sm:p-4 md:p-6 md:pb-24">
+        {isCoachLoading ? (
           <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3" role="status" aria-live="polite">
             <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
             <p className="text-sm font-medium text-teal-700">{t('coach.loading')}</p>
           </div>
-        ) : isSessionsError ? (
+        ) : isCoachError ? (
           <Card className="mt-4 border border-red-200 bg-white/90 shadow-[var(--shadow-md)] md:mt-10">
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
               <AlertCircle className="h-10 w-10 text-red-500" />
@@ -212,8 +214,8 @@ export default function Coach() {
           animate={{ opacity: 1, scale: 1 }}
           className="mt-4 md:mt-12">
 
-            <Card className="overflow-hidden border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-              <CardContent className="bg-teal-50 p-6 text-center md:p-12">
+            <Card className="overflow-hidden border border-white/80 bg-white/88 shadow-[var(--shadow-xl)] backdrop-blur-xl">
+              <CardContent className="p-6 text-center sm:p-8 md:p-12">
                 {/* Animated Heart icon */}
                 <motion.div className="bg-teal-600 text-teal-100 mb-4 mx-auto rounded-full w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shadow-[var(--shadow-md)]"
 
@@ -245,20 +247,20 @@ export default function Coach() {
             </Card>
           </motion.div> :
 
-        <div className="space-y-6">
+        <div className="space-y-5 md:space-y-7">
             {/* Personalized Insights */}
             <div>
               <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-teal-800 md:text-2xl">{t('coach.personalized_insights')}</h2>
               <PersonalizedInsights onStartSession={handleStartSession} />
             </div>
 
-            <Tabs defaultValue="active">
-              <TabsList className="bg-teal-100 text-muted-foreground p-1 rounded-[var(--radius-control)] inline-flex min-h-[44px] items-center justify-center gap-1 border border-border/60 shadow-[var(--shadow-sm)] backdrop-blur-[8px]">
-                <TabsTrigger value="active" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
+            <Tabs defaultValue="active" className="w-full">
+              <TabsList className="grid min-h-[48px] w-full grid-cols-2 gap-1 rounded-[var(--radius-control)] border border-white/70 bg-white/75 p-1 text-muted-foreground shadow-[var(--shadow-sm)] backdrop-blur-xl sm:inline-grid sm:w-auto">
+                <TabsTrigger value="active" className="px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
                   <TrendingUp className="w-4 h-4" />
                   {t('coach.tabs.active', { count: activeSessions.length })}
                 </TabsTrigger>
-                <TabsTrigger value="completed" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
+                <TabsTrigger value="completed" className="px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
                   <MessageCircle className="text-teal-600 lucide lucide-message-circle w-4 h-4" />
                   {t('coach.tabs.completed', { count: completedSessions.length })}
                 </TabsTrigger>
@@ -287,7 +289,7 @@ export default function Coach() {
         {safeSessions.length > 0 &&
         <Button
           onClick={handleStartSession}
-          size="lg" className="bg-teal-600 text-slate-50 p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 md:hidden fixed right-6 z-30 shadow-[var(--shadow-lg)] w-14 h-14"
+          size="lg" className="fixed end-4 z-30 inline-flex h-14 w-14 min-h-[56px] min-w-[56px] items-center justify-center rounded-full border border-white/60 bg-teal-600 p-0 text-white shadow-[var(--shadow-xl)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 md:hidden"
 
           style={{
             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
@@ -297,6 +299,6 @@ export default function Coach() {
           </Button>
         }
       </div>
-    </div>);
+    </main>);
 
 }
