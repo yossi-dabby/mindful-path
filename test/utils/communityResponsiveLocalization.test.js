@@ -71,6 +71,17 @@ describe('Community production UX and privacy safeguards', () => {
     }
   });
 
+  it('renders nested category drawers above Community dialogs', () => {
+    const drawer = read('src/components/ui/drawer.jsx');
+    const select = read('src/components/ui/bottom-sheet-select.jsx');
+    const shell = read('src/components/community/CommunityDialogShell.jsx');
+    expect(drawer).toContain('z-[100]');
+    expect(drawer).toContain('z-[101]');
+    expect(select).toContain('aria-haspopup="dialog"');
+    expect(select).toContain('bottom-sheet-select-options');
+    expect(shell).toContain('[data-vaul-drawer][data-state="open"]');
+  });
+
   it('removes dead card navigation and provides inline expansion', () => {
     const post = read('src/components/community/ForumPostCard.jsx');
     const group = read('src/components/community/GroupCard.jsx');
