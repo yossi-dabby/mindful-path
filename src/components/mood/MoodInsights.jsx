@@ -3,51 +3,73 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Sparkles, TrendingUp, AlertTriangle, Lightbulb, Loader2 } from 'lucide-react';
+import { AlertTriangle, Brain, Lightbulb, Loader2, Sparkles, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { getCurrentAppLocale } from '@/components/i18n/appLocale';
+
+const insightTypeStyles = {
+  positive: 'border-emerald-300 bg-emerald-50/90',
+  negative: 'border-rose-300 bg-rose-50/90',
+  neutral: 'border-slate-300 bg-slate-50/90'
+};
+
+const asArray = (value) => Array.isArray(value) ? value : [];
 
 export default function MoodInsights({ entries }) {
+  const { t, i18n } = useTranslation();
   const [insights, setInsights] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState('');
+  const appLocale = getCurrentAppLocale(i18n);
+  const outputLanguage = t('mood_tracker.insights.language_name');
 
   const generateInsights = async () => {
+    if (isGenerating) return;
     setIsGenerating(true);
+    setError('');
 
     try {
-      const recentEntries = entries.slice(0, 30);
-      const summaryData = recentEntries.map((e) => ({
-        date: e.date,
-        mood: e.mood,
-        emotions: e.emotions,
-        triggers: e.triggers,
-        activities: e.activities,
-        stress: e.stress_level,
-        energy: e.energy_level,
-        notes: e.notes
+      const summaryData = entries.slice(0, 30).map((entry) => ({
+        date: entry.date,
+        mood: entry.mood,
+        emotions: asArray(entry.emotions),
+        triggers: asArray(entry.triggers),
+        activities: asArray(entry.activities),
+        stress: entry.stress_level,
+        energy: entry.energy_level,
+        sleep: entry.sleep_quality,
+        notes: typeof entry.notes === 'string' ? entry.notes.slice(0, 800) : ''
       }));
 
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this user's mood tracking data over the last 30 days and provide comprehensive insights:
+        prompt: `You are analyzing the authenticated user's own mood check-ins.
 
-${JSON.stringify(summaryData, null, 2)}
+Output language: ${outputLanguage} (locale: ${appLocale}).
+Write every user-visible field exclusively in ${outputLanguage}. Do not mix languages and do not expose JSON keys in visible prose.
+Use an empathetic, concise and practical tone. Base every claim only on the supplied data. Do not diagnose a medical or mental-health condition. If evidence is limited, say so clearly.
 
-Provide a detailed analysis including:
-1. Overall mood patterns and trends
-2. Key triggers that negatively impact mood
-3. Activities and habits that boost mood
-4. Emotional patterns and their meanings
-5. Personalized recommendations for improvement
-6. Warning signs or concerning patterns (if any)
-7. Positive changes and progress observed
+Mood data (up to 30 most recent entries):
+${JSON.stringify(summaryData)}
 
-Be empathetic, insightful, and actionable. Format your response in a clear, structured way.`,
+Return:
+1. A short overall summary.
+2. Up to four notable trends.
+3. Up to four likely negative triggers, with impact and one practical suggestion.
+4. Up to four mood-boosting activities and their observed benefit.
+5. Up to four personalised next steps, each with a category, action and reason.
+6. Any patterns that deserve attention, only when supported by the data.
+7. Positive progress that is supported by the data.`,
         response_json_schema: {
           type: 'object',
+          required: ['summary', 'trends', 'key_triggers', 'mood_boosters', 'recommendations', 'concerns', 'positive_progress'],
           properties: {
-            summary: { type: 'string', description: 'Overall summary of mood patterns' },
+            summary: { type: 'string' },
             trends: {
               type: 'array',
+              maxItems: 4,
               items: {
                 type: 'object',
+                required: ['type', 'title', 'description'],
                 properties: {
                   type: { type: 'string', enum: ['positive', 'negative', 'neutral'] },
                   title: { type: 'string' },
@@ -57,8 +79,10 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
             },
             key_triggers: {
               type: 'array',
+              maxItems: 4,
               items: {
                 type: 'object',
+                required: ['trigger', 'impact', 'suggestion'],
                 properties: {
                   trigger: { type: 'string' },
                   impact: { type: 'string' },
@@ -68,8 +92,10 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
             },
             mood_boosters: {
               type: 'array',
+              maxItems: 4,
               items: {
                 type: 'object',
+                required: ['activity', 'benefit'],
                 properties: {
                   activity: { type: 'string' },
                   benefit: { type: 'string' }
@@ -78,8 +104,10 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
             },
             recommendations: {
               type: 'array',
+              maxItems: 4,
               items: {
                 type: 'object',
+                required: ['category', 'action', 'reason'],
                 properties: {
                   category: { type: 'string' },
                   action: { type: 'string' },
@@ -87,21 +115,28 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
                 }
               }
             },
-            concerns: {
-              type: 'array',
-              items: { type: 'string' }
-            },
-            positive_progress: {
-              type: 'array',
-              items: { type: 'string' }
-            }
+            concerns: { type: 'array', items: { type: 'string' } },
+            positive_progress: { type: 'array', items: { type: 'string' } }
           }
         }
       });
 
-      setInsights(result);
-    } catch (error) {
-      console.error('Error generating insights:', error);
+      if (!result || typeof result !== 'object' || typeof result.summary !== 'string') {
+        throw new Error('Invalid mood insight response');
+      }
+
+      setInsights({
+        ...result,
+        trends: asArray(result.trends),
+        key_triggers: asArray(result.key_triggers),
+        mood_boosters: asArray(result.mood_boosters),
+        recommendations: asArray(result.recommendations),
+        concerns: asArray(result.concerns),
+        positive_progress: asArray(result.positive_progress)
+      });
+    } catch (generateError) {
+      console.error('Error generating mood insights:', generateError);
+      setError(t('mood_tracker.insights.error'));
     } finally {
       setIsGenerating(false);
     }
@@ -109,223 +144,163 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
 
   if (entries.length < 5) {
     return (
-      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-        <CardContent className="p-12 text-center">
-          <Brain className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">Not Enough Data Yet</h3>
-          <p className="text-muted-foreground">
-            Track your mood for at least 5 days to get AI-powered insights about your emotional patterns
+      <Card className="border border-border/75 bg-card/90 backdrop-blur-xl shadow-[var(--shadow-md)]" data-testid="mood-insights-empty">
+        <CardContent className="px-5 py-10 text-center sm:p-12">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+            <Brain className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">{t('mood_tracker.insights.not_enough_title')}</h3>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+            {t('mood_tracker.insights.not_enough_description')}
           </p>
         </CardContent>
-      </Card>);
-
+      </Card>
+    );
   }
 
   return (
-    <div className="bg-teal-50 space-y-6">
-      {/* Generate Button */}
-      {!insights &&
-      <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-          <CardContent className="bg-teal-100 p-8 text-center">
-            <Brain className="text-teal-600 mb-4 mx-auto lucide lucide-brain w-16 h-16" />
-            <h3 className="text-teal-600 mb-2 text-xl font-semibold">Get AI-Powered Insights
-
-          </h3>
-            <p className="text-teal-600 mb-6 mx-auto max-w-md">
-              Let AI analyze your mood patterns and provide personalized recommendations based on your {entries.length} mood entries
-            </p>
-            <Button
-            onClick={generateInsights}
-            disabled={isGenerating} className="bg-teal-600 text-primary-foreground px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
-
-
-              {isGenerating ?
-            <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Analyzing...
-                </> :
-
-            <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Generate Insights
-                </>
-            }
-            </Button>
+    <div className="space-y-5 sm:space-y-6" data-testid="mood-insights">
+      {!insights && (
+        <Card className="overflow-hidden border border-primary/15 bg-card/90 backdrop-blur-xl shadow-[var(--shadow-lg)]">
+          <CardContent className="relative px-5 py-9 text-center sm:p-10">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-emerald-300/10" aria-hidden="true" />
+            <div className="relative">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/12 shadow-sm">
+                <Brain className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground sm:text-2xl">{t('mood_tracker.insights.title')}</h3>
+              <p className="mx-auto mb-6 mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+                {t('mood_tracker.insights.description', { count: entries.length })}
+              </p>
+              {error && <p role="alert" className="mx-auto mb-4 max-w-xl rounded-xl border border-destructive/25 bg-destructive/8 p-3 text-sm text-destructive">{error}</p>}
+              <Button onClick={generateInsights} disabled={isGenerating} className="min-h-12 w-full rounded-full px-7 sm:w-auto">
+                {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+                {isGenerating ? t('mood_tracker.insights.analyzing') : t('mood_tracker.insights.generate')}
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      }
+      )}
 
-      {/* Insights Display */}
-      {insights &&
-      <>
-          {/* Summary */}
-          <Card className="border-0 shadow-xl">
-            <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b from-purple-50 to-blue-50">
-              <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
-                <Brain className="text-teal-600 lucide lucide-brain w-5 h-5" />
-                Overall Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="bg-teal-100 p-6">
-              <p className="text-gray-700 leading-relaxed">{insights.summary}</p>
-              <Button
-              onClick={generateInsights}
-              variant="outline"
-              size="sm"
-              className="mt-4"
-              disabled={isGenerating}>
+      {insights && (
+        <>
+          <InsightSection icon={Brain} title={t('mood_tracker.insights.summary')}>
+            <p dir="auto" className="text-base leading-7 text-foreground/85">{insights.summary}</p>
+            {error && <p role="alert" className="mt-4 rounded-xl border border-destructive/25 bg-destructive/8 p-3 text-sm text-destructive">{error}</p>}
+            <Button onClick={generateInsights} variant="outline" size="sm" className="mt-5 min-h-11 rounded-full" disabled={isGenerating}>
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {isGenerating ? t('mood_tracker.insights.analyzing') : t('mood_tracker.insights.regenerate')}
+            </Button>
+          </InsightSection>
 
-                <Sparkles className="w-4 h-4 mr-2" />
-                Regenerate
-              </Button>
-            </CardContent>
-          </Card>
+          {insights.trends.length > 0 && (
+            <InsightSection icon={TrendingUp} title={t('mood_tracker.insights.trends')}>
+              <div className="grid gap-3 lg:grid-cols-2">
+                {insights.trends.map((trend, index) => {
+                  const type = ['positive', 'negative', 'neutral'].includes(trend.type) ? trend.type : 'neutral';
+                  return (
+                    <article key={`${trend.title}-${index}`} className={`rounded-2xl border p-4 ${insightTypeStyles[type]}`}>
+                      <Badge variant="outline" className="mb-3 rounded-full bg-card/80">{t(`mood_tracker.insights.type.${type}`)}</Badge>
+                      <h4 dir="auto" className="text-base font-semibold text-foreground sm:text-lg">{trend.title}</h4>
+                      <p dir="auto" className="mt-1.5 text-sm leading-6 text-foreground/75">{trend.description}</p>
+                    </article>
+                  );
+                })}
+              </div>
+            </InsightSection>
+          )}
 
-          {/* Trends */}
-          {insights.trends?.length > 0 &&
-        <Card className="border-0 shadow-xl">
-              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                  Identified Trends
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="bg-teal-100 p-6 space-y-4">
-                {insights.trends.map((trend, index) =>
-            <div key={index} className="p-4 rounded-xl border-l-4" style={{
-              borderColor: trend.type === 'positive' ? '#10b981' : trend.type === 'negative' ? '#ef4444' : '#6b7280',
-              backgroundColor: trend.type === 'positive' ? '#f0fdf4' : trend.type === 'negative' ? '#fef2f2' : '#f9fafb'
-            }}>
-                    <div className="flex items-start gap-3">
-                      <Badge variant={trend.type === 'positive' ? 'default' : 'secondary'} className="mt-1">
-                        {trend.type}
-                      </Badge>
+          {insights.key_triggers.length > 0 && (
+            <InsightSection icon={AlertTriangle} title={t('mood_tracker.insights.key_triggers')} iconClassName="text-orange-600">
+              <div className="grid gap-3 lg:grid-cols-2">
+                {insights.key_triggers.map((item, index) => (
+                  <article key={`${item.trigger}-${index}`} className="rounded-2xl border border-orange-200 bg-orange-50/85 p-4">
+                    <h4 dir="auto" className="text-base font-semibold text-orange-950 sm:text-lg">{item.trigger}</h4>
+                    <p dir="auto" className="mt-1.5 text-sm leading-6 text-foreground/75">{item.impact}</p>
+                    <div className="mt-3 flex items-start gap-2 rounded-xl bg-card/65 p-3">
+                      <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-orange-600" />
                       <div>
-                        <h4 className="font-semibold text-gray-800 mb-1">{trend.title}</h4>
-                        <p className="text-sm text-gray-600">{trend.description}</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">{t('mood_tracker.insights.suggestion_label')}</p>
+                        <p dir="auto" className="mt-1 text-sm leading-6 text-foreground/75">{item.suggestion}</p>
                       </div>
                     </div>
-                  </div>
-            )}
-              </CardContent>
-            </Card>
-        }
+                  </article>
+                ))}
+              </div>
+            </InsightSection>
+          )}
 
-          {/* Key Triggers */}
-          {insights.key_triggers?.length > 0 &&
-        <Card className="border-0 shadow-xl">
-              <CardHeader className="border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  Key Mood Triggers
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                {insights.key_triggers.map((item, index) =>
-            <div key={index} className="p-4 bg-orange-50 rounded-xl border border-orange-200">
-                    <h4 className="font-semibold text-orange-900 mb-2">{item.trigger}</h4>
-                    <p className="text-sm text-gray-700 mb-2">{item.impact}</p>
-                    <div className="flex items-start gap-2 mt-2 text-sm">
-                      <Lightbulb className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-600 italic">{item.suggestion}</p>
-                    </div>
-                  </div>
-            )}
-              </CardContent>
-            </Card>
-        }
+          {insights.mood_boosters.length > 0 && (
+            <InsightSection icon={TrendingUp} title={t('mood_tracker.insights.boosters')} iconClassName="text-emerald-600">
+              <div className="grid gap-3 md:grid-cols-2">
+                {insights.mood_boosters.map((item, index) => (
+                  <article key={`${item.activity}-${index}`} className="rounded-2xl border border-emerald-200 bg-emerald-50/85 p-4">
+                    <h4 dir="auto" className="text-base font-semibold text-emerald-950 sm:text-lg">{item.activity}</h4>
+                    <p dir="auto" className="mt-1.5 text-sm leading-6 text-foreground/75">{item.benefit}</p>
+                  </article>
+                ))}
+              </div>
+            </InsightSection>
+          )}
 
-          {/* Mood Boosters */}
-          {insights.mood_boosters?.length > 0 &&
-        <Card className="border-0 shadow-xl">
-              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                  Your Mood Boosters
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="bg-teal-100 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {insights.mood_boosters.map((item, index) =>
-              <div key={index} className="p-4 bg-green-50 rounded-xl border border-green-200">
-                      <h4 className="font-semibold text-green-900 mb-2">{item.activity}</h4>
-                      <p className="text-sm text-gray-700">{item.benefit}</p>
-                    </div>
-              )}
-                </div>
-              </CardContent>
-            </Card>
-        }
+          {insights.recommendations.length > 0 && (
+            <InsightSection icon={Lightbulb} title={t('mood_tracker.insights.recommendations')} iconClassName="text-sky-600">
+              <div className="grid gap-3 lg:grid-cols-2">
+                {insights.recommendations.map((recommendation, index) => (
+                  <article key={`${recommendation.action}-${index}`} className="rounded-2xl border border-sky-200 bg-sky-50/85 p-4">
+                    <Badge variant="outline" className="mb-3 rounded-full bg-card/80 text-sky-800">{recommendation.category}</Badge>
+                    <h4 dir="auto" className="text-base font-semibold text-sky-950 sm:text-lg">{recommendation.action}</h4>
+                    <p dir="auto" className="mt-1.5 text-sm leading-6 text-foreground/75">{recommendation.reason}</p>
+                  </article>
+                ))}
+              </div>
+            </InsightSection>
+          )}
 
-          {/* Recommendations */}
-          {insights.recommendations?.length > 0 &&
-        <Card className="border-0 shadow-xl">
-              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-blue-600" />
-                  Personalized Recommendations
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="bg-teal-100 p-6 space-y-4">
-                {insights.recommendations.map((rec, index) =>
-            <div key={index} className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-                    <Badge className="mb-2">{rec.category}</Badge>
-                    <h4 className="font-semibold text-blue-900 mb-2">{rec.action}</h4>
-                    <p className="text-sm text-gray-700">{rec.reason}</p>
-                  </div>
-            )}
-              </CardContent>
-            </Card>
-        }
+          {insights.positive_progress.length > 0 && (
+            <InsightSection icon={Sparkles} title={t('mood_tracker.insights.progress')} iconClassName="text-emerald-600">
+              <ul className="grid gap-2 md:grid-cols-2">
+                {insights.positive_progress.map((item, index) => (
+                  <li key={index} className="flex items-start gap-2 rounded-xl bg-emerald-50/75 p-3 text-sm leading-6 text-foreground/80">
+                    <span className="mt-0.5 text-emerald-600" aria-hidden="true">✓</span>
+                    <span dir="auto">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </InsightSection>
+          )}
 
-          {/* Positive Progress */}
-          {insights.positive_progress?.length > 0 &&
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-green-600" />
-                  Positive Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="bg-teal-100 p-6">
-                <ul className="space-y-2">
-                  {insights.positive_progress.map((item, index) =>
-              <li key={index} className="flex items-start gap-2 text-gray-700">
-                      <span className="text-green-600 mt-1">✓</span>
-                      <span>{item}</span>
-                    </li>
-              )}
-                </ul>
-              </CardContent>
-            </Card>
-        }
-
-          {/* Concerns */}
-          {insights.concerns?.length > 0 &&
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-red-50 to-orange-50">
-              <CardHeader className="border-b">
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                  Areas of Concern
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <ul className="space-y-2 mb-4">
-                  {insights.concerns.map((concern, index) =>
-              <li key={index} className="flex items-start gap-2 text-gray-700">
-                      <span className="text-red-600 mt-1">⚠</span>
-                      <span>{concern}</span>
-                    </li>
-              )}
-                </ul>
-                <p className="text-sm text-gray-600 italic border-t pt-4">
-                  Consider reaching out to a mental health professional if these patterns persist or worsen.
-                </p>
-              </CardContent>
-            </Card>
-        }
+          {insights.concerns.length > 0 && (
+            <InsightSection icon={AlertTriangle} title={t('mood_tracker.insights.concerns')} iconClassName="text-rose-600">
+              <ul className="space-y-2">
+                {insights.concerns.map((concern, index) => (
+                  <li key={index} className="flex items-start gap-2 rounded-xl bg-rose-50/80 p-3 text-sm leading-6 text-foreground/80">
+                    <span className="mt-0.5 text-rose-600" aria-hidden="true">!</span>
+                    <span dir="auto">{concern}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 border-t border-border/60 pt-4 text-sm leading-6 text-muted-foreground">
+                {t('mood_tracker.insights.professional_note')}
+              </p>
+            </InsightSection>
+          )}
         </>
-      }
-    </div>);
+      )}
+    </div>
+  );
+}
 
+function InsightSection({ icon: Icon, title, iconClassName = 'text-primary', children }) {
+  return (
+    <Card className="overflow-hidden border border-border/75 bg-card/90 backdrop-blur-xl shadow-[var(--shadow-md)]">
+      <CardHeader className="border-b border-border/60 bg-secondary/35 px-4 py-4 sm:px-6">
+        <CardTitle className="flex items-center gap-2 text-lg text-foreground sm:text-xl">
+          <Icon className={`h-5 w-5 ${iconClassName}`} />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 sm:p-6">{children}</CardContent>
+    </Card>
+  );
 }
