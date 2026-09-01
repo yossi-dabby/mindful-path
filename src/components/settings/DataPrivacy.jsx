@@ -8,13 +8,6 @@ import { Shield, Download, Trash2, CheckCircle2, AlertCircle, Loader2 } from 'lu
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
-const retentionOptions = [
-  { value: '30', label: null },
-  { value: '90', label: null },
-  { value: '365', label: null },
-  { value: '999999', label: null },
-];
-
 export default function DataPrivacy({ user }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -168,21 +161,15 @@ export default function DataPrivacy({ user }) {
     >
       <Card
         data-testid="data-privacy-card"
-        className="border-0"
-        style={{
-          borderRadius: '24px',
-          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-        }}
+        className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl"
       >
-        <CardHeader className="border-b">
+        <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-gray-600" />
             {t('settings.data_privacy.title')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-5 sm:p-6 space-y-6">
           {/* Status Messages */}
           {actionMessage && (
             <motion.div
@@ -213,14 +200,14 @@ export default function DataPrivacy({ user }) {
             <p className="text-sm text-gray-600 mb-4">
               {t('settings.data_privacy.retention_description')}
             </p>
-            <div className="flex gap-3 items-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <BottomSheetSelect
                 data-testid="retention-select"
                 value={retentionDays.toString()}
                 onValueChange={handleRetentionChange}
                 options={retentionOptions}
                 title={t('settings.data_privacy.retention_label')}
-                className="w-40"
+                className="w-full sm:w-52"
               />
               {updateRetentionMutation.isPending && (
                 <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
@@ -245,7 +232,7 @@ export default function DataPrivacy({ user }) {
               onClick={handleExportData}
               disabled={exportingData}
               variant="outline"
-              className="gap-2 rounded-lg"
+              className="min-h-[46px] w-full gap-2 rounded-xl sm:w-auto"
               data-testid="export-data-btn"
             >
               {exportingData ? (
@@ -275,11 +262,11 @@ export default function DataPrivacy({ user }) {
                 <p className="text-sm font-medium text-red-800 mb-3">
                   {t('settings.data_privacy.delete_confirm_prompt')}
                 </p>
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <Button
                     onClick={handleDeleteAllData}
                     disabled={deletingData}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                    className="min-h-[46px] bg-red-600 hover:bg-red-700 text-white rounded-xl"
                     data-testid="delete-confirm-btn"
                   >
                     {deletingData ? (
@@ -297,7 +284,7 @@ export default function DataPrivacy({ user }) {
                   <Button
                     onClick={() => setDeleteConfirming(false)}
                     variant="outline"
-                    className="rounded-lg"
+                    className="min-h-[46px] rounded-xl"
                     data-testid="delete-cancel-btn"
                     disabled={deletingData}
                   >
@@ -313,7 +300,7 @@ export default function DataPrivacy({ user }) {
                 onClick={handleDeleteAllData}
                 disabled={deletingData}
                 variant="outline"
-                className="gap-2 rounded-lg border-red-200 text-red-600 hover:bg-red-50"
+                className="min-h-[46px] w-full gap-2 rounded-xl border-red-200 text-red-600 hover:bg-red-50 sm:w-auto"
                 data-testid="delete-data-btn"
               >
                 <Trash2 className="w-4 h-4" />
