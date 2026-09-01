@@ -90,5 +90,14 @@ test('Journal renders Hebrew copy and RTL direction', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.getByRole('button', { name: /התקדמות/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /תזכורות/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'תבניות', exact: true })).toBeVisible();
+  const templatesButton = page.getByRole('button', { name: 'תבניות', exact: true });
+  await expect(templatesButton).toBeVisible();
+  await templatesButton.click();
+  for (const name of ['CBT סטנדרטי', 'יומן הכרת תודה', 'יומן חרדה', 'יומן מצב רוח']) {
+    await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
+  }
+  await page.getByRole('button', { name: /התאמת CBT סטנדרטי/ }).click();
+  await expect(page.getByRole('heading', { name: 'התאמת התבנית המובנית' })).toBeVisible();
+  await expect(page.getByLabel('שם התבנית')).toHaveValue('CBT סטנדרטי');
+  await expect(page.getByRole('button', { name: 'שמירה כתבנית אישית' })).toBeVisible();
 });
