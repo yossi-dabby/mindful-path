@@ -10,6 +10,7 @@ import { applyJournalUiTranslations } from './journalUiTranslations';
 import { applyProgressUiTranslations } from './progressUiTranslations';
 import { applyCommunityUiTranslations } from './communityUiTranslations';
 import { applyResourcesUiTranslations } from './resourcesUiTranslations';
+import { applySettingsUiTranslations } from './settingsUiTranslations';
 import {
   applyAppLocaleSideEffects,
   applyAppLocaleToDocument,
@@ -26,6 +27,7 @@ applyJournalUiTranslations(translations);
 applyProgressUiTranslations(translations);
 applyCommunityUiTranslations(translations);
 applyResourcesUiTranslations(translations);
+applySettingsUiTranslations(translations);
 
 /**
  * Convert a dot-notation key into a human-readable fallback label.
