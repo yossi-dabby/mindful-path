@@ -13,6 +13,7 @@ import { applyResourcesUiTranslations } from './resourcesUiTranslations';
 import { applySettingsUiTranslations } from './settingsUiTranslations';
 import { applyStarterPathUiTranslations } from './starterPathUiTranslations';
 import { applyRecommendationsUiTranslations } from './recommendationsUiTranslations';
+import { applyMindGamesPremiumTranslations } from './mindGamesPremiumTranslations';
 import {
   applyAppLocaleSideEffects,
   applyAppLocaleToDocument,
@@ -22,6 +23,7 @@ import {
 
 // Apply mind games UI + content translations to all languages
 applyMindGamesTranslations(translations);
+applyMindGamesPremiumTranslations(translations);
 applyChatUiTranslations(translations);
 applyCoachUiTranslations(translations);
 applyMoodUiTranslations(translations);
