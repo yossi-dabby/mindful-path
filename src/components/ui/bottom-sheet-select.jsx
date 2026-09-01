@@ -44,6 +44,8 @@ export default function BottomSheetSelect({
         variant="outline"
         disabled={disabled}
         onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className={cn(
           'w-full justify-between rounded-xl text-left font-normal',
           !selected && 'text-muted-foreground',
@@ -55,7 +57,7 @@ export default function BottomSheetSelect({
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent>
+        <DrawerContent data-testid="bottom-sheet-select-options">
           <DrawerHeader className="border-b border-border/70 pb-3">
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
