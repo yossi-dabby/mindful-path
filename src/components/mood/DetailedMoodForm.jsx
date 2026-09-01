@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { X, Battery, Moon, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -48,10 +47,33 @@ const sleepQualitiesConfig = [
   { value: 'excellent', labelKey: 'mood_tracker.form.sleep_excellent', icon: Moon }
 ];
 
+const getLocalDateKey = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const toMoodPayload = (data) => ({
+  date: data.date,
+  mood: data.mood,
+  emotions: Array.isArray(data.emotions) ? data.emotions : [],
+  intensity: Math.max(1, Math.min(10, Number(data.intensity) || 5)),
+  energy_level: data.energy_level,
+  sleep_quality: data.sleep_quality,
+  stress_level: Math.max(1, Math.min(10, Number(data.stress_level) || 5)),
+  triggers: Array.isArray(data.triggers) ? data.triggers : [],
+  activities: Array.isArray(data.activities) ? data.activities : [],
+  notes: typeof data.notes === 'string' ? data.notes.trim() : ''
+});
+
 export default function DetailedMoodForm({ entry, onClose }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateKey();
+  const dialogTitleId = React.useId();
+  const dialogDescriptionId = React.useId();
+  const taxonomyLabel = (group, value) => t(`mood_tracker.taxonomy.${group}.${value.replaceAll(' ', '_')}`);
   const isSavingRef = React.useRef(false);
   const [saveError, setSaveError] = React.useState(null);
 
@@ -72,15 +94,10 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      // Validate ranges before saving
-      const validatedData = {
-        ...data,
-        intensity: Math.max(1, Math.min(10, data.intensity || 5)),
-        stress_level: Math.max(1, Math.min(10, data.stress_level || 5))
-      };
+      const payload = toMoodPayload(data);
       return entry
-        ? base44.entities.MoodEntry.update(entry.id, validatedData)
-        : base44.entities.MoodEntry.create(validatedData);
+        ? base44.entities.MoodEntry.update(entry.id, payload)
+        : base44.entities.MoodEntry.create(payload);
     },
     onMutate: async (data) => {
       // Cancel outgoing refetches
@@ -88,33 +105,24 @@ export default function DetailedMoodForm({ entry, onClose }) {
       await queryClient.cancelQueries({ queryKey: ['recentMood'] });
       await queryClient.cancelQueries({ queryKey: ['todayFlow'] });
 
-      // Snapshot previous values
-      const previousMoodEntries = queryClient.getQueryData(['moodEntries']);
+      const previousMoodEntries = queryClient.getQueriesData({ queryKey: ['moodEntries'] });
       const previousRecentMood = queryClient.getQueryData(['recentMood']);
       const previousTodayFlow = queryClient.getQueryData(['todayFlow']);
-
-      // Optimistically update
-      const validatedData = {
-        ...data,
-        intensity: Math.max(1, Math.min(10, data.intensity || 5)),
-        stress_level: Math.max(1, Math.min(10, data.stress_level || 5))
-      };
+      const validatedData = toMoodPayload(data);
 
       if (entry) {
-        // Update existing entry
-        queryClient.setQueryData(['moodEntries'], (old) => {
-          if (!old) return old;
-          return old.map(e => e.id === entry.id ? { ...e, ...validatedData } : e);
+        queryClient.setQueriesData({ queryKey: ['moodEntries'] }, (old) => {
+          if (!Array.isArray(old)) return old;
+          return old.map((item) => item.id === entry.id ? { ...item, ...validatedData } : item);
         });
       } else {
-        // Add new entry
         const optimisticEntry = {
-          id: 'temp-' + Date.now(),
+          id: `temp-${Date.now()}`,
           ...validatedData,
           created_date: new Date().toISOString()
         };
-        queryClient.setQueryData(['moodEntries'], (old) => [optimisticEntry, ...(old || [])]);
-        queryClient.setQueryData(['recentMood'], (old) => [optimisticEntry, ...(old || [])]);
+        queryClient.setQueriesData({ queryKey: ['moodEntries'] }, (old) => [optimisticEntry, ...(Array.isArray(old) ? old : [])]);
+        queryClient.setQueryData(['recentMood'], (old) => [optimisticEntry, ...(Array.isArray(old) ? old : [])]);
       }
 
       return { previousMoodEntries, previousRecentMood, previousTodayFlow };
@@ -126,9 +134,9 @@ export default function DetailedMoodForm({ entry, onClose }) {
     onError: (error, variables, context) => {
       isSavingRef.current = false;
       // Rollback on error
-      if (context?.previousMoodEntries !== undefined) {
-        queryClient.setQueryData(['moodEntries'], context.previousMoodEntries);
-      }
+      context?.previousMoodEntries?.forEach(([queryKey, value]) => {
+        queryClient.setQueryData(queryKey, value);
+      });
       if (context?.previousRecentMood !== undefined) {
         queryClient.setQueryData(['recentMood'], context.previousRecentMood);
       }
@@ -152,35 +160,44 @@ export default function DetailedMoodForm({ entry, onClose }) {
     setFormData({ ...formData, [field]: updated });
   };
 
-  // Handle Escape key to close
   React.useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') onClose();
     };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleEscape);
+    };
   }, [onClose]);
 
   return (
     <div 
-      className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={dialogTitleId}
+      aria-describedby={dialogDescriptionId}
+      className="fixed inset-0 bg-[hsl(var(--overlay)/0.24)] backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}
     >
-      <Card className="w-full max-w-3xl border border-border/80 bg-card shadow-[var(--shadow-lg)] my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
-        <CardHeader className="border-b border-border/70 bg-secondary/35">
+      <Card className="w-full max-w-3xl border border-border/80 bg-card/95 backdrop-blur-xl shadow-[var(--shadow-lg)] rounded-b-none sm:rounded-[var(--radius-card)]" style={{ maxHeight: 'min(92dvh, 900px)' }} data-testid="mood-entry-dialog">
+        <CardHeader className="border-b border-border/70 bg-secondary/35 px-4 py-4 sm:px-6 sticky top-0 z-10 backdrop-blur-xl">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl">{t('mood_tracker.form.title')}</CardTitle>
+            <div className="min-w-0">
+              <CardTitle id={dialogTitleId} className="text-xl sm:text-2xl">{t('mood_tracker.form.title')}</CardTitle>
+              <p id={dialogDescriptionId} className="text-xs sm:text-sm text-muted-foreground mt-1">{t('mood_tracker.form.dialog_description')}</p>
+            </div>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('mood_tracker.form.close_aria')}>
               <X className="w-5 h-5" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+        <CardContent className="p-4 sm:p-6 space-y-6 overflow-y-auto overscroll-contain" style={{ maxHeight: 'calc(min(92dvh, 900px) - 104px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)' }}>
           {/* Date */}
           <div>
             <label className="text-sm font-medium text-foreground mb-2 block">{t('mood_tracker.form.date')}</label>
@@ -199,6 +216,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
               {moodsConfig.map((mood) => (
                 <button
                   key={mood.value}
+                  type="button"
+                  aria-pressed={formData.mood === mood.value}
                   onClick={() => setFormData({ ...formData, mood: mood.value })}
                   className={cn(
                     'flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl border-2 transition-all',
@@ -221,18 +240,20 @@ export default function DetailedMoodForm({ entry, onClose }) {
             </label>
             <div className="flex flex-wrap gap-2">
               {emotions.map((emotion) => (
-                <Badge
+                <button
                   key={emotion}
+                  type="button"
+                  aria-pressed={formData.emotions?.includes(emotion)}
                   onClick={() => toggleItem('emotions', emotion)}
                   className={cn(
-                    'cursor-pointer capitalize transition-all',
+                    'min-h-11 rounded-full border px-3 py-2 text-sm font-medium transition-all',
                     formData.emotions?.includes(emotion)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                      ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                      : 'border-border/70 bg-secondary text-foreground hover:bg-secondary/80'
                   )}
                 >
-                  {emotion}
-                </Badge>
+                  {taxonomyLabel('emotions', emotion)}
+                </button>
               ))}
             </div>
           </div>
@@ -250,7 +271,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               step={1}
               className="w-full"
               aria-label={t('mood_tracker.form.intensity_label')}
-              aria-valuetext={`${t('mood_tracker.form.intensity_label')} ${formData.intensity} out of 10`}
+              aria-valuetext={t('mood_tracker.form.value_out_of_ten', { label: t('mood_tracker.form.intensity_label'), value: formData.intensity })}
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>{t('mood_tracker.form.mild')}</span>
@@ -267,6 +288,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                 return (
                   <button
                     key={level.value}
+                    type="button"
+                    aria-pressed={formData.energy_level === level.value}
                     onClick={() => setFormData({ ...formData, energy_level: level.value })}
                     className={cn(
                       'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
@@ -292,6 +315,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                 return (
                   <button
                     key={quality.value}
+                    type="button"
+                    aria-pressed={formData.sleep_quality === quality.value}
                     onClick={() => setFormData({ ...formData, sleep_quality: quality.value })}
                     className={cn(
                       'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
@@ -321,7 +346,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               step={1}
               className="w-full"
               aria-label={t('mood_tracker.form.stress_level')}
-              aria-valuetext={`${t('mood_tracker.form.stress_level')} ${formData.stress_level} out of 10`}
+              aria-valuetext={t('mood_tracker.form.value_out_of_ten', { label: t('mood_tracker.form.stress_level'), value: formData.stress_level })}
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>{t('mood_tracker.form.relaxed')}</span>
@@ -336,18 +361,20 @@ export default function DetailedMoodForm({ entry, onClose }) {
             </label>
             <div className="flex flex-wrap gap-2">
               {commonTriggers.map((trigger) => (
-                <Badge
+                <button
                   key={trigger}
+                  type="button"
+                  aria-pressed={formData.triggers?.includes(trigger)}
                   onClick={() => toggleItem('triggers', trigger)}
                   className={cn(
-                    'cursor-pointer capitalize transition-all',
+                    'min-h-11 rounded-full border px-3 py-2 text-sm font-medium transition-all',
                     formData.triggers?.includes(trigger)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                      ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                      : 'border-border/70 bg-secondary text-foreground hover:bg-secondary/80'
                   )}
                 >
-                  {trigger}
-                </Badge>
+                  {taxonomyLabel('triggers', trigger)}
+                </button>
               ))}
             </div>
           </div>
@@ -359,18 +386,20 @@ export default function DetailedMoodForm({ entry, onClose }) {
             </label>
             <div className="flex flex-wrap gap-2">
               {commonActivities.map((activity) => (
-                <Badge
+                <button
                   key={activity}
+                  type="button"
+                  aria-pressed={formData.activities?.includes(activity)}
                   onClick={() => toggleItem('activities', activity)}
                   className={cn(
-                    'cursor-pointer capitalize transition-all',
+                    'min-h-11 rounded-full border px-3 py-2 text-sm font-medium transition-all',
                     formData.activities?.includes(activity)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-foreground hover:bg-secondary/80'
+                      ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                      : 'border-border/70 bg-secondary text-foreground hover:bg-secondary/80'
                   )}
                 >
-                  {activity}
-                </Badge>
+                  {taxonomyLabel('activities', activity)}
+                </button>
               ))}
             </div>
           </div>
@@ -394,7 +423,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               {saveError}
             </div>
           )}
-          <div className="flex gap-3 pt-4">
+          <div className="sticky bottom-0 -mx-4 sm:-mx-6 px-4 sm:px-6 pt-4 pb-1 bg-card/95 backdrop-blur-xl border-t border-border/60 flex flex-col-reverse sm:flex-row gap-3">
             <Button variant="outline" onClick={onClose} className="flex-1">
               {t('common.cancel')}
             </Button>
