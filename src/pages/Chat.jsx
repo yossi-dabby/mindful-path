@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
@@ -25,6 +25,7 @@ import MessageList from '../components/chat/MessageList';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
+import { validateChatAttachment } from '../components/chat/utils/fileValidation';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
@@ -2695,6 +2696,71 @@ export default function Chat() {
     retry: false // Don't retry in test mode
   });
 
+  const { data: conversationPreferences = [] } = useQuery({
+    queryKey: ['conversationPreferences'],
+    queryFn: async () => {
+      try {
+        const records = await base44.entities.Conversation.list('-updated_date', 250);
+        return Array.isArray(records) ? records : [];
+      } catch (error) {
+        console.error('Error fetching conversation preferences:', error);
+        return [];
+      }
+    },
+    initialData: [],
+    refetchOnWindowFocus: false,
+    retry: false
+  });
+
+  const preferenceByConversationId = useMemo(() => new Map(
+    conversationPreferences
+      .filter((record) => record?.agent_conversation_id)
+      .map((record) => [record.agent_conversation_id, record])
+  ), [conversationPreferences]);
+
+  const displayConversations = useMemo(() => conversations.map((conversation) => {
+    const preference = preferenceByConversationId.get(conversation.id);
+    return {
+      ...conversation,
+      metadata: {
+        ...conversation.metadata,
+        name: preference?.title || conversation.metadata?.name
+      },
+      ui_is_pinned: preference?.is_pinned === true
+    };
+  }), [conversations, preferenceByConversationId]);
+
+  const conversationPreferenceMutation = useMutation({
+    mutationFn: async ({ conversationId, changes }) => {
+      const existing = preferenceByConversationId.get(conversationId);
+      const sourceConversation = conversations.find((item) => item.id === conversationId);
+      const fallbackTitle = sourceConversation?.metadata?.name || `${t('chat.conversations_list.session_prefix')} ${conversationId.slice(0, 8)}`;
+      const payload = {
+        agent_conversation_id: conversationId,
+        title: changes.title ?? existing?.title ?? fallbackTitle,
+        is_pinned: changes.is_pinned ?? existing?.is_pinned ?? false
+      };
+      return existing?.id
+        ? base44.entities.Conversation.update(existing.id, payload)
+        : base44.entities.Conversation.create(payload);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['conversationPreferences'] }),
+    onError: (error) => {
+      console.error('Conversation preference update failed:', error);
+      toast({
+        title: t('chat.conversations_list.update_error_title'),
+        description: t('chat.conversations_list.update_error_desc'),
+        variant: 'destructive'
+      });
+    }
+  });
+
+  const handleRenameConversation = (conversationId, title) =>
+    conversationPreferenceMutation.mutateAsync({ conversationId, changes: { title } });
+
+  const handleTogglePinConversation = (conversationId, isPinned) =>
+    conversationPreferenceMutation.mutateAsync({ conversationId, changes: { is_pinned: isPinned } });
+
   const { data: currentConversationData } = useQuery({
     queryKey: ['currentConversation', currentConversationId],
     queryFn: () => currentConversationId ? base44.agents.getConversation(currentConversationId) : null,
@@ -3050,6 +3116,17 @@ export default function Chat() {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validation = validateChatAttachment(file);
+    if (!validation.valid) {
+      const isTooLarge = validation.reason === 'too_large';
+      toast({
+        title: t(isTooLarge ? 'chat.errors.file_too_large_title' : 'chat.errors.unsupported_file_title'),
+        description: t(isTooLarge ? 'chat.errors.file_too_large_desc' : 'chat.errors.unsupported_file_desc'),
+        variant: 'destructive'
+      });
+      e.target.value = '';
+      return;
+    }
     setAttachedFile(file);
     e.target.value = '';
   };
@@ -4996,12 +5073,15 @@ export default function Chat() {
       `}>
         <ErrorBoundary>
           <ConversationsList
-              conversations={Array.isArray(conversations) ? conversations : []}
+              conversations={Array.isArray(displayConversations) ? displayConversations : []}
               currentConversationId={currentConversationId}
               onSelectConversation={loadConversation}
               onNewConversation={startNewConversation}
               onDeleteConversation={handleDeleteConversation}
               onBulkDeleteConversations={handleBulkDeleteConversations}
+              onRenameConversation={handleRenameConversation}
+              onTogglePinConversation={handleTogglePinConversation}
+              isPreferenceSaving={conversationPreferenceMutation.isPending}
               onClose={() => setShowSidebar(false)} />
 
         </ErrorBoundary>
