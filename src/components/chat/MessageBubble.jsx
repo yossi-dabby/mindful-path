@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { FileText, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { FileText, ExternalLink, ChevronDown, ChevronUp, Sparkles, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import MessageFeedback from './MessageFeedback';
@@ -317,13 +317,13 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   };
 
   return (
-    <div className="bg-teal-50 flex gap-3 justify-start" dir={dir}>
+    <div className={cn('flex gap-2 sm:gap-3 py-2 px-1 sm:px-2', isUser ? 'justify-end' : 'justify-start')} dir={dir}>
       {!isUser &&
-      <div className="bg-teal-600 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
-          <span className="bg-teal-600 text-primary-foreground text-sm">{t('common.ai_label')}</span>
+      <div className="bg-teal-100 text-teal-700 border border-teal-200 rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.ai_label')}>
+          <Sparkles className="w-4 h-4" aria-hidden="true" />
         </div>
       }
-      <div className={cn('max-w-[85%] md:max-w-[70%]', isUser && 'flex flex-col items-end')}>
+      <div className={cn('max-w-[88%] sm:max-w-[82%] lg:max-w-[74%] min-w-0', isUser && 'flex flex-col items-end')}>
         {/* AI Thinking Process - collapsible, shown before the response */}
         {!isUser && thinkingContent &&
         <div className="mb-2 rounded-[var(--radius-control)] border border-border/70 bg-secondary/60 overflow-hidden">
@@ -343,7 +343,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
           }
           </div>
         }
-        <div className="bg-teal-600 text-primary-foreground px-5 py-3 rounded-2xl shadow-[var(--shadow-sm)]">
+        <div className={cn(
+          'px-4 sm:px-5 py-3 rounded-2xl shadow-[var(--shadow-sm)] min-w-0',
+          isUser
+            ? 'bg-teal-600 text-white rounded-ee-md'
+            : 'bg-white/95 text-slate-800 border border-teal-100/90 rounded-es-md backdrop-blur-sm'
+        )}>
 
 
 
@@ -456,7 +461,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
              }
                 {content ?
             <ReactMarkdown
-            className="prose prose-sm max-w-none break-words [overflow-wrap:anywhere] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            className="prose prose-sm prose-slate max-w-none break-words [overflow-wrap:anywhere] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             dir="auto"
             components={{
               code: ({ inline, className, children }) => {
@@ -576,8 +581,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
                   </div>
       {isUser &&
-      <div className="bg-teal-600 rounded-2xl h-8 w-8 flex items-center justify-center flex-shrink-0">
-          <span className="bg-teal-600 text-slate-50 text-sm font-medium">{t('common.you_label')}</span>
+      <div className="bg-teal-600 text-white rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.you_label')}>
+          <UserRound className="w-4 h-4" aria-hidden="true" />
         </div>
       }
     </div>);
