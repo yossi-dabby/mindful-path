@@ -96,7 +96,25 @@ const rows = [
 ['share.anonymous_help','Anonymous sharing protects your privacy.','שיתוף בעילום שם מסייע לשמור על פרטיותכם.','Compartir anónimamente protege tu privacidad.','Le partage anonyme protège votre vie privée.','Anonymes Teilen schützt Ihre Privatsphäre.','La condivisione anonima protegge la privacy.','A partilha anónima protege a sua privacidade.'],
 ['share.submit','Share progress','שיתוף התקדמות','Compartir progreso','Partager','Fortschritt teilen','Condividi','Partilhar progresso'],
 ['share.submitting','Sharing…','משתף…','Compartiendo…','Partage…','Wird geteilt…','Condivisione…','A partilhar…'],
-['share.error','Your progress could not be shared. Please try again.','לא ניתן היה לשתף את ההתקדמות. נסו שוב.','No se pudo compartir.','Le partage a échoué.','Fortschritt konnte nicht geteilt werden.','Impossibile condividere.','Não foi possível partilhar.']
+['share.error','Your progress could not be shared. Please try again.','לא ניתן היה לשתף את ההתקדמות. נסו שוב.','No se pudo compartir.','Le partage a échoué.','Fortschritt konnte nicht geteilt werden.','Impossibile condividere.','Não foi possível partilhar.'],
+['moderation.title','Moderation tools','כלי ניהול תוכן','Herramientas de moderación','Outils de modération','Moderationswerkzeuge','Strumenti di moderazione','Ferramentas de moderação'],
+['moderation.select','Select an action','בחירת פעולה','Selecciona una acción','Choisir une action','Aktion wählen','Seleziona un’azione','Selecionar uma ação'],
+['moderation.approve','Approve post','אישור הפוסט','Aprobar publicación','Approuver la publication','Beitrag genehmigen','Approva post','Aprovar publicação'],
+['moderation.approve_help','Mark this post as appropriate and helpful.','סימון הפוסט כראוי ומועיל.','Marcar como apropiada y útil.','Marquer comme appropriée et utile.','Als angemessen und hilfreich markieren.','Segna come appropriato e utile.','Marcar como adequada e útil.'],
+['moderation.flag','Flag for review','סימון לבדיקה','Marcar para revisión','Signaler pour examen','Zur Prüfung markieren','Segnala per revisione','Sinalizar para revisão'],
+['moderation.flag_help','Send this post for further moderator review.','שליחת הפוסט לבדיקה נוספת.','Enviar a revisión adicional.','Envoyer pour examen approfondi.','Zur weiteren Prüfung senden.','Invia per ulteriore revisione.','Enviar para revisão adicional.'],
+['moderation.delete','Remove post','הסרת הפוסט','Eliminar publicación','Supprimer la publication','Beitrag entfernen','Rimuovi post','Remover publicação'],
+['moderation.delete_help','Permanently delete this post.','מחיקת הפוסט לצמיתות.','Eliminar permanentemente.','Supprimer définitivement.','Dauerhaft löschen.','Elimina definitivamente.','Eliminar permanentemente.'],
+['moderation.confirm_title','Confirm moderation action','אישור פעולת הניהול','Confirmar acción','Confirmer l’action','Aktion bestätigen','Conferma azione','Confirmar ação'],
+['moderation.warning_delete','This action cannot be undone.','לא ניתן לבטל פעולה זו.','Esta acción no se puede deshacer.','Cette action est irréversible.','Diese Aktion kann nicht rückgängig gemacht werden.','Questa azione non può essere annullata.','Esta ação não pode ser anulada.'],
+['moderation.warning_flag','The post will be marked for moderator review.','הפוסט יסומן לבדיקת מנהל.','La publicación se marcará para revisión.','La publication sera signalée pour examen.','Der Beitrag wird zur Prüfung markiert.','Il post sarà segnalato per revisione.','A publicação será sinalizada para revisão.'],
+['moderation.warning_approve','The post will be marked as reviewed and appropriate.','הפוסט יסומן כנבדק וראוי.','Se marcará como revisada y apropiada.','Elle sera marquée comme examinée et appropriée.','Der Beitrag wird als geprüft markiert.','Il post sarà segnato come approvato.','Será marcada como revista e adequada.'],
+['moderation.reason','Reason (optional)','סיבה (אופציונלית)','Motivo (opcional)','Motif (facultatif)','Grund (optional)','Motivo (facoltativo)','Motivo (opcional)'],
+['moderation.reason_placeholder','Add context for this moderation action...','הוספת הסבר לפעולת הניהול…','Añade contexto para esta acción…','Ajoutez le contexte de cette action…','Kontext zur Aktion hinzufügen…','Aggiungi il contesto…','Adicione contexto para esta ação…'],
+['moderation.confirm','Confirm','אישור','Confirmar','Confirmer','Bestätigen','Conferma','Confirmar'],
+['moderation.processing','Processing…','מעבד…','Procesando…','Traitement…','Wird verarbeitet…','Elaborazione…','A processar…'],
+['moderation.error','The moderation action failed. Please try again.','פעולת הניהול נכשלה. נסו שוב.','La acción falló. Inténtalo de nuevo.','L’action a échoué. Réessayez.','Moderation fehlgeschlagen.','Azione non riuscita. Riprova.','A ação falhou. Tente novamente.'],
+['moderation.by','By {{author}}','מאת {{author}}','Por {{author}}','Par {{author}}','Von {{author}}','Di {{author}}','Por {{author}}']
 ];
 
 function setNested(target, path, value) {
