@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, TrendingUp, Brain, Calendar } from 'lucide-react';
+import { AlertCircle, Brain, Calendar, Loader2, Plus, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import DetailedMoodForm from '../components/mood/DetailedMoodForm';
@@ -13,31 +13,48 @@ import TriggerAnalysis from '../components/mood/TriggerAnalysis';
 import MoodCalendar from '../components/mood/MoodCalendar';
 import PullToRefresh from '../components/utils/PullToRefresh';
 
+const VALID_TABS = new Set(['overview', 'calendar', 'insights']);
+
+const getLocalDateKey = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function MoodTracker() {
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
-  const [dateRange, setDateRange] = useState(30); // days
+  const [dateRange, setDateRange] = useState(30);
 
-  // Persist tab state via URL query param
-  const urlParams = new URLSearchParams(window.location.search);
-  const [activeTab, setActiveTab] = useState(urlParams.get('tab') || 'overview');
+  const requestedTab = new URLSearchParams(window.location.search).get('tab');
+  const [activeTab, setActiveTab] = useState(VALID_TABS.has(requestedTab) ? requestedTab : 'overview');
 
-  const { data: moodEntries, isLoading } = useQuery({
-    queryKey: ['moodEntries', dateRange],
-    queryFn: async () => {
-      try {
-        return await base44.entities.MoodEntry.list('-date', dateRange * 2);
-      } catch (error) {
-        console.error('Error fetching mood entries:', error);
-        return [];
-      }
-    },
-    initialData: []
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    isError: isUserError,
+    refetch: refetchUser
+  } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000
+  });
+
+  const {
+    data: moodEntries = [],
+    isLoading: isMoodLoading,
+    isError: isMoodError,
+    refetch: refetchMood
+  } = useQuery({
+    queryKey: ['moodEntries', user?.email, dateRange],
+    enabled: Boolean(user?.email),
+    queryFn: () => base44.entities.MoodEntry.filter({ created_by: user.email }, '-date', dateRange * 2)
   });
 
   const safeMoodEntries = Array.isArray(moodEntries) ? moodEntries : [];
-  const todayEntry = safeMoodEntries.find((e) => e.date === new Date().toISOString().split('T')[0]);
+  const todayEntry = safeMoodEntries.find((entry) => entry.date === getLocalDateKey());
 
   const handleEdit = (entry) => {
     setEditingEntry(entry);
@@ -49,116 +66,111 @@ export default function MoodTracker() {
     setEditingEntry(null);
   };
 
+  const handleTabChange = (newTab) => {
+    if (!VALID_TABS.has(newTab)) return;
+    setActiveTab(newTab);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', newTab);
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+  };
+
+  const isLoading = isUserLoading || (Boolean(user?.email) && isMoodLoading);
+  const isError = isUserError || isMoodError;
+
   return (
     <PullToRefresh queryKeys={['moodEntries']}>
-    <div className="bg-teal-50/35 pb-32 p-4 md:p-6 md:pb-24 w-full min-h-[100dvh] backdrop-blur-[2px]">
-      <div className="max-w-7xl mx-auto w-full">
-        {/* Header */}
-        <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}>
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      <main className="min-h-[100dvh] w-full px-3 pb-32 pt-4 backdrop-blur-[2px] sm:px-4 md:px-6 md:pb-24" data-testid="mood-tracker">
+        <div className="mx-auto w-full max-w-7xl">
+          <motion.header className="mb-5 sm:mb-6" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-border/65 bg-card/78 p-4 shadow-[var(--shadow-sm)] backdrop-blur-xl sm:p-5 md:flex-row md:items-center md:justify-between">
+              <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="shrink-0 rounded-full" aria-label={t('common.go_back_aria')}>
+                  <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+                </Button>
+                <div className="min-w-0">
+                  <h1 className="break-words text-2xl font-semibold text-primary md:text-3xl">{t('mood_tracker.page_title')}</h1>
+                  <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-foreground/70 md:text-base">{t('mood_tracker.page_subtitle')}</p>
+                </div>
+              </div>
               <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => window.history.back()}
-                  style={{ borderRadius: '50%' }}
-                  aria-label={t('common.go_back_aria')}>
-
-                <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+                onClick={() => setShowForm(true)}
+                className="min-h-12 w-full rounded-full px-6 shadow-[var(--shadow-md)] md:w-auto"
+                disabled={isLoading || isError}
+                data-testid="mood-log-button"
+              >
+                <Plus className="h-5 w-5" />
+                {todayEntry ? t('mood_tracker.update_today') : t('mood_tracker.log_mood')}
               </Button>
-              <div className="min-w-0">
-                <h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl md:mb-2 break-words">{t('mood_tracker.page_title')}</h1>
-                <p className="text-teal-600 text-sm font-medium md:text-base break-words">{t('mood_tracker.page_subtitle')}</p>
+            </div>
+          </motion.header>
+
+          {isLoading && (
+            <div className="flex min-h-64 items-center justify-center rounded-[var(--radius-card)] border border-border/65 bg-card/85 p-8" role="status">
+              <div className="text-center">
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                <p className="mt-3 text-sm font-medium text-muted-foreground">{t('mood_tracker.loading')}</p>
               </div>
             </div>
-            <Button
-                onClick={() => setShowForm(true)} className="bg-teal-600 text-primary-foreground px-6 py-5 text-sm font-medium tracking-[0.005em] rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
+          )}
 
-                size="sm">
+          {isError && !isLoading && (
+            <div className="flex min-h-64 items-center justify-center rounded-[var(--radius-card)] border border-destructive/20 bg-card/90 p-6 text-center" role="alert">
+              <div>
+                <AlertCircle className="mx-auto h-9 w-9 text-destructive" />
+                <h2 className="mt-3 text-lg font-semibold text-foreground">{t('mood_tracker.load_error')}</h2>
+                <Button variant="outline" className="mt-4 min-h-11 rounded-full" onClick={() => isUserError ? refetchUser() : refetchMood()}>
+                  {t('mood_tracker.retry')}
+                </Button>
+              </div>
+            </div>
+          )}
 
-              <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-              {todayEntry ? t('mood_tracker.update_today') : t('mood_tracker.log_mood')}
-            </Button>
-          </div>
-        </motion.div>
+          {!isLoading && !isError && (
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-5 sm:space-y-6">
+              <TabsList aria-label={t('mood_tracker.tabs_aria')} className="grid h-auto min-h-14 w-full grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-card/78 p-1.5 shadow-[var(--shadow-sm)] backdrop-blur-xl sm:inline-grid sm:w-auto">
+                <MoodTab value="overview" icon={TrendingUp} label={t('mood_tracker.tabs.overview')} />
+                <MoodTab value="calendar" icon={Calendar} label={t('mood_tracker.tabs.calendar')} />
+                <MoodTab value="insights" icon={Brain} label={t('mood_tracker.tabs.insights')} />
+              </TabsList>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(newTab) => {
-            setActiveTab(newTab);
-            const newUrl = `${window.location.pathname}?tab=${newTab}`;
-            window.history.replaceState({}, '', newUrl);
-          }} className="space-y-6">
-          <TabsList className="bg-emerald-50 text-muted-foreground p-1 rounded-full inline-flex min-h-[44px] items-center justify-center gap-1 border border-border/60 shadow-[var(--shadow-sm)] backdrop-blur-[8px]">
-            <TabsTrigger value="overview" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-3xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
-              <TrendingUp className="bg-teal-600 text-slate-50 lucide lucide-trending-up w-4 h-4" />
-              {t('mood_tracker.tabs.overview')}
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-3xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
-              <Calendar className="w-4 h-4" />
-              {t('mood_tracker.tabs.calendar')}
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-3xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
-              <Brain className="w-4 h-4" />
-              {t('mood_tracker.tabs.insights')}
-            </TabsTrigger>
-          </TabsList>
+              <TabsContent value="overview" className="space-y-5 sm:space-y-6">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                  <MoodTrendChart entries={safeMoodEntries} dateRange={dateRange} onDateRangeChange={setDateRange} />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                  <TriggerAnalysis entries={safeMoodEntries} />
+                </motion.div>
+              </TabsContent>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Mood Trend Chart */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}>
+              <TabsContent value="calendar">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                  <MoodCalendar entries={safeMoodEntries} onEditEntry={handleEdit} />
+                </motion.div>
+              </TabsContent>
 
-              <MoodTrendChart
-                  entries={safeMoodEntries}
-                  dateRange={dateRange}
-                  onDateRangeChange={setDateRange} />
+              <TabsContent value="insights">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                  <MoodInsights entries={safeMoodEntries} />
+                </motion.div>
+              </TabsContent>
+            </Tabs>
+          )}
+        </div>
 
-            </motion.div>
+        {showForm && <DetailedMoodForm entry={editingEntry || todayEntry} onClose={handleClose} />}
+      </main>
+    </PullToRefresh>
+  );
+}
 
-            {/* Trigger Analysis */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}>
-
-              <TriggerAnalysis entries={safeMoodEntries} />
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="calendar">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}>
-
-              <MoodCalendar entries={safeMoodEntries} onEditEntry={handleEdit} />
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="insights">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}>
-
-              <MoodInsights entries={safeMoodEntries} />
-            </motion.div>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Mood Form Modal */}
-      {showForm &&
-        <DetailedMoodForm
-          entry={editingEntry || todayEntry}
-          onClose={handleClose} />
-
-        }
-    </div>
-    </PullToRefresh>);
-
+function MoodTab({ value, icon: Icon, label }) {
+  return (
+    <TabsTrigger
+      value={value}
+      className="min-h-11 min-w-0 gap-1.5 rounded-xl px-2 text-xs font-medium text-foreground/70 transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm sm:px-4 sm:text-sm"
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      <span className="truncate">{label}</span>
+    </TabsTrigger>
+  );
 }
