@@ -16,6 +16,7 @@ import 'react-quill/dist/quill.snow.css';
 import AiJournalSuggestions from './AiJournalSuggestions';
 import AiDistortionAnalysis from './AiDistortionAnalysis';
 import { safeInvokeLLM } from '../utils/safeInvokeLLM';
+import { localizeJournalTemplate } from './journalTemplateCatalog';
 
 const commonEmotions = [
   ['Anxious', 'anxious'], ['Sad', 'sad'], ['Angry', 'angry'], ['Frustrated', 'frustrated'],
@@ -40,12 +41,15 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
   const { t } = useTranslation();
   const languageName = t('journal_ui.ai.language_name');
   const [step, setStep] = useState(1);
-  const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? (templates || []).find(t => t.id === entry.template_id) : null));
+  const [selectedTemplate, setSelectedTemplate] = useState(() => localizeJournalTemplate(
+    template || (entry?.template_id ? (templates || []).find(item => item.id === entry.template_id) : null),
+    t
+  ));
   const [uploadError, setUploadError] = useState(null);
   const [formData, setFormData] = useState({
     entry_type: entry?.entry_type || template?.entry_type || 'cbt_standard',
     template_id: entry?.template_id || template?.id || null,
-    template_name: entry?.template_name || template?.name || null,
+    template_name: entry?.template_name || localizeJournalTemplate(template, t)?.name || null,
     situation: entry?.situation || initialSituation || '',
     automatic_thoughts: entry?.automatic_thoughts || '',
     emotions: entry?.emotions || [],
@@ -376,14 +380,12 @@ Provide:
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <CardTitle id="journal-entry-form-title" className="text-lg font-bold text-teal-950 sm:text-xl">
-                  {selectedTemplate?.is_default
-                    ? t(`journal_ui.templates.default.${selectedTemplate.key || selectedTemplate.entry_type?.replace('_log', '').replace('_journal', '').replace('_standard', '')}.name`, { defaultValue: selectedTemplate.name })
-                    : selectedTemplate?.name || t('journal_ui.form.title')}
+                  {selectedTemplate?.name || t('journal_ui.form.title')}
                 </CardTitle>
                 <p id="journal-entry-form-description" className="mt-1 text-sm font-medium text-slate-600">
                   {t('journal_ui.form.step', { step, total: 6 })}
                 </p>
-                {selectedTemplate?.description && !selectedTemplate.is_default && (
+                {selectedTemplate?.description && (
                   <p className="mt-1 break-words text-sm text-slate-500" dir="auto">{selectedTemplate.description}</p>
                 )}
               </div>
@@ -404,7 +406,7 @@ Provide:
                   <BottomSheetSelect
                     value={selectedTemplate?.id || 'none'}
                     onValueChange={(value) => {
-                      const tmpl = templates.find(t => t.id === value);
+                      const tmpl = localizeJournalTemplate(templates.find(item => item.id === value), t);
                       setSelectedTemplate(tmpl || null);
                       if (tmpl) {
                         setFormData({
@@ -417,7 +419,10 @@ Provide:
                     }}
                     options={[
                       { value: 'none', label: t('journal_ui.form.standard_format') },
-                      ...templates.map((tmpl) => ({ value: tmpl.id, label: tmpl.name }))
+                      ...templates.map((tmpl) => {
+                        const localizedTemplate = localizeJournalTemplate(tmpl, t);
+                        return { value: tmpl.id, label: localizedTemplate.name };
+                      })
                     ]}
                     placeholder={t('journal_ui.form.standard_format')}
                     title={t('journal_ui.form.choose_template')}
