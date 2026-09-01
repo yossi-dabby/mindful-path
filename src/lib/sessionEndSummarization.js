@@ -373,8 +373,9 @@ export function triggerSessionEndSummarization(
     return;
   }
 
-  // Non-blocking: fire-and-forget; caller is never awaited or blocked
-  (async () => {
+  // Return the task for deterministic tests and diagnostics. Runtime callers
+  // intentionally do not await it, so the session-close path remains non-blocking.
+  return (async () => {
     try {
       const payload = deriveSessionSummaryPayload(session, messages);
 
@@ -387,7 +388,7 @@ export function triggerSessionEndSummarization(
       // write has succeeded.  Fire-and-forget — failure here never affects the
       // session close path.
       if (isLongitudinalEnabled()) {
-        _fireLTSWrite(base44, invoker);
+        await _fireLTSWrite(base44, invoker);
       }
     } catch (error) {
       // Summarization failure must never propagate to the caller.
@@ -1146,8 +1147,9 @@ export function resolveRuntimeLongitudinalFlag(snapshot) {
  * @private
  */
 function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
-  // This is always fire-and-forget — never awaited by the caller.
-  (async () => {
+  // Runtime callers remain fire-and-forget; returning the task makes completion
+  // observable to deterministic tests and diagnostics.
+  return (async () => {
     let ltsSnapshot = null;
     try {
       // 1. Fetch bounded session records from CompanionMemory.
