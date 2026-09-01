@@ -3,99 +3,192 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Bell, Mail, Target, Dumbbell, TrendingUp, Calendar, Flame, AtSign, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
-const IN_APP_PREFS = [
-  { key: 'dailyReminders', label: 'Daily Check-in Reminders', description: 'Remind you to do your daily mood check-in', icon: Calendar, color: '#FF9800' },
-  { key: 'progressUpdates', label: 'Progress & Streak Updates', description: 'Celebrate milestones and streak achievements', icon: Flame, color: '#FF5722' },
-  { key: 'goalReminders', label: 'Goal Reminders', description: 'Stay on track with your active goals', icon: Target, color: '#26A69A' },
-  { key: 'exerciseReminders', label: 'Exercise Reminders', description: 'Gentle nudges to practice CBT exercises', icon: Dumbbell, color: '#9F7AEA' }
-];
-
-const EMAIL_PREFS = [
-  { key: 'emailCritical', label: 'Critical System Alerts', description: 'Important account or security notices', icon: AlertCircle, color: '#E53E3E', alwaysOn: true },
-  { key: 'emailMentions', label: 'Mentions & Replies', description: 'When someone replies to your forum post', icon: AtSign, color: '#E91E63' },
-  { key: 'dailyReminders', label: 'Daily Reminder Emails', description: 'Email version of your daily check-in reminder', icon: Calendar, color: '#FF9800' },
-  { key: 'progressUpdates', label: 'Progress Digest', description: 'Weekly summary of your progress via email', icon: TrendingUp, color: '#4CAF50' },
-  { key: 'goalReminders', label: 'Goal Reminder Emails', description: 'Email reminders for upcoming goal deadlines', icon: Target, color: '#26A69A' },
-  { key: 'exerciseReminders', label: 'Exercise Reminder Emails', description: 'Email nudges to practice exercises', icon: Dumbbell, color: '#9F7AEA' }
-];
-
-function PrefRow({ pref, checked, onChange, disabled }) {
+function PrefRow({ pref, checked, onChange, disabled, alwaysOnLabel }) {
   const Icon = pref.icon;
+
   return (
-    <div className="flex items-center justify-between py-3">
-      <div className="flex items-center gap-3 flex-1">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${pref.color}18` }}>
-          <Icon className="w-4 h-4" style={{ color: pref.color }} />
+    <div className="flex min-h-[76px] items-center justify-between gap-3 py-4">
+      <div className="flex min-w-0 flex-1 items-start gap-3">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+          style={{ backgroundColor: pref.backgroundColor }}
+          aria-hidden="true"
+        >
+          <Icon className="h-5 w-5" style={{ color: pref.color }} />
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-gray-800">{pref.label}</p>
-            {pref.alwaysOn && <Badge className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0">Always on</Badge>}
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-semibold leading-5 text-slate-800">{pref.label}</p>
+            {pref.alwaysOn && (
+              <Badge className="border-0 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                {alwaysOnLabel}
+              </Badge>
+            )}
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">{pref.description}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-500">{pref.description}</p>
         </div>
       </div>
-      <Switch checked={checked} onCheckedChange={onChange} disabled={disabled} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+        aria-label={pref.label}
+        className="shrink-0"
+      />
     </div>
   );
 }
 
 export default function NotificationSettings({ notifications, emailNotifications, onToggleInApp, onToggleEmail }) {
-  return (
-    <div className="space-y-6">
-      {/* In-App Notifications */}
-      <Card className="border-0" style={{
-        borderRadius: '24px',
-        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-      }}>
-        <CardHeader className="border-b pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="w-5 h-5 text-teal-600" />
-            In-App Notifications
-          </CardTitle>
-          <p className="text-xs text-gray-500 mt-1">Choose what appears in your notification bell</p>
-        </CardHeader>
-        <CardContent className="p-6 divide-y divide-gray-100">
-          {IN_APP_PREFS.map(pref => (
-            <PrefRow
-              key={pref.key}
-              pref={pref}
-              checked={!!notifications[pref.key]}
-              onChange={() => onToggleInApp(pref.key)}
-            />
-          ))}
-        </CardContent>
-      </Card>
+  const { t } = useTranslation();
 
-      {/* Email Notifications */}
-      <Card className="border-0" style={{
-        borderRadius: '24px',
-        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-      }}>
-        <CardHeader className="border-b pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Mail className="w-5 h-5 text-blue-500" />
-            Email Notifications
-          </CardTitle>
-          <p className="text-xs text-gray-500 mt-1">Control which events also send an email to your inbox</p>
-        </CardHeader>
-        <CardContent className="p-6 divide-y divide-gray-100">
-          {EMAIL_PREFS.map(pref => (
-            <PrefRow
-              key={pref.key}
-              pref={pref}
-              checked={pref.alwaysOn ? true : !!emailNotifications[pref.key]}
-              onChange={() => !pref.alwaysOn && onToggleEmail(pref.key)}
-              disabled={pref.alwaysOn}
-            />
-          ))}
-        </CardContent>
-      </Card>
+  const inAppPrefs = [
+    {
+      key: 'dailyReminders',
+      label: t('settings.notifications.daily_title'),
+      description: t('settings.notifications.daily_description'),
+      icon: Calendar,
+      color: '#D97706',
+      backgroundColor: 'rgba(245,158,11,0.13)'
+    },
+    {
+      key: 'progressUpdates',
+      label: t('settings.notifications.progress_title'),
+      description: t('settings.notifications.progress_description'),
+      icon: Flame,
+      color: '#EA580C',
+      backgroundColor: 'rgba(249,115,22,0.12)'
+    },
+    {
+      key: 'goalReminders',
+      label: t('settings.notifications.goal_title'),
+      description: t('settings.notifications.goal_description'),
+      icon: Target,
+      color: '#0F766E',
+      backgroundColor: 'rgba(13,148,136,0.12)'
+    },
+    {
+      key: 'exerciseReminders',
+      label: t('settings.notifications.exercise_title'),
+      description: t('settings.notifications.exercise_description'),
+      icon: Dumbbell,
+      color: '#7C3AED',
+      backgroundColor: 'rgba(124,58,237,0.11)'
+    }
+  ];
+
+  const emailPrefs = [
+    {
+      key: 'emailCritical',
+      label: t('settings.notifications.critical_title'),
+      description: t('settings.notifications.critical_description'),
+      icon: AlertCircle,
+      color: '#DC2626',
+      backgroundColor: 'rgba(220,38,38,0.10)',
+      alwaysOn: true
+    },
+    {
+      key: 'emailMentions',
+      label: t('settings.notifications.mentions_title'),
+      description: t('settings.notifications.mentions_description'),
+      icon: AtSign,
+      color: '#DB2777',
+      backgroundColor: 'rgba(219,39,119,0.10)'
+    },
+    {
+      key: 'dailyReminders',
+      label: t('settings.notifications.email_daily_title'),
+      description: t('settings.notifications.daily_description'),
+      icon: Calendar,
+      color: '#D97706',
+      backgroundColor: 'rgba(245,158,11,0.13)'
+    },
+    {
+      key: 'progressUpdates',
+      label: t('settings.notifications.email_progress_title'),
+      description: t('settings.notifications.email_progress_description'),
+      icon: TrendingUp,
+      color: '#15803D',
+      backgroundColor: 'rgba(22,163,74,0.11)'
+    },
+    {
+      key: 'goalReminders',
+      label: t('settings.notifications.email_goal_title'),
+      description: t('settings.notifications.goal_description'),
+      icon: Target,
+      color: '#0F766E',
+      backgroundColor: 'rgba(13,148,136,0.12)'
+    },
+    {
+      key: 'exerciseReminders',
+      label: t('settings.notifications.email_exercise_title'),
+      description: t('settings.notifications.exercise_description'),
+      icon: Dumbbell,
+      color: '#7C3AED',
+      backgroundColor: 'rgba(124,58,237,0.11)'
+    }
+  ];
+
+  const groups = [
+    {
+      id: 'in-app-notifications',
+      icon: Bell,
+      iconClass: 'bg-teal-100 text-teal-700',
+      title: t('settings.notifications.in_app_title'),
+      description: t('settings.notifications.in_app_description'),
+      prefs: inAppPrefs,
+      values: notifications,
+      onToggle: onToggleInApp
+    },
+    {
+      id: 'email-notifications',
+      icon: Mail,
+      iconClass: 'bg-sky-100 text-sky-700',
+      title: t('settings.notifications.email_title'),
+      description: t('settings.notifications.email_description'),
+      prefs: emailPrefs,
+      values: emailNotifications,
+      onToggle: onToggleEmail
+    }
+  ];
+
+  return (
+    <div className="grid gap-5 xl:grid-cols-2" data-testid="notification-settings">
+      {groups.map((group) => {
+        const GroupIcon = group.icon;
+        return (
+          <Card
+            key={group.id}
+            className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl"
+          >
+            <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+              <CardTitle className="flex items-start gap-3 text-base sm:text-lg">
+                <span className={'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ' + group.iconClass}>
+                  <GroupIcon className="h-5 w-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-bold text-slate-800">{group.title}</span>
+                  <span className="mt-1 block text-xs font-normal leading-5 text-slate-500">{group.description}</span>
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="divide-y divide-slate-100 px-5 py-0 sm:px-6">
+              {group.prefs.map((pref) => (
+                <PrefRow
+                  key={pref.key}
+                  pref={pref}
+                  checked={pref.alwaysOn ? true : !!group.values[pref.key]}
+                  onChange={() => !pref.alwaysOn && group.onToggle(pref.key)}
+                  disabled={pref.alwaysOn}
+                  alwaysOnLabel={t('settings.notifications.always_on')}
+                />
+              ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
