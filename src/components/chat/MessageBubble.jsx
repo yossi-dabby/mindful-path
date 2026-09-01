@@ -143,7 +143,7 @@ function PdfFullTextCard({ text, pageCount }) {
       >
         <FileText className="w-4 h-4 shrink-0 opacity-80" />
         <span className="flex-1 font-medium opacity-90">
-          View full document{pageCount ? ` (${pageCount} page${pageCount !== 1 ? 's' : ''})` : ''}
+          {t('chat.document.view')}{pageCount ? ` (${t(pageCount === 1 ? 'chat.document.page_one' : 'chat.document.page_other', { count: pageCount })})` : ''}
         </span>
         {expanded ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
       </button>
@@ -320,7 +320,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     <div className="bg-teal-50 flex gap-3 justify-start" dir={dir}>
       {!isUser &&
       <div className="bg-teal-600 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
-          <span className="bg-teal-600 text-primary-foreground text-sm">AI</span>
+          <span className="bg-teal-600 text-primary-foreground text-sm">{t('common.ai_label')}</span>
         </div>
       }
       <div className={cn('max-w-[85%] md:max-w-[70%]', isUser && 'flex flex-col items-end')}>
@@ -577,7 +577,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
       {isUser &&
       <div className="bg-teal-600 rounded-2xl h-8 w-8 flex items-center justify-center flex-shrink-0">
-          <span className="bg-teal-600 text-slate-50 text-sm font-medium">You</span>
+          <span className="bg-teal-600 text-slate-50 text-sm font-medium">{t('common.you_label')}</span>
         </div>
       }
     </div>);
