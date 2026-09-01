@@ -118,20 +118,20 @@ export default function CoachingAnalytics() {
         <header className="mb-6 mt-2 sm:mb-8 sm:mt-4">
           <Link to={createPageUrl('Coach')}>
             <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="h-4 w-4 rtl:scale-x-[-1]" />
               {t('coaching_analytics.back_to_coaching')}
             </Button>
           </Link>
           <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1>
           <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
-        </div>
+        </header>
 
         <Card className="border border-white/70 bg-white/90 shadow-lg">
           <CardContent className="p-8 md:p-12 text-center space-y-4">
             <p className="text-gray-500">{t('coaching_analytics.no_data')}</p>
             <Link to={createPageUrl('Coach')}>
               <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 rtl:scale-x-[-1]" />
                 {t('coaching_analytics.back_to_coaching')}
               </Button>
             </Link>
@@ -147,7 +147,7 @@ export default function CoachingAnalytics() {
       <header className="mb-6 mt-2 sm:mb-8 sm:mt-4">
         <Link to={createPageUrl('Coach')}>
           <Button variant="ghost" className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 rtl:scale-x-[-1]" />
             {t('coaching_analytics.back_to_coaching')}
           </Button>
         </Link>
@@ -264,7 +264,7 @@ export default function CoachingAnalytics() {
                   <XAxis dataKey="stage" interval={0} angle={isMobile ? -20 : 0} textAnchor={isMobile ? 'end' : 'middle'} tick={{ fontSize: isMobile ? 10 : 12 }} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#8B5CF6" />
+                  <Bar dataKey="count" fill="#0f9f8f" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
