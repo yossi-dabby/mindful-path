@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Target, MessageCircle, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react';
+import { Heart, Target, MessageCircle, TrendingUp, BarChart3, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -26,7 +26,7 @@ export default function Coach() {
     queryFn: () => base44.auth.me()
   });
 
-  const { data: sessions } = useQuery({
+  const { data: sessions, isLoading: isSessionsLoading, isError: isSessionsError, refetch: refetchSessions } = useQuery({
     queryKey: ['coachingSessions', user?.email],
     queryFn: async () => {
       if (!user) return [];
@@ -37,7 +37,7 @@ export default function Coach() {
         );
       } catch (error) {
         console.error('Error fetching coaching sessions:', error);
-        return [];
+        throw error;
       }
     },
     enabled: !!user,
@@ -69,12 +69,12 @@ export default function Coach() {
     },
     onError: (error) => {
       console.error('Failed to delete session:', error);
-      alert('Failed to delete session. Please try again.');
+      alert(t('coach.delete_error'));
     }
   });
 
   const handleDeleteSession = (sessionId) => {
-    if (confirm('Are you sure you want to delete this coaching session? This action cannot be undone.')) {
+    if (confirm(t('coach.delete_confirm'))) {
       deleteSessionMutation.mutate(sessionId);
     }
   };
@@ -193,7 +193,20 @@ export default function Coach() {
 
       {/* Content */}
       <div className="bg-teal-50/40 mx-auto pb-32 p-4 max-w-7xl md:p-6 md:pb-24 w-full backdrop-blur-[2px]">
-        {safeSessions.length === 0 ?
+        {isSessionsLoading ? (
+          <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3" role="status" aria-live="polite">
+            <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+            <p className="text-sm font-medium text-teal-700">{t('coach.loading')}</p>
+          </div>
+        ) : isSessionsError ? (
+          <Card className="mt-4 border border-red-200 bg-white/90 shadow-[var(--shadow-md)] md:mt-10">
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <AlertCircle className="h-10 w-10 text-red-500" />
+              <p className="font-medium text-slate-700">{t('coach.load_error')}</p>
+              <Button variant="outline" onClick={() => refetchSessions()}>{t('coach.retry')}</Button>
+            </CardContent>
+          </Card>
+        ) : safeSessions.length === 0 ?
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -209,16 +222,12 @@ export default function Coach() {
 
                   <Heart className="bg-teal-600 text-white lucide lucide-heart w-8 h-8 md:w-10 md:h-10" />
                 </motion.div>
-                <h2 className="text-teal-600 mb-3 text-xl font-bold md:text-2xl">Welcome to AI Coaching! 👋
-
-              </h2>
-                <p className="text-teal-600 mb-6 mx-auto text-sm md:text-base max-w-lg">Work step-by-step with your AI coach to clarify challenges, set focused goals, and move forward with confidence.
-
-              </p>
+                <h2 className="mb-3 text-xl font-bold text-teal-800 md:text-3xl">{t('coach.welcome.title')}</h2>
+                <p className="mx-auto mb-6 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">{t('coach.welcome.description')}</p>
                 <ul className="text-left text-sm md:text-base mb-6 max-w-lg mx-auto space-y-2 text-foreground/85">
-                  <li className="text-teal-600">• Break overwhelming thoughts into clear actions</li>
-                  <li className="text-teal-600">• Get structured guidance, not generic advice</li>
-                  <li className="text-teal-600">• Build momentum session by session</li>
+                  <li className="text-slate-700">• {t('coach.welcome.bullet_1')}</li>
+                  <li className="text-slate-700">• {t('coach.welcome.bullet_2')}</li>
+                  <li className="text-slate-700">• {t('coach.welcome.bullet_3')}</li>
                 </ul>
                 <Button
                 onClick={handleStartSession}
@@ -226,11 +235,11 @@ export default function Coach() {
 
 
                   <Target className="w-5 h-5 mr-2" />
-                  Start Your First Session
+                  {t('coach.welcome.start')}
                 </Button>
                 <ul className="text-left text-sm md:text-base mt-6 max-w-lg mx-auto space-y-2 text-foreground/85">
-                  <li className="text-teal-600">• Identify what matters most right now</li>
-                  <li className="text-teal-600">• Turn stress into an actionable plan</li>
+                  <li className="text-slate-700">• {t('coach.welcome.bullet_4')}</li>
+                  <li className="text-slate-700">• {t('coach.welcome.bullet_5')}</li>
                 </ul>
               </CardContent>
             </Card>
@@ -239,10 +248,7 @@ export default function Coach() {
         <div className="space-y-6">
             {/* Personalized Insights */}
             <div>
-              <h3 className="text-teal-600 mb-4 text-lg font-semibold flex items-center gap-2">Your Personalized Insights
-
-
-            </h3>
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-teal-800 md:text-2xl">{t('coach.personalized_insights')}</h2>
               <PersonalizedInsights onStartSession={handleStartSession} />
             </div>
 
