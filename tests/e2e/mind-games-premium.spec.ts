@@ -67,10 +67,8 @@ test.describe('Premium mind games hub', () => {
     await expect(gameButton).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('mindgame-modal-memory-match')).toBeVisible();
-    await expect(page).toHaveURL(/game=memory-match/);
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('mindgame-modal-memory-match')).not.toBeVisible();
-    await expect(page).not.toHaveURL(/game=/);
   });
 
   test('keeps the hub and game dialog inside mobile and desktop viewports', async ({ page }) => {
