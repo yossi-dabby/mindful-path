@@ -26,7 +26,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
   };
   if (sessions.length === 0) {
     return (
-      <Card className="bg-teal-100 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
+      <Card className="rounded-[var(--radius-card)] border border-white/75 bg-white/85 text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-xl">
         <CardContent className="p-8 text-center md:p-12">
           <Target className="mx-auto mb-3 h-12 w-12 text-teal-600" aria-hidden="true" />
           <p className="font-medium text-teal-700">{t('coach.session.none')}</p>
@@ -48,7 +48,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}>
 
-            <Card className="bg-teal-100 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group">
+            <Card className="group rounded-[var(--radius-card)] border border-white/75 bg-white/88 text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)]">
 
 
               <CardContent
@@ -66,7 +66,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="bg-teal-100 rounded-[var(--radius-control)] w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-teal-100 shadow-[var(--shadow-sm)] sm:h-12 sm:w-12">
                       <Target className="text-teal-600 lucide lucide-target w-6 h-6" />
                     </div>
                     <div className="flex-1">
@@ -78,7 +78,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                       </Badge>
                     </div>
                   </div>
-                  <ChevronRight className="text-teal-600 lucide lucide-chevron-right w-5 h-5 group-hover:text-primary transition-colors" />
+                  <ChevronRight className="h-5 w-5 shrink-0 text-teal-600 transition-colors group-hover:text-primary rtl:scale-x-[-1]" aria-hidden="true" />
                 </div>
 
                 <div className="space-y-3">
@@ -117,7 +117,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                   }
                 </div>
               </CardContent>
-              <div className="px-6 pb-4 flex justify-end border-t pt-3">
+              <div className="flex justify-end border-t px-4 pb-3 pt-2 sm:px-6 sm:pb-4 sm:pt-3">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -128,7 +128,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                     onDeleteSession(session.id);
                   }}>
 
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="h-4 w-4" />
                   {t('coach.session.delete')}
                 </Button>
               </div>
