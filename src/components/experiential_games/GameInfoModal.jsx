@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Clock, Lightbulb, Play, Star } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, Lightbulb, Play, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { formatMindGameDuration, getMindGameMetadata } from './mindGameMetadata';
 
 export default function GameInfoModal({ game, onClose, onPlay }) {
   const { t } = useTranslation();
@@ -15,69 +16,29 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
   const benefits = t(`${helpKey}.benefits`, { defaultValue: '', returnObjects: true });
   const benefitsArray = Array.isArray(benefits) ? benefits : [];
   const technique = t(`${helpKey}.technique`, { defaultValue: '' });
+  const title = game.titleKey ? t(game.titleKey) : game.title;
+  const duration = formatMindGameDuration(game.time, t);
+  const category = t(`mind_games.premium.categories.${getMindGameMetadata(game.id).group}`);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center"
-        onClick={onClose}
+    <Dialog open={!!game} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent
+        closeLabel={t('mind_games.close_aria')}
+        className="max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-t-[28px] border-teal-700/15 bg-gradient-to-br from-white via-emerald-50 to-teal-50 p-0 sm:max-w-lg sm:rounded-[28px]"
+        data-testid="mindgame-info-dialog"
       >
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'rgba(26, 58, 52, 0.45)', backdropFilter: 'blur(6px)' }}
-        />
+        <DialogHeader className="border-b border-emerald-100/70 p-6 pe-16 text-start">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-teal-700">
+            {technique || category}
+          </p>
+          <DialogTitle className="break-words text-xl font-bold text-teal-950">{title}</DialogTitle>
+          <DialogDescription className="flex items-center gap-1 text-xs text-slate-600">
+            <Clock className="h-3.5 w-3.5 text-teal-600" aria-hidden="true" />
+            <span dir="ltr">{duration}</span>
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Panel */}
-        <motion.div
-          initial={{ y: 60, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 60, opacity: 0 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-          className="relative w-full sm:max-w-md mx-auto sm:mx-4 overflow-hidden"
-          style={{
-            borderRadius: '28px 28px 0 0',
-            maxHeight: '85vh',
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          <div
-            className="flex flex-col overflow-y-auto"
-            style={{
-              maxHeight: '85vh',
-              background: 'linear-gradient(160deg, #f0faf7 0%, #e2f4ef 100%)',
-              borderRadius: '28px 28px 0 0',
-              paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-            }}
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between p-6 pb-4 border-b border-emerald-100/60">
-              <div className="flex-1 min-w-0 pr-3">
-                <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: '#26A69A' }}>
-                  {technique || t('mind_games.help.technique_label', 'CBT / DBT / ACT')}
-                </p>
-                <h2 className="text-xl font-bold break-words" style={{ color: '#1A3A34' }}>
-                  {game.titleKey ? t(game.titleKey) : game.title}
-                </h2>
-                <div className="flex items-center gap-1 mt-1">
-                  <Clock className="w-3.5 h-3.5" style={{ color: '#26A69A' }} />
-                  <span className="text-xs" style={{ color: '#5A7A72' }}>{game.time}</span>
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                style={{ background: 'rgba(38,166,154,0.12)', color: '#26A69A' }}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5 p-6">
               {/* Purpose */}
               {purpose && (
                 <div>
@@ -87,7 +48,7 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
                       {t('mind_games.help.purpose_label', 'What is it for?')}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed pl-6" style={{ color: '#3A6A5E' }}>
+                  <p className="ps-6 text-sm leading-relaxed text-teal-900">
                     {purpose}
                   </p>
                 </div>
@@ -102,7 +63,7 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
                       {t('mind_games.help.how_to_play_label', 'How to play')}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed pl-6" style={{ color: '#3A6A5E' }}>
+                  <p className="ps-6 text-sm leading-relaxed text-teal-900">
                     {howToPlay}
                   </p>
                 </div>
@@ -117,7 +78,7 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
                       {t('mind_games.help.benefits_label', 'Benefits')}
                     </span>
                   </div>
-                  <ul className="space-y-1.5 pl-6">
+                  <ul className="space-y-1.5 ps-6">
                     {benefitsArray.map((benefit, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: '#26A69A' }} />
@@ -127,26 +88,21 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
                   </ul>
                 </div>
               )}
-            </div>
+        </div>
 
-            {/* Play button */}
-            <div className="px-6 pb-6 pt-2">
+        <div className="px-6 pb-6 pt-2">
               <Button
                 onClick={onPlay}
-                className="w-full h-12 text-base font-semibold"
+                className="h-12 w-full rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-base font-semibold text-white shadow-md hover:from-teal-600 hover:to-teal-800"
                 style={{
-                  background: 'linear-gradient(135deg, #26A69A 0%, #1A8A7E 100%)',
                   color: '#fff',
-                  borderRadius: '16px',
                   border: 'none',
                 }}
               >
                 {t('mind_games.help.play_button', 'Start Game')}
               </Button>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
