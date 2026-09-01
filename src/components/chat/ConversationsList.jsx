@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageCircle, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -26,7 +25,7 @@ export default function ConversationsList({
 }) {
   // Stage 1 runtime-path lock:
   // Active therapist-chat conversation/session list UI for pages/Chat.jsx (/Chat route).
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const safeConversations = Array.isArray(conversations) ? conversations : [];
 
   const [selected, setSelected] = useState(new Set());
@@ -70,16 +69,16 @@ export default function ConversationsList({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" />
-              Delete {selected.size} session{selected.size !== 1 ? 's' : ''}?
+              {t(selected.size === 1 ? 'chat.conversations_list.bulk_delete_title_one' : 'chat.conversations_list.bulk_delete_title_other', { count: selected.size })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete {selected.size} selected session{selected.size !== 1 ? 's' : ''}. This action cannot be undone.
+              {t(selected.size === 1 ? 'chat.conversations_list.bulk_delete_description_one' : 'chat.conversations_list.bulk_delete_description_other', { count: selected.size })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={handleBulkDelete}>
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -96,16 +95,16 @@ export default function ConversationsList({
                 ref={el => { if (el) el.indeterminate = someSelected; }}
                 onChange={toggleAll}
                 className="w-4 h-4 flex-shrink-0 accent-teal-600 cursor-pointer"
-                aria-label="Select all sessions"
+                aria-label={t('chat.conversations_list.select_all')}
               />
-              <span className="text-teal-600 text-sm font-medium truncate">{selected.size} selected</span>
+              <span className="text-teal-600 text-sm font-medium truncate">{t('chat.conversations_list.selected_count', { count: selected.size })}</span>
               <button
                 onClick={() => setShowBulkConfirm(true)}
                 className="ms-auto flex items-center gap-1 px-2 py-1 rounded-[var(--radius-nested)] bg-destructive/10 text-red-600 text-xs font-medium flex-shrink-0 min-h-[36px] min-w-[44px]"
-                aria-label={`Delete ${selected.size} selected sessions`}
+                aria-label={t('chat.conversations_list.bulk_delete_aria', { count: selected.size })}
               >
                 <Trash2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Delete</span>
+                <span className="hidden sm:inline">{t('common.delete')}</span>
               </button>
             </div>
           ) : (
@@ -116,7 +115,7 @@ export default function ConversationsList({
                   checked={false}
                   onChange={toggleAll}
                   className="w-4 h-4 flex-shrink-0 accent-teal-600 cursor-pointer"
-                  aria-label="Select all sessions"
+                  aria-label={t('chat.conversations_list.select_all')}
                 />
               )}
               <h2 className="text-teal-600 text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
@@ -171,7 +170,7 @@ export default function ConversationsList({
                       onChange={(e) => toggleOne(conversation.id, e)}
                       onClick={(e) => e.stopPropagation()}
                       className="w-4 h-4 accent-teal-600 cursor-pointer"
-                      aria-label={`Select session ${conversation.metadata?.name || conversation.id}`}
+                      aria-label={t('chat.conversations_list.select_session', { name: conversation.metadata?.name || conversation.id })}
                     />
                   </div>
 
@@ -193,7 +192,7 @@ export default function ConversationsList({
                         "text-xs",
                         currentConversationId === conversation.id ? "text-primary" : "text-muted-foreground"
                       )}>
-                        {conversation.created_date ? format(new Date(conversation.created_date), 'MMM d, h:mm a') : ''}
+                        {conversation.created_date ? new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(conversation.created_date)) : ''}
                       </p>
                     </div>
                   </button>
