@@ -15,6 +15,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import AiJournalSuggestions from './AiJournalSuggestions';
 import AiDistortionAnalysis from './AiDistortionAnalysis';
+import { safeInvokeLLM } from '../utils/safeInvokeLLM';
 
 const commonEmotions = [
   ['Anxious', 'anxious'], ['Sad', 'sad'], ['Angry', 'angry'], ['Frustrated', 'frustrated'],
@@ -73,9 +74,16 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
   const abortControllerRef = React.useRef(null);
   const mountedRef = React.useRef(true);
 
+  const userQuery = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 300000
+  });
+  const userEmail = userQuery.data?.email;
   const { data: goals } = useQuery({
-    queryKey: ['activeGoals'],
-    queryFn: () => base44.entities.Goal.filter({ status: 'active' }),
+    queryKey: ['activeGoals', userEmail],
+    queryFn: () => base44.entities.Goal.filter({ created_by: userEmail, status: 'active' }),
+    enabled: Boolean(userEmail),
     initialData: []
   });
 
@@ -186,7 +194,7 @@ Provide:
 3. **Recommended Exercises**: Suggest 2-3 specific CBT exercise categories that would help
 4. **Key Insight**: One encouraging insight about their thought process`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await safeInvokeLLM({
         prompt,
         response_json_schema: {
           type: "object",
@@ -216,10 +224,10 @@ Provide:
             key_insight: { type: "string" }
           }
         }
-      });
+      }, true);
 
       if (!mountedRef.current) return;
-      
+      if (!response?.sentiment || !response?.key_insight) throw new Error('Invalid journal analysis response');
       setAiAnalysis(response);
     } catch (error) {
       if (error.name === 'AbortError') return;
@@ -528,7 +536,7 @@ Provide:
                   onClick={() => setStep(3)}
                   className="flex-1"
                 >
-                  Continue
+                  {t('journal_ui.common.continue')}
                 </Button>
               </div>
             </div>
@@ -915,7 +923,7 @@ Provide:
                     <div className="grid grid-cols-3 gap-2">
                       {formData.images.map((url, i) => (
                         <div key={i} className="relative group">
-                          <img src={url} alt={`Image preview ${i + 1}`} className="w-full h-20 object-cover rounded-lg" />
+                          <img src={url} alt={`${t('journal_ui.form.images')} ${i + 1}`} className="w-full h-20 object-cover rounded-lg" />
                           <button
                             onClick={() => removeFile(i, 'image')}
                             className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
