@@ -3,8 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Target, Calendar, ChevronRight, CheckCircle2, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const focusAreaColors = {
   mood_improvement: 'bg-blue-100 text-blue-700',
@@ -16,28 +16,27 @@ const focusAreaColors = {
   general: 'bg-gray-100 text-gray-700'
 };
 
-const stageLabels = {
-  discovery: 'Discovery',
-  planning: 'Planning',
-  action: 'Taking Action',
-  review: 'Review',
-  completed: 'Completed'
-};
-
 export default function CoachingSessionList({ sessions, onSelectSession, onDeleteSession }) {
+  const { t, i18n } = useTranslation();
+  const formatDate = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language, {
+      year: 'numeric', month: 'short', day: 'numeric'
+    }).format(date);
+  };
   if (sessions.length === 0) {
     return (
       <Card className="bg-teal-100 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
-        <CardContent className="p-12 text-center">
-          <Target className="text-teal-600 mb-3 mx-auto lucide lucide-target w-12 h-12" />
-          <p className="text-teal-600 font-medium">No sessions yet</p>
+        <CardContent className="p-8 text-center md:p-12">
+          <Target className="mx-auto mb-3 h-12 w-12 text-teal-600" aria-hidden="true" />
+          <p className="font-medium text-teal-700">{t('coach.session.none')}</p>
         </CardContent>
       </Card>);
 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {sessions.map((session, index) => {
         const completedActions = session.action_plan?.filter((a) => a.completed).length || 0;
         const totalActions = session.action_plan?.length || 0;
@@ -52,7 +51,19 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
             <Card className="bg-teal-100 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group">
 
 
-              <CardContent className="p-6 cursor-pointer" onClick={() => onSelectSession(session)}>
+              <CardContent
+                className="cursor-pointer p-4 outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 sm:p-6"
+                role="button"
+                tabIndex={0}
+                aria-label={t('coach.session.open_aria', { title: session.title })}
+                onClick={() => onSelectSession(session)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onSelectSession(session);
+                  }
+                }}
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
                     <div className="bg-teal-100 rounded-[var(--radius-control)] w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
@@ -63,7 +74,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                         {session.title}
                       </h3>
                       <Badge variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
-                        {session.focus_area.replace('_', ' ')}
+                        {t(`coach.focus.${session.focus_area}.label`, { defaultValue: session.focus_area?.replace(/_/g, ' ') })}
                       </Badge>
                     </div>
                   </div>
@@ -73,21 +84,21 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="text-teal-600 lucide lucide-calendar w-4 h-4" />
-                    <span className="text-teal-600 font-medium">Started {format(new Date(session.created_date), 'MMM dd, yyyy')}</span>
+                    <span className="font-medium text-teal-700">{t('coach.session.started', { date: formatDate(session.created_date) })}</span>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-teal-600 font-medium">Stage:</span>
-                      <span className="text-teal-600 font-medium">{stageLabels[session.stage]}</span>
+                      <span className="font-medium text-teal-700">{t('coach.session.stage')}:</span>
+                      <span className="font-medium text-teal-700">{t(`coach.stage.${session.stage || 'discovery'}`)}</span>
                     </div>
                   </div>
 
                   {totalActions > 0 &&
                   <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">Progress:</span>
-                        <span className="font-medium text-foreground">{completedActions}/{totalActions} actions</span>
+                        <span className="text-muted-foreground">{t('coach.session.progress')}:</span>
+                        <span className="font-medium text-foreground">{t('coach.session.actions', { completed: completedActions, total: totalActions })}</span>
                       </div>
                       <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
                         <div
@@ -101,7 +112,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                   {session.status === 'completed' &&
                   <div className="flex items-center gap-2 text-green-700 text-sm font-medium pt-2 border-t">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Completed</span>
+                      <span>{t('coach.session.completed')}</span>
                     </div>
                   }
                 </div>
@@ -110,14 +121,15 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                  className="min-h-[44px] text-red-600 hover:bg-red-50 hover:text-red-700"
+                  aria-label={t('coach.session.delete_aria', { title: session.title })}
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteSession(session.id);
                   }}>
 
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  {t('coach.session.delete')}
                 </Button>
               </div>
             </Card>
