@@ -1,33 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-
-// Game metadata for tracking
-const gameMetadata = {
-  thought_quiz: { category: 'CBT', skill: 'cognitive_restructuring' },
-  reframe_pick: { category: 'CBT', skill: 'cognitive_restructuring' },
-  value_compass: { category: 'ACT', skill: 'mindfulness' },
-  tiny_experiment: { category: 'CBT', skill: 'behavioral_activation' },
-  quick_win: { category: 'DBT', skill: 'behavioral_activation' },
-  calm_bingo: { category: 'DBT', skill: 'grounding' },
-  dbt_stop: { category: 'DBT', skill: 'emotion_regulation' },
-  opposite_action: { category: 'DBT', skill: 'emotion_regulation' },
-  urge_surfing: { category: 'DBT', skill: 'distress_tolerance' },
-  worry_time: { category: 'CBT', skill: 'cognitive_restructuring' },
-  evidence_balance: { category: 'CBT', skill: 'cognitive_restructuring' },
-  defusion_cards: { category: 'ACT', skill: 'defusion' },
-  tipp_skills: { category: 'DBT', skill: 'distress_tolerance' },
-  accepts: { category: 'DBT', skill: 'distress_tolerance' },
-  willing_hands: { category: 'DBT', skill: 'emotion_regulation' },
-  half_smile: { category: 'DBT', skill: 'emotion_regulation' },
-  improve: { category: 'DBT', skill: 'distress_tolerance' },
-  leaves_on_stream: { category: 'ACT', skill: 'defusion' },
-  expansion: { category: 'ACT', skill: 'emotion_regulation' },
-  values_check: { category: 'ACT', skill: 'mindfulness' },
-  pros_and_cons: { category: 'DBT', skill: 'emotion_regulation' },
-  check_the_facts: { category: 'DBT', skill: 'emotion_regulation' },
-  self_soothe: { category: 'DBT', skill: 'distress_tolerance' },
-  mountain_meditation: { category: 'ACT', skill: 'mindfulness' },
-};
+import { getMindGameMetadata } from './mindGameMetadata';
 
 export function useMindGameTracking() {
   const queryClient = useQueryClient();
@@ -42,7 +15,7 @@ export function useMindGameTracking() {
       success_rate = null,
       attempts = 1
     }) => {
-      const metadata = gameMetadata[game.id] || { category: 'CBT', skill: 'mindfulness' };
+      const metadata = getMindGameMetadata(game.id);
       
       return base44.entities.MindGameActivity.create({
         game_id: game.id,
