@@ -5145,7 +5145,7 @@ export default function Chat() {
             <div className="h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
               <div className="p-4 flex-1 flex items-center justify-center sm:p-6 lg:p-8 bg-gradient-to-b from-white/35 to-teal-50/45">
-                <Card className="bg-white/90 text-teal-700 p-6 sm:p-8 text-center rounded-3xl backdrop-blur-xl max-w-lg border border-white/90 shadow-[var(--shadow-lg)]">
+                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-6 sm:p-8 text-center rounded-3xl backdrop-blur-xl max-w-lg border border-white/90 shadow-[var(--shadow-lg)]">
                   <div className="mx-auto mb-5 rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
                     <span className="text-3xl" aria-hidden="true">👋</span>
                   </div>
@@ -5156,6 +5156,7 @@ export default function Chat() {
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
+                    data-testid="chat-start-first-session"
                     onClick={startNewConversation} className="bg-teal-600 text-white px-6 min-h-[52px] text-base sm:text-lg font-semibold tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-normal border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 shadow-[var(--shadow-md)] hover:bg-teal-700 hover:shadow-[var(--shadow-lg)] active:bg-teal-800 w-full sm:w-auto">
 
 
