@@ -92,7 +92,7 @@ export default function Settings() {
             last_updated: new Date().toISOString().split('T')[0]
           });
         }
-      } catch (_) {
+      } catch {
         // Non-critical initialization.
       }
 
@@ -101,7 +101,7 @@ export default function Settings() {
         if (existingSubscriptions.length === 0) {
           await base44.entities.Subscription.create({ plan_type: 'free', status: 'trial' });
         }
-      } catch (_) {
+      } catch {
         // Non-critical initialization.
       }
     }).catch(() => {
@@ -158,7 +158,7 @@ export default function Settings() {
       document.documentElement.style.setProperty('--color-primary', theme.colors.primary);
       document.documentElement.style.setProperty('--color-secondary', theme.colors.secondary);
       document.documentElement.style.setProperty('--color-accent', theme.colors.accent);
-    } catch (_) {
+    } catch {
       setCurrentTheme(previousTheme);
     }
   };
@@ -169,7 +169,7 @@ export default function Settings() {
     setNotifications(next);
     try {
       await savePreferences({ notifications: next });
-    } catch (_) {
+    } catch {
       setNotifications(previous);
     }
   };
@@ -180,7 +180,7 @@ export default function Settings() {
     setEmailNotifications(next);
     try {
       await savePreferences({ emailNotifications: next });
-    } catch (_) {
+    } catch {
       setEmailNotifications(previous);
     }
   };
@@ -190,7 +190,7 @@ export default function Settings() {
     setDashboardLayout(layout);
     try {
       await savePreferences({ dashboardLayout: layout });
-    } catch (_) {
+    } catch {
       setDashboardLayout(previous);
     }
   };
