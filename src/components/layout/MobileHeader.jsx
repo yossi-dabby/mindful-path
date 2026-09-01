@@ -19,6 +19,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
   // Prefer the prop; fall back to what the TabNavigationProvider knows
   const currentPageName = currentPageNameProp ?? tabNav?.currentPageName;
+  const visibilityClass = currentPageName === 'Chat' ? 'lg:hidden' : 'md:hidden';
 
   // Pages that are always treated as sub-routes (show back button regardless of path depth)
   const ALWAYS_BACK_PAGES = new Set([
@@ -72,7 +73,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
   return (
     <header
       data-app-chrome
-      className="md:hidden fixed top-0 left-0 right-0 border-b border-border/70 bg-[hsl(var(--sidebar-background)/0.88)] backdrop-blur-2xl z-40"
+      className={`${visibilityClass} fixed top-0 left-0 right-0 border-b border-border/70 bg-[hsl(var(--sidebar-background)/0.88)] backdrop-blur-2xl z-40`}
       style={{
         height: 'calc(60px + env(safe-area-inset-top, 0px))',
         paddingTop: 'env(safe-area-inset-top, 0px)'
