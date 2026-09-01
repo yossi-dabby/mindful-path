@@ -9,6 +9,7 @@ import { applyMoodUiTranslations } from './moodUiTranslations';
 import { applyJournalUiTranslations } from './journalUiTranslations';
 import { applyProgressUiTranslations } from './progressUiTranslations';
 import { applyCommunityUiTranslations } from './communityUiTranslations';
+import { applyResourcesUiTranslations } from './resourcesUiTranslations';
 import {
   applyAppLocaleSideEffects,
   applyAppLocaleToDocument,
@@ -24,6 +25,7 @@ applyMoodUiTranslations(translations);
 applyJournalUiTranslations(translations);
 applyProgressUiTranslations(translations);
 applyCommunityUiTranslations(translations);
+applyResourcesUiTranslations(translations);
 
 /**
  * Convert a dot-notation key into a human-readable fallback label.
