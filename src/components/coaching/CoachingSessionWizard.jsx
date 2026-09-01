@@ -286,28 +286,30 @@ export default function CoachingSessionWizard({ onClose }) {
                   </label>
                   <div className="space-y-2">
                     {goals.map((goal) =>
-                <div
+                <button
+                  type="button"
                   key={goal.id}
                   onClick={() => toggleGoal(goal.id)}
+                  aria-pressed={formData.related_goals.includes(goal.id)}
                   className={cn(
-                    'p-3 rounded-xl border-2 cursor-pointer transition-all',
+                    'w-full p-3 rounded-xl border-2 cursor-pointer text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                     formData.related_goals.includes(goal.id) ?
                     'border-primary bg-primary/8' :
                     'border-border hover:border-border/80'
                   )}>
 
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                               <Target className="w-4 h-4 text-primary" />
                             </div>
-                            <span className="font-medium text-foreground">{goal.title}</span>
+                            <span className="truncate font-medium text-foreground">{goal.title}</span>
                           </div>
                           {formData.related_goals.includes(goal.id) &&
-                    <Badge className="bg-primary">{t('coach.wizard.selected')}</Badge>
+                    <Badge className="shrink-0 bg-primary">{t('coach.wizard.selected')}</Badge>
                     }
                         </div>
-                      </div>
+                      </button>
                 )}
                   </div>
                 </div>
@@ -381,7 +383,7 @@ export default function CoachingSessionWizard({ onClose }) {
               disabled={createSessionMutation.isPending}
               className="flex-1">
 
-                <ChevronLeft className="w-4 h-4 mr-2" />
+                <ChevronLeft className="h-4 w-4 rtl:scale-x-[-1]" />
                 {t('coach.wizard.back')}
               </Button>
             }
