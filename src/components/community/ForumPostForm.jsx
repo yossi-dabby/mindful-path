@@ -1,183 +1,114 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { X, Plus } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import CommunityDialogShell from './CommunityDialogShell';
 
-const FORUM_CATEGORY_OPTIONS = [
-  { value: 'general', label: 'General Discussion' },
-  { value: 'goals', label: 'Goals & Achievements' },
-  { value: 'mental_health', label: 'Mental Health' },
-  { value: 'exercises', label: 'Exercises & Techniques' },
-  { value: 'success_stories', label: 'Success Stories' },
-  { value: 'questions', label: 'Questions' },
-  { value: 'tips', label: 'Tips & Advice' },
-];
+const CATEGORIES = ['general','goals','mental_health','exercises','success_stories','questions','tips'];
 
 export default function ForumPostForm({ onClose, groupId }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    category: 'general',
-    tags: [],
-    is_anonymous: false,
-    group_id: groupId || null
-  });
+  const [formData, setFormData] = useState({ title: '', content: '', category: 'general', tags: [], is_anonymous: false, group_id: groupId || null });
   const [newTag, setNewTag] = useState('');
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me()
-  });
+  const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
+  const options = CATEGORIES.map((value) => ({ value, label: t(`community_ui.categories.${value}`) }));
 
   const createMutation = useMutation({
-    mutationFn: async (data) => {
-      const postData = {
-        ...data,
-        author_display_name: data.is_anonymous ? 'Anonymous User' : user.full_name
-      };
-      return base44.entities.ForumPost.create(postData);
-    },
+    mutationFn: (data) => base44.entities.ForumPost.create({
+      ...data,
+      title: data.title.trim(),
+      content: data.content.trim(),
+      author_display_name: data.is_anonymous ? 'Anonymous User' : (user?.full_name || user?.email || 'Community member')
+    }),
     onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: ['forumPosts'] });
       const previousPosts = queryClient.getQueryData(['forumPosts']);
-      const optimisticPost = {
+      queryClient.setQueryData(['forumPosts'], (old = []) => [{
         ...data,
         id: `temp-${Date.now()}`,
-        author_display_name: data.is_anonymous ? 'Anonymous User' : user?.full_name,
+        title: data.title.trim(),
+        content: data.content.trim(),
+        author_display_name: data.is_anonymous ? 'Anonymous User' : (user?.full_name || user?.email || 'Community member'),
         upvotes: 0,
         comment_count: 0,
         created_date: new Date().toISOString()
-      };
-      queryClient.setQueryData(['forumPosts'], (old = []) => [optimisticPost, ...old]);
+      }, ...old]);
       return { previousPosts };
     },
-    onSuccess: () => {
-      onClose();
-    },
     onError: (_error, _variables, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(['forumPosts'], context.previousPosts);
-      }
+      if (context?.previousPosts) queryClient.setQueryData(['forumPosts'], context.previousPosts);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
-    }
+    onSuccess: onClose,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['forumPosts'] })
   });
 
   const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
+    const tag = newTag.trim().slice(0, 30);
+    if (tag && formData.tags.length < 5 && !formData.tags.includes(tag)) {
+      setFormData((current) => ({ ...current, tags: [...current.tags, tag] }));
       setNewTag('');
     }
   };
 
-  const removeTag = (tag) => {
-    setFormData({ ...formData, tags: formData.tags.filter((t) => t !== tag) });
-  };
+  const valid = formData.title.trim().length > 0 && formData.content.trim().length > 0;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
-        <CardHeader className="bg-teal-200 p-6 flex flex-col space-y-1.5 border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle>Create Post</CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-              <X className="w-5 h-5" />
-            </Button>
+    <CommunityDialogShell title={t('community_ui.post.title')} closeLabel={t('community_ui.common.close')} onClose={onClose} testId="forum-post-dialog">
+      <form className="space-y-5" onSubmit={(event) => { event.preventDefault(); if (valid) createMutation.mutate(formData); }}>
+        <div>
+          <label htmlFor="community-post-title" className="mb-2 block text-sm font-medium text-foreground">{t('community_ui.post.title_label')}</label>
+          <Input id="community-post-title" value={formData.title} maxLength={120} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder={t('community_ui.post.title_placeholder')} className="min-h-[44px] rounded-xl bg-background" autoFocus />
+          <p className="mt-1 text-end text-xs text-muted-foreground">{formData.title.length}/120</p>
+        </div>
+        <div>
+          <label htmlFor="community-post-content" className="mb-2 block text-sm font-medium text-foreground">{t('community_ui.post.content_label')}</label>
+          <Textarea id="community-post-content" value={formData.content} maxLength={5000} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder={t('community_ui.post.content_placeholder')} className="min-h-36 rounded-xl bg-background" />
+          <p className="mt-1 text-end text-xs text-muted-foreground">{formData.content.length}/5000</p>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-foreground">{t('community_ui.post.category')}</label>
+          <BottomSheetSelect value={formData.category} onValueChange={(category) => setFormData({ ...formData, category })} options={options} title={t('community_ui.post.category_title')} />
+        </div>
+        <div>
+          <label htmlFor="community-post-tag" className="mb-2 block text-sm font-medium text-foreground">{t('community_ui.post.tags')}</label>
+          <div className="mb-2 flex flex-wrap gap-2">
+            {formData.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="max-w-full gap-1">
+                <span className="truncate">{tag}</span>
+                <button type="button" aria-label={t('community_ui.post.remove_tag', { tag })} onClick={() => setFormData((current) => ({ ...current, tags: current.tags.filter((item) => item !== tag) }))} className="min-h-6 min-w-6 rounded-full">×</button>
+              </Badge>
+            ))}
           </div>
-        </CardHeader>
-        <CardContent className="bg-teal-200 p-6">
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Title</label>
-              <Input
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="What's on your mind?" className="bg-slate-50 text-foreground px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50" />
-              
-              
-            </div>
-
-            <div className="bg-slate-50">
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Content</label>
-              <Textarea
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Share your thoughts, experiences, or questions..."
-                className="rounded-xl h-32" />
-              
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
-              <BottomSheetSelect
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
-                options={FORUM_CATEGORY_OPTIONS}
-                title="Post Category"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {formData.tags.map((tag) =>
-                <Badge key={tag} className="bg-blue-100 text-blue-700 pr-1">
-                    {tag}
-                    <button type="button" aria-label={`Remove tag ${tag}`} onClick={() => removeTag(tag)} className="ml-1 hover:bg-blue-200 rounded-full p-0.5">
-                      <X className="w-3 h-3" aria-hidden="true" />
-                    </button>
-                  </Badge>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Add a tag..."
-                  className="rounded-xl" />
-                
-                <Button onClick={addTag} variant="outline" size="icon" aria-label="Add tag">
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="bg-teal-100 p-4 rounded-xl flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-800">Post Anonymously</p>
-                <p className="text-sm text-gray-500">Your name will be hidden</p>
-              </div>
-              <Switch
-                checked={formData.is_anonymous}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_anonymous: checked })} className="bg-teal-400 text-teal-400 rounded-full peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input" />
-              
-            </div>
-
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Cancel
-              </Button>
-              <Button
-                onClick={() => createMutation.mutate(formData)}
-                disabled={!formData.title || !formData.content || createMutation.isPending}
-                className="flex-1 bg-blue-600 hover:bg-blue-700">
-                
-                {createMutation.isPending ? 'Posting...' : 'Post'}
-              </Button>
-            </div>
+          <div className="flex gap-2">
+            <Input id="community-post-tag" value={newTag} maxLength={30} disabled={formData.tags.length >= 5} onChange={(e) => setNewTag(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} placeholder={t('community_ui.post.tag_placeholder')} className="min-h-[44px] rounded-xl bg-background" />
+            <Button type="button" onClick={addTag} variant="outline" size="icon" className="min-h-[44px] min-w-[44px]" aria-label={t('community_ui.post.add_tag')} disabled={!newTag.trim() || formData.tags.length >= 5}><Plus className="h-4 w-4" /></Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>);
-
+          <p className="mt-1 text-xs text-muted-foreground">{t('community_ui.post.tags_limit')}</p>
+        </div>
+        <div className="flex items-center justify-between gap-4 rounded-xl border border-teal-200 bg-teal-50/80 p-4">
+          <div>
+            <label htmlFor="community-post-anonymous" className="font-medium text-teal-900">{t('community_ui.post.anonymous')}</label>
+            <p className="text-sm text-teal-800">{t('community_ui.post.anonymous_help')}</p>
+          </div>
+          <Switch id="community-post-anonymous" checked={formData.is_anonymous} onCheckedChange={(is_anonymous) => setFormData({ ...formData, is_anonymous })} />
+        </div>
+        {createMutation.isError && <p role="alert" className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-800"><AlertCircle className="h-4 w-4 shrink-0" />{t('community_ui.post.error')}</p>}
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
+          <Button type="button" variant="outline" onClick={onClose} className="min-h-[44px] flex-1">{t('community_ui.common.cancel')}</Button>
+          <Button type="submit" disabled={!valid || createMutation.isPending} className="min-h-[44px] flex-1 bg-teal-700">
+            {t(createMutation.isPending ? 'community_ui.post.submitting' : 'community_ui.post.submit')}
+          </Button>
+        </div>
+      </form>
+    </CommunityDialogShell>
+  );
 }
