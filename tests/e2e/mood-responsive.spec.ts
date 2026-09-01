@@ -73,7 +73,7 @@ test.describe('Mood tracker responsive experience', () => {
 
 test('Mood tracker renders Hebrew copy and RTL direction', async ({ page }) => {
   await prepareMood(page, 'he');
-  await expect(page.getByRole('heading', { name: /מעקב מצב רוח/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /מעקב אחר מצב רוח/ })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await page.getByRole('tab', { name: /לוח שנה/ }).click();
   await expect(page.getByText(/לוח מצב הרוח/)).toBeVisible();
