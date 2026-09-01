@@ -274,6 +274,10 @@ export default function ExperientialGames() {
       <Dialog open={!!activeGame} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent
           closeLabel={t('mind_games.close_aria')}
+          onEscapeKeyDown={(event) => {
+            event.preventDefault();
+            handleClose();
+          }}
           className="max-h-[calc(100dvh-1rem)] max-w-2xl overflow-hidden rounded-t-[28px] border-teal-700/15 bg-gradient-to-b from-white to-emerald-50 p-0 sm:max-h-[calc(100vh-3rem)] sm:rounded-[28px]"
           data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
         >
