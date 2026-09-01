@@ -286,6 +286,27 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    if (url.includes('/entities/ThoughtJournal') && method === 'POST') {
+      let postData: any = {};
+      try {
+        postData = req.postDataJSON();
+      } catch {
+        // ignore
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'test-thought-journal-123',
+          ...postData,
+          created_date: new Date().toISOString(),
+          created_by: mockUserEmail,
+          updated_date: new Date().toISOString(),
+        }),
+      });
+      return;
+    }
+
     if (url.includes('/entities/ForumPost') && method === 'POST') {
       let postData: any = {};
       try {
@@ -491,4 +512,3 @@ export const SAFE_CONVERSATION_ROUTE_PATTERNS = {
    */
   CONVERSATIONS_LIST: '**/api/**/agents/conversations',
 } as const;
-
