@@ -7,16 +7,10 @@ import { motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
-
-const PROMPTS = {
-  1: "I'm here with you. What's happening right now that makes you feel this way?",
-  2: "Write the thought that's bothering you (one sentence is enough).",
-  3: "What would you like to reflect on today? (short is fine)",
-  4: "What is one goal you want to work on right now?",
-  5: "Choose: Calm / Ground / Breathing (or write one short line)."
-};
+import { useTranslation } from 'react-i18next';
 
 export default function TherapyStateMachine({ onComplete }) {
+  const { t, i18n } = useTranslation();
   const [flowStep, setFlowStep] = useState('entry'); // entry | input | confirm | execute | complete
   const [selectedOption, setSelectedOption] = useState(null);
   const [userInput, setUserInput] = useState('');
@@ -53,7 +47,7 @@ export default function TherapyStateMachine({ onComplete }) {
         const today = new Date().toISOString().split('T')[0];
         const entry = await base44.entities.ThoughtJournal.create({
           date: today,
-          situation: selectedOption === 2 ? "Identified during therapy session" : "Reflection from therapy session",
+          situation: selectedOption === 2 ? t('chat.flow.situation_thought') : t('chat.flow.situation_reflection'),
           automatic_thoughts: userInput,
           emotions: [],
           intensity: 5,
@@ -63,7 +57,7 @@ export default function TherapyStateMachine({ onComplete }) {
 
         // Generate 3 alternatives
         const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `Generate exactly 3 brief alternative balanced thoughts for: "${userInput}". Make them short, realistic, and compassionate. Return JSON: {"alternatives": ["...", "...", "..."]}`,
+          prompt: `Generate exactly 3 brief, realistic and compassionate balanced thoughts for: "${userInput}". Write each alternative in locale ${i18n.resolvedLanguage || i18n.language || 'en'}. Return JSON only: {"alternatives": ["...", "...", "..."]}`,
           response_json_schema: {
             type: "object",
             properties: {
@@ -77,9 +71,7 @@ export default function TherapyStateMachine({ onComplete }) {
         });
 
         setAlternatives(result.alternatives || [
-          "This thought may not reflect the full picture",
-          "I can approach this from a different angle",
-          "I'm doing my best given the circumstances"
+          t('chat.flow.fallback_1'), t('chat.flow.fallback_2'), t('chat.flow.fallback_3')
         ]);
         setIsProcessing(false);
       } else if (selectedOption === 1) {
@@ -101,9 +93,7 @@ export default function TherapyStateMachine({ onComplete }) {
       console.error('Execute error:', error);
       if (selectedOption === 2 || selectedOption === 3) {
         setAlternatives([
-          "This thought may not reflect the full picture",
-          "I can approach this from a different angle", 
-          "I'm doing my best given the circumstances"
+          t('chat.flow.fallback_1'), t('chat.flow.fallback_2'), t('chat.flow.fallback_3')
         ]);
       }
       setIsProcessing(false);
@@ -165,22 +155,16 @@ export default function TherapyStateMachine({ onComplete }) {
       }}>
         <div className="mb-6">
           <p className="text-sm mb-3" style={{ color: '#5A7A72' }}>
-            Welcome. I'm here to support you.
+            {t('chat.entry.welcome')}
           </p>
           <h3 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>
-            What would you like to do today?
+            {t('chat.entry.question')}
           </h3>
         </div>
 
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((id) => {
-            const labels = [
-              "I'm not feeling well and want help right now",
-              "I have a thought that's bothering me",
-              "I want to write or reflect a bit",
-              "I want to work on a goal",
-              "I just want something short and calming"
-            ];
+            const labels = [1, 2, 3, 4, 5].map((number) => t(`chat.entry.option_${number}`));
             const emojis = ['❤️', '💭', '📓', '🎯', '🌿'];
             const colors = ['#E57373', '#9F7AEA', '#4FC3F7', '#FFB74D', '#81C784'];
 
@@ -231,12 +215,12 @@ export default function TherapyStateMachine({ onComplete }) {
         boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
       }}>
         <p className="mb-4 leading-relaxed" style={{ color: '#1A3A34' }}>
-          {PROMPTS[selectedOption]}
+          {t(`chat.flow.prompt_${selectedOption}`)}
         </p>
         <textarea
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Type here..."
+          placeholder={t('chat.flow.type_here')}
           className="w-full p-4 rounded-xl resize-none min-h-[120px] mb-4"
           style={{
             border: '1px solid rgba(38, 166, 154, 0.2)',
@@ -255,7 +239,7 @@ export default function TherapyStateMachine({ onComplete }) {
             opacity: !userInput.trim() ? 0.5 : 1
           }}
         >
-          Continue
+          {t('chat.flow.continue')}
         </Button>
       </Card>
     );
@@ -263,14 +247,6 @@ export default function TherapyStateMachine({ onComplete }) {
 
   // CONFIRM SCREEN
   if (flowStep === 'confirm') {
-    const reflections = {
-      1: `It sounds like you're dealing with ${userInput.toLowerCase()}. Did I understand that correctly?`,
-      2: `So the thought bothering you is: "${userInput}". Is that right?`,
-      3: `You want to reflect on ${userInput.toLowerCase()}. Did I capture that accurately?`,
-      4: `You want to work on: ${userInput}. Is that correct?`,
-      5: `You're looking for ${userInput.toLowerCase()}. Did I get that right?`
-    };
-
     return (
       <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
         borderRadius: '24px',
@@ -279,10 +255,10 @@ export default function TherapyStateMachine({ onComplete }) {
         boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
       }}>
         <p className="mb-4 leading-relaxed" style={{ color: '#1A3A34' }}>
-          {reflections[selectedOption]}
+          {t('chat.flow.reflection', { text: userInput })}
         </p>
         <p className="mb-6 text-sm" style={{ color: '#5A7A72' }}>
-          Would you like me to help you work with this now?
+          {t('chat.flow.confirm')}
         </p>
         <div className="flex gap-3">
           <Button
@@ -294,7 +270,7 @@ export default function TherapyStateMachine({ onComplete }) {
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
             }}
           >
-            Yes, continue
+            {t('chat.flow.yes')}
           </Button>
           <Button
             onClick={handleConfirmNo}
@@ -305,7 +281,7 @@ export default function TherapyStateMachine({ onComplete }) {
               borderColor: 'rgba(38, 166, 154, 0.3)'
             }}
           >
-            Not exactly
+            {t('chat.flow.no')}
           </Button>
         </div>
       </Card>
@@ -323,7 +299,7 @@ export default function TherapyStateMachine({ onComplete }) {
           boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
         }}>
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: '#26A69A' }} />
-          <p style={{ color: '#5A7A72' }}>Creating your entry...</p>
+          <p style={{ color: '#5A7A72' }}>{t('chat.flow.creating')}</p>
         </Card>
       );
     }
@@ -338,10 +314,10 @@ export default function TherapyStateMachine({ onComplete }) {
           boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
         }}>
           <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
-            Alternative perspectives
+            {t('chat.flow.alternatives_title')}
           </h3>
           <p className="text-sm mb-6" style={{ color: '#5A7A72' }}>
-            Which of these feels most helpful?
+            {t('chat.flow.alternatives_help')}
           </p>
 
           <div className="space-y-3">
@@ -387,17 +363,17 @@ export default function TherapyStateMachine({ onComplete }) {
           boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
         }}>
           <h3 className="text-lg font-semibold mb-4" style={{ color: '#1A3A34' }}>
-            Let's ground together
+            {t('chat.flow.grounding_title')}
           </h3>
           <div className="space-y-4 mb-6">
             <p style={{ color: '#1A3A34' }}>
-              <strong>1.</strong> Take a slow, deep breath in for 4 counts, hold for 4, breathe out for 6.
+              <strong>1.</strong> {t('chat.flow.grounding_1')}
             </p>
             <p style={{ color: '#1A3A34' }}>
-              <strong>2.</strong> Name 3 things you can see, 2 you can hear, 1 you can touch.
+              <strong>2.</strong> {t('chat.flow.grounding_2')}
             </p>
             <p style={{ color: '#1A3A34' }}>
-              <strong>3.</strong> Place your feet flat on the ground. Feel the support beneath you.
+              <strong>3.</strong> {t('chat.flow.grounding_3')}
             </p>
           </div>
           <div className="flex gap-3">
@@ -405,7 +381,7 @@ export default function TherapyStateMachine({ onComplete }) {
               onClick={() => {
                 base44.entities.ThoughtJournal.create({
                   date: new Date().toISOString().split('T')[0],
-                  situation: "Grounding practice",
+                  situation: t('chat.flow.situation_grounding'),
                   automatic_thoughts: userInput,
                   emotions: [],
                   intensity: 5,
@@ -417,7 +393,7 @@ export default function TherapyStateMachine({ onComplete }) {
               className="flex-1"
               style={{ borderRadius: '18px' }}
             >
-              Save as note
+              {t('chat.flow.save_note')}
             </Button>
             <Button
               onClick={() => navigate(createPageUrl('Exercises'))}
@@ -428,7 +404,7 @@ export default function TherapyStateMachine({ onComplete }) {
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
               }}
             >
-              Try a calming exercise
+              {t('chat.flow.calming_exercise')}
             </Button>
           </div>
         </Card>
@@ -450,10 +426,10 @@ export default function TherapyStateMachine({ onComplete }) {
             <CheckCircle2 className="w-8 h-8" style={{ color: '#81C784' }} />
           </div>
           <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
-            Goal created
+            {t('chat.flow.goal_created')}
           </h3>
           <p className="mb-6" style={{ color: '#5A7A72' }}>
-            Your goal has been saved. Track your progress anytime.
+            {t('chat.flow.goal_saved')}
           </p>
           <div className="flex gap-3">
             <Button
@@ -462,7 +438,7 @@ export default function TherapyStateMachine({ onComplete }) {
               className="flex-1"
               style={{ borderRadius: '18px' }}
             >
-              Do another one
+              {t('chat.flow.another')}
             </Button>
             <Button
               onClick={handleGoToGoals}
@@ -473,7 +449,7 @@ export default function TherapyStateMachine({ onComplete }) {
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
               }}
             >
-              Go to Goals
+              {t('chat.flow.go_goals')}
             </Button>
           </div>
         </Card>
@@ -502,10 +478,10 @@ export default function TherapyStateMachine({ onComplete }) {
           </div>
         </motion.div>
         <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
-          Entry saved
+          {t('chat.flow.entry_saved')}
         </h3>
         <p className="mb-6" style={{ color: '#5A7A72' }}>
-          Your thought has been recorded in your journal.
+          {t('chat.flow.journal_saved')}
         </p>
         <div className="flex gap-3">
           <Button
@@ -514,7 +490,7 @@ export default function TherapyStateMachine({ onComplete }) {
             className="flex-1"
             style={{ borderRadius: '18px', borderColor: 'rgba(38, 166, 154, 0.3)' }}
           >
-            Do another one
+            {t('chat.flow.another')}
           </Button>
           <Button
             onClick={handleGoToJournal}
@@ -525,7 +501,7 @@ export default function TherapyStateMachine({ onComplete }) {
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
             }}
           >
-            Go to Journal
+            {t('chat.flow.go_journal')}
           </Button>
         </div>
       </Card>
