@@ -9,7 +9,7 @@ import { getMessageRenderKey } from './utils/messageRenderKey';
  * Active therapist-chat message-list renderer for pages/Chat.jsx (/Chat route).
  */
 export default function MessageList({ messages, visibleCount, conversationId, sessionLanguage }) {
-  return messages
+  const renderedMessages = messages
     .slice(Math.max(0, messages.length - visibleCount))
     .filter((m) => m && isRenderableChatRole(m.role) && (m.content || hasUserAttachment(m)))
     .map((message, index, arr) => {
@@ -32,6 +32,8 @@ export default function MessageList({ messages, visibleCount, conversationId, se
         />
       );
     });
+
+  return <div role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false">{renderedMessages}</div>;
 }
 
 function isRenderableChatRole(role) {
