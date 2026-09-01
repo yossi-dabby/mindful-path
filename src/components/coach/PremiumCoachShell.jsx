@@ -33,8 +33,8 @@ export function PremiumCoachShell({
       data-testid={testId}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="pointer-events-none absolute -start-24 top-20 h-72 w-72 rounded-full bg-teal-300/20 blur-3xl" />
-      <div className="pointer-events-none absolute -end-24 bottom-20 h-72 w-72 rounded-full bg-violet-300/15 blur-3xl" />
+      <div className="pointer-events-none absolute start-0 top-20 h-56 w-56 rounded-full bg-teal-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-20 end-0 h-56 w-56 rounded-full bg-violet-300/15 blur-3xl" />
 
       <header className="relative z-10 shrink-0 border-b border-white/70 bg-white/70 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6 sm:py-4">
