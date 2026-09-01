@@ -452,7 +452,7 @@ export default function Settings() {
                     data-testid="settings-upgrade-button"
                   >
                     <Sparkles className="me-2 h-4 w-4" />
-                    {t('settings.subscription.upgrade_button')}
+                    {t('settings_ui.upgrade_button')}
                   </Button>
                 </div>
               </CardContent>
