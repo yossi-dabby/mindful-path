@@ -10,19 +10,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { X, ChevronRight, ChevronLeft, Sparkles, Target, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
-const focusAreas = [
-{ value: 'mood_improvement', label: 'Improve Mood', icon: '😊', description: 'Work on feeling better daily' },
-{ value: 'stress_management', label: 'Manage Stress', icon: '🧘', description: 'Reduce and cope with stress' },
-{ value: 'goal_achievement', label: 'Achieve Goals', icon: '🎯', description: 'Reach specific objectives' },
-{ value: 'behavior_change', label: 'Change Habits', icon: '🔄', description: 'Build new positive habits' },
-{ value: 'relationship', label: 'Relationships', icon: '💝', description: 'Improve connections' },
-{ value: 'self_esteem', label: 'Self-Esteem', icon: '✨', description: 'Build confidence' },
-{ value: 'general', label: 'General Support', icon: '🌟', description: 'Overall wellness' }];
+const focusAreaDefinitions = [
+  { value: 'mood_improvement', icon: '😊' },
+  { value: 'stress_management', icon: '🧘' },
+  { value: 'goal_achievement', icon: '🎯' },
+  { value: 'behavior_change', icon: '🔄' },
+  { value: 'relationship', icon: '💝' },
+  { value: 'self_esteem', icon: '✨' },
+  { value: 'general', icon: '🌟' }
+];
 
 
 export default function CoachingSessionWizard({ onClose }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const focusAreas = focusAreaDefinitions.map((area) => ({
+    ...area,
+    label: t(`coach.focus.${area.value}.label`),
+    description: t(`coach.focus.${area.value}.description`)
+  }));
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
@@ -66,6 +74,7 @@ export default function CoachingSessionWizard({ onClose }) {
         desired_outcome: data.desired_outcome,
         related_goals: data.related_goals || [],
         status: 'active',
+        stage: 'discovery',
         current_stage: 'understanding',
         action_plan: []
       };
@@ -108,13 +117,11 @@ export default function CoachingSessionWizard({ onClose }) {
           // Send initial coaching message
           await base44.agents.addMessage(conversation, {
             role: 'user',
-            content: `I'd like to start a coaching session. My focus is ${data.focus_area.replace(/_/g, ' ')}. 
-            
-Current Challenge: ${data.current_challenge}
-
-Desired Outcome: ${data.desired_outcome}
-
-Please help me create a structured plan to work through this.`
+            content: t('coach.wizard.ai_opening', {
+              focus: t(`coach.focus.${data.focus_area}.label`),
+              challenge: data.current_challenge,
+              outcome: data.desired_outcome
+            })
           });
         }
       } catch (convError) {
@@ -135,7 +142,7 @@ Please help me create a structured plan to work through this.`
 
   const moodInsight = recentMoods.length >= 3 &&
   recentMoods.slice(0, 3).every((m) => ['low', 'very_low'].includes(m.mood)) ?
-  'Your recent mood has been low - a coaching session could help address this.' :
+  t('coach.wizard.mood_insight') :
   null;
 
   const toggleGoal = (goalId) => {
@@ -180,13 +187,13 @@ Please help me create a structured plan to work through this.`
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-foreground">Start New Session</h1>
-                <p className="text-sm text-muted-foreground">Step {step} of 3</p>
+                <h1 className="text-lg font-semibold text-foreground sm:text-xl">{t('coach.wizard.title')}</h1>
+                <p className="text-sm text-muted-foreground">{t('coach.wizard.step', { step })}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? "Go back" : "Close"} className="text-slate-950 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('coach.wizard.back_aria') : t('coach.wizard.close_aria')} className="text-slate-950 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
               {step > 1 ?
-              <ChevronLeft className="w-5 h-5" /> :
+              <ChevronLeft className="h-5 w-5 rtl:scale-x-[-1]" /> :
 
               <X className="w-5 h-5" />
               }
@@ -202,8 +209,8 @@ Please help me create a structured plan to work through this.`
           {step === 1 &&
           <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">What would you like to work on?</h3>
-                <p className="text-sm text-muted-foreground mb-4">Choose the area you want to focus on</p>
+                <h2 className="mb-2 text-xl font-bold text-foreground">{t('coach.wizard.focus_title')}</h2>
+                <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.focus_description')}</p>
               </div>
 
               {moodInsight &&
@@ -218,8 +225,10 @@ Please help me create a structured plan to work through this.`
               <button
                 key={area.value}
                 onClick={() => setFormData({ ...formData, focus_area: area.value })}
+                type="button"
+                aria-pressed={formData.focus_area === area.value}
                 className={cn(
-                  'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
+                  'min-h-[88px] p-4 rounded-xl border-2 text-start transition-all hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                   formData.focus_area === area.value ?
                   'border-primary bg-primary/8 shadow-md' :
                   'border-border hover:border-border/80'
@@ -242,38 +251,38 @@ Please help me create a structured plan to work through this.`
           {step === 2 &&
           <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Tell me more</h3>
-                <p className="text-sm text-muted-foreground mb-4">Help me understand what you're facing</p>
+                <h2 className="mb-2 text-xl font-bold text-foreground">{t('coach.wizard.details_title')}</h2>
+                <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.details_description')}</p>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  What's the specific challenge you're facing?
+                  {t('coach.wizard.challenge_label')}
                 </label>
                 <Textarea
                 value={formData.current_challenge}
                 onChange={(e) => setFormData({ ...formData, current_challenge: e.target.value })}
-                placeholder="Describe the situation, problem, or difficulty you're experiencing..."
-                className="h-32 rounded-xl" />
+                placeholder={t('coach.wizard.challenge_placeholder')}
+                className="min-h-32 rounded-xl text-base" />
 
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  What would you like to achieve or how would you like things to be different?
+                  {t('coach.wizard.outcome_label')}
                 </label>
                 <Textarea
                 value={formData.desired_outcome}
                 onChange={(e) => setFormData({ ...formData, desired_outcome: e.target.value })}
-                placeholder="Describe your ideal outcome or how you'd like to feel..."
-                className="h-32 rounded-xl" />
+                placeholder={t('coach.wizard.outcome_placeholder')}
+                className="min-h-32 rounded-xl text-base" />
 
               </div>
 
               {goals.length > 0 &&
             <div>
                   <label className="text-sm font-medium text-foreground mb-3 block">
-                    Related to any existing goals? (Optional)
+                    {t('coach.wizard.related_goals')}
                   </label>
                   <div className="space-y-2">
                     {goals.map((goal) =>
@@ -295,7 +304,7 @@ Please help me create a structured plan to work through this.`
                             <span className="font-medium text-foreground">{goal.title}</span>
                           </div>
                           {formData.related_goals.includes(goal.id) &&
-                    <Badge className="bg-primary">Selected</Badge>
+                    <Badge className="bg-primary">{t('coach.wizard.selected')}</Badge>
                     }
                         </div>
                       </div>
@@ -310,34 +319,34 @@ Please help me create a structured plan to work through this.`
           {step === 3 &&
           <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Almost there!</h3>
-                <p className="text-sm text-muted-foreground mb-4">Give your coaching session a name</p>
+                <h2 className="mb-2 text-xl font-bold text-foreground">{t('coach.wizard.almost_title')}</h2>
+                <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.almost_description')}</p>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Session Title
+                  {t('coach.wizard.session_title')}
                 </label>
                 <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="e.g., Managing Work Stress, Building Better Habits..."
-                className="rounded-xl" />
+                placeholder={t('coach.wizard.session_title_placeholder')}
+                className="min-h-[48px] rounded-xl text-base" />
 
               </div>
 
               <Card className="border-2 border-primary/20 bg-primary/5">
                 <CardContent className="p-4 space-y-3">
-                  <h4 className="font-semibold text-foreground">Session Overview</h4>
+                  <h3 className="font-semibold text-foreground">{t('coach.wizard.overview')}</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Focus:</span>
+                      <span className="text-muted-foreground">{t('coach.wizard.focus')}:</span>
                       <span className="font-medium text-foreground">
                         {focusAreas.find((a) => a.value === formData.focus_area)?.label}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Related Goals:</span>
+                      <span className="text-muted-foreground">{t('coach.wizard.related_goals_count')}:</span>
                       <span className="font-medium text-foreground">
                         {formData.related_goals.length}
                       </span>
@@ -350,11 +359,8 @@ Please help me create a structured plan to work through this.`
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-foreground font-medium mb-1">What happens next?</p>
-                    <p className="text-sm text-muted-foreground">
-                      Your AI coach will guide you through structured steps: understanding your challenge, 
-                      setting clear goals, creating an action plan, and providing ongoing support.
-                    </p>
+                    <h3 className="mb-1 text-sm font-semibold text-foreground">{t('coach.wizard.next_title')}</h3>
+                    <p className="text-sm leading-6 text-muted-foreground">{t('coach.wizard.next_description')}</p>
                   </div>
                 </div>
               </div>
@@ -376,7 +382,7 @@ Please help me create a structured plan to work through this.`
               className="flex-1">
 
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
+                {t('coach.wizard.back')}
               </Button>
             }
             {step < 3 ?
@@ -385,8 +391,8 @@ Please help me create a structured plan to work through this.`
               disabled={!canProceed()}
               className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
 
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
+                {t('coach.wizard.next')}
+                <ChevronRight className="h-4 w-4 rtl:scale-x-[-1]" />
               </Button> :
 
             <Button
@@ -397,12 +403,12 @@ Please help me create a structured plan to work through this.`
                 {createSessionMutation.isPending ?
               <>
                     <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                    Starting Session...
+                    {t('coach.wizard.starting')}
                   </> :
 
               <>
                     <Target className="w-4 h-4 mr-2" />
-                    Start Session
+                    {t('coach.wizard.start')}
                   </>
               }
               </Button>
@@ -413,7 +419,7 @@ Please help me create a structured plan to work through this.`
           {createSessionMutation.isError &&
           <div className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
               <p className="text-sm text-destructive">
-                Failed to create session. Please try again.
+                {t('coach.wizard.create_error')}
               </p>
             </div>
           }
