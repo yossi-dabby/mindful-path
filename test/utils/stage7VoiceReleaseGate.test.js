@@ -18,10 +18,10 @@ describe('Stage 7 — voice release gate contracts', () => {
   });
 
   it('surfaces explicit user-facing error states for voice capture/upload/send failures', () => {
-    expect(chatSource).toContain("title: 'No audio captured'");
-    expect(chatSource).toContain("title: 'File upload failed'");
-    expect(chatSource).toContain("title: 'Audio upload failed'");
-    expect(chatSource).toContain("title: 'Message send failed'");
+    expect(chatSource).toContain("t('chat.errors.no_audio_title')");
+    expect(chatSource).toContain("t('chat.errors.file_upload_title')");
+    expect(chatSource).toContain("t('chat.errors.audio_upload_title')");
+    expect(chatSource).toContain("t(`chat.delivery.${deliveryStatus}`)");
   });
 
   it('keeps audio attachment round-trip metadata extraction stable', () => {
