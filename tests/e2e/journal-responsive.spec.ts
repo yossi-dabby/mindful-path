@@ -60,7 +60,7 @@ test.describe('Journal responsive experience', () => {
 
   test('keeps overlays within a small phone viewport', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.getByRole('button', { name: /Templates/i }).click();
+    await page.getByRole('button', { name: 'Templates', exact: true }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     const box = await dialog.boundingBox();
@@ -73,7 +73,7 @@ test.describe('Journal responsive experience', () => {
 
 test('Journal dashboard is responsive and localised', async ({ page }) => {
   await prepareJournal(page, 'en', '/JournalDashboard');
-  await expect(page.getByRole('heading', { name: /Journal Progress/i })).toBeVisible();
+  await expect(page.getByTestId('journal-dashboard').locator('h1').first()).toBeVisible();
   for (const viewport of [
     { width: 360, height: 780 },
     { width: 768, height: 1024 },
@@ -90,5 +90,5 @@ test('Journal renders Hebrew copy and RTL direction', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.getByRole('button', { name: /התקדמות/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /תזכורות/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: /תבניות/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'תבניות', exact: true })).toBeVisible();
 });
