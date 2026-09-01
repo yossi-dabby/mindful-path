@@ -55,7 +55,11 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
   }, [entries, dateRange, dateLocale]);
 
   const stats = React.useMemo(() => {
-    const validEntries = entries.slice(0, dateRange);
+    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    const cutoffKey = format(subDays(new Date(), dateRange - 1), 'yyyy-MM-dd');
+    const validEntries = entries
+      .filter((entry) => entry.date >= cutoffKey && entry.date <= todayKey && moodValues[entry.mood])
+      .sort((a, b) => b.date.localeCompare(a.date));
     if (validEntries.length === 0) return null;
 
     const avgMood = validEntries.reduce((sum, e) => sum + moodValues[e.mood], 0) / validEntries.length;
@@ -74,9 +78,9 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
   }, [entries, dateRange]);
 
   return (
-    <Card className="bg-teal-50 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
-      <CardHeader className="bg-teal-50 p-6 flex flex-col space-y-1.5 border-b border-border/70">
-        <div className="text-teal-600 flex items-center justify-between">
+    <Card className="overflow-hidden bg-card/90 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-xl border border-border/75 shadow-[var(--shadow-md)]" data-testid="mood-trend-chart">
+      <CardHeader className="bg-secondary/35 p-4 sm:p-6 flex flex-col space-y-1.5 border-b border-border/60">
+        <div className="flex flex-col gap-3 text-primary sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
             <Activity className="text-teal-600 lucide lucide-activity w-5 h-5" />
             {t('mood_tracker.mood_trends')}
@@ -86,25 +90,25 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
             onValueChange={(v) => onDateRangeChange(parseInt(v))}
             options={dateRangeOptions}
             title={t('mood_tracker.analytics.date_range')}
-            className="w-32"
+            className="w-full sm:w-40"
           />
         </div>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         {/* Stats Cards */}
         {stats &&
-        <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-teal-100 text-teal-600 p-4 rounded-[var(--radius-control)] border border-border/60">
+        <div className="grid grid-cols-1 gap-2 mb-6 sm:grid-cols-3 sm:gap-4">
+            <div className="bg-card/75 text-primary p-4 rounded-[var(--radius-control)] border border-border/60">
               <p className="text-teal-600 mb-1 text-xs font-medium">{t('mood_tracker.analytics.average_mood')}</p>
               <p className="text-teal-600 text-2xl font-bold">{stats.avgMood.toFixed(1)}/5</p>
             </div>
-            <div className="bg-teal-100 text-teal-600 p-4 rounded-[var(--radius-control)] border border-border/60">
+            <div className="bg-card/75 text-primary p-4 rounded-[var(--radius-control)] border border-border/60">
               <p className="text-teal-600 mb-1 text-xs font-semibold">{t('mood_tracker.analytics.average_stress')}</p>
               <p className="text-teal-600 text-xl font-semibold">
                 {stats.avgStress != null ? `${stats.avgStress.toFixed(1)}/10` : t('mood_tracker.analytics.no_data_yet')}
               </p>
             </div>
-            <div className="bg-teal-100 p-4 rounded-[var(--radius-control)] border border-border/60">
+            <div className="bg-card/75 p-4 rounded-[var(--radius-control)] border border-border/60">
               <p className="text-teal-600 mb-1 text-sm font-semibold">{t('mood_tracker.analytics.trend')}</p>
               <div className="flex items-center justify-center gap-1">
                 {stats.trend > 0.5 ?
@@ -125,10 +129,12 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
           </div>
         }
 
+        {stats ? <>
         {/* Mood Line Chart */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('mood_tracker.analytics.mood_stress_levels')}</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('mood_tracker.analytics.mood_stress_levels')}</h3>
+          <div className="overflow-x-auto pb-2" tabIndex={0}><div className="min-w-[620px] h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} className="bg-teal-50 recharts-surface">
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
@@ -151,29 +157,31 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
               <Line
                 type="monotone"
                 dataKey="mood"
-                stroke="#8b5cf6"
+                stroke="#0f766e"
                 strokeWidth={3}
                 name={t('mood_tracker.analytics.mood_series')}
-                dot={{ fill: '#8b5cf6', r: 4 }}
+                dot={{ fill: '#0f766e', r: 4 }}
                 connectNulls />
 
               <Line
                 type="monotone"
                 dataKey="stress"
-                stroke="#f97316"
+                stroke="#e11d48"
                 strokeWidth={2}
                 name={t('mood_tracker.analytics.stress_series')}
-                dot={{ fill: '#f97316', r: 3 }}
+                dot={{ fill: '#e11d48', r: 3 }}
                 connectNulls />
 
             </LineChart>
           </ResponsiveContainer>
+          </div></div>
         </div>
 
         {/* Energy Area Chart */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('mood_tracker.analytics.energy_intensity')}</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('mood_tracker.analytics.energy_intensity')}</h3>
+          <div className="overflow-x-auto pb-2" tabIndex={0}><div className="min-w-[620px] h-[220px]">
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
@@ -196,22 +204,30 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
               <Area
                 type="monotone"
                 dataKey="energy"
-                stroke="#3b82f6"
-                fill="#93c5fd"
+                stroke="#0284c7"
+                fill="#7dd3fc"
                 name={t('mood_tracker.analytics.energy')}
                 connectNulls />
 
               <Area
                 type="monotone"
                 dataKey="intensity"
-                stroke="#ec4899"
-                fill="#f9a8d4"
+                stroke="#f59e0b"
+                fill="#fde68a"
                 name={t('mood_tracker.analytics.intensity')}
                 connectNulls />
 
             </AreaChart>
           </ResponsiveContainer>
+          </div></div>
         </div>
+        </> : (
+          <div className="rounded-2xl border border-dashed border-border/70 bg-card/55 px-5 py-12 text-center">
+            <Activity className="mx-auto h-10 w-10 text-primary/35" />
+            <h3 className="mt-3 font-semibold text-foreground">{t('mood_tracker.no_data')}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{t('mood_tracker.no_data_subtitle')}</p>
+          </div>
+        )}
       </CardContent>
     </Card>);
 
