@@ -1,355 +1,331 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { AlertCircle, BarChart3, Dumbbell, Lightbulb, Loader2, MessageSquare, RefreshCw, Sparkles, Target, TrendingUp } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Loader2, Dumbbell, Target, TrendingUp, MessageSquare, BarChart3, Lightbulb } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
-import { motion } from 'framer-motion';
+import { safeInvokeLLM } from '../utils/safeInvokeLLM';
+
+const stripHtml = (value) => String(value || '').replace(/<[^>]*>/g, '').slice(0, 700);
+const validCategories = ['breathing', 'grounding', 'cognitive_restructuring', 'behavioral_activation', 'mindfulness', 'exposure'];
 
 export default function AiJournalSuggestions({ entry, onClose }) {
+  const { t } = useTranslation();
+  const languageName = t('journal_ui.ai.language_name');
   const [suggestions, setSuggestions] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const hasAnalyzedRef = useRef(false);
+  const [error, setError] = useState(false);
+  const requestStartedRef = useRef(false);
 
-  const { data: exercises } = useQuery({
+  const userQuery = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 300000
+  });
+  const userEmail = userQuery.data?.email;
+
+  const exercisesQuery = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
     initialData: [],
-    staleTime: 300000,
-    refetchOnWindowFocus: false
+    staleTime: 300000
   });
-
-  const { data: goals } = useQuery({
-    queryKey: ['goals'],
-    queryFn: () => base44.entities.Goal.filter({ status: 'active' }),
+  const goalsQuery = useQuery({
+    queryKey: ['goals', userEmail, 'active'],
+    queryFn: () => base44.entities.Goal.filter({ created_by: userEmail, status: 'active' }),
+    enabled: Boolean(userEmail),
     initialData: [],
-    staleTime: 300000,
-    refetchOnWindowFocus: false
+    staleTime: 300000
   });
-
-  const { data: allEntries } = useQuery({
-    queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 20),
+  const entriesQuery = useQuery({
+    queryKey: ['thoughtJournals', userEmail, 'recent'],
+    queryFn: () => base44.entities.ThoughtJournal.filter({ created_by: userEmail }, '-created_date', 12),
+    enabled: Boolean(userEmail),
     initialData: [],
-    staleTime: 60000,
-    refetchOnWindowFocus: false
+    staleTime: 60000
   });
 
-  const generateSuggestions = useCallback(async () => {
-    if (hasAnalyzedRef.current) return;
-    hasAnalyzedRef.current = true;
+  const generateSuggestions = useCallback(async (force = false) => {
+    if (!userEmail || !entry?.id || (!force && requestStartedRef.current)) return;
+    requestStartedRef.current = true;
+    setIsLoading(true);
+    setError(false);
     try {
-      const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
-
-      // Prepare past entries context
-      const pastEntriesContext = allEntries
-        .filter(e => e.id !== entry.id)
-        .slice(0, 10)
-        .map(e => ({
-          situation: stripHtml(e.situation)?.substring(0, 200),
-          thoughts: stripHtml(e.automatic_thoughts)?.substring(0, 200),
-          emotions: e.emotions?.join(', '),
-          distortions: e.cognitive_distortions?.join(', '),
-          tags: e.tags?.join(', ')
+      const pastEntries = (Array.isArray(entriesQuery.data) ? entriesQuery.data : [])
+        .filter((item) => item.id !== entry.id)
+        .slice(0, 6)
+        .map((item) => ({
+          situation: stripHtml(item.situation).slice(0, 240),
+          emotions: Array.isArray(item.emotions) ? item.emotions.slice(0, 6) : [],
+          distortions: Array.isArray(item.cognitive_distortions) ? item.cognitive_distortions.slice(0, 5) : []
         }));
-
-      // Prepare goals context
-      const goalsContext = goals.map(g => ({
-        title: g.title,
-        category: g.category,
-        description: g.description
+      const goals = (Array.isArray(goalsQuery.data) ? goalsQuery.data : []).slice(0, 8).map((goal) => ({
+        title: String(goal.title || '').slice(0, 100),
+        category: String(goal.category || '').slice(0, 60)
       }));
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this CBT journal entry and provide advanced personalized insights:
-
-**CURRENT ENTRY:**
-- Situation: ${stripHtml(entry.situation)}
-- Automatic Thoughts: ${stripHtml(entry.automatic_thoughts)}
-- Emotions: ${entry.emotions?.join(', ')}
-- Intensity: ${entry.emotion_intensity}/10
-- Cognitive Distortions: ${entry.cognitive_distortions?.join(', ')}
-- Tags: ${entry.tags?.join(', ') || 'none'}
-
-**USER'S PAST ENTRIES (last 10):**
-${JSON.stringify(pastEntriesContext, null, 2)}
-
-**USER'S ACTIVE GOALS:**
-${JSON.stringify(goalsContext, null, 2)}
-
-Provide comprehensive analysis:
-
-1. **Recurring Themes** (2-4 themes): Analyze the current and past entries to identify recurring patterns, triggers, emotional themes, or cognitive distortions. Be specific about what patterns repeat across entries.
-
-2. **Sentiment & Auto-Categorization**: 
-   - Overall sentiment (positive, negative, neutral, mixed)
-   - Primary topic category (work, relationships, self-worth, health, general)
-   - Emotional intensity trend (increasing, stable, decreasing)
-
-3. **Personalized Reflection Questions** (3-4 questions): Based on the entry content, past patterns, and user goals, generate deep, personalized reflection questions that help the user explore their thoughts and emotions further.
-
-4. **Exercise Recommendations** (2-3): Suggest specific CBT exercise categories (breathing, grounding, cognitive_restructuring, behavioral_activation, mindfulness, exposure) with reasons based on the analysis.
-
-5. **Progress Insights**: If patterns show improvement or areas needing attention, mention it.
-
-6. **Goal Alignment**: If this entry relates to any of their active goals, explain the connection and suggest next steps.`,
+      const response = await safeInvokeLLM({
+        prompt: [
+          'You are a supportive CBT journaling guide. Offer concise reflective insights based only on the limited context below.',
+          'Write every user-visible field only in ' + languageName + '. Do not mix languages and never expose JSON keys.',
+          'Use a warm, tentative, non-diagnostic tone. Do not infer a clinical condition or promise outcomes.',
+          'Return at most three recurring themes, three reflection questions and three practice recommendations.',
+          'For practice category_id use only one of: ' + validCategories.join(', ') + '.',
+          'Current entry: ' + JSON.stringify({
+            situation: stripHtml(entry.situation),
+            automatic_thoughts: stripHtml(entry.automatic_thoughts),
+            emotions: Array.isArray(entry.emotions) ? entry.emotions.slice(0, 8) : [],
+            intensity: Number(entry.emotion_intensity) || null,
+            distortions: Array.isArray(entry.cognitive_distortions) ? entry.cognitive_distortions.slice(0, 6) : []
+          }),
+          'Recent entries: ' + JSON.stringify(pastEntries),
+          'Active goals: ' + JSON.stringify(goals)
+        ].join('\n\n'),
         response_json_schema: {
-          type: "object",
+          type: 'object',
+          required: ['entry_overview', 'recurring_themes', 'reflection_questions', 'exercise_recommendations', 'progress_insights'],
           properties: {
+            entry_overview: {
+              type: 'object',
+              required: ['sentiment', 'topic', 'intensity_trend', 'summary'],
+              properties: {
+                sentiment: { type: 'string', maxLength: 60 },
+                topic: { type: 'string', maxLength: 80 },
+                intensity_trend: { type: 'string', maxLength: 80 },
+                summary: { type: 'string', maxLength: 420 }
+              }
+            },
             recurring_themes: {
-              type: "array",
+              type: 'array',
+              maxItems: 3,
               items: {
-                type: "object",
+                type: 'object',
+                required: ['title', 'description'],
                 properties: {
-                  theme: { type: "string" },
-                  description: { type: "string" },
-                  frequency: { type: "string" }
+                  title: { type: 'string', maxLength: 90 },
+                  description: { type: 'string', maxLength: 320 }
                 }
               }
             },
-            sentiment_analysis: {
-              type: "object",
-              properties: {
-                sentiment: { type: "string" },
-                topic_category: { type: "string" },
-                intensity_trend: { type: "string" },
-                summary: { type: "string" }
-              }
-            },
-            reflection_questions: {
-              type: "array",
-              items: { type: "string" }
-            },
+            reflection_questions: { type: 'array', maxItems: 3, items: { type: 'string', maxLength: 300 } },
             exercise_recommendations: {
-              type: "array",
+              type: 'array',
+              maxItems: 3,
               items: {
-                type: "object",
+                type: 'object',
+                required: ['category_id', 'title', 'reason'],
                 properties: {
-                  category: { type: "string" },
-                  reason: { type: "string" }
+                  category_id: { type: 'string' },
+                  title: { type: 'string', maxLength: 90 },
+                  reason: { type: 'string', maxLength: 320 }
                 }
               }
             },
-            progress_insights: { type: "string" },
+            progress_insights: { type: 'string', maxLength: 420 },
             goal_alignment: {
-              type: "object",
+              type: 'object',
               properties: {
-                related_goal: { type: "string" },
-                connection: { type: "string" },
-                suggested_action: { type: "string" }
+                related_goal: { type: 'string', maxLength: 100 },
+                connection: { type: 'string', maxLength: 320 },
+                suggested_action: { type: 'string', maxLength: 240 }
               }
             }
           }
         }
-      });
+      }, true);
 
-      setSuggestions(response);
-    } catch (error) {
-      console.error('Failed to generate suggestions:', error);
+      if (!response?.entry_overview?.summary) throw new Error('Invalid journal insights response');
+      setSuggestions({
+        ...response,
+        recurring_themes: Array.isArray(response.recurring_themes) ? response.recurring_themes.slice(0, 3) : [],
+        reflection_questions: Array.isArray(response.reflection_questions) ? response.reflection_questions.filter(Boolean).slice(0, 3) : [],
+        exercise_recommendations: Array.isArray(response.exercise_recommendations)
+          ? response.exercise_recommendations.filter((item) => validCategories.includes(item?.category_id) && item?.reason).slice(0, 3)
+          : []
+      });
+    } catch (generationError) {
+      console.error('Failed to generate journal reflections:', generationError);
+      setError(true);
     } finally {
       setIsLoading(false);
     }
-  }, [entry, goals, allEntries]);
+  }, [entry, entriesQuery.data, goalsQuery.data, languageName, userEmail]);
 
   useEffect(() => {
+    if (!userEmail || entriesQuery.isLoading || goalsQuery.isLoading) return;
     generateSuggestions();
-  }, [generateSuggestions]);
+  }, [userEmail, entriesQuery.isLoading, goalsQuery.isLoading, generateSuggestions]);
+
+  const retry = () => {
+    requestStartedRef.current = false;
+    generateSuggestions(true);
+  };
 
   if (isLoading) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border-2 border-purple-200 mb-4"
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        className="mb-4 rounded-2xl border border-violet-200 bg-violet-50/90 p-5" role="status">
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
-          <p className="text-sm text-gray-600">Analyzing your entry and generating suggestions...</p>
+          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-violet-700" />
+          <p className="text-sm font-medium text-slate-700">{t('journal_ui.ai.analysis_loading')}</p>
         </div>
       </motion.div>
     );
   }
 
-  if (!suggestions) return null;
+  if (error || !suggestions) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-4" role="alert">
+        <p className="mb-3 text-sm text-red-800">{t('journal_ui.common.ai_error')}</p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={retry} className="min-h-11 flex-1">
+            <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="min-h-11 flex-1">{t('journal_ui.ai.close_suggestions')}</Button>
+        </div>
+      </div>
+    );
+  }
 
-  const recommendedExercises = exercises.filter(ex => 
-    suggestions.exercise_recommendations?.some(rec => 
-      rec.category === ex.category
-    )
-  );
+  const recommendations = suggestions.exercise_recommendations || [];
+  const availableCategories = new Set((exercisesQuery.data || []).map((exercise) => exercise.category));
+  const hasMatchingExercise = recommendations.some((item) => availableCategories.has(item.category_id));
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 mt-6"
-    >
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-purple-600" />
-        <h3 className="text-lg font-semibold text-gray-800">AI-Powered Analysis</h3>
+    <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+      className="mt-6 space-y-4" aria-labelledby="journal-ai-reflections-title">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
+          <Sparkles className="h-5 w-5 text-violet-700" />
+        </div>
+        <h3 id="journal-ai-reflections-title" className="text-xl font-bold text-slate-950">
+          {t('journal_ui.ai.analysis_title')}
+        </h3>
       </div>
 
-      {/* Sentiment & Categorization */}
-      {suggestions.sentiment_analysis && (
-        <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-indigo-600" />
-              Entry Analysis
+      <Card className="border-indigo-200 bg-white/90">
+        <CardContent className="p-4 sm:p-5">
+          <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+            <BarChart3 className="h-5 w-5 text-indigo-700" />{t('journal_ui.ai.entry_analysis')}
+          </h4>
+          <dl className="grid gap-3 sm:grid-cols-3">
+            {[
+              [t('journal_ui.ai.sentiment'), suggestions.entry_overview.sentiment],
+              [t('journal_ui.ai.topic'), suggestions.entry_overview.topic],
+              [t('journal_ui.ai.intensity_trend'), suggestions.entry_overview.intensity_trend]
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl bg-indigo-50 p-3">
+                <dt className="text-xs font-bold uppercase tracking-wide text-indigo-900">{label}</dt>
+                <dd className="mt-1 text-sm text-slate-800">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 border-t border-indigo-100 pt-4 text-sm leading-relaxed text-slate-700">
+            {suggestions.entry_overview.summary}
+          </p>
+        </CardContent>
+      </Card>
+
+      {suggestions.recurring_themes.length > 0 && (
+        <Card className="border-sky-200 bg-white/90">
+          <CardContent className="p-4 sm:p-5">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+              <TrendingUp className="h-5 w-5 text-sky-700" />{t('journal_ui.ai.recurring_themes')}
             </h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Sentiment:</span>
-                <Badge variant="outline" className="capitalize">
-                  {suggestions.sentiment_analysis.sentiment}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Topic:</span>
-                <Badge variant="outline" className="capitalize">
-                  {suggestions.sentiment_analysis.topic_category}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Intensity Trend:</span>
-                <Badge variant="outline" className="capitalize">
-                  {suggestions.sentiment_analysis.intensity_trend}
-                </Badge>
-              </div>
-              <p className="text-sm text-gray-700 mt-3 pt-3 border-t">
-                {suggestions.sentiment_analysis.summary}
-              </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {suggestions.recurring_themes.map((theme, index) => (
+                <article key={index} className="rounded-xl border border-sky-100 bg-sky-50/70 p-3">
+                  <h5 className="font-bold text-slate-900">{theme.title}</h5>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-700">{theme.description}</p>
+                </article>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Recurring Themes */}
-      {suggestions.recurring_themes?.length > 0 && (
-        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-              Recurring Themes in Your Entries
+      {suggestions.reflection_questions.length > 0 && (
+        <Card className="border-violet-200 bg-white/90">
+          <CardContent className="p-4 sm:p-5">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+              <Lightbulb className="h-5 w-5 text-violet-700" />{t('journal_ui.ai.reflection_questions')}
+            </h4>
+            <ol className="space-y-2">
+              {suggestions.reflection_questions.map((question, index) => (
+                <li key={index} className="flex gap-3 rounded-xl bg-violet-50 p-3 text-sm leading-relaxed text-slate-700">
+                  <span className="font-bold text-violet-700">{index + 1}.</span><span>{question}</span>
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
+      )}
+
+      {recommendations.length > 0 && (
+        <Card className="border-emerald-200 bg-white/90">
+          <CardContent className="p-4 sm:p-5">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+              <Dumbbell className="h-5 w-5 text-emerald-700" />{t('journal_ui.ai.exercise_recommendations')}
             </h4>
             <div className="space-y-3">
-              {suggestions.recurring_themes.map((theme, i) => (
-                <div key={i} className="bg-white p-3 rounded-lg border border-blue-200">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="font-medium text-sm text-gray-800">{theme.theme}</p>
-                    <Badge variant="secondary" className="text-xs">
-                      {theme.frequency}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-600">{theme.description}</p>
-                </div>
+              {recommendations.map((item, index) => (
+                <article key={index} className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3">
+                  <Badge variant="outline" className="border-emerald-300 bg-white text-emerald-900">{item.title}</Badge>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-700">{item.reason}</p>
+                </article>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Reflection Questions */}
-      {suggestions.reflection_questions?.length > 0 && (
-        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-purple-600" />
-              Personalized Reflection Questions
-            </h4>
-            <div className="space-y-2">
-              {suggestions.reflection_questions.map((question, i) => (
-                <div key={i} className="bg-white p-3 rounded-lg border border-purple-200">
-                  <p className="text-sm text-gray-700 flex items-start gap-2">
-                    <span className="text-purple-600 font-semibold mt-0.5">{i + 1}.</span>
-                    <span>{question}</span>
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Exercise Recommendations */}
-      {suggestions.exercise_recommendations?.length > 0 && (
-        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <Dumbbell className="w-4 h-4 text-green-600" />
-              Recommended Exercises
-            </h4>
-            <div className="space-y-3">
-              {suggestions.exercise_recommendations.map((rec, i) => (
-                <div key={i} className="bg-white p-3 rounded-lg border border-green-200">
-                  <div className="flex items-start justify-between mb-1">
-                    <Badge variant="outline" className="text-xs capitalize">
-                      {rec.category.replace('_', ' ')}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-600">{rec.reason}</p>
-                </div>
-              ))}
-              {recommendedExercises.length > 0 && (
-                <Link to={createPageUrl('Exercises')}>
-                  <Button variant="outline" size="sm" className="w-full mt-2">
-                    Browse Exercises
-                  </Button>
-                </Link>
+              {hasMatchingExercise && (
+                <Button asChild variant="outline" className="min-h-11 w-full">
+                  <Link to={createPageUrl('Exercises')}>{t('journal_ui.ai.browse_exercises')}</Link>
+                </Button>
               )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Progress Insights */}
       {suggestions.progress_insights && (
-        <Card className="border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-teal-600" />
-              Progress Insights
+        <Card className="border-teal-200 bg-white/90">
+          <CardContent className="p-4 sm:p-5">
+            <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-slate-900">
+              <MessageSquare className="h-5 w-5 text-teal-700" />{t('journal_ui.ai.progress_insights')}
             </h4>
-            <p className="text-sm text-gray-700">{suggestions.progress_insights}</p>
+            <p className="text-sm leading-relaxed text-slate-700">{suggestions.progress_insights}</p>
           </CardContent>
         </Card>
       )}
 
-      {/* Goal Alignment */}
       {suggestions.goal_alignment?.related_goal && (
-        <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white">
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <Target className="w-4 h-4 text-orange-600" />
-              Goal Connection: {suggestions.goal_alignment.related_goal}
+        <Card className="border-orange-200 bg-white/90">
+          <CardContent className="p-4 sm:p-5">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+              <Target className="h-5 w-5 text-orange-700" />
+              {t('journal_ui.ai.goal_connection', { goal: suggestions.goal_alignment.related_goal })}
             </h4>
-            <div className="space-y-2">
-              <div>
-                <p className="text-xs text-gray-500 mb-1">How this entry relates:</p>
-                <p className="text-sm text-gray-700">{suggestions.goal_alignment.connection}</p>
-              </div>
-              {suggestions.goal_alignment.suggested_action && (
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Suggested action:</p>
-                  <p className="text-sm text-gray-700 font-medium">{suggestions.goal_alignment.suggested_action}</p>
-                </div>
-              )}
-            </div>
-            <Link to={createPageUrl('Goals')}>
-              <Button variant="outline" size="sm" className="w-full mt-3">
-                View Goals
-              </Button>
-            </Link>
+            <h5 className="text-xs font-bold uppercase tracking-wide text-orange-900">{t('journal_ui.ai.how_related')}</h5>
+            <p className="mt-1 text-sm leading-relaxed text-slate-700">{suggestions.goal_alignment.connection}</p>
+            {suggestions.goal_alignment.suggested_action && (
+              <>
+                <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-orange-900">{t('journal_ui.ai.suggested_action')}</h5>
+                <p className="mt-1 text-sm font-medium text-slate-800">{suggestions.goal_alignment.suggested_action}</p>
+              </>
+            )}
+            <Button asChild variant="outline" className="mt-4 min-h-11 w-full">
+              <Link to={createPageUrl('Goals')}>{t('journal_ui.ai.view_goals')}</Link>
+            </Button>
           </CardContent>
         </Card>
       )}
 
-      <Button variant="ghost" onClick={onClose} className="w-full">
-        Close Suggestions
-      </Button>
-    </motion.div>
+      <p className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
+        {t('journal_ui.trends.professional_note')}
+      </p>
+      <Button variant="outline" onClick={onClose} className="min-h-12 w-full">{t('journal_ui.ai.close_suggestions')}</Button>
+    </motion.section>
   );
 }
