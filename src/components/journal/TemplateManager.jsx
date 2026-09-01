@@ -9,15 +9,31 @@ import { Textarea } from '@/components/ui/textarea';
 import { X, Plus, Sparkles, Heart, Brain, FileText, Edit, Trash2 } from 'lucide-react';
 
 const templateIcons = { cbt_standard: Brain, gratitude: Heart, anxiety_log: Sparkles, mood_journal: Heart, custom: FileText };
+const defaultKeyByEntryType = { cbt_standard: 'cbt', gratitude: 'gratitude', anxiety_log: 'anxiety', mood_journal: 'mood' };
 const defaultTemplates = [
-  { entry_type: 'cbt_standard', key: 'cbt', name: 'Standard CBT', description: 'A structured cognitive-behavioural thought record' },
-  { entry_type: 'gratitude', key: 'gratitude', name: 'Gratitude journal', description: 'Focus on positive moments and gratitude' },
-  { entry_type: 'anxiety_log', key: 'anxiety', name: 'Anxiety log', description: 'Track anxiety triggers and coping strategies' },
-  { entry_type: 'mood_journal', key: 'mood', name: 'Mood journal', description: 'A simple daily mood and thought tracker' }
+  { entry_type: 'cbt_standard', key: 'cbt' },
+  { entry_type: 'gratitude', key: 'gratitude' },
+  { entry_type: 'anxiety_log', key: 'anxiety' },
+  { entry_type: 'mood_journal', key: 'mood' }
 ];
 
+function localizeBuiltInTemplate(template, t) {
+  const key = template.key || template.default_key || (template.is_default ? defaultKeyByEntryType[template.entry_type] : null);
+  if (!key) return template;
+  return {
+    ...template,
+    key,
+    default_key: key,
+    name: t(`journal_ui.templates.default.${key}.name`),
+    description: t(`journal_ui.templates.default.${key}.description`)
+  };
+}
+
 export default function TemplateManager({ templates = [], onClose, onSelectTemplate }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].includes(i18n.resolvedLanguage?.split('-')[0])
+    ? i18n.resolvedLanguage.split('-')[0]
+    : 'en';
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const queryClient = useQueryClient();
@@ -72,13 +88,19 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
               <section>
                 <h3 className="mb-3 text-sm font-bold text-teal-950">{t('journal_ui.templates.defaults')}</h3>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {defaultTemplates.map((template) => (
-                    <TemplateCard key={template.key}
-                      template={{ ...template, is_default: true }}
-                      displayName={t(`journal_ui.templates.default.${template.key}.name`)}
-                      displayDescription={t(`journal_ui.templates.default.${template.key}.description`)}
-                      onSelect={onSelectTemplate} t={t} />
-                  ))}
+                  {defaultTemplates.map((template) => {
+                    const localizedTemplate = localizeBuiltInTemplate({ ...template, is_default: true }, t);
+                    return (
+                      <TemplateCard key={template.key}
+                        template={localizedTemplate}
+                        displayName={localizedTemplate.name}
+                        displayDescription={localizedTemplate.description}
+                        onSelect={onSelectTemplate}
+                        onEdit={() => setEditingTemplate({ ...localizedTemplate, source_default: true })}
+                        editLabel={t('journal_ui.templates.customize_aria', { item: localizedTemplate.name })}
+                        t={t} />
+                    );
+                  })}
                 </div>
               </section>
 
@@ -86,17 +108,20 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
                 <section>
                   <h3 className="mb-3 text-sm font-bold text-teal-950">{t('journal_ui.templates.custom')}</h3>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {templates.map((template) => (
-                      <TemplateCard key={template.id} template={template} displayName={template.name} displayDescription={template.description}
-                        onSelect={onSelectTemplate} onEdit={() => setEditingTemplate(template)}
-                        onDelete={() => deleteTemplateMutation.mutate(template.id)} t={t} />
-                    ))}
+                    {templates.map((template) => {
+                      const displayTemplate = localizeBuiltInTemplate(template, t);
+                      return (
+                        <TemplateCard key={template.id} template={displayTemplate} displayName={displayTemplate.name} displayDescription={displayTemplate.description}
+                          onSelect={onSelectTemplate} onEdit={() => setEditingTemplate(template.is_default ? { ...displayTemplate, source_default: true } : template)}
+                          onDelete={() => deleteTemplateMutation.mutate(template.id)} t={t} />
+                      );
+                    })}
                   </div>
                 </section>
               )}
             </div>
           ) : (
-            <TemplateForm template={editingTemplate} t={t}
+            <TemplateForm template={editingTemplate} language={currentLanguage} t={t}
               onClose={() => { setShowCreateForm(false); setEditingTemplate(null); }}
               onSuccess={() => {
                 queryClient.invalidateQueries({ queryKey: ['journalTemplates'] });
@@ -110,7 +135,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
   );
 }
 
-function TemplateCard({ template, displayName, displayDescription, onSelect, onEdit, onDelete, t }) {
+function TemplateCard({ template, displayName, displayDescription, onSelect, onEdit, onDelete, editLabel, t }) {
   const Icon = templateIcons[template.entry_type] || FileText;
   return (
     <Card className="group border-teal-100 bg-white/90 shadow-sm transition hover:border-teal-300 hover:shadow-md">
@@ -121,7 +146,7 @@ function TemplateCard({ template, displayName, displayDescription, onSelect, onE
           </div>
           <div className="flex gap-1">
             {onEdit && <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={onEdit}
-              aria-label={t('journal_ui.common.edit_aria', { item: t('journal_ui.templates.item') })}><Edit className="h-4 w-4" /></Button>}
+              aria-label={editLabel || t('journal_ui.common.edit_aria', { item: displayName })}><Edit className="h-4 w-4" /></Button>}
             {onDelete && <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
               if (window.confirm(t('journal_ui.templates.delete_confirm'))) onDelete();
             }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.templates.item') })}><Trash2 className="h-4 w-4" /></Button>}
@@ -137,16 +162,33 @@ function TemplateCard({ template, displayName, displayDescription, onSelect, onE
   );
 }
 
-function TemplateForm({ template, onClose, onSuccess, t }) {
+function TemplateForm({ template, language, onClose, onSuccess, t }) {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState(template || { name: '', description: '', entry_type: 'custom', fields: [] });
+  const isCustomizingDefault = Boolean(template?.source_default || template?.is_default);
+  const isExisting = Boolean(template?.id) && !isCustomizingDefault;
+  const [formData, setFormData] = useState({
+    name: template?.name || '',
+    description: template?.description || '',
+    entry_type: template?.entry_type || 'custom',
+    fields: Array.isArray(template?.fields) ? template.fields : [],
+    language: template?.language || language,
+    is_default: false
+  });
   const saveMutation = useMutation({
-    mutationFn: (data) => template ? base44.entities.JournalTemplate.update(template.id, data) : base44.entities.JournalTemplate.create(data),
+    mutationFn: (data) => isExisting
+      ? base44.entities.JournalTemplate.update(template.id, data)
+      : base44.entities.JournalTemplate.create(data),
     onSuccess,
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalTemplates'] })
   });
+  const formTitle = isCustomizingDefault
+    ? t('journal_ui.templates.customize_title')
+    : isExisting
+      ? t('journal_ui.templates.edit_title')
+      : t('journal_ui.templates.create_title');
   return (
     <form className="space-y-6" onSubmit={(event) => { event.preventDefault(); saveMutation.mutate(formData); }}>
+      <h3 className="text-lg font-bold text-teal-950">{formTitle}</h3>
       <div>
         <label htmlFor="journal-template-name" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.templates.name')}</label>
         <Input id="journal-template-name" value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })}
@@ -158,11 +200,18 @@ function TemplateForm({ template, onClose, onSuccess, t }) {
           onChange={(event) => setFormData({ ...formData, description: event.target.value })}
           placeholder={t('journal_ui.templates.description_placeholder')} className="min-h-28 rounded-xl" />
       </div>
+      {saveMutation.isError && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{t('journal_ui.templates.save_error')}</p>}
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button type="button" onClick={onClose} variant="outline" className="min-h-12 flex-1 rounded-xl">{t('journal_ui.common.cancel')}</Button>
         <Button type="submit" disabled={!formData.name.trim() || saveMutation.isPending}
           className="min-h-12 flex-1 rounded-xl bg-teal-700 text-white hover:bg-teal-800">
-          {saveMutation.isPending ? t('journal_ui.common.saving') : template ? t('journal_ui.common.update') : t('journal_ui.common.create')}
+          {saveMutation.isPending
+            ? t('journal_ui.common.saving')
+            : isCustomizingDefault
+              ? t('journal_ui.templates.save_customized')
+              : isExisting
+                ? t('journal_ui.common.update')
+                : t('journal_ui.common.create')}
         </Button>
       </div>
     </form>
