@@ -959,9 +959,11 @@ describe('Wave 3B — LTS write diagnostics contract', () => {
     await withWindow(
       '?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_SUMMARIZATION_ENABLED,THERAPIST_UPGRADE_LONGITUDINAL_ENABLED',
       async () => {
-        triggerSessionEndSummarization({ id: 'sess-runtime', stage: 'completed' }, [], 'vitest-runtime');
-        await flushAsync();
-        await flushAsync();
+        await triggerSessionEndSummarization(
+          { id: 'sess-runtime', stage: 'completed' },
+          [],
+          'vitest-runtime',
+        );
       },
     );
 
