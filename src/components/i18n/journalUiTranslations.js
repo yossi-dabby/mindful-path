@@ -231,6 +231,7 @@ const rows = [
   ['taxonomy.distortions.labeling', 'Labeling', 'תיוג', 'Etiquetado', 'Étiquetage', 'Etikettierung', 'Etichettamento', 'Rotulagem'],
   ['taxonomy.distortions.personalization', 'Personalization', 'ייחוס אישי', 'Personalización', 'Personnalisation', 'Personalisierung', 'Personalizzazione', 'Personalização'],
 
+  ['common.ai_error', 'AI content could not be generated. Please try again.', 'לא ניתן היה ליצור תוכן בעזרת AI. נסו שוב.', 'No se pudo generar el contenido con IA. Inténtalo de nuevo.', 'Le contenu IA n’a pas pu être généré. Réessayez.', 'KI-Inhalte konnten nicht erstellt werden. Bitte versuchen Sie es erneut.', 'Non è stato possibile generare il contenuto con IA. Riprova.', 'Não foi possível gerar o conteúdo com IA. Tente novamente.'],
   ['ai.language_name', 'English', 'Hebrew', 'Spanish', 'French', 'German', 'Italian', 'Portuguese'],
   ['ai.loading_summary', 'Generating AI summary…', 'יוצר סיכום AI…', 'Generando resumen con IA…', 'Génération du résumé IA…', 'KI-Zusammenfassung wird erstellt…', 'Generazione riepilogo IA…', 'A gerar resumo por IA…'],
   ['ai.regenerate', 'Regenerate', 'יצירה מחדש', 'Volver a generar', 'Régénérer', 'Neu erstellen', 'Rigenera', 'Gerar novamente'],
