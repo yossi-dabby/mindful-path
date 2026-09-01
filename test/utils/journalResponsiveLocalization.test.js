@@ -19,6 +19,12 @@ describe('Journal production UX safeguards', () => {
       expect(journal.form.dialog_description).toBeTruthy();
       expect(journal.reminders.title).toBeTruthy();
       expect(journal.templates.title).toBeTruthy();
+      expect(journal.templates.customize_title).toBeTruthy();
+      expect(journal.templates.save_customized).toBeTruthy();
+      for (const templateKey of ['cbt', 'gratitude', 'anxiety', 'mood']) {
+        expect(journal.templates.default[templateKey].name).toBeTruthy();
+        expect(journal.templates.default[templateKey].description).toBeTruthy();
+      }
       expect(journal.prompts.title).toBeTruthy();
       expect(journal.trends.professional_note).toBeTruthy();
       expect(journal.taxonomy.emotions.anxious).toBeTruthy();
@@ -97,6 +103,18 @@ describe('Journal production UX safeguards', () => {
     }
     expect(read('src/components/journal/AiJournalSuggestions.jsx')).toContain("t('journal_ui.trends.professional_note')");
     expect(read('src/components/journal/AiDistortionAnalysis.jsx')).toContain("t('journal_ui.trends.professional_note')");
+  });
+
+  it('keeps built-in templates localized and safely customizable', () => {
+    const manager = read('src/components/journal/TemplateManager.jsx');
+    expect(manager).toContain('localizeBuiltInTemplate');
+    expect(manager).toContain('onSelect={onSelectTemplate}');
+    expect(manager).toContain('source_default: true');
+    expect(manager).toContain('const isExisting = Boolean(template?.id) && !isCustomizingDefault');
+    expect(manager).toContain("language: template?.language || language");
+    for (const legacyEnglish of ['Standard CBT', 'Gratitude journal', 'Anxiety log', 'Mood journal']) {
+      expect(manager).not.toContain(legacyEnglish);
+    }
   });
 
   it('contains no legacy hard-coded English controls in the edited Journal flow', () => {
