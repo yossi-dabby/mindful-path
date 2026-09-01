@@ -4,6 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { translations } from './translations';
 import { applyMindGamesTranslations } from './translationsBuilder';
 import { applyChatUiTranslations } from './chatUiTranslations';
+import { applyCoachUiTranslations } from './coachUiTranslations';
 import {
   applyAppLocaleSideEffects,
   applyAppLocaleToDocument,
@@ -14,6 +15,7 @@ import {
 // Apply mind games UI + content translations to all languages
 applyMindGamesTranslations(translations);
 applyChatUiTranslations(translations);
+applyCoachUiTranslations(translations);
 
 /**
  * Convert a dot-notation key into a human-readable fallback label.
