@@ -23,9 +23,10 @@ import { useTranslation } from 'react-i18next';
  *   without the BFC side-effect, keeping vertical scrollHeight calculation correct.
  * - The outer Layout shell already uses overflow-x-clip for the same reason.
  */
-export default function AppContent({ children }) {
+export default function AppContent({ children, currentPageName }) {
   const mainRef = React.useRef(null);
   const { t } = useTranslation();
+  const desktopBreakpoint = currentPageName === 'Chat' ? 1024 : 768;
 
   return (
     <>
@@ -36,7 +37,7 @@ export default function AppContent({ children }) {
 
         {t('shell.skip_to_main')}
       </a>
-      <MobileHeader />
+      <MobileHeader currentPageName={currentPageName} />
       <main
         id="app-scroll-container"
         ref={mainRef}
@@ -54,7 +55,7 @@ export default function AppContent({ children }) {
         }}>
 
       <style>{`
-        @media (min-width: 768px) {
+        @media (min-width: ${desktopBreakpoint}px) {
           #app-scroll-container {
             padding-left: ${SIDEBAR_WIDTH}px !important;
             /* Reset mobile header/nav paddings; sidebar is fixed so content starts at top */
