@@ -112,7 +112,13 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
                       const displayTemplate = localizeJournalTemplate(template, t);
                       return (
                         <TemplateCard key={template.id} template={displayTemplate} displayName={displayTemplate.name} displayDescription={displayTemplate.description}
-                          onSelect={onSelectTemplate} onEdit={() => setEditingTemplate(template.is_default ? { ...displayTemplate, source_default: true } : template)}
+                          onSelect={onSelectTemplate}
+                          onEdit={() => setEditingTemplate(displayTemplate.catalog_key || template.is_default
+                            ? { ...displayTemplate, source_default: true }
+                            : template)}
+                          editLabel={displayTemplate.catalog_key
+                            ? t('journal_ui.templates.customize_aria', { item: displayTemplate.name })
+                            : undefined}
                           onDelete={() => deleteTemplateMutation.mutate(template.id)} t={t} />
                       );
                     })}
@@ -171,7 +177,7 @@ function TemplateForm({ template, language, onClose, onSuccess, t }) {
     description: template?.description || '',
     entry_type: template?.entry_type || 'custom',
     fields: Array.isArray(template?.fields) ? template.fields : [],
-    language: template?.language || language,
+    language: isCustomizingDefault ? language : template?.language || language,
     is_default: false
   });
   const saveMutation = useMutation({
