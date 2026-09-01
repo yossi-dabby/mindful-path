@@ -51,6 +51,11 @@
       "type": "string",
       "description": "Reference to the AI agent conversation"
     },
+    "is_pinned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the owner pinned this conversation in the chat list"
+    },
     "session_summary": {
       "type": "string",
       "description": "AI-generated summary of the session"
