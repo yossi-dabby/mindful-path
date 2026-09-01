@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass, ClipboardList } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import AiPersonalizedFeed from './AiPersonalizedFeed';
 import StarterPathQuickAction from './StarterPathQuickAction';
@@ -106,32 +106,40 @@ export default function QuickActions() {
       <h2 className="text-emerald-600 mb-4 text-lg font-semibold truncate">{t('quick_actions.title')}</h2>
       <div className="rounded-3xl grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
-        <div className="rounded-lg relative">
-          <Card className="bg-[hsl(var(--card)/0.94)] text-card-foreground rounded-[20px] border-border/60 shadow-[var(--shadow-md)] backdrop-blur-[10px] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
-
-          style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(227,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
-          onClick={() => setShowRecommendations(true)}>
-
-              <CardContent className="p-5 rounded-[20px]">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-teal-500 text-accent-foreground rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center shadow-[var(--shadow-sm)]">
-                    <Sparkles className="text-slate-50 lucide lucide-sparkles w-7 h-7" strokeWidth={2.5} />
+        <div className="relative min-w-0 rounded-lg">
+          <Card
+            className="group h-full overflow-hidden rounded-[20px] border border-border/60 bg-[hsl(var(--card)/0.94)] text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-[10px] transition-all hover:shadow-[var(--shadow-lg)]"
+            style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(227,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
+          >
+              <CardContent className="rounded-[20px] p-5">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-control)] bg-teal-500 text-accent-foreground shadow-[var(--shadow-sm)]">
+                    <Sparkles className="h-7 w-7 text-slate-50" strokeWidth={2.5} />
                   </div>
                   <button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowRecommendedVideo(true);
-                  }} className="bg-green-100 text-emerald-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 border-0 outline-none"
+                  }} className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-control)] border-0 bg-green-100 text-emerald-50 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
 
-                  aria-label="Guided introduction video"
-                  title="Guided introduction video">
+                  aria-label={t('quick_actions.aria.guided_intro_video')}
+                  title={t('quick_actions.aria.guided_intro_video')}>
 
-                    <User className="text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
+                    <User className="h-6 w-6 text-teal-600" strokeWidth={2} />
                   </button>
                 </div>
-                <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{t('quick_actions.recommended.title')}</h3>
-                <p className="text-teal-600 text-xs line-clamp-2 break-words">{t('quick_actions.recommended.description')}</p>
+                <button
+                  type="button"
+                  onClick={() => setShowRecommendations(true)}
+                  className="min-h-12 w-full rounded-xl text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  aria-label={t('recommendations.premium.open_aria')}
+                  data-testid="recommended-action"
+                >
+                  <h3 className="mb-1 break-words text-sm font-semibold text-teal-600">{t('quick_actions.recommended.title')}</h3>
+                  <p className="line-clamp-2 break-words text-xs leading-5 text-teal-700">{t('quick_actions.recommended.description')}</p>
+                </button>
               </CardContent>
             </Card>
         </div>
@@ -258,37 +266,22 @@ export default function QuickActions() {
       }
 
       {/* AI Recommendations Modal */}
-      {showRecommendations &&
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
-      style={{
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
-      }}
-      onClick={() => setShowRecommendations(false)}>
-
-          <Card
-          className="w-full max-w-2xl border-0 shadow-2xl my-8"
-          style={{ maxHeight: 'calc(100vh - 160px)', borderRadius: '24px' }}
-          onClick={(e) => e.stopPropagation()}>
-
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--theme-accent))' }} />
-                  <h2 className="text-xl font-semibold">{t('quick_actions.personalized_recommendations')}</h2>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowRecommendations(false)} aria-label="Close recommendations">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </Button>
-              </div>
-              <AiPersonalizedFeed />
-            </CardContent>
-          </Card>
-        </div>
-      }
+      <Dialog open={showRecommendations} onOpenChange={setShowRecommendations}>
+        <DialogContent
+          closeLabel={t('recommendations.premium.close_aria')}
+          className="max-h-[calc(100dvh-2rem)] max-w-3xl overflow-y-auto rounded-t-[28px] p-4 sm:max-h-[calc(100vh-4rem)] sm:rounded-[28px] sm:p-6"
+          data-testid="recommendations-dialog"
+        >
+          <DialogHeader className="pe-10 text-start">
+            <DialogTitle className="flex items-center gap-2 text-xl text-teal-950 sm:text-2xl">
+              <Sparkles className="h-5 w-5 shrink-0 text-teal-600" />
+              {t('quick_actions.personalized_recommendations')}
+            </DialogTitle>
+            <DialogDescription>{t('recommendations.premium.modal_description')}</DialogDescription>
+          </DialogHeader>
+          <AiPersonalizedFeed />
+        </DialogContent>
+      </Dialog>
     </div>);
 
 }
