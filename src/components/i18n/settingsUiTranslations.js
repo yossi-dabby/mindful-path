@@ -43,7 +43,7 @@ const rows = [
 ['premium.title','Unlock Premium','פתיחת Premium','Desbloquea Premium','Débloquez Premium','Premium freischalten','Sblocca Premium','Desbloquear Premium'],
 ['premium.subtitle','Enjoy unlimited access to every wellbeing tool.','קבלו גישה בלתי מוגבלת לכל כלי הרווחה הנפשית.','Disfruta acceso ilimitado a todas las herramientas.','Profitez d’un accès illimité à tous les outils.','Nutzen Sie unbegrenzten Zugriff auf alle Werkzeuge.','Ottieni accesso illimitato a tutti gli strumenti.','Tenha acesso ilimitado a todas as ferramentas.'],
 ['premium.plan','Premium plan','מסלול Premium','Plan Premium','Formule Premium','Premium-Tarif','Piano Premium','Plano Premium'],
-['premium.month','לחודש','לחודש','al mes','par mois','pro Monat','al mese','por mês'],
+['premium.month','per month','לחודש','al mes','par mois','pro Monat','al mese','por mês'],
 ['premium.best_value','Best value','הבחירה המשתלמת','Mejor opción','Meilleur choix','Beste Wahl','Scelta migliore','Melhor opção'],
 ['premium.cancel_anytime','Cancel anytime · 7-day free trial','אפשר לבטל בכל עת · 7 ימי ניסיון','Cancela cuando quieras · 7 días de prueba','Annulation à tout moment · essai de 7 jours','Jederzeit kündbar · 7 Tage gratis','Annulla quando vuoi · prova di 7 giorni','Cancele a qualquer momento · 7 dias grátis'],
 ['premium.start_trial','Start free trial','התחלת ניסיון חינם','Iniciar prueba gratuita','Commencer l’essai gratuit','Kostenlos testen','Inizia la prova gratuita','Iniciar teste gratuito'],
