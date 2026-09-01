@@ -1,336 +1,390 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueries } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import {
+  ArrowRight,
+  BookOpen,
+  Brain,
+  CirclePlay,
+  Lightbulb,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  Target
+} from 'lucide-react';
+
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, BookOpen, Target, Play, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getCurrentAppLocale } from '@/components/i18n/appLocale';
 import { createPageUrl } from '../../utils';
+import { getRecommendationDestination, normalizeRecommendationPayload } from './recommendationData';
+
+const LANGUAGE_NAMES = {
+  en: 'English',
+  he: 'Hebrew',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese'
+};
+
+const TYPE_ICONS = {
+  exercise: CirclePlay,
+  resource: BookOpen,
+  video: CirclePlay,
+  journal_prompt: Brain
+};
+
+function RecommendationState({ icon: Icon, title, description, actionLabel, onAction, busy = false, testId }) {
+  return (
+    <Card className="border border-teal-800/10 bg-white/80 shadow-sm" data-testid={testId}>
+      <CardContent className="flex min-h-[230px] flex-col items-center justify-center px-5 py-9 text-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-700/10 text-teal-700">
+          <Icon className={busy ? 'h-7 w-7 animate-spin' : 'h-7 w-7'} />
+        </div>
+        <h3 className="text-lg font-bold text-teal-950">{title}</h3>
+        <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">{description}</p>
+        {onAction && (
+          <Button
+            type="button"
+            onClick={onAction}
+            className="mt-5 min-h-12 rounded-full bg-teal-700 px-6 text-white hover:bg-teal-800"
+          >
+            <RefreshCw className="me-2 h-4 w-4" />
+            {actionLabel}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function AiPersonalizedFeed() {
   const navigate = useNavigate();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [loadData, setLoadData] = useState(false);
+  const { t, i18n } = useTranslation();
+  const appLocale = getCurrentAppLocale(i18n);
 
-  // Only start fetching data after a short delay (component is inside a modal that was just opened)
-  useEffect(() => {
-    const t = setTimeout(() => setLoadData(true), 100);
-    return () => clearTimeout(t);
-  }, []);
-
-  const { data: goals = [] } = useQuery({
-    queryKey: ['activeGoals'],
-    queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 5),
-    enabled: loadData,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false
+  const dataQueries = useQueries({
+    queries: [
+      {
+        queryKey: ['activeGoals'],
+        queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 5),
+        staleTime: 1000 * 60 * 10,
+        refetchOnWindowFocus: false,
+        retry: 1
+      },
+      {
+        queryKey: ['recentJournals'],
+        queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 10),
+        staleTime: 1000 * 60 * 10,
+        refetchOnWindowFocus: false,
+        retry: 1
+      },
+      {
+        queryKey: ['recentMoods'],
+        queryFn: () => base44.entities.MoodEntry.list('-created_date', 7),
+        staleTime: 1000 * 60 * 10,
+        refetchOnWindowFocus: false,
+        retry: 1
+      },
+      {
+        queryKey: ['exercises'],
+        queryFn: () => base44.entities.Exercise.list(),
+        staleTime: 1000 * 60 * 30,
+        refetchOnWindowFocus: false,
+        retry: 1
+      },
+      {
+        queryKey: ['resources'],
+        queryFn: () => base44.entities.Resource.list(),
+        staleTime: 1000 * 60 * 30,
+        refetchOnWindowFocus: false,
+        retry: 1
+      },
+      {
+        queryKey: ['videos'],
+        queryFn: () => base44.entities.Video.list(),
+        staleTime: 1000 * 60 * 30,
+        refetchOnWindowFocus: false,
+        retry: 1
+      }
+    ]
   });
 
-  const { data: recentJournals = [] } = useQuery({
-    queryKey: ['recentJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 10),
-    enabled: loadData,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false
-  });
+  const [goalsQuery, journalsQuery, moodsQuery, exercisesQuery, resourcesQuery, videosQuery] = dataQueries;
+  const dataReady = dataQueries.every((query) => query.isSuccess);
+  const dataError = dataQueries.some((query) => query.isError);
+  const dataLoading = !dataReady && !dataError;
 
-  const { data: recentMoods = [] } = useQuery({
-    queryKey: ['recentMoods'],
-    queryFn: () => base44.entities.MoodEntry.list('-created_date', 7),
-    enabled: loadData,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false
-  });
+  const goals = goalsQuery.data || [];
+  const recentJournals = journalsQuery.data || [];
+  const recentMoods = moodsQuery.data || [];
+  const exercises = exercisesQuery.data || [];
+  const resources = resourcesQuery.data || [];
+  const videos = videosQuery.data || [];
 
-  const { data: exercises = [] } = useQuery({
-    queryKey: ['exercises'],
-    queryFn: () => base44.entities.Exercise.list(),
-    enabled: loadData,
-    staleTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false
-  });
-
-  const { data: resources = [] } = useQuery({
-    queryKey: ['resources'],
-    queryFn: () => base44.entities.Resource.list(),
-    enabled: loadData,
-    staleTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false
-  });
-
-  const { data: videos = [] } = useQuery({
-    queryKey: ['videos'],
-    queryFn: () => base44.entities.Video.list(),
-    enabled: loadData,
-    staleTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false
-  });
-
-  // Only run LLM once all 3 user data queries have actually resolved with real arrays
-  const dataReady = loadData && Array.isArray(goals) && Array.isArray(recentJournals) && Array.isArray(recentMoods);
-
-  // AI-powered recommendations - only run when explicitly opened (dataReady + has some data)
-  const { data: aiRecommendations, isLoading, refetch } = useQuery({
-    queryKey: ['aiRecommendations'],
+  const aiQuery = useQuery({
+    queryKey: ['aiRecommendations', appLocale],
     queryFn: async () => {
       if (!goals.length && !recentJournals.length && !recentMoods.length) {
-        // New user - provide starter recommendations
+        const breathingExercise = exercises.find((exercise) => exercise.category === 'breathing');
         return {
           recommendations: [
             {
               type: 'exercise',
-              id: exercises.find(e => e.category === 'breathing')?.id,
-              title: exercises.find(e => e.category === 'breathing')?.title || 'Breathing Exercise',
-              description: exercises.find(e => e.category === 'breathing')?.description || 'Start with calming breathwork',
-              reason: 'Great starting point for new users',
+              id: breathingExercise?.id || null,
+              title: t('recommendations.premium.starter_exercise_title'),
+              description: t('recommendations.premium.starter_exercise_description'),
+              reason: t('recommendations.premium.starter_exercise_reason'),
               priority: 'high'
             },
             {
               type: 'journal_prompt',
-              title: 'Reflect on Today',
-              description: 'What went well today? What challenged you?',
-              reason: 'Build awareness of thought patterns',
+              id: null,
+              title: t('recommendations.premium.starter_reflection_title'),
+              description: t('recommendations.premium.starter_reflection_description'),
+              reason: t('recommendations.premium.starter_reflection_reason'),
               priority: 'medium'
             }
           ],
-          insights: 'Welcome! These activities will help you get started with your mental wellness journey.'
+          insights: t('recommendations.premium.new_user_insights')
         };
       }
 
-      setIsGenerating(true);
-      
-      try {
-        // Build context for AI analysis
-        const context = {
-          goals: goals.map(g => ({ title: g.title, category: g.category, progress: g.progress })),
-          recent_emotions: recentMoods.map(m => ({ mood: m.mood, emotions: m.emotions, stress_level: m.stress_level })),
-          journal_themes: recentJournals.map(j => ({ 
-            cognitive_distortions: j.cognitive_distortions,
-            emotions: j.emotions,
-            emotion_intensity: j.emotion_intensity,
-            outcome_emotion_intensity: j.outcome_emotion_intensity
-          })),
-          available_exercises: exercises.map(e => ({ id: e.id, title: e.title, category: e.category, tags: e.tags })),
-          available_resources: resources.map(r => ({ id: r.id, title: r.title, type: r.type, category: r.category })),
-          available_videos: videos.map(v => ({ id: v.id, title: v.title, category: v.category }))
-        };
+      const context = {
+        goals: goals.map((goal) => ({ title: goal.title, category: goal.category, progress: goal.progress })),
+        recent_emotions: recentMoods.map((mood) => ({
+          mood: mood.mood,
+          emotions: mood.emotions,
+          stress_level: mood.stress_level
+        })),
+        journal_themes: recentJournals.map((journal) => ({
+          cognitive_distortions: journal.cognitive_distortions,
+          emotions: journal.emotions,
+          emotion_intensity: journal.emotion_intensity,
+          outcome_emotion_intensity: journal.outcome_emotion_intensity
+        })),
+        available_exercises: exercises.slice(0, 30).map((exercise) => ({
+          id: exercise.id,
+          title: exercise.title,
+          category: exercise.category,
+          tags: exercise.tags
+        })),
+        available_resources: resources.slice(0, 30).map((resource) => ({
+          id: resource.id,
+          title: resource.title,
+          type: resource.type,
+          category: resource.category
+        })),
+        available_videos: videos.slice(0, 30).map((video) => ({
+          id: video.id,
+          title: video.title,
+          category: video.category
+        }))
+      };
 
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `You are a CBT therapist assistant analyzing user data to recommend personalized content.
+      return base44.integrations.Core.InvokeLLM({
+        prompt: `You are a careful CBT wellbeing assistant. Create 3-5 supportive content recommendations from the available items when possible.
 
-User Data:
-- Active Goals: ${JSON.stringify(context.goals)}
-- Recent Moods (7 days): ${JSON.stringify(context.recent_emotions)}
-- Recent Journal Themes: ${JSON.stringify(context.journal_themes)}
+User context:
+${JSON.stringify({ goals: context.goals, recent_emotions: context.recent_emotions, journal_themes: context.journal_themes })}
 
-Available Content:
-- Exercises: ${JSON.stringify(context.available_exercises.slice(0, 10))}
-- Resources: ${JSON.stringify(context.available_resources.slice(0, 10))}
-- Videos: ${JSON.stringify(context.available_videos.slice(0, 10))}
+Available content:
+${JSON.stringify({ exercises: context.available_exercises, resources: context.available_resources, videos: context.available_videos })}
 
-Task: Recommend 3-5 highly relevant content items that will:
-1. Support their active goals
-2. Address patterns in their mood/journal data
-3. Help with skills they're building
-4. Provide variety (mix of exercises, prompts, resources, videos)
+Return a JSON object with "recommendations" and "insights". Each recommendation must contain type, id, title, description, reason and priority. Allowed types: exercise, resource, video, journal_prompt. Allowed priorities: high, medium, low.
 
-For each recommendation, provide:
-- type: "exercise", "resource", "video", or "journal_prompt"
-- id: (if from available content, otherwise null)
-- title
-- description (one sentence, warm and encouraging)
-- reason: why this is relevant to them RIGHT NOW (based on their data)
-- priority: "high", "medium", or "low"
-
-Also provide a brief "insights" summary (2-3 sentences) about patterns you noticed in their data.
-
-Return JSON only.`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              recommendations: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    type: { type: "string" },
-                    id: { type: "string" },
-                    title: { type: "string" },
-                    description: { type: "string" },
-                    reason: { type: "string" },
-                    priority: { type: "string" }
-                  }
-                }
-              },
-              insights: { type: "string" }
-            }
-          }
-        });
-
-        return response;
-      } finally {
-        setIsGenerating(false);
-      }
+Safety and language requirements:
+- Use warm, non-diagnostic language. Do not make clinical claims or imply certainty.
+- Do not expose raw field names, JSON, or hidden reasoning in user-facing text.
+- Write every user-facing field only in ${LANGUAGE_NAMES[appLocale] || 'English'} (${appLocale}). Do not mix languages.
+- Keep titles short, descriptions to one sentence, reasons to one sentence and insights to two short sentences.
+- Preserve the id of a selected available item exactly.`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            recommendations: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  type: { type: 'string', enum: ['exercise', 'resource', 'video', 'journal_prompt'] },
+                  id: { type: 'string' },
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  reason: { type: 'string' },
+                  priority: { type: 'string', enum: ['high', 'medium', 'low'] }
+                },
+                required: ['type', 'title', 'description', 'reason', 'priority']
+              }
+            },
+            insights: { type: 'string' }
+          },
+          required: ['recommendations', 'insights']
+        }
+      });
     },
     enabled: dataReady,
-    staleTime: 1000 * 60 * 30 // 30 minutes
+    staleTime: 1000 * 60 * 30,
+    retry: 1
   });
 
-  const handleRefresh = () => {
-    refetch();
-  };
+  const normalized = normalizeRecommendationPayload(aiQuery.data);
+  const retryData = () => dataQueries.forEach((query) => query.refetch());
 
-  if (isLoading || isGenerating) {
+  if (dataLoading || (dataReady && aiQuery.isPending)) {
     return (
-      <Card className="border-0 mb-6" style={{
-        borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        boxShadow: '0 8px 24px rgba(38, 166, 154, 0.12)'
-      }}>
-        <CardContent className="p-8 text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: '#26A69A' }} />
-          <p className="text-sm" style={{ color: '#5A7A72' }}>
-            Analyzing your progress and tailoring recommendations...
-          </p>
-        </CardContent>
-      </Card>
+      <RecommendationState
+        icon={Loader2}
+        title={t('recommendations.premium.loading_title')}
+        description={t('recommendations.premium.loading_description')}
+        busy
+        testId="recommendations-loading"
+      />
     );
   }
 
-  if (!aiRecommendations?.recommendations?.length) {
-    return null;
+  if (dataError) {
+    return (
+      <RecommendationState
+        icon={RefreshCw}
+        title={t('recommendations.premium.data_error_title')}
+        description={t('recommendations.premium.data_error_description')}
+        actionLabel={t('recommendations.premium.try_again')}
+        onAction={retryData}
+        testId="recommendations-data-error"
+      />
+    );
+  }
+
+  if (aiQuery.isError) {
+    return (
+      <RecommendationState
+        icon={RefreshCw}
+        title={t('recommendations.premium.generation_error_title')}
+        description={t('recommendations.premium.generation_error_description')}
+        actionLabel={t('recommendations.premium.try_again')}
+        onAction={() => aiQuery.refetch()}
+        testId="recommendations-generation-error"
+      />
+    );
+  }
+
+  if (!normalized.recommendations.length) {
+    return (
+      <RecommendationState
+        icon={Target}
+        title={t('recommendations.premium.empty_title')}
+        description={t('recommendations.premium.empty_description')}
+        actionLabel={t('recommendations.premium.try_again')}
+        onAction={() => aiQuery.refetch()}
+        testId="recommendations-empty"
+      />
+    );
   }
 
   return (
-    <div className="mb-6">
-      <Card className="border-0" style={{
-        borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 24px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04)'
-      }}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 flex items-center justify-center" style={{
-                borderRadius: '16px',
-                background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15), rgba(56, 178, 172, 0.15))'
-              }}>
-                <Sparkles className="w-5 h-5" style={{ color: '#26A69A' }} />
-              </div>
-              <div>
-                <CardTitle className="text-lg" style={{ color: '#1A3A34' }}>
-                  Recommended for You
-                </CardTitle>
-                <p className="text-xs" style={{ color: '#5A7A72' }}>
-                  AI-tailored based on your journey
-                </p>
-              </div>
+    <Card className="overflow-hidden border border-teal-800/10 bg-white/80 shadow-[0_20px_50px_rgba(36,100,88,0.12)]" data-testid="recommendations-feed">
+      <CardHeader className="border-b border-teal-900/10 bg-gradient-to-br from-white via-emerald-50/75 to-teal-50/80 p-5 sm:p-6">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3 text-start">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-900/15">
+              <Sparkles className="h-6 w-6" />
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleRefresh}
-              className="flex-shrink-0"
-              aria-label="Refresh recommendations"
-            >
-              <RefreshCw className="w-4 h-4" style={{ color: '#26A69A' }} />
-            </Button>
-          </div>
-          
-          {aiRecommendations.insights && (
-            <div className="mt-4 p-3" style={{
-              borderRadius: '16px',
-              backgroundColor: 'rgba(159, 122, 234, 0.1)',
-              border: '1px solid rgba(159, 122, 234, 0.2)'
-            }}>
-              <p className="text-sm break-words" style={{ color: '#1A3A34' }}>
-                💡 <strong>Insights:</strong> {aiRecommendations.insights}
+            <div className="min-w-0">
+              <CardTitle className="break-words text-lg text-teal-950 sm:text-xl">
+                {t('quick_actions.recommended.title')}
+              </CardTitle>
+              <p className="mt-1 text-xs leading-5 text-slate-600 sm:text-sm">
+                {t('recommendations.premium.feed_subtitle')}
               </p>
             </div>
-          )}
-        </CardHeader>
-        
-        <CardContent className="space-y-3">
-          {aiRecommendations.recommendations.map((rec, index) => {
-            const Icon = rec.type === 'exercise' ? Play :
-                        rec.type === 'resource' ? BookOpen :
-                        rec.type === 'video' ? Play :
-                        rec.type === 'journal_prompt' ? BookOpen : Target;
-            
-            const priorityColors = {
-              high: { bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)', text: '#DC2626' },
-              medium: { bg: 'rgba(246, 173, 85, 0.1)', border: 'rgba(246, 173, 85, 0.3)', text: '#EA580C' },
-              low: { bg: 'rgba(38, 166, 154, 0.1)', border: 'rgba(38, 166, 154, 0.3)', text: '#26A69A' }
-            };
-            
-            const colors = priorityColors[rec.priority] || priorityColors.medium;
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => aiQuery.refetch()}
+            disabled={aiQuery.isFetching}
+            className="h-12 w-12 shrink-0 rounded-2xl border-teal-800/15 bg-white/80 text-teal-700 hover:bg-white"
+            aria-label={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}
+            title={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}
+            data-testid="recommendations-refresh"
+          >
+            <RefreshCw className={aiQuery.isFetching ? 'h-5 w-5 animate-spin' : 'h-5 w-5'} />
+          </Button>
+        </div>
 
-            return (
-              <div
-                key={`${rec.type}-${rec.id || index}`}
-                className="p-4 hover:shadow-md transition-all cursor-pointer group"
-                style={{
-                  borderRadius: '20px',
-                  backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`
-                }}
-                onClick={() => {
-                  if (rec.type === 'exercise' && rec.id) {
-                    navigate(createPageUrl('Exercises'));
-                  } else if (rec.type === 'journal_prompt') {
-                    navigate(createPageUrl('Chat', 'intent=thought_work'));
-                  } else if (rec.type === 'resource' && rec.id) {
-                    navigate(createPageUrl('Resources'));
-                  } else if (rec.type === 'video' && rec.id) {
-                    navigate(createPageUrl('Videos'));
-                  }
-                }}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 flex items-center justify-center flex-shrink-0" style={{
-                    borderRadius: '14px',
-                    backgroundColor: colors.bg,
-                    border: `1px solid ${colors.border}`
-                  }}>
-                    <Icon className="w-5 h-5" style={{ color: colors.text }} />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <h4 className="font-semibold text-sm break-words" style={{ color: '#1A3A34' }}>
-                        {rec.title}
-                      </h4>
-                      {rec.priority === 'high' && (
-                        <Badge variant="outline" className="text-xs flex-shrink-0" style={{
-                          borderRadius: '8px',
-                          borderColor: colors.border,
-                          color: colors.text,
-                          backgroundColor: colors.bg
-                        }}>
-                          Priority
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <p className="text-xs mb-2 break-words" style={{ color: '#5A7A72' }}>
-                      {rec.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs italic break-words" style={{ color: '#7A8A82' }}>
-                        {rec.reason}
-                      </p>
-                      <ArrowRight className="w-4 h-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: colors.text }} />
-                    </div>
-                  </div>
-                </div>
+        {normalized.insights && (
+          <div className="mt-5 rounded-2xl border border-violet-200/70 bg-violet-50/75 p-4 text-start" data-testid="recommendations-insights">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" />
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-wide text-violet-700">
+                  {t('recommendations.premium.insights_label')}
+                </p>
+                <p className="mt-1 break-words text-sm leading-6 text-slate-700">{normalized.insights}</p>
               </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-    </div>
+            </div>
+          </div>
+        )}
+      </CardHeader>
+
+      <CardContent className="space-y-3 p-4 sm:p-6">
+        {normalized.recommendations.map((recommendation) => {
+          const Icon = TYPE_ICONS[recommendation.type] || Target;
+          const typeLabel = t(`recommendations.premium.type_${recommendation.type}`);
+          const destination = getRecommendationDestination(recommendation.type);
+
+          return (
+            <button
+              type="button"
+              key={recommendation.key}
+              onClick={() => navigate(createPageUrl(destination.page, destination.query))}
+              className="group w-full rounded-2xl border border-teal-900/10 bg-white/85 p-4 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-teal-600/25 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+              aria-label={t('recommendations.premium.open_item', { type: typeLabel, title: recommendation.title })}
+              data-testid="recommendation-item"
+            >
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-700/10 text-teal-700">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className="border-teal-700/15 bg-teal-50 text-[11px] text-teal-800">
+                      {typeLabel}
+                    </Badge>
+                    {recommendation.priority === 'high' && (
+                      <Badge variant="outline" className="border-amber-300/70 bg-amber-50 text-[11px] text-amber-800">
+                        {t('recommendations.premium.best_match')}
+                      </Badge>
+                    )}
+                  </div>
+                  <h4 className="mt-2 break-words text-base font-bold leading-snug text-teal-950">
+                    {recommendation.title}
+                  </h4>
+                  {recommendation.description && (
+                    <p className="mt-1 break-words text-sm leading-6 text-slate-600">{recommendation.description}</p>
+                  )}
+                  {recommendation.reason && (
+                    <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2">
+                      <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                        {t('recommendations.premium.why_now')}
+                      </p>
+                      <p className="mt-1 break-words text-xs leading-5 text-slate-700">{recommendation.reason}</p>
+                    </div>
+                  )}
+                </div>
+                <ArrowRight className="mt-3 h-5 w-5 shrink-0 text-teal-600 transition group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+              </div>
+            </button>
+          );
+        })}
+      </CardContent>
+    </Card>
   );
 }
