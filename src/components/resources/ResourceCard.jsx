@@ -108,7 +108,7 @@ export default function ResourceCard({
   return (
     <Card
       data-testid="resource-card"
-      className="h-full min-w-0 overflow-hidden border border-border/80 bg-card/95 shadow-[var(--shadow-md)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-lg)] focus-within:ring-2 focus-within:ring-primary/40"
+      className="flex h-full min-w-0 flex-col overflow-hidden border border-border/80 bg-card/95 shadow-[var(--shadow-md)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-lg)] focus-within:ring-2 focus-within:ring-primary/40"
     >
       <CardHeader className="space-y-4 pb-3">
         <div className="flex items-start justify-between gap-3">
@@ -154,7 +154,7 @@ export default function ResourceCard({
         </div>
       </CardHeader>
 
-      <CardContent className="flex h-full flex-col gap-4 pt-0">
+      <CardContent className="flex flex-1 flex-col gap-4 pt-0">
         <dl className="space-y-2 border-t border-border/60 pt-4 text-sm">
           {resource.source && (
             <div className="flex items-start gap-2">
