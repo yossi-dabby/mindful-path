@@ -56,8 +56,8 @@ export default function GeneratedFileCard({ generatedFile }) {
         reason: error?.message || error,
       });
       toast({
-        title: 'Unable to download worksheet',
-        description: 'This worksheet file could not be downloaded. Please try again or contact support.',
+        title: t('chat.generated_file.download_error_title'),
+        description: t('chat.generated_file.download_error_desc'),
         variant: 'destructive',
       });
     } finally {
