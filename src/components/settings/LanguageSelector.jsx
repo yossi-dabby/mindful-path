@@ -41,25 +41,20 @@ export default function LanguageSelector() {
   };
 
   return (
-    <Card className="border-0" style={{
-      borderRadius: '24px',
-      background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-      backdropFilter: 'blur(10px)',
-      boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-    }}>
-      <CardHeader className="border-b">
+    <Card className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl">
+      <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
         <CardTitle className="flex items-center gap-2">
           <Languages className="w-5 h-5 text-gray-600" />
           {t('settings.language.title')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-5 sm:p-6">
         <p className="text-sm text-gray-600 mb-4">
           {t('settings.language.description')}
         </p>
         
         {/* Language Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {languages.map((lang, index) => {
             const isSelected = currentLang === lang.code;
             
@@ -68,13 +63,13 @@ export default function LanguageSelector() {
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
                 className={cn(
-                  'relative p-4 rounded-xl border-2 transition-all text-start',
+                  'relative min-h-[78px] p-4 rounded-2xl border-2 transition-all text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                   isSelected
-                    ? 'border-blue-500 shadow-lg'
-                    : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                    ? 'border-teal-500 bg-teal-50 shadow-md'
+                    : 'border-slate-200 bg-white hover:border-teal-200 hover:shadow-sm'
                 )}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.99 }}
+                aria-pressed={isSelected}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -96,7 +91,7 @@ export default function LanguageSelector() {
                   </div>
                   {isSelected && (
                     <motion.div 
-                      className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 ms-1"
+                      className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center flex-shrink-0 ms-1"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}
@@ -111,8 +106,8 @@ export default function LanguageSelector() {
         </div>
         
         {/* Current Language Display */}
-        <div className="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
-          <p className="text-xs text-blue-800">
+        <div className="mt-4 p-3 rounded-2xl bg-teal-50 border border-teal-200">
+          <p className="text-xs text-teal-800">
             <strong>{t('settings.language.current')}:</strong>{' '}
             {languages.find(l => l.code === currentLang)?.native || 'English'}
           </p>
