@@ -1,93 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, ThumbsUp, Pin, User, Shield, Loader2 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { MessageCircle, ThumbsUp, Pin, User, Shield, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { formatCommunityTime, forumCategoryKey } from './communityFormatters';
 
-function ForumPostCard({ post, onView, onUpvote, onModerate, isUpvoting }) {
-  const categoryColors = {
-    general: 'bg-secondary text-secondary-foreground border border-border/60',
-    goals: 'bg-teal-100 text-teal-700 border border-teal-200',
-    mental_health: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
-    exercises: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-    success_stories: 'bg-amber-100 text-amber-700 border border-amber-200',
-    questions: 'bg-orange-100 text-orange-700 border border-orange-200',
-    tips: 'bg-rose-100 text-rose-700 border border-rose-200'
-  };
+function ForumPostCard({ post, onUpvote, onModerate, isUpvoting, isReacted }) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const author = post.is_anonymous
+    ? t('community_ui.card.anonymous')
+    : (post.author_display_name || t('community_ui.card.anonymous'));
 
   return (
-    <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow cursor-pointer" onClick={onView}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
-            <User className="w-5 h-5 text-primary-foreground" />
+    <Card data-testid={`forum-post-${post.id}`} className="overflow-hidden border border-border/80 bg-[hsl(var(--card)/0.94)] shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)]">
+      <CardContent className="p-4 sm:p-5">
+        <article className="flex min-w-0 items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-600 shadow-[var(--shadow-sm)]" aria-hidden="true">
+            <User className="h-5 w-5 text-white" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              {post.pinned && <Pin className="w-4 h-4 text-primary" />}
-            <h3 className="font-semibold text-foreground line-clamp-2">{post.title}</h3>
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex items-start gap-2">
+              {post.pinned && <Pin className="mt-1 h-4 w-4 shrink-0 text-amber-600" aria-label={t('community_ui.card.pinned')} />}
+              <h2 className="min-w-0 break-words text-base font-semibold leading-snug text-foreground sm:text-lg">{post.title}</h2>
             </div>
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{post.content}</p>
-            <div className="flex items-center flex-wrap gap-2 mb-2">
-              <Badge className={categoryColors[post.category]}>
-                {post.category.replace('_', ' ')}
-              </Badge>
-              {post.tags?.slice(0, 2).map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-              {post.is_anonymous && (
-                <Badge variant="outline" className="text-xs">
-                  Anonymous
-                </Badge>
-              )}
+            <p className={`mb-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground ${expanded ? '' : 'line-clamp-3'}`}>{post.content}</p>
+            {(post.content?.length || 0) > 180 && (
+              <Button type="button" variant="ghost" size="sm" className="mb-2 min-h-[44px] px-2 text-teal-700" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
+                {expanded ? <ChevronUp className="me-1 h-4 w-4" /> : <ChevronDown className="me-1 h-4 w-4" />}
+                {t(expanded ? 'community_ui.card.show_less' : 'community_ui.card.show_more')}
+              </Button>
+            )}
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <Badge variant="outline">{t(forumCategoryKey(post.category))}</Badge>
+              {post.tags?.slice(0, 5).map((tag) => <Badge key={tag} variant="secondary" className="max-w-full truncate">{tag}</Badge>)}
+              {post.is_anonymous && <Badge variant="outline">{t('community_ui.card.anonymous')}</Badge>}
             </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <User className="w-4 h-4" />
-                {post.author_display_name}
-              </span>
-              <span>{formatDistanceToNow(new Date(post.created_date), { addSuffix: true })}</span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="flex min-w-0 items-center gap-1"><User className="h-4 w-4 shrink-0" /><span className="truncate">{author}</span></span>
+              <time dateTime={post.created_date}>{formatCommunityTime(post.created_date, t)}</time>
               <Button
-                variant="ghost"
+                type="button"
+                variant={isReacted ? 'secondary' : 'ghost'}
                 size="sm"
-                className="h-auto min-h-[44px] min-w-[44px] px-2 hover:bg-transparent"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpvote(post);
-                }}
+                className="min-h-[44px] min-w-[44px] px-2"
+                onClick={() => onUpvote(post)}
                 disabled={isUpvoting}
+                aria-pressed={Boolean(isReacted)}
+                aria-label={t(isReacted ? 'community_ui.card.remove_upvote' : 'community_ui.card.upvote')}
               >
-                {isUpvoting ? (
-                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                ) : (
-                  <ThumbsUp className="w-4 h-4 mr-1" />
-                )}
+                {isUpvoting ? <Loader2 className="me-1 h-4 w-4 animate-spin" /> : <ThumbsUp className={`me-1 h-4 w-4 ${isReacted ? 'fill-current' : ''}`} />}
                 {post.upvotes || 0}
               </Button>
-              <span className="flex items-center gap-1">
-                <MessageCircle className="w-4 h-4" />
-                {post.comment_count || 0}
+              <span className="flex items-center gap-1" aria-label={t('community_ui.card.comments', { count: post.comment_count || 0 })}>
+                <MessageCircle className="h-4 w-4" />{post.comment_count || 0}
               </span>
               {onModerate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto min-h-[44px] min-w-[44px] px-2 hover:bg-transparent text-accent"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onModerate(post);
-                  }}
-                >
-                  <Shield className="w-4 h-4 mr-1" />
-                  Moderate
+                <Button type="button" variant="ghost" size="sm" className="min-h-[44px] px-2 text-amber-700" onClick={() => onModerate(post)}>
+                  <Shield className="me-1 h-4 w-4" />{t('community_ui.card.moderate')}
                 </Button>
               )}
             </div>
           </div>
-        </div>
+        </article>
       </CardContent>
     </Card>
   );
