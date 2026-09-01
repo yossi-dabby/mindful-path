@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus, Sparkles, Heart, Brain, FileText, Edit, Trash2 } from 'lucide-react';
+import { localizeJournalTemplate } from './journalTemplateCatalog';
 
 const templateIcons = { cbt_standard: Brain, gratitude: Heart, anxiety_log: Sparkles, mood_journal: Heart, custom: FileText };
-const defaultKeyByEntryType = { cbt_standard: 'cbt', gratitude: 'gratitude', anxiety_log: 'anxiety', mood_journal: 'mood' };
 const defaultTemplates = [
   { entry_type: 'cbt_standard', key: 'cbt' },
   { entry_type: 'gratitude', key: 'gratitude' },
@@ -18,7 +18,7 @@ const defaultTemplates = [
 ];
 
 function localizeBuiltInTemplate(template, t) {
-  const key = template.key || template.default_key || (template.is_default ? defaultKeyByEntryType[template.entry_type] : null);
+  const key = template.key || template.default_key;
   if (!key) return template;
   return {
     ...template,
@@ -109,7 +109,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
                   <h3 className="mb-3 text-sm font-bold text-teal-950">{t('journal_ui.templates.custom')}</h3>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {templates.map((template) => {
-                      const displayTemplate = localizeBuiltInTemplate(template, t);
+                      const displayTemplate = localizeJournalTemplate(template, t);
                       return (
                         <TemplateCard key={template.id} template={displayTemplate} displayName={displayTemplate.name} displayDescription={displayTemplate.description}
                           onSelect={onSelectTemplate} onEdit={() => setEditingTemplate(template.is_default ? { ...displayTemplate, source_default: true } : template)}
