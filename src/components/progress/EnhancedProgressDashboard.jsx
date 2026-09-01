@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 const COLORS = ['#26A69A', '#9F7AEA', '#F6AD55', '#4299E1', '#ED8936', '#38B2AC'];
+const MOOD_VALUES = { very_low: 1, low: 2, okay: 3, good: 4, excellent: 5 };
 
 export default function EnhancedProgressDashboard({ moodEntries = [], journalEntries = [], exercises = [], goals = [] }) {
   const { t, i18n } = useTranslation();
@@ -49,7 +50,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
       return {
         date: dateFormatter.format(date),
         mood: dayMoods.length > 0 ?
-        dayMoods.reduce((sum, m) => sum + (m.mood_level || 5), 0) / dayMoods.length :
+        dayMoods.reduce((sum, m) => sum + (MOOD_VALUES[m.mood] || 3), 0) / dayMoods.length :
         null
       };
     });
@@ -61,14 +62,14 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
     const categoryStats = exercises.reduce((acc, ex) => {
       const category = ex.category || 'other';
       if (!acc[category]) {
-        acc[category] = { name: category, count: 0, totalTime: 0 };
+        acc[category] = { name: t(`progress_ui.categories.${category}`, { defaultValue: category.replace(/_/g, ' ') }), count: 0, totalTime: 0 };
       }
       acc[category].count += ex.completed_count || 0;
       acc[category].totalTime += ex.total_time_practiced || 0;
       return acc;
     }, {});
     return Object.values(categoryStats);
-  }, [exercises]);
+  }, [exercises, t]);
 
   // Calculate journal consistency (last 30 days)
   const journalConsistencyData = useMemo(() => {
