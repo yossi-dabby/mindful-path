@@ -48,6 +48,38 @@ test.describe('Community responsive and localized experience', () => {
     await assertNoHorizontalOverflow(page);
   });
 
+  test('keeps category selectors above each Community form and allows selection', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await spaNavigate(page, '/Community');
+    await expect(page.getByTestId('community-page')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: /new post/i }).click();
+    await page.getByRole('button', { name: 'General discussion' }).click();
+    const postOptions = page.getByTestId('bottom-sheet-select-options');
+    await expect(postOptions).toBeVisible();
+    await expect(postOptions).toHaveCSS('z-index', '101');
+    await postOptions.getByRole('button', { name: 'Questions' }).click();
+    await expect(page.getByRole('button', { name: 'Questions' })).toBeVisible();
+    await page.getByTestId('forum-post-dialog').getByRole('button', { name: 'Close' }).click();
+
+    await page.getByRole('tab', { name: /groups/i }).click();
+    await page.getByRole('button', { name: /create group/i }).click();
+    await page.getByRole('button', { name: 'Other' }).click();
+    const groupOptions = page.getByTestId('bottom-sheet-select-options');
+    await expect(groupOptions).toBeVisible();
+    await groupOptions.getByRole('button', { name: 'Anxiety support' }).click();
+    await expect(page.getByRole('button', { name: 'Anxiety support' })).toBeVisible();
+    await page.getByTestId('community-group-dialog').getByRole('button', { name: 'Close' }).click();
+
+    await page.getByRole('tab', { name: /progress/i }).click();
+    await page.getByRole('button', { name: /share progress/i }).click();
+    await page.getByRole('button', { name: 'Mood improvement' }).click();
+    const progressOptions = page.getByTestId('bottom-sheet-select-options');
+    await expect(progressOptions).toBeVisible();
+    await progressOptions.getByRole('button', { name: 'New habit' }).click();
+    await expect(page.getByRole('button', { name: 'New habit' })).toBeVisible();
+  });
+
   test('does not expose moderation to a regular user', async ({ page }) => {
     await page.route('**/entities/ForumPost**', async (route) => {
       if (route.request().method() !== 'GET') return route.continue();
