@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AlertCircle, BarChart3, Dumbbell, Lightbulb, Loader2, MessageSquare, RefreshCw, Sparkles, Target, TrendingUp } from 'lucide-react';
+import { BarChart3, Dumbbell, Lightbulb, Loader2, MessageSquare, RefreshCw, Sparkles, Target, TrendingUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
