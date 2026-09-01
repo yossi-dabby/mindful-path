@@ -215,21 +215,23 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   };
 
   return (
-    <div className="mb-4 pr-2 pl-3 space-y-3">
-      <div className="text-violet-600 mb-3 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-purple-600" />
-        <h3 className="text-purple-600 text-sm font-semibold">{t('chat.proactive.title')}</h3>
+    <div className="mb-4 px-1 sm:px-2 space-y-3">
+      <div className="mb-3 flex items-center gap-2 text-teal-700">
+        <span className="w-8 h-8 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center">
+          <Sparkles className="w-4 h-4" />
+        </span>
+        <h3 className="text-sm font-semibold tracking-wide">{t('chat.proactive.title')}</h3>
       </div>
       
       {visibleSuggestions.map((suggestion) => {
         const Icon = suggestion.icon;
         return (
           <Card
-            key={suggestion.id} className="bg-gradient-to-r text-card-foreground rounded-2xl shadow-[var(--shadow-md)] backdrop-blur-[10px] border-2 border-purple-200 from-purple-50 to-blue-50 hover:border-purple-300 transition-all cursor-pointer"
+            key={suggestion.id} className="bg-white/90 text-card-foreground rounded-2xl shadow-[var(--shadow-sm)] backdrop-blur-xl border border-teal-100 hover:border-teal-300 hover:shadow-[var(--shadow-md)] transition-all cursor-pointer"
 
             onClick={() => handleClick(suggestion)}>
 
-            <CardContent className="bg-teal-50 px-4">
+            <CardContent className="bg-transparent p-4">
               <div className="flex items-start gap-3">
                 <div className={`w-10 h-10 rounded-full ${suggestion.color} flex items-center justify-center flex-shrink-0`}>
                   <Icon className="w-5 h-5" />
@@ -237,7 +239,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-semibold text-gray-800 text-sm">{suggestion.title}</h4>
+                      <h4 className="font-semibold text-slate-800 text-sm">{suggestion.title}</h4>
                       {suggestion.type === 'ai_reminder' &&
                       <Badge variant="secondary" className="text-xs">
                           {t('chat.proactive.ai_suggested')}
@@ -254,13 +256,13 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                         <X className="w-3 h-3" />
                       </Button>
                   </div>
-                  <p className="text-sm text-gray-700 mb-2">{suggestion.message}</p>
+                  <p className="text-sm text-slate-600 leading-relaxed mb-2">{suggestion.message}</p>
                   {suggestion.reminder?.context?.insight &&
                   <p className="text-xs text-gray-600 italic mb-2 bg-white/50 p-2 rounded">
                       💡 {suggestion.reminder.context.insight}
                     </p>
                   }
-                  <div className="flex items-center gap-2 text-xs text-purple-600 font-medium">
+                  <div className="flex items-center gap-2 text-xs text-teal-700 font-semibold">
                     <span>{t('chat.proactive.discuss')}</span>
                     <ChevronRight className="w-3 h-3" />
                   </div>
