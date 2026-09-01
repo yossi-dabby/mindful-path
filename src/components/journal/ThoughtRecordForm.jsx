@@ -495,8 +495,7 @@ Provide:
                       {t(`journal_ui.taxonomy.emotions.${emotionKey}`)}
                     </button>
                   ))}
-                  {/*
-                  */}
+
                 </div>
               </div>
 
@@ -642,8 +641,8 @@ Provide:
                 <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
                   {t('journal_ui.common.back')}
                 </Button>
-                <Button onClick={() => setStep(4)} className="flex-1 bg-primary hover:bg-primary/90">
-                  Continue
+                <Button onClick={() => setStep(4)} className="min-h-11 flex-1 bg-primary hover:bg-primary/90">
+                  {t('journal_ui.common.continue')}
                 </Button>
               </div>
             </div>
@@ -699,9 +698,9 @@ Provide:
                 </Button>
                 <Button
                   onClick={() => setStep(5)}
-                  className="flex-1"
+                  className="min-h-11 flex-1"
                 >
-                  Continue
+                  {t('journal_ui.common.continue')}
                 </Button>
               </div>
             </div>
@@ -716,16 +715,16 @@ Provide:
                     <div className="w-16 h-16 rounded-full bg-primary/12 flex items-center justify-center mx-auto mb-3">
                       <Sparkles className="w-8 h-8 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">Get AI Insights</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('journal_ui.form.ai_title')}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Analyze your entry for sentiment, themes, and get personalized exercise recommendations
+                      {t('journal_ui.form.ai_description')}
                     </p>
                     <Button
                       onClick={analyzeEntry}
                       className="bg-primary hover:bg-primary/90"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Analyze Entry
+                      {t('journal_ui.form.analyze_entry')}
                     </Button>
                   </div>
                 </div>
@@ -734,7 +733,7 @@ Provide:
               {isAnalyzing && (
                 <div className="bg-card p-8 rounded-[var(--radius-card)] border border-border/70 text-center">
                   <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Analyzing your journal entry...</p>
+                  <p className="text-sm text-muted-foreground">{t('journal_ui.form.analyzing')}</p>
                 </div>
               )}
 
@@ -744,18 +743,18 @@ Provide:
                   <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                     <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                       <Brain className="w-4 h-4 text-blue-600" />
-                      Sentiment Analysis
+                      {t('journal_ui.form.sentiment')}
                     </h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-foreground/85">
-                        <span className="font-medium">Overall Tone:</span> {aiAnalysis.sentiment.overall_tone}
+                        <span className="font-medium">{t('journal_ui.form.overall_tone')}:</span> {aiAnalysis.sentiment.overall_tone}
                       </p>
                       <p className="text-foreground/85">
-                        <span className="font-medium">Emotional Shift:</span> {aiAnalysis.sentiment.emotional_shift}
+                        <span className="font-medium">{t('journal_ui.form.emotional_shift')}:</span> {aiAnalysis.sentiment.emotional_shift}
                       </p>
                       {aiAnalysis.sentiment.patterns_noticed?.length > 0 && (
                         <div>
-                          <p className="font-medium text-foreground/85 mb-1">Patterns:</p>
+                          <p className="font-medium text-foreground/85 mb-1">{t('journal_ui.form.patterns')}:</p>
                           <ul className="space-y-1">
                             {aiAnalysis.sentiment.patterns_noticed.map((pattern, i) => (
                               <li key={i} className="text-muted-foreground text-xs flex items-start gap-1">
@@ -773,7 +772,7 @@ Provide:
                   <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                     <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                       <Lightbulb className="w-4 h-4 text-accent" />
-                      Key Insight
+                      {t('journal_ui.form.key_insight')}
                     </h4>
                     <p className="text-sm text-muted-foreground">{aiAnalysis.key_insight}</p>
                   </div>
@@ -783,7 +782,7 @@ Provide:
                     <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                       <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                         <Target className="w-4 h-4 text-orange-600" />
-                        Recommended Practices
+                        {t('journal_ui.form.recommended_practices')}
                       </h4>
                       <div className="space-y-2">
                         {aiAnalysis.recommended_exercises.map((rec, i) => (
@@ -803,20 +802,20 @@ Provide:
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block flex items-center gap-2">
                     <Link2 className="w-4 h-4" />
-                    Link to Goal (optional)
+                    {t('journal_ui.form.link_goal')}
                   </label>
                   <BottomSheetSelect
                     value={formData.linked_goal_id || 'none'}
                     onValueChange={(value) => setFormData({ ...formData, linked_goal_id: value === 'none' ? null : value })}
                     options={[
-                      { value: 'none', label: 'No goal linked' },
+                      { value: 'none', label: t('journal_ui.form.no_goal') },
                       ...goals.map((goal) => ({ value: goal.id, label: goal.title }))
                     ]}
-                    placeholder="No goal linked"
-                    title="Link to a Goal"
+                    placeholder={t('journal_ui.form.no_goal')}
+                    title={t('journal_ui.form.link_goal')}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Connect this entry to a goal for context and tracking
+                    {t('journal_ui.form.goal_help')}
                   </p>
                 </div>
               )}
@@ -824,7 +823,7 @@ Provide:
               {/* Tags Section */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Tags {aiAnalysis && <span className="text-primary">(AI-suggested tags applied)</span>}
+                  {t('journal_ui.form.tags')} {aiAnalysis && <span className="text-primary">({t('journal_ui.form.tags_ai')})</span>}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {formData.tags.map((tag) => (
@@ -834,8 +833,10 @@ Provide:
                     >
                       {tag}
                       <button
+                        type="button"
                         onClick={() => removeTag(tag)}
-                        className="hover:bg-primary/10 rounded-full p-0.5"
+                        className="hover:bg-primary/10 rounded-full p-1"
+                        aria-label={t('journal_ui.form.remove_tag_aria', { tag })}
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -852,11 +853,11 @@ Provide:
                         addTag();
                       }
                     }}
-                    placeholder="Add a custom tag..."
+                    placeholder={t('journal_ui.form.tag_placeholder')}
                     className="rounded-xl"
                     inputMode="text"
                   />
-                  <Button onClick={addTag} variant="outline" size="icon" aria-label="Add tag">
+                  <Button onClick={addTag} variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t('journal_ui.form.add_tag_aria')}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -865,7 +866,7 @@ Provide:
               {/* Media Attachments */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Attachments (Optional)
+                  {t('journal_ui.form.attachments')}
                 </label>
                 {uploadError && (
                   <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
@@ -880,7 +881,7 @@ Provide:
                     className="flex-1"
                   >
                     <ImageIcon className="w-4 h-4 mr-2" />
-                    Add Image
+                    {t('journal_ui.form.add_image')}
                   </Button>
                   <Button
                     variant="outline"
@@ -889,7 +890,7 @@ Provide:
                     className="flex-1"
                   >
                     <Mic className="w-4 h-4 mr-2" />
-                    Add Audio
+                    {t('journal_ui.form.add_audio')}
                   </Button>
                   <input
                     id="image-upload"
@@ -910,7 +911,7 @@ Provide:
                 {/* Display attached files */}
                 {formData.images?.length > 0 && (
                   <div className="mt-3">
-                    <p className="text-xs text-muted-foreground mb-2">Images:</p>
+                    <p className="text-xs text-muted-foreground mb-2">{t('journal_ui.form.images')}:</p>
                     <div className="grid grid-cols-3 gap-2">
                       {formData.images.map((url, i) => (
                         <div key={i} className="relative group">
@@ -918,7 +919,7 @@ Provide:
                           <button
                             onClick={() => removeFile(i, 'image')}
                             className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            aria-label={`Remove image ${i + 1}`}
+                            aria-label={t('journal_ui.common.delete_aria', { item: `${t('journal_ui.form.images')} ${i + 1}` })}
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
@@ -951,7 +952,7 @@ Provide:
                   disabled={isSavingRef.current || saveMutation.isPending}
                   className="flex-1 shadow-[var(--shadow-md)]"
                 >
-                  {saveMutation.isPending ? 'Saving...' : 'Save Entry'}
+                  {saveMutation.isPending ? t('journal_ui.common.saving') : t('journal_ui.form.save_entry')}
                 </Button>
               </div>
             </div>
@@ -963,8 +964,8 @@ Provide:
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-[var(--shadow-md)]">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Entry Saved!</h3>
-                <p className="text-sm text-muted-foreground">Here are some AI-powered insights based on your entry</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t('journal_ui.form.saved_title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('journal_ui.form.saved_description')}</p>
               </div>
 
               <AiJournalSuggestions 
