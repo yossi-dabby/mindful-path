@@ -11,31 +11,10 @@ import { useTranslation } from 'react-i18next';
 
 const COLORS = ['#26A69A', '#9F7AEA', '#F6AD55', '#4299E1', '#ED8936', '#38B2AC'];
 
-export default function EnhancedProgressDashboard() {
-  const { t } = useTranslation();
-  const { data: moodEntries = [] } = useQuery({
-    queryKey: ['moodEntries'],
-    queryFn: () => base44.entities.MoodEntry.list('-date', 30),
-    initialData: []
-  });
-
-  const { data: journalEntries = [] } = useQuery({
-    queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 30),
-    initialData: []
-  });
-
-  const { data: exercises = [] } = useQuery({
-    queryKey: ['exercises'],
-    queryFn: () => base44.entities.Exercise.list(),
-    initialData: []
-  });
-
-  const { data: goals = [] } = useQuery({
-    queryKey: ['goals'],
-    queryFn: () => base44.entities.Goal.list(),
-    initialData: []
-  });
+export default function EnhancedProgressDashboard({ moodEntries = [], journalEntries = [], exercises = [], goals = [] }) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage || i18n.language || 'en';
+  const dateFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }), [locale]);
 
   const { data: streaks = [] } = useQuery({
     queryKey: ['userStreaks'],
@@ -68,14 +47,14 @@ export default function EnhancedProgressDashboard() {
       const dayMoods = moodEntries.filter((m) => m.date === dateStr);
 
       return {
-        date: format(date, 'MMM dd'),
+        date: dateFormatter.format(date),
         mood: dayMoods.length > 0 ?
         dayMoods.reduce((sum, m) => sum + (m.mood_level || 5), 0) / dayMoods.length :
         null
       };
     });
     return last30Days.filter((d) => d.mood !== null);
-  }, [moodEntries]);
+  }, [moodEntries, dateFormatter]);
 
   // Calculate exercise completion frequency
   const exerciseFrequencyData = useMemo(() => {
@@ -102,12 +81,12 @@ export default function EnhancedProgressDashboard() {
       });
 
       return {
-        date: format(date, 'MMM dd'),
+        date: dateFormatter.format(date),
         entries: dayJournals.length
       };
     });
     return last30Days;
-  }, [journalEntries]);
+  }, [journalEntries, dateFormatter]);
 
   // Goal progress distribution
   const goalProgressData = useMemo(() => {
@@ -121,7 +100,7 @@ export default function EnhancedProgressDashboard() {
   const metrics = useMemo(() => {
     const avgMood = moodTrendData.length > 0 ?
     (moodTrendData.reduce((sum, d) => sum + d.mood, 0) / moodTrendData.length).toFixed(1) :
-    'N/A';
+    '—';
 
     const totalExercises = exercises.reduce((sum, e) => sum + (e.completed_count || 0), 0);
     const totalExerciseTime = Math.round(exercises.reduce((sum, e) => sum + (e.total_time_practiced || 0), 0));
