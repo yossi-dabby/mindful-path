@@ -177,7 +177,7 @@ export default function CoachingSessionWizard({ onClose }) {
   };
 
   return (
-    <div className="flex flex-col bg-background w-full" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div data-testid="coach-wizard" className="flex w-full flex-col bg-background" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
       <div className="bg-card border-b border-border/70 shadow-sm flex-shrink-0" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full">
@@ -224,6 +224,7 @@ export default function CoachingSessionWizard({ onClose }) {
                 {focusAreas.map((area) =>
               <button
                 key={area.value}
+                data-testid={`coach-focus-${area.value}`}
                 onClick={() => setFormData({ ...formData, focus_area: area.value })}
                 type="button"
                 aria-pressed={formData.focus_area === area.value}
@@ -389,6 +390,7 @@ export default function CoachingSessionWizard({ onClose }) {
             }
             {step < 3 ?
             <Button
+              data-testid="coach-wizard-next"
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
               className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
