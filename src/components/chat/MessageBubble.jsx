@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FileText, ExternalLink, ChevronDown, ChevronUp, Sparkles, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/components/ui/use-toast';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
@@ -133,6 +132,7 @@ function sanitizeAssistantContentForAttachmentSurfaces(content, attachments) {
 }
 
 function PdfFullTextCard({ text, pageCount }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   if (!text) return null;
   return (
@@ -161,7 +161,6 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   // Shared bubble renderer used by multiple surfaces.
   // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
   const { t, i18n } = useTranslation();
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
