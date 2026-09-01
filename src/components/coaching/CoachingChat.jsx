@@ -13,16 +13,10 @@ import ActionPlanPanel from './ActionPlanPanel';
 import { triggerSessionEndSummarization } from '../../lib/sessionEndSummarization.js';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-
-const stageLabels = {
-  discovery: 'Discovery Phase',
-  planning: 'Planning Phase',
-  action: 'Action Phase',
-  review: 'Review Phase',
-  completed: 'Completed'
-};
+import { useTranslation } from 'react-i18next';
 
 export default function CoachingChat({ session, onBack }) {
+  const { t } = useTranslation();
   // Stage 1 runtime-path clarification:
   // This is the Coach surface chat (route: /Coach), not the therapist /Chat runtime path.
   const queryClient = useQueryClient();
@@ -151,31 +145,15 @@ export default function CoachingChat({ session, onBack }) {
     } catch (error) {
       console.error('Error sending message:', error);
       setIsLoading(false);
-      alert('Failed to send message. Please try again.');
+      alert(t('coach.chat.send_error'));
     }
   };
 
   const quickPrompts = {
-    discovery: [
-    "Help me understand the root cause",
-    "What patterns should I look for?",
-    "Can you help me identify my triggers?"],
-
-    planning: [
-    "Help me create an action plan",
-    "What are realistic first steps?",
-    "How can I break this down?"],
-
-    action: [
-    "I completed an action, what's next?",
-    "I'm facing a challenge with my plan",
-    "Can you give me motivation?"],
-
-    review: [
-    "Review my progress",
-    "What have I achieved?",
-    "What should I focus on next?"]
-
+    discovery: [1, 2, 3].map((number) => t(`coach.chat.prompt.discovery_${number}`)),
+    planning: [1, 2, 3].map((number) => t(`coach.chat.prompt.planning_${number}`)),
+    action: [1, 2, 3].map((number) => t(`coach.chat.prompt.action_${number}`)),
+    review: [1, 2, 3].map((number) => t(`coach.chat.prompt.review_${number}`))
   };
 
   const completedActions = currentSession.action_plan?.filter((a) => a.completed).length || 0;
@@ -184,29 +162,30 @@ export default function CoachingChat({ session, onBack }) {
   return (
     <div className="flex flex-col bg-transparent" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <div className="bg-teal-100 p-4 backdrop-blur-xl border-b border-border/70 flex-shrink-0">
+      <header className="flex-shrink-0 border-b border-border/70 bg-teal-50/95 p-3 backdrop-blur-xl sm:p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3 flex items-center justify-between gap-2">
             <Button variant="ghost" onClick={onBack} className="text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 min-h-[44px] md:min-h-0 gap-2">
               <ChevronLeft className="w-4 h-4 rtl:scale-x-[-1]" />
-              Back to Sessions
+              <span className="hidden sm:inline">{t('coach.chat.back')}</span>
             </Button>
             <Badge variant="outline" className="bg-[hsl(var(--card)/0.82)] text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 gap-2">
               <Target className="w-3 h-3" />
-              {stageLabels[currentSession.stage]}
+              {t(`coach.stage.${currentSession.stage || 'discovery'}`)}
             </Badge>
           </div>
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-teal-600 mb-1 text-xl font-bold">{currentSession.title}</h2>
-              <p className="text-teal-600 text-sm">{currentSession.current_challenge}</p>
+              <h1 className="mb-1 line-clamp-2 text-lg font-bold text-teal-800 sm:text-xl">{currentSession.title}</h1>
+              <p className="line-clamp-2 text-sm leading-5 text-slate-600">{currentSession.current_challenge}</p>
             </div>
             {totalActions > 0 &&
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowActionPanel(!showActionPanel)}
-              className="gap-2">
+              className="min-h-[44px] shrink-0 gap-2"
+              aria-label={`${t('coach.chat.action_plan')}: ${completedActions}/${totalActions}`}>
 
                 <CheckCircle2 className="w-4 h-4" />
                 {completedActions}/{totalActions}
@@ -214,9 +193,9 @@ export default function CoachingChat({ session, onBack }) {
             }
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="flex-1 min-h-0 flex">
+      <div className="flex min-h-0 flex-1">
         {/* Chat Area */}
         <div className="flex-1 min-h-0 flex flex-col">
           <div ref={scrollContainerRef} data-testid="coach-chat-messages" className="bg-teal-50 p-4 flex-1 min-h-0 overflow-y-auto" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
@@ -248,7 +227,7 @@ export default function CoachingChat({ session, onBack }) {
                     <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" />
                   </div>
                   <div className="bg-card rounded-2xl px-4 py-3 shadow-[var(--shadow-sm)] border border-border/80">
-                    <p className="text-sm text-muted-foreground">Thinking...</p>
+                    <p className="text-sm text-muted-foreground">{t('coach.chat.thinking')}</p>
                   </div>
                 </div>
               }
@@ -258,16 +237,16 @@ export default function CoachingChat({ session, onBack }) {
 
           {/* Quick Prompts */}
           {quickPrompts[currentSession.stage] &&
-          <div className="bg-teal-100 px-4 py-3 border-t border-border/70">
-              <div className="max-w-4xl mx-auto">
-                <p className="text-teal-600 mb-2 text-sm font-medium">Quick prompts:</p>
-                <div className="flex flex-wrap gap-2">
+          <div className="border-t border-border/70 bg-teal-50/95 px-3 py-2 sm:px-4 sm:py-3">
+              <div className="mx-auto max-w-4xl">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700 sm:text-sm">{t('coach.chat.quick_prompts')}</p>
+                <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
                   {quickPrompts[currentSession.stage].map((prompt, i) =>
                 <Button
                   key={i}
                   variant="outline"
                   size="sm"
-                  onClick={() => setInputMessage(prompt)} className="bg-teal-400 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
+                  onClick={() => setInputMessage(prompt)} className="inline-flex min-h-[44px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-teal-200 bg-white/90 px-3 text-xs font-medium text-teal-800 shadow-sm transition hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
 
 
                       {prompt}
@@ -279,8 +258,8 @@ export default function CoachingChat({ session, onBack }) {
           }
 
           {/* Input Area */}
-          <div className="bg-teal-100 p-4 border-t border-border/70 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="text-teal-600 mx-auto max-w-4xl flex gap-3">
+          <div className="flex-shrink-0 border-t border-border/70 bg-teal-50/95 p-3 sm:p-4" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+            <div className="mx-auto flex max-w-4xl items-end gap-2 text-teal-600 sm:gap-3">
               <Textarea
                 data-testid="coach-chat-input"
                 value={inputMessage}
@@ -291,8 +270,8 @@ export default function CoachingChat({ session, onBack }) {
                     handleSendMessage();
                   }
                 }}
-                placeholder="Share your thoughts, progress, or ask for guidance..."
-                className="flex-1 min-h-[60px] max-h-[200px] resize-none rounded-[var(--radius-card)]"
+                placeholder={t('coach.chat.placeholder')}
+                className="min-h-[52px] max-h-[160px] flex-1 resize-none rounded-[var(--radius-card)] bg-white text-base"
                 enterKeyHint="send"
                 autoCapitalize="sentences"
                 autoComplete="off"
@@ -302,7 +281,9 @@ export default function CoachingChat({ session, onBack }) {
               <Button
                 data-testid="coach-chat-send"
                 onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading} className="bg-teal-600 text-slate-50 px-6 py-2 font-medium tracking-[0.005em] leading-none rounded-[40px] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[60px]">
+                disabled={!inputMessage.trim() || isLoading}
+                aria-label={t('coach.chat.send_aria')}
+                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]">
 
 
                 <Send className="w-5 h-5" />
@@ -316,12 +297,12 @@ export default function CoachingChat({ session, onBack }) {
           <Drawer open={showActionPanel} onOpenChange={setShowActionPanel}>
             <DrawerContent>
               <DrawerHeader className="sr-only">
-                <DrawerTitle>Action Plan</DrawerTitle>
+                <DrawerTitle>{t('coach.action_plan.title')}</DrawerTitle>
               </DrawerHeader>
               <ActionPlanPanel
                 session={currentSession}
                 onClose={() => setShowActionPanel(false)}
-                onUpdate={() => {}}
+                onUpdate={refetchSession}
                 className="w-full border-0 rounded-none shadow-none h-auto max-h-[70vh] overflow-y-auto" />
             </DrawerContent>
           </Drawer>
