@@ -160,7 +160,7 @@ export default function CoachingChat({ session, onBack }) {
   const totalActions = currentSession.action_plan?.length || 0;
 
   return (
-    <div className="flex flex-col bg-transparent" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div data-testid="coach-chat" className="flex flex-col bg-transparent" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
       <header className="flex-shrink-0 border-b border-border/70 bg-teal-50/95 p-3 backdrop-blur-xl sm:p-4">
         <div className="max-w-4xl mx-auto">
