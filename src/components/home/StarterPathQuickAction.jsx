@@ -323,7 +323,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                   <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                     {isStarted ? (
                       <>
-                        <Button asChild className="min-h-12 flex-1 rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800">
+                        <Button asChild className="h-12 min-h-12 flex-1 rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800">
                           <Link to={createPageUrl('StarterPath')} data-testid="starter-path-primary-action">
                             {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
                             <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
@@ -336,7 +336,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                             setFeedback(null);
                             setResetOpen(true);
                           }}
-                          className="min-h-12 rounded-full border-teal-800/20 bg-white/70 px-5 text-teal-900 hover:bg-white"
+                          className="h-12 min-h-12 rounded-full border-teal-800/20 bg-white/70 px-5 text-teal-900 hover:bg-white"
                           aria-label={t('starter_path.premium.reset_aria')}
                           data-testid="starter-path-reset-button"
                         >
@@ -349,7 +349,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                         type="button"
                         onClick={() => startPathMutation.mutate()}
                         disabled={startPathMutation.isPending}
-                        className="min-h-12 w-full rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800"
+                        className="h-12 min-h-12 w-full rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800"
                         data-testid="starter-path-start-button"
                       >
                         {startPathMutation.isPending && <RefreshCw className="me-2 h-4 w-4 animate-spin" />}
