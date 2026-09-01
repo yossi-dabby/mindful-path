@@ -2,133 +2,82 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
-import { Sparkles } from 'lucide-react';
+import { AlertCircle, Loader2, RefreshCw, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import GameCard from './GameCard';
 import { gamesCatalog } from './mindGamesContent';
+import { getMindGameRecommendations } from './mindGameMetadata';
 
-// Game metadata for recommendations
-const gameMetadata = {
-  thought_quiz: { category: 'CBT', skill: 'cognitive_restructuring' },
-  reframe_pick: { category: 'CBT', skill: 'cognitive_restructuring' },
-  value_compass: { category: 'ACT', skill: 'mindfulness' },
-  tiny_experiment: { category: 'CBT', skill: 'behavioral_activation' },
-  quick_win: { category: 'DBT', skill: 'behavioral_activation' },
-  calm_bingo: { category: 'DBT', skill: 'grounding' },
-  dbt_stop: { category: 'DBT', skill: 'emotion_regulation' },
-  opposite_action: { category: 'DBT', skill: 'emotion_regulation' },
-  urge_surfing: { category: 'DBT', skill: 'distress_tolerance' },
-  worry_time: { category: 'CBT', skill: 'cognitive_restructuring' },
-  evidence_balance: { category: 'CBT', skill: 'cognitive_restructuring' },
-  defusion_cards: { category: 'ACT', skill: 'defusion' },
-  tipp_skills: { category: 'DBT', skill: 'distress_tolerance' },
-  accepts: { category: 'DBT', skill: 'distress_tolerance' },
-  willing_hands: { category: 'DBT', skill: 'emotion_regulation' },
-  half_smile: { category: 'DBT', skill: 'emotion_regulation' },
-  improve: { category: 'DBT', skill: 'distress_tolerance' },
-  leaves_on_stream: { category: 'ACT', skill: 'defusion' },
-  expansion: { category: 'ACT', skill: 'emotion_regulation' },
-  values_check: { category: 'ACT', skill: 'mindfulness' },
-  pros_and_cons: { category: 'DBT', skill: 'emotion_regulation' },
-  check_the_facts: { category: 'DBT', skill: 'emotion_regulation' },
-  self_soothe: { category: 'DBT', skill: 'distress_tolerance' },
-  mountain_meditation: { category: 'ACT', skill: 'mindfulness' },
-};
-
-function getRecommendations(activities) {
-  if (!activities || activities.length === 0) {
-    // New users: recommend beginner-friendly games
-    return ['calm_bingo', 'quick_win', 'thought_quiz'];
-  }
-
-  // Count plays by game
-  const playCount = {};
-  const skillCount = {};
-  const categoryCount = {};
-
-  activities.forEach(activity => {
-    playCount[activity.game_id] = (playCount[activity.game_id] || 0) + 1;
-    skillCount[activity.skill_focus] = (skillCount[activity.skill_focus] || 0) + 1;
-    categoryCount[activity.category] = (categoryCount[activity.category] || 0) + 1;
-  });
-
-  // Find most played games and preferred skills
-  const playedGameIds = Object.keys(playCount);
-  const topSkill = Object.keys(skillCount).sort((a, b) => skillCount[b] - skillCount[a])[0];
-  const topCategory = Object.keys(categoryCount).sort((a, b) => categoryCount[b] - categoryCount[a])[0];
-
-  // Build recommendation list
-  const recommendations = [];
-  const unplayedGames = Object.keys(gameMetadata).filter(id => !playedGameIds.includes(id));
-
-  // 1. Recommend games with same skill focus (complementary)
-  const sameSkillGames = unplayedGames.filter(id => gameMetadata[id].skill === topSkill);
-  recommendations.push(...sameSkillGames.slice(0, 2));
-
-  // 2. Recommend games from same category
-  const sameCategoryGames = unplayedGames.filter(
-    id => gameMetadata[id].category === topCategory && !recommendations.includes(id)
-  );
-  recommendations.push(...sameCategoryGames.slice(0, 1));
-
-  // 3. Fill with unplayed games from other categories (diversity)
-  const otherGames = unplayedGames.filter(id => !recommendations.includes(id));
-  recommendations.push(...otherGames.slice(0, 3 - recommendations.length));
-
-  // If still not enough, recommend popular replays
-  if (recommendations.length < 3) {
-    const mostPlayed = Object.keys(playCount)
-      .sort((a, b) => playCount[b] - playCount[a])
-      .slice(0, 3 - recommendations.length);
-    recommendations.push(...mostPlayed);
-  }
-
-  return recommendations.slice(0, 3);
-}
-
-export default function MindGameRecommendations({ onGameSelect }) {
+export default function MindGameRecommendations({ onGameSelect, onGameInfo }) {
   const { t } = useTranslation();
-  const { data: activities = [] } = useQuery({
+  const { data: activities = [], isPending, isError, isFetching, refetch } = useQuery({
     queryKey: ['mindGameActivities'],
     queryFn: () => base44.entities.MindGameActivity.list('-created_date', 50),
-    initialData: [],
+    staleTime: 60_000,
   });
 
-  const recommendedGameIds = getRecommendations(activities);
+  const recommendedGameIds = getMindGameRecommendations(activities, gamesCatalog);
   const recommendedGames = recommendedGameIds
     .map(id => gamesCatalog.find(g => g.id === id))
     .filter(Boolean);
 
-  if (recommendedGames.length === 0) return null;
-
   return (
-    <Card className="p-6 mb-6 border-0" style={{
-      borderRadius: '20px',
-      background: 'linear-gradient(135deg, rgba(38, 166, 154, 0.1) 0%, rgba(159, 122, 234, 0.1) 100%)',
-      border: '1px solid rgba(38, 166, 154, 0.2)'
-    }}>
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5" style={{ color: '#26A69A' }} />
-        <h3 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>
+    <Card
+      className="mb-8 overflow-hidden rounded-[28px] border border-teal-700/15 bg-gradient-to-br from-white/95 via-emerald-50/90 to-violet-50/80 p-5 shadow-[0_20px_50px_rgba(39,104,91,0.12)] sm:p-6"
+      data-testid="mindgames-recommendations"
+    >
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm">
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <h2 className="break-words text-lg font-semibold text-teal-950 sm:text-xl">
           {t('mind_games.recommended_title')}
-        </h3>
+          </h2>
+        </div>
+        {isFetching && !isPending && <Loader2 className="h-5 w-5 animate-spin text-teal-600" aria-hidden="true" />}
       </div>
-      
-      <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+      <p className="mb-5 text-sm leading-6 text-slate-600">
         {t('mind_games.recommended_subtitle')}
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-w-0">
-        {recommendedGames.map((game, index) => (
-          <div key={game.id} className="min-w-0">
+      {isPending && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3" aria-label={t('mind_games.premium.recommendations_loading')}>
+          {[0, 1, 2].map((item) => <div key={item} className="h-[196px] animate-pulse rounded-[24px] bg-white/70" />)}
+        </div>
+      )}
+
+      {isError && (
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-start" role="status">
+          <div className="flex items-center gap-2 text-sm font-medium text-amber-950">
+            <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+            {t('mind_games.premium.recommendations_error')}
+          </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-amber-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600"
+          >
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            {t('mind_games.premium.retry')}
+          </button>
+        </div>
+      )}
+
+      {!isPending && !isError && (
+        <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
+          {recommendedGames.map((game, index) => (
             <GameCard
+              key={game.id}
               game={game}
               onClick={() => onGameSelect(game)}
+              onInfo={onGameInfo}
               index={index}
+              featured
             />
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </Card>
   );
 }
