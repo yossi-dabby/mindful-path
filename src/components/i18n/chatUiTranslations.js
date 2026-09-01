@@ -108,6 +108,25 @@ const flowFallbacks = {
 };
 Object.entries(flowFallbacks).forEach(([lng, x]) => Object.assign(chatUiByLanguage[lng].chat.flow, { fallback_1:x[0], fallback_2:x[1], fallback_3:x[2], situation_thought:x[3], situation_reflection:x[4], situation_grounding:x[5] }));
 
+const conversationToolsByLanguage = {
+  en: ['Search conversations', 'No conversations match your search.', 'Rename', 'Pin', 'Unpin', 'Conversation actions for {{name}}', 'Pinned', 'Conversation name', 'Save name', 'Could not update conversation', 'Please try again.', 'File is too large', 'Choose a file up to 10 MB.', 'Unsupported file type', 'Choose an image, PDF, Word document, text file or CSV.'],
+  he: ['חיפוש בשיחות', 'לא נמצאו שיחות התואמות לחיפוש.', 'שינוי שם', 'הצמדה', 'ביטול הצמדה', 'פעולות עבור השיחה {{name}}', 'מוצמדת', 'שם השיחה', 'שמירת השם', 'לא ניתן לעדכן את השיחה', 'נסו שוב.', 'הקובץ גדול מדי', 'בחרו קובץ בגודל של עד 10 MB.', 'סוג הקובץ אינו נתמך', 'בחרו תמונה, PDF, מסמך Word, קובץ טקסט או CSV.'],
+  es: ['Buscar conversaciones', 'Ninguna conversación coincide con la búsqueda.', 'Cambiar nombre', 'Fijar', 'Desfijar', 'Acciones de la conversación {{name}}', 'Fijada', 'Nombre de la conversación', 'Guardar nombre', 'No se pudo actualizar la conversación', 'Inténtalo de nuevo.', 'El archivo es demasiado grande', 'Elige un archivo de hasta 10 MB.', 'Tipo de archivo no compatible', 'Elige una imagen, PDF, documento Word, archivo de texto o CSV.'],
+  fr: ['Rechercher des conversations', 'Aucune conversation ne correspond à la recherche.', 'Renommer', 'Épingler', 'Désépingler', 'Actions pour la conversation {{name}}', 'Épinglée', 'Nom de la conversation', 'Enregistrer le nom', 'Impossible de mettre à jour la conversation', 'Veuillez réessayer.', 'Fichier trop volumineux', 'Choisissez un fichier de 10 Mo maximum.', 'Type de fichier non pris en charge', 'Choisissez une image, un PDF, un document Word, un fichier texte ou CSV.'],
+  de: ['Gespräche durchsuchen', 'Keine Gespräche entsprechen der Suche.', 'Umbenennen', 'Anheften', 'Loslösen', 'Aktionen für Gespräch {{name}}', 'Angeheftet', 'Gesprächsname', 'Namen speichern', 'Gespräch konnte nicht aktualisiert werden', 'Bitte versuchen Sie es erneut.', 'Datei ist zu groß', 'Wählen Sie eine Datei bis 10 MB.', 'Nicht unterstützter Dateityp', 'Wählen Sie ein Bild, PDF, Word-Dokument, eine Text- oder CSV-Datei.'],
+  it: ['Cerca conversazioni', 'Nessuna conversazione corrisponde alla ricerca.', 'Rinomina', 'Fissa', 'Rimuovi', 'Azioni per la conversazione {{name}}', 'Fissata', 'Nome della conversazione', 'Salva nome', 'Impossibile aggiornare la conversazione', 'Riprova.', 'Il file è troppo grande', 'Scegli un file fino a 10 MB.', 'Tipo di file non supportato', 'Scegli un’immagine, PDF, documento Word, file di testo o CSV.'],
+  pt: ['Pesquisar conversas', 'Nenhuma conversa corresponde à pesquisa.', 'Mudar nome', 'Fixar', 'Desafixar', 'Ações da conversa {{name}}', 'Fixada', 'Nome da conversa', 'Guardar nome', 'Não foi possível atualizar a conversa', 'Tente novamente.', 'O ficheiro é demasiado grande', 'Escolha um ficheiro até 10 MB.', 'Tipo de ficheiro não suportado', 'Escolha uma imagem, PDF, documento Word, ficheiro de texto ou CSV.']
+};
+
+Object.entries(conversationToolsByLanguage).forEach(([lng, x]) => {
+  Object.assign(chatUiByLanguage[lng].chat.conversations_list, {
+    search_placeholder:x[0], no_search_results:x[1], rename_aria:x[2], pin_aria:x[3], unpin_aria:x[4], actions_aria:x[5], pinned_label:x[6], rename_placeholder:x[7], save_name:x[8], update_error_title:x[9], update_error_desc:x[10]
+  });
+  Object.assign(chatUiByLanguage[lng].chat.errors, {
+    file_too_large_title:x[11], file_too_large_desc:x[12], unsupported_file_title:x[13], unsupported_file_desc:x[14]
+  });
+});
+
 function merge(target = {}, source = {}) {
   const result = { ...target };
   Object.entries(source).forEach(([key, value]) => {
