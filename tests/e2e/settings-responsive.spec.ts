@@ -51,10 +51,16 @@ test.describe('Premium settings and mobile menu', () => {
     await expect(page.getByTestId('mobile-nav-resources')).toBeVisible();
     await expect(page.getByTestId('mobile-nav-settings')).toHaveAttribute('aria-current', 'page');
 
+    await expect.poll(async () => {
+      const box = await drawer.boundingBox();
+      return box?.x ?? -999;
+    }, { timeout: 3000 }).toBeGreaterThanOrEqual(-1);
+
     const box = await drawer.boundingBox();
+    const viewport = page.viewportSize();
     expect(box).not.toBeNull();
-    expect(box!.x).toBeGreaterThanOrEqual(-1);
-    expect(box!.x + box!.width).toBeLessThanOrEqual(392);
+    expect(viewport).not.toBeNull();
+    expect(box!.x + box!.width).toBeLessThanOrEqual(viewport!.width + 2);
   });
 
   test('Hebrew Settings is RTL and notification copy is fully localised', async ({ page }) => {
