@@ -7,14 +7,16 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function ActionPlanPanel({ session, onClose, onUpdate, className }) {
+  const { t } = useTranslation();
   const [newAction, setNewAction] = useState({ action: '', timeline: '' });
   const [isAdding, setIsAdding] = useState(false);
 
   const updateActionsMutation = useMutation({
-    mutationFn: (actions) => 
-      base44.entities.CoachingSession.update(session.id, { action_plan: actions })
+    mutationFn: (actions) => base44.entities.CoachingSession.update(session.id, { action_plan: actions }),
+    onSuccess: (_result, actions) => onUpdate?.(actions)
   });
 
   const toggleAction = (index) => {
@@ -44,14 +46,14 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
   const totalCount = session.action_plan?.length || 0;
 
   return (
-    <Card className={cn("w-96 border-l border-border/70 rounded-none h-full overflow-y-auto bg-card shadow-[var(--shadow-md)]", className)}>
+    <Card className={cn("h-full w-full overflow-y-auto rounded-none border-s border-border/70 bg-card shadow-[var(--shadow-md)] lg:w-96", className)}>
       <CardHeader className="border-b border-border/70 sticky top-0 bg-popover z-10">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-primary" />
-            Action Plan
+            {t('coach.action_plan.title')}
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('coach.action_plan.close_aria')} className="min-h-[44px] min-w-[44px]">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -82,6 +84,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
               <Checkbox
                 checked={action.completed}
                 onCheckedChange={() => toggleAction(index)}
+                disabled={updateActionsMutation.isPending}
                 className="mt-1"
               />
               <div className="flex-1">
@@ -98,9 +101,10 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="min-h-[44px] min-w-[44px]"
                 onClick={() => removeAction(index)}
-                aria-label={`Remove action ${index + 1}`}
+                disabled={updateActionsMutation.isPending}
+                aria-label={t('coach.action_plan.remove_aria', { number: index + 1 })}
               >
                 <X className="w-3 h-3" />
               </Button>
@@ -114,12 +118,12 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
               <Input
                 value={newAction.action}
                 onChange={(e) => setNewAction({ ...newAction, action: e.target.value })}
-                placeholder="Action step..."
+                placeholder={t('coach.action_plan.action_placeholder')}
               />
               <Input
                 value={newAction.timeline}
                 onChange={(e) => setNewAction({ ...newAction, timeline: e.target.value })}
-                placeholder="Timeline (optional)"
+                placeholder={t('coach.action_plan.timeline_placeholder')}
               />
               <div className="flex gap-2">
                 <Button
@@ -127,7 +131,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
                   onClick={addAction}
                   className="flex-1"
                 >
-                  Add
+                  {t('coach.action_plan.add')}
                 </Button>
                 <Button
                   size="sm"
@@ -137,7 +141,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
                     setNewAction({ action: '', timeline: '' });
                   }}
                 >
-                  Cancel
+                  {t('coach.action_plan.cancel')}
                 </Button>
               </div>
             </CardContent>
@@ -149,15 +153,21 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
             onClick={() => setIsAdding(true)}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Action
+            {t('coach.action_plan.add_action')}
           </Button>
         )}
 
-        {session.action_plan?.length === 0 && !isAdding && (
+        {updateActionsMutation.isError && (
+          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
+            {t('coach.action_plan.update_error')}
+          </p>
+        )}
+
+        {(session.action_plan?.length || 0) === 0 && !isAdding && (
           <div className="text-center py-8 text-muted-foreground">
             <Circle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/40" />
-            <p className="text-sm">No actions yet</p>
-            <p className="text-xs mt-1">Work with your coach to create your plan</p>
+            <p className="text-sm font-medium">{t('coach.action_plan.none')}</p>
+            <p className="mt-1 text-xs">{t('coach.action_plan.none_help')}</p>
           </div>
         )}
       </CardContent>
