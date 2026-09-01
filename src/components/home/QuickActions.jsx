@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass, RefreshCw, ArrowRight, ClipboardList } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion'; // motion used for StarterPath expand, AnimatePresence for video modal
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass, ClipboardList } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AiPersonalizedFeed from './AiPersonalizedFeed';
+import StarterPathQuickAction from './StarterPathQuickAction';
 import VideoModal from './VideoModal';
 import { useTranslation } from 'react-i18next';
 
@@ -18,54 +16,6 @@ export default function QuickActions() {
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [showRecommendedVideo, setShowRecommendedVideo] = useState(false);
   const [showStarterPathVideo, setShowStarterPathVideo] = useState(false);
-  const [starterPathExpanded, setStarterPathExpanded] = useState(false);
-  const queryClient = useQueryClient();
-
-  // Get user's starter path progress
-  const { data: starterPath, isLoading: pathLoading } = useQuery({
-    queryKey: ['starterPath'],
-    queryFn: async () => {
-      const paths = await base44.entities.StarterPath.list();
-      return paths[0] || null;
-    },
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    refetchOnWindowFocus: false
-  });
-
-  const startPathMutation = useMutation({
-    mutationFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      return await base44.entities.StarterPath.create({
-        current_day: 1,
-        started_date: today
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
-    }
-  });
-
-  const refreshPathMutation = useMutation({
-    mutationFn: async () => {
-      if (starterPath) {
-        await base44.entities.StarterPath.delete(starterPath.id);
-      }
-      const today = new Date().toISOString().split('T')[0];
-      return await base44.entities.StarterPath.create({
-        current_day: 1,
-        started_date: today,
-        completed: false
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
-    }
-  });
-
-  const currentDay = starterPath?.current_day || 0;
-  const isStarted = currentDay > 0;
-  const isCompleted = starterPath?.completed || currentDay >= 7;
-
   const therapeuticActions = [
   {
     title: t('quick_actions.ai_therapist.title'),
@@ -186,135 +136,7 @@ export default function QuickActions() {
             </Card>
         </div>
 
-        {/* StarterPath Card — collapsible, same size as other cards when folded */}
-        {!pathLoading &&
-        <div className="rounded-[20px] relative">
-              <Card className="bg-[hsl(var(--card)/0.94)] text-card-foreground rounded-[20px] shadow-[var(--shadow-md)] backdrop-blur-[10px] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
-
-          style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(252,248,242,0.99) 0%, rgba(231,245,239,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
-          onClick={() => setStarterPathExpanded((v) => !v)}>
-
-                <CardContent className="rounded-[20px] py-5">
-                  {/* Always-visible header row — same layout as other cards */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-teal-400 text-teal-600 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
-                      <Sparkles className="text-slate-50 lucide lucide-sparkles w-7 h-7" strokeWidth={2.5} />
-                    </div>
-
-                    <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowStarterPathVideo(true);
-                  }} className="bg-teal-100 text-teal-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none mr-1"
-
-                  aria-label="Guided introduction video"
-                  title="Guided introduction video">
-
-                      <User className="bg-teal-100 text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
-                    </button>
-                  </div>
-
-                  {/* Title row */}
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-emerald-600 text-sm font-semibold leading-tight break-words">
-                      {t('starter_path.card_title')}
-                    </h3>
-                    <div className="flex items-center gap-1 flex-shrink-0 ml-1">
-                      {isStarted &&
-                  <Badge variant="default" className="bg-primary/12 text-emerald-600 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-primary/18">
-                          {currentDay}/7
-                        </Badge>
-                  }
-                      <motion.span
-                    animate={{ rotate: starterPathExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-primary inline-flex">
-
-                        <ArrowRight className="text-teal-600 lucide lucide-arrow-right w-3 h-3" style={{ transform: 'rotate(90deg)' }} strokeWidth={2.5} />
-                      </motion.span>
-                    </div>
-                  </div>
-
-                  {/* Expanded content */}
-                  <AnimatePresence initial={false}>
-                    {starterPathExpanded &&
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                  style={{ overflow: 'hidden' }}
-                  onClick={(e) => e.stopPropagation()}>
-
-                        <p className="text-xs mt-2 mb-3 line-clamp-2 break-words text-muted-foreground">
-                          {isStarted ?
-                    t(`starter_path.day_themes.${currentDay}.description`, { defaultValue: t('starter_path.card_description_continue') }) :
-                    t('starter_path.card_description_new')}
-                        </p>
-
-                        {isStarted &&
-                  <div className="mb-3">
-                            <div className="h-2 overflow-hidden" style={{
-                      backgroundColor: 'rgba(200, 220, 215, 0.5)',
-                      borderRadius: '10px'
-                    }}>
-                              <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${currentDay / 7 * 100}%` }}
-                        transition={{ duration: 0.5 }}
-                        style={{
-                          height: '100%',
-                          backgroundColor: '#26A69A',
-                          borderRadius: '10px'
-                        }} />
-
-                            </div>
-                          </div>
-                  }
-
-                        <div className="flex gap-2">
-                          {isStarted ?
-                    <>
-                              <Link to={createPageUrl('StarterPath')} className="flex-1" onClick={(e) => e.stopPropagation()}>
-                                <Button className="bg-teal-600 text-primary-foreground px-4 py-2 text-sm font-medium tracking-[0.005em] rounded-[28px] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full transition-calm shadow-[var(--shadow-md)]">
-                          
-
-                                  {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
-                                  <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
-                                </Button>
-                              </Link>
-                              {isCompleted &&
-                      <Button
-                        onClick={(e) => {e.stopPropagation();refreshPathMutation.mutate();}}
-                        disabled={refreshPathMutation.isPending}
-                        variant="outline"
-                        size="icon"
-                        className="flex-shrink-0 rounded-[var(--radius-control)]"
-                        aria-label="Restart path">
-
-                                  <RefreshCw className="w-4 h-4 text-primary" strokeWidth={2} />
-                                </Button>
-                      }
-                            </> :
-
-                    <Button
-                      onClick={(e) => {e.stopPropagation();startPathMutation.mutate();}}
-                      disabled={startPathMutation.isPending}
-                      className="w-full px-4 py-2 font-medium transition-calm text-xs shadow-[var(--shadow-md)]">
-
-                              {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
-                              <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
-                            </Button>
-                    }
-                        </div>
-                      </motion.div>
-                }
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
-          </div>
-        }
+        <StarterPathQuickAction onWatchVideo={() => setShowStarterPathVideo(true)} />
 
         {actions.map((action, index) => {
           const Icon = action.icon;
