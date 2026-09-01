@@ -1,6 +1,9 @@
+import { journalTemplateCatalogRows } from '../journal/journalTemplateCatalog';
+
 const languages = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 const rows = [
+  ...journalTemplateCatalogRows,
   ['common.close', 'Close', 'סגירה', 'Cerrar', 'Fermer', 'Schließen', 'Chiudi', 'Fechar'],
   ['common.back', 'Back', 'חזרה', 'Atrás', 'Retour', 'Zurück', 'Indietro', 'Voltar'],
   ['common.continue', 'Continue', 'המשך', 'Continuar', 'Continuer', 'Weiter', 'Continua', 'Continuar'],
