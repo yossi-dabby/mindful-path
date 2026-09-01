@@ -138,7 +138,7 @@ export default function QuickActions() {
 
         <StarterPathQuickAction onWatchVideo={() => setShowStarterPathVideo(true)} />
 
-        {actions.map((action, index) => {
+        {actions.map((action) => {
           const Icon = action.icon;
           return (
             <div key={action.title} className="relative">
