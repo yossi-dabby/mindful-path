@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
@@ -16,24 +17,27 @@ import AiJournalSuggestions from './AiJournalSuggestions';
 import AiDistortionAnalysis from './AiDistortionAnalysis';
 
 const commonEmotions = [
-  'Anxious', 'Sad', 'Angry', 'Frustrated', 'Overwhelmed', 'Guilty', 
-  'Ashamed', 'Hopeless', 'Worried', 'Fearful', 'Irritated', 'Lonely'
+  ['Anxious', 'anxious'], ['Sad', 'sad'], ['Angry', 'angry'], ['Frustrated', 'frustrated'],
+  ['Overwhelmed', 'overwhelmed'], ['Guilty', 'guilty'], ['Ashamed', 'ashamed'], ['Hopeless', 'hopeless'],
+  ['Worried', 'worried'], ['Fearful', 'fearful'], ['Irritated', 'irritated'], ['Lonely', 'lonely']
 ];
 
 const cognitiveDistortions = [
-  'All-or-Nothing Thinking',
-  'Overgeneralization',
-  'Mental Filter',
-  'Catastrophizing',
-  'Mind Reading',
-  'Fortune Telling',
-  'Emotional Reasoning',
-  'Should Statements',
-  'Labeling',
-  'Personalization'
+  ['All-or-Nothing Thinking', 'all_or_nothing_thinking'],
+  ['Overgeneralization', 'overgeneralization'],
+  ['Mental Filter', 'mental_filter'],
+  ['Catastrophizing', 'catastrophizing'],
+  ['Mind Reading', 'mind_reading'],
+  ['Fortune Telling', 'fortune_telling'],
+  ['Emotional Reasoning', 'emotional_reasoning'],
+  ['Should Statements', 'should_statements'],
+  ['Labeling', 'labeling'],
+  ['Personalization', 'personalization']
 ];
 
 export default function ThoughtRecordForm({ entry, template, templates = [], onClose, initialSituation = '' }) {
+  const { t } = useTranslation();
+  const languageName = t('journal_ui.ai.language_name');
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? (templates || []).find(t => t.id === entry.template_id) : null));
   const [uploadError, setUploadError] = useState(null);
@@ -144,7 +148,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
-        setSaveError('Couldn\'t save. Check connection and try again.');
+        setSaveError(t('journal_ui.form.save_error'));
       }
     },
     onSettled: () => {
@@ -162,7 +166,10 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     
     setIsAnalyzing(true);
     try {
-      const prompt = `Analyze this CBT journal entry and provide insights:
+      const prompt = `Analyze this CBT journal entry and provide supportive, non-diagnostic insights.
+Write every user-visible field only in ${languageName}. Do not mix languages and do not expose JSON keys.
+
+Entry:
 
 **Situation:** ${formData.situation}
 **Automatic Thoughts:** ${formData.automatic_thoughts}
@@ -232,7 +239,7 @@ Provide:
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setUploadError(`File too large. Maximum size is 5MB.`);
+      setUploadError(t('journal_ui.form.file_too_large'));
       return;
     }
 
@@ -241,12 +248,12 @@ Provide:
     const validAudioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm'];
     
     if (type === 'image' && !validImageTypes.includes(file.type)) {
-      setUploadError('Invalid image format. Use JPG, PNG, GIF, or WebP.');
+      setUploadError(t('journal_ui.form.invalid_image'));
       return;
     }
     
     if (type === 'audio' && !validAudioTypes.includes(file.type)) {
-      setUploadError('Invalid audio format. Use MP3, WAV, OGG, or WebM.');
+      setUploadError(t('journal_ui.form.invalid_audio'));
       return;
     }
 
@@ -267,7 +274,7 @@ Provide:
       }
     } catch (error) {
       console.error('Upload failed:', error);
-      setUploadError('Upload failed. Please try again.');
+      setUploadError(t('journal_ui.form.upload_error'));
     } finally {
       setUploadingFile(false);
     }
@@ -304,15 +311,18 @@ Provide:
     }));
   };
 
-  // Handle Escape key to close
+  // Keep focus context stable and prevent the page behind the dialog from scrolling.
   useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape' && mountedRef.current) {
-        onClose();
-      }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && mountedRef.current) onClose();
     };
     window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleEscape);
+    };
   }, [onClose]);
 
   // Cleanup on unmount
