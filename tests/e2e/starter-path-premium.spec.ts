@@ -112,7 +112,7 @@ test.describe('Premium 7-day starter path drawer', () => {
     for (const testId of ['starter-path-toggle', 'starter-path-primary-action', 'starter-path-reset-button']) {
       const box = await page.getByTestId(testId).boundingBox();
       expect(box).not.toBeNull();
-      expect(box!.height).toBeGreaterThanOrEqual(43);
+      expect(box!.height, testId).toBeGreaterThanOrEqual(43);
     }
   });
 
