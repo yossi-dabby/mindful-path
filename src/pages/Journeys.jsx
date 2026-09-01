@@ -1,195 +1,312 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import JourneyCard from '../components/journeys/JourneyCard';
 import JourneyDetail from '../components/journeys/JourneyDetail';
+import { groupJourneysByProgress } from '../components/journeys/journeyUtils';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Compass } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  Compass,
+  Loader2,
+  Map,
+  Route,
+  Sparkles,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PullToRefresh from '../components/utils/PullToRefresh';
+
+function JourneyEmptyState({ icon: Icon, title, description }) {
+  return (
+    <div className="rounded-[28px] border border-dashed border-teal-800/20 bg-white/60 px-5 py-12 text-center shadow-sm">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+        <Icon className="h-7 w-7" aria-hidden="true" />
+      </span>
+      <h3 className="mt-4 text-lg font-bold text-teal-950">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">{description}</p>
+    </div>
+  );
+}
+
+function JourneyGrid({ journeys, progressMap, onStart, onContinue, onView, startingJourneyId }) {
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="journeys-grid">
+      {journeys.map((journey) => (
+        <JourneyCard
+          key={journey.id}
+          journey={journey}
+          progress={progressMap[journey.id]}
+          onStart={onStart}
+          onContinue={onContinue}
+          onView={onView}
+          isStarting={startingJourneyId === journey.id}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function JourneysPage() {
   const { t } = useTranslation();
   const [selectedJourney, setSelectedJourney] = useState(null);
   const [selectedProgress, setSelectedProgress] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [activeTab, setActiveTab] = useState('available');
+  const [actionError, setActionError] = useState('');
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: journeys = [] } = useQuery({
+  const journeysQuery = useQuery({
     queryKey: ['journeys'],
     queryFn: () => base44.entities.Journey.filter({ is_active: true }),
   });
 
-  const { data: progressList = [] } = useQuery({
+  const progressQuery = useQuery({
     queryKey: ['journey_progress'],
     queryFn: () => base44.entities.UserJourneyProgress.list(),
   });
 
+  const journeys = journeysQuery.data || [];
+  const progressList = progressQuery.data || [];
+  const groupedJourneys = useMemo(
+    () => groupJourneysByProgress(journeys, progressList),
+    [journeys, progressList]
+  );
+
   const startJourneyMutation = useMutation({
-    mutationFn: async (journey) => {
-      return base44.entities.UserJourneyProgress.create({
-        journey_id: journey.id,
-        journey_title: journey.title,
-        status: 'in_progress',
-        started_date: new Date().toISOString().split('T')[0],
-        current_step: 0,
-        completed_steps: [],
-        total_steps: journey.steps?.length || 0
-      });
-    },
-    onSuccess: () => {
+    mutationFn: async (journey) => base44.entities.UserJourneyProgress.create({
+      journey_id: journey.id,
+      journey_title: journey.title,
+      status: 'in_progress',
+      started_date: new Date().toISOString().split('T')[0],
+      current_step: 0,
+      completed_steps: [],
+      total_steps: journey.steps?.length || 0,
+    }),
+    onSuccess: (createdProgress) => {
+      queryClient.setQueryData(['journey_progress'], (current = []) => [
+        ...current.filter((item) => item.id !== createdProgress.id),
+        createdProgress,
+      ]);
       queryClient.invalidateQueries({ queryKey: ['journey_progress'] });
-    }
+    },
   });
 
   const handleStartJourney = async (journey) => {
-    await startJourneyMutation.mutateAsync(journey);
+    setActionError('');
+    try {
+      const createdProgress = await startJourneyMutation.mutateAsync(journey);
+      setSelectedJourney(journey);
+      setSelectedProgress(createdProgress);
+      setActiveTab('in-progress');
+      setShowDetail(true);
+    } catch {
+      setActionError(t('journeys.premium.start_error'));
+    }
+  };
+
+  const openJourney = (journey, progress) => {
+    setActionError('');
     setSelectedJourney(journey);
-    const newProgress = progressList.find(p => p.journey_id === journey.id);
-    setSelectedProgress(newProgress);
+    setSelectedProgress(progress || null);
     setShowDetail(true);
   };
 
-  const handleContinueJourney = (journey, progress) => {
-    setSelectedJourney(journey);
-    setSelectedProgress(progress);
-    setShowDetail(true);
-  };
-
-  const handleViewJourney = (journey, progress) => {
-    setSelectedJourney(journey);
-    setSelectedProgress(progress);
-    setShowDetail(true);
+  const handleProgressChange = (nextProgress) => {
+    setSelectedProgress(nextProgress);
+    queryClient.setQueryData(['journey_progress'], (current = []) => [
+      ...current.filter((item) => item.id !== nextProgress.id),
+      nextProgress,
+    ]);
   };
 
   const handlePlayGame = (gameSlug) => {
-    navigate(createPageUrl('ExperientialGames') + `?game=${gameSlug}`);
+    if (!gameSlug) return;
+    navigate(createPageUrl('ExperientialGames') + '?game=' + encodeURIComponent(gameSlug));
   };
 
-  const progressMap = {};
-  progressList.forEach(p => {
-    progressMap[p.journey_id] = p;
-  });
+  const refreshJourneys = () => Promise.all([
+    journeysQuery.refetch(),
+    progressQuery.refetch(),
+  ]);
 
-  const inProgressJourneys = journeys.filter(j => {
-    const prog = progressMap[j.id];
-    return prog && prog.status === 'in_progress';
-  });
-
-  const completedJourneys = journeys.filter(j => {
-    const prog = progressMap[j.id];
-    return prog && prog.status === 'completed';
-  });
-
-  const availableJourneys = journeys.filter(j => !progressMap[j.id]);
+  const isLoading = journeysQuery.isLoading || progressQuery.isLoading;
+  const hasLoadError = journeysQuery.isError || progressQuery.isError;
 
   return (
     <PullToRefresh queryKeys={['journeys', 'journey_progress']}>
-      <div className="min-h-dvh p-6 safe-bottom">
-        <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2 min-w-0">
-            <Compass className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0" style={{ color: '#26A69A' }} />
-            <h1 className="text-2xl sm:text-3xl font-bold break-words" style={{ color: '#1A3A34' }}>
-              {t('journeys.page_title')}
-            </h1>
-          </div>
-          <p className="text-sm sm:text-base break-words" style={{ color: '#5A7A72' }}>
-            {t('journeys.page_subtitle')}
-          </p>
-        </div>
+      <div
+        className="min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),transparent_35%),linear-gradient(155deg,#dff4ee_0%,#cce9e1_48%,#b9ddd4_100%)]"
+        data-testid="journeys-page"
+      >
+        <main className="mx-auto w-full max-w-6xl px-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] pt-4 sm:px-6 sm:pt-6">
+          <section className="relative mb-6 overflow-hidden rounded-[30px] border border-white/75 bg-white/65 p-5 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-8">
+            <div className="pointer-events-none absolute -end-20 -top-24 h-64 w-64 rounded-full bg-teal-300/25 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -start-20 h-56 w-56 rounded-full bg-violet-300/20 blur-3xl" />
 
-        <Tabs defaultValue="available" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="available">
-              {t('journeys.tabs.available')} ({availableJourneys.length})
-            </TabsTrigger>
-            <TabsTrigger value="in-progress">
-              {t('journeys.tabs.in_progress')} ({inProgressJourneys.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              {t('journeys.tabs.completed')} ({completedJourneys.length})
-            </TabsTrigger>
-          </TabsList>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/')}
+              className="relative mb-5 h-12 w-12 rounded-2xl border border-teal-900/10 bg-white/85 text-teal-800 shadow-sm hover:bg-white"
+              aria-label={t('journeys.premium.back_aria')}
+              data-testid="journeys-back"
+            >
+              <ArrowLeft className="h-5 w-5 rtl:rotate-180" aria-hidden="true" />
+            </Button>
 
-          <TabsContent value="available" className="space-y-4">
-            {availableJourneys.length === 0 ? (
-              <p className="text-center py-12" style={{ color: '#5A7A72' }}>
-                {t('journeys.empty_state.no_available')}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {availableJourneys.map(journey => (
-                  <JourneyCard
-                    key={journey.id}
-                    journey={journey}
-                    progress={null}
+            <div className="relative grid items-end gap-6 lg:grid-cols-[1fr_auto]">
+              <div className="min-w-0">
+                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-teal-700">
+                  {t('journeys.premium.eyebrow')}
+                </p>
+                <div className="mb-3 flex min-w-0 items-center gap-3">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)]">
+                    <Compass className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <h1 className="min-w-0 break-words text-3xl font-bold leading-tight tracking-tight text-teal-950 sm:text-4xl">
+                    {t('journeys.page_title')}
+                  </h1>
+                </div>
+                <p className="max-w-3xl break-words text-sm leading-7 text-slate-600 sm:text-base">
+                  {t('journeys.premium.hero_description')}
+                </p>
+              </div>
+
+              {!isLoading && !hasLoadError && (
+                <div className="grid grid-cols-3 gap-2" aria-label={t('journeys.premium.summary_aria')}>
+                  {[
+                    [groupedJourneys.available.length, t('journeys.premium.stat_available')],
+                    [groupedJourneys.inProgress.length, t('journeys.premium.stat_active')],
+                    [groupedJourneys.completed.length, t('journeys.premium.stat_completed')],
+                  ].map(([value, label]) => (
+                    <div key={label} className="min-w-[78px] rounded-2xl border border-teal-800/10 bg-white/80 px-3 py-3 text-center shadow-sm">
+                      <strong className="block text-xl font-bold text-teal-900">{value}</strong>
+                      <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-slate-600">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {actionError && (
+            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-800" role="alert">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+              <span>{actionError}</span>
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex min-h-[280px] flex-col items-center justify-center rounded-[28px] border border-white/75 bg-white/60 text-teal-800 shadow-sm" data-testid="journeys-loading">
+              <Loader2 className="mb-4 h-8 w-8 animate-spin" aria-hidden="true" />
+              <p className="text-sm font-semibold">{t('journeys.premium.loading')}</p>
+            </div>
+          ) : hasLoadError ? (
+            <div className="rounded-[28px] border border-rose-200/80 bg-white/70 px-5 py-12 text-center shadow-sm" role="alert" data-testid="journeys-error">
+              <AlertCircle className="mx-auto h-10 w-10 text-rose-500" aria-hidden="true" />
+              <h2 className="mt-4 text-xl font-bold text-teal-950">{t('journeys.premium.load_error_title')}</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">{t('journeys.premium.load_error_description')}</p>
+              <Button onClick={refreshJourneys} className="mt-5 min-h-12 rounded-2xl bg-teal-700 px-6 text-white hover:bg-teal-800">
+                {t('journeys.premium.retry')}
+              </Button>
+            </div>
+          ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" data-testid="journeys-tabs">
+              <TabsList
+                className="mb-6 grid h-auto w-full grid-cols-3 gap-1 rounded-2xl border-white/70 bg-white/60 p-1.5 shadow-sm"
+                aria-label={t('journeys.premium.tabs_aria')}
+              >
+                <TabsTrigger value="available" className="min-h-12 min-w-0 rounded-xl px-2 text-xs sm:text-sm" data-testid="journeys-tab-available">
+                  <span className="truncate">{t('journeys.tabs.available')}</span>
+                  <span className="ms-1 rounded-full bg-teal-900/8 px-1.5 py-0.5 text-[11px]">{groupedJourneys.available.length}</span>
+                </TabsTrigger>
+                <TabsTrigger value="in-progress" className="min-h-12 min-w-0 rounded-xl px-2 text-xs sm:text-sm" data-testid="journeys-tab-in-progress">
+                  <span className="truncate">{t('journeys.tabs.in_progress')}</span>
+                  <span className="ms-1 rounded-full bg-teal-900/8 px-1.5 py-0.5 text-[11px]">{groupedJourneys.inProgress.length}</span>
+                </TabsTrigger>
+                <TabsTrigger value="completed" className="min-h-12 min-w-0 rounded-xl px-2 text-xs sm:text-sm" data-testid="journeys-tab-completed">
+                  <span className="truncate">{t('journeys.tabs.completed')}</span>
+                  <span className="ms-1 rounded-full bg-teal-900/8 px-1.5 py-0.5 text-[11px]">{groupedJourneys.completed.length}</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="available" className="mt-0">
+                {groupedJourneys.available.length > 0 ? (
+                  <JourneyGrid
+                    journeys={groupedJourneys.available}
+                    progressMap={groupedJourneys.progressMap}
                     onStart={handleStartJourney}
-                    onView={handleViewJourney}
+                    onContinue={openJourney}
+                    onView={openJourney}
+                    startingJourneyId={startJourneyMutation.variables?.id}
                   />
-                ))}
-              </div>
-            )}
-          </TabsContent>
+                ) : (
+                  <JourneyEmptyState icon={Map} title={t('journeys.empty_state.no_available')} description={t('journeys.premium.empty_available_description')} />
+                )}
+              </TabsContent>
 
-          <TabsContent value="in-progress" className="space-y-4">
-            {inProgressJourneys.length === 0 ? (
-              <p className="text-center py-12" style={{ color: '#5A7A72' }}>
-                {t('journeys.empty_state.no_in_progress')}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {inProgressJourneys.map(journey => (
-                  <JourneyCard
-                    key={journey.id}
-                    journey={journey}
-                    progress={progressMap[journey.id]}
-                    onContinue={handleContinueJourney}
-                    onView={handleViewJourney}
+              <TabsContent value="in-progress" className="mt-0">
+                {groupedJourneys.inProgress.length > 0 ? (
+                  <JourneyGrid
+                    journeys={groupedJourneys.inProgress}
+                    progressMap={groupedJourneys.progressMap}
+                    onStart={handleStartJourney}
+                    onContinue={openJourney}
+                    onView={openJourney}
                   />
-                ))}
-              </div>
-            )}
-          </TabsContent>
+                ) : (
+                  <JourneyEmptyState icon={Route} title={t('journeys.empty_state.no_in_progress')} description={t('journeys.premium.empty_active_description')} />
+                )}
+              </TabsContent>
 
-          <TabsContent value="completed" className="space-y-4">
-            {completedJourneys.length === 0 ? (
-              <p className="text-center py-12" style={{ color: '#5A7A72' }}>
-                {t('journeys.empty_state.no_completed')}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {completedJourneys.map(journey => (
-                  <JourneyCard
-                    key={journey.id}
-                    journey={journey}
-                    progress={progressMap[journey.id]}
-                    onView={handleViewJourney}
+              <TabsContent value="completed" className="mt-0">
+                {groupedJourneys.completed.length > 0 ? (
+                  <JourneyGrid
+                    journeys={groupedJourneys.completed}
+                    progressMap={groupedJourneys.progressMap}
+                    onStart={handleStartJourney}
+                    onContinue={openJourney}
+                    onView={openJourney}
                   />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                ) : (
+                  <JourneyEmptyState icon={CheckCircle2} title={t('journeys.empty_state.no_completed')} description={t('journeys.premium.empty_completed_description')} />
+                )}
+              </TabsContent>
+            </Tabs>
+          )}
 
-        <Dialog open={showDetail} onOpenChange={setShowDetail}>
-          <DialogContent className="max-w-3xl" style={{ borderRadius: '24px' }}>
-            {selectedJourney && (
-              <JourneyDetail
-                journey={selectedJourney}
-                progress={selectedProgress}
-                onClose={() => setShowDetail(false)}
-                onPlayGame={handlePlayGame}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-teal-800/80">
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            <span>{t('journeys.premium.gentle_pace')}</span>
+          </div>
+
+          <Dialog open={showDetail} onOpenChange={setShowDetail}>
+            <DialogContent
+              closeLabel={t('journeys.detail.close_aria')}
+              className="max-h-[calc(100dvh-0.5rem)] w-full max-w-4xl overflow-hidden border-white/80 bg-gradient-to-b from-white to-emerald-50 p-0 sm:max-h-[calc(100vh-2rem)] sm:w-[calc(100%-2rem)] sm:rounded-[30px]"
+              data-testid="journey-detail-dialog"
+            >
+              {selectedJourney && (
+                <JourneyDetail
+                  journey={selectedJourney}
+                  progress={selectedProgress}
+                  onClose={() => setShowDetail(false)}
+                  onPlayGame={handlePlayGame}
+                  onProgressChange={handleProgressChange}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+        </main>
       </div>
-    </div>
     </PullToRefresh>
   );
 }
