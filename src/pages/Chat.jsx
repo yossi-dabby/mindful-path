@@ -4970,19 +4970,19 @@ export default function Chat() {
         height: `calc(100dvh - ${MOBILE_HEADER_HEIGHT}px - ${BOTTOM_NAV_HEIGHT}px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))`
       }}>
 
-        {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
+        {/* On desktop (≥1024px) there is no fixed mobile header or bottom nav,
                                                   so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
-          @media (min-width: 768px) {
+          @media (min-width: 1024px) {
             [data-testid="chat-root"] {
               height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
             }
           }
         `}</style>
       {/* Backdrop overlay when sidebar is open - below input area */}
-      {showSidebar && currentConversationId &&
+      {showSidebar &&
         <div
-          className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-30"
+          className="xl:hidden fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-30"
           onClick={() => setShowSidebar(false)}
           style={{ zIndex: 30 }} />
 
@@ -4990,9 +4990,9 @@ export default function Chat() {
 
       {/* Sidebar - Conversations List */}
       <div className={`
-        ${showSidebar ? 'block' : 'hidden md:block'} 
-        fixed md:relative inset-0 md:inset-auto w-full sm:w-80 
-        border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)] md:shadow-none z-40
+        ${showSidebar ? 'block' : 'hidden xl:block'}
+        fixed xl:relative inset-y-0 start-0 xl:inset-auto w-[min(20rem,calc(100vw-1rem))]
+        border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.96)] backdrop-blur-2xl shadow-[var(--shadow-lg)] xl:shadow-none z-40
       `}>
         <ErrorBoundary>
           <ConversationsList
@@ -5008,7 +5008,7 @@ export default function Chat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="rounded-2xl flex-1 flex flex-col min-h-0">
+      <div className="rounded-2xl flex-1 flex flex-col min-h-0 min-w-0">
         {/* Header */}
         <div className="bg-teal-50 px-4 py-1 rounded-2xl md:px-6 flex items-center gap-3 border-b border-border/70 backdrop-blur-xl">
           <Button
@@ -5023,7 +5023,7 @@ export default function Chat() {
               variant="ghost"
               size="icon"
               onClick={() => setShowSidebar(!showSidebar)}
-              aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+              aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="xl:hidden text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
             <Menu className="w-5 h-5" />
           </Button>
@@ -5277,7 +5277,7 @@ export default function Chat() {
         <div className="bg-teal-50 text-teal-600 pr-4 pl-2 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
-          <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
+          <div className="text-teal-600 mx-auto max-w-4xl flex gap-2 min-w-0">
             {variantProfileBlocked ?
               <div className="flex-1 flex flex-col gap-3">
                 <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
@@ -5298,7 +5298,7 @@ export default function Chat() {
                   className="hidden"
                   onChange={handleFileSelect}
                 />
-                <div className="flex flex-col flex-1 gap-1">
+                <div className="flex flex-col flex-1 gap-1 min-w-0">
                   {attachedFile && (
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
@@ -5318,6 +5318,16 @@ export default function Chat() {
                     autoCorrect="on"
                     disabled={isLoading || isConversationInitializing || isUploadingFile} />
                   <div className="flex items-center flex-wrap gap-2 px-1 py-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
+                      aria-label={t('chat.attachments.attach_button_aria')}
+                      className="text-teal-600 h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-teal-100">
+                      <Paperclip className="w-5 h-5" />
+                    </Button>
                     {audioDraftStatus === 'idle' &&
                         <Button
                           type="button"
@@ -5393,17 +5403,7 @@ export default function Chat() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1 flex-shrink-0">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
-                    aria-label={t('chat.attachments.attach_button_aria')}
-                    className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
-                    <Paperclip className="w-5 h-5" />
-                  </Button>
+                <div className="flex flex-col justify-start gap-1 flex-shrink-0">
                   <Button
                     onClick={handleSendMessage}
                     disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
