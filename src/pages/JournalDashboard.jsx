@@ -1,319 +1,324 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  AreaChart, Area, BarChart, Bar, Legend, ReferenceLine
+  AreaChart, Area, BarChart, Bar, Legend, ReferenceLine, Cell
 } from 'recharts';
-import { format, subDays, isAfter } from 'date-fns';
+import { subDays, isAfter } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TrendingDown, TrendingUp, Minus, Brain, BookOpen, BarChart2, Target } from 'lucide-react';
+import { ArrowLeft, TrendingDown, TrendingUp, Minus, Brain, BookOpen, BarChart2, Target, RefreshCw } from 'lucide-react';
 
 const RANGE_OPTIONS = [
-  { label: '2 weeks', days: 14 },
-  { label: '1 month', days: 30 },
-  { label: '3 months', days: 90 },
-  { label: 'All time', days: null },
+  { key: '14', days: 14 },
+  { key: '30', days: 30 },
+  { key: '90', days: 90 },
+  { key: 'all', days: null }
 ];
 
-const DISTORTION_COLORS = ['#26A69A', '#7C3AED', '#F59E0B', '#EF4444', '#10B981', '#3B82F6', '#EC4899', '#6366F1'];
+const DISTORTION_COLORS = ['#0f766e', '#7c3aed', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#4f46e5'];
+const normalizeTaxonomyKey = (value = '') => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+const numberOrNull = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
 
-const CustomTooltip = ({ active, payload, label }) => {
+function CustomTooltip({ active, payload, label, t }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-teal-100 rounded-xl shadow-lg p-3 text-sm">
-      <p className="font-semibold text-gray-700 mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} style={{ color: p.color }} className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: p.color }} />
-          {p.name}: <strong>{typeof p.value === 'number' ? p.value.toFixed(1) : p.value}</strong>
+    <div className="rounded-xl border border-teal-100 bg-white p-3 text-sm shadow-lg">
+      <p className="mb-1 font-semibold text-slate-700">{label}</p>
+      {payload.map((item) => (
+        <p key={item.dataKey} style={{ color: item.color }} className="flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+          {t('journal_ui.dashboard.tooltip_value', {
+            name: item.name,
+            value: typeof item.value === 'number' ? item.value.toFixed(1) : item.value
+          })}
         </p>
       ))}
     </div>
   );
-};
+}
 
 export default function JournalDashboard() {
+  const { t, i18n } = useTranslation();
   const [range, setRange] = useState(30);
+  const locale = i18n.resolvedLanguage || i18n.language || 'en';
+  const dateLabel = (value) => new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(new Date(value));
 
-  const { data: journals = [], isLoading } = useQuery({
-    queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 200),
-    initialData: [],
+  const userQuery = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 300000
+  });
+  const userEmail = userQuery.data?.email;
+
+  const journalsQuery = useQuery({
+    queryKey: ['thoughtJournals', userEmail],
+    queryFn: () => base44.entities.ThoughtJournal.filter({ created_by: userEmail }, '-created_date', 300),
+    enabled: Boolean(userEmail),
+    initialData: []
   });
 
   const filteredJournals = useMemo(() => {
+    const journals = Array.isArray(journalsQuery.data) ? journalsQuery.data : [];
     if (!range) return journals;
     const cutoff = subDays(new Date(), range);
-    return journals.filter(e => isAfter(new Date(e.created_date), cutoff));
-  }, [journals, range]);
+    return journals.filter((entry) => entry.created_date && isAfter(new Date(entry.created_date), cutoff));
+  }, [journalsQuery.data, range]);
 
-  // Intensity trend over time (before and after per entry)
-  const intensityTrend = useMemo(() => {
-    return filteredJournals
-      .filter(e => e.emotion_intensity)
-      .map(e => ({
-        date: format(new Date(e.created_date), 'MMM d'),
-        fullDate: e.created_date,
-        before: e.emotion_intensity,
-        after: e.outcome_emotion_intensity || null,
-        reduction: e.outcome_emotion_intensity
-          ? +(e.emotion_intensity - e.outcome_emotion_intensity).toFixed(1)
-          : null,
-      }))
-      .reverse();
-  }, [filteredJournals]);
+  const intensityTrend = useMemo(() => filteredJournals
+    .map((entry) => ({
+      date: dateLabel(entry.created_date),
+      timestamp: new Date(entry.created_date).getTime(),
+      before: numberOrNull(entry.emotion_intensity),
+      after: numberOrNull(entry.outcome_emotion_intensity)
+    }))
+    .filter((entry) => entry.before !== null)
+    .sort((a, b) => a.timestamp - b.timestamp), [filteredJournals, locale]);
 
-  // Average intensity per week
-  const weeklyAvg = useMemo(() => {
-    const buckets = {};
-    filteredJournals.filter(e => e.emotion_intensity).forEach(e => {
-      const week = format(new Date(e.created_date), 'MMM d');
-      if (!buckets[week]) buckets[week] = { before: [], after: [] };
-      buckets[week].before.push(e.emotion_intensity);
-      if (e.outcome_emotion_intensity) buckets[week].after.push(e.outcome_emotion_intensity);
+  const dailyAverage = useMemo(() => {
+    const buckets = new Map();
+    filteredJournals.forEach((entry) => {
+      const before = numberOrNull(entry.emotion_intensity);
+      if (before === null || !entry.created_date) return;
+      const dayKey = new Date(entry.created_date).toISOString().slice(0, 10);
+      const bucket = buckets.get(dayKey) || { date: dateLabel(entry.created_date), timestamp: new Date(entry.created_date).getTime(), before: [], after: [] };
+      bucket.before.push(before);
+      const after = numberOrNull(entry.outcome_emotion_intensity);
+      if (after !== null) bucket.after.push(after);
+      buckets.set(dayKey, bucket);
     });
-    return Object.entries(buckets).map(([week, vals]) => ({
-      week,
-      avgBefore: +(vals.before.reduce((a, b) => a + b, 0) / vals.before.length).toFixed(1),
-      avgAfter: vals.after.length
-        ? +(vals.after.reduce((a, b) => a + b, 0) / vals.after.length).toFixed(1)
-        : null,
-    })).reverse();
-  }, [filteredJournals]);
+    return [...buckets.values()].map((bucket) => ({
+      date: bucket.date,
+      timestamp: bucket.timestamp,
+      avgBefore: +(bucket.before.reduce((sum, value) => sum + value, 0) / bucket.before.length).toFixed(1),
+      avgAfter: bucket.after.length ? +(bucket.after.reduce((sum, value) => sum + value, 0) / bucket.after.length).toFixed(1) : null
+    })).sort((a, b) => a.timestamp - b.timestamp);
+  }, [filteredJournals, locale]);
 
-  // Cognitive distortions frequency
   const distortionFreq = useMemo(() => {
     const counts = {};
-    filteredJournals.forEach(e => {
-      e.cognitive_distortions?.forEach(d => {
-        counts[d] = (counts[d] || 0) + 1;
+    filteredJournals.forEach((entry) => {
+      (Array.isArray(entry.cognitive_distortions) ? entry.cognitive_distortions : []).forEach((distortion) => {
+        counts[distortion] = (counts[distortion] || 0) + 1;
       });
     });
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([name, count], i) => ({ name: name.replace(/_/g, ' '), count, fill: DISTORTION_COLORS[i % DISTORTION_COLORS.length] }));
-  }, [filteredJournals]);
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([rawName, count], index) => ({
+      name: t(`journal_ui.taxonomy.distortions.${normalizeTaxonomyKey(rawName)}`, { defaultValue: rawName.replace(/_/g, ' ') }),
+      count,
+      fill: DISTORTION_COLORS[index % DISTORTION_COLORS.length]
+    }));
+  }, [filteredJournals, t, locale]);
 
-  // Emotion frequency
   const emotionFreq = useMemo(() => {
     const counts = {};
-    filteredJournals.forEach(e => {
-      e.emotions?.forEach(em => {
-        counts[em] = (counts[em] || 0) + 1;
+    filteredJournals.forEach((entry) => {
+      (Array.isArray(entry.emotions) ? entry.emotions : []).forEach((emotion) => {
+        counts[emotion] = (counts[emotion] || 0) + 1;
       });
     });
     return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filteredJournals]);
 
-  // Summary stats
   const stats = useMemo(() => {
-    const withBoth = filteredJournals.filter(e => e.emotion_intensity && e.outcome_emotion_intensity);
-    const avgReduction = withBoth.length
-      ? +(withBoth.reduce((sum, e) => sum + (e.emotion_intensity - e.outcome_emotion_intensity), 0) / withBoth.length).toFixed(1)
+    const beforeValues = filteredJournals.map((entry) => numberOrNull(entry.emotion_intensity)).filter((value) => value !== null);
+    const paired = filteredJournals.map((entry) => ({
+      before: numberOrNull(entry.emotion_intensity),
+      after: numberOrNull(entry.outcome_emotion_intensity)
+    })).filter(({ before, after }) => before !== null && after !== null);
+    const avgReduction = paired.length
+      ? +(paired.reduce((sum, entry) => sum + (entry.before - entry.after), 0) / paired.length).toFixed(1)
       : null;
-    const avgBefore = filteredJournals.filter(e => e.emotion_intensity).length
-      ? +(filteredJournals.filter(e => e.emotion_intensity).reduce((s, e) => s + e.emotion_intensity, 0) / filteredJournals.filter(e => e.emotion_intensity).length).toFixed(1)
+    const avgBefore = beforeValues.length
+      ? +(beforeValues.reduce((sum, value) => sum + value, 0) / beforeValues.length).toFixed(1)
       : null;
-    return { total: filteredJournals.length, avgReduction, avgBefore, withBoth: withBoth.length };
+    return { total: filteredJournals.length, avgReduction, avgBefore, reframed: paired.length };
   }, [filteredJournals]);
 
   const TrendIcon = stats.avgReduction > 0 ? TrendingDown : stats.avgReduction < 0 ? TrendingUp : Minus;
-  const trendColor = stats.avgReduction > 0 ? '#26A69A' : stats.avgReduction < 0 ? '#EF4444' : '#9CA3AF';
+  const trendColor = stats.avgReduction > 0 ? '#0f766e' : stats.avgReduction < 0 ? '#dc2626' : '#64748b';
+  const isLoading = userQuery.isLoading || journalsQuery.isLoading;
+  const hasError = userQuery.isError || journalsQuery.isError;
+  const chartTooltip = <CustomTooltip t={t} />;
 
   return (
-    <div className="p-4 md:p-8 pb-32 md:pb-16 max-w-5xl mx-auto w-full min-h-dvh"
-      style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
-
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6 mt-4">
-        <Link to={createPageUrl('Journal')}>
-          <Button variant="ghost" size="icon" style={{ borderRadius: '50%' }} aria-label="Back to Journal">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-light" style={{ color: '#1A3A34' }}>Emotional Progress</h1>
-          <p className="text-sm" style={{ color: '#5A7A72' }}>Your long-term emotional intensity trends</p>
+    <main data-testid="journal-dashboard" className="mx-auto min-h-[100dvh] w-full max-w-6xl px-3 pb-32 pt-4 sm:px-5 md:px-8 md:pb-20">
+      <header className="mb-6 rounded-[28px] border border-white/65 bg-white/80 p-4 shadow-[0_18px_55px_rgba(20,92,82,0.12)] backdrop-blur-xl sm:p-6">
+        <div className="flex items-start gap-3">
+          <Link to={createPageUrl('Journal')} aria-label={t('journal_ui.dashboard.back')}>
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full">
+              <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-teal-900 sm:text-3xl">{t('journal_ui.dashboard.title')}</h1>
+            <p className="mt-1 text-sm font-medium text-teal-800/70 sm:text-base">{t('journal_ui.dashboard.subtitle')}</p>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Range Selector */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {RANGE_OPTIONS.map(opt => (
-          <Button
-            key={opt.label}
-            variant={range === opt.days ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setRange(opt.days)}
-            style={{
-              borderRadius: '20px',
-              ...(range === opt.days
-                ? { backgroundColor: '#26A69A', color: '#fff', boxShadow: '0 4px 12px rgba(38,166,154,0.3)' }
-                : { borderColor: 'rgba(38,166,154,0.4)', color: '#26A69A' })
-            }}
-          >
-            {opt.label}
+      <div role="group" aria-label={t('journal_ui.dashboard.range_aria')} className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/60 bg-white/65 p-2 backdrop-blur-lg sm:flex sm:w-fit">
+        {RANGE_OPTIONS.map((option) => (
+          <Button key={option.key} variant={range === option.days ? 'default' : 'ghost'} size="sm"
+            onClick={() => setRange(option.days)} aria-pressed={range === option.days}
+            className={`min-h-11 rounded-xl px-4 ${range === option.days ? 'bg-teal-700 text-white hover:bg-teal-800' : 'text-teal-900 hover:bg-white/80'}`}>
+            {t(`journal_ui.dashboard.range_${option.key}`)}
           </Button>
         ))}
       </div>
 
-      {isLoading ? (
-        <div className="text-center py-20 text-gray-500">Loading your journal data...</div>
+      {hasError ? (
+        <Card className="border-red-200 bg-white/88">
+          <CardContent className="p-8 text-center">
+            <p className="font-medium text-red-800">{t('journal_ui.dashboard.load_error')}</p>
+            <Button onClick={() => { userQuery.refetch(); journalsQuery.refetch(); }} className="mt-4 min-h-11 rounded-2xl">
+              <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : isLoading ? (
+        <div className="py-20 text-center" role="status">
+          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-teal-100 border-t-teal-700" />
+          <p className="mt-3 text-slate-600">{t('journal_ui.dashboard.loading')}</p>
+        </div>
       ) : filteredJournals.length === 0 ? (
-        <Card className="border-0 shadow-md" style={{ borderRadius: '24px' }}>
-          <CardContent className="p-12 text-center">
-            <BookOpen className="w-12 h-12 mx-auto mb-4" style={{ color: '#26A69A' }} />
-            <h2 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No journal entries yet</h2>
-            <p className="text-gray-500 mb-4">Start journaling to see your emotional trends here.</p>
+        <Card className="border-white/70 bg-white/84 shadow-md">
+          <CardContent className="p-8 text-center sm:p-12">
+            <BookOpen className="mx-auto mb-4 h-12 w-12 text-teal-700" />
+            <h2 className="text-xl font-bold text-teal-900">{t('journal_ui.dashboard.empty_title')}</h2>
+            <p className="mx-auto mt-2 max-w-md text-slate-600">{t('journal_ui.dashboard.empty_description')}</p>
             <Link to={createPageUrl('Journal')}>
-              <Button style={{ borderRadius: '20px', backgroundColor: '#26A69A', color: '#fff' }}>Go to Journal</Button>
+              <Button className="mt-5 min-h-11 rounded-2xl bg-teal-700 text-white hover:bg-teal-800">{t('journal_ui.dashboard.go_journal')}</Button>
             </Link>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-6">
-
-          {/* Summary Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
-              { label: 'Entries', value: stats.total, icon: BookOpen, color: '#26A69A' },
-              { label: 'Avg. Start Intensity', value: stats.avgBefore ? `${stats.avgBefore}/10` : '—', icon: Brain, color: '#7C3AED' },
-              { label: 'Avg. Reduction', value: stats.avgReduction != null ? `${stats.avgReduction > 0 ? '-' : '+'}${Math.abs(stats.avgReduction)}` : '—', icon: TrendIcon, color: trendColor },
-              { label: 'Reframed Entries', value: stats.withBoth, icon: Target, color: '#F59E0B' },
+              { label: t('journal_ui.dashboard.entries'), value: stats.total, icon: BookOpen, color: '#0f766e' },
+              { label: t('journal_ui.dashboard.avg_start'), value: stats.avgBefore !== null ? `${stats.avgBefore}/10` : '—', icon: Brain, color: '#7c3aed' },
+              { label: t('journal_ui.dashboard.avg_reduction'), value: stats.avgReduction !== null ? `${stats.avgReduction > 0 ? '-' : '+'}${Math.abs(stats.avgReduction)}` : '—', icon: TrendIcon, color: trendColor },
+              { label: t('journal_ui.dashboard.reframed'), value: stats.reframed, icon: Target, color: '#d97706' }
             ].map(({ label, value, icon: Icon, color }) => (
-              <Card key={label} className="border-0 shadow-sm" style={{ borderRadius: '20px', background: 'rgba(255,255,255,0.88)' }}>
-                <CardContent className="p-4 flex flex-col gap-1">
-                  <Icon className="w-5 h-5 mb-1" style={{ color }} />
+              <Card key={label} className="border-white/70 bg-white/84 shadow-sm backdrop-blur-xl">
+                <CardContent className="flex min-h-32 flex-col gap-1 p-4">
+                  <Icon className="mb-1 h-5 w-5" style={{ color }} />
                   <p className="text-2xl font-bold" style={{ color }}>{value}</p>
-                  <p className="text-xs text-gray-500">{label}</p>
+                  <p className="text-xs font-medium text-slate-600">{label}</p>
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </section>
 
-          {/* Intensity Trend - Before vs After */}
           {intensityTrend.length > 1 && (
-            <Card className="border-0 shadow-sm" style={{ borderRadius: '24px', background: 'rgba(255,255,255,0.92)' }}>
+            <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-                  <BarChart2 className="w-5 h-5 text-teal-600" />
-                  Emotion Intensity: Before vs After Reframing
+                <CardTitle className="flex items-start gap-2 text-base font-bold text-teal-950">
+                  <BarChart2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
+                  {t('journal_ui.dashboard.intensity_title')}
                 </CardTitle>
-                <p className="text-xs text-gray-500">Per journal entry — lower "after" scores indicate successful reframing</p>
+                <p className="text-xs text-slate-600">{t('journal_ui.dashboard.intensity_description')}</p>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={260}>
-                  <AreaChart data={intensityTrend} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="gradBefore" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="gradAfter" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#26A69A" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#26A69A" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-                    <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-                    <ReferenceLine y={5} stroke="rgba(0,0,0,0.1)" strokeDasharray="4 4" />
-                    <Area type="monotone" dataKey="before" name="Before reframing" stroke="#7C3AED" strokeWidth={2.5} fill="url(#gradBefore)" dot={{ fill: '#7C3AED', r: 3 }} activeDot={{ r: 5 }} connectNulls />
-                    <Area type="monotone" dataKey="after" name="After reframing" stroke="#26A69A" strokeWidth={2.5} fill="url(#gradAfter)" dot={{ fill: '#26A69A', r: 3 }} activeDot={{ r: 5 }} connectNulls />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <div className="overflow-x-auto pb-2">
+                  <div className="h-[270px] min-w-[560px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={intensityTrend} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,118,110,0.12)" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                        <Tooltip content={chartTooltip} />
+                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                        <ReferenceLine y={5} stroke="rgba(15,118,110,0.18)" strokeDasharray="4 4" />
+                        <Area type="monotone" dataKey="before" name={t('journal_ui.dashboard.before')} stroke="#7c3aed" strokeWidth={2.5} fill="#7c3aed18" dot={{ fill: '#7c3aed', r: 3 }} connectNulls />
+                        <Area type="monotone" dataKey="after" name={t('journal_ui.dashboard.after')} stroke="#0f766e" strokeWidth={2.5} fill="#0f766e18" dot={{ fill: '#0f766e', r: 3 }} connectNulls />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Weekly Average Trend */}
-          {weeklyAvg.length > 1 && (
-            <Card className="border-0 shadow-sm" style={{ borderRadius: '24px', background: 'rgba(255,255,255,0.92)' }}>
+          {dailyAverage.length > 1 && (
+            <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-                  <TrendingDown className="w-5 h-5 text-teal-600" />
-                  Daily Average Intensity Over Time
+                <CardTitle className="flex items-center gap-2 text-base font-bold text-teal-950">
+                  <TrendingDown className="h-5 w-5 text-teal-700" />
+                  {t('journal_ui.dashboard.daily_title')}
                 </CardTitle>
-                <p className="text-xs text-gray-500">Rolling averages — a downward trend indicates long-term progress</p>
+                <p className="text-xs text-slate-600">{t('journal_ui.dashboard.daily_description')}</p>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart data={weeklyAvg} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
-                    <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-                    <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-                    <Line type="monotone" dataKey="avgBefore" name="Avg before" stroke="#7C3AED" strokeWidth={2.5} dot={{ fill: '#7C3AED', r: 4 }} activeDot={{ r: 6 }} connectNulls />
-                    <Line type="monotone" dataKey="avgAfter" name="Avg after" stroke="#26A69A" strokeWidth={2.5} strokeDasharray="5 3" dot={{ fill: '#26A69A', r: 4 }} activeDot={{ r: 6 }} connectNulls />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="overflow-x-auto pb-2">
+                  <div className="h-[230px] min-w-[560px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={dailyAverage} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,118,110,0.12)" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                        <Tooltip content={chartTooltip} />
+                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                        <Line type="monotone" dataKey="avgBefore" name={t('journal_ui.dashboard.avg_before')} stroke="#7c3aed" strokeWidth={2.5} dot={{ fill: '#7c3aed', r: 4 }} connectNulls />
+                        <Line type="monotone" dataKey="avgAfter" name={t('journal_ui.dashboard.avg_after')} stroke="#0f766e" strokeWidth={2.5} strokeDasharray="5 3" dot={{ fill: '#0f766e', r: 4 }} connectNulls />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Two-column: Distortions + Emotions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Cognitive Distortions */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {distortionFreq.length > 0 && (
-              <Card className="border-0 shadow-sm" style={{ borderRadius: '24px', background: 'rgba(255,255,255,0.92)' }}>
+              <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-                    <Brain className="w-5 h-5 text-purple-600" />
-                    Common Thinking Patterns
+                  <CardTitle className="flex items-center gap-2 text-base font-bold text-teal-950">
+                    <Brain className="h-5 w-5 text-purple-700" />{t('journal_ui.dashboard.patterns_title')}
                   </CardTitle>
-                  <p className="text-xs text-gray-500">Frequency of identified cognitive distortions</p>
+                  <p className="text-xs text-slate-600">{t('journal_ui.dashboard.patterns_description')}</p>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={distortionFreq} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
-                      <XAxis type="number" tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-                      <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#555' }} tickLine={false} axisLine={false} width={110} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="count" name="Times identified" radius={[0, 6, 6, 0]}>
-                        {distortionFreq.map((entry, i) => (
-                          <rect key={i} fill={entry.fill} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="overflow-x-auto pb-2">
+                    <div className="h-[240px] min-w-[500px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={distortionFreq} layout="vertical" margin={{ top: 0, right: 10, left: 8, bottom: 0 }}>
+                          <XAxis type="number" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#334155' }} tickLine={false} axisLine={false} width={150} />
+                          <Tooltip content={chartTooltip} />
+                          <Bar dataKey="count" name={t('journal_ui.dashboard.times_identified')} radius={[0, 6, 6, 0]}>
+                            {distortionFreq.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Emotions */}
             {emotionFreq.length > 0 && (
-              <Card className="border-0 shadow-sm" style={{ borderRadius: '24px', background: 'rgba(255,255,255,0.92)' }}>
+              <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-                    <Target className="w-5 h-5 text-amber-500" />
-                    Emotions You've Recorded
+                  <CardTitle className="flex items-center gap-2 text-base font-bold text-teal-950">
+                    <Target className="h-5 w-5 text-amber-600" />{t('journal_ui.dashboard.emotions_title')}
                   </CardTitle>
-                  <p className="text-xs text-gray-500">Most frequently logged emotions in this period</p>
+                  <p className="text-xs text-slate-600">{t('journal_ui.dashboard.emotions_description')}</p>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {emotionFreq.map(([emotion, count], i) => (
-                      <Badge
-                        key={emotion}
-                        className="text-sm px-3 py-1 rounded-full"
-                        style={{
-                          background: `rgba(38,166,154,${0.1 + (i / emotionFreq.length) * 0.4})`,
-                          color: '#1A3A34',
-                          border: '1px solid rgba(38,166,154,0.25)',
-                          fontSize: `${Math.max(11, 14 - i)}px`
-                        }}
-                      >
-                        {emotion} <span className="ml-1 opacity-60">×{count}</span>
+                    {emotionFreq.map(([emotion, count], index) => (
+                      <Badge key={emotion} className="rounded-full border border-teal-200 px-3 py-1.5 text-sm text-teal-950"
+                        style={{ backgroundColor: `rgba(20,184,166,${0.10 + (index / Math.max(emotionFreq.length, 1)) * 0.24})` }}>
+                        {t(`journal_ui.taxonomy.emotions.${normalizeTaxonomyKey(emotion)}`, {
+                          defaultValue: t(`mood_tracker.taxonomy.emotions.${normalizeTaxonomyKey(emotion)}`, { defaultValue: emotion })
+                        })}
+                        <span className="ms-1 opacity-65">×{count}</span>
                       </Badge>
                     ))}
                   </div>
@@ -321,9 +326,8 @@ export default function JournalDashboard() {
               </Card>
             )}
           </div>
-
         </div>
       )}
-    </div>
+    </main>
   );
 }
