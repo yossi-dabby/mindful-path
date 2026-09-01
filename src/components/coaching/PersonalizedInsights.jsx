@@ -4,12 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain, TrendingUp, Target, Book, Sparkles, Loader2, AlertCircle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 import { normalizeCoachingInsights, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { useTranslation } from 'react-i18next';
 
 export default function PersonalizedInsights({ onStartSession }) {
+  const { t, i18n } = useTranslation();
   const [insights, setInsights] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState(false);
 
   const { data: goals } = useQuery({
     queryKey: ['activeGoals'],
@@ -53,6 +55,7 @@ export default function PersonalizedInsights({ onStartSession }) {
 
   const generateInsights = async () => {
     setIsGenerating(true);
+    setGenerationError(false);
     try {
       const stripHtml = (html) => {
         if (!html || typeof html !== 'string') return '';
@@ -68,10 +71,10 @@ export default function PersonalizedInsights({ onStartSession }) {
       }));
 
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `As an AI wellness coach, analyze this user's data to provide personalized insights and recommendations:
+        prompt: `Respond entirely in ${t('coach.insights.language_name')} (${i18n.resolvedLanguage || i18n.language}). As an AI wellness coach, analyze this user's data to provide personalized insights and recommendations:
 
 **Active Goals:**
-${goals.map((g) => `- ${g.title} (${g.category}, ${g.progress}% complete, last updated: ${formatDistanceToNow(new Date(g.updated_date))} ago)`).join('\n')}
+${goals.map((g) => `- ${g.title} (${g.category}, ${g.progress}% complete, updated: ${g.updated_date})`).join('\n')}
 
 **Recent Journal Entries (Last 10):**
 ${JSON.stringify(journalPatterns, null, 2)}
@@ -144,6 +147,7 @@ Be specific, encouraging, and reference their actual data.`,
       setInsights(normalized);
     } catch (error) {
       console.error('Failed to generate insights:', error);
+      setGenerationError(true);
     } finally {
       setIsGenerating(false);
     }
@@ -162,16 +166,16 @@ Be specific, encouraging, and reference their actual data.`,
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h4 className="text-teal-600 mb-2 font-semibold">Activity Reminder</h4>
+                <h3 className="mb-2 font-semibold text-teal-800">{t('coach.insights.activity_title')}</h3>
                 <ul className="space-y-1 text-sm text-foreground/85">
                   {daysSinceJournal > 5 &&
-                <li>• It's been {daysSinceJournal} days since your last journal entry</li>
+                <li>• {t('coach.insights.journal_days', { count: daysSinceJournal })}</li>
                 }
                   {daysSinceMood > 3 &&
-                <li>• Your mood hasn't been checked in {daysSinceMood} days</li>
+                <li>• {t('coach.insights.mood_days', { count: daysSinceMood })}</li>
                 }
                   {staleGoals.length > 0 &&
-                <li>• {staleGoals.length} goal{staleGoals.length > 1 ? 's' : ''} need updating</li>
+                <li>• {t('coach.insights.goals_stale', { count: staleGoals.length })}</li>
                 }
                 </ul>
               </div>
@@ -185,15 +189,13 @@ Be specific, encouraging, and reference their actual data.`,
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardContent className="bg-teal-100 p-6 text-center">
             <Brain className="text-teal-600 mb-3 mx-auto lucide lucide-brain w-12 h-12" />
-            <h3 className="text-teal-600 mb-2 font-semibold">Get Personalized Coaching Insights</h3>
-            <p className="text-teal-600 mb-4 text-sm font-medium">Analyze your journal patterns, goals, and mood trends to receive tailored recommendations
-
-          </p>
+            <h3 className="mb-2 text-lg font-bold text-teal-800">{t('coach.insights.title')}</h3>
+            <p className="mx-auto mb-4 max-w-xl text-sm leading-6 text-slate-600">{t('coach.insights.description')}</p>
             <Button
             onClick={generateInsights} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
 
               <Sparkles className="w-4 h-4 mr-2" />
-              Generate Insights
+              {t('coach.insights.generate')}
             </Button>
           </CardContent>
         </Card>
@@ -203,10 +205,20 @@ Be specific, encouraging, and reference their actual data.`,
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
           <CardContent className="p-8 text-center">
             <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
-            <p className="text-muted-foreground">Analyzing your mental wellness journey...</p>
+            <p className="text-muted-foreground" role="status" aria-live="polite">{t('coach.insights.analyzing')}</p>
           </CardContent>
         </Card>
       }
+
+      {generationError && !isGenerating && (
+        <Card className="border border-red-200 bg-white/90 shadow-sm">
+          <CardContent className="flex flex-col items-center gap-3 p-5 text-center">
+            <AlertCircle className="h-6 w-6 text-red-500" />
+            <p className="text-sm text-red-700" role="alert">{t('coach.insights.error')}</p>
+            <Button variant="outline" onClick={generateInsights}>{t('coach.retry')}</Button>
+          </CardContent>
+        </Card>
+      )}
 
       {insights &&
       <>
@@ -216,7 +228,7 @@ Be specific, encouraging, and reference their actual data.`,
               <CardContent className="p-4">
                 <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
-                  Great Progress!
+                  {t('coach.insights.progress')}
                 </h4>
                 <ul className="space-y-2">
                   {safeArray(insights.positive_progress).map((item, i) => {
@@ -239,7 +251,7 @@ Be specific, encouraging, and reference their actual data.`,
               <CardContent className="p-4">
                 <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Brain className="w-5 h-5 text-primary" />
-                  Thought Patterns Identified
+                  {t('coach.insights.patterns')}
                 </h4>
                 <div className="space-y-3">
                   {safeArray(insights.recurring_patterns).filter((p) => p && (p.pattern || typeof p === 'string')).map((pattern, i) =>
@@ -268,7 +280,7 @@ Be specific, encouraging, and reference their actual data.`,
               <CardContent className="p-4">
                 <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Book className="w-5 h-5 text-primary" />
-                  Recommended CBT Techniques
+                  {t('coach.insights.recommendations')}
                 </h4>
                 <div className="space-y-3">
                   {safeArray(insights.cbt_recommendations).filter((r) => r && (r.exercise_category || typeof r === 'string')).map((rec, i) =>
@@ -284,7 +296,7 @@ Be specific, encouraging, and reference their actual data.`,
                 }
                       {matchedExercises[i] &&
                 <p className="text-xs text-gray-500 mt-2">
-                          Try: <span className="font-medium">{matchedExercises[i].title}</span>
+                          {t('coach.insights.try')}: <span className="font-medium">{matchedExercises[i].title}</span>
                         </p>
                 }
                     </div>
@@ -300,7 +312,7 @@ Be specific, encouraging, and reference their actual data.`,
               <CardContent className="p-4">
                 <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Target className="w-5 h-5 text-primary" />
-                  Goal Alignment
+                  {t('coach.insights.goal_alignment')}
                 </h4>
                 <div className="space-y-3">
                   {safeArray(insights.goal_insights).filter((g) => g && (g.goal_title || typeof g === 'string')).map((insight, i) =>
@@ -325,7 +337,7 @@ Be specific, encouraging, and reference their actual data.`,
           {safeArray(insights.engagement_nudges).length > 0 &&
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-foreground mb-3">Gentle Reminders</h4>
+                <h4 className="mb-3 font-semibold text-foreground">{t('coach.insights.reminders')}</h4>
                 <ul className="space-y-2">
                   {safeArray(insights.engagement_nudges).map((nudge, i) => {
                 const text = safeText(nudge);
@@ -342,7 +354,7 @@ Be specific, encouraging, and reference their actual data.`,
         }
 
           <Button onClick={generateInsights} variant="outline" className="w-full">
-            Refresh Insights
+            {t('coach.insights.refresh')}
           </Button>
         </>
       }
