@@ -118,7 +118,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
 
   const currentDay = clampDay(starterPath?.current_day);
   const isStarted = Boolean(starterPath?.id) && currentDay > 0;
-  const isCompleted = Boolean(starterPath?.completed) || currentDay >= TOTAL_DAYS;
+  const isCompleted = Boolean(starterPath?.completed);
   const completedDays = isCompleted ? TOTAL_DAYS : Math.max(0, currentDay - 1);
   const progressPercent = completedDays / TOTAL_DAYS * 100;
   const descriptionKey = isCompleted
@@ -365,7 +365,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
       </Card>
 
       <AlertDialog open={resetOpen} onOpenChange={(open) => !resetPathMutation.isPending && setResetOpen(open)}>
-        <AlertDialogContent className="w-[calc(100%-2rem)] max-w-md rounded-[24px]" data-testid="starter-path-reset-dialog">
+        <AlertDialogContent className="w-[calc(100%_-_2rem)] max-w-md rounded-[24px]" data-testid="starter-path-reset-dialog">
           <AlertDialogHeader className="text-start">
             <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
               <RefreshCw className="h-6 w-6" />
