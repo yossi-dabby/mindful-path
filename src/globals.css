@@ -611,3 +611,14 @@ textarea:focus-visible,
   background-repeat: no-repeat;
   background-size: cover;
 }
+
+/* Settings surfaces share a softer, premium radius across breakpoints. */
+.settings-surface {
+  border-radius: 1.75rem;
+}
+
+@media (max-width: 639px) {
+  .settings-surface {
+    border-radius: 1.5rem;
+  }
+}
