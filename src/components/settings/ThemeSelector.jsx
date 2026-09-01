@@ -78,30 +78,30 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
   ];
   
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader>
+    <Card className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl">
+      <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
         <CardTitle className="flex items-center gap-2">
           <Palette className="w-5 h-5" />
           {t('settings.theme.title')}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-5 sm:p-6">
         <p className="text-sm text-gray-600 mb-4">
           {t('settings.theme.description')}
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {themes.map((theme, index) => (
             <motion.button
               key={theme.id}
               onClick={() => onThemeChange(theme)}
               className={cn(
-                'relative p-4 rounded-xl border-2 transition-all text-left',
+                'relative min-h-[148px] p-4 rounded-2xl border-2 transition-all text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                 currentTheme === theme.id
-                  ? 'border-blue-500 shadow-lg'
-                  : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                  ? 'border-teal-500 bg-teal-50/60 shadow-md'
+                  : 'border-slate-200 bg-white hover:border-teal-200 hover:shadow-sm'
               )}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.99 }}
+              aria-pressed={currentTheme === theme.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -114,7 +114,7 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
                 </div>
                 {currentTheme === theme.id && (
                   <motion.div 
-                    className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0"
+                    className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center flex-shrink-0"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300 }}
