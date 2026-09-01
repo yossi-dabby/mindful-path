@@ -11,7 +11,6 @@ import {
   Bell,
   CheckCircle2,
   ChevronRight,
-  CreditCard,
   Crown,
   Languages,
   Layout as LayoutIcon,
@@ -363,7 +362,7 @@ export default function Settings() {
                     {showProfileSaved && !updateProfileMutation.isPending && (
                       <span className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-700" role="status">
                         <CheckCircle2 className="h-4 w-4" />
-                        {t('common.saved')}
+                        {t('settings_ui.saved')}
                       </span>
                     )}
                     <Button
