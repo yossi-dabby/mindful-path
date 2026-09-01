@@ -8,6 +8,9 @@ const BASE_URL =
   'http://127.0.0.1:5173';
 
 async function prepareJournal(page, language = 'en', route = '/Journal') {
+  page.on('pageerror', (error) => console.log('[journal pageerror]', error.message));
+  page.on('console', (message) => message.type() === 'error' && console.log('[journal console]', message.text()));
+  page.on('response', (response) => response.status() >= 400 && console.log('[journal response]', response.status(), response.url()));
   await mockApi(page);
   await page.addInitScript(({ language }) => {
     localStorage.setItem('language', language);
