@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass, ClipboardList } from 'lucide-react';
+import { ArrowRight, Brain, MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, User, Compass, ClipboardList } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import AiPersonalizedFeed from './AiPersonalizedFeed';
 import StarterPathQuickAction from './StarterPathQuickAction';
 import VideoModal from './VideoModal';
 import { useTranslation } from 'react-i18next';
+import { gamesCatalog } from '@/components/experiential_games/mindGamesContent';
 
 export default function QuickActions() {
   const { t } = useTranslation();
@@ -50,12 +51,13 @@ export default function QuickActions() {
   {
     title: t('quick_actions.mind_games.title'),
     description: t('quick_actions.mind_games.description'),
-    icon: Puzzle,
+    icon: Brain,
     page: 'ExperientialGames',
     color: '#4299E1',
     bgColor: 'rgba(66, 153, 225, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Mind%20Games.mp4?alt=media&token=275ef615-9611-457c-8e0e-f17c5621dac7',
-    testIds: ['quickaction-grounding', 'quickaction-mindgames']
+    testIds: ['quickaction-grounding', 'quickaction-mindgames'],
+    premiumMindGames: true
   },
   {
     title: t('quick_actions.journeys.title'),
@@ -148,19 +150,23 @@ export default function QuickActions() {
 
         {actions.map((action) => {
           const Icon = action.icon;
+          const destination = action.intent ? createPageUrl('Chat', `intent=${action.intent}`) : createPageUrl(action.page);
           return (
-            <div key={action.title} className="relative">
-              <Link
-                to={action.intent ? createPageUrl('Chat', `intent=${action.intent}`) : createPageUrl(action.page)}
-                data-testid={action.testIds ? action.testIds[0] : undefined}>
-
-                <Card className="bg-[hsl(var(--card)/0.94)] text-card-foreground rounded-[20px] border-border/60 shadow-[var(--shadow-md)] backdrop-blur-[10px] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
-
-                style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
+            <div key={action.title} className="relative min-w-0">
+                <Card className="group h-full overflow-hidden rounded-[20px] border border-border/60 bg-[hsl(var(--card)/0.94)] text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-[10px] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)]"
+                style={{ borderColor: action.premiumMindGames ? 'rgba(59, 130, 246, 0.28)' : 'rgba(118, 170, 156, 0.34)', background: action.premiumMindGames ? 'linear-gradient(160deg, rgba(248,253,255,0.99) 0%, rgba(222,243,240,0.97) 58%, rgba(235,232,255,0.94) 100%)' : 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
                 data-testid={action.testIds ? action.testIds[1] : undefined}>
 
-                  <CardContent className="p-5 rounded-2xl">
-                    <div className="flex items-center gap-3 mb-4">
+                  <CardContent className="relative rounded-2xl p-5">
+                    <Link
+                      to={destination}
+                      className="absolute inset-0 z-0 rounded-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600"
+                      aria-label={action.title}
+                      data-testid={action.testIds ? action.testIds[0] : undefined}
+                    >
+                      <span className="sr-only">{action.title}</span>
+                    </Link>
+                    <div className="pointer-events-none relative z-10 mb-4 flex items-center gap-3">
                       <div
                         className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)]"
                         style={{ background: `linear-gradient(180deg, ${action.color} 0%, ${action.color}dd 100%)`, boxShadow: '0 16px 30px rgba(68, 108, 96, 0.16)' }}>
@@ -176,7 +182,7 @@ export default function QuickActions() {
                           e.stopPropagation();
                           setActiveVideo(action.videoUrl);
                         }}
-                        className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 rounded-[var(--radius-control)] border-0 outline-none"
+                        className="pointer-events-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border-0 outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
                         style={{ backgroundColor: action.bgColor }}
                         aria-label={t('quick_actions.aria.guided_intro_video')}
                         title={t('quick_actions.aria.guided_intro_video')}>
@@ -185,11 +191,23 @@ export default function QuickActions() {
                       </button>
                       }
                     </div>
-                    <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{action.title}</h3>
-                    <p className="text-teal-600 text-xs line-clamp-2 break-words">{action.description}</p>
+                    <div className="pointer-events-none relative z-10">
+                      <h3 className="mb-1 break-words text-sm font-semibold text-teal-700">{action.title}</h3>
+                      <p className="line-clamp-2 break-words text-xs leading-5 text-teal-700">{action.description}</p>
+                      {action.premiumMindGames && (
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-teal-800/10 pt-3 text-[11px] font-semibold text-teal-800">
+                          <span className="rounded-full bg-white/75 px-2.5 py-1 shadow-sm">
+                            {t('mind_games.premium.games_count', { count: gamesCatalog.length })}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            {t('mind_games.premium.explore')}
+                            <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden="true" />
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
-              </Link>
             </div>);
 
         })}
