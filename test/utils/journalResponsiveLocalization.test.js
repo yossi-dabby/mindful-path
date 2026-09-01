@@ -21,6 +21,11 @@ describe('Journal production UX safeguards', () => {
       expect(journal.templates.title).toBeTruthy();
       expect(journal.templates.customize_title).toBeTruthy();
       expect(journal.templates.save_customized).toBeTruthy();
+      expect(Object.keys(journal.templates.catalog)).toHaveLength(21);
+      for (const catalogTemplate of Object.values(journal.templates.catalog)) {
+        expect(catalogTemplate.name).toBeTruthy();
+        expect(catalogTemplate.description).toBeTruthy();
+      }
       for (const templateKey of ['cbt', 'gratitude', 'anxiety', 'mood']) {
         expect(journal.templates.default[templateKey].name).toBeTruthy();
         expect(journal.templates.default[templateKey].description).toBeTruthy();
@@ -111,7 +116,10 @@ describe('Journal production UX safeguards', () => {
     expect(manager).toContain('onSelect={onSelectTemplate}');
     expect(manager).toContain('source_default: true');
     expect(manager).toContain('const isExisting = Boolean(template?.id) && !isCustomizingDefault');
-    expect(manager).toContain("language: template?.language || language");
+    expect(manager).toContain('language: isCustomizingDefault ? language : template?.language || language');
+    const form = read('src/components/journal/ThoughtRecordForm.jsx');
+    expect(form).toContain("import { localizeJournalTemplate } from './journalTemplateCatalog'");
+    expect(form).toContain('template_name: entry?.template_name || localizeJournalTemplate(template, t)?.name');
     for (const legacyEnglish of ['Standard CBT', 'Gratitude journal', 'Anxiety log', 'Mood journal']) {
       expect(manager).not.toContain(legacyEnglish);
     }
