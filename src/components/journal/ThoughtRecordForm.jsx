@@ -391,7 +391,7 @@ Provide:
               {!entry && !template && templates.length > 0 && (
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    Choose a Template (Optional)
+                    {t('journal_ui.form.choose_template')}
                   </label>
                   <BottomSheetSelect
                     value={selectedTemplate?.id || 'none'}
@@ -408,24 +408,24 @@ Provide:
                       }
                     }}
                     options={[
-                      { value: 'none', label: 'Standard CBT Format' },
+                      { value: 'none', label: t('journal_ui.form.standard_format') },
                       ...templates.map((tmpl) => ({ value: tmpl.id, label: tmpl.name }))
                     ]}
-                    placeholder="Standard CBT Format"
-                    title="Choose a Template"
+                    placeholder={t('journal_ui.form.standard_format')}
+                    title={t('journal_ui.form.choose_template')}
                   />
                 </div>
               )}
 
               <div key="situation-editor">
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  What happened? (The Situation)
+                  {t('journal_ui.form.situation_label')}
                 </label>
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.situation || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, situation: value }))}
-                    placeholder="Describe the situation that triggered these thoughts..."
+                    placeholder={t('journal_ui.form.situation_placeholder')}
                     modules={{
                       toolbar: [
                         ['bold', 'italic', 'underline'],
@@ -441,13 +441,13 @@ Provide:
 
               <div key="thoughts-editor">
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  What went through your mind? (Automatic Thoughts)
+                  {t('journal_ui.form.thoughts_label')}
                 </label>
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.automatic_thoughts || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, automatic_thoughts: value }))}
-                    placeholder="What thoughts automatically came up? Write them exactly as they appeared..."
+                    placeholder={t('journal_ui.form.thoughts_placeholder')}
                     modules={{
                       toolbar: [
                         ['bold', 'italic', 'underline'],
@@ -471,7 +471,7 @@ Provide:
                 }
                 className="w-full py-6 rounded-xl"
               >
-                Continue
+                {t('journal_ui.common.continue')}
               </Button>
             </div>
           )}
@@ -480,30 +480,29 @@ Provide:
             <div className="space-y-6">
               <div>
                 <label className="text-sm font-medium text-foreground mb-3 block">
-                  What emotions did you feel?
+                  {t('journal_ui.form.emotions_label')}
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {commonEmotions.map((emotion) => (
-                    <Badge
+                  {commonEmotions.map(([emotion, emotionKey]) => (
+                    <button
+                      type="button"
                       key={emotion}
-                      variant={formData.emotions.includes(emotion) ? 'default' : 'outline'}
-                      className={cn(
-                        'cursor-pointer px-4 py-2',
-                        formData.emotions.includes(emotion)
-                          ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                          : 'hover:bg-secondary text-foreground'
-                      )}
+                      aria-pressed={formData.emotions.includes(emotion)}
+                      className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2',
+                        formData.emotions.includes(emotion) ? 'border-teal-700 bg-teal-700 text-white' : 'border-teal-200 bg-white text-teal-950 hover:bg-teal-50')}
                       onClick={() => toggleItem('emotions', emotion)}
                     >
-                      {emotion}
-                    </Badge>
+                      {t(`journal_ui.taxonomy.emotions.${emotionKey}`)}
+                    </button>
                   ))}
+                  {/*
+                  */}
                 </div>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  How intense? (1-10)
+                  {t('journal_ui.form.intensity_label')}
                 </label>
                 <div className="flex items-center gap-4">
                   <input
@@ -513,8 +512,8 @@ Provide:
                     value={formData.emotion_intensity}
                     onChange={(e) => setFormData({ ...formData, emotion_intensity: parseInt(e.target.value) || 5 })}
                     className="flex-1"
-                    aria-label="Emotion intensity"
-                    aria-valuetext={`Intensity ${formData.emotion_intensity} out of 10`}
+                    aria-label={t('journal_ui.form.intensity_aria')}
+                    aria-valuetext={t('journal_ui.form.intensity_value', { value: formData.emotion_intensity })}
                   />
                   <span className="text-2xl font-bold text-primary w-12 text-center">
                     {formData.emotion_intensity}
@@ -524,7 +523,7 @@ Provide:
 
               <div className="flex gap-3">
                 <Button onClick={() => setStep(1)} variant="outline" className="flex-1">
-                  Back
+                  {t('journal_ui.common.back')}
                 </Button>
                 <Button
                   onClick={() => setStep(3)}
@@ -543,9 +542,9 @@ Provide:
                 <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                   <div className="text-center">
                     <Brain className="w-12 h-12 text-amber-600 mx-auto mb-2" />
-                    <h4 className="font-semibold text-foreground mb-1">AI Distortion Detection</h4>
+                    <h4 className="font-semibold text-foreground mb-1">{t('journal_ui.form.distortion_title')}</h4>
                     <p className="text-sm text-muted-foreground mb-3">
-                      Let AI identify cognitive distortions in your thoughts
+                      {t('journal_ui.form.distortion_description')}
                     </p>
                     <Button
                       onClick={() => setShowDistortionAnalysis(true)}
@@ -553,7 +552,7 @@ Provide:
                       className="border-amber-300 hover:bg-amber-100"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Analyze Thoughts
+                      {t('journal_ui.form.analyze_thoughts')}
                     </Button>
                   </div>
                 </div>
@@ -575,36 +574,37 @@ Provide:
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-3 block">
-                  Identify thinking patterns (optional)
+                  {t('journal_ui.form.patterns_optional')}
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {cognitiveDistortions.map((distortion) => (
-                    <Badge
+                  {cognitiveDistortions.map(([distortion, distortionKey]) => (
+                    <button
+                      type="button"
                       key={distortion}
-                      variant={formData.cognitive_distortions.includes(distortion) ? 'default' : 'outline'}
+                      aria-pressed={formData.cognitive_distortions.includes(distortion)}
                       className={cn(
-                        'cursor-pointer px-3 py-2 text-xs',
+                        'min-h-11 rounded-full border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2',
                         formData.cognitive_distortions.includes(distortion)
-                          ? 'bg-primary hover:bg-primary/90'
-                          : 'hover:bg-secondary/70'
+                          ? 'border-teal-700 bg-teal-700 text-white'
+                          : 'border-teal-200 bg-white text-teal-950 hover:bg-teal-50'
                       )}
                       onClick={() => toggleItem('cognitive_distortions', distortion)}
                     >
-                      {distortion}
-                    </Badge>
+                      {t(`journal_ui.taxonomy.distortions.${distortionKey}`)}
+                    </button>
                   ))}
                 </div>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Evidence FOR the thought
+                  {t('journal_ui.form.evidence_for')}
                 </label>
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_for || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_for: value })}
-                    placeholder="What facts support this thought?"
+                    placeholder={t('journal_ui.form.evidence_for_placeholder')}
                     modules={{
                       toolbar: [
                         ['bold', 'italic'],
@@ -619,13 +619,13 @@ Provide:
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Evidence AGAINST the thought
+                  {t('journal_ui.form.evidence_against')}
                 </label>
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_against || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_against: value })}
-                    placeholder="What facts contradict this thought?"
+                    placeholder={t('journal_ui.form.evidence_against_placeholder')}
                     modules={{
                       toolbar: [
                         ['bold', 'italic'],
@@ -640,7 +640,7 @@ Provide:
 
               <div className="flex gap-3">
                 <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
-                  Back
+                  {t('journal_ui.common.back')}
                 </Button>
                 <Button onClick={() => setStep(4)} className="flex-1 bg-primary hover:bg-primary/90">
                   Continue
@@ -653,13 +653,13 @@ Provide:
             <div className="space-y-6">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Balanced, realistic thought
+                  {t('journal_ui.form.balanced_label')}
                 </label>
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.balanced_thought || ''}
                     onChange={(value) => setFormData({ ...formData, balanced_thought: value })}
-                    placeholder="Based on the evidence, what's a more balanced way to view this situation?"
+                    placeholder={t('journal_ui.form.balanced_placeholder')}
                     modules={{
                       toolbar: [
                         ['bold', 'italic', 'underline'],
@@ -674,7 +674,7 @@ Provide:
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  How intense are the emotions now? (1-10)
+                  {t('journal_ui.form.outcome_intensity')}
                 </label>
                 <div className="flex items-center gap-4">
                   <input
@@ -684,8 +684,8 @@ Provide:
                     value={formData.outcome_emotion_intensity}
                     onChange={(e) => setFormData({ ...formData, outcome_emotion_intensity: parseInt(e.target.value) || 5 })}
                     className="flex-1"
-                    aria-label="Outcome emotion intensity"
-                    aria-valuetext={`Intensity ${formData.outcome_emotion_intensity} out of 10`}
+                    aria-label={t('journal_ui.form.outcome_intensity')}
+                    aria-valuetext={t('journal_ui.form.intensity_value', { value: formData.outcome_emotion_intensity })}
                   />
                   <span className="text-2xl font-bold text-primary w-12 text-center">
                     {formData.outcome_emotion_intensity}
@@ -695,7 +695,7 @@ Provide:
 
               <div className="flex gap-3">
                 <Button onClick={() => setStep(3)} variant="outline" className="flex-1">
-                  Back
+                  {t('journal_ui.common.back')}
                 </Button>
                 <Button
                   onClick={() => setStep(5)}
@@ -936,7 +936,7 @@ Provide:
               )}
               <div className="flex gap-3">
                 <Button onClick={() => setStep(4)} variant="outline" className="flex-1">
-                  Back
+                  {t('journal_ui.common.back')}
                 </Button>
                 <Button
                   onClick={() => {
