@@ -4,107 +4,105 @@ import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Sparkles, Check, X } from 'lucide-react';
-
-
-const features = [
-  { text: 'Unlimited audio meditations', included: true },
-  { text: 'Advanced analytics & insights', included: true },
-  { text: 'Personalized AI coaching', included: true },
-  { text: 'Export your data', included: true },
-  { text: 'Priority support', included: true },
-  { text: 'Offline access', included: true },
-];
+import { AlertCircle, Check, Crown, Sparkles, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function PremiumPaywall({ onClose }) {
+  const { t } = useTranslation();
+
   const checkoutMutation = useMutation({
-    mutationFn: async (priceId) => {
+    mutationFn: async () => {
       const { data } = await base44.functions.invoke('createCheckoutSession', {
-        priceId,
+        priceId: 'price_premium_monthly',
         successUrl: window.location.origin + '/?upgraded=true',
         cancelUrl: window.location.href
       });
+      if (!data?.url) throw new Error('Missing checkout URL');
       window.location.href = data.url;
     }
   });
 
+  const features = [
+    t('settings.subscription.feature_sessions'),
+    t('settings.subscription.feature_exercises'),
+    t('settings.subscription.feature_mood')
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto" style={{ zIndex: 80 }}>
-      <div className="min-h-full flex items-center justify-center py-8">
-        <div className="w-full max-w-2xl">
-          <Card className="border-0 shadow-2xl bg-gradient-to-br from-yellow-50 via-white to-orange-50 relative">
-            <CardContent className="p-6 md:p-12">
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
-              >
-                <X className="w-6 h-6" />
-              </button>
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto bg-slate-950/55 p-3 backdrop-blur-md sm:p-5"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="premium-dialog-title"
+      data-testid="premium-paywall"
+    >
+      <Card className="relative my-auto w-full max-w-2xl overflow-hidden border border-white/80 bg-white/95 shadow-2xl">
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-amber-100 via-teal-50 to-emerald-100" aria-hidden="true" />
+        <CardContent className="relative p-5 pt-7 sm:p-10">
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute end-4 top-4 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white bg-white/85 text-slate-600 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            aria-label={t('premium.close_aria')}
+          >
+            <X className="h-5 w-5" />
+          </button>
 
-              <div className="text-center mb-6 md:mb-8">
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Crown className="w-8 h-8 md:w-10 md:h-10 text-white" />
+          <div className="mb-7 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/25 sm:h-20 sm:w-20">
+              <Crown className="h-8 w-8 sm:h-10 sm:w-10" />
+            </div>
+            <h2 id="premium-dialog-title" className="text-2xl font-bold text-slate-900 sm:text-3xl">
+              {t('premium.title')}
+            </h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600 sm:text-base">
+              {t('premium.subtitle')}
+            </p>
+          </div>
+
+          <div className="mb-6 rounded-3xl border border-amber-200/80 bg-white p-5 shadow-lg shadow-amber-900/5 sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-slate-600">{t('premium.plan')}</p>
+                <div className="mt-1 flex flex-wrap items-baseline gap-2">
+                  <span className="text-4xl font-bold tracking-tight text-slate-900">$9.99</span>
+                  <span className="text-sm text-slate-500">{t('premium.month')}</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-                  Unlock Premium
-                </h2>
-                <p className="text-sm md:text-base text-gray-600">
-                  Get the full experience with unlimited access to all features
-                </p>
               </div>
+              <Badge className="border-0 bg-emerald-100 px-3 py-1 text-emerald-800">{t('premium.best_value')}</Badge>
+            </div>
+            <p className="mt-3 text-xs text-slate-500">{t('premium.cancel_anytime')}</p>
+          </div>
 
-              {/* Pricing */}
-              <div className="bg-white rounded-2xl p-4 md:p-6 mb-4 md:mb-6 border-2 border-orange-200 shadow-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-600">Premium Plan</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl md:text-4xl font-bold text-gray-800">$9.99</span>
-                      <span className="text-sm md:text-base text-gray-600">/month</span>
-                    </div>
-                  </div>
-                  <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
-                    Best Value
-                  </Badge>
-                </div>
-                <p className="text-xs text-gray-500">Cancel anytime • 7-day free trial</p>
+          <div className="mb-7 grid gap-3 sm:grid-cols-3">
+            {features.map((feature) => (
+              <div key={feature} className="flex items-start gap-2 rounded-2xl bg-teal-50/70 p-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
+                  <Check className="h-3 w-3" />
+                </span>
+                <span className="text-sm leading-5 text-slate-700">{feature.replace(/^✓\s*/, '')}</span>
               </div>
+            ))}
+          </div>
 
-              {/* Features */}
-              <div className="space-y-2 md:space-y-3 mb-6 md:mb-8">
-                {features.map((feature, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                    </div>
-                    <span className="text-sm md:text-base text-gray-700">{feature.text}</span>
-                  </div>
-                ))}
-              </div>
+          {checkoutMutation.isError && (
+            <div className="mb-4 flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {t('premium.checkout_error')}
+            </div>
+          )}
 
-              {/* CTA */}
-              <Button
-                onClick={() => checkoutMutation.mutate('price_premium_monthly')}
-                disabled={checkoutMutation.isPending}
-                className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white py-5 md:py-6 text-base md:text-lg rounded-2xl shadow-lg"
-              >
-                {checkoutMutation.isPending ? 'Loading...' : (
-                  <>
-                    <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                    Start Free Trial
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-center text-gray-500 mt-3">
-                No credit card required for trial
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+          <Button
+            type="button"
+            onClick={() => checkoutMutation.mutate()}
+            disabled={checkoutMutation.isPending}
+            className="min-h-[52px] w-full rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 text-base font-bold text-white shadow-lg shadow-teal-600/20 hover:from-teal-700 hover:to-emerald-700"
+          >
+            <Sparkles className="me-2 h-5 w-5" />
+            {checkoutMutation.isPending ? t('premium.loading') : t('premium.start_trial')}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
