@@ -22,7 +22,7 @@ const DrawerClose = DrawerPrimitive.Close
 const DrawerOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-[hsl(var(--overlay)/0.16)] backdrop-blur-[6px]", className)}
+    className={cn("fixed inset-0 z-[100] bg-[hsl(var(--overlay)/0.28)] backdrop-blur-[6px]", className)}
     {...props} />
 ))
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
@@ -33,7 +33,7 @@ const DrawerContent = React.forwardRef(({ className, children, ...props }, ref) 
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[var(--radius-card)] border border-border/70 bg-[hsl(var(--popover)/0.98)] shadow-[var(--shadow-lg)] backdrop-blur-xl",
+        "fixed inset-x-0 bottom-0 z-[101] mt-24 flex h-auto flex-col rounded-t-[var(--radius-card)] border border-border/70 bg-[hsl(var(--popover)/0.98)] shadow-[var(--shadow-lg)] backdrop-blur-xl",
         className
       )}
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
