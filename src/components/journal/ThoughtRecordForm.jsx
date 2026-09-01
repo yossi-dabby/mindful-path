@@ -356,30 +356,35 @@ Provide:
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div 
-        className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
-        style={{
-          paddingTop: 'env(safe-area-inset-top, 0px)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
-        }}
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="journal-entry-form-title"
+        aria-describedby="journal-entry-form-description"
       >
-        <Card className="w-full max-w-2xl border border-border/80 bg-card shadow-[var(--shadow-lg)] my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
-      <CardHeader className="border-b border-border/70 bg-secondary/35">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>
-                {selectedTemplate ? selectedTemplate.name : 'Journal Entry'} - Step {step} of 6
-              </CardTitle>
-              {selectedTemplate && (
-                <p className="text-sm text-muted-foreground mt-1">{selectedTemplate.description}</p>
-              )}
+        <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/96 shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+          <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/75 p-4 sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <CardTitle id="journal-entry-form-title" className="text-lg font-bold text-teal-950 sm:text-xl">
+                  {selectedTemplate?.is_default
+                    ? t(`journal_ui.templates.default.${selectedTemplate.key || selectedTemplate.entry_type?.replace('_log', '').replace('_journal', '').replace('_standard', '')}.name`, { defaultValue: selectedTemplate.name })
+                    : selectedTemplate?.name || t('journal_ui.form.title')}
+                </CardTitle>
+                <p id="journal-entry-form-description" className="mt-1 text-sm font-medium text-slate-600">
+                  {t('journal_ui.form.step', { step, total: 6 })}
+                </p>
+                {selectedTemplate?.description && !selectedTemplate.is_default && (
+                  <p className="mt-1 break-words text-sm text-slate-500" dir="auto">{selectedTemplate.description}</p>
+                )}
+              </div>
+              <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={onClose} aria-label={t('journal_ui.common.close_aria')}>
+                <X className="h-5 w-5" />
+              </Button>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close journal form">
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
           {step === 1 && (
             <div className="space-y-6">
               {/* Template Selection */}
