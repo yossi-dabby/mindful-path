@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,258 +7,182 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, Edit, Trash2, TrendingDown, Image as ImageIcon, Mic, Tag, Sparkles, Download } from 'lucide-react';
 import { exportThoughtRecordPdf } from './exportPdfUtils';
-import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import AiJournalSuggestions from './AiJournalSuggestions';
 import AiEntrySummary from './AiEntrySummary';
 
-// Helper to strip HTML tags for plain text display
 const stripHtml = (html) => {
   if (!html) return '';
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
+  const temporary = document.createElement('div');
+  temporary.innerHTML = html;
+  return temporary.textContent || temporary.innerText || '';
 };
+const normalizeKey = (value = '') => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 
 function ThoughtRecordCard({ entry, onEdit }) {
+  const { t, i18n } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
-  const [hasSummary, setHasSummary] = useState(!!entry.ai_summary);
+  const [hasSummary, setHasSummary] = useState(Boolean(entry.ai_summary));
   const queryClient = useQueryClient();
+  const itemLabel = t('journal_ui.cards.entry_item');
+  const locale = i18n.resolvedLanguage || i18n.language || 'en';
+  const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(entry.created_date));
+  const localizeEmotion = (emotion) => t(`journal_ui.taxonomy.emotions.${normalizeKey(emotion)}`, {
+    defaultValue: t(`mood_tracker.taxonomy.emotions.${normalizeKey(emotion)}`, { defaultValue: emotion })
+  });
+  const localizeDistortion = (distortion) => t(`journal_ui.taxonomy.distortions.${normalizeKey(distortion)}`, { defaultValue: distortion });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.ThoughtJournal.delete(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['thoughtJournals'] });
-      const previousJournals = queryClient.getQueryData(['thoughtJournals']);
-      queryClient.setQueryData(['thoughtJournals'], (old = []) => old.filter((journal) => journal.id !== id));
-      return { previousJournals };
+      const snapshots = queryClient.getQueriesData({ queryKey: ['thoughtJournals'] });
+      queryClient.setQueriesData({ queryKey: ['thoughtJournals'] }, (old = []) =>
+        Array.isArray(old) ? old.filter((journal) => journal.id !== id) : old
+      );
+      return { snapshots };
     },
-    onError: (_error, _variables, context) => {
-      if (context?.previousJournals) {
-        queryClient.setQueryData(['thoughtJournals'], context.previousJournals);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
-    }
+    onError: (_error, _variables, context) => context?.snapshots?.forEach(([key, value]) => queryClient.setQueryData(key, value)),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] })
   });
 
-  const handleDelete = () => {
-    if (confirm('Delete this journal entry? This action cannot be undone.')) {
-      deleteMutation.mutate(entry.id);
-    }
-  };
-
-  const intensityChange = entry.emotion_intensity - entry.outcome_emotion_intensity;
+  const beforeIntensity = Number(entry.emotion_intensity);
+  const afterIntensity = Number(entry.outcome_emotion_intensity);
+  const hasOutcome = Number.isFinite(beforeIntensity) && Number.isFinite(afterIntensity);
+  const intensityChange = hasOutcome ? beforeIntensity - afterIntensity : 0;
   const improvement = intensityChange > 0;
 
   return (
-    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow w-full overflow-hidden">
-      <CardContent className="p-4 md:p-6 overflow-x-hidden">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <p className="text-sm text-gray-500 mb-1">
-              {format(new Date(entry.created_date), 'MMM d, yyyy • h:mm a')}
-            </p>
+    <Card data-testid="journal-entry-card" className="w-full overflow-hidden border border-white/70 bg-white/86 shadow-md backdrop-blur-xl transition-shadow hover:shadow-lg">
+      <CardContent className="overflow-x-hidden p-4 sm:p-5 md:p-6">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <time className="mb-1 block text-sm text-slate-500" dateTime={entry.created_date}>{formattedDate}</time>
             {!expanded && hasSummary ? (
-              <AiEntrySummary 
-                entry={entry} 
-                onSummaryGenerated={() => {
-                  setHasSummary(true);
-                  queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
-                }} 
-              />
+              <AiEntrySummary entry={entry} onSummaryGenerated={() => {
+                setHasSummary(true);
+                queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
+              }} />
             ) : (
-              <p className="text-gray-800 font-medium line-clamp-2 break-words">{stripHtml(entry.situation)}</p>
+              <p className="line-clamp-2 break-words font-semibold text-slate-800" dir="auto">{stripHtml(entry.situation)}</p>
             )}
           </div>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="icon" onClick={() => exportThoughtRecordPdf(entry)} aria-label="Export as PDF">
-              <Download className="w-4 h-4 text-gray-400 hover:text-teal-600" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label="Edit thought record">
-              <Edit className="w-4 h-4 text-gray-400 hover:text-blue-600" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              aria-label="Delete thought record"
-            >
-              <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
+          <div className="flex shrink-0 justify-end gap-1">
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportThoughtRecordPdf(entry)}
+              aria-label={t('journal_ui.common.export_pdf')}><Download className="h-4 w-4 text-teal-700" /></Button>
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => onEdit(entry)}
+              aria-label={t('journal_ui.common.edit_aria', { item: itemLabel })}><Edit className="h-4 w-4 text-blue-700" /></Button>
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
+              if (window.confirm(t('journal_ui.cards.delete_entry_confirm'))) deleteMutation.mutate(entry.id);
+            }} disabled={deleteMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })}>
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {entry.emotions?.slice(0, 3).map((emotion) => (
-            <Badge key={emotion} variant="secondary" className="bg-purple-100 text-purple-700">
-              {emotion}
-            </Badge>
+        <div className="mb-4 flex flex-wrap gap-2">
+          {(entry.emotions || []).slice(0, 3).map((emotion) => (
+            <Badge key={emotion} variant="secondary" className="rounded-full bg-purple-100 text-purple-800">{localizeEmotion(emotion)}</Badge>
           ))}
-          {entry.emotions?.length > 3 && (
-            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-              +{entry.emotions.length - 3} more
-            </Badge>
-          )}
-          {entry.tags?.map((tag) => (
-            <Badge key={tag} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              <Tag className="w-3 h-3 mr-1" />
-              {tag}
-            </Badge>
-          ))}
+          {(entry.emotions || []).length > 3 && <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-600">
+            {t('journal_ui.cards.more', { count: entry.emotions.length - 3 })}
+          </Badge>}
+          {(entry.tags || []).map((tag) => <Badge key={tag} variant="outline" className="rounded-full border-blue-200 bg-blue-50 text-blue-800">
+            <Tag className="h-3 w-3" /><span dir="auto">{tag}</span>
+          </Badge>)}
         </div>
 
-        <div className="flex items-center gap-2 mb-4 flex-wrap">
-          {entry.outcome_emotion_intensity && (
-            <div className={cn(
-              "px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1",
-              improvement ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-            )}>
-              {improvement && <TrendingDown className="w-4 h-4" />}
-              Intensity: {entry.emotion_intensity} → {entry.outcome_emotion_intensity}
-              {improvement && ` (-${intensityChange})`}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {hasOutcome && (
+            <div className={cn('flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold',
+              improvement ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700')}>
+              {improvement && <TrendingDown className="h-4 w-4" />}
+              {t('journal_ui.cards.intensity', { before: beforeIntensity, after: afterIntensity })}
+              {improvement && <span>(-{intensityChange})</span>}
             </div>
           )}
-          {entry.images?.length > 0 && (
-            <Badge variant="outline" className="flex items-center gap-1">
-              <ImageIcon className="w-3 h-3" />
-              {entry.images.length} {entry.images.length === 1 ? 'image' : 'images'}
-            </Badge>
-          )}
-          {entry.audio_notes?.length > 0 && (
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Mic className="w-3 h-3" />
-              {entry.audio_notes.length} {entry.audio_notes.length === 1 ? 'audio' : 'audios'}
-            </Badge>
-          )}
+          {(entry.images || []).length > 0 && <Badge variant="outline" className="rounded-full"><ImageIcon className="h-3 w-3" />
+            {t(entry.images.length === 1 ? 'journal_ui.cards.images' : 'journal_ui.cards.images_plural', { count: entry.images.length })}
+          </Badge>}
+          {(entry.audio_notes || []).length > 0 && <Badge variant="outline" className="rounded-full"><Mic className="h-3 w-3" />
+            {t(entry.audio_notes.length === 1 ? 'journal_ui.cards.audio' : 'journal_ui.cards.audio_plural', { count: entry.audio_notes.length })}
+          </Badge>}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button
-            variant="ghost"
-            onClick={() => setExpanded(!expanded)}
-            className="flex-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50 w-full"
-          >
-            {expanded ? (
-              <>
-                <ChevronUp className="w-4 h-4 mr-2" />
-                Show less
-              </>
-            ) : (
-              <>
-                <ChevronDown className="w-4 h-4 mr-2" />
-                Show full record
-              </>
-            )}
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="ghost" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}
+            className="min-h-11 flex-1 rounded-xl text-teal-800 hover:bg-teal-50">
+            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {expanded ? t('journal_ui.cards.show_less') : t('journal_ui.cards.show_full')}
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setShowAiSuggestions(!showAiSuggestions)}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 w-full sm:w-auto"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            AI Analysis
+          <Button variant="ghost" onClick={() => setShowAiSuggestions((value) => !value)} aria-expanded={showAiSuggestions}
+            className="min-h-11 rounded-xl text-purple-800 hover:bg-purple-50 sm:w-auto">
+            <Sparkles className="h-4 w-4" />{t('journal_ui.cards.ai_analysis')}
           </Button>
         </div>
 
         {expanded && (
-          <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Automatic Thoughts:</p>
-              <div className="text-gray-600 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.automatic_thoughts }} />
-            </div>
+          <div className="mt-4 space-y-4 border-t border-teal-100 pt-4">
+            <RichSection title={t('journal_ui.cards.automatic_thoughts')} html={entry.automatic_thoughts} />
+            {(entry.cognitive_distortions || []).length > 0 && (
+              <section>
+                <h3 className="mb-2 text-sm font-bold text-slate-800">{t('journal_ui.cards.thinking_patterns')}</h3>
+                <div className="flex flex-wrap gap-2">{entry.cognitive_distortions.map((distortion) =>
+                  <Badge key={distortion} variant="outline" className="rounded-full text-xs">{localizeDistortion(distortion)}</Badge>)}</div>
+              </section>
+            )}
+            {entry.evidence_for && <RichSection title={t('journal_ui.cards.evidence_for')} html={entry.evidence_for} />}
+            {entry.evidence_against && <RichSection title={t('journal_ui.cards.evidence_against')} html={entry.evidence_against} />}
+            {entry.balanced_thought && <RichSection title={t('journal_ui.cards.balanced_thought')} html={entry.balanced_thought}
+              className="rounded-2xl border border-purple-100 bg-purple-50 p-4" />}
 
-            {entry.cognitive_distortions?.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Thinking Patterns:</p>
-                <div className="flex flex-wrap gap-2">
-                  {entry.cognitive_distortions.map((distortion) => (
-                    <Badge key={distortion} variant="outline" className="text-xs">
-                      {distortion}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+            {(entry.homework_tasks || []).length > 0 && (
+              <section className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                <h3 className="mb-2 text-sm font-bold text-blue-950">{t('journal_ui.cards.homework')}</h3>
+                <ul className="space-y-3">{entry.homework_tasks.map((task, index) => (
+                  <li key={index} className="border-s-2 border-blue-300 ps-3 text-sm text-blue-900">
+                    <p className="font-semibold">{task.task}</p>
+                    {task.duration_minutes && <p className="mt-1 text-xs">{t('journal_ui.cards.duration', { count: task.duration_minutes })}</p>}
+                    {task.success_criteria && <p className="text-xs">{t('journal_ui.cards.success', { text: task.success_criteria })}</p>}
+                  </li>
+                ))}</ul>
+              </section>
             )}
 
-            {entry.evidence_for && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Evidence For:</p>
-                <div className="text-gray-600 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.evidence_for }} />
-              </div>
+            {(entry.images || []).length > 0 && (
+              <section>
+                <h3 className="mb-2 text-sm font-bold text-slate-800">{t('journal_ui.cards.attached_images')}</h3>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{entry.images.map((url, index) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                    <img src={url} alt={t('journal_ui.cards.images', { count: index + 1 })} className="h-28 w-full rounded-xl object-cover" />
+                  </a>
+                ))}</div>
+              </section>
             )}
-
-            {entry.evidence_against && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Evidence Against:</p>
-                <div className="text-gray-600 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.evidence_against }} />
-              </div>
-            )}
-
-            {entry.balanced_thought && (
-              <div className="bg-purple-50 p-4 rounded-xl">
-                <p className="text-sm font-medium text-purple-900 mb-1">Balanced Thought:</p>
-                <div className="text-purple-800 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.balanced_thought }} />
-              </div>
-            )}
-
-            {entry.homework_tasks?.length > 0 && (
-              <div className="bg-blue-50 p-4 rounded-xl">
-                <p className="text-sm font-medium text-blue-900 mb-2">Homework Tasks:</p>
-                <ul className="space-y-3">
-                  {entry.homework_tasks.map((task, index) => (
-                    <li key={index} className="text-blue-800 text-sm pl-4 border-l-2 border-blue-300">
-                      <p className="font-semibold mb-1">{task.task}</p>
-                      {task.duration_minutes && (
-                        <p className="text-xs text-blue-700">⏱️ Duration: {task.duration_minutes} minutes</p>
-                      )}
-                      {task.success_criteria && (
-                        <p className="text-xs text-blue-700">✓ Success: {task.success_criteria}</p>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Attached Media */}
-            {entry.images?.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Attached Images:</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {entry.images.map((url, index) => (
-                    <img key={index} src={url} alt={`Attached image ${index + 1}`} className="w-full h-24 object-cover rounded-lg cursor-pointer" onClick={() => window.open(url, '_blank')} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {entry.audio_notes?.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Audio Notes:</p>
-                <div className="space-y-2">
-                  {entry.audio_notes.map((url, index) => (
-                    <audio key={index} src={url} controls className="w-full h-10" />
-                  ))}
-                </div>
-              </div>
+            {(entry.audio_notes || []).length > 0 && (
+              <section>
+                <h3 className="mb-2 text-sm font-bold text-slate-800">{t('journal_ui.cards.audio_notes')}</h3>
+                <div className="space-y-2">{entry.audio_notes.map((url) => <audio key={url} src={url} controls className="h-11 w-full" />)}</div>
+              </section>
             )}
           </div>
         )}
 
-        {showAiSuggestions && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <AiJournalSuggestions 
-              entry={entry} 
-              onClose={() => setShowAiSuggestions(false)} 
-            />
-          </div>
-        )}
+        {showAiSuggestions && <div className="mt-4 border-t border-teal-100 pt-4">
+          <AiJournalSuggestions entry={entry} onClose={() => setShowAiSuggestions(false)} />
+        </div>}
       </CardContent>
     </Card>
+  );
+}
+
+function RichSection({ title, html, className = '' }) {
+  return (
+    <section className={className}>
+      <h3 className="mb-1 text-sm font-bold text-slate-800">{title}</h3>
+      <div dir="auto" className="prose prose-sm max-w-none break-words text-slate-600" dangerouslySetInnerHTML={{ __html: html }} />
+    </section>
   );
 }
 
