@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -26,7 +27,7 @@ export function PremiumCoachShell({
     return () => window.removeEventListener('keydown', handleEscape, true);
   }, [onClose]);
 
-  return (
+  return createPortal((
     <div
       className="fixed inset-0 z-[70] flex h-dvh w-full flex-col overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),transparent_34%),linear-gradient(155deg,#e6f6f1_0%,#d4eee7_52%,#c3e5dc_100%)] text-slate-900"
       data-testid={testId}
@@ -81,7 +82,7 @@ export function PremiumCoachShell({
         <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6">{footer}</div>
       </footer>
     </div>
-  );
+  ), document.body);
 }
 
 export function PremiumStepHeading({ title, subtitle }) {
