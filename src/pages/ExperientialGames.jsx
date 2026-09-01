@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -98,12 +98,9 @@ export default function ExperientialGames() {
   const handleGameClick = (game) => {
     setActiveGame(game);
     setGameStartTime(Date.now());
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('game', game.slug);
-    setSearchParams(nextParams, { replace: true });
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     // Track game play when closing
     if (activeGame && gameStartTime) {
       const durationSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
@@ -120,10 +117,24 @@ export default function ExperientialGames() {
     
     setActiveGame(null);
     setGameStartTime(null);
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.delete('game');
-    setSearchParams(nextParams, { replace: true });
-  };
+    if (searchParams.has('game')) {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('game');
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [activeGame, gameStartTime, searchParams, setSearchParams, t, trackGamePlay]);
+
+  useEffect(() => {
+    if (!activeGame) return undefined;
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape, true);
+    return () => window.removeEventListener('keydown', handleEscape, true);
+  }, [activeGame, handleClose]);
 
   const ActiveGameComponent = activeGame ? gameComponents[activeGame.componentKey] : null;
   const filters = ['all', 'CBT', 'DBT', 'ACT', 'focus'];
