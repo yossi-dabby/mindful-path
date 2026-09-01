@@ -34,6 +34,7 @@ export default function QuickActions() {
     icon: BookOpen,
     intent: null,
     page: 'ThoughtCoach',
+    testIds: ['quickaction-thoughtcoach', 'quickaction-thoughtcoach-card'],
     color: '#9F7AEA',
     bgColor: 'rgba(159, 122, 234, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journal%20a%20Thought.mp4?alt=media&token=863057e2-8265-47cc-ade1-1fae55cbca20'
@@ -44,6 +45,7 @@ export default function QuickActions() {
     icon: Target,
     intent: null,
     page: 'GoalCoach',
+    testIds: ['quickaction-goalcoach', 'quickaction-goalcoach-card'],
     color: '#F6AD55',
     bgColor: 'rgba(246, 173, 85, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Goal%20Coach.mp4?alt=media&token=f28cf868-bf68-4896-816e-2a02e43951de'
