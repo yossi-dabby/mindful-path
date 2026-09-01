@@ -430,7 +430,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Transcript from browser speech recognition.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
     expect(uploadCount).toBe(0);
     expect(invokeCount).toBe(0);
   });
@@ -521,7 +521,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Transcribed runtime text from voice draft.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
 
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.webm$/);
     expect(captured.uploadMimeType).toBe('audio/webm');
@@ -595,7 +595,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Recovered transcript after mime normalization.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
 
     expect(captured.uploadCount).toBe(2);
     expect(captured.invokeCount).toBe(2);
@@ -666,7 +666,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Transcribed using file-only fallback payload.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
 
     expect(captured.invokeCount).toBe(2);
     expect(typeof captured.invokePayloads[0]?.prompt).toBe('string');
@@ -785,7 +785,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android transcript from empty recorder mime type runtime.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/mp4');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.m4a$/);
   });
@@ -843,7 +843,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android runtime transcript from transcoded wav.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/wav');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.wav$/);
   });
@@ -901,7 +901,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android runtime transcript from transcoded mp4 wav.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/wav');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.wav$/);
   });
@@ -967,7 +967,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android runtime transcript from ogg fallback path.', { timeout: 10000 });
-    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/ogg');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.ogg$/);
     expect(captured.transcribeFileUrl).toBe('https://files.example.com/voice-draft.ogg');
@@ -1067,7 +1067,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Transcribe' }).click();
-    const toastMessage = page.getByText('Transcript added to composer.');
+    const toastMessage = page.getByText('Transcript added to the message.');
     await expect(toastMessage).toBeVisible({ timeout: 10000 });
 
     const toastMetrics = await page.locator('button[toast-close]').first().evaluate((button) => {
