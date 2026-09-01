@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,13 +11,28 @@ import { Badge } from '@/components/ui/badge';
 import { X, Plus, Bell, Clock, Trash2, Edit } from 'lucide-react';
 
 export default function ReminderManager({ onClose }) {
+  const { t } = useTranslation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingReminder, setEditingReminder] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: reminders, isLoading } = useQuery({
-    queryKey: ['journalReminders'],
-    queryFn: () => base44.entities.JournalReminder.list('-created_date'),
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event) => event.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onClose]);
+
+  const userQuery = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me(), staleTime: 300000 });
+  const userEmail = userQuery.data?.email;
+  const remindersQuery = useQuery({
+    queryKey: ['journalReminders', userEmail],
+    queryFn: () => base44.entities.JournalReminder.filter({ created_by: userEmail }, '-created_date', 100),
+    enabled: Boolean(userEmail),
     initialData: []
   });
 
@@ -24,17 +40,13 @@ export default function ReminderManager({ onClose }) {
     mutationFn: ({ id, active }) => base44.entities.JournalReminder.update(id, { active }),
     onMutate: async ({ id, active }) => {
       await queryClient.cancelQueries({ queryKey: ['journalReminders'] });
-      const previousReminders = queryClient.getQueryData(['journalReminders']);
-      queryClient.setQueryData(['journalReminders'], (old = []) =>
-        old.map((reminder) => reminder.id === id ? { ...reminder, active } : reminder)
+      const snapshots = queryClient.getQueriesData({ queryKey: ['journalReminders'] });
+      queryClient.setQueriesData({ queryKey: ['journalReminders'] }, (old = []) =>
+        Array.isArray(old) ? old.map((reminder) => reminder.id === id ? { ...reminder, active } : reminder) : old
       );
-      return { previousReminders };
+      return { snapshots };
     },
-    onError: (_error, _variables, context) => {
-      if (context?.previousReminders) {
-        queryClient.setQueryData(['journalReminders'], context.previousReminders);
-      }
-    },
+    onError: (_error, _variables, context) => context?.snapshots?.forEach(([key, value]) => queryClient.setQueryData(key, value)),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
@@ -42,109 +54,80 @@ export default function ReminderManager({ onClose }) {
     mutationFn: (id) => base44.entities.JournalReminder.delete(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['journalReminders'] });
-      const previousReminders = queryClient.getQueryData(['journalReminders']);
-      queryClient.setQueryData(['journalReminders'], (old = []) => old.filter((reminder) => reminder.id !== id));
-      return { previousReminders };
+      const snapshots = queryClient.getQueriesData({ queryKey: ['journalReminders'] });
+      queryClient.setQueriesData({ queryKey: ['journalReminders'] }, (old = []) =>
+        Array.isArray(old) ? old.filter((reminder) => reminder.id !== id) : old
+      );
+      return { snapshots };
     },
-    onError: (_error, _variables, context) => {
-      if (context?.previousReminders) {
-        queryClient.setQueryData(['journalReminders'], context.previousReminders);
-      }
-    },
+    onError: (_error, _variables, context) => context?.snapshots?.forEach(([key, value]) => queryClient.setQueryData(key, value)),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
+  const reminders = Array.isArray(remindersQuery.data) ? remindersQuery.data : [];
+  const isLoading = userQuery.isLoading || remindersQuery.isLoading;
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
-      <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      role="dialog" aria-modal="true" aria-labelledby="journal-reminders-title" aria-describedby="journal-reminders-description">
+      <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/95 shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+        <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/70 p-4 sm:p-6">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-purple-600" />
-                Journal Reminders
+              <CardTitle id="journal-reminders-title" className="flex items-center gap-2 text-xl font-bold text-teal-950 sm:text-2xl">
+                <Bell className="h-5 w-5 text-teal-700" />{t('journal_ui.reminders.title')}
               </CardTitle>
-              <p className="text-sm text-gray-500 mt-1">
-                Set reminders for different types of journaling
-              </p>
+              <p id="journal-reminders-description" className="mt-1 text-sm text-slate-600">{t('journal_ui.reminders.description')}</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-              <X className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={onClose} className="min-h-11 min-w-11 rounded-full" aria-label={t('journal_ui.common.close_aria')}>
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+        <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
           {!showCreateForm && !editingReminder ? (
             <div className="space-y-4">
-              <Button
-                onClick={() => setShowCreateForm(true)}
-                className="w-full bg-purple-600 hover:bg-purple-700 rounded-xl"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Reminder
+              <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-teal-700 text-white hover:bg-teal-800">
+                <Plus className="h-4 w-4" />{t('journal_ui.reminders.create')}
               </Button>
-
               {isLoading ? (
-                <p className="text-center text-gray-500 py-8">Loading reminders...</p>
+                <div className="py-10 text-center" role="status">
+                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-teal-100 border-t-teal-700" />
+                  <p className="mt-3 text-sm text-slate-600">{t('journal_ui.reminders.loading')}</p>
+                </div>
               ) : reminders.length === 0 ? (
-                <div className="text-center py-12">
-                  <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No reminders yet</p>
-                  <p className="text-sm text-gray-400 mt-1">Create your first reminder to stay consistent</p>
+                <div className="py-12 text-center">
+                  <Bell className="mx-auto mb-3 h-12 w-12 text-teal-200" />
+                  <p className="font-semibold text-teal-950">{t('journal_ui.reminders.empty')}</p>
+                  <p className="mt-1 text-sm text-slate-500">{t('journal_ui.reminders.empty_description')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {reminders.map((reminder) => (
-                    <Card key={reminder.id} className="border-2">
+                    <Card key={reminder.id} className="border-teal-100 bg-white/90 shadow-sm">
                       <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-gray-800">{reminder.title}</h3>
-                              <Badge variant="outline" className="text-xs capitalize">
-                                {reminder.entry_type}
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="break-words font-bold text-teal-950">{reminder.title}</h3>
+                              <Badge variant="outline" className="rounded-full text-xs">
+                                {reminder.entry_type === 'any' ? t('journal_ui.reminders.any') : t(`journal.filters.entry_types.${reminder.entry_type}`, { defaultValue: reminder.entry_type })}
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-gray-600">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
-                                {reminder.time}
-                              </div>
-                              <span className="capitalize">{reminder.frequency}</span>
+                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
+                              <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{reminder.time}</span>
+                              <span>{t(`journal_ui.reminders.${reminder.frequency}`, { defaultValue: reminder.frequency })}</span>
                             </div>
-                            {reminder.message && (
-                              <p className="text-sm text-gray-600 mt-2">{reminder.message}</p>
-                            )}
+                            {reminder.message && <p className="mt-2 break-words text-sm text-slate-600" dir="auto">{reminder.message}</p>}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={reminder.active}
-                              onCheckedChange={(checked) =>
-                                toggleActiveMutation.mutate({ id: reminder.id, active: checked })
-                              }
-                            />
-                            <Button
-                             variant="ghost"
-                             size="icon"
-                             className="h-8 w-8 min-h-[44px] min-w-[44px]"
-                             onClick={() => setEditingReminder(reminder)}
-                             aria-label="Edit reminder"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 min-h-[44px] min-w-[44px] text-red-500"
-                              onClick={() => {
-                                if (confirm('Delete this reminder?')) {
-                                  deleteReminderMutation.mutate(reminder.id);
-                                }
-                              }}
-                              aria-label="Delete reminder"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Switch checked={Boolean(reminder.active)} onCheckedChange={(active) => toggleActiveMutation.mutate({ id: reminder.id, active })}
+                              aria-label={t('journal_ui.reminders.active_aria', { title: reminder.title })} />
+                            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => setEditingReminder(reminder)}
+                              aria-label={t('journal_ui.common.edit_aria', { item: t('journal_ui.reminders.item') })}><Edit className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
+                              if (window.confirm(t('journal_ui.reminders.delete_confirm'))) deleteReminderMutation.mutate(reminder.id);
+                            }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.reminders.item') })}><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </div>
                       </CardContent>
@@ -154,18 +137,13 @@ export default function ReminderManager({ onClose }) {
               )}
             </div>
           ) : (
-            <ReminderForm
-              reminder={editingReminder}
-              onClose={() => {
-                setShowCreateForm(false);
-                setEditingReminder(null);
-              }}
+            <ReminderForm reminder={editingReminder} t={t}
+              onClose={() => { setShowCreateForm(false); setEditingReminder(null); }}
               onSuccess={() => {
                 queryClient.invalidateQueries({ queryKey: ['journalReminders'] });
                 setShowCreateForm(false);
                 setEditingReminder(null);
-              }}
-            />
+              }} />
           )}
         </CardContent>
       </Card>
@@ -173,130 +151,56 @@ export default function ReminderManager({ onClose }) {
   );
 }
 
-function ReminderForm({ reminder, onClose, onSuccess }) {
+function ReminderForm({ reminder, onClose, onSuccess, t }) {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState(
-    reminder || {
-      title: '',
-      entry_type: 'any',
-      frequency: 'daily',
-      time: '09:00',
-      message: '',
-      active: true
-    }
-  );
-
+  const [formData, setFormData] = useState(reminder || { title: '', entry_type: 'any', frequency: 'daily', time: '09:00', message: '', active: true });
   const saveMutation = useMutation({
-    mutationFn: (data) =>
-      reminder
-        ? base44.entities.JournalReminder.update(reminder.id, data)
-        : base44.entities.JournalReminder.create(data),
-    onMutate: async (data) => {
-      await queryClient.cancelQueries({ queryKey: ['journalReminders'] });
-      const previousReminders = queryClient.getQueryData(['journalReminders']);
-      const optimisticReminder = {
-        ...(reminder || {}),
-        ...data,
-        id: reminder?.id || `temp-${Date.now()}`
-      };
-      queryClient.setQueryData(['journalReminders'], (old = []) =>
-        reminder ? old.map((item) => item.id === reminder.id ? optimisticReminder : item) : [optimisticReminder, ...old]
-      );
-      return { previousReminders };
-    },
-    onSuccess: (savedReminder) => {
-      queryClient.setQueryData(['journalReminders'], (old = []) =>
-        reminder
-          ? old.map((item) => item.id === reminder.id ? savedReminder : item)
-          : [savedReminder, ...old.filter((item) => !String(item.id).startsWith('temp-'))]
-      );
-      onSuccess();
-    },
-    onError: (_error, _variables, context) => {
-      if (context?.previousReminders) {
-        queryClient.setQueryData(['journalReminders'], context.previousReminders);
-      }
-    },
+    mutationFn: (data) => reminder ? base44.entities.JournalReminder.update(reminder.id, data) : base44.entities.JournalReminder.create(data),
+    onSuccess,
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
+  const typeOptions = [
+    { value: 'any', label: t('journal_ui.reminders.any') },
+    ...['cbt_standard', 'gratitude', 'anxiety_log', 'mood_journal'].map((value) => ({ value, label: t(`journal.filters.entry_types.${value}`) }))
+  ];
+  const frequencyOptions = ['daily', 'weekly'].map((value) => ({ value, label: t(`journal_ui.reminders.${value}`) }));
 
   return (
-    <div className="space-y-6">
+    <form className="space-y-5" onSubmit={(event) => { event.preventDefault(); saveMutation.mutate(formData); }}>
       <div>
-        <label className="text-sm font-medium text-gray-700 mb-2 block">Reminder Title</label>
-        <Input
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="e.g., Evening Gratitude"
-          className="rounded-xl"
-        />
+        <label htmlFor="journal-reminder-title" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.title_label')}</label>
+        <Input id="journal-reminder-title" value={formData.title} onChange={(event) => setFormData({ ...formData, title: event.target.value })}
+          placeholder={t('journal_ui.reminders.title_placeholder')} className="h-12 rounded-xl" autoFocus />
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-medium text-gray-700 mb-2 block">Journal Type</label>
-          <BottomSheetSelect
-            value={formData.entry_type}
-            onValueChange={(value) => setFormData({ ...formData, entry_type: value })}
-            options={[
-              { value: 'any', label: 'Any Type' },
-              { value: 'cbt_standard', label: 'CBT Standard' },
-              { value: 'gratitude', label: 'Gratitude' },
-              { value: 'anxiety_log', label: 'Anxiety Log' },
-              { value: 'mood_journal', label: 'Mood Journal' },
-            ]}
-            title="Journal Type"
-          />
+          <label className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.type')}</label>
+          <BottomSheetSelect value={formData.entry_type} onValueChange={(entry_type) => setFormData({ ...formData, entry_type })}
+            options={typeOptions} title={t('journal_ui.reminders.type')} />
         </div>
-
         <div>
-          <label className="text-sm font-medium text-gray-700 mb-2 block">Frequency</label>
-          <BottomSheetSelect
-            value={formData.frequency}
-            onValueChange={(value) => setFormData({ ...formData, frequency: value })}
-            options={[
-              { value: 'daily', label: 'Daily' },
-              { value: 'weekly', label: 'Weekly' },
-            ]}
-            title="Frequency"
-          />
+          <label className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.frequency')}</label>
+          <BottomSheetSelect value={formData.frequency} onValueChange={(frequency) => setFormData({ ...formData, frequency })}
+            options={frequencyOptions} title={t('journal_ui.reminders.frequency')} />
         </div>
       </div>
-
       <div>
-        <label className="text-sm font-medium text-gray-700 mb-2 block">Time</label>
-        <Input
-          type="time"
-          value={formData.time}
-          onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-          className="rounded-xl"
-        />
+        <label htmlFor="journal-reminder-time" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.time')}</label>
+        <Input id="journal-reminder-time" type="time" value={formData.time} onChange={(event) => setFormData({ ...formData, time: event.target.value })}
+          className="h-12 rounded-xl" />
       </div>
-
       <div>
-        <label className="text-sm font-medium text-gray-700 mb-2 block">
-          Custom Message (optional)
-        </label>
-        <Input
-          value={formData.message}
-          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          placeholder="e.g., Time to reflect on your day"
-          className="rounded-xl"
-        />
+        <label htmlFor="journal-reminder-message" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.message')}</label>
+        <Input id="journal-reminder-message" value={formData.message} onChange={(event) => setFormData({ ...formData, message: event.target.value })}
+          placeholder={t('journal_ui.reminders.message_placeholder')} className="h-12 rounded-xl" />
       </div>
-
-      <div className="flex gap-3">
-        <Button onClick={onClose} variant="outline" className="flex-1">
-          Cancel
-        </Button>
-        <Button
-          onClick={() => saveMutation.mutate(formData)}
-          disabled={!formData.title || !formData.time || saveMutation.isPending}
-          className="flex-1 bg-purple-600 hover:bg-purple-700"
-        >
-          {saveMutation.isPending ? 'Saving...' : reminder ? 'Update' : 'Create'} Reminder
+      <div className="flex flex-col-reverse gap-3 sm:flex-row">
+        <Button type="button" onClick={onClose} variant="outline" className="min-h-12 flex-1 rounded-xl">{t('journal_ui.common.cancel')}</Button>
+        <Button type="submit" disabled={!formData.title.trim() || !formData.time || saveMutation.isPending}
+          className="min-h-12 flex-1 rounded-xl bg-teal-700 text-white hover:bg-teal-800">
+          {saveMutation.isPending ? t('journal_ui.common.saving') : reminder ? t('journal_ui.common.update') : t('journal_ui.common.create')}
         </Button>
       </div>
-    </div>
+    </form>
   );
 }
