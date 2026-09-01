@@ -10,6 +10,7 @@ const BASE_URL =
 async function prepareCoach(page, language = 'en') {
   await mockApi(page);
   await page.addInitScript(({ language }) => {
+    localStorage.setItem('language', language);
     localStorage.setItem('i18nextLng', language);
     localStorage.setItem('chat_consent_accepted', 'true');
     localStorage.setItem('age_verified', 'true');
