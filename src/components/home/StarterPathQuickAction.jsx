@@ -142,7 +142,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
   return (
     <motion.div
       layout
-      className={expanded ? 'col-span-2 md:col-span-3' : 'relative'}
+      className={expanded ? 'col-span-2 min-w-0 md:col-span-3' : 'relative min-w-0'}
       data-testid="starter-path-quick-action"
     >
       <Card
@@ -154,7 +154,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
         }}
       >
         <CardContent className="p-4 sm:p-5">
-          <div className="flex items-start gap-3">
+          <div className="flex min-w-0 items-center justify-between gap-3">
             <div className="flex shrink-0 items-center gap-2">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 text-white shadow-lg shadow-teal-900/15 sm:h-14 sm:w-14">
                 <Route className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.3} />
@@ -171,42 +171,44 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setExpanded((value) => !value)}
-              className="flex min-h-12 min-w-0 flex-1 items-start justify-between gap-3 rounded-2xl px-1 py-1 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
-              aria-expanded={expanded}
-              aria-controls="starter-path-premium-panel"
-              data-testid="starter-path-toggle"
-            >
-              <span className="min-w-0">
-                <span className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-teal-700/10 bg-white/65 px-2.5 py-1 text-[11px] font-semibold text-teal-700">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {t('starter_path.premium.badge')}
-                </span>
-                <span className="block text-base font-bold leading-tight text-teal-900 sm:text-lg">
-                  {t('starter_path.card_title')}
-                </span>
-                {!expanded && (
-                  <span className="mt-1 block line-clamp-2 text-xs leading-relaxed text-slate-600">
-                    {t(descriptionKey)}
-                  </span>
-                )}
-              </span>
-
-              <span className="flex shrink-0 items-center gap-2">
-                {isStarted && (
-                  <Badge className="border border-teal-700/10 bg-white/75 px-2.5 py-1 text-xs font-bold text-teal-800 hover:bg-white/75">
-                    {isCompleted
-                      ? t('starter_path.premium.completed_status')
-                      : t('starter_path.card_day_badge', { day: currentDay })}
-                  </Badge>
-                )}
-                <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }} className="rounded-full bg-teal-700/10 p-1.5 text-teal-800">
-                  <ChevronDown className="h-4 w-4" />
+            <div className="flex min-w-0 items-center gap-2">
+              {isStarted && (
+                <Badge className="max-w-[9rem] truncate border border-teal-700/10 bg-white/75 px-2.5 py-1 text-xs font-bold text-teal-800 hover:bg-white/75">
+                  {isCompleted
+                    ? t('starter_path.premium.completed_status')
+                    : t('starter_path.card_day_badge', { day: currentDay })}
+                </Badge>
+              )}
+              <button
+                type="button"
+                onClick={() => setExpanded((value) => !value)}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 text-teal-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                aria-expanded={expanded}
+                aria-controls="starter-path-premium-panel"
+                aria-label={expanded ? t('starter_path.premium.collapse_aria') : t('starter_path.premium.expand_aria')}
+                title={expanded ? t('starter_path.premium.collapse_aria') : t('starter_path.premium.expand_aria')}
+                data-testid="starter-path-toggle"
+              >
+                <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronDown className="h-5 w-5" />
                 </motion.span>
-              </span>
-            </button>
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 min-w-0 text-start">
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-teal-700/10 bg-white/65 px-2.5 py-1 text-[11px] font-semibold text-teal-700">
+              <Sparkles className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{t('starter_path.premium.badge')}</span>
+            </span>
+            <h3 className="mt-2 break-words text-base font-bold leading-snug text-teal-900 sm:text-lg">
+              {t('starter_path.card_title')}
+            </h3>
+            {!expanded && (
+              <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-slate-600">
+                {t(descriptionKey)}
+              </p>
+            )}
           </div>
 
           <AnimatePresence initial={false}>
