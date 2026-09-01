@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 63641)
-Total output lines: 5451
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -2595,7 +2592,354 @@ export default function Chat() {
         if (!isSubscribed || !mountedRef.current) return;
 
         console.error('[Subscription] ❌ Stream error:', error);
-        if (res…3641 tokens truncated…ent, sessionLanguageRef.current) + '\n\n' + initialMessage :
+        if (responseTimeoutId) {
+          clearTimeout(responseTimeoutId);
+          responseTimeoutId = null;
+        }
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
+        setIsLoading(false);
+        subscriptionActiveRef.current = false;
+        emitStabilitySummary();
+      }
+    );
+
+    // Verify subscription created
+    if (!unsubscribe || typeof unsubscribe !== 'function') {
+      console.error('[Subscription] ❌ Failed to create subscription');
+      setIsLoading(false);
+      subscriptionActiveRef.current = false;
+      return;
+    }
+
+    console.log('[Subscription] ✅ Subscription active');
+
+    // Timeout after 60s
+    responseTimeoutId = setTimeout(() => {
+      if (isSubscribed && mountedRef.current) {
+        console.error('[Subscription] ⏱️ Timeout after 60s - forcing recovery');
+        instrumentationRef.current.THINKING_OVER_10S++;
+        setIsLoading(false);
+        subscriptionActiveRef.current = false;
+
+        // Cancel any pending polls
+        if (pollingIntervalRef.current) {
+          clearTimeout(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+
+        emitStabilitySummary();
+        if (typeof unsubscribe === 'function') {
+          unsubscribe();
+        }
+      }
+    }, 60000);
+
+    return () => {
+      console.log('[Subscription] Cleanup - unsubscribing');
+      isSubscribed = false;
+      subscriptionActiveRef.current = false;
+      if (responseTimeoutId) {
+        clearTimeout(responseTimeoutId);
+        responseTimeoutId = null;
+      }
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      if (pollingIntervalRef.current) {
+        clearTimeout(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+      if (typeof unsubscribe === 'function') {
+        try {
+          unsubscribe();
+          console.log('[Subscription] ✅ Unsubscribed successfully');
+        } catch (err) {
+          console.error('[Subscription] Cleanup error:', err);
+        }
+      }
+    };
+  }, [currentConversationId]);
+
+  const { data: conversations, refetch: refetchConversations } = useQuery({
+    queryKey: ['conversations'],
+    queryFn: async () => {
+      try {
+        // In test environment, return empty array immediately
+        if (window.__TEST_APP_ID__ || document.body.getAttribute('data-test-env') === 'true') {
+          return [];
+        }
+
+        // Fetch conversations sequentially to avoid rate-limit bursts
+        const allConversations = [];
+        for (const agentName of ['cbt_therapist_lenient', 'cbt_therapist_standard', 'cbt_therapist_strict', 'cbt_therapist']) {
+          const result = await base44.agents.listConversations({ agent_name: agentName }).catch(() => []);
+          allConversations.push(result);
+        }
+
+        const flatConversations = allConversations.flat();
+        const deletedConversations = await base44.entities.UserDeletedConversations.list();
+        const deletedIds = Array.isArray(deletedConversations) ? deletedConversations.map((d) => d.agent_conversation_id) : [];
+        const conversationsArray = Array.isArray(flatConversations) ? flatConversations : [];
+        return conversationsArray.filter((c) => !deletedIds.includes(c.id));
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        return [];
+      }
+    },
+    initialData: [],
+    refetchOnWindowFocus: false,
+    retry: false // Don't retry in test mode
+  });
+
+  const { data: currentConversationData } = useQuery({
+    queryKey: ['currentConversation', currentConversationId],
+    queryFn: () => currentConversationId ? base44.agents.getConversation(currentConversationId) : null,
+    enabled: !!currentConversationId,
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    if (!currentConversationId || !currentConversationData) return;
+    rememberConversationSessionIdentity(
+      currentConversationId,
+      resolveConversationSessionInstanceId(currentConversationData),
+    );
+  }, [currentConversationData, currentConversationId, rememberConversationSessionIdentity]);
+
+  useEffect(() => {
+    // Skip hydration once local message state already exists so subscription/polling
+    // updates remain authoritative for the active in-memory session.
+    if (!currentConversationId || !currentConversationData || messages.length > 0) return;
+
+    const firstUserMsg = (currentConversationData.messages || []).find((m) => m.role === 'user' && m.content);
+    const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
+    sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
+
+    const guardedHydrate = buildVisibleConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
+    const hydrateFinality = evaluateAssistantSnapshotFinality(guardedHydrate, 'CurrentConversationHydrate');
+
+    // V2: initialize the baseline so existing assistant messages are not treated
+    // as a new response for the next turn.
+    if (chatOrchestratorV2EnabledRef.current) {
+      chatCoordinatorV2Ref.current.initializeBaseline(guardedHydrate);
+      if (isS2DebugEnabled()) {
+        console.log('[V2Orchestrator] initBaseline(hydrate)', buildV2DebugDiagnostic({
+          ...chatCoordinatorV2Ref.current.getDiagnosticState(),
+          delivery_source: 'hydration',
+        }));
+      }
+    }
+
+    const hydrated = safeUpdateMessages(guardedHydrate, 'CurrentConversationHydrate');
+
+    // V2: Call visible_commit only when safeUpdateMessages accepted the snapshot
+    // (hydrated=true) AND the snapshot is final. This ensures a rejected hydration
+    // cannot complete an active turn. Late delivery for timed_out turns via hydration
+    // is only possible when the snapshot is actually accepted and final.
+    if (chatOrchestratorV2EnabledRef.current) {
+      const coord = chatCoordinatorV2Ref.current;
+      const activeTurn = coord.getActiveTurn();
+      if (activeTurn && hydrated && hydrateFinality.isFinal) {
+        const reconcile = coord.reconcileSnapshot({
+          snapshot: guardedHydrate,
+          clientRequestId: activeTurn.client_request_id,
+          deliverySource: 'hydration',
+          phase: 'visible_commit',
+          visibleAccepted: true,
+          terminalReason: 'visible_terminal_result_committed',
+        });
+        if (isS2DebugEnabled()) {
+          console.log('[V2Orchestrator] hydration reconcile', buildV2DebugDiagnostic({
+            ...coord.getDiagnosticState(),
+            snapshot_accepted: reconcile.accepted,
+            snapshot_rejected_reason: reconcile.rejected_reason || undefined,
+            delivery_source: 'hydration',
+          }));
+        }
+        if (reconcile.accepted && reconcile._nextQueuedSend) {
+          reconcile._nextQueuedSend();
+        }
+      }
+    }
+
+    // V8-K: finalize hydrated messages so subsequent subscription replays do not
+    // overwrite them (e.g. on socket reconnect after initial page load).
+    if (hydrated && hydrateFinality.isFinal) {
+      markAssistantMessagesFinalized(currentConversationId, guardedHydrate);
+      sessionStartOpenerFallbackRef.current?.stop('hydrate_visible_commit', {
+        clearLoading: true,
+        clearLoadingTimeout: true,
+      });
+    }
+  }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
+
+  useEffect(() => {
+    const controller = sessionStartOpenerFallbackRef.current;
+    const activeState = controller?.getState?.();
+    if (activeState?.active && activeState.conversationId !== currentConversationId) {
+      controller.stop('conversation_switch', {
+        clearLoading: true,
+        clearLoadingTimeout: true,
+      });
+    }
+  }, [currentConversationId]);
+
+  useEffect(() => {
+    const nextViewerState = currentConversationId ? {
+      source: 'chat',
+      chatConversationId: currentConversationId,
+    } : null;
+    const currentViewerState = location.state?.pdfViewerReturn?.source === 'chat'
+      ? location.state.pdfViewerReturn
+      : null;
+
+    if (areChatViewerStatesEqual(currentViewerState, nextViewerState)) return;
+
+    const nextLocationState = { ...(location.state || {}) };
+    if (nextViewerState) {
+      nextLocationState.pdfViewerReturn = nextViewerState;
+    } else {
+      delete nextLocationState.pdfViewerReturn;
+    }
+
+    navigate(`${location.pathname}${mergeEntryDiagnosticParams(location.search, entrySearchRef.current)}${location.hash}`, {
+      replace: true,
+      state: nextLocationState,
+    });
+  }, [
+    currentConversationId,
+    location.hash,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+  ]);
+
+  // Check if we should show summary prompt (after 5+ messages, only once)
+  useEffect(() => {
+    if (messages.length >= 6 && messages[messages.length - 1]?.role === 'assistant' && !showSummaryPrompt && currentConversationId) {
+      // Only set once per conversation
+      setShowSummaryPrompt(true);
+    }
+  }, [currentConversationId, messages.length]);
+
+  const startNewConversationWithIntent = async (intentParam) => {
+    if (conversationInitializingRef.current) return;
+    conversationInitializingRef.current = true;
+    setIsConversationInitializing(true);
+    setIsLoading(true);
+    crisisDetectionLifecycleRef.current.invalidate();
+    setShowRiskPanel(false);
+    try {
+      // Stage 6 — wait only for the bounded memory-write window for the session
+      // being left before starting a new one. Capture current id/meta/messages
+      // synchronously so values are stable. Inert when flags are off or messages
+      // are below the meaningful-exchange threshold.
+      const leavingId = currentConversationId;
+      const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
+      await waitForConversationMemoryWrite(
+        maybeTriggerEndWrite(leavingId, leavingMeta, messages),
+      );
+
+      const intentMessages = {
+        'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
+        'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
+        'journal': 'User clicked: Thought Journal. Start thought_work flow.',
+        'goal_work': 'User clicked: Set a Goal. Start goal_work flow.',
+        'set_goal': 'User clicked: Set a Goal. Start goal_work flow.',
+        'grounding': 'User clicked: Grounding exercise. Start grounding flow.',
+        'calming_exercise': 'User clicked: Calming help. Start grounding flow.',
+        'anxiety_help': 'User clicked: Anxiety help. Start grounding flow.'
+      };
+
+      const initialMessage = intentParam ? intentMessages[intentParam] || 'Hello' : undefined;
+
+      // Get safety profile from user settings or default to 'standard'
+      const user = await base44.auth.me().catch(() => null);
+      const safetyProfile = user?.preferences?.safety_profile || 'standard';
+      // Phase 0.2A: lock and consume the effective wiring for this session.
+      const effectiveWiring = sessionWiringControllerRef.current.lockAndConsume();
+      const agentName = effectiveWiring.name;
+      const newSessionInstanceId = createSessionInstanceId();
+      if (!newSessionInstanceId) throw new Error('Unable to create a secure session identity');
+
+      // Track agent profile usage
+      if (appParams.appId) {
+        base44.analytics.track({
+          eventName: 'conversation_started',
+          properties: {
+            safety_profile: safetyProfile,
+            intent: intentParam || 'none',
+            agent_name: agentName
+          }
+        });
+      }
+
+      const conversation = await base44.agents.createConversation({
+        agent_name: agentName,
+        tool_configs: effectiveWiring.tool_configs,
+        metadata: {
+          name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
+          description: 'CBT Therapy Session',
+          intent: intentParam,
+          safety_profile: safetyProfile,
+          session_instance_id: newSessionInstanceId
+        }
+      });
+
+      rememberConversationSessionIdentity(conversation.id, newSessionInstanceId);
+      setCurrentConversationId(conversation.id);
+      setMessages([]);
+      clearLocalAudioDraft();
+      lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
+      subscriptionSucceededRef.current = false;
+      sessionStartOpenerFallbackRef.current?.stop('new_session_reset', {
+        clearLoadingTimeout: true,
+      });
+      setShowSidebar(false);
+      setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
+      // Lock session language at conversation start (separate from UI locale).
+      sessionLanguageRef.current = i18n.language || 'en';
+      refetchConversations();
+
+      // Always send [START_SESSION] so the agent initialises correctly on all
+      // wiring paths (HYBRID and all upgrade phases).  If there is also an intent
+      // message, append it to the same turn so the agent handles both together.
+      clearLoadingTimeout();
+        // Safety fallback: if the subscription does not deliver a reply within
+        // 10 s (e.g. in CI / test environments where the WebSocket is rejected),
+        // clear the loading state so the send button is not stuck disabled.
+        // The subscription or polling will clear this timeout early when the AI
+        // actually responds — same pattern used by handleSendMessage.
+        if (!loadingTimeoutRef.current) {
+          loadingTimeoutRef.current = setTimeout(() => {
+            if (mountedRef.current) {
+              setIsLoading(false);
+              loadingTimeoutRef.current = null;
+            }
+          }, 10000);
+        }
+      const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
+      const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
+        effectiveWiring,
+        base44.entities,
+        base44,
+        {
+          sessionLanguage: i18n.language,
+          conversation_id: conversation.id,
+          continuation_session_id: newSessionInstanceId,
+          runtime_context_composer_v2_override: sessionComposerSelection.context_composer_v2_effective,
+          ...(initialMessage ? { message_text: initialMessage } : {}),
+        }
+      );
+      await base44.agents.addMessage(conversation, {
+        role: 'user',
+        content: initialMessage ?
+        addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
         addLangDirective(sessionStartContent, sessionLanguageRef.current)
       });
       sessionStartOpenerFallbackRef.current?.start(conversation.id);
