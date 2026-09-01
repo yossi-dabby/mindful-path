@@ -11,7 +11,7 @@ export default function CommunityDialogShell({ title, closeLabel, onClose, child
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleKey = (event) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape' && !document.querySelector('[data-vaul-drawer][data-state="open"]')) onClose();
     };
     document.addEventListener('keydown', handleKey);
     requestAnimationFrame(() => dialogRef.current?.focus());
