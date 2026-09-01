@@ -10,6 +10,7 @@ export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
 
 export default function Sidebar({ currentPageName }) {
   const { t } = useTranslation();
+  const visibilityClass = currentPageName === 'Chat' ? 'hidden lg:flex' : 'hidden md:flex';
 
   const navItems = [
   { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
@@ -29,7 +30,7 @@ export default function Sidebar({ currentPageName }) {
 
   return (
     <nav
-      aria-label={t('shell.sidebar_navigation')} className="bg-teal-100 py-6 rounded-2xl hidden md:flex fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]"
+      aria-label={t('shell.sidebar_navigation')} className={`bg-teal-100 py-6 rounded-2xl ${visibilityClass} fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
 
       style={{
         zIndex: 35,
