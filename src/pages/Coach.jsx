@@ -98,7 +98,7 @@ export default function Coach() {
 
   // Main coach page
   return (
-    <main className="min-h-[100dvh] w-full bg-transparent">
+    <main data-testid="coach-page" className="min-h-[100dvh] w-full bg-transparent">
       {/* Mobile Header - Matches web structure */}
       <motion.header className="border-b border-white/70 bg-white/80 p-3 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:hidden"
 
@@ -232,6 +232,7 @@ export default function Coach() {
                   <li className="text-slate-700">• {t('coach.welcome.bullet_3')}</li>
                 </ul>
                 <Button
+                data-testid="coach-start-first"
                 onClick={handleStartSession}
                 size="lg" className="bg-teal-600 text-primary-foreground px-8 py-6 text-base font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 shadow-[var(--shadow-lg)] transition-all w-full md:w-auto md:text-lg">
 
