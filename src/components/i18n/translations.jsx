@@ -403,6 +403,30 @@ export const translations = {
       journeys: {
         page_title: "Journeys",
         page_subtitle: "Guided skill-building paths for personal growth",
+        premium: {
+          eyebrow: "Your guided practice",
+          hero_description: "Choose a calm, structured path and move forward one practical step at a time.",
+          back_aria: "Back to home",
+          summary_aria: "Journey summary",
+          stat_available: "Available",
+          stat_active: "Active",
+          stat_completed: "Completed",
+          loading: "Preparing your journeys...",
+          load_error_title: "We couldn't load your journeys",
+          load_error_description: "Your progress is safe. Check your connection and try again.",
+          retry: "Try again",
+          start_error: "The journey couldn't be started. Please try again.",
+          starting: "Starting...",
+          empty_available_description: "New guided paths will appear here when they are available.",
+          empty_active_description: "Choose an available journey whenever you feel ready to begin.",
+          empty_completed_description: "Completed journeys will collect here as a record of your practice.",
+          gentle_pace: "Move at your own pace — every step counts.",
+          card_badge: "Guided path",
+          explore: "Explore journeys",
+          detail_eyebrow: "Your journey",
+          roadmap_description: "Complete the current step to gently unlock the next one.",
+          steps_count: "{{count}} steps"
+        },
         tabs: {
           available: "Available",
           in_progress: "In Progress",
@@ -413,21 +437,45 @@ export const translations = {
           no_in_progress: "You haven't started any journeys yet",
           no_completed: "You haven't completed any journeys yet"
         },
+        categories: {
+          anxiety: "Anxiety support",
+          depression: "Low mood support",
+          stress: "Stress relief",
+          distress_tolerance: "Distress tolerance",
+          emotion_regulation: "Emotion regulation",
+          mindfulness: "Mindfulness",
+          other: "Personal growth"
+        },
+        difficulties: {
+          beginner: "Gentle",
+          intermediate: "Developing",
+          advanced: "Advanced"
+        },
         card: {
           days: "days",
           steps: "steps",
+          level: "level",
           progress: "Progress",
+          paused: "Paused",
           start_journey: "Start Journey",
-          view_details: "View Details"
+          continue_journey: "Continue",
+          view_details: "View Details",
+          details_aria: "Journey details"
         },
         detail: {
-          what_youll_gain: "What you'll gain:",
+          what_youll_gain: "What you'll gain",
           journey_steps: "Journey Steps",
           day: "Day",
-          play_game: "Play Game",
-          reflection_placeholder: "Your reflection (optional)",
+          play_game: "Open practice",
+          current_step: "Current",
+          locked_step: "Locked",
+          completed_step: "Completed",
+          reflection_placeholder: "Write a few words if you'd like",
+          reflection_hint: "Optional and private to your account.",
           saving: "Saving...",
-          mark_complete: "Mark Complete"
+          mark_complete: "Complete step",
+          save_error: "We couldn't save this step. Your previous progress is safe; please try again.",
+          close_aria: "Close journey details"
         }
       },
       mood_tracker: {
@@ -2009,31 +2057,79 @@ export const translations = {
       journeys: {
         page_title: "מסעות",
         page_subtitle: "מסלולי בניית מיומנויות מודרכים לצמיחה אישית",
+        premium: {
+          eyebrow: "התרגול המודרך שלך",
+          hero_description: "בחרו מסלול רגוע ומובנה, והתקדמו בצעד מעשי אחד בכל פעם.",
+          back_aria: "חזרה למסך הבית",
+          summary_aria: "סיכום המסעות",
+          stat_available: "זמינים",
+          stat_active: "פעילים",
+          stat_completed: "הושלמו",
+          loading: "מכינים את המסעות שלכם...",
+          load_error_title: "לא הצלחנו לטעון את המסעות",
+          load_error_description: "ההתקדמות שלכם שמורה. בדקו את החיבור ונסו שוב.",
+          retry: "ניסיון נוסף",
+          start_error: "לא הצלחנו להתחיל את המסע. נסו שוב.",
+          starting: "מתחילים...",
+          empty_available_description: "מסלולים מודרכים חדשים יופיעו כאן כאשר יהיו זמינים.",
+          empty_active_description: "בחרו מסע זמין כשתרגישו מוכנים להתחיל.",
+          empty_completed_description: "מסעות שתשלימו יישמרו כאן כתיעוד לתרגול שלכם.",
+          gentle_pace: "מתקדמים בקצב שלכם — כל צעד נחשב.",
+          card_badge: "מסלול מודרך",
+          explore: "למסעות",
+          detail_eyebrow: "המסע שלך",
+          roadmap_description: "השלימו את השלב הנוכחי כדי לפתוח בעדינות את השלב הבא.",
+          steps_count: "{{count}} שלבים"
+        },
         tabs: {
-          available: "זמין",
+          available: "זמינים",
           in_progress: "בתהליך",
-          completed: "הושלם"
+          completed: "הושלמו"
         },
         empty_state: {
           no_available: "אין מסעות זמינים כרגע",
           no_in_progress: "עדיין לא התחלתם מסעות",
           no_completed: "עדיין לא השלמתם מסעות"
         },
+        categories: {
+          anxiety: "התמודדות עם חרדה",
+          depression: "תמיכה במצב רוח ירוד",
+          stress: "הפחתת לחץ",
+          distress_tolerance: "עמידות במצוקה",
+          emotion_regulation: "ויסות רגשי",
+          mindfulness: "קשיבות",
+          other: "צמיחה אישית"
+        },
+        difficulties: {
+          beginner: "עדין",
+          intermediate: "מתקדם",
+          advanced: "מעמיק"
+        },
         card: {
           days: "ימים",
-          steps: "צעדים",
+          steps: "שלבים",
+          level: "רמה",
           progress: "התקדמות",
-          start_journey: "התחל מסע",
-          view_details: "הצג פרטים"
+          paused: "מושהה",
+          start_journey: "התחלת מסע",
+          continue_journey: "המשך המסע",
+          view_details: "פרטי המסע",
+          details_aria: "פרטי המסע"
         },
         detail: {
-          what_youll_gain: "מה תרוויחו:",
-          journey_steps: "צעדי המסע",
+          what_youll_gain: "מה המסע יעניק לכם",
+          journey_steps: "שלבי המסע",
           day: "יום",
-          play_game: "שחק משחק",
-          reflection_placeholder: "ההשתקפות שלך (אופציונלי)",
-          saving: "שומר...",
-          mark_complete: "סמן כהושלם"
+          play_game: "פתיחת התרגול",
+          current_step: "השלב הנוכחי",
+          locked_step: "נעול",
+          completed_step: "הושלם",
+          reflection_placeholder: "אפשר לכתוב כאן כמה מילים",
+          reflection_hint: "אופציונלי ונשמר באופן פרטי בחשבון שלכם.",
+          saving: "שומרים...",
+          mark_complete: "השלמת השלב",
+          save_error: "לא הצלחנו לשמור את השלב. ההתקדמות הקודמת שלכם שמורה; נסו שוב.",
+          close_aria: "סגירת פרטי המסע"
         }
       },
       mood_tracker: {
