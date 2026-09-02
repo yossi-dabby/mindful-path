@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PremiumMoodIcon from '@/components/ui/PremiumMoodIcon';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +8,11 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const moodOptions = [
-  { value: 'excellent', emoji: '😊', label: 'Excellent' },
-  { value: 'good', emoji: '🙂', label: 'Good' },
-  { value: 'okay', emoji: '😐', label: 'Okay' },
-  { value: 'low', emoji: '😔', label: 'Low' },
-  { value: 'very_low', emoji: '😢', label: 'Very Low' }
+  { value: 'excellent', label: 'Excellent' },
+  { value: 'good', label: 'Good' },
+  { value: 'okay', label: 'Okay' },
+  { value: 'low', label: 'Low' },
+  { value: 'very_low', label: 'Very Low' }
 ];
 
 const emotionCategories = {
@@ -51,7 +52,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
   const selectedMood = moodOptions.find(m => m.value === formData.mood);
 
   const handleMoodSelect = (mood) => {
-    setFormData({ ...formData, mood: mood.value, mood_emoji: mood.emoji });
+    setFormData({ ...formData, mood: mood.value, mood_emoji: mood.value });
   };
 
   const toggleEmotion = (emotion) => {
@@ -124,7 +125,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{selectedMood?.emoji}</span>
+                <PremiumMoodIcon mood={selectedMood?.value} size="md" selected />
                 <CardTitle className="text-base">Daily Check-in Complete</CardTitle>
               </div>
               <div className="flex items-center gap-2">
@@ -269,7 +270,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                           : "border-gray-200 bg-white hover:border-gray-300"
                       )}
                     >
-                      <div className="text-2xl sm:text-4xl mb-1 sm:mb-2">{mood.emoji}</div>
+                      <PremiumMoodIcon mood={mood.value} size="md" selected={formData.mood === mood.value} className="mb-1 sm:mb-2" />
                       <div className="text-[10px] sm:text-xs font-medium text-gray-700 leading-tight">{mood.label}</div>
                     </button>
                   ))}
