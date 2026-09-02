@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bell, X, TrendingUp, BookOpen, Target, Activity, CheckCircle } from 'lucide-react';
+import { Bell, X, TrendingUp, BookOpen, Target, Activity, CheckCircle, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
@@ -93,7 +93,7 @@ export default function ProactiveNudges() {
                       
                       {nudge.suggested_action && (
                         <p className="text-xs text-amber-700 mb-3 flex items-start gap-1">
-                          <span className="mt-0.5">💡</span>
+                          <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                           <span>{nudge.suggested_action}</span>
                         </p>
                       )}
