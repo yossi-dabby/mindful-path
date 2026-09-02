@@ -7,14 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Circle, Sparkles, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 const challengeIcons = {
-  mood_check: '😊',
-  journal: '📝',
-  exercise: '🧘',
-  meditation: '🧘‍♀️',
-  goal_action: '🎯',
-  gratitude: '🙏'
+  mood_check: 'sun',
+  journal: 'journal',
+  exercise: 'movement',
+  meditation: 'waves',
+  goal_action: 'target',
+  gratitude: 'heart'
 };
 
 const difficultyColors = {
@@ -82,7 +83,7 @@ export default function DailyChallenges() {
               )}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="text-2xl">{challengeIcons[challenge.challenge_type]}</div>
+                    <PremiumIcon name={challengeIcons[challenge.challenge_type] || 'sparkle'} size="sm" className="shrink-0" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-semibold text-gray-800">{challenge.title}</p>
