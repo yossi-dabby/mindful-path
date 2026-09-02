@@ -6,6 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Award, Sparkles, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import PremiumIcon from '@/components/ui/PremiumIcon';
+
+const badgeIconNames = {
+  '🌟': 'star', '🔥': 'flame', '📝': 'journal', '✍️': 'writing',
+  '🏃': 'movement', '🎯': 'target', '😌': 'sun', '👑': 'crown', '🏅': 'star'
+};
+
+const resolveBadgeIcon = (icon) => badgeIconNames[icon] || icon || 'star';
 
 const rarityBgColors = {
   common: 'rgba(156, 163, 175, 0.15)',
@@ -97,7 +105,7 @@ export default function BadgeDisplay({ compact = false }) {
                   boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                 }}>
 
-                    <span className="text-2xl sm:text-3xl mb-1">{badge.icon}</span>
+                    <PremiumIcon name={resolveBadgeIcon(badge.icon)} size="sm" className="mb-1" />
                     <p dir="auto" className="text-xs font-medium text-center line-clamp-2" style={{ color: '#1A3A34' }}>{badge.name}</p>
                     <Badge className="mt-1 text-xs capitalize" style={{
                   background: badge.rarity === 'legendary' ? 'rgba(245, 158, 11, 0.2)' :
@@ -143,7 +151,7 @@ export default function BadgeDisplay({ compact = false }) {
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center opacity-50" style={{
                   background: 'rgba(200, 200, 200, 0.4)'
                 }}>
-                      <span className="text-xl grayscale">{badge.icon}</span>
+                      <PremiumIcon name={resolveBadgeIcon(badge.icon)} size="sm" className="opacity-60" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p dir="auto" className="font-semibold text-sm truncate" style={{ color: '#1A3A34' }}>{badge.name}</p>
