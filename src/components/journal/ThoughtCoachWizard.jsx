@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { X, ChevronRight, ChevronLeft, Sparkles, Brain, Frown, AlertCircle, Zap, Flame, Users, Target, Cloud, HeartCrack, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 const thoughtTypes = [
   {
@@ -408,7 +409,7 @@ export default function ThoughtCoachWizard({ onClose }) {
 
               <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl">
                 <p className="text-sm text-purple-800 text-center">
-                  💡 Noticing and examining a thought is already an important CBT skill.
+                  <PremiumIcon name="idea" size="sm" bare className="me-1 inline" /> Noticing and examining a thought is already an important CBT skill.
                 </p>
               </div>
 
