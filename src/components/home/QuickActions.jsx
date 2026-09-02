@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Brain, MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, User, Compass, ClipboardList } from 'lucide-react';
+import { ArrowRight, Brain, MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, CirclePlay, Compass, ClipboardList } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import AiPersonalizedFeed from './AiPersonalizedFeed';
@@ -133,7 +133,7 @@ export default function QuickActions() {
                   aria-label={t('quick_actions.aria.guided_intro_video')}
                   title={t('quick_actions.aria.guided_intro_video')}>
 
-                    <User className="h-6 w-6 text-teal-600" strokeWidth={2} />
+                    <CirclePlay className="h-6 w-6 text-teal-600" strokeWidth={2.2} />
                   </button>
                 </div>
                 <button
@@ -191,7 +191,7 @@ export default function QuickActions() {
                         aria-label={t('quick_actions.aria.guided_intro_video')}
                         title={t('quick_actions.aria.guided_intro_video')}>
 
-                        <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
+                        <CirclePlay className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2.2} />
                       </button>
                       }
                     </div>
