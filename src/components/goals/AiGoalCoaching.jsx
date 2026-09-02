@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Target, CheckCircle2, Loader2, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function AiGoalCoaching({ goal, onClose }) {
   const [coaching, setCoaching] = useState(null);
@@ -224,11 +225,11 @@ Format as JSON with: {
                             border: '1px solid rgba(246, 173, 85, 0.2)'
                           }}
                         >
-                          <p className="font-medium text-sm mb-2" style={{ color: '#B45309' }}>
-                            ⚠️ {item.obstacle}
+                          <p className="flex items-start gap-2 font-medium text-sm mb-2" style={{ color: '#B45309' }}>
+                            <PremiumIcon name="alert" size="sm" bare className="mt-0.5 shrink-0" /> <span>{item.obstacle}</span>
                           </p>
-                          <p className="text-sm" style={{ color: '#5A7A72' }}>
-                            💡 {item.solution}
+                          <p className="flex items-start gap-2 text-sm" style={{ color: '#5A7A72' }}>
+                            <PremiumIcon name="idea" size="sm" bare className="mt-0.5 shrink-0" /> <span>{item.solution}</span>
                           </p>
                         </div>
                       ))}
@@ -245,7 +246,7 @@ Format as JSON with: {
                     <ul className="space-y-2">
                       {coaching.tracking_tips.map((tip, index) => (
                         <li key={index} className="flex items-start gap-2" style={{ color: '#5A7A72' }}>
-                          <span className="mt-1">📊</span>
+                          <PremiumIcon name="chart" size="sm" bare className="mt-1 shrink-0" />
                           <span className="text-sm">{tip}</span>
                         </li>
                       ))}
@@ -259,8 +260,8 @@ Format as JSON with: {
                     background: 'linear-gradient(145deg, rgba(240, 240, 250, 0.6) 0%, rgba(245, 245, 255, 0.5) 100%)',
                     border: '1px solid rgba(139, 92, 246, 0.2)'
                   }}>
-                    <h4 className="font-semibold mb-2 text-sm" style={{ color: '#6D28D9' }}>
-                      ⏱️ Timeline Suggestion
+                    <h4 className="flex items-center gap-2 font-semibold mb-2 text-sm" style={{ color: '#6D28D9' }}>
+                      <PremiumIcon name="clock" size="sm" bare /> Timeline Suggestion
                     </h4>
                     <p className="text-sm" style={{ color: '#5A7A72' }}>{coaching.timeline_advice}</p>
                   </div>
