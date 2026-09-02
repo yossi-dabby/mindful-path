@@ -143,7 +143,20 @@ export default function NotificationBell() {
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.AppNotification.update(id, { is_read: true }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const previous = queryClient.getQueryData(['notifications']);
+      queryClient.setQueryData(['notifications'], (current = []) =>
+        current.map((notification) =>
+          notification.id === id ? { ...notification, is_read: true } : notification
+        )
+      );
+      return { previous };
+    },
+    onError: (_error, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(['notifications'], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
   });
 
   const markAllReadMutation = useMutation({
@@ -151,12 +164,34 @@ export default function NotificationBell() {
       const unread = safeNotifications.filter((n) => !n.is_read);
       await Promise.all(unread.map((n) => base44.entities.AppNotification.update(n.id, { is_read: true })));
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const previous = queryClient.getQueryData(['notifications']);
+      queryClient.setQueryData(['notifications'], (current = []) =>
+        current.map((notification) => ({ ...notification, is_read: true }))
+      );
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) queryClient.setQueryData(['notifications'], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.AppNotification.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+      const previous = queryClient.getQueryData(['notifications']);
+      queryClient.setQueryData(['notifications'], (current = []) =>
+        current.filter((notification) => notification.id !== id)
+      );
+      return { previous };
+    },
+    onError: (_error, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(['notifications'], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
   });
 
   // Close on outside click (covers both button and portal dropdown)
