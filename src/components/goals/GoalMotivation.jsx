@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Heart, TrendingUp, Target, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function GoalMotivation({ goals }) {
   const [motivation, setMotivation] = useState(null);
@@ -166,7 +167,7 @@ Keep it warm, personal, and actionable.`,
                 }}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
-                I'm On It! 💪
+                <PremiumIcon name="movement" size="sm" bare className="me-1" /> I'm On It!
               </Button>
               <Button
                 onClick={() => setShowMotivation(false)}
