@@ -72,7 +72,8 @@ describe('Coach production UX safeguards', () => {
     const panel = read('src/components/coaching/ActionPlanPanel.jsx');
     const chat = read('src/components/coaching/CoachingChat.jsx');
     expect(panel).toContain('onMutate: async (actions)');
-    expect(panel).toContain('onUpdate?.(context?.previousActions || [])');
+    expect(panel).toContain('queryClient.setQueryData(context.sessionKey, context.previousSession)');
+    expect(panel).toContain('onUpdate?.()');
     expect(panel).toContain("invalidateQueries({ queryKey: ['coachingSessions'] })");
     expect(chat.match(/onUpdate=\{refetchSession\}/g)).toHaveLength(2);
   });
