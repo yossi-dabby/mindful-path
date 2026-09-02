@@ -6,6 +6,7 @@ import {
   X, Play, Pause, RotateCcw, Volume2, VolumeX, Settings, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 import {
   BREATHING_EXERCISES,
   getPhases,
@@ -729,8 +730,8 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
             className="absolute bottom-8 left-4 right-4 mx-auto max-w-sm rounded-3xl p-5 text-center shadow-2xl"
             style={{ background: theme.cardBg, border: `1px solid ${theme.cardBorder}`, backdropFilter: 'blur(16px)' }}
           >
-            <p className="text-lg font-semibold mb-1" style={{ color: theme.textPrimary }}>
-              🌿 {t('breathing_tool.status.completed')}
+            <p className="mb-1 flex items-center justify-center gap-2 text-lg font-semibold" style={{ color: theme.textPrimary }}>
+              <PremiumIcon name="leaf" size="sm" bare /> {t('breathing_tool.status.completed')}
             </p>
             <p className="text-sm" style={{ color: theme.textSecondary }}>
               {t('breathing_tool.status.well_done')}
