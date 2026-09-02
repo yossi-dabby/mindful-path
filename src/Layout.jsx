@@ -2,7 +2,6 @@ import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import DraggableAiCompanion from './components/ai/DraggableAiCompanion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
@@ -246,8 +245,6 @@ export default function Layout({ children, currentPageName }) {
           </div>
         }
 
-        {/* AI Companion Widget - Draggable across all pages except /Chat (therapist chat) */}
-        {!location.pathname.includes('/Chat') && <DraggableAiCompanion />}
       
       {/* Sidebar - Desktop only */}
       <Sidebar currentPageName={currentPageName} />
