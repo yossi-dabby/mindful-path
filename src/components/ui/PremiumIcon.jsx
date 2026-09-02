@@ -1,14 +1,18 @@
 import React from 'react';
 import {
-  Brain, CheckCircle2, Crown, Dumbbell, Flame, Flower2, Heart, Leaf,
-  Lightbulb, MessageCircle, Moon, NotebookPen, PartyPopper, PenLine,
-  PersonStanding, Sparkles, Star, Sun, Target, Waves, Wind
+  Brain, CalendarDays, ChartNoAxesCombined, CheckCircle2, Clock3, Crown, Dumbbell,
+  Flame, Flower2, Heart, Leaf, Lightbulb, MessageCircle, Moon, Mountain,
+  Music2, NotebookPen, PartyPopper, PenLine, PersonStanding, Sparkles, Star,
+  Sun, Target, TriangleAlert, Waves, Wind
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const iconMap = {
   brain: Brain,
+  calendar: CalendarDays,
+  chart: ChartNoAxesCombined,
   check: CheckCircle2,
+  clock: Clock3,
   crown: Crown,
   exercise: Dumbbell,
   flame: Flame,
@@ -18,6 +22,8 @@ const iconMap = {
   idea: Lightbulb,
   thought: MessageCircle,
   moon: Moon,
+  mountain: Mountain,
+  music: Music2,
   journal: NotebookPen,
   celebration: PartyPopper,
   writing: PenLine,
@@ -26,8 +32,18 @@ const iconMap = {
   star: Star,
   sun: Sun,
   target: Target,
+  alert: TriangleAlert,
   waves: Waves,
-  wind: Wind
+  wind: Wind,
+  '🌟': Star,
+  '🔥': Flame,
+  '📝': NotebookPen,
+  '✍️': PenLine,
+  '🏃': PersonStanding,
+  '🎯': Target,
+  '😌': Sun,
+  '👑': Crown,
+  '🏅': Star
 };
 
 export default function PremiumIcon({ name = 'sparkle', size = 'md', tone = 'teal', bare = false, className = '' }) {
