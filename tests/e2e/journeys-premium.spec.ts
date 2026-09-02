@@ -3,30 +3,49 @@ import { mockApi, setupHebrewMode, spaNavigate } from '../helpers/ui';
 
 const journey = {
   id: 'journey-calm',
-  language: 'he',
-  title: 'מסע לרוגע יציב',
-  description: 'תרגול הדרגתי שמחזק ויסות ורוגע ביום־יום.',
+  language: 'en',
+  title: 'A calm journey',
+  description: 'English source content must never appear in Hebrew mode.',
   duration_days: 2,
   category: 'anxiety',
   difficulty: 'beginner',
   is_active: true,
-  outcomes: ['זיהוי תגובות לחץ', 'בחירת תגובה מיטיבה'],
+  outcomes: ['Notice stress responses', 'Choose a helpful response'],
   steps: [
     {
       day: 1,
-      title: 'עוצרים ומתבוננים',
-      description: 'תרגול קצר לזיהוי מה שקורה ברגע הזה.',
+      title: 'Pause and notice',
+      description: 'A short practice for noticing the present moment.',
       game_slug: 'thought-quiz',
-      reflection_prompt: 'מה שמתם לב אליו?',
+      reflection_prompt: 'What did you notice?',
     },
     {
       day: 2,
-      title: 'בוחרים צעד קטן',
-      description: 'בחירת פעולה מעשית ועדינה להמשך.',
+      title: 'Choose one small step',
+      description: 'Choose one gentle and practical next action.',
       game_slug: 'tiny-experiment',
-      reflection_prompt: 'איזה צעד מתאים לכם?',
+      reflection_prompt: 'Which step feels right?',
     },
   ],
+  localizations: {
+    he: {
+      title: 'מסע לרוגע יציב',
+      description: 'תרגול הדרגתי שמחזק ויסות ורוגע ביום־יום.',
+      outcomes: ['זיהוי תגובות לחץ', 'בחירת תגובה מיטיבה'],
+      steps: [
+        {
+          title: 'עוצרים ומתבוננים',
+          description: 'תרגול קצר לזיהוי מה שקורה ברגע הזה.',
+          reflection_prompt: 'מה שמתם לב אליו?',
+        },
+        {
+          title: 'בוחרים צעד קטן',
+          description: 'בחירת פעולה מעשית ועדינה להמשך.',
+          reflection_prompt: 'איזה צעד מתאים לכם?',
+        },
+      ],
+    },
+  },
 };
 
 async function fulfillJson(route: Route, body: unknown) {
@@ -99,6 +118,10 @@ test.describe('Premium journeys experience', () => {
 
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     const card = page.getByTestId('journey-card-journey-calm');
+    await expect(card).toContainText('מסע לרוגע יציב');
+    await expect(card).toContainText('תרגול הדרגתי שמחזק ויסות ורוגע ביום־יום.');
+    await expect(card).not.toContainText('A calm journey');
+    await expect(card).not.toContainText('English source content');
     await expect(card).toContainText('התמודדות עם חרדה');
     await expect(card).toContainText('עדין');
     await expect(card).not.toContainText('anxiety');
@@ -112,6 +135,8 @@ test.describe('Premium journeys experience', () => {
 
     const dialog = page.getByTestId('journey-detail-dialog');
     await expect(dialog).toBeVisible();
+    await expect(page.getByTestId('journey-step-0')).toContainText('עוצרים ומתבוננים');
+    await expect(page.getByTestId('journey-step-0')).not.toContainText('Pause and notice');
     await expect(page.getByTestId('journey-step-0')).toContainText('השלב הנוכחי');
     await expect(page.getByTestId('journey-complete-0')).toBeVisible();
 
