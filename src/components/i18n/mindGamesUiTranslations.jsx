@@ -199,7 +199,7 @@ export const mindGamesUiStrings = {
     not_really: "Not Really",
     result_yes: "✓ Great! Keep moving in this direction.",
     result_somewhat: "→ Good awareness. What's one small step toward more alignment?",
-    result_no: "⚠️ Noticed the gap? That's the first step. Choose one tiny action today.",
+    result_no: "Noticed the gap? That's the first step. Choose one tiny action today.",
     tip: "Values aren't goals to achieve—they're directions to move toward.",
     values: {
       connection: "Connection", growth: "Growth", authenticity: "Authenticity",
@@ -455,7 +455,7 @@ export const mindGamesUiByLanguage = {
       not_really: "לא ממש",
       result_yes: "✓ נהדר! המשיכו לנוע בכיוון הזה.",
       result_somewhat: "→ מודעות טובה. מה הוא צעד קטן אחד לקראת יישור גדול יותר?",
-      result_no: "⚠️ שמתם לב לפער? זה הצעד הראשון. בחרו פעולה קטנה אחת היום.",
+      result_no: "שמתם לב לפער? זה הצעד הראשון. בחרו פעולה קטנה אחת היום.",
       tip: "ערכים אינם מטרות להשיג - הם כיוונים לנוע לעברם.",
       values: {
         connection: "חיבור", growth: "צמיחה", authenticity: "אותנטיות",
@@ -640,7 +640,7 @@ export const mindGamesUiByLanguage = {
       yes: "Sí", somewhat: "En parte", not_really: "No realmente",
       result_yes: "✓ ¡Genial! Sigue avanzando en esta dirección.",
       result_somewhat: "→ Buena conciencia. ¿Cuál es un pequeño paso hacia más alineación?",
-      result_no: "⚠️ ¿Notaste la brecha? Ese es el primer paso. Elige una pequeña acción hoy.",
+      result_no: "¿Notaste la brecha? Ese es el primer paso. Elige una pequeña acción hoy.",
       tip: "Los valores no son metas a lograr—son direcciones hacia las que moverse.",
       values: { connection: "Conexión", growth: "Crecimiento", authenticity: "Autenticidad", courage: "Coraje", compassion: "Compasión", creativity: "Creatividad", health: "Salud", peace: "Paz" }
     },
@@ -804,7 +804,7 @@ export const mindGamesUiByLanguage = {
       yes: "Oui", somewhat: "En partie", not_really: "Pas vraiment",
       result_yes: "✓ Super ! Continuez dans cette direction.",
       result_somewhat: "→ Bonne conscience. Quel est un petit pas vers plus d'alignement ?",
-      result_no: "⚠️ Vous avez remarqué l'écart ? C'est le premier pas. Choisissez une petite action aujourd'hui.",
+      result_no: "Vous avez remarqué l'écart ? C'est le premier pas. Choisissez une petite action aujourd'hui.",
       tip: "Les valeurs ne sont pas des objectifs à atteindre—ce sont des directions vers lesquelles se déplacer.",
       values: { connection: "Connexion", growth: "Croissance", authenticity: "Authenticité", courage: "Courage", compassion: "Compassion", creativity: "Créativité", health: "Santé", peace: "Paix" }
     },
@@ -968,7 +968,7 @@ export const mindGamesUiByLanguage = {
       yes: "Ja", somewhat: "Teilweise", not_really: "Nicht wirklich",
       result_yes: "✓ Super! Bewegen Sie sich weiter in diese Richtung.",
       result_somewhat: "→ Gutes Bewusstsein. Was ist ein kleiner Schritt zu mehr Ausrichtung?",
-      result_no: "⚠️ Haben Sie die Lücke bemerkt? Das ist der erste Schritt. Wählen Sie heute eine winzige Aktion.",
+      result_no: "Haben Sie die Lücke bemerkt? Das ist der erste Schritt. Wählen Sie heute eine winzige Aktion.",
       tip: "Werte sind keine Ziele zu erreichen—sie sind Richtungen, auf die man sich zubewegt.",
       values: { connection: "Verbindung", growth: "Wachstum", authenticity: "Authentizität", courage: "Mut", compassion: "Mitgefühl", creativity: "Kreativität", health: "Gesundheit", peace: "Frieden" }
     },
@@ -1132,7 +1132,7 @@ export const mindGamesUiByLanguage = {
       yes: "Sì", somewhat: "In parte", not_really: "Non proprio",
       result_yes: "✓ Ottimo! Continua a muoverti in questa direzione.",
       result_somewhat: "→ Buona consapevolezza. Qual è un piccolo passo verso più allineamento?",
-      result_no: "⚠️ Hai notato il divario? È il primo passo. Scegli una piccola azione oggi.",
+      result_no: "Hai notato il divario? È il primo passo. Scegli una piccola azione oggi.",
       tip: "I valori non sono obiettivi da raggiungere—sono direzioni verso cui muoversi.",
       values: { connection: "Connessione", growth: "Crescita", authenticity: "Autenticità", courage: "Coraggio", compassion: "Compassione", creativity: "Creatività", health: "Salute", peace: "Pace" }
     },
@@ -1294,7 +1294,7 @@ export const mindGamesUiByLanguage = {
       yes: "Sim", somewhat: "Em parte", not_really: "Não realmente",
       result_yes: "✓ Ótimo! Continue se movendo nessa direção.",
       result_somewhat: "→ Boa consciência. Qual é um pequeno passo em direção a mais alinhamento?",
-      result_no: "⚠️ Notou a lacuna? Esse é o primeiro passo. Escolha uma pequena ação hoje.",
+      result_no: "Notou a lacuna? Esse é o primeiro passo. Escolha uma pequena ação hoje.",
       tip: "Valores não são objetivos a alcançar—são direções em que se mover.",
       values: { connection: "Conexão", growth: "Crescimento", authenticity: "Autenticidade", courage: "Coragem", compassion: "Compaixão", creativity: "Criatividade", health: "Saúde", peace: "Paz" }
     },
