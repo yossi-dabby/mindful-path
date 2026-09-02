@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { X, Save, Plus } from 'lucide-react';
+import { X, Save, Plus, CheckCircle2, FilePenLine } from 'lucide-react';
 
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 const SOURCE_TYPES = ['clinical_manual', 'research_paper', 'guidelines', 'original', 'adapted', 'other'];
@@ -196,7 +196,7 @@ export default function ChunkForm({ chunk, onSave, onCancel }) {
           <div className="flex items-center gap-3">
             <Switch checked={form.is_active} onCheckedChange={v => set('is_active', v)} id="is_active" />
             <Label htmlFor="is_active" className="cursor-pointer">
-              {form.is_active ? '✅ Published (active)' : '📝 Draft (inactive)'}
+              {form.is_active ? <><CheckCircle2 className="me-1 inline h-4 w-4" aria-hidden="true" /> Published (active)</> : <><FilePenLine className="me-1 inline h-4 w-4" aria-hidden="true" /> Draft (inactive)</>}
             </Label>
           </div>
           <div className="flex gap-2">
