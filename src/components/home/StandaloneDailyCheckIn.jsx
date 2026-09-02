@@ -6,17 +6,18 @@ import AuthErrorBanner from '../utils/AuthErrorBanner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronDown, ChevronUp, Edit2, Trash2, Heart, User } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Edit2, Trash2, Heart, CirclePlay } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import PremiumMoodIcon from '@/components/ui/PremiumMoodIcon';
 
 const moodOptions = [
-{ value: 'excellent', emoji: '😊', label: 'Excellent' },
-{ value: 'good', emoji: '🙂', label: 'Good' },
-{ value: 'okay', emoji: '😐', label: 'Okay' },
-{ value: 'low', emoji: '😔', label: 'Low' },
-{ value: 'very_low', emoji: '😢', label: 'Very Low' }];
+{ value: 'excellent', label: 'Excellent' },
+{ value: 'good', label: 'Good' },
+{ value: 'okay', label: 'Okay' },
+{ value: 'low', label: 'Low' },
+{ value: 'very_low', label: 'Very Low' }];
 
 
 const emotionCategories = {
@@ -227,7 +228,7 @@ export default function StandaloneDailyCheckIn() {
   const selectedMood = moodOptions.find((m) => m.value === formData.mood);
 
   const handleMoodSelect = (mood) => {
-    setFormData({ ...formData, mood: mood.value, mood_emoji: mood.emoji });
+    setFormData({ ...formData, mood: mood.value, mood_emoji: mood.value });
   };
 
   const toggleEmotion = (emotion) => {
@@ -262,7 +263,7 @@ export default function StandaloneDailyCheckIn() {
     if (todayMood) {
       setFormData({
         mood: todayMood.mood,
-        mood_emoji: moodOptions.find((m) => m.value === todayMood.mood)?.emoji || '',
+        mood_emoji: moodOptions.find((m) => m.value === todayMood.mood)?.value || '',
         emotions: todayMood.emotions || [],
         intensity: todayMood.intensity || 50
       });
@@ -330,7 +331,7 @@ export default function StandaloneDailyCheckIn() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-4xl">{completedMood?.emoji}</span>
+                <PremiumMoodIcon mood={completedMood?.value} size="md" selected />
                 <CardTitle className="text-lg">{t('daily_check_in.complete_title')}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
@@ -464,7 +465,7 @@ export default function StandaloneDailyCheckIn() {
                 aria-label={t('daily_check_in.aria_guided_video')}
                 title={t('daily_check_in.aria_guided_video')}>
 
-              <User className="w-5 h-5 text-primary" strokeWidth={2} />
+              <CirclePlay className="w-5 h-5 text-primary" strokeWidth={2.2} />
             </motion.button>
           </div>
           <div className="flex gap-2">
@@ -491,7 +492,7 @@ export default function StandaloneDailyCheckIn() {
               <h3 className="text-teal-600 text-base font-semibold">
                 {t('daily_check_in.step1_question')}
               </h3>
-              <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
+              <div className="grid grid-cols-5 items-stretch gap-1 sm:gap-2 md:gap-3">
                 {moodOptions.map((mood) =>
                 <button
                   key={mood.value}
@@ -501,7 +502,7 @@ export default function StandaloneDailyCheckIn() {
                       e.preventDefault();
                       handleMoodSelect(mood);
                     }
-                  }} className="p-1 text-xs font-medium normal-case flex flex-col items-center justify-center sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80"
+                  }} className="h-full min-w-0 p-1 text-xs font-medium normal-case flex flex-col items-center justify-start sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80"
 
 
 
@@ -511,22 +512,13 @@ export default function StandaloneDailyCheckIn() {
                   aria-label={t('daily_check_in.aria_select_mood', { label: t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label }) })}
                   aria-pressed={formData.mood === mood.value}>
 
-                    <div
-                    className={cn(
-                      "w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-1 sm:mb-2 border-2 transition-all",
-                      formData.mood === mood.value ?
-                      "border-primary shadow-[var(--shadow-md)]" :
-                      "border-border/40"
-                    )}
-                    style={{
-                      background: formData.mood === mood.value ?
-                      'linear-gradient(180deg, rgba(210, 239, 231, 0.98) 0%, rgba(247, 236, 222, 0.95) 100%)' :
-                      'linear-gradient(180deg, rgba(224, 240, 234, 0.86) 0%, rgba(247, 244, 236, 0.82) 100%)'
-                    }}>
-
-                      <span className="text-3xl font-light text-justify sm:text-2xl md:text-3xl">{mood.emoji}</span>
-                    </div>
-                    <div className="text-teal-600 font-medium text-center leading-tight rounded sm:text-xs">
+                    <PremiumMoodIcon
+                      mood={mood.value}
+                      size="lg"
+                      selected={formData.mood === mood.value}
+                      className="mb-1 h-11 w-11 sm:mb-2 sm:h-14 sm:w-14 md:h-16 md:w-16"
+                    />
+                    <div className="flex min-h-10 items-start justify-center text-teal-600 font-medium text-center leading-tight rounded sm:text-xs">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>
