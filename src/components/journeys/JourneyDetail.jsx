@@ -58,6 +58,8 @@ export default function JourneyDetail({
     setSavingStep(stepIndex);
     setSaveError('');
 
+    const previousProgress = localProgress;
+    const previousReflection = reflection;
     const updatedCompletedSteps = [
       ...(localProgress.completed_steps || []).filter((item) => Number(item?.step_index) !== stepIndex),
       {
@@ -73,18 +75,35 @@ export default function JourneyDetail({
       status: isLastStep ? 'completed' : 'in_progress',
       completed_date: isLastStep ? new Date().toISOString().split('T')[0] : null,
     };
+    const optimisticProgress = { ...localProgress, ...updates };
+
+    await queryClient.cancelQueries({ queryKey: ['journey_progress'] });
+    setLocalProgress(optimisticProgress);
+    setReflection('');
+    onProgressChange?.(optimisticProgress);
+    queryClient.setQueryData(['journey_progress'], (current = []) =>
+      current.map((item) => item.id === optimisticProgress.id ? optimisticProgress : item)
+    );
 
     try {
-      const savedProgress = await base44.entities.UserJourneyProgress.update(localProgress.id, updates);
-      const nextProgress = { ...localProgress, ...updates, ...(savedProgress || {}) };
+      const savedProgress = await base44.entities.UserJourneyProgress.update(previousProgress.id, updates);
+      const nextProgress = { ...optimisticProgress, ...(savedProgress || {}) };
       setLocalProgress(nextProgress);
-      setReflection('');
       onProgressChange?.(nextProgress);
-      queryClient.invalidateQueries({ queryKey: ['journey_progress'] });
+      queryClient.setQueryData(['journey_progress'], (current = []) =>
+        current.map((item) => item.id === nextProgress.id ? nextProgress : item)
+      );
     } catch {
+      setLocalProgress(previousProgress);
+      setReflection(previousReflection);
+      onProgressChange?.(previousProgress);
+      queryClient.setQueryData(['journey_progress'], (current = []) =>
+        current.map((item) => item.id === previousProgress.id ? previousProgress : item)
+      );
       setSaveError(t('journeys.detail.save_error'));
     } finally {
       setSavingStep(null);
+      queryClient.invalidateQueries({ queryKey: ['journey_progress'] });
     }
   };
 
