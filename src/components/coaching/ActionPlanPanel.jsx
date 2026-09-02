@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function ActionPlanPanel({ session, onClose, onUpdate, className }) {
   const { t } = useTranslation();
@@ -95,7 +96,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
                   {action.action}
                 </p>
                 {action.timeline && (
-                  <p className="text-xs text-muted-foreground mt-1">📅 {action.timeline}</p>
+                  <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><PremiumIcon name="calendar" size="sm" bare /><span>{action.timeline}</span></p>
                 )}
               </div>
               <Button
