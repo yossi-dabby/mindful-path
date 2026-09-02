@@ -94,13 +94,38 @@ export default function JourneysPage() {
       completed_steps: [],
       total_steps: journey.steps?.length || 0,
     }),
-    onSuccess: (createdProgress) => {
+    onMutate: async (journey) => {
+      await queryClient.cancelQueries({ queryKey: ['journey_progress'] });
+      const previous = queryClient.getQueryData(['journey_progress']);
+      const optimisticId = `optimistic-journey-${journey.id}-${Date.now()}`;
+      const optimisticProgress = {
+        id: optimisticId,
+        journey_id: journey.id,
+        journey_title: journey.title,
+        status: 'in_progress',
+        started_date: new Date().toISOString().split('T')[0],
+        current_step: 0,
+        completed_steps: [],
+        total_steps: journey.steps?.length || 0,
+      };
       queryClient.setQueryData(['journey_progress'], (current = []) => [
-        ...current.filter((item) => item.id !== createdProgress.id),
+        ...current.filter((item) => item.journey_id !== journey.id),
+        optimisticProgress,
+      ]);
+      return { previous, optimisticId };
+    },
+    onError: (_error, _journey, context) => {
+      if (context) queryClient.setQueryData(['journey_progress'], context.previous || []);
+    },
+    onSuccess: (createdProgress, _journey, context) => {
+      queryClient.setQueryData(['journey_progress'], (current = []) => [
+        ...current.filter((item) =>
+          item.id !== context?.optimisticId && item.journey_id !== createdProgress.journey_id
+        ),
         createdProgress,
       ]);
-      queryClient.invalidateQueries({ queryKey: ['journey_progress'] });
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['journey_progress'] }),
   });
 
   const handleStartJourney = async (journey) => {
