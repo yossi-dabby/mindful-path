@@ -272,7 +272,14 @@ function hasCompleteLocalizedContent(journey, localized) {
 export function localizeJourney(journey, language) {
   if (!journey) return null;
   const locale = normalizeJourneyLanguage(language);
-  if (locale === 'en') return { ...journey, content_language: 'en' };
+  const declaredLanguageValue = String(journey.language || '').toLowerCase().split('-')[0];
+  const declaredLanguage = SUPPORTED_JOURNEY_LANGUAGES.includes(declaredLanguageValue)
+    ? declaredLanguageValue
+    : null;
+
+  if (declaredLanguage === locale || (!declaredLanguage && locale === 'en')) {
+    return { ...journey, content_language: locale };
+  }
 
   const localized =
     journey.localizations?.[locale] ||
