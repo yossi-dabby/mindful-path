@@ -18,12 +18,12 @@ export function GrowingShieldMark({ size = 40, className = '', decorative = true
 
 export function AppWordmark({ name, compact = false, className = '' }) {
   return (
-    <span className={`relative inline-flex min-w-0 flex-col ${className}`}>
+    <span className={`relative inline-flex min-w-0 flex-col pb-1.5 ${className}`}>
       <span className={`${compact ? 'text-[15px]' : 'text-[19px]'} truncate font-semibold tracking-[-0.025em] text-transparent bg-clip-text bg-gradient-to-r from-teal-800 via-teal-700 to-teal-500`}>
         {name}
       </span>
       <svg
-        className="pointer-events-none absolute -bottom-1 start-0 h-1.5 w-[88%] overflow-visible"
+        className="pointer-events-none absolute bottom-0 start-[6%] h-1.5 w-[88%] overflow-visible"
         viewBox="0 0 100 8"
         preserveAspectRatio="none"
         aria-hidden="true"
