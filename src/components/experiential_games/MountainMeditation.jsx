@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function MountainMeditation({ onClose }) {
   const { t } = useTranslation();
@@ -58,7 +59,7 @@ export default function MountainMeditation({ onClose }) {
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
-            <p className="text-lg mb-2">🏔️</p>
+            <PremiumIcon name="mountain" size="md" className="mx-auto mb-2" />
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
               {t('mind_games.mountain_meditation.completion')}
             </p>
