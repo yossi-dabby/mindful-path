@@ -256,10 +256,10 @@ function hasCompleteLocalizedContent(journey, localized) {
   const localizedSteps = Array.isArray(localized.steps) ? localized.steps : [];
   if (sourceSteps.length !== localizedSteps.length) return false;
 
-  const stepsComplete = localizedSteps.every((step) =>
+  const stepsComplete = localizedSteps.every((step, index) =>
     String(step?.title || '').trim() &&
     String(step?.description || '').trim() &&
-    (!sourceSteps[localizedSteps.indexOf(step)]?.reflection_prompt || String(step?.reflection_prompt || '').trim())
+    (!sourceSteps[index]?.reflection_prompt || String(step?.reflection_prompt || '').trim())
   );
   if (!stepsComplete) return false;
 
