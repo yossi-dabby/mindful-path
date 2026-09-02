@@ -4,16 +4,17 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 const CARD_PAIRS = [
-  { id: 1, emoji: '🌸' },
-  { id: 2, emoji: '🌿' },
-  { id: 3, emoji: '🌊' },
-  { id: 4, emoji: '☀️' },
-  { id: 5, emoji: '🌙' },
-  { id: 6, emoji: '⭐' },
-  { id: 7, emoji: '🍃' },
-  { id: 8, emoji: '🦋' },
+  { id: 1, icon: 'flower' },
+  { id: 2, icon: 'leaf' },
+  { id: 3, icon: 'waves' },
+  { id: 4, icon: 'sun' },
+  { id: 5, icon: 'moon' },
+  { id: 6, icon: 'star' },
+  { id: 7, icon: 'wind' },
+  { id: 8, icon: 'sparkle' },
 ];
 
 export default function MemoryMatch({ onClose }) {
@@ -112,7 +113,7 @@ export default function MemoryMatch({ onClose }) {
                   cursor: isFlipped(index) ? 'default' : 'pointer',
                 }}
               >
-                {isFlipped(index) ? card.emoji : '?'}
+                {isFlipped(index) ? <PremiumIcon name={card.icon} size="sm" /> : '?'}
               </button>
             ))}
           </div>
