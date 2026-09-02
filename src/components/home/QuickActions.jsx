@@ -66,9 +66,11 @@ export default function QuickActions() {
     description: t('quick_actions.journeys.description'),
     icon: Compass,
     page: 'Journeys',
+    testIds: ['quickaction-journeys', 'quickaction-journeys-card'],
     color: '#8B5CF6',
     bgColor: 'rgba(139, 92, 246, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journeys.mp4?alt=media&token=07d21248-a2b0-47ed-ab83-bf26a0ca0d0b'
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journeys.mp4?alt=media&token=07d21248-a2b0-47ed-ab83-bf26a0ca0d0b',
+    premiumJourneys: true
   }];
 
 
@@ -203,6 +205,17 @@ export default function QuickActions() {
                           </span>
                           <span className="inline-flex items-center gap-1">
                             {t('mind_games.premium.explore')}
+                            <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden="true" />
+                          </span>
+                        </div>
+                      )}
+                      {action.premiumJourneys && (
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-violet-800/10 pt-3 text-[11px] font-semibold text-violet-800">
+                          <span className="rounded-full bg-white/75 px-2.5 py-1 shadow-sm">
+                            {t('journeys.premium.card_badge')}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            {t('journeys.premium.explore')}
                             <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden="true" />
                           </span>
                         </div>
