@@ -64,7 +64,7 @@ export const translations = {
           best: "Best",
           days: "days",
           seven_days: "7 days",
-          week_complete: "Week complete! 🎉",
+          week_complete: "Week complete!",
           check_ins: "Check-ins",
           journals: "Journals",
           exercises: "Exercises"
@@ -1284,7 +1284,7 @@ export const translations = {
         step_details_emotions_label: "What emotions are you feeling? (Select all that apply)",
         step_intensity_label: "How intense are these emotions? ({{value}}/10)",
         step_analysis_subtitle: "Examining your thoughts is an important CBT skill",
-        step_analysis_cbt_note: "💡 Noticing and examining a thought is already an important CBT skill.",
+        step_analysis_cbt_note: "Noticing and examining a thought is already an important CBT skill.",
         step_analysis_balanced_label: "Balanced / Helpful Thought (Optional)",
         step_analysis_balanced_optional: "This is optional - you can always add it later in your journal.",
         thought_types: {
@@ -1718,7 +1718,7 @@ export const translations = {
           best: "שיא",
           days: "ימים",
           seven_days: "7 ימים",
-          week_complete: "השבוע הושלם! 🎉",
+          week_complete: "השבוע הושלם!",
           check_ins: "צ׳ק-אינים",
           journals: "יומנים",
           exercises: "תרגילים"
@@ -2938,7 +2938,7 @@ export const translations = {
         step_details_emotions_label: "אילו רגשות אתם חשים? (בחרו את כולם המתאימים)",
         step_intensity_label: "כמה עצימות הרגשות האלה? ({{value}}/10)",
         step_analysis_subtitle: "בחינת מחשבות היא כישור CBT חשוב",
-        step_analysis_cbt_note: "💡 הבחנה ובחינת מחשבה היא כבר כישור CBT חשוב.",
+        step_analysis_cbt_note: "הבחנה ובחינת מחשבה היא כבר כישור CBT חשוב.",
         step_analysis_balanced_label: "מחשבה מאוזנת / מועילה (אופציונלי)",
         step_analysis_balanced_optional: "זה אופציונלי - תמיד תוכלו להוסיף זאת מאוחר יותר ביומן.",
         thought_types: {
@@ -3372,7 +3372,7 @@ export const translations = {
           best: "Mejor",
           days: "días",
           seven_days: "7 días",
-          week_complete: "¡Semana completada! 🎉",
+          week_complete: "¡Semana completada!",
           check_ins: "Registros",
           journals: "Diarios",
           exercises: "Ejercicios"
@@ -4548,7 +4548,7 @@ export const translations = {
         step_details_emotions_label: "¿Qué emociones estás sintiendo? (Selecciona todas las que apliquen)",
         step_intensity_label: "¿Qué tan intensas son estas emociones? ({{value}}/10)",
         step_analysis_subtitle: "Examinar tus pensamientos es una habilidad importante de TCC",
-        step_analysis_cbt_note: "💡 Notar y examinar un pensamiento ya es una habilidad importante de TCC.",
+        step_analysis_cbt_note: "Notar y examinar un pensamiento ya es una habilidad importante de TCC.",
         step_analysis_balanced_label: "Pensamiento Equilibrado / Útil (Opcional)",
         step_analysis_balanced_optional: "Esto es opcional - siempre puedes agregarlo más tarde en tu diario.",
         thought_types: {
@@ -4980,7 +4980,7 @@ export const translations = {
           best: "Meilleure",
           days: "jours",
           seven_days: "7 jours",
-          week_complete: "Semaine terminée ! 🎉",
+          week_complete: "Semaine terminée !",
           check_ins: "Bilans",
           journals: "Journaux",
           exercises: "Exercices"
@@ -6155,7 +6155,7 @@ export const translations = {
         step_details_emotions_label: "Quelles émotions ressentez-vous ? (Sélectionnez tout ce qui s'applique)",
         step_intensity_label: "Quelle est l'intensité de ces émotions ? ({{value}}/10)",
         step_analysis_subtitle: "Examiner ses pensées est une compétence importante de la TCC",
-        step_analysis_cbt_note: "💡 Remarquer et examiner une pensée est déjà une compétence importante de la TCC.",
+        step_analysis_cbt_note: "Remarquer et examiner une pensée est déjà une compétence importante de la TCC.",
         step_analysis_balanced_label: "Pensée Équilibrée / Utile (Facultatif)",
         step_analysis_balanced_optional: "C'est facultatif - vous pouvez toujours l'ajouter plus tard dans votre journal.",
         thought_types: {
@@ -6587,7 +6587,7 @@ export const translations = {
           best: "Bestwert",
           days: "Tage",
           seven_days: "7 Tage",
-          week_complete: "Woche abgeschlossen! 🎉",
+          week_complete: "Woche abgeschlossen!",
           check_ins: "Check-ins",
           journals: "Tagebücher",
           exercises: "Übungen"
@@ -7762,7 +7762,7 @@ export const translations = {
         step_details_emotions_label: "Welche Emotionen fühlen Sie? (Alle zutreffenden auswählen)",
         step_intensity_label: "Wie intensiv sind diese Emotionen? ({{value}}/10)",
         step_analysis_subtitle: "Gedanken zu untersuchen ist eine wichtige CBT-Fähigkeit",
-        step_analysis_cbt_note: "💡 Einen Gedanken wahrzunehmen und zu untersuchen ist bereits eine wichtige CBT-Fähigkeit.",
+        step_analysis_cbt_note: "Einen Gedanken wahrzunehmen und zu untersuchen ist bereits eine wichtige CBT-Fähigkeit.",
         step_analysis_balanced_label: "Ausgeglichener / Hilfreicher Gedanke (Optional)",
         step_analysis_balanced_optional: "Dies ist optional - Sie können es später in Ihrem Tagebuch hinzufügen.",
         thought_types: {
@@ -8194,7 +8194,7 @@ export const translations = {
           best: "Migliore",
           days: "giorni",
           seven_days: "7 giorni",
-          week_complete: "Settimana completata! 🎉",
+          week_complete: "Settimana completata!",
           check_ins: "Check-in",
           journals: "Diari",
           exercises: "Esercizi"
@@ -9369,7 +9369,7 @@ export const translations = {
         step_details_emotions_label: "Quali emozioni stai provando? (Seleziona tutto ciò che si applica)",
         step_intensity_label: "Quanto sono intense queste emozioni? ({{value}}/10)",
         step_analysis_subtitle: "Esaminare i propri pensieri è un'importante abilità CBT",
-        step_analysis_cbt_note: "💡 Notare ed esaminare un pensiero è già un'importante abilità CBT.",
+        step_analysis_cbt_note: "Notare ed esaminare un pensiero è già un'importante abilità CBT.",
         step_analysis_balanced_label: "Pensiero Equilibrato / Utile (Facoltativo)",
         step_analysis_balanced_optional: "Questo è facoltativo - puoi sempre aggiungerlo in seguito nel tuo diario.",
         thought_types: {
@@ -9801,7 +9801,7 @@ export const translations = {
           best: "Melhor",
           days: "dias",
           seven_days: "7 dias",
-          week_complete: "Semana concluída! 🎉",
+          week_complete: "Semana concluída!",
           check_ins: "Check-ins",
           journals: "Diários",
           exercises: "Exercícios"
@@ -10976,7 +10976,7 @@ export const translations = {
         step_details_emotions_label: "Que emoções você está sentindo? (Selecione todas que se aplicam)",
         step_intensity_label: "Quão intensas são essas emoções? ({{value}}/10)",
         step_analysis_subtitle: "Examinar seus pensamentos é uma habilidade importante da TCC",
-        step_analysis_cbt_note: "💡 Notar e examinar um pensamento já é uma habilidade importante da TCC.",
+        step_analysis_cbt_note: "Notar e examinar um pensamento já é uma habilidade importante da TCC.",
         step_analysis_balanced_label: "Pensamento Equilibrado / Útil (Opcional)",
         step_analysis_balanced_optional: "Isso é opcional - você sempre pode adicionar mais tarde no seu diário.",
         thought_types: {
