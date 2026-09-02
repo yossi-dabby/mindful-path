@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2, TrendingUp, Activity, Heart, Brain } from 'lucide-react';
+import { Sparkles, Loader2, TrendingUp, Activity, Heart, Brain, Lightbulb, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function HealthInsights() {
@@ -253,7 +253,7 @@ Be specific with data points and focus on actionable insights.`,
             </div>
             <div className="bg-white p-3 rounded-lg">
               <p className="text-gray-700">{insights.activity_energy_connection.key_finding}</p>
-              <p className="text-gray-500 text-xs mt-2">💡 {insights.activity_energy_connection.optimal_activity_level}</p>
+              <p className="mt-2 flex items-start gap-1.5 text-xs text-gray-500"><Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span>{insights.activity_energy_connection.optimal_activity_level}</span></p>
             </div>
           </div>
         </CardContent>
@@ -311,7 +311,7 @@ Be specific with data points and focus on actionable insights.`,
       {insights.warning_signs?.length > 0 && (
         <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
           <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3">⚠️ Areas Needing Attention</h4>
+            <h4 className="flex items-center gap-2 font-semibold text-gray-800 mb-3"><AlertTriangle className="h-4 w-4 text-red-600" aria-hidden="true" /> Areas Needing Attention</h4>
             <ul className="space-y-2">
               {insights.warning_signs.map((sign, i) => (
                 <li key={i} className="text-sm text-gray-700 flex items-start gap-2 bg-white p-2 rounded">
