@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings } from 'lucide-react';
 import NotificationBell from '../notifications/NotificationBell';
 import { useTranslation } from 'react-i18next';
+import { AppWordmark, GrowingShieldMark } from '@/components/brand/AppBrand';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
 
@@ -40,12 +41,12 @@ export default function Sidebar({ currentPageName }) {
       {/* Logo */}
       <div className="bg-teal-100 mb-8 px-6">
         <div className="bg-teal-100 text-teal-600 flex items-center gap-3">
-          <div className="bg-teal-400 text-teal-500 rounded-[20px] w-10 h-10 flex items-center justify-center shadow-[var(--shadow-md)]">
-            <span className="bg-teal-400 text-teal-600 text-lg font-bold">M</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-teal-600 font-semibold truncate">{t('global.app_name')}</h1>
-            <p className="text-teal-600 text-xs truncate">{t('global.app_tagline')}</p>
+          <GrowingShieldMark size={42} />
+          <div className="flex-1 min-w-0 pb-1">
+            <h1 className="min-w-0">
+              <AppWordmark name={t('global.app_name')} />
+            </h1>
+            <p className="mt-2 truncate text-xs text-teal-700/80">{t('global.app_tagline')}</p>
           </div>
           <NotificationBell />
         </div>
