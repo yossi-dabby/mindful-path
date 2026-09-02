@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Brain, TrendingUp } from 'lucide-react';
+import { Sparkles, Brain, TrendingUp, Lightbulb } from 'lucide-react';
 import AiTrendsSummary from './AiTrendsSummary';
 
 export default function JournalInsightsPanel({ entriesCount }) {
@@ -56,19 +56,19 @@ export default function JournalInsightsPanel({ entriesCount }) {
                     background: 'rgba(159, 122, 234, 0.15)',
                     color: '#7C3AED'
                   }}>
-                    📊 Emotional Trends
+                    <TrendingUp className="me-1 inline h-3.5 w-3.5" aria-hidden="true" /> Emotional Trends
                   </span>
                   <span className="px-2 py-1 rounded-full" style={{
                     background: 'rgba(159, 122, 234, 0.15)',
                     color: '#7C3AED'
                   }}>
-                    🧠 Cognitive Patterns
+                    <Brain className="me-1 inline h-3.5 w-3.5" aria-hidden="true" /> Cognitive Patterns
                   </span>
                   <span className="px-2 py-1 rounded-full" style={{
                     background: 'rgba(159, 122, 234, 0.15)',
                     color: '#7C3AED'
                   }}>
-                    💡 Key Themes
+                    <Lightbulb className="me-1 inline h-3.5 w-3.5" aria-hidden="true" /> Key Themes
                   </span>
                 </div>
               </div>
