@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAdaptiveDifficulty } from './useAdaptiveDifficulty';
 import { useMindGameTracking } from './useMindGameTracking';
@@ -114,9 +114,11 @@ export default function ThoughtQuiz({ onClose }) {
                   fontWeight: difficulty === level ? '600' : '400'
                 }}
               >
-                {level === 'beginner' && '★'}
-                {level === 'intermediate' && '★★'}
-                {level === 'advanced' && '★★★'}
+                <span className="inline-flex gap-0.5" aria-label={level}>
+                  {Array.from({ length: level === 'beginner' ? 1 : level === 'intermediate' ? 2 : 3 }).map((_, starIndex) => (
+                    <Star key={starIndex} className="h-3 w-3 fill-current" aria-hidden="true" />
+                  ))}
+                </span>
               </button>
             ))}
           </div>
