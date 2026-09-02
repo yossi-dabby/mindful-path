@@ -10,36 +10,31 @@ const OPTIONS = [
     id: 1,
     labelKey: 'chat.entry.option_1',
     icon: Heart,
-    color: '#E57373',
-    emoji: '❤️'
+    color: '#E57373'
   },
   {
     id: 2,
     labelKey: 'chat.entry.option_2',
     icon: Cloud,
-    color: '#9F7AEA',
-    emoji: '💭'
+    color: '#9F7AEA'
   },
   {
     id: 3,
     labelKey: 'chat.entry.option_3',
     icon: BookOpen,
-    color: '#4FC3F7',
-    emoji: '📓'
+    color: '#4FC3F7'
   },
   {
     id: 4,
     labelKey: 'chat.entry.option_4',
     icon: Target,
-    color: '#FFB74D',
-    emoji: '🎯'
+    color: '#FFB74D'
   },
   {
     id: 5,
     labelKey: 'chat.entry.option_5',
     icon: Leaf,
-    color: '#81C784',
-    emoji: '🌿'
+    color: '#81C784'
   }
 ];
 
