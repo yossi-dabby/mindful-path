@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { useTranslation } from 'react-i18next';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function TherapyStateMachine({ onComplete }) {
   const { t, i18n } = useTranslation();
@@ -165,7 +166,7 @@ export default function TherapyStateMachine({ onComplete }) {
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((id) => {
             const labels = [1, 2, 3, 4, 5].map((number) => t(`chat.entry.option_${number}`));
-            const emojis = ['❤️', '💭', '📓', '🎯', '🌿'];
+            const icons = ['heart', 'thought', 'journal', 'target', 'leaf'];
             const colors = ['#E57373', '#9F7AEA', '#4FC3F7', '#FFB74D', '#81C784'];
 
             return (
@@ -190,7 +191,7 @@ export default function TherapyStateMachine({ onComplete }) {
                       borderRadius: '12px',
                       backgroundColor: colors[id - 1] + '20'
                     }}>
-                      <span className="text-lg">{emojis[id - 1]}</span>
+                      <PremiumIcon name={icons[id - 1]} size="sm" />
                     </div>
                     <span className="text-sm font-medium flex-1" style={{ color: '#1A3A34' }}>
                       {labels[id - 1]}
