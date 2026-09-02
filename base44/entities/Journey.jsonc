@@ -10,6 +10,20 @@
       "type": "string",
       "description": "What this journey helps with"
     },
+    "language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "he",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt"
+      ],
+      "default": "en",
+      "description": "Language of the source title, description, outcomes, and steps"
+    },
     "content_key": {
       "type": "string",
       "description": "Stable language-independent key for this journey"
