@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Download, Heart } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Download, Heart, Music2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
@@ -247,8 +247,8 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
 
         {/* Background Music Indicator */}
         {audioContent.background_music && (
-          <p className="text-xs text-gray-500 text-center mt-3">
-            🎵 Includes calming background music
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-gray-500">
+            <Music2 className="h-3.5 w-3.5" aria-hidden="true" /> Includes calming background music
           </p>
         )}
       </CardContent>
