@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Target, Sparkles, BookOpen, Dumbbell, Bell, X, ChevronRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Sparkles, BookOpen, Dumbbell, Bell, X, ChevronRight, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function ProactiveCheckIn({ onSendMessage }) {
@@ -258,8 +258,9 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                   </div>
                   <p className="text-sm text-slate-600 leading-relaxed mb-2">{suggestion.message}</p>
                   {suggestion.reminder?.context?.insight &&
-                  <p className="text-xs text-gray-600 italic mb-2 bg-white/50 p-2 rounded">
-                      💡 {suggestion.reminder.context.insight}
+                  <p className="flex items-start gap-1.5 text-xs text-gray-600 italic mb-2 bg-white/50 p-2 rounded">
+                      <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      <span>{suggestion.reminder.context.insight}</span>
                     </p>
                   }
                   <div className="flex items-center gap-2 text-xs text-teal-700 font-semibold">
