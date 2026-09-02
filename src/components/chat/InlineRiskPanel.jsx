@@ -326,7 +326,7 @@ export default function InlineRiskPanel({ onDismiss }) {
                   id="emergency-region-select"
                   data-testid="emergency-region-select"
                   aria-label={s.chooseRegionLabel}
-                  className="w-full rounded-xl border px-3 py-2 text-sm mb-3 bg-white"
+                  className="mb-3 min-h-12 w-full rounded-xl border bg-white px-3 py-2 text-sm"
                   style={{ borderColor: 'rgba(239, 68, 68, 0.35)', color: '#7F1D1D' }}
                   value=""
                   onChange={handleRegionChange}
