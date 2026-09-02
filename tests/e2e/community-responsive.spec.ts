@@ -54,30 +54,36 @@ test.describe('Community responsive and localized experience', () => {
     await expect(page.getByTestId('community-page')).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('button', { name: /new post/i }).click();
-    await page.getByRole('button', { name: 'General discussion' }).click();
+    const postDialog = page.getByTestId('forum-post-dialog');
+    const postCategory = postDialog.getByRole('button', { name: 'Post category' });
+    await postCategory.click();
     const postOptions = page.getByTestId('bottom-sheet-select-options');
     await expect(postOptions).toBeVisible();
     await expect(postOptions).toHaveCSS('z-index', '101');
-    await postOptions.getByRole('button', { name: 'Questions' }).click();
-    await expect(page.getByRole('button', { name: 'Questions' })).toBeVisible();
-    await page.getByTestId('forum-post-dialog').getByRole('button', { name: 'Close' }).click();
+    await postOptions.getByRole('option', { name: 'Questions' }).click();
+    await expect(postCategory).toContainText('Questions');
+    await postDialog.getByRole('button', { name: 'Close' }).click();
 
     await page.getByRole('tab', { name: /groups/i }).click();
     await page.getByRole('button', { name: /create group/i }).click();
-    await page.getByRole('button', { name: 'Other' }).click();
+    const groupDialog = page.getByTestId('community-group-dialog');
+    const groupCategory = groupDialog.getByRole('button', { name: 'Group category' });
+    await groupCategory.click();
     const groupOptions = page.getByTestId('bottom-sheet-select-options');
     await expect(groupOptions).toBeVisible();
-    await groupOptions.getByRole('button', { name: 'Anxiety support' }).click();
-    await expect(page.getByRole('button', { name: 'Anxiety support' })).toBeVisible();
-    await page.getByTestId('community-group-dialog').getByRole('button', { name: 'Close' }).click();
+    await groupOptions.getByRole('option', { name: 'Anxiety support' }).click();
+    await expect(groupCategory).toContainText('Anxiety support');
+    await groupDialog.getByRole('button', { name: 'Close' }).click();
 
     await page.getByRole('tab', { name: /progress/i }).click();
     await page.getByRole('button', { name: /share progress/i }).click();
-    await page.getByRole('button', { name: 'Mood improvement' }).click();
+    const progressDialog = page.getByTestId('progress-share-dialog');
+    const progressType = progressDialog.getByRole('button', { name: 'Choose progress type' });
+    await progressType.click();
     const progressOptions = page.getByTestId('bottom-sheet-select-options');
     await expect(progressOptions).toBeVisible();
-    await progressOptions.getByRole('button', { name: 'New habit' }).click();
-    await expect(page.getByRole('button', { name: 'New habit' })).toBeVisible();
+    await progressOptions.getByRole('option', { name: 'New habit' }).click();
+    await expect(progressType).toContainText('New habit');
   });
 
   test('does not expose moderation to a regular user', async ({ page }) => {
