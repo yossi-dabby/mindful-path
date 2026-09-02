@@ -9,7 +9,8 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, Play } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, Play, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -388,6 +389,7 @@ export default function Chat() {
   const [deliveryStatus, setDeliveryStatus] = useState('idle');
   const [responseWaitSeconds, setResponseWaitSeconds] = useState(0);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
@@ -5067,7 +5069,7 @@ export default function Chat() {
 
       {/* Sidebar - Conversations List */}
       <div className={`
-        ${showSidebar ? 'block' : 'hidden xl:block'}
+        ${showSidebar ? 'block' : 'hidden'} ${desktopSidebarCollapsed ? 'xl:hidden' : 'xl:block'}
         fixed xl:relative inset-y-0 start-0 xl:inset-auto w-[min(20rem,calc(100vw-1rem))]
         border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.96)] backdrop-blur-2xl shadow-[var(--shadow-lg)] xl:shadow-none z-40
       `}>
@@ -5106,6 +5108,18 @@ export default function Chat() {
               aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="xl:hidden text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
             <Menu className="w-5 h-5" />
+          </Button>
+          <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDesktopSidebarCollapsed((collapsed) => !collapsed)}
+              aria-label={desktopSidebarCollapsed ? t('chat.open_sidebar_aria') : t('chat.close_sidebar_aria')}
+              aria-expanded={!desktopSidebarCollapsed}
+              className="hidden xl:inline-flex h-10 w-10 rounded-[var(--radius-control)] text-teal-700 hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
+
+            {desktopSidebarCollapsed
+              ? <PanelLeftOpen className="h-5 w-5 rtl:scale-x-[-1]" />
+              : <PanelLeftClose className="h-5 w-5 rtl:scale-x-[-1]" />}
           </Button>
           <div className="hidden lg:flex flex-1 min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center border border-teal-200/80 shadow-[var(--shadow-sm)]">
@@ -5147,7 +5161,7 @@ export default function Chat() {
               <div className="p-4 flex-1 flex items-center justify-center sm:p-6 lg:p-8 bg-gradient-to-b from-white/35 to-teal-50/45">
                 <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-6 sm:p-8 text-center rounded-3xl backdrop-blur-xl max-w-lg border border-white/90 shadow-[var(--shadow-lg)]">
                   <div className="mx-auto mb-5 rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
-                    <span className="text-3xl" aria-hidden="true">👋</span>
+                    <PremiumIcon name="sparkle" size="lg" bare className="h-8 w-8" />
                   </div>
                   <h2 className="text-teal-700 mb-3 text-2xl sm:text-3xl font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
