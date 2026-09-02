@@ -57,7 +57,8 @@ describe('App store readiness warning contracts', () => {
   it('optimistically updates coaching action plans with rollback', () => {
     const source = read('src/components/coaching/ActionPlanPanel.jsx');
     expect(source).toContain('onMutate:');
-    expect(source).toContain('previousActions');
+    expect(source).toContain('previousSession');
+    expect(source).toContain("sessionKey = ['coachingSession', session.id]");
     expect(source).toContain('onError:');
     expect(source).toContain('onSettled:');
   });
