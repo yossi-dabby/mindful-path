@@ -1,0 +1,50 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+
+const read = (path) => readFileSync(path, 'utf8');
+
+describe('Premium brand and icon refresh contract', () => {
+  const brand = read('src/components/brand/AppBrand.jsx');
+  const sidebar = read('src/components/layout/Sidebar.jsx');
+  const mobileHeader = read('src/components/layout/MobileHeader.jsx');
+  const quickActions = read('src/components/home/QuickActions.jsx');
+  const checkIn = read('src/components/home/StandaloneDailyCheckIn.jsx');
+  const moodIcon = read('src/components/ui/PremiumMoodIcon.jsx');
+  const premiumIcon = read('src/components/ui/PremiumIcon.jsx');
+  const chat = read('src/pages/Chat.jsx');
+
+  it('uses the premium wordmark and growing shield across desktop and mobile shells', () => {
+    expect(brand).toContain('export function GrowingShieldMark');
+    expect(brand).toContain('export function AppWordmark');
+    expect(sidebar).toContain('<GrowingShieldMark size={42} />');
+    expect(sidebar).toContain("<AppWordmark name={t('global.app_name')}");
+    expect(mobileHeader).toContain('<GrowingShieldMark size={36} />');
+    expect(mobileHeader).toContain('<AppWordmark');
+  });
+
+  it('uses one play symbol for home explanation videos', () => {
+    expect(quickActions).toContain('CirclePlay');
+    expect(quickActions).not.toContain('<User');
+  });
+
+  it('keeps all five daily mood choices aligned and premium', () => {
+    expect(checkIn).toContain('items-stretch');
+    expect(checkIn).toContain('h-full min-w-0');
+    expect(checkIn).toContain('flex min-h-10 items-start justify-center');
+    expect(checkIn).toContain('<PremiumMoodIcon');
+    expect(moodIcon).toContain("very_low");
+  });
+
+  it('provides a keyboard-accessible desktop session collapse control', () => {
+    expect(chat).toContain('setDesktopSidebarCollapsed((collapsed) => !collapsed)');
+    expect(chat).toContain('aria-expanded={!desktopSidebarCollapsed}');
+    expect(chat).toContain('PanelLeftClose');
+    expect(chat).toContain('PanelLeftOpen');
+  });
+
+  it('defines the shared mint premium icon system', () => {
+    expect(premiumIcon).toContain('bg-teal-50/90');
+    expect(premiumIcon).toContain('rounded-[26%]');
+    expect(premiumIcon).toContain('strokeWidth={2.2}');
+  });
+});
