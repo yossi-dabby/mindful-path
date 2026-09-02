@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Brain, TrendingUp, Target, Book, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { normalizeCoachingInsights, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 import { useTranslation } from 'react-i18next';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function PersonalizedInsights({ onStartSession }) {
   const { t, i18n } = useTranslation();
@@ -292,7 +293,7 @@ Be specific, encouraging, and reference their actual data.`,
                 <p className="text-xs text-gray-600 mb-2">{rec.reason}</p>
                 }
                       {typeof rec === 'object' && rec.expected_benefit &&
-                <p className="text-xs text-primary italic">💡 {rec.expected_benefit}</p>
+                <p className="flex items-start gap-1.5 text-xs text-primary italic"><PremiumIcon name="idea" size="sm" bare className="mt-0.5 shrink-0" /><span>{rec.expected_benefit}</span></p>
                 }
                       {matchedExercises[i] &&
                 <p className="text-xs text-gray-500 mt-2">
@@ -343,7 +344,7 @@ Be specific, encouraging, and reference their actual data.`,
                 const text = safeText(nudge);
                 return text ?
                 <li key={i} className="text-sm text-foreground/85 flex items-start gap-2">
-                        <span className="mt-0.5">💭</span>
+                        <PremiumIcon name="thought" size="sm" bare className="mt-0.5 shrink-0" />
                         <span>{text}</span>
                       </li> :
                 null;
