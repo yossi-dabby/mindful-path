@@ -7,14 +7,15 @@ import { ChevronRight, ChevronLeft, Sparkles, Target, BookOpen, Activity } from 
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import IllustrationCard from '../shared/IllustrationCard';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 const focusAreas = [
-  { value: 'stress', label: 'Stress Management', icon: '🧘', color: 'from-blue-400 to-cyan-400' },
-  { value: 'anxiety', label: 'Anxiety Relief', icon: '💆', color: 'from-purple-400 to-pink-400' },
-  { value: 'sleep', label: 'Better Sleep', icon: '😴', color: 'from-indigo-400 to-blue-400' },
-  { value: 'mood', label: 'Mood Improvement', icon: '😊', color: 'from-green-400 to-teal-400' },
-  { value: 'focus', label: 'Focus & Clarity', icon: '🎯', color: 'from-orange-400 to-red-400' },
-  { value: 'relationships', label: 'Relationships', icon: '💝', color: 'from-pink-400 to-rose-400' }
+  { value: 'stress', label: 'Stress Management', icon: 'waves', color: 'from-blue-400 to-cyan-400' },
+  { value: 'anxiety', label: 'Anxiety Relief', icon: 'wind', color: 'from-purple-400 to-pink-400' },
+  { value: 'sleep', label: 'Better Sleep', icon: 'moon', color: 'from-indigo-400 to-blue-400' },
+  { value: 'mood', label: 'Mood Improvement', icon: 'sun', color: 'from-green-400 to-teal-400' },
+  { value: 'focus', label: 'Focus & Clarity', icon: 'target', color: 'from-orange-400 to-red-400' },
+  { value: 'relationships', label: 'Relationships', icon: 'heart', color: 'from-pink-400 to-rose-400' }
 ];
 
 export default function WelcomeWizard({ onComplete }) {
@@ -169,7 +170,7 @@ export default function WelcomeWizard({ onComplete }) {
                               : 'border-gray-200 bg-white hover:border-gray-300'
                           )}
                         >
-                          <div className="text-4xl mb-3">{area.icon}</div>
+                          <PremiumIcon name={area.icon} size="lg" className="mx-auto mb-3" />
                           <p className="font-semibold text-gray-800">{area.label}</p>
                         </button>
                       ))}
