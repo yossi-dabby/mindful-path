@@ -18,6 +18,7 @@ import { de, enUS, es, fr, he, it, ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { getCurrentAppLocale } from '@/components/i18n/appLocale';
+import PremiumMoodIcon from '@/components/ui/PremiumMoodIcon';
 
 const DATE_FNS_LOCALES = { en: enUS, he, es, fr, de, it, pt: ptBR };
 
@@ -29,13 +30,7 @@ const moodColors = {
   very_low: 'bg-rose-500'
 };
 
-const moodEmojis = {
-  excellent: '😄',
-  good: '🙂',
-  okay: '😐',
-  low: '😟',
-  very_low: '😢'
-};
+const moodValues = ['excellent', 'good', 'okay', 'low', 'very_low'];
 
 const moodLabelKeys = {
   excellent: 'mood_tracker.form.mood_excellent',
@@ -107,9 +102,9 @@ export default function MoodCalendar({ entries, onEditEntry }) {
 
       <CardContent className="p-3 sm:p-6">
         <div className="mb-5 flex flex-wrap justify-center gap-2" aria-label={t('mood_tracker.form.overall_mood')}>
-          {Object.entries(moodEmojis).map(([mood, emoji]) => (
+          {moodValues.map((mood) => (
             <Badge key={mood} variant="outline" className="gap-1.5 rounded-full bg-card/80 px-2.5 py-1.5 text-foreground">
-              <span aria-hidden="true">{emoji}</span>
+              <PremiumMoodIcon mood={mood} size="sm" className="h-7 w-7" />
               <span>{t(moodLabelKeys[mood])}</span>
             </Badge>
           ))}
@@ -149,7 +144,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
                 )}
               >
                 <span className="text-xs font-semibold sm:text-sm">{format(day, 'd')}</span>
-                {entry && <span className="text-base leading-none sm:text-2xl" aria-hidden="true">{moodEmojis[entry.mood]}</span>}
+                {entry && <PremiumMoodIcon mood={entry.mood} size="sm" className="h-7 w-7 sm:h-9 sm:w-9" />}
                 {entry && <span className={cn('hidden h-1.5 w-1.5 rounded-full sm:block', moodColors[entry.mood])} aria-hidden="true" />}
                 {isToday && <span className="sr-only">{t('mood_tracker.calendar.today')}</span>}
               </button>
