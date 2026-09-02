@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Dumbbell, Calendar, Loader2, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function AiExerciseCoaching({ onClose, onSelectExercise }) {
   const [plan, setPlan] = useState(null);
@@ -268,8 +269,8 @@ Format as JSON:
                   background: 'linear-gradient(145deg, rgba(240, 240, 250, 0.6) 0%, rgba(245, 245, 255, 0.5) 100%)',
                   border: '1px solid rgba(139, 92, 246, 0.2)'
                 }}>
-                  <h5 className="font-semibold mb-2 text-sm" style={{ color: '#6D28D9' }}>
-                    📈 Progression Strategy
+                  <h5 className="flex items-center gap-2 font-semibold mb-2 text-sm" style={{ color: '#6D28D9' }}>
+                    <PremiumIcon name="chart" size="sm" bare /> Progression Strategy
                   </h5>
                   <p className="text-sm" style={{ color: '#5A7A72' }}>{plan.progression_strategy}</p>
                 </div>
