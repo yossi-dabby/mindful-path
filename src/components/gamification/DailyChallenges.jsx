@@ -35,13 +35,29 @@ export default function DailyChallenges() {
   });
 
   const completeMutation = useMutation({
-    mutationFn: (challenge) => 
+    mutationFn: (challenge) =>
       base44.entities.DailyChallenge.update(challenge.id, {
         completed: true,
         current_progress: challenge.target_value
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dailyChallenges'] });
+    onMutate: async (challenge) => {
+      const queryKey = ['dailyChallenges', today];
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (current = []) =>
+        current.map((item) =>
+          item.id === challenge.id
+            ? { ...item, completed: true, current_progress: challenge.target_value }
+            : item
+        )
+      );
+      return { previous, queryKey };
+    },
+    onError: (_error, _challenge, context) => {
+      if (context?.previous) queryClient.setQueryData(context.queryKey, context.previous);
+    },
+    onSettled: (_data, _error, _challenge, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.queryKey || ['dailyChallenges', today] });
     }
   });
 
