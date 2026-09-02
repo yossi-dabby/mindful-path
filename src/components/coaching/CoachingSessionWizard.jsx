@@ -11,15 +11,16 @@ import { Badge } from '@/components/ui/badge';
 import { X, ChevronRight, ChevronLeft, Sparkles, Target, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 const focusAreaDefinitions = [
-  { value: 'mood_improvement', icon: '😊' },
-  { value: 'stress_management', icon: '🧘' },
-  { value: 'goal_achievement', icon: '🎯' },
-  { value: 'behavior_change', icon: '🔄' },
-  { value: 'relationship', icon: '💝' },
-  { value: 'self_esteem', icon: '✨' },
-  { value: 'general', icon: '🌟' }
+  { value: 'mood_improvement', icon: 'sun' },
+  { value: 'stress_management', icon: 'waves' },
+  { value: 'goal_achievement', icon: 'target' },
+  { value: 'behavior_change', icon: 'movement' },
+  { value: 'relationship', icon: 'heart' },
+  { value: 'self_esteem', icon: 'sparkle' },
+  { value: 'general', icon: 'star' }
 ];
 
 
@@ -236,7 +237,7 @@ export default function CoachingSessionWizard({ onClose }) {
                 )}>
 
                     <div className="flex items-start gap-3">
-                      <span className="text-3xl">{area.icon}</span>
+                      <PremiumIcon name={area.icon} size="md" className="shrink-0" />
                       <div>
                         <h4 className="font-semibold text-foreground">{area.label}</h4>
                         <p className="text-xs text-muted-foreground mt-1">{area.description}</p>
