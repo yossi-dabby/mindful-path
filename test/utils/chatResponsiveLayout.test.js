@@ -17,10 +17,13 @@ describe('Chat responsive layout contract', () => {
     expect(chat).toContain('@media (min-width: 1024px)');
   });
 
-  it('uses the conversation list as a drawer until extra-wide desktop', () => {
-    expect(chat).toContain("showSidebar ? 'block' : 'hidden xl:block'");
+  it('uses the conversation list as a drawer and allows it to collapse on extra-wide desktop', () => {
+    expect(chat).toContain("showSidebar ? 'block' : 'hidden'");
+    expect(chat).toContain("desktopSidebarCollapsed ? 'xl:hidden' : 'xl:block'");
     expect(chat).toContain('xl:hidden fixed inset-0');
     expect(chat).toContain('fixed xl:relative');
+    expect(chat).toContain('setDesktopSidebarCollapsed((collapsed) => !collapsed)');
+    expect(chat).toContain('aria-expanded={!desktopSidebarCollapsed}');
     expect(conversations).toContain('className="xl:hidden flex-shrink-0"');
   });
 
