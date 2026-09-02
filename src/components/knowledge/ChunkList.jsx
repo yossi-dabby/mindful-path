@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -65,21 +65,28 @@ export default function ChunkList({ onEdit, onNew }) {
         </div>
         <Input placeholder="Topic filter" className="w-32" value={filters.topic} onChange={e => setFilters(f => ({ ...f, topic: e.target.value }))} />
         <Input placeholder="Subtopic" className="w-32" value={filters.subtopic} onChange={e => setFilters(f => ({ ...f, subtopic: e.target.value }))} />
-        <Select value={filters.language} onValueChange={v => setFilters(f => ({ ...f, language: v }))}>
-          <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All lang</SelectItem>
-            {LANGUAGES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filters.is_active} onValueChange={v => setFilters(f => ({ ...f, is_active: v }))}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All status</SelectItem>
-            <SelectItem value="true">Published</SelectItem>
-            <SelectItem value="false">Draft</SelectItem>
-          </SelectContent>
-        </Select>
+        <BottomSheetSelect
+          id="knowledge-filter-language"
+          value={filters.language}
+          onValueChange={v => setFilters(f => ({ ...f, language: v }))}
+          options={[{ value: 'all', label: 'All lang' }, ...LANGUAGES.map(value => ({ value, label: value }))]}
+          title="Filter by language"
+          ariaLabel="Filter by language"
+          className="w-32"
+        />
+        <BottomSheetSelect
+          id="knowledge-filter-status"
+          value={filters.is_active}
+          onValueChange={v => setFilters(f => ({ ...f, is_active: v }))}
+          options={[
+            { value: 'all', label: 'All status' },
+            { value: 'true', label: 'Published' },
+            { value: 'false', label: 'Draft' }
+          ]}
+          title="Filter by status"
+          ariaLabel="Filter by status"
+          className="w-36"
+        />
         <Input placeholder="Min score" type="number" className="w-24" value={filters.priority_min} onChange={e => setFilters(f => ({ ...f, priority_min: e.target.value }))} />
         <Input placeholder="Max score" type="number" className="w-24" value={filters.priority_max} onChange={e => setFilters(f => ({ ...f, priority_max: e.target.value }))} />
         <Button onClick={onNew} className="ml-auto gap-2"><Plus className="w-4 h-4" /> New Chunk</Button>
