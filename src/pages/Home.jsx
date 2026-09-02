@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, BookOpen, Target } from 'lucide-react';
+import { Sparkles, BookOpen, Target, CirclePlay } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
@@ -283,12 +283,12 @@ export default function Home() {
             <Button
                   onClick={() => setShowGoalsVideo(true)}
                   size="icon"
-                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 h-6 w-6 md:h-7 md:w-7 hover:bg-accent/20"
+                  variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 p-0 text-teal-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
 
                   title={t('home.aria.watch_help_video')}
                   aria-label={t('home.aria.watch_goals_help_video')}>
 
-              <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
+              <CirclePlay className="h-6 w-6" strokeWidth={2.2} />
             </Button>
           </div>
           <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.3)] bg-[linear-gradient(180deg,rgba(252,248,241,0.98)_0%,rgba(232,246,241,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
@@ -313,12 +313,12 @@ export default function Home() {
             <Button
                   onClick={() => setShowJournalVideo(true)}
                   size="icon"
-                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 h-6 w-6 md:h-7 md:w-7 hover:bg-accent/20"
+                  variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 p-0 text-teal-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
 
                   title={t('home.aria.watch_help_video')}
                   aria-label={t('home.aria.watch_journal_help_video')}>
 
-              <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
+              <CirclePlay className="h-6 w-6" strokeWidth={2.2} />
             </Button>
           </div>
           <StreakWidget compact />
