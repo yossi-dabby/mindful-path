@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import JourneyCard from '../components/journeys/JourneyCard';
 import JourneyDetail from '../components/journeys/JourneyDetail';
 import { groupJourneysByProgress } from '../components/journeys/journeyUtils';
+import { localizeJourneys } from '../components/journeys/journeyContentLocalization';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import {
@@ -53,7 +54,7 @@ function JourneyGrid({ journeys, progressMap, onStart, onContinue, onView, start
 }
 
 export default function JourneysPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedJourney, setSelectedJourney] = useState(null);
   const [selectedProgress, setSelectedProgress] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -72,7 +73,11 @@ export default function JourneysPage() {
     queryFn: () => base44.entities.UserJourneyProgress.list(),
   });
 
-  const journeys = journeysQuery.data || [];
+  const rawJourneys = journeysQuery.data || [];
+  const journeys = useMemo(
+    () => localizeJourneys(rawJourneys, i18n.resolvedLanguage || i18n.language),
+    [rawJourneys, i18n.resolvedLanguage, i18n.language]
+  );
   const progressList = progressQuery.data || [];
   const groupedJourneys = useMemo(
     () => groupJourneysByProgress(journeys, progressList),
