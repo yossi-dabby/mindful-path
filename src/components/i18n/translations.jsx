@@ -6925,6 +6925,30 @@ export const translations = {
       journeys: {
         page_title: "Reisen",
         page_subtitle: "Geführte Fähigkeitsentwicklungspfade für persönliches Wachstum",
+        premium: {
+          eyebrow: "Ihre geführte Praxis",
+          hero_description: "Wählen Sie einen ruhigen, strukturierten Weg und gehen Sie Schritt für Schritt vor.",
+          back_aria: "Zurück zur Startseite",
+          summary_aria: "Reiseübersicht",
+          stat_available: "Verfügbar",
+          stat_active: "Aktiv",
+          stat_completed: "Abgeschlossen",
+          loading: "Ihre Reisen werden vorbereitet...",
+          load_error_title: "Ihre Reisen konnten nicht geladen werden",
+          load_error_description: "Ihr Fortschritt ist sicher. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
+          retry: "Erneut versuchen",
+          start_error: "Die Reise konnte nicht gestartet werden. Versuchen Sie es erneut.",
+          starting: "Wird gestartet...",
+          empty_available_description: "Neue geführte Wege erscheinen hier, sobald sie verfügbar sind.",
+          empty_active_description: "Wählen Sie eine verfügbare Reise, wenn Sie bereit sind.",
+          empty_completed_description: "Abgeschlossene Reisen werden hier als Verlauf Ihrer Praxis gesammelt.",
+          gentle_pace: "Gehen Sie in Ihrem Tempo — jeder Schritt zählt.",
+          card_badge: "Geführter Weg",
+          explore: "Reisen entdecken",
+          detail_eyebrow: "Ihre Reise",
+          roadmap_description: "Schließen Sie den aktuellen Schritt ab, um den nächsten behutsam freizuschalten.",
+          steps_count: "{{count}} Schritte"
+        },
         tabs: {
           available: "Verfügbar",
           in_progress: "In Bearbeitung",
@@ -6935,21 +6959,45 @@ export const translations = {
           no_in_progress: "Sie haben noch keine Reisen begonnen",
           no_completed: "Sie haben noch keine Reisen abgeschlossen"
         },
+        categories: {
+          anxiety: "Unterstützung bei Angst",
+          depression: "Unterstützung bei Tiefstimmung",
+          stress: "Stressabbau",
+          distress_tolerance: "Stresstoleranz",
+          emotion_regulation: "Emotionsregulation",
+          mindfulness: "Achtsamkeit",
+          other: "Persönliches Wachstum"
+        },
+        difficulties: {
+          beginner: "Sanft",
+          intermediate: "Aufbauend",
+          advanced: "Fortgeschritten"
+        },
         card: {
           days: "Tage",
           steps: "Schritte",
+          level: "Stufe",
           progress: "Fortschritt",
-          start_journey: "Reise Beginnen",
-          view_details: "Details Anzeigen"
+          paused: "Pausiert",
+          start_journey: "Reise beginnen",
+          continue_journey: "Fortsetzen",
+          view_details: "Details anzeigen",
+          details_aria: "Reisedetails"
         },
         detail: {
-          what_youll_gain: "Was Sie gewinnen werden:",
+          what_youll_gain: "Was Sie entwickeln",
           journey_steps: "Reiseschritte",
           day: "Tag",
-          play_game: "Spiel Spielen",
-          reflection_placeholder: "Ihre Reflexion (optional)",
+          play_game: "Übung öffnen",
+          current_step: "Aktuell",
+          locked_step: "Gesperrt",
+          completed_step: "Abgeschlossen",
+          reflection_placeholder: "Schreiben Sie ein paar Worte, wenn Sie möchten",
+          reflection_hint: "Optional und privat in Ihrem Konto.",
           saving: "Speichern...",
-          mark_complete: "Als Abgeschlossen Markieren"
+          mark_complete: "Schritt abschließen",
+          save_error: "Dieser Schritt konnte nicht gespeichert werden. Ihr bisheriger Fortschritt ist sicher; versuchen Sie es erneut.",
+          close_aria: "Reisedetails schließen"
         }
       },
       mood_tracker: {
@@ -8484,31 +8532,79 @@ export const translations = {
       journeys: {
         page_title: "Percorsi",
         page_subtitle: "Percorsi guidati di sviluppo delle competenze per la crescita personale",
+        premium: {
+          eyebrow: "La tua pratica guidata",
+          hero_description: "Scegli un percorso calmo e strutturato e procedi con un passo pratico alla volta.",
+          back_aria: "Torna alla home",
+          summary_aria: "Riepilogo percorsi",
+          stat_available: "Disponibili",
+          stat_active: "Attivi",
+          stat_completed: "Completati",
+          loading: "Preparazione dei tuoi percorsi...",
+          load_error_title: "Impossibile caricare i tuoi percorsi",
+          load_error_description: "I tuoi progressi sono al sicuro. Controlla la connessione e riprova.",
+          retry: "Riprova",
+          start_error: "Impossibile avviare il percorso. Riprova.",
+          starting: "Avvio...",
+          empty_available_description: "I nuovi percorsi guidati appariranno qui quando saranno disponibili.",
+          empty_active_description: "Scegli un percorso disponibile quando ti senti pronto.",
+          empty_completed_description: "I percorsi completati saranno raccolti qui come traccia della tua pratica.",
+          gentle_pace: "Procedi al tuo ritmo: ogni passo conta.",
+          card_badge: "Percorso guidato",
+          explore: "Esplora percorsi",
+          detail_eyebrow: "Il tuo percorso",
+          roadmap_description: "Completa il passo attuale per sbloccare con calma quello successivo.",
+          steps_count: "{{count}} passi"
+        },
         tabs: {
-          available: "Disponibile",
-          in_progress: "In Corso",
-          completed: "Completato"
+          available: "Disponibili",
+          in_progress: "In corso",
+          completed: "Completati"
         },
         empty_state: {
           no_available: "Nessun percorso disponibile al momento",
           no_in_progress: "Non hai ancora iniziato alcun percorso",
           no_completed: "Non hai ancora completato alcun percorso"
         },
+        categories: {
+          anxiety: "Supporto per l'ansia",
+          depression: "Supporto per l'umore",
+          stress: "Sollievo dallo stress",
+          distress_tolerance: "Tolleranza al disagio",
+          emotion_regulation: "Regolazione emotiva",
+          mindfulness: "Consapevolezza",
+          other: "Crescita personale"
+        },
+        difficulties: {
+          beginner: "Delicato",
+          intermediate: "In sviluppo",
+          advanced: "Avanzato"
+        },
         card: {
           days: "giorni",
           steps: "passi",
+          level: "livello",
           progress: "Progresso",
-          start_journey: "Inizia Percorso",
-          view_details: "Visualizza Dettagli"
+          paused: "In pausa",
+          start_journey: "Inizia percorso",
+          continue_journey: "Continua",
+          view_details: "Vedi dettagli",
+          details_aria: "Dettagli del percorso"
         },
         detail: {
-          what_youll_gain: "Cosa otterrai:",
-          journey_steps: "Passi del Percorso",
+          what_youll_gain: "Cosa svilupperai",
+          journey_steps: "Passi del percorso",
           day: "Giorno",
-          play_game: "Gioca",
-          reflection_placeholder: "La tua riflessione (facoltativo)",
+          play_game: "Apri pratica",
+          current_step: "Attuale",
+          locked_step: "Bloccato",
+          completed_step: "Completato",
+          reflection_placeholder: "Scrivi qualche parola se vuoi",
+          reflection_hint: "Facoltativo e privato nel tuo account.",
           saving: "Salvataggio...",
-          mark_complete: "Segna come Completato"
+          mark_complete: "Completa passo",
+          save_error: "Impossibile salvare questo passo. I progressi precedenti sono al sicuro; riprova.",
+          close_aria: "Chiudi dettagli del percorso"
         }
       },
       mood_tracker: {
@@ -10043,31 +10139,79 @@ export const translations = {
       journeys: {
         page_title: "Jornadas",
         page_subtitle: "Caminhos guiados de desenvolvimento de habilidades para crescimento pessoal",
+        premium: {
+          eyebrow: "Sua prática guiada",
+          hero_description: "Escolha um caminho calmo e estruturado e avance um passo prático de cada vez.",
+          back_aria: "Voltar ao início",
+          summary_aria: "Resumo das jornadas",
+          stat_available: "Disponíveis",
+          stat_active: "Ativas",
+          stat_completed: "Concluídas",
+          loading: "Preparando suas jornadas...",
+          load_error_title: "Não foi possível carregar suas jornadas",
+          load_error_description: "Seu progresso está seguro. Verifique a conexão e tente novamente.",
+          retry: "Tentar novamente",
+          start_error: "Não foi possível iniciar a jornada. Tente novamente.",
+          starting: "Iniciando...",
+          empty_available_description: "Novos caminhos guiados aparecerão aqui quando estiverem disponíveis.",
+          empty_active_description: "Escolha uma jornada disponível quando se sentir pronto.",
+          empty_completed_description: "As jornadas concluídas serão reunidas aqui como registro da sua prática.",
+          gentle_pace: "Avance no seu ritmo — cada passo conta.",
+          card_badge: "Caminho guiado",
+          explore: "Explorar jornadas",
+          detail_eyebrow: "Sua jornada",
+          roadmap_description: "Conclua o passo atual para desbloquear com calma o próximo.",
+          steps_count: "{{count}} passos"
+        },
         tabs: {
-          available: "Disponível",
-          in_progress: "Em Andamento",
-          completed: "Concluído"
+          available: "Disponíveis",
+          in_progress: "Em andamento",
+          completed: "Concluídas"
         },
         empty_state: {
           no_available: "Nenhuma jornada disponível no momento",
           no_in_progress: "Você ainda não iniciou nenhuma jornada",
           no_completed: "Você ainda não concluiu nenhuma jornada"
         },
+        categories: {
+          anxiety: "Apoio para ansiedade",
+          depression: "Apoio para baixo humor",
+          stress: "Alívio do estresse",
+          distress_tolerance: "Tolerância ao sofrimento",
+          emotion_regulation: "Regulação emocional",
+          mindfulness: "Atenção plena",
+          other: "Crescimento pessoal"
+        },
+        difficulties: {
+          beginner: "Suave",
+          intermediate: "Em desenvolvimento",
+          advanced: "Avançado"
+        },
         card: {
           days: "dias",
           steps: "passos",
+          level: "nível",
           progress: "Progresso",
-          start_journey: "Iniciar Jornada",
-          view_details: "Ver Detalhes"
+          paused: "Pausada",
+          start_journey: "Iniciar jornada",
+          continue_journey: "Continuar",
+          view_details: "Ver detalhes",
+          details_aria: "Detalhes da jornada"
         },
         detail: {
-          what_youll_gain: "O que você vai ganhar:",
-          journey_steps: "Passos da Jornada",
+          what_youll_gain: "O que você vai desenvolver",
+          journey_steps: "Passos da jornada",
           day: "Dia",
-          play_game: "Jogar",
-          reflection_placeholder: "Sua reflexão (opcional)",
+          play_game: "Abrir prática",
+          current_step: "Atual",
+          locked_step: "Bloqueado",
+          completed_step: "Concluído",
+          reflection_placeholder: "Escreva algumas palavras se quiser",
+          reflection_hint: "Opcional e privado na sua conta.",
           saving: "Salvando...",
-          mark_complete: "Marcar como Completo"
+          mark_complete: "Concluir passo",
+          save_error: "Não foi possível salvar este passo. Seu progresso anterior está seguro; tente novamente.",
+          close_aria: "Fechar detalhes da jornada"
         }
       },
       mood_tracker: {
