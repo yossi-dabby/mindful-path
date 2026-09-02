@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PremiumMoodIcon from '@/components/ui/PremiumMoodIcon';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -9,11 +10,11 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const moodOptions = [
-  { value: 'excellent', label: 'Excellent', emoji: '😊', color: 'bg-green-500' },
-  { value: 'good', label: 'Good', emoji: '🙂', color: 'bg-green-400' },
-  { value: 'okay', label: 'Okay', emoji: '😐', color: 'bg-yellow-400' },
-  { value: 'low', label: 'Low', emoji: '😔', color: 'bg-orange-400' },
-  { value: 'very_low', label: 'Very Low', emoji: '😢', color: 'bg-red-400' }
+  { value: 'excellent', label: 'Excellent', color: 'bg-green-500' },
+  { value: 'good', label: 'Good', color: 'bg-green-400' },
+  { value: 'okay', label: 'Okay', color: 'bg-yellow-400' },
+  { value: 'low', label: 'Low', color: 'bg-orange-400' },
+  { value: 'very_low', label: 'Very Low', color: 'bg-red-400' }
 ];
 
 const commonEmotions = [
@@ -145,7 +146,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                           : "border-gray-200 bg-white hover:border-gray-300"
                       )}
                     >
-                      <div className="text-4xl mb-2">{mood.emoji}</div>
+                      <PremiumMoodIcon mood={mood.value} size="md" selected={selectedMood === mood.value} className="mb-2" />
                       <div className="text-sm font-medium text-gray-700">{mood.label}</div>
                     </button>
                   ))}
