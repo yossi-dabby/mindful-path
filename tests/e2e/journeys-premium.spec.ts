@@ -3,6 +3,7 @@ import { mockApi, setupHebrewMode, spaNavigate } from '../helpers/ui';
 
 const journey = {
   id: 'journey-calm',
+  language: 'he',
   title: 'מסע לרוגע יציב',
   description: 'תרגול הדרגתי שמחזק ויסות ורוגע ביום־יום.',
   duration_days: 2,
