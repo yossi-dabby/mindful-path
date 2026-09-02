@@ -19,18 +19,33 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
   const updateActionsMutation = useMutation({
     mutationFn: (actions) => base44.entities.CoachingSession.update(session.id, { action_plan: actions }),
     onMutate: async (actions) => {
-      await queryClient.cancelQueries({ queryKey: ['coachingSessions'] });
-      const previousActions = session.action_plan || [];
-      onUpdate?.(actions);
-      return { previousActions };
+      const sessionKey = ['coachingSession', session.id];
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: sessionKey }),
+        queryClient.cancelQueries({ queryKey: ['coachingSessions'] })
+      ]);
+      const previousSession = queryClient.getQueryData(sessionKey) || session;
+      queryClient.setQueryData(sessionKey, (current = session) => ({
+        ...current,
+        action_plan: actions
+      }));
+      return { previousSession, sessionKey };
     },
     onError: (_error, _actions, context) => {
-      onUpdate?.(context?.previousActions || []);
+      if (context) queryClient.setQueryData(context.sessionKey, context.previousSession);
     },
-    onSuccess: (savedSession, actions) => {
-      onUpdate?.(savedSession?.action_plan || actions);
+    onSuccess: (savedSession, actions, context) => {
+      queryClient.setQueryData(context?.sessionKey || ['coachingSession', session.id], (current = session) => ({
+        ...current,
+        ...(savedSession || {}),
+        action_plan: savedSession?.action_plan || actions
+      }));
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['coachingSessions'] })
+    onSettled: () => {
+      onUpdate?.();
+      queryClient.invalidateQueries({ queryKey: ['coachingSession', session.id] });
+      queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
+    }
   });
 
   const toggleAction = (index) => {
