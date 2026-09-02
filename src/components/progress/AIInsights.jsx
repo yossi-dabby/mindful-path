@@ -290,7 +290,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
 
           {insights.journal_insights.progress_indicators?.length > 0 && (
             <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-              <h4 className="text-sm font-semibold text-green-800 mb-2">✨ Progress Indicators:</h4>
+              <h4 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-green-800"><Sparkles className="h-4 w-4" aria-hidden="true" /> Progress Indicators:</h4>
               <ul className="space-y-1">
                 {insights.journal_insights.progress_indicators.map((indicator, i) => (
                   <li key={i} className="text-sm text-green-700">• {indicator}</li>
@@ -337,7 +337,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
             <ul className="space-y-2">
               {insights.warning_signs.map((warning, i) => (
                 <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                  <span className="text-orange-600 mt-1">⚠️</span>
+                  <AlertTriangle className="mt-1 h-4 w-4 shrink-0 text-orange-600" aria-hidden="true" />
                   <span>{warning}</span>
                 </li>
               ))}
@@ -359,7 +359,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
             <ul className="space-y-2">
               {insights.positive_highlights.map((highlight, i) => (
                 <li key={i} className="text-sm text-green-800 flex items-start gap-2">
-                  <span className="mt-1">🎉</span>
+                  <Sparkles className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>{highlight}</span>
                 </li>
               ))}
