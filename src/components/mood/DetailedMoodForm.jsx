@@ -8,13 +8,14 @@ import { Slider } from '@/components/ui/slider';
 import { X, Battery, Moon, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import PremiumMoodIcon from '@/components/ui/PremiumMoodIcon';
 
 const moodsConfig = [
-  { value: 'excellent', labelKey: 'mood_tracker.form.mood_excellent', icon: '😄', color: 'from-green-400 to-green-600' },
-  { value: 'good', labelKey: 'mood_tracker.form.mood_good', icon: '🙂', color: 'from-blue-400 to-blue-600' },
-  { value: 'okay', labelKey: 'mood_tracker.form.mood_okay', icon: '😐', color: 'from-yellow-400 to-yellow-600' },
-  { value: 'low', labelKey: 'mood_tracker.form.mood_low', icon: '😟', color: 'from-orange-400 to-orange-600' },
-  { value: 'very_low', labelKey: 'mood_tracker.form.mood_very_low', icon: '😢', color: 'from-red-400 to-red-600' }
+  { value: 'excellent', labelKey: 'mood_tracker.form.mood_excellent' },
+  { value: 'good', labelKey: 'mood_tracker.form.mood_good' },
+  { value: 'okay', labelKey: 'mood_tracker.form.mood_okay' },
+  { value: 'low', labelKey: 'mood_tracker.form.mood_low' },
+  { value: 'very_low', labelKey: 'mood_tracker.form.mood_very_low' }
 ];
 
 const emotions = [
@@ -226,7 +227,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                       : 'border-border/70 hover:border-border hover:bg-secondary/60'
                   )}
                 >
-                  <span className="text-xl sm:text-2xl md:text-3xl">{mood.icon}</span>
+                  <PremiumMoodIcon mood={mood.value} size="md" selected={formData.mood === mood.value} className="h-10 w-10 sm:h-12 sm:w-12" />
                   <span className="text-[10px] sm:text-xs font-medium text-foreground/85 break-words text-center leading-tight">{t(mood.labelKey)}</span>
                 </button>
               ))}
