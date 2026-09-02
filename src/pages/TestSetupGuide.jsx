@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Terminal, Github, FileCode } from 'lucide-react';
+import { Copy, Check, Terminal, Github, FileCode, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function TestSetupGuide() {
@@ -313,7 +313,7 @@ jobs:
         {/* Footer */}
         <Card className="mt-8 bg-green-50 border-green-200">
           <CardContent className="p-6">
-            <h3 className="font-semibold text-green-900 mb-2">✅ Backend Functions Already Protected</h3>
+            <h3 className="mb-2 flex items-center gap-2 font-semibold text-green-900"><ShieldCheck className="h-4 w-4" aria-hidden="true" /> Backend Functions Already Protected</h3>
             <p className="text-sm text-green-800">
               The following functions have been updated with numeric safety guards:
             </p>
