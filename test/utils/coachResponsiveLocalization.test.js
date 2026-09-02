@@ -68,10 +68,12 @@ describe('Coach production UX safeguards', () => {
     expect(source).not.toContain('CoachingSession.list()');
   });
 
-  it('refreshes the session after action-plan mutations', () => {
+  it('optimistically updates action plans, rolls back failures, and refreshes the session', () => {
     const panel = read('src/components/coaching/ActionPlanPanel.jsx');
     const chat = read('src/components/coaching/CoachingChat.jsx');
-    expect(panel).toContain('onSuccess: (_result, actions) => onUpdate?.(actions)');
+    expect(panel).toContain('onMutate: async (actions)');
+    expect(panel).toContain('onUpdate?.(context?.previousActions || [])');
+    expect(panel).toContain("invalidateQueries({ queryKey: ['coachingSessions'] })");
     expect(chat.match(/onUpdate=\{refetchSession\}/g)).toHaveLength(2);
   });
 
