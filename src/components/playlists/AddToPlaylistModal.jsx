@@ -27,7 +27,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
     mutationFn: async ({ playlistId }) => {
       const existingVideos = await base44.entities.PlaylistVideo.filter({ playlist_id: playlistId });
       const position = existingVideos.length + 1;
-      
+
       await base44.entities.PlaylistVideo.create({
         playlist_id: playlistId,
         video_id: video.id,
@@ -36,12 +36,41 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
 
       const playlist = playlists.find(p => p.id === playlistId);
       await base44.entities.Playlist.update(playlistId, {
-        video_count: (playlist.video_count || 0) + 1
+        video_count: (playlist?.video_count || 0) + 1
       });
     },
-    onSuccess: () => {
+    onMutate: async ({ playlistId }) => {
+      const playlistVideosKey = ['playlistVideos', video?.id];
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ['playlists'] }),
+        queryClient.cancelQueries({ queryKey: playlistVideosKey })
+      ]);
+      const previousPlaylists = queryClient.getQueryData(['playlists']);
+      const previousPlaylistVideos = queryClient.getQueryData(playlistVideosKey);
+      const optimisticLink = {
+        id: `optimistic-${playlistId}-${Date.now()}`,
+        playlist_id: playlistId,
+        video_id: video.id,
+        position: 0
+      };
+      queryClient.setQueryData(playlistVideosKey, (current = []) => [...current, optimisticLink]);
+      queryClient.setQueryData(['playlists'], (current = []) =>
+        current.map((playlist) =>
+          playlist.id === playlistId
+            ? { ...playlist, video_count: (playlist.video_count || 0) + 1 }
+            : playlist
+        )
+      );
+      return { previousPlaylists, previousPlaylistVideos, playlistVideosKey };
+    },
+    onError: (_error, _variables, context) => {
+      if (!context) return;
+      queryClient.setQueryData(['playlists'], context.previousPlaylists || []);
+      queryClient.setQueryData(context.playlistVideosKey, context.previousPlaylistVideos || []);
+    },
+    onSettled: (_data, _error, _variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['playlists'] });
-      queryClient.invalidateQueries({ queryKey: ['playlistVideos'] });
+      queryClient.invalidateQueries({ queryKey: context?.playlistVideosKey || ['playlistVideos', video?.id] });
     }
   });
 
@@ -52,13 +81,38 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
         await base44.entities.PlaylistVideo.delete(link.id);
         const playlist = playlists.find(p => p.id === playlistId);
         await base44.entities.Playlist.update(playlistId, {
-          video_count: Math.max(0, (playlist.video_count || 0) - 1)
+          video_count: Math.max(0, (playlist?.video_count || 0) - 1)
         });
       }
     },
-    onSuccess: () => {
+    onMutate: async ({ playlistId }) => {
+      const playlistVideosKey = ['playlistVideos', video?.id];
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ['playlists'] }),
+        queryClient.cancelQueries({ queryKey: playlistVideosKey })
+      ]);
+      const previousPlaylists = queryClient.getQueryData(['playlists']);
+      const previousPlaylistVideos = queryClient.getQueryData(playlistVideosKey);
+      queryClient.setQueryData(playlistVideosKey, (current = []) =>
+        current.filter((link) => link.playlist_id !== playlistId)
+      );
+      queryClient.setQueryData(['playlists'], (current = []) =>
+        current.map((playlist) =>
+          playlist.id === playlistId
+            ? { ...playlist, video_count: Math.max(0, (playlist.video_count || 0) - 1) }
+            : playlist
+        )
+      );
+      return { previousPlaylists, previousPlaylistVideos, playlistVideosKey };
+    },
+    onError: (_error, _variables, context) => {
+      if (!context) return;
+      queryClient.setQueryData(['playlists'], context.previousPlaylists || []);
+      queryClient.setQueryData(context.playlistVideosKey, context.previousPlaylistVideos || []);
+    },
+    onSettled: (_data, _error, _variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['playlists'] });
-      queryClient.invalidateQueries({ queryKey: ['playlistVideos'] });
+      queryClient.invalidateQueries({ queryKey: context?.playlistVideosKey || ['playlistVideos', video?.id] });
     }
   });
 
@@ -66,7 +120,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
     return playlistVideos.some(pv => pv.playlist_id === playlistId);
   };
 
+  const playlistChangePending = addMutation.isPending || removeMutation.isPending;
+
   const togglePlaylist = (playlistId) => {
+    if (playlistChangePending) return;
     if (isVideoInPlaylist(playlistId)) {
       removeMutation.mutate({ playlistId });
     } else {
@@ -117,7 +174,9 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                   key={playlist.id}
                   type="button"
                   onClick={() => togglePlaylist(playlist.id)}
-                  className="w-full p-3 flex items-center justify-between transition-all"
+                  disabled={playlistChangePending}
+                  aria-busy={playlistChangePending}
+                  className="w-full p-3 flex items-center justify-between transition-all disabled:cursor-wait disabled:opacity-70"
                   style={{ 
                     borderRadius: 'var(--r-md)', 
                     border: inPlaylist ? '2px solid #26A69A' : '1px solid rgb(var(--theme-border))',
