@@ -8,6 +8,8 @@ describe('Premium brand and icon refresh contract', () => {
   const sidebar = read('src/components/layout/Sidebar.jsx');
   const mobileHeader = read('src/components/layout/MobileHeader.jsx');
   const quickActions = read('src/components/home/QuickActions.jsx');
+  const home = read('src/pages/Home.jsx');
+  const layout = read('src/Layout.jsx');
   const checkIn = read('src/components/home/StandaloneDailyCheckIn.jsx');
   const moodIcon = read('src/components/ui/PremiumMoodIcon.jsx');
   const premiumIcon = read('src/components/ui/PremiumIcon.jsx');
@@ -25,9 +27,17 @@ describe('Premium brand and icon refresh contract', () => {
     expect(brand).toContain('absolute bottom-0 start-[6%]');
   });
 
-  it('uses one play symbol for home explanation videos', () => {
+  it('uses one play symbol and premium tile style for home explanation videos', () => {
     expect(quickActions).toContain('CirclePlay');
     expect(quickActions).not.toContain('<User');
+    expect(home.match(/<CirclePlay className="h-6 w-6" strokeWidth=\{2\.2\} \/>/g)).toHaveLength(2);
+    expect(home.match(/rounded-2xl border border-teal-700\/10 bg-white\/75/g)).toHaveLength(2);
+    expect(home).not.toContain('<Sparkles className="w-4 h-4 text-accent"');
+  });
+
+  it('does not mount the draggable AI companion in the global layout', () => {
+    expect(layout).not.toContain("import DraggableAiCompanion");
+    expect(layout).not.toContain('<DraggableAiCompanion');
   });
 
   it('keeps all five daily mood choices aligned and premium', () => {
