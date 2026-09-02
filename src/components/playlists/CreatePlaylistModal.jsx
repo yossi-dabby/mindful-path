@@ -12,21 +12,50 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
-    mutationFn: async () => {
-      return await base44.entities.Playlist.create({ name, description, video_count: 0 });
+    mutationFn: ({ playlistName, playlistDescription }) =>
+      base44.entities.Playlist.create({
+        name: playlistName,
+        description: playlistDescription,
+        video_count: 0
+      }),
+    onMutate: async ({ playlistName, playlistDescription }) => {
+      await queryClient.cancelQueries({ queryKey: ['playlists'] });
+      const previous = queryClient.getQueryData(['playlists']);
+      const optimisticId = `optimistic-playlist-${Date.now()}`;
+      queryClient.setQueryData(['playlists'], (current = []) => [
+        {
+          id: optimisticId,
+          name: playlistName,
+          description: playlistDescription,
+          video_count: 0,
+          created_date: new Date().toISOString()
+        },
+        ...current
+      ]);
+      return { previous, optimisticId };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+    onError: (_error, _variables, context) => {
+      if (context) queryClient.setQueryData(['playlists'], context.previous || []);
+    },
+    onSuccess: (createdPlaylist, _variables, context) => {
+      queryClient.setQueryData(['playlists'], (current = []) => [
+        createdPlaylist,
+        ...current.filter((playlist) => playlist.id !== context?.optimisticId)
+      ]);
       setName('');
       setDescription('');
       onClose();
-    }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['playlists'] })
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name.trim()) {
-      createMutation.mutate();
+      createMutation.mutate({
+        playlistName: name.trim(),
+        playlistDescription: description.trim()
+      });
     }
   };
 
