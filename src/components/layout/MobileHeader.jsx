@@ -101,11 +101,11 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
         </div>
 
         {/* Center: Page title */}
-        <p className="min-w-0 flex-1 truncate text-center text-teal-700 font-semibold">
+        <div className="min-w-0 flex-1 overflow-visible text-center text-teal-700 font-semibold">
           {currentPageName === 'Home'
             ? <AppWordmark name={getPageTitle()} compact className="max-w-full" />
             : getPageTitle()}
-        </p>
+        </div>
 
         {/* End: Notification bell + Menu button */}
         <div className="flex items-center gap-1 justify-end">
