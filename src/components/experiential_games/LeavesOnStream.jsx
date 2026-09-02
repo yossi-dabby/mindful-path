@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function LeavesOnStream({ onClose }) {
   const { t } = useTranslation();
@@ -72,7 +73,7 @@ export default function LeavesOnStream({ onClose }) {
                 backgroundColor: 'rgba(159, 122, 234, 0.3)',
                 color: '#1A3A34'
               }}>
-                🍃 "{thought}"
+                <span className="inline-flex items-center gap-2"><PremiumIcon name="leaf" size="sm" bare /> “{thought}”</span>
               </div>
             </div>
             <p className="text-sm italic break-words whitespace-normal" style={{ color: '#5A7A72' }}>
