@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
@@ -153,25 +153,39 @@ export default function ChunkForm({ chunk, onSave, onCancel }) {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {field('Source Name', 'source_name', { placeholder: 'e.g., Beck Institute, NICE Guidelines' })}
           <div className="space-y-1">
-            <Label>Source Type</Label>
-            <Select value={form.source_type || ''} onValueChange={v => set('source_type', v)}>
-              <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
-              <SelectContent>{SOURCE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-            </Select>
+            <Label htmlFor="knowledge-source-type">Source Type</Label>
+            <BottomSheetSelect
+              id="knowledge-source-type"
+              value={form.source_type || ''}
+              onValueChange={v => set('source_type', v)}
+              options={SOURCE_TYPES.map(value => ({ value, label: value }))}
+              placeholder="Select…"
+              title="Choose source type"
+              ariaLabel="Source type"
+            />
           </div>
           <div className="space-y-1">
-            <Label>License Status</Label>
-            <Select value={form.license_status || ''} onValueChange={v => set('license_status', v)}>
-              <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
-              <SelectContent>{LICENSE_STATUSES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-            </Select>
+            <Label htmlFor="knowledge-license-status">License Status</Label>
+            <BottomSheetSelect
+              id="knowledge-license-status"
+              value={form.license_status || ''}
+              onValueChange={v => set('license_status', v)}
+              options={LICENSE_STATUSES.map(value => ({ value, label: value }))}
+              placeholder="Select…"
+              title="Choose license status"
+              ariaLabel="License status"
+            />
           </div>
           <div className="space-y-1">
-            <Label>Language</Label>
-            <Select value={form.language} onValueChange={v => set('language', v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{LANGUAGES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
-            </Select>
+            <Label htmlFor="knowledge-language">Language</Label>
+            <BottomSheetSelect
+              id="knowledge-language"
+              value={form.language}
+              onValueChange={v => set('language', v)}
+              options={LANGUAGES.map(value => ({ value, label: value }))}
+              title="Choose language"
+              ariaLabel="Language"
+            />
           </div>
           <div className="space-y-1">
             <Label>Priority Score (0–10)<span className="text-destructive ml-1">*</span></Label>
