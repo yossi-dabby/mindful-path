@@ -10,6 +10,44 @@
       "type": "string",
       "description": "What this journey helps with"
     },
+    "content_key": {
+      "type": "string",
+      "description": "Stable language-independent key for this journey"
+    },
+    "localizations": {
+      "type": "object",
+      "description": "Localized journey content. Every published locale must provide title, description, outcomes, and a complete steps array matching the source steps.",
+      "properties": {
+        "en": {
+          "type": "object",
+          "description": "English localized content"
+        },
+        "he": {
+          "type": "object",
+          "description": "Hebrew localized content"
+        },
+        "es": {
+          "type": "object",
+          "description": "Spanish localized content"
+        },
+        "fr": {
+          "type": "object",
+          "description": "French localized content"
+        },
+        "de": {
+          "type": "object",
+          "description": "German localized content"
+        },
+        "it": {
+          "type": "object",
+          "description": "Italian localized content"
+        },
+        "pt": {
+          "type": "object",
+          "description": "Portuguese localized content"
+        }
+      }
+    },
     "duration_days": {
       "type": "number",
       "description": "Expected duration in days"
