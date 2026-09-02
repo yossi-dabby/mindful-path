@@ -86,6 +86,10 @@ describe('Coach production UX safeguards', () => {
     expect(list).toContain('role="button"');
     expect(list).toContain('tabIndex={0}');
     expect(wizard).toContain('aria-pressed={formData.focus_area === area.value}');
+    expect(wizard).toContain('createPortal((');
+    expect(wizard).toContain('contentScrollRef.current.scrollTop = 0');
+    expect(wizard).toContain("WebkitOverflowScrolling: 'touch'");
+    expect(wizard).toContain('break-words text-base font-semibold leading-tight');
     expect(chat).toContain('overflow-x-auto');
     expect(chat).toContain("env(safe-area-inset-bottom, 0px)");
   });
