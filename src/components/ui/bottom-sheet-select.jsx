@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
  * @param {string}   [props.placeholder]    - Trigger placeholder text
  * @param {string}   [props.title]          - Sheet header title
  * @param {string}   [props.className]      - Extra classes on the trigger button
+ * @param {string}   [props.id]             - Trigger id for an associated label
+ * @param {string}   [props.ariaLabel]      - Accessible trigger label
  * @param {boolean}  [props.disabled]
  */
 export default function BottomSheetSelect({
@@ -26,6 +28,8 @@ export default function BottomSheetSelect({
   placeholder = 'Select…',
   title = 'Choose an option',
   className,
+  id,
+  ariaLabel,
   disabled = false,
 }) {
   const [open, setOpen] = useState(false);
@@ -40,14 +44,16 @@ export default function BottomSheetSelect({
   return (
     <>
       <Button
+        id={id}
         type="button"
         variant="outline"
         disabled={disabled}
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-label={ariaLabel || title}
         className={cn(
-          'w-full justify-between rounded-xl text-left font-normal',
+          'min-h-12 w-full justify-between rounded-xl text-start font-normal',
           !selected && 'text-muted-foreground',
           className
         )}
@@ -61,16 +67,18 @@ export default function BottomSheetSelect({
           <DrawerHeader className="border-b border-border/70 pb-3">
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
-          <div className="overflow-y-auto max-h-[60vh] p-2">
+          <div className="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label={ariaLabel || title}>
             {options.map((option) => {
               const isSelected = option.value === value;
               return (
                 <button
                   key={option.value}
                   type="button"
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                    'w-full flex items-center justify-between px-4 py-3 rounded-xl text-left text-sm transition-colors',
+                    'flex min-h-12 w-full items-center justify-between rounded-xl px-4 py-3 text-start text-sm transition-colors',
                     isSelected
                       ? 'bg-primary/10 text-primary font-medium'
                       : 'hover:bg-secondary/60 text-foreground'
