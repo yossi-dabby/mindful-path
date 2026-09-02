@@ -7,48 +7,48 @@ import { base44 } from '@/api/base44Client';
 
 const tourSteps = [
   {
-    title: '👋 Welcome to Your Mental Wellness Journey',
+    title: 'Welcome to Your Mental Wellness Journey',
     description: 'This app combines AI therapy, journaling, and CBT exercises to support your mental health.',
     position: 'center'
   },
   {
-    title: '💬 AI Therapist Chat',
+    title: 'AI Therapist Chat',
     description: 'Talk to your AI therapist anytime. Share your thoughts, feelings, and challenges in a safe space.',
     target: 'chat',
     position: 'bottom'
   },
   {
-    title: '📊 Track Your Mood',
+    title: 'Track Your Mood',
     description: 'Check in daily to monitor your emotional patterns and identify triggers over time.',
     target: 'mood',
     position: 'bottom'
   },
   {
-    title: '📝 Journaling Tools',
+    title: 'Journaling Tools',
     description: 'Use structured CBT journaling to challenge negative thoughts and develop balanced perspectives.',
     target: 'journal',
     position: 'bottom'
   },
   {
-    title: '💪 Practice Exercises',
+    title: 'Practice Exercises',
     description: 'Access breathing exercises, mindfulness practices, and other CBT techniques.',
     target: 'exercises',
     position: 'bottom'
   },
   {
-    title: '🎯 Set & Track Goals',
+    title: 'Set & Track Goals',
     description: 'Create meaningful goals and track your progress towards better mental health.',
     target: 'goals',
     position: 'bottom'
   },
   {
-    title: '📈 View Your Progress',
+    title: 'View Your Progress',
     description: 'Visualize your journey with insights, trends, and AI-powered analysis.',
     target: 'progress',
     position: 'bottom'
   },
   {
-    title: '🚀 You\'re All Set!',
+    title: 'You\'re All Set!',
     description: 'Remember: This is a tool for support, not a replacement for professional help. In crisis, contact emergency services.',
     position: 'center'
   }
