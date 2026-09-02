@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
@@ -27,6 +28,7 @@ const focusAreaDefinitions = [
 export default function CoachingSessionWizard({ onClose }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const contentScrollRef = useRef(null);
   const focusAreas = focusAreaDefinitions.map((area) => ({
     ...area,
     label: t(`coach.focus.${area.value}.label`),
@@ -153,6 +155,11 @@ export default function CoachingSessionWizard({ onClose }) {
     setFormData({ ...formData, related_goals: updated });
   };
 
+  useEffect(() => {
+    // Each wizard stage starts at its heading, even after scrolling on iOS.
+    if (contentScrollRef.current) contentScrollRef.current.scrollTop = 0;
+  }, [step]);
+
   const canProceed = () => {
     if (step === 1) return formData.focus_area;
     if (step === 2) return formData.current_challenge && formData.desired_outcome;
@@ -177,22 +184,22 @@ export default function CoachingSessionWizard({ onClose }) {
     });
   };
 
-  return (
+  return createPortal((
     <div data-testid="coach-wizard" className="flex w-full flex-col bg-background" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
       <div className="bg-card border-b border-border/70 shadow-sm flex-shrink-0" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                 <Target className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h1 className="text-lg font-semibold text-foreground sm:text-xl">{t('coach.wizard.title')}</h1>
+              <div className="min-w-0 flex-1">
+                <h1 className="break-words text-base font-semibold leading-tight text-foreground sm:text-xl">{t('coach.wizard.title')}</h1>
                 <p className="text-sm text-muted-foreground">{t('coach.wizard.step', { step })}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('coach.wizard.back_aria') : t('coach.wizard.close_aria')} className="text-slate-950 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('coach.wizard.back_aria') : t('coach.wizard.close_aria')} className="shrink-0 text-slate-950 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
               {step > 1 ?
               <ChevronLeft className="h-5 w-5 rtl:scale-x-[-1]" /> :
 
@@ -204,8 +211,8 @@ export default function CoachingSessionWizard({ onClose }) {
       </div>
 
       {/* Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, overscrollBehavior: 'none' }}>
-        <div className="max-w-2xl mx-auto p-4 md:p-6 pb-8 w-full">
+      <div ref={contentScrollRef} className="flex-1 overflow-y-auto" style={{ minHeight: 0, overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
+        <div className="mx-auto w-full max-w-2xl p-4 pb-8 pt-5 sm:pt-6 md:p-6">
           {/* Step 1: Focus Area */}
           {step === 1 &&
           <div className="space-y-6">
@@ -430,6 +437,7 @@ export default function CoachingSessionWizard({ onClose }) {
           }
         </div>
       </div>
-    </div>);
+    </div>
+  ), document.body);
 
 }
