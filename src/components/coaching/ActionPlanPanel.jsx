@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,15 +14,29 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
   const { t } = useTranslation();
   const [newAction, setNewAction] = useState({ action: '', timeline: '' });
   const [isAdding, setIsAdding] = useState(false);
+  const queryClient = useQueryClient();
 
   const updateActionsMutation = useMutation({
     mutationFn: (actions) => base44.entities.CoachingSession.update(session.id, { action_plan: actions }),
-    onSuccess: (_result, actions) => onUpdate?.(actions)
+    onMutate: async (actions) => {
+      await queryClient.cancelQueries({ queryKey: ['coachingSessions'] });
+      const previousActions = session.action_plan || [];
+      onUpdate?.(actions);
+      return { previousActions };
+    },
+    onError: (_error, _actions, context) => {
+      onUpdate?.(context?.previousActions || []);
+    },
+    onSuccess: (savedSession, actions) => {
+      onUpdate?.(savedSession?.action_plan || actions);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['coachingSessions'] })
   });
 
   const toggleAction = (index) => {
-    const updatedActions = [...(session.action_plan || [])];
-    updatedActions[index].completed = !updatedActions[index].completed;
+    const updatedActions = (session.action_plan || []).map((action, actionIndex) =>
+      actionIndex === index ? { ...action, completed: !action.completed } : action
+    );
     updateActionsMutation.mutate(updatedActions);
   };
 
