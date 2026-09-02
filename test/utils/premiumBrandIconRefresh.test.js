@@ -20,6 +20,9 @@ describe('Premium brand and icon refresh contract', () => {
     expect(sidebar).toContain("<AppWordmark name={t('global.app_name')}");
     expect(mobileHeader).toContain('<GrowingShieldMark size={36} />');
     expect(mobileHeader).toContain('<AppWordmark');
+    expect(mobileHeader).toContain('overflow-visible text-center');
+    expect(brand).toContain('flex-col pb-1.5');
+    expect(brand).toContain('absolute bottom-0 start-[6%]');
   });
 
   it('uses one play symbol for home explanation videos', () => {
