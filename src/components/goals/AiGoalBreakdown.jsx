@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Target, CheckCircle, Plus } from 'lucide-react';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function AiGoalBreakdown({ goal, onApplySteps, onClose }) {
   const [breakdown, setBreakdown] = useState(null);
@@ -197,7 +198,7 @@ Make each step concrete and actionable, not vague.`,
                   const obs = typeof item === 'object' ? item : { obstacle: safeText(item), solution: '' };
                   return (
                   <div key={i} className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                    <p className="font-medium text-gray-800 text-sm">⚠️ {safeText(obs.obstacle, `Obstacle ${i + 1}`)}</p>
+                    <p className="flex items-start gap-2 font-medium text-gray-800 text-sm"><PremiumIcon name="alert" size="sm" bare className="mt-0.5 shrink-0" /><span>{safeText(obs.obstacle, `Obstacle ${i + 1}`)}</span></p>
                     {obs.solution && (
                       <p className="text-xs text-gray-600 mt-1">
                         <span className="font-semibold">Solution:</span> {safeText(obs.solution)}
@@ -215,7 +216,7 @@ Make each step concrete and actionable, not vague.`,
               <ul className="space-y-1">
                 {safeArray(breakdown.success_metrics).map((metric, i) => (
                   <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                    <span className="text-indigo-600 mt-0.5">📊</span>
+                    <PremiumIcon name="chart" size="sm" bare className="mt-0.5 shrink-0 text-indigo-600" />
                     <span>{metric}</span>
                   </li>
                 ))}
