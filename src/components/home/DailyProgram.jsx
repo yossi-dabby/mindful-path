@@ -8,6 +8,7 @@ import { Play, Clock, Heart, Headphones } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
+import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function DailyProgram() {
   const { data: exercises } = useQuery({
@@ -59,7 +60,7 @@ export default function DailyProgram() {
                     {dailyExercise.description}
                   </p>
                 </div>
-                <div className="text-3xl">🌅</div>
+                <PremiumIcon name="sun" size="md" />
               </div>
               
               <div className="flex items-center gap-4 mb-3">
@@ -101,7 +102,7 @@ export default function DailyProgram() {
                     {dailyAudio.description}
                   </p>
                 </div>
-                <div className="text-3xl">🌙</div>
+                <PremiumIcon name="moon" size="md" />
               </div>
               
               <div className="flex items-center gap-4 mb-3">
@@ -132,7 +133,7 @@ export default function DailyProgram() {
           className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-5 border border-yellow-200"
         >
           <div className="flex items-start gap-3">
-            <div className="text-2xl">💡</div>
+            <PremiumIcon name="idea" size="sm" className="shrink-0" />
             <div>
               <h4 className="font-semibold text-gray-800 mb-1">Tip of the Day</h4>
               <p className="text-sm text-gray-700">
