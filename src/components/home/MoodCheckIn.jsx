@@ -146,7 +146,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                           : "border-gray-200 bg-white hover:border-gray-300"
                       )}
                     >
-                      <PremiumMoodIcon mood={mood.value} size="md" selected={selectedMood === mood.value} className="mb-2" />
+                      <PremiumMoodIcon mood={mood.value} size="md" selected={formData.mood === mood.value} className="mb-2" />
                       <div className="text-sm font-medium text-gray-700">{mood.label}</div>
                     </button>
                   ))}

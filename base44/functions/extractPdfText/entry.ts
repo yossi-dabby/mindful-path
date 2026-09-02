@@ -8,6 +8,33 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
  * Returns: { success: true, text: "..." } on success
  *          { success: false, error: "..." } on failure
  */
+/**
+ * Verifies that file_url belongs to the authenticated user before its text
+ * is extracted. The UploadFile integration stores each user's uploads under
+ * a per-user path segment (.../files/<bucket>/public/<OWNER_ID>/<filename>);
+ * we require that <OWNER_ID> to equal the caller's user id so one user
+ * cannot read text extracted from another user's private uploads.
+ * App-bundled /forms/ paths are public static assets and are always allowed.
+ */
+function isFileUrlOwnedByUser(fileUrl, userId) {
+  if (typeof fileUrl !== 'string' || !fileUrl.trim() || !userId) return false;
+  const trimmed = fileUrl.trim();
+
+  if (trimmed.startsWith('/forms/')) return true;
+
+  let pathname;
+  try {
+    pathname = new URL(trimmed, 'https://base44.app').pathname;
+  } catch {
+    return false;
+  }
+
+  const publicIndex = pathname.indexOf('/public/');
+  if (publicIndex === -1) return false;
+  const ownerSegment = pathname.slice(publicIndex + '/public/'.length).split('/')[0] || '';
+  return ownerSegment === userId;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -21,6 +48,12 @@ Deno.serve(async (req) => {
 
     if (!file_url || typeof file_url !== 'string') {
       return Response.json({ success: false, error: 'file_url is required' }, { status: 400 });
+    }
+
+    // Authorization: verify the caller owns the requested file before
+    // extracting its text, preventing cross-user access to private uploads.
+    if (!isFileUrlOwnedByUser(file_url, user.id)) {
+      return Response.json({ success: false, error: 'File not found or not accessible' }, { status: 403 });
     }
 
     // Use ExtractDataFromUploadedFile with a generic text extraction schema

@@ -4757,8 +4757,8 @@ export default function Chat() {
         setShowAuthError(true);
       } else {
         toast({
-          title: t('chat.delivery.failed_title', MESSAGE_SEND_FAILED_FALLBACK.title),
-          description: t('chat.delivery.failed_description', MESSAGE_SEND_FAILED_FALLBACK.description),
+          title: t('chat.delivery.failed_title', 'Message not sent'),
+          description: t('chat.delivery.failed_description', 'Please try again in a moment.'),
           variant: 'destructive'
         });
       }
