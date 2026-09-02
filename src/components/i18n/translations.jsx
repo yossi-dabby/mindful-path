@@ -286,7 +286,7 @@ export const translations = {
         },
         input_placeholder: "Share what's on your mind...",
         disclaimer: {
-          title: "⚠️ AI Support - Not Professional Therapy",
+          title: "AI Support - Not Professional Therapy",
           message: "Cannot diagnose or prescribe. Crisis? Call 988 (US) or your local emergency services.",
           strict: "Reminder: This AI cannot diagnose conditions or prescribe treatments. For medical concerns, consult a licensed professional.",
           standard: "Reminder: This is AI-assisted support, not professional therapy. Emergency situations require immediate professional help."
@@ -1940,7 +1940,7 @@ export const translations = {
         },
         input_placeholder: "שתפו מה עובר לכם בראש...",
         disclaimer: {
-          title: "⚠️ תמיכת AI - לא טיפול מקצועי",
+          title: "תמיכת AI - לא טיפול מקצועי",
           message: "לא יכול לאבחן או לרשום. משבר? התקשרו 988 (ארה\"ב) או לשירותי חירום מקומיים.",
           strict: "תזכורת: AI זה אינו יכול לאבחן מצבים או לרשום טיפולים. לבעיות רפואיות, התייעצו עם מקצוען מורשה.",
           standard: "תזכורת: זוהי תמיכה בסיוע AI, לא טיפול מקצועי. מצבי חירום דורשים עזרה מקצועית מיידית."
@@ -3594,7 +3594,7 @@ export const translations = {
         },
         input_placeholder: "Comparte lo que tienes en mente...",
         disclaimer: {
-          title: "⚠️ Soporte IA - No es Terapia Profesional",
+          title: "Soporte IA - No es Terapia Profesional",
           message: "No puede diagnosticar ni prescribir. ¿Crisis? Llama al 988 (EE. UU.) o a tus servicios de emergencia locales.",
           strict: "Recordatorio: Esta IA no puede diagnosticar condiciones ni prescribir tratamientos. Para preocupaciones médicas, consulta a un profesional licenciado.",
           standard: "Recordatorio: Este es soporte asistido por IA, no terapia profesional. Las situaciones de emergencia requieren ayuda profesional inmediata."
@@ -5202,7 +5202,7 @@ export const translations = {
         },
         input_placeholder: "Partagez ce qui vous préoccupe...",
         disclaimer: {
-          title: "⚠️ Support IA - Pas de Thérapie Professionnelle",
+          title: "Support IA - Pas de Thérapie Professionnelle",
           message: "Ne peut pas diagnostiquer ni prescrire. Crise ? Appelez le 988 (États-Unis) ou vos services d'urgence locaux.",
           strict: "Rappel : Cette IA ne peut pas diagnostiquer de conditions ni prescrire de traitements. Pour les préoccupations médicales, consultez un professionnel agréé.",
           standard: "Rappel : Il s'agit d'un soutien assisté par IA, pas d'une thérapie professionnelle. Les situations d'urgence nécessitent une aide professionnelle immédiate."
@@ -6809,7 +6809,7 @@ export const translations = {
         },
         input_placeholder: "Teilen Sie, was Ihnen durch den Kopf geht...",
         disclaimer: {
-          title: "⚠️ KI-Unterstützung - Keine Professionelle Therapie",
+          title: "KI-Unterstützung - Keine Professionelle Therapie",
           message: "Kann nicht diagnostizieren oder verschreiben. Krise? Rufen Sie 988 (USA) oder Ihre lokalen Notdienste.",
           strict: "Erinnerung: Diese KI kann keine Zustände diagnostizieren oder Behandlungen verschreiben. Bei medizinischen Bedenken konsultieren Sie einen zugelassenen Fachmann.",
           standard: "Erinnerung: Dies ist KI-unterstützte Unterstützung, keine professionelle Therapie. Notsituationen erfordern sofortige professionelle Hilfe."
@@ -8416,7 +8416,7 @@ export const translations = {
         },
         input_placeholder: "Condividi ciò che hai in mente...",
         disclaimer: {
-          title: "⚠️ Supporto IA - Non Terapia Professionale",
+          title: "Supporto IA - Non Terapia Professionale",
           message: "Non può diagnosticare né prescrivere. Crisi? Chiama 988 (USA) o i tuoi servizi di emergenza locali.",
           strict: "Promemoria: Questa IA non può diagnosticare condizioni né prescrivere trattamenti. Per preoccupazioni mediche, consulta un professionista autorizzato.",
           standard: "Promemoria: Questo è supporto assistito da IA, non terapia professionale. Le situazioni di emergenza richiedono aiuto professionale immediato."
@@ -10023,7 +10023,7 @@ export const translations = {
         },
         input_placeholder: "Compartilhe o que está em sua mente...",
         disclaimer: {
-          title: "⚠️ Suporte IA - Não é Terapia Profissional",
+          title: "Suporte IA - Não é Terapia Profissional",
           message: "Não pode diagnosticar nem prescrever. Crise? Ligue 988 (EUA) ou seus serviços de emergência locais.",
           strict: "Lembrete: Esta IA não pode diagnosticar condições nem prescrever tratamentos. Para preocupações médicas, consulte um profissional licenciado.",
           standard: "Lembrete: Este é suporte assistido por IA, não terapia profissional. Situações de emergência requerem ajuda profissional imediata."
