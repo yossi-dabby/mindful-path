@@ -7,6 +7,7 @@ import { useTabNavigation } from './TabNavigationProvider';
 import MobileMenu from './MobileMenu';
 import NotificationBell from '../notifications/NotificationBell';
 import { useTranslation } from 'react-i18next';
+import { AppWordmark, GrowingShieldMark } from '@/components/brand/AppBrand';
 
 export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
 
@@ -93,20 +94,17 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
               <ChevronLeft className="text-teal-700 lucide lucide-chevron-left w-6 h-6 rtl:scale-x-[-1]" />
             </Button> :
 
-          <div className="bg-teal-600 text-primary-foreground mx-4 opacity-100 rounded-3xl w-8 h-8 flex items-center justify-center shadow-[var(--shadow-sm)]"
-
-          aria-hidden="true">
-
-              <span className="text-white text-sm font-bold uppercase">M</span>
-            </div>
+          <div className="mx-2">
+            <GrowingShieldMark size={36} />
+          </div>
           }
         </div>
 
         {/* Center: Page title */}
-        <p className="text-teal-600 font-semibold truncate">
-
-
-          {getPageTitle()}
+        <p className="min-w-0 flex-1 truncate text-center text-teal-700 font-semibold">
+          {currentPageName === 'Home'
+            ? <AppWordmark name={getPageTitle()} compact className="max-w-full" />
+            : getPageTitle()}
         </p>
 
         {/* End: Notification bell + Menu button */}
