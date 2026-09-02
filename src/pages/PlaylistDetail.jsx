@@ -77,9 +77,41 @@ export default function PlaylistDetail() {
         });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] });
-      queryClient.invalidateQueries({ queryKey: ['playlistVideos', playlistId] });
+    onMutate: async (videoId) => {
+      const playlistKey = ['playlist', playlistId];
+      const playlistVideosKey = ['playlistVideos', playlistId];
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: playlistKey }),
+        queryClient.cancelQueries({ queryKey: playlistVideosKey }),
+        queryClient.cancelQueries({ queryKey: ['playlists'] })
+      ]);
+      const previousPlaylist = queryClient.getQueryData(playlistKey);
+      const previousPlaylistVideos = queryClient.getQueryData(playlistVideosKey);
+      const previousPlaylists = queryClient.getQueryData(['playlists']);
+      queryClient.setQueryData(playlistVideosKey, (current = []) =>
+        current.filter((link) => link.video_id !== videoId)
+      );
+      queryClient.setQueryData(playlistKey, (current) =>
+        current ? { ...current, video_count: Math.max(0, (current.video_count || 0) - 1) } : current
+      );
+      queryClient.setQueryData(['playlists'], (current = []) =>
+        current.map((item) =>
+          item.id === playlistId
+            ? { ...item, video_count: Math.max(0, (item.video_count || 0) - 1) }
+            : item
+        )
+      );
+      return { previousPlaylist, previousPlaylistVideos, previousPlaylists, playlistKey, playlistVideosKey };
+    },
+    onError: (_error, _videoId, context) => {
+      if (!context) return;
+      queryClient.setQueryData(context.playlistKey, context.previousPlaylist);
+      queryClient.setQueryData(context.playlistVideosKey, context.previousPlaylistVideos || []);
+      queryClient.setQueryData(['playlists'], context.previousPlaylists || []);
+    },
+    onSettled: (_data, _error, _videoId, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.playlistKey || ['playlist', playlistId] });
+      queryClient.invalidateQueries({ queryKey: context?.playlistVideosKey || ['playlistVideos', playlistId] });
       queryClient.invalidateQueries({ queryKey: ['playlists'] });
     }
   });
@@ -203,9 +235,11 @@ export default function PlaylistDetail() {
                           size="icon"
                           onClick={(e) => {
                             e.preventDefault();
-                            removeMutation.mutate(video.id);
+                            if (!removeMutation.isPending) removeMutation.mutate(video.id);
                           }}
-                          className="absolute top-2 right-2 bg-white/90 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          disabled={removeMutation.isPending}
+                          aria-busy={removeMutation.isPending}
+                          className="absolute top-2 right-2 bg-white/90 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait disabled:opacity-60"
                           aria-label={t('playlist_detail.remove_video_aria')}
                         >
                           <X className="w-4 h-4 text-red-500" />
