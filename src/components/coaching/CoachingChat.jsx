@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Send, Loader2, Target, CheckCircle2 } from 'lucide-react';
 import MessageBubble from '../chat/MessageBubble';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
+import { hasCurrentChatConsent, persistCurrentChatConsent } from '@/lib/chatConsent';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
@@ -39,12 +40,11 @@ export default function CoachingChat({ session, onBack }) {
     /HeadlessChrome/.test(window.navigator.userAgent);
 
     if (isTestEnv) {
-      localStorage.setItem('chat_consent_accepted', 'true');
+      persistCurrentChatConsent();
       return;
     }
 
-    const consentAccepted = localStorage.getItem('chat_consent_accepted');
-    if (!consentAccepted) {
+    if (!hasCurrentChatConsent()) {
       setShowConsentBanner(true);
     }
   }, []);
