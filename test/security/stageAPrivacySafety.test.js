@@ -8,6 +8,7 @@ import {
 import {
   hasCurrentChatConsent,
   persistCurrentChatConsent,
+  resolveCurrentChatConsent,
 } from '../../src/lib/chatConsent.js';
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
@@ -40,11 +41,28 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
 
   it('accepts only the current consent version', () => {
     const storage = createStorage();
-    expect(hasCurrentChatConsent(storage)).toBe(false);
-    persistCurrentChatConsent(storage);
-    expect(hasCurrentChatConsent(storage)).toBe(true);
+    expect(hasCurrentChatConsent(storage, 'user-a')).toBe(false);
+    persistCurrentChatConsent(storage, 'user-a');
+    expect(hasCurrentChatConsent(storage, 'user-a')).toBe(true);
+    expect(hasCurrentChatConsent(storage, 'user-b')).toBe(false);
     storage.setItem('chat_consent_version', 'older-version');
-    expect(hasCurrentChatConsent(storage)).toBe(false);
+    expect(hasCurrentChatConsent(storage, 'user-a')).toBe(false);
+  });
+
+  it('restores server-confirmed consent only for the current owner', async () => {
+    const storage = createStorage();
+    const client = {
+      auth: { me: async () => ({ id: 'user-a' }) },
+      entities: {
+        ConsentRecord: {
+          filter: async () => [{ version: LEGAL_CONSENT_VERSION }],
+        },
+      },
+    };
+
+    await expect(resolveCurrentChatConsent(client, storage)).resolves.toBe(true);
+    expect(hasCurrentChatConsent(storage, 'user-a')).toBe(true);
+    expect(hasCurrentChatConsent(storage, 'user-b')).toBe(false);
   });
 
   it('enforces versioned consent on every AI surface', () => {
@@ -54,13 +72,14 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
       'src/components/ai/DraggableAiCompanion.jsx',
     ]) {
       const source = read(path);
-      expect(source).toContain('hasCurrentChatConsent');
-      expect(source).toContain('persistCurrentChatConsent');
+      expect(source).toContain('resolveCurrentChatConsent');
+      expect(source).toContain('isConsentResolved');
     }
 
     const banner = read('src/components/chat/InlineConsentBanner.jsx');
-    expect(banner).toContain('ConsentRecord.create');
-    expect(banner).toContain('persistCurrentChatConsent');
+    expect(banner).toContain('await base44.entities.ConsentRecord.create');
+    expect(banner).toContain('persistCurrentChatConsent(undefined, currentUserId)');
+    expect(banner).toContain('AI access remains locked');
     expect(banner).toContain('to="/terms"');
     expect(banner).toContain('to="/privacy"');
     expect(banner).not.toMatch(/ip_address|device_id|message_content/);
