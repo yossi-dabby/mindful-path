@@ -30,6 +30,7 @@ import { validateChatAttachment } from '../components/chat/utils/fileValidation'
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
+import { hasCurrentChatConsent, persistCurrentChatConsent } from '@/lib/chatConsent';
 import ThoughtWorkSaveHandler from '../components/chat/ThoughtWorkSaveHandler';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
@@ -4952,7 +4953,7 @@ export default function Chat() {
     /HeadlessChrome/.test(window.navigator.userAgent);
 
     if (isTestEnv) {
-      localStorage.setItem('chat_consent_accepted', 'true');
+      persistCurrentChatConsent();
       localStorage.setItem('age_verified', 'true');
       // Disable analytics in test environment
       window.__DISABLE_ANALYTICS__ = true;
@@ -4971,8 +4972,7 @@ export default function Chat() {
     }
 
     // Check if user has already accepted consent
-    const consentAccepted = localStorage.getItem('chat_consent_accepted');
-    if (!consentAccepted) {
+    if (!hasCurrentChatConsent()) {
       setShowConsentBanner(true);
     }
 
