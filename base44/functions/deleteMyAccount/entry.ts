@@ -35,8 +35,37 @@ const USER_OWNED_ENTITIES = [
   'CaseFormulation',
   'MindGameActivity',
   'DailyFlow',
-  'DailyChallenge'
+  'DailyChallenge',
+  'ConsentRecord'
 ];
+
+const BATCH_SIZE = 100;
+const MAX_BATCHES_PER_ENTITY = 1000;
+
+async function deleteAllOwnedRecords(base44, entityName, email) {
+  const entityApi = base44.asServiceRole.entities[entityName];
+  let deleted = 0;
+
+  for (let batchNumber = 0; batchNumber < MAX_BATCHES_PER_ENTITY; batchNumber += 1) {
+    const records = await entityApi.filter(
+      { created_by: email },
+      'created_date',
+      BATCH_SIZE,
+      0
+    );
+
+    if (records.length === 0) return deleted;
+
+    for (const record of records) {
+      await entityApi.delete(record.id);
+      deleted += 1;
+    }
+
+    if (records.length < BATCH_SIZE) return deleted;
+  }
+
+  throw new Error(`Deletion safety limit reached for ${entityName}`);
+}
 
 Deno.serve(async (req) => {
   try {
@@ -54,19 +83,20 @@ Deno.serve(async (req) => {
       );
     }
 
+    const deletedByEntity = {};
     for (const entityName of USER_OWNED_ENTITIES) {
-      const entityApi = base44.asServiceRole.entities[entityName];
-      if (!entityApi) continue;
-
-      const records = await entityApi.filter({ created_by: user.email });
-      for (const record of records) {
-        await entityApi.delete(record.id);
-      }
+      deletedByEntity[entityName] = await deleteAllOwnedRecords(base44, entityName, user.email);
     }
 
+    // Delete the account only after every owned entity batch completed. If an
+    // earlier deletion fails, the account remains accessible so the user can retry.
     await base44.asServiceRole.entities.User.delete(user.id);
 
-    return Response.json({ success: true });
+    return Response.json({
+      success: true,
+      accountDeleted: true,
+      deletedByEntity
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
