@@ -34,7 +34,7 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
     expect(hebrew.privacy.sections.length).toBe(english.privacy.sections.length);
     expect(english.terms.sections.length).toBeGreaterThanOrEqual(8);
     expect(hebrew.terms.sections.length).toBe(english.terms.sections.length);
-    expect(english.consent.aiBody).toMatch(/AI/i);
+    expect(`${english.consent.aiTitle} ${english.consent.aiBody}`).toMatch(/AI/i);
     expect(hebrew.consent.crisisBody).toBeTruthy();
   });
 
