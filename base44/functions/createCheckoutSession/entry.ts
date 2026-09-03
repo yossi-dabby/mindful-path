@@ -8,12 +8,47 @@ const APPROVED_PRICE_IDS: ReadonlySet<string> = new Set([
   'price_premium_monthly',
 ]);
 
+// Checkout may return only to known production origins. This prevents callers
+// from turning the endpoint into an open redirect or phishing hand-off.
+const APPROVED_CHECKOUT_ORIGINS: ReadonlySet<string> = new Set([
+  'https://app.mindful-path.me',
+  'https://mindful-path-75aeaf7d.base44.app',
+]);
+
+function isApprovedRedirectUrl(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0 || value.length > 2_048) return false;
+
+  try {
+    const parsed = new URL(value);
+    return (
+      parsed.protocol === 'https:' &&
+      !parsed.username &&
+      !parsed.password &&
+      APPROVED_CHECKOUT_ORIGINS.has(parsed.origin)
+    );
+  } catch {
+    return false;
+  }
+}
+
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'), {
   apiVersion: '2023-10-16',
 });
 
 Deno.serve(async (req) => {
   try {
+    if (req.method !== 'POST') {
+      return Response.json({ error: 'Method not allowed' }, {
+        status: 405,
+        headers: { Allow: 'POST' },
+      });
+    }
+
+    const declaredLength = Number(req.headers.get('content-length') || 0);
+    if (Number.isFinite(declaredLength) && declaredLength > 8_192) {
+      return Response.json({ error: 'Request too large' }, { status: 413 });
+    }
+
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
@@ -24,8 +59,12 @@ Deno.serve(async (req) => {
     const { priceId, successUrl, cancelUrl } = await req.json();
 
     // Validate priceId against the server-side allowlist before proceeding.
-    if (!priceId || !APPROVED_PRICE_IDS.has(priceId)) {
+    if (typeof priceId !== 'string' || !APPROVED_PRICE_IDS.has(priceId)) {
       return Response.json({ error: 'Invalid or unsupported price ID.' }, { status: 400 });
+    }
+
+    if (!isApprovedRedirectUrl(successUrl) || !isApprovedRedirectUrl(cancelUrl)) {
+      return Response.json({ error: 'Invalid checkout return URL.' }, { status: 400 });
     }
 
     // Get or create subscription record
@@ -70,8 +109,7 @@ Deno.serve(async (req) => {
       sessionId: session.id 
     });
   } catch (error) {
-    return Response.json({ 
-      error: error.message 
-    }, { status: 500 });
+    console.error('[createCheckoutSession] Error:', error instanceof Error ? error.message : 'Unknown error');
+    return Response.json({ error: 'Unable to create checkout session.' }, { status: 500 });
   }
 });
