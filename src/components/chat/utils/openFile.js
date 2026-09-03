@@ -9,6 +9,7 @@
  *
  * Security:
  *  - Only accepts non-empty string URLs; returns early for falsy/non-string values.
+ *  - Clears window.opener immediately after a successful open to prevent reverse-tabnabbing.
  *
  * Note: 'noopener'/'noreferrer' are intentionally omitted from window.open features.
  * Per the WHATWG HTML spec, window.open() returns null when those tokens are present,
@@ -31,5 +32,13 @@ export function openFile(url) {
   const openedWindow = window.open(safeUrl, '_blank');
   if (!openedWindow) {
     window.location.href = safeUrl;
+    return;
+  }
+
+  // Keep popup-blocker detection while severing access back to the app.
+  try {
+    openedWindow.opener = null;
+  } catch {
+    // Some browsers expose a non-writable opener; navigation still succeeded.
   }
 }
