@@ -13,7 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
-import { hasCurrentChatConsent, persistCurrentChatConsent } from '@/lib/chatConsent';
+import { resolveCurrentChatConsent } from '@/lib/chatConsent';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
@@ -51,6 +51,7 @@ export default function DraggableAiCompanion() {
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
+  const [isConsentResolved, setIsConsentResolved] = useState(false);
   const [showRiskPanel, setShowRiskPanel] = useState(false);
   const [isAgeVerified, setIsAgeVerified] = useState(true);
   const mountedRef = useRef(true);
@@ -133,7 +134,8 @@ export default function DraggableAiCompanion() {
 
     if (isTestEnv) {
       localStorage.setItem('age_verified', 'true');
-      persistCurrentChatConsent();
+      setShowConsentBanner(false);
+      setIsConsentResolved(true);
       setIsAgeVerified(true);
       return;
     }
@@ -141,8 +143,16 @@ export default function DraggableAiCompanion() {
     const ageVerified = localStorage.getItem('age_verified');
     setIsAgeVerified(ageVerified === 'true');
 
-    if (!hasCurrentChatConsent() && ageVerified === 'true') {
-      setShowConsentBanner(true);
+    if (ageVerified === 'true') {
+      resolveCurrentChatConsent(base44)
+        .then((hasConsent) => {
+          setShowConsentBanner(!hasConsent);
+          setIsConsentResolved(true);
+        })
+        .catch(() => {
+          setShowConsentBanner(true);
+          setIsConsentResolved(true);
+        });
     }
   }, []);
 
@@ -430,6 +440,11 @@ export default function DraggableAiCompanion() {
   }, [isDragging]);
 
   const sendMessage = async () => {
+    if (!isConsentResolved || showConsentBanner) {
+      setShowConsentBanner(true);
+      return;
+    }
+
     if (!message.trim() || !conversation) return;
 
     // Crisis detection gate
@@ -690,8 +705,8 @@ export default function DraggableAiCompanion() {
           {/* Inline Consent Banner - Non-blocking */}
           {showConsentBanner &&
             <InlineConsentBanner onAccept={() => {
-              localStorage.setItem('chat_consent_accepted', 'true');
               setShowConsentBanner(false);
+              setIsConsentResolved(true);
             }} />
             }
           {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
@@ -816,12 +831,12 @@ export default function DraggableAiCompanion() {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask me anything..." className="bg-[hsl(var(--surface-nested)/0.92)] text-teal-800 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1"
 
-                disabled={isLoading} />
+                disabled={isLoading || !isConsentResolved || showConsentBanner} />
 
             <Button
                 data-testid="ai-companion-send"
                 onClick={sendMessage}
-                disabled={!message.trim() || isLoading} className="bg-teal-500 text-teal-800 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-primary/94"
+                disabled={!message.trim() || isLoading || !isConsentResolved || showConsentBanner} className="bg-teal-500 text-teal-800 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-primary/94"
 
                 aria-label="Send message">
 
