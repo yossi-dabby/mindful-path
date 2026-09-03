@@ -1,3 +1,5 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
 /**
  * @file base44/functions/emergencyResourceLayer/entry.ts
  *
@@ -195,6 +197,31 @@ function resolveLocale(locale: string | undefined | null): { resourceSet: Emerge
 // ─── Request handler ─────────────────────────────────────────────────────────
 
 export default async function handler(req: Request): Promise<Response> {
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Method not allowed.' }),
+      { status: 405, headers: { 'Content-Type': 'application/json', 'Allow': 'POST' } },
+    );
+  }
+
+  // Emergency contacts remain available before sign-in through the bundled
+  // static resource map in src/lib/emergencyResourceLayer.js. This unused
+  // backend mirror is authenticated to remove an unnecessary public endpoint.
+  let user;
+  try {
+    const base44 = createClientFromRequest(req);
+    user = await base44.auth.me();
+  } catch {
+    user = null;
+  }
+
+  if (!user) {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Unauthorized.' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   // ── Feature flag gate ────────────────────────────────────────────────────
   const masterEnabled = Deno.env.get('THERAPIST_UPGRADE_ENABLED') === 'true';
   const safetyModeEnabled = Deno.env.get('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED') === 'true';
@@ -207,13 +234,6 @@ export default async function handler(req: Request): Promise<Response> {
         gated: true,
       }),
       { status: 503, headers: { 'Content-Type': 'application/json' } },
-    );
-  }
-
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ success: false, error: 'Method not allowed.' }),
-      { status: 405, headers: { 'Content-Type': 'application/json', 'Allow': 'POST' } },
     );
   }
 
