@@ -1,4 +1,4 @@
-import { LEGAL_CONSENT_VERSION } from '@/components/legal/legalContent';
+import { LEGAL_CONSENT_VERSION } from '../components/legal/legalContent.js';
 
 export const CHAT_CONSENT_ACCEPTED_KEY = 'chat_consent_accepted';
 export const CHAT_CONSENT_VERSION_KEY = 'chat_consent_version';
