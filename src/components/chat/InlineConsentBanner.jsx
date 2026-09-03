@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { Button } from '@/components/ui/button';
+import { persistCurrentChatConsent } from '@/lib/chatConsent';
 import { Card } from '@/components/ui/card';
 import { Bot, HeartHandshake, LifeBuoy, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -55,6 +56,7 @@ export default function InlineConsentBanner({ onAccept }) {
       }
     }
 
+    persistCurrentChatConsent();
     onAccept();
   };
 
