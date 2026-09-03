@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Send, Loader2, Target, CheckCircle2 } from 'lucide-react';
 import MessageBubble from '../chat/MessageBubble';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
-import { hasCurrentChatConsent, persistCurrentChatConsent } from '@/lib/chatConsent';
+import { resolveCurrentChatConsent } from '@/lib/chatConsent';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
@@ -27,6 +27,7 @@ export default function CoachingChat({ session, onBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showActionPanel, setShowActionPanel] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
+  const [isConsentResolved, setIsConsentResolved] = useState(false);
   const [showRiskPanel, setShowRiskPanel] = useState(false);
   const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -40,13 +41,20 @@ export default function CoachingChat({ session, onBack }) {
     /HeadlessChrome/.test(window.navigator.userAgent);
 
     if (isTestEnv) {
-      persistCurrentChatConsent();
+      setShowConsentBanner(false);
+      setIsConsentResolved(true);
       return;
     }
 
-    if (!hasCurrentChatConsent()) {
-      setShowConsentBanner(true);
-    }
+    resolveCurrentChatConsent(base44)
+      .then((hasConsent) => {
+        setShowConsentBanner(!hasConsent);
+        setIsConsentResolved(true);
+      })
+      .catch(() => {
+        setShowConsentBanner(true);
+        setIsConsentResolved(true);
+      });
   }, []);
 
   const { data: currentSession, refetch: refetchSession } = useQuery({
@@ -108,6 +116,11 @@ export default function CoachingChat({ session, onBack }) {
   });
 
   const handleSendMessage = async () => {
+    if (!isConsentResolved || showConsentBanner) {
+      setShowConsentBanner(true);
+      return;
+    }
+
     if (!inputMessage.trim() || !currentSession.agent_conversation_id) return;
 
     // Crisis detection gate - check before sending
@@ -203,8 +216,8 @@ export default function CoachingChat({ session, onBack }) {
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner &&
               <InlineConsentBanner onAccept={() => {
-                localStorage.setItem('chat_consent_accepted', 'true');
                 setShowConsentBanner(false);
+                setIsConsentResolved(true);
               }} />
               }
               {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
@@ -276,12 +289,12 @@ export default function CoachingChat({ session, onBack }) {
                 autoCapitalize="sentences"
                 autoComplete="off"
                 autoCorrect="on"
-                disabled={isLoading} />
+                disabled={isLoading || !isConsentResolved || showConsentBanner} />
 
               <Button
                 data-testid="coach-chat-send"
                 onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
+                disabled={!inputMessage.trim() || isLoading || !isConsentResolved || showConsentBanner}
                 aria-label={t('coach.chat.send_aria')}
                 className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]">
 
