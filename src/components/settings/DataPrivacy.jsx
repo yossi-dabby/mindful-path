@@ -78,48 +78,6 @@ export default function DataPrivacy({ user }) {
     }
   };
 
-  const handleDeleteAllData = async () => {
-    if (!deleteConfirming) {
-      setDeleteConfirming(true);
-      return;
-    }
-
-    setDeletingData(true);
-    try {
-      // Delete all conversations
-      const conversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
-      for (const conv of conversations) {
-        await base44.entities.UserDeletedConversations.create({
-          agent_conversation_id: conv.id,
-          conversation_title: conv.metadata?.name || 'Session'
-        });
-      }
-
-      // Delete mood entries
-      const moodEntries = await base44.entities.MoodEntry.list();
-      for (const mood of moodEntries) {
-        await base44.entities.MoodEntry.delete(mood.id);
-      }
-
-      // Delete journal entries
-      const journalEntries = await base44.entities.ThoughtJournal.list();
-      for (const entry of journalEntries) {
-        await base44.entities.ThoughtJournal.delete(entry.id);
-      }
-
-      setActionMessage({ type: 'success', text: t('settings.data_privacy.delete_success') });
-      setDeleteConfirming(false);
-      setTimeout(() => setActionMessage(null), 3000);
-      queryClient.invalidateQueries();
-    } catch (error) {
-      console.error('Delete error:', error);
-      setActionMessage({ type: 'error', text: t('settings.data_privacy.delete_failed') });
-      setTimeout(() => setActionMessage(null), 3000);
-    } finally {
-      setDeletingData(false);
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -217,63 +175,14 @@ export default function DataPrivacy({ user }) {
             <p className="text-sm text-gray-600 mb-4">
               {t('settings.data_privacy.delete_description')}
             </p>
-
-            {/* Confirmation State */}
-            {deleteConfirming && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
-                data-testid="delete-confirm-panel"
-              >
-                <p className="text-sm font-medium text-red-800 mb-3">
-                  {t('settings.data_privacy.delete_confirm_prompt')}
-                </p>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Button
-                    onClick={handleDeleteAllData}
-                    disabled={deletingData}
-                    className="min-h-[46px] bg-red-600 hover:bg-red-700 text-white rounded-xl"
-                    data-testid="delete-confirm-btn"
-                  >
-                    {deletingData ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {t('settings.data_privacy.deleting')}
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        {t('settings.data_privacy.delete_confirm_button')}
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => setDeleteConfirming(false)}
-                    variant="outline"
-                    className="min-h-[46px] rounded-xl"
-                    data-testid="delete-cancel-btn"
-                    disabled={deletingData}
-                  >
-                    {t('settings.data_privacy.cancel_button')}
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Initial Delete Button */}
-            {!deleteConfirming && (
-              <Button
-                onClick={handleDeleteAllData}
-                disabled={deletingData}
-                variant="outline"
-                className="min-h-[46px] w-full gap-2 rounded-xl border-red-200 text-red-600 hover:bg-red-50 sm:w-auto"
-                data-testid="delete-data-btn"
-              >
-                <Trash2 className="w-4 h-4" />
-                {t('settings.data_privacy.delete_button')}
-              </Button>
-            )}
+            <Button
+              asChild
+              variant="outline"
+              className="min-h-[46px] w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 sm:w-auto"
+              data-testid="go-to-delete-account-btn"
+            >
+              <a href="#settings-account">{t('settings.data_privacy.delete_button')}</a>
+            </Button>
           </div>
 
           {/* Info Box */}
