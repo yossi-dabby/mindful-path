@@ -1,14 +1,63 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
+
+const ALLOWED_RETENTION_DAYS = new Set([30, 90, 365, 999999]);
+const BATCH_SIZE = 100;
+const MAX_BATCHES = 1000;
+
+async function deleteExpiredOwnedRecords(base44, entityName, email, cutoffISO) {
+  const entityApi = base44.asServiceRole.entities[entityName];
+  let deleted = 0;
+
+  for (let batchNumber = 0; batchNumber < MAX_BATCHES; batchNumber += 1) {
+    const records = await entityApi.filter(
+      {
+        created_by: email,
+        created_date: { $lt: cutoffISO }
+      },
+      'created_date',
+      BATCH_SIZE,
+      0
+    );
+
+    if (records.length === 0) return deleted;
+
+    for (const record of records) {
+      await entityApi.delete(record.id);
+      deleted += 1;
+    }
+
+    if (records.length < BATCH_SIZE) return deleted;
+  }
+
+  throw new Error(`Retention safety limit reached for ${entityName}`);
+}
+
+async function archiveExpiredAgentConversations(base44, cutoffDate) {
+  const conversations = await base44.agents.getConversations();
+  const existing = await base44.entities.UserDeletedConversations.list();
+  const archivedIds = new Set(existing.map((record) => record.agent_conversation_id));
+  let archived = 0;
+
+  for (const conversation of conversations) {
+    if (!conversation.created_date || new Date(conversation.created_date) >= cutoffDate) continue;
+    if (archivedIds.has(conversation.id)) continue;
+
+    await base44.entities.UserDeletedConversations.create({
+      agent_conversation_id: conversation.id,
+      conversation_title: conversation.metadata?.name || 'Session'
+    });
+    archived += 1;
+  }
+
+  return archived;
+}
 
 /**
- * Data Retention Cleanup Function
- * 
- * Runs on demand or periodically to delete/archive old data based on user retention settings.
- * Non-blocking: logs cleanup progress and continues even if individual deletions fail.
- * 
- * Triggered by:
- * - App initialization (if last cleanup > 24 hours ago)
- * - Manual trigger from Settings page
+ * Applies the signed-in user's retention choice.
+ *
+ * Structured mood and journal records are deleted in complete, ownership-scoped
+ * batches. Managed AI conversations are archived from the user's view because
+ * the Base44 agent API does not expose a physical-delete operation.
  */
 Deno.serve(async (req) => {
   try {
@@ -19,105 +68,66 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const retentionDays = user.preferences?.data_retention_days || 365;
-    
-    // Skip cleanup if set to indefinite
+    const configuredDays = Number(user.preferences?.data_retention_days);
+    const retentionDays = ALLOWED_RETENTION_DAYS.has(configuredDays) ? configuredDays : 365;
+
     if (retentionDays === 999999) {
-      return Response.json({ 
-        message: 'Retention set to indefinite, skipping cleanup',
-        skipped: true 
+      return Response.json({
+        success: true,
+        skipped: true,
+        retentionDays,
+        message: 'Retention is set to indefinite.'
       });
     }
 
     const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+    cutoffDate.setUTCDate(cutoffDate.getUTCDate() - retentionDays);
     const cutoffISO = cutoffDate.toISOString();
+    const errors = [];
 
-    const results = {
-      deletedMoodEntries: 0,
-      deletedJournalEntries: 0,
-      archivedConversations: 0,
-      errors: []
-    };
+    let deletedMoodEntries = 0;
+    let deletedJournalEntries = 0;
+    let archivedConversations = 0;
 
     try {
-      // Delete old mood entries
-      const oldMoodEntries = await base44.entities.MoodEntry.filter(
-        { created_date: { $lt: cutoffISO } },
-        '-created_date',
-        100
+      deletedMoodEntries = await deleteExpiredOwnedRecords(
+        base44,
+        'MoodEntry',
+        user.email,
+        cutoffISO
       );
-      
-      for (const entry of oldMoodEntries) {
-        try {
-          await base44.entities.MoodEntry.delete(entry.id);
-          results.deletedMoodEntries++;
-        } catch (error) {
-          results.errors.push(`Failed to delete mood entry ${entry.id}: ${error.message}`);
-        }
-      }
     } catch (error) {
-      results.errors.push(`Mood entry cleanup error: ${error.message}`);
+      errors.push(`MoodEntry: ${error.message}`);
     }
 
     try {
-      // Delete old journal entries
-      const oldJournalEntries = await base44.entities.ThoughtJournal.filter(
-        { created_date: { $lt: cutoffISO } },
-        '-created_date',
-        100
+      deletedJournalEntries = await deleteExpiredOwnedRecords(
+        base44,
+        'ThoughtJournal',
+        user.email,
+        cutoffISO
       );
-      
-      for (const entry of oldJournalEntries) {
-        try {
-          await base44.entities.ThoughtJournal.delete(entry.id);
-          results.deletedJournalEntries++;
-        } catch (error) {
-          results.errors.push(`Failed to delete journal entry ${entry.id}: ${error.message}`);
-        }
-      }
     } catch (error) {
-      results.errors.push(`Journal entry cleanup error: ${error.message}`);
+      errors.push(`ThoughtJournal: ${error.message}`);
     }
 
     try {
-      // Archive old conversations (soft delete via UserDeletedConversations)
-      const allConversations = await base44.agents.listConversations({ 
-        agent_name: 'cbt_therapist' 
-      });
-      
-      const deletedConversations = await base44.entities.UserDeletedConversations.list();
-      const deletedIds = new Set(deletedConversations.map(d => d.agent_conversation_id));
-
-      for (const conv of allConversations) {
-        // Only process conversations older than cutoff and not already deleted
-        if (conv.created_date && new Date(conv.created_date) < cutoffDate && !deletedIds.has(conv.id)) {
-          try {
-            await base44.entities.UserDeletedConversations.create({
-              agent_conversation_id: conv.id,
-              conversation_title: conv.metadata?.name || 'Session'
-            });
-            results.archivedConversations++;
-          } catch (error) {
-            results.errors.push(`Failed to archive conversation ${conv.id}: ${error.message}`);
-          }
-        }
-      }
+      archivedConversations = await archiveExpiredAgentConversations(base44, cutoffDate);
     } catch (error) {
-      results.errors.push(`Conversation cleanup error: ${error.message}`);
+      errors.push(`Agent conversations: ${error.message}`);
     }
 
     return Response.json({
-      success: true,
+      success: errors.length === 0,
       retentionDays,
       cutoffDate: cutoffISO,
-      ...results,
-      message: `Cleanup complete: ${results.deletedMoodEntries} mood entries, ${results.deletedJournalEntries} journal entries, ${results.archivedConversations} conversations archived`
+      deletedMoodEntries,
+      deletedJournalEntries,
+      archivedConversations,
+      errors,
+      message: 'Retention cleanup completed. Managed AI conversations are archived, not physically deleted.'
     });
   } catch (error) {
-    return Response.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
