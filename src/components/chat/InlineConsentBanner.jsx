@@ -1,90 +1,120 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Info, ExternalLink } from 'lucide-react';
+import { Bot, HeartHandshake, LifeBuoy, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+  LEGAL_CONSENT_VERSION,
+  getLegalCopy,
+} from '@/components/legal/legalContent';
 
 export default function InlineConsentBanner({ onAccept }) {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const copy = getLegalCopy(i18n.resolvedLanguage || i18n.language);
+  const consent = copy.consent;
   const [safetyProfile, setSafetyProfile] = useState('standard');
+
   useEffect(() => {
-    // Load user's safety profile preference
     base44.auth.me().then((user) => {
       setSafetyProfile(user?.preferences?.safety_profile || 'standard');
     }).catch(() => {});
   }, []);
 
   const handleAccept = () => {
-    // Track consent acceptance
+    const language = copy.language;
+    const acceptedAt = new Date().toISOString();
+    const record = {
+      document: 'ai_chat_terms_and_privacy',
+      version: LEGAL_CONSENT_VERSION,
+      language,
+      surface: 'chat',
+      accepted_at: acceptedAt,
+    };
+
+    // Consent must never depend on analytics availability. Persist the minimum
+    // audit record when possible, without storing message content, IP, or device data.
     if (appParams.appId) {
-      base44.analytics.track({
-        eventName: 'consent_accepted',
-        properties: {
-          surface: 'chat',
-          safety_profile: safetyProfile,
-          timestamp: new Date().toISOString()
-        }
+      base44.entities.ConsentRecord.create(record).catch((error) => {
+        console.warn('Consent record persistence failed:', error);
       });
+      try {
+        base44.analytics.track({
+          eventName: 'consent_accepted',
+          properties: {
+            surface: 'chat',
+            consent_version: LEGAL_CONSENT_VERSION,
+            language,
+            safety_profile: safetyProfile,
+          },
+        });
+      } catch (error) {
+        console.warn('Consent analytics failed:', error);
+      }
     }
+
     onAccept();
   };
 
-  const profileKey = ['lenient', 'standard', 'strict'].includes(safetyProfile) ? safetyProfile : 'standard';
+  const items = [
+    { icon: HeartHandshake, title: consent.wellnessTitle, body: consent.wellnessBody },
+    { icon: Bot, title: consent.aiTitle, body: consent.aiBody },
+    { icon: LockKeyhole, title: consent.privacyTitle, body: consent.privacyBody },
+    { icon: LifeBuoy, title: consent.crisisTitle, body: consent.crisisBody },
+  ];
 
   return (
-    <Card 
+    <Card
       data-testid="consent-banner"
-      className="border-0 mb-4"
-      style={{
-        borderRadius: '20px',
-        background: 'linear-gradient(145deg, rgba(255, 243, 224, 0.95) 0%, rgba(255, 237, 213, 0.9) 100%)',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(251, 191, 36, 0.3)',
-        boxShadow: '0 4px 12px rgba(251, 191, 36, 0.15)'
-      }}
+      role="region"
+      aria-labelledby="consent-banner-title"
+      dir={copy.direction}
+      lang={copy.language}
+      className="mb-4 overflow-hidden rounded-[22px] border border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-teal-50/60 shadow-[0_12px_32px_rgba(120,53,15,0.10)]"
     >
-      <div className="p-4 md:p-5">
+      <div className="p-4 sm:p-5">
         <div className="flex items-start gap-3">
-          <div 
-            className="w-8 h-8 flex items-center justify-center flex-shrink-0 mt-0.5"
-            style={{
-              borderRadius: '12px',
-              background: 'linear-gradient(145deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)'
-            }}
-          >
-            <Info className="w-4 h-4" style={{ color: '#D97706' }} />
+          <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm md:text-base font-semibold mb-1.5" style={{ color: '#78350F' }}>
-              {t(`chat.consent.${profileKey}.title`)}
-            </h3>
-            <p className="text-xs md:text-sm leading-relaxed mb-3" style={{ color: '#92400E' }}>
-              {t(`chat.consent.${profileKey}.message`)}
-            </p>
-            <a 
-              href="https://base44.com/safety-faq" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs flex items-center gap-1 mb-3 hover:underline"
-              style={{ color: '#D97706' }}
-            >
-              {t('chat.consent.learn_more')}
-              <ExternalLink className="w-3 h-3" />
-            </a>
+          <div className="min-w-0 flex-1">
+            <h2 id="consent-banner-title" className="text-base font-bold text-slate-900">
+              {consent.title}
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-700">{consent.description}</p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {items.map(({ icon: Icon, title, body }) => (
+                <div key={title} className="rounded-2xl border border-white bg-white/80 p-3">
+                  <div className="flex items-start gap-2">
+                    <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-teal-700" aria-hidden="true" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{body}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-4 text-xs leading-5 text-slate-600">{consent.acknowledgement}</p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+              <Link className="min-h-11 py-3 font-semibold text-teal-800 underline underline-offset-4" to="/terms">
+                {copy.common.terms}
+              </Link>
+              <Link className="min-h-11 py-3 font-semibold text-teal-800 underline underline-offset-4" to="/privacy">
+                {copy.common.privacy}
+              </Link>
+            </div>
+
             <Button
               onClick={handleAccept}
               data-testid="consent-accept"
-              size="sm"
-              className="text-white font-medium"
-              style={{
-                borderRadius: '14px',
-                backgroundColor: '#D97706',
-                boxShadow: '0 2px 8px rgba(217, 119, 6, 0.3)'
-              }}
+              className="mt-3 min-h-12 w-full rounded-2xl bg-teal-700 font-semibold text-white shadow-lg shadow-teal-700/20 hover:bg-teal-800 sm:w-auto"
             >
-              {t('chat.consent.understand_button')}
+              {consent.accept}
             </Button>
           </div>
         </div>
