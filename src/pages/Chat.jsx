@@ -5439,7 +5439,7 @@ export default function Chat() {
                     autoCapitalize="sentences"
                     autoComplete="off"
                     autoCorrect="on"
-                    disabled={isLoading || isConversationInitializing || isUploadingFile || !isConsentResolved || showConsentBanner} />
+                    disabled={isLoading || isConversationInitializing || isUploadingFile} />
                   <div className="flex items-center flex-wrap gap-2 px-1 py-1">
                     <Button
                       type="button"
