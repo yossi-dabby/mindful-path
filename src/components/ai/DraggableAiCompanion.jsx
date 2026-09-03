@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
+import { hasCurrentChatConsent, persistCurrentChatConsent } from '@/lib/chatConsent';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
@@ -132,7 +133,7 @@ export default function DraggableAiCompanion() {
 
     if (isTestEnv) {
       localStorage.setItem('age_verified', 'true');
-      localStorage.setItem('chat_consent_accepted', 'true');
+      persistCurrentChatConsent();
       setIsAgeVerified(true);
       return;
     }
@@ -140,8 +141,7 @@ export default function DraggableAiCompanion() {
     const ageVerified = localStorage.getItem('age_verified');
     setIsAgeVerified(ageVerified === 'true');
 
-    const consentAccepted = localStorage.getItem('chat_consent_accepted');
-    if (!consentAccepted && ageVerified === 'true') {
+    if (!hasCurrentChatConsent() && ageVerified === 'true') {
       setShowConsentBanner(true);
     }
   }, []);
