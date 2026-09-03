@@ -30,7 +30,7 @@ import { validateChatAttachment } from '../components/chat/utils/fileValidation'
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
-import { hasCurrentChatConsent, persistCurrentChatConsent } from '@/lib/chatConsent';
+import { resolveCurrentChatConsent } from '@/lib/chatConsent';
 import ThoughtWorkSaveHandler from '../components/chat/ThoughtWorkSaveHandler';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
@@ -396,6 +396,7 @@ export default function Chat() {
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
+  const [isConsentResolved, setIsConsentResolved] = useState(false);
   const [showRiskPanel, setShowRiskPanel] = useState(false);
   const [showAgeGate, setShowAgeGate] = useState(false);
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
@@ -3637,6 +3638,11 @@ export default function Chat() {
   };
 
   const handleSendMessage = async (_opts = {}) => {
+    if (!isConsentResolved || showConsentBanner) {
+      setShowConsentBanner(true);
+      return;
+    }
+
     // V2: Support being called with pre-captured params from a queued send.
     // When _v2QueuedParams is set, the active turn is already created by _drainQueue.
     const _v2QueuedParams = _opts?._v2QueuedParams || null;
@@ -4953,7 +4959,8 @@ export default function Chat() {
     /HeadlessChrome/.test(window.navigator.userAgent);
 
     if (isTestEnv) {
-      persistCurrentChatConsent();
+      setShowConsentBanner(false);
+      setIsConsentResolved(true);
       localStorage.setItem('age_verified', 'true');
       // Disable analytics in test environment
       window.__DISABLE_ANALYTICS__ = true;
@@ -4971,10 +4978,17 @@ export default function Chat() {
       return;
     }
 
-    // Check if user has already accepted consent
-    if (!hasCurrentChatConsent()) {
-      setShowConsentBanner(true);
-    }
+    // Consent is resolved against an owner-scoped Base44 record. Local storage
+    // is only a user-bound cache and can never transfer consent between accounts.
+    resolveCurrentChatConsent(base44)
+      .then((hasConsent) => {
+        setShowConsentBanner(!hasConsent);
+        setIsConsentResolved(true);
+      })
+      .catch(() => {
+        setShowConsentBanner(true);
+        setIsConsentResolved(true);
+      });
 
     // Run retention cleanup on app start (non-blocking)
     (async () => {
@@ -4996,13 +5010,22 @@ export default function Chat() {
   }, []);
 
   const handleConsentAccept = () => {
-    localStorage.setItem('chat_consent_accepted', 'true');
     setShowConsentBanner(false);
+    setIsConsentResolved(true);
   };
 
   const handleAgeConfirm = () => {
     localStorage.setItem('age_verified', 'true');
     setShowAgeGate(false);
+    resolveCurrentChatConsent(base44)
+      .then((hasConsent) => {
+        setShowConsentBanner(!hasConsent);
+        setIsConsentResolved(true);
+      })
+      .catch(() => {
+        setShowConsentBanner(true);
+        setIsConsentResolved(true);
+      });
   };
 
   const handleAgeDecline = () => {
