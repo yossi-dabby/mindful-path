@@ -165,7 +165,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ transcription });
   } catch (error) {
-    console.error('[transcribeMobileAudio] Error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('[transcribeMobileAudio] Error:', error instanceof Error ? error.message : 'Unknown error');
+    return Response.json({ error: 'Transcription failed.' }, { status: 500 });
   }
 });
