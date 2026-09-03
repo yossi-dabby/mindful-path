@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
-import { Shield, Download, Trash2, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Shield, Download, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -12,9 +12,7 @@ export default function DataPrivacy({ user }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [retentionDays, setRetentionDays] = useState(user?.preferences?.data_retention_days || 365);
-  const [deleteConfirming, setDeleteConfirming] = useState(false);
   const [exportingData, setExportingData] = useState(false);
-  const [deletingData, setDeletingData] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
 
   const retentionOptions = [
@@ -51,50 +49,19 @@ export default function DataPrivacy({ user }) {
   const handleExportData = async () => {
     setExportingData(true);
     try {
-      // Fetch all user data
-      const conversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
-      const moodEntries = await base44.entities.MoodEntry.list();
-      const goals = await base44.entities.Goal.list();
-      const journalEntries = await base44.entities.ThoughtJournal.list();
+      const response = await base44.functions.invoke('exportMyData', {});
+      const exportData = response?.data ?? response;
 
-      const exportData = {
-        exportDate: new Date().toISOString(),
-        user: {
-          email: user.email,
-          fullName: user.full_name
-        },
-        summary: {
-          totalConversations: conversations.length,
-          totalMoodEntries: moodEntries.length,
-          totalGoals: goals.length,
-          totalJournalEntries: journalEntries.length
-        },
-        data: {
-          conversations: conversations.map(c => ({
-            id: c.id,
-            title: c.metadata?.name || 'Session',
-            createdDate: c.created_date,
-            messageCount: c.messages?.length || 0
-          })),
-          recentMood: moodEntries.slice(0, 20).map(m => ({
-            date: m.date,
-            mood: m.mood,
-            intensity: m.intensity
-          })),
-          goals: goals.map(g => ({
-            title: g.title,
-            status: g.status,
-            createdDate: g.created_date
-          }))
-        }
-      };
+      if (!exportData || exportData.error) {
+        throw new Error(exportData?.error || 'The export could not be prepared');
+      }
 
       // Create download
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `mindpath-export-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `mindful-path-export-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
