@@ -95,11 +95,28 @@ describe('production security hardening', () => {
     expect(read('railway.toml')).toContain('npx serve -s dist -l $PORT');
   });
 
-  it('keeps emergency resources public but bounded and free of paid integrations', () => {
-    const source = read('base44/functions/emergencyResourceLayer/entry.ts');
-    expect(source).toContain("req.method !== 'POST'");
-    expect(source).toContain('declaredLength > 1_024');
-    expect(source).not.toContain('InvokeLLM');
-    expect(source).not.toContain('asServiceRole');
+  it('keeps emergency contacts available locally while protecting the legacy backend mirror', () => {
+    const backend = read('base44/functions/emergencyResourceLayer/entry.ts');
+    const localResources = read('src/lib/emergencyResourceLayer.js');
+    expect(backend).toContain("req.method !== 'POST'");
+    expect(backend).toContain('await base44.auth.me()');
+    expect(backend).toContain('declaredLength > 1_024');
+    expect(backend).not.toContain('InvokeLLM');
+    expect(backend).not.toContain('asServiceRole');
+    expect(localResources).toContain('VERIFIED_EMERGENCY_RESOURCES');
+    expect(localResources).toContain("value: '1201'");
+  });
+
+  it('prevents mobile transcription SSRF and bounds downloaded audio', () => {
+    const source = read('base44/functions/transcribeMobileAudio/entry.ts');
+    expect(source).toContain("parsed.protocol !== 'https:'");
+    expect(source).toContain('isTrustedUploadHost(parsed.hostname)');
+    expect(source).toContain("segments.includes('files')");
+    expect(source).toContain("segments.indexOf('public')");
+    expect(source).toContain('segments[publicIndex + 1] === userId');
+    expect(source).toContain("redirect: 'error'");
+    expect(source).toContain('AbortSignal.timeout(FETCH_TIMEOUT_MS)');
+    expect(source).toContain('MAX_AUDIO_BYTES');
+    expect(source).toContain('await base44.auth.me()');
   });
 });
