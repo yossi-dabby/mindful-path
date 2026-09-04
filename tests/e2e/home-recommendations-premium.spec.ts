@@ -20,51 +20,31 @@ async function prepareHome(page: Page, language = 'he', viewport = { width: 390,
 
   await mockApi(page);
   await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await expect(page.getByTestId('recommended-action')).toBeVisible({ timeout: 20000 });
+  await expect(page.getByTestId('daily-path')).toBeVisible({ timeout: 20000 });
 }
 
-test.describe('Premium Home recommendations', () => {
-  test('opens a fully localized, keyboard-accessible Hebrew experience', async ({ page }) => {
+test.describe('Stage B daily path', () => {
+  test('is fully localized and keyboard-accessible in Hebrew', async ({ page }) => {
     await prepareHome(page);
 
-    await page.getByTestId('recommended-action').focus();
-    await page.keyboard.press('Enter');
-
-    const dialog = page.getByTestId('recommendations-dialog');
-    await expect(dialog).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    await expect(dialog).toContainText('המלצות מותאמות אישית');
-    await expect(page.getByTestId('recommendations-feed')).toBeVisible();
-    await expect(page.getByTestId('recommendation-item')).toHaveCount(2);
-    await expect(dialog).not.toContainText(/Recommended|Insights|Priority|Try again/);
+    const dailyPath = page.getByTestId('daily-path');
+    await expect(dailyPath).toContainText('המסלול להיום');
+    await expect(dailyPath).toContainText('בדיקה יומית');
+    await expect(dailyPath).toContainText('שיחה עם המאמן');
+    await expect(dailyPath).toContainText('פעולה מועילה אחת');
+    await expect(dailyPath).not.toContainText(/Today’s path|Talk with your coach|One useful action/);
 
-    const refreshBox = await page.getByTestId('recommendations-refresh').boundingBox();
-    expect(refreshBox).not.toBeNull();
-    expect(refreshBox!.width).toBeGreaterThanOrEqual(47);
-    expect(refreshBox!.height).toBeGreaterThanOrEqual(47);
-
-    const firstRecommendation = page.getByTestId('recommendation-item').first();
-    await firstRecommendation.focus();
-    await expect(firstRecommendation).toBeFocused();
-
-    await page.keyboard.press('Escape');
-    await expect(dialog).not.toBeVisible();
+    const action = page.getByTestId('daily-path-action');
+    await action.focus();
+    await expect(action).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/Exercises$/);
   });
 
-  test('keeps the path header and recommendations inside the viewport', async ({ page }) => {
+  test('keeps all three daily actions inside every supported viewport', async ({ page }) => {
     await prepareHome(page, 'he', { width: 1440, height: 900 });
 
-    const pathToggle = page.getByTestId('starter-path-toggle');
-    await expect(pathToggle).toBeVisible();
-    const toggleBox = await pathToggle.boundingBox();
-    const pathBox = await page.getByTestId('starter-path-quick-action').boundingBox();
-    expect(toggleBox).not.toBeNull();
-    expect(pathBox).not.toBeNull();
-    expect(toggleBox!.x).toBeGreaterThanOrEqual(pathBox!.x);
-    expect(toggleBox!.x + toggleBox!.width).toBeLessThanOrEqual(pathBox!.x + pathBox!.width + 1);
-    expect(toggleBox!.width).toBeGreaterThanOrEqual(47);
-
-    await page.getByTestId('recommended-action').click();
     for (const viewport of [
       { width: 360, height: 780 },
       { width: 768, height: 1024 },
@@ -76,7 +56,16 @@ test.describe('Premium Home recommendations', () => {
         viewportWidth: document.documentElement.clientWidth
       }));
       expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 2);
-      await expect(page.getByTestId('recommendations-dialog')).toBeVisible();
+
+      for (const testId of ['daily-path-checkin', 'daily-path-coach', 'daily-path-action']) {
+        const control = page.getByTestId(testId);
+        await expect(control).toBeVisible();
+        const box = await control.boundingBox();
+        expect(box).not.toBeNull();
+        expect(box!.x, testId).toBeGreaterThanOrEqual(-1);
+        expect(box!.x + box!.width, testId).toBeLessThanOrEqual(viewport.width + 1);
+        expect(box!.height, testId).toBeGreaterThanOrEqual(44);
+      }
     }
   });
 });
