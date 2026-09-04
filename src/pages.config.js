@@ -50,6 +50,7 @@
 import { lazy } from 'react';
 import __Layout from './Layout.jsx';
 import MoodTracker from './pages/MoodTracker';
+const MyPath = lazy(() => import('./pages/MyPath'));
 
 const AdvancedAnalytics = lazy(() => import('./pages/AdvancedAnalytics'));
 const Chat = lazy(() => import('./pages/Chat'));
@@ -78,6 +79,7 @@ const ThoughtCoach = lazy(() => import('./pages/ThoughtCoach'));
 const VideoPlayer = lazy(() => import('./pages/VideoPlayer'));
 const Videos = lazy(() => import('./pages/Videos'));
 const TherapeuticForms = lazy(() => import('./pages/TherapeuticForms'));
+const Tools = lazy(() => import('./pages/Tools'));
 
 
 export const PAGES = {
@@ -97,6 +99,7 @@ export const PAGES = {
     "JournalDashboard": JournalDashboard,
     "Journeys": Journeys,
     "MoodTracker": MoodTracker,
+    "MyPath": MyPath,
     "PersonalizedFeed": PersonalizedFeed,
     "PlaylistDetail": PlaylistDetail,
     "Playlists": Playlists,
@@ -109,6 +112,7 @@ export const PAGES = {
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
     "TherapeuticForms": TherapeuticForms,
+    "Tools": Tools,
 }
 
 export const pagesConfig = {
