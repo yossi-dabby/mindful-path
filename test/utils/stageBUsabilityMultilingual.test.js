@@ -63,17 +63,18 @@ describe('Stage B usability contracts', () => {
     expect(source).toContain('focus_areas');
     expect(source).toContain('onboarding_mood');
     expect(source).toContain('support_style');
-    expect(source).toContain('await updateUserMutation.mutateAsync');
-    expect(source.indexOf('await updateUserMutation.mutateAsync')).toBeLessThan(source.indexOf('onComplete?.()'));
+    expect(source).toContain('mutationFn: () => base44.auth.updateMe');
+    expect(source).toContain('onSuccess: () =>');
+    expect(source.indexOf('onSuccess: () =>')).toBeLessThan(source.indexOf('onComplete();'));
   });
 
   it('shows the three-part daily path before secondary home content', () => {
     const home = read('src/pages/Home.jsx');
     const dailyPath = read('src/components/home/DailyPath.jsx');
     expect(home).toContain('<DailyPath');
-    expect(dailyPath).toContain("daily_path.checkin");
-    expect(dailyPath).toContain("daily_path.coach");
-    expect(dailyPath).toContain("daily_path.action");
+    expect(dailyPath).toContain("key: 'checkin'");
+    expect(dailyPath).toContain("key: 'coach'");
+    expect(dailyPath).toContain("key: 'action'");
     expect(dailyPath).toContain('hasRecommendedExercise');
   });
 
@@ -86,7 +87,7 @@ describe('Stage B usability contracts', () => {
     for (const path of files) {
       const source = read(path);
       for (const page of ['Home', 'Chat', 'MyPath', 'Journal', 'Tools']) {
-        expect(source, `${path}:${page}`).toContain(`page: '${page}'`);
+        expect(source, `${path}:${page}`).toContain(`path: '${page}'`);
       }
     }
     expect(read('src/pages/MyPath.jsx')).toContain("my_path.title");
@@ -101,7 +102,7 @@ describe('Stage B usability contracts', () => {
     expect(chat).toContain("chat_stage.intent.unload");
     expect(chat).toContain("chat_stage.intent.practical");
     expect(chat).toContain("chat_stage.queue_hint");
-    expect(summary).toContain('suggestedExercises[0]');
+    expect(summary).toContain('const recommendedExercise = exercises.find');
     expect(summary).toContain("chat_stage.summary.understood");
     expect(summary).toContain("chat_stage.summary.practice");
     expect(summary).toContain("chat_stage.summary.return");
@@ -115,11 +116,11 @@ describe('Stage B usability contracts', () => {
       'onboarding.first.title',
       'onboarding.step_label',
       'daily_path.title',
-      'nav_stage.home',
-      'nav_stage.coach',
-      'nav_stage.my_path',
-      'nav_stage.journal',
-      'nav_stage.tools',
+      'sidebar.home.name',
+      'stage_b.nav.coach',
+      'stage_b.nav.path',
+      'sidebar.journal.name',
+      'stage_b.nav.tools',
       'chat_stage.intent.unload',
       'chat_stage.intent.practical',
       'chat_stage.summary.understood',
