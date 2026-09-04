@@ -92,6 +92,21 @@ describe('Stage B usability contracts', () => {
     }
     expect(read('src/pages/MyPath.jsx')).toContain("my_path.title");
     expect(read('src/pages/Tools.jsx')).toContain("tools_hub.title");
+
+    const tabNavigation = read('src/components/layout/TabNavigationProvider.jsx');
+    for (const root of ['Home', 'Chat', 'MyPath', 'Journal', 'Tools']) {
+      expect(tabNavigation, root).toContain(`${root}: '${root}'`);
+    }
+    expect(tabNavigation).toContain("StarterPath: 'MyPath'");
+    expect(tabNavigation).toContain("Exercises: 'Tools'");
+    expect(tabNavigation).toContain("tabStacks[activeTab]?.length");
+  });
+
+  it('keeps the seven-day example readable with calm high-contrast styling', () => {
+    const source = read('src/pages/StarterPath.jsx');
+    expect(source).toContain('border-teal-200 bg-teal-50/90');
+    expect(source).toContain('text-teal-950');
+    expect(source).not.toContain('text-[hsl(var(--background))] bg-[hsl(var(--background))]');
   });
 
   it('starts desktop chat collapsed and keeps one calm intent and summary action', () => {
