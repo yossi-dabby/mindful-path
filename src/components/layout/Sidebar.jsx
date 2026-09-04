@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
-import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings } from 'lucide-react';
+import { Home, MessageCircle, BookOpen, Route, Settings, Wrench } from 'lucide-react';
 import NotificationBell from '../notifications/NotificationBell';
 import { useTranslation } from 'react-i18next';
 import { AppWordmark, GrowingShieldMark } from '@/components/brand/AppBrand';
@@ -15,17 +15,13 @@ export default function Sidebar({ currentPageName }) {
 
   const navItems = [
   { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
-  { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat', description: t('sidebar.chat.description') },
-  { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach', description: t('sidebar.coach.description') },
-  { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker', description: t('sidebar.mood.description') },
+  { name: t('stage_b.nav.coach'), icon: MessageCircle, path: 'Chat', description: t('sidebar.chat.description') },
+  { name: t('stage_b.nav.path'), icon: Route, path: 'MyPath', description: t('my_path.subtitle') },
   { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal', description: t('sidebar.journal.description') },
-  { name: t('sidebar.progress.name'), icon: Activity, path: 'Progress', description: t('sidebar.progress.description') },
-  { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises', description: t('sidebar.exercises.description') }];
+  { name: t('stage_b.nav.tools'), icon: Wrench, path: 'Tools', description: t('tools_hub.subtitle') }];
 
 
   const secondaryItems = [
-  { name: t('sidebar.community.name'), icon: Users, path: 'Community' },
-  { name: t('sidebar.resources.name'), icon: BookOpen, path: 'Resources' },
   { name: t('sidebar.settings.name'), icon: Settings, path: 'Settings' }];
 
 
