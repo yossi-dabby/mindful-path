@@ -123,10 +123,21 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
     await page.waitForTimeout(500);
     expect(page.url()).toContain('/Home');
 
-    // Switch to Coach tab
-    await bottomNavLink(page, 'Coach').click();
+    // Switch to My Path and Tools — these are first-class tab roots.
+    await bottomNavLink(page, 'MyPath').click();
     await page.waitForTimeout(500);
-    expect(page.url()).toContain('/Coach');
+    expect(page.url()).toContain('/MyPath');
+    await expect(page.locator('#root')).not.toBeEmpty();
+
+    await bottomNavLink(page, 'Tools').click();
+    await page.waitForTimeout(500);
+    expect(page.url()).toContain('/Tools');
+    await expect(page.locator('#root')).not.toBeEmpty();
+
+    // Switch to the Coach tab.
+    await bottomNavLink(page, 'Chat').click();
+    await page.waitForTimeout(500);
+    expect(page.url()).toContain('/Chat');
 
     await checkConsole();
   });
@@ -181,13 +192,13 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
     await page.goto(`${BASE_URL}/Playlists`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1000);
 
-    const homeTab = bottomNavLink(page, 'Home');
-    if (await homeTab.count() === 0) {
-      test.skip(true, 'Home link not found – skipping');
+    const toolsTab = bottomNavLink(page, 'Tools');
+    if (await toolsTab.count() === 0) {
+      test.skip(true, 'Tools link not found – skipping');
       return;
     }
 
-    await expect(homeTab).toHaveAttribute('aria-current', 'page');
+    await expect(toolsTab).toHaveAttribute('aria-current', 'page');
   });
 
   test('repeat-tapping the active root tab does not accumulate history entries', async ({ page }) => {
