@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { BookOpenCheck, ChevronRight, Dumbbell, Gamepad2, Library, PlaySquare } from 'lucide-react';
+import { BookOpenCheck, ChevronRight, Dumbbell, Gamepad2, Library, PlaySquare, Route } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ export default function Tools() {
     { label: t('tools_hub.forms'), path: 'TherapeuticForms', Icon: BookOpenCheck },
     { label: t('tools_hub.videos'), path: 'Videos', Icon: PlaySquare },
     { label: t('tools_hub.games'), path: 'ExperientialGames', Icon: Gamepad2 },
+    { label: t('tools_hub.journeys'), path: 'Journeys', Icon: Route },
     { label: t('tools_hub.resources'), path: 'Resources', Icon: Library },
   ];
 
