@@ -3667,8 +3667,39 @@ export default function Chat() {
       return;
     }
 
-    if (!_isV2QueuedExecution && isLoading && !chatOrchestratorV2EnabledRef.current) {
-      console.log('[Send] ⚠️ Already loading, ignoring duplicate send');
+    if (!_isV2QueuedExecution && isLoading) {
+      if (!chatOrchestratorV2EnabledRef.current || attachmentToUpload) {
+        console.log('[Send] ⚠️ A reply is already in progress');
+        return;
+      }
+
+      // Queue short text turns before starting a new safety lifecycle. Each
+      // queued turn is safety-checked only when it becomes active, preventing
+      // a later message from invalidating the in-flight turn's crisis check.
+      const capturedParams = {
+        messageText: rawInputText,
+        attachmentToUpload: null,
+        isVoiceDerivedSend: false,
+        conversationId: currentConversationIdRef.current,
+      };
+      const { queued, queue_full: queueFull } = chatCoordinatorV2Ref.current.registerSend({
+        conversationId: currentConversationId || '__pending__',
+        executeSend: async () => handleSendMessageWithParams(capturedParams),
+      });
+
+      if (queueFull) {
+        toast({
+          title: t('chat.errors.queue_title'),
+          description: t('chat.errors.queue_desc'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (queued) {
+        setInputMessage('');
+        console.log('[V2Orchestrator] Short follow-up queued safely');
+      }
       return;
     }
 
