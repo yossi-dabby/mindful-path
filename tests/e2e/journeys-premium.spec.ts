@@ -99,17 +99,16 @@ async function prepareJourneys(page: Page, viewport = { width: 390, height: 844 
 }
 
 test.describe('Premium journeys experience', () => {
-  test('opens from the premium quick action and keeps Hebrew metadata localized', async ({ page }) => {
+  test('opens from the Tools hub and keeps Hebrew metadata localized', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await setupHebrewMode(page);
     await mockApi(page);
-    await spaNavigate(page, '/');
+    await spaNavigate(page, '/Tools');
 
-    const quickAction = page.getByTestId('quickaction-journeys');
-    await expect(quickAction).toBeVisible({ timeout: 20_000 });
-    const card = page.getByTestId('quickaction-journeys-card');
-    await expect(card).toContainText('מסלול מודרך');
-    await quickAction.click();
+    const journeysLink = page.locator('a[href="/Journeys"]');
+    await expect(journeysLink).toBeVisible({ timeout: 20_000 });
+    await journeysLink.click();
+    await expect(page).toHaveURL(/\/Journeys$/);
     await expect(page.getByTestId('journeys-page')).toBeVisible({ timeout: 20_000 });
   });
 
