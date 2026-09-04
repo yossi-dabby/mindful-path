@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
-import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
+import { Home, MessageCircle, BookOpen, Route, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTabNavigation } from './TabNavigationProvider';
 import { getScrollContainer } from '@/lib/scrollContainer';
@@ -21,11 +21,10 @@ export default function BottomNav({ currentPageName }) {
   // Memoised so icon/label objects aren't recreated on every render.
   const navItems = useMemo(() => [
   { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
-  { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat' },
-  { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach' },
+  { name: t('stage_b.nav.coach'), icon: MessageCircle, path: 'Chat' },
+  { name: t('stage_b.nav.path'), icon: Route, path: 'MyPath' },
   { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal' },
-  { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker' },
-  { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }],
+  { name: t('stage_b.nav.tools'), icon: Wrench, path: 'Tools' }],
   [t]);
 
 
