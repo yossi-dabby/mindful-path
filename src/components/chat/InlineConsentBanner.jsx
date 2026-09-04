@@ -28,7 +28,7 @@ export default function InlineConsentBanner({ onAccept }) {
     }).catch(() => {
       setSaveError(t('consent.account_verify_error'));
     });
-  }, [copy.language]);
+  }, [copy.language, t]);
 
   const handleAccept = async () => {
     const language = copy.language;
