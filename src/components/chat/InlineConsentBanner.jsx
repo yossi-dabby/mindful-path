@@ -13,7 +13,7 @@ import {
 } from '@/components/legal/legalContent';
 
 export default function InlineConsentBanner({ onAccept }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const copy = getLegalCopy(i18n.resolvedLanguage || i18n.language);
   const consent = copy.consent;
   const [safetyProfile, setSafetyProfile] = useState('standard');
@@ -26,9 +26,7 @@ export default function InlineConsentBanner({ onAccept }) {
       setCurrentUserId(user?.id || null);
       setSafetyProfile(user?.preferences?.safety_profile || 'standard');
     }).catch(() => {
-      setSaveError(copy.language === 'he'
-        ? 'לא ניתן לאמת את החשבון כרגע. נסו שוב.'
-        : 'We could not verify your account. Please try again.');
+      setSaveError(t('consent.account_verify_error'));
     });
   }, [copy.language]);
 
@@ -73,9 +71,7 @@ export default function InlineConsentBanner({ onAccept }) {
       onAccept();
     } catch (error) {
       console.warn('Consent record persistence failed:', error);
-      setSaveError(copy.language === 'he'
-        ? 'שמירת ההסכמה נכשלה. לא נפתחה גישה ל-AI. נסו שוב.'
-        : 'Consent could not be saved. AI access remains locked. Please try again.');
+      setSaveError(t('consent.save_error'));
     } finally {
       setIsSaving(false);
     }
@@ -142,9 +138,7 @@ export default function InlineConsentBanner({ onAccept }) {
               className="mt-3 min-h-12 w-full rounded-2xl bg-teal-700 font-semibold text-white shadow-lg shadow-teal-700/20 hover:bg-teal-800 sm:w-auto"
             >
               {isSaving && <Loader2 className="me-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-              {isSaving
-                ? (copy.language === 'he' ? 'שומר הסכמה…' : 'Saving consent…')
-                : consent.accept}
+              {isSaving ? t('consent.saving') : consent.accept}
             </Button>
           </div>
         </div>
