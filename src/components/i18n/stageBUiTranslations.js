@@ -1,0 +1,95 @@
+const languages = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
+
+const rows = [
+  ['auth.language_label','Language','שפה','Idioma','Langue','Sprache','Lingua','Idioma'],
+  ['auth.login.title','Welcome back','שמחים שחזרתם','Te damos la bienvenida de nuevo','Ravi de vous revoir','Willkommen zurück','Bentornato','Bem-vindo de volta'],
+  ['auth.login.subtitle','Continue your path from where you left off','המשיכו בדרך מהמקום שבו עצרתם','Continúa tu camino desde donde lo dejaste','Reprenez votre parcours là où vous l’avez laissé','Setzen Sie Ihren Weg dort fort, wo Sie aufgehört haben','Continua il tuo percorso da dove lo avevi lasciato','Continue o seu caminho de onde parou'],
+  ['auth.login.no_account','New to Mindful Path?','חדשים ב־Mindful Path?','¿Eres nuevo en Mindful Path?','Nouveau sur Mindful Path ?','Neu bei Mindful Path?','Nuovo su Mindful Path?','Novo no Mindful Path?'],
+  ['auth.login.signup','Create an account','יצירת חשבון','Crear una cuenta','Créer un compte','Konto erstellen','Crea un account','Criar uma conta'],
+  ['auth.login.email','Email','דוא״ל','Correo electrónico','E-mail','E-Mail','E-mail','E-mail'],
+  ['auth.login.password','Password','סיסמה','Contraseña','Mot de passe','Passwort','Password','Palavra-passe'],
+  ['auth.login.forgot','Forgot password?','שכחתם סיסמה?','¿Olvidaste tu contraseña?','Mot de passe oublié ?','Passwort vergessen?','Password dimenticata?','Esqueceu a palavra-passe?'],
+  ['auth.login.submit','Sign in','כניסה','Iniciar sesión','Se connecter','Anmelden','Accedi','Entrar'],
+  ['auth.login.loading','Signing in…','מתחברים…','Iniciando sesión…','Connexion…','Anmeldung…','Accesso…','A entrar…'],
+  ['auth.login.failed','We could not sign you in. Check your details and try again.','לא הצלחנו לחבר אתכם. בדקו את הפרטים ונסו שוב.','No pudimos iniciar sesión. Comprueba tus datos e inténtalo de nuevo.','Connexion impossible. Vérifiez vos informations et réessayez.','Anmeldung nicht möglich. Prüfen Sie Ihre Angaben und versuchen Sie es erneut.','Accesso non riuscito. Controlla i dati e riprova.','Não foi possível entrar. Verifique os dados e tente novamente.'],
+  ['auth.login.incomplete','Sign-in did not complete. Please try again.','הכניסה לא הושלמה. נסו שוב.','El inicio de sesión no se completó. Inténtalo de nuevo.','La connexion n’a pas abouti. Réessayez.','Die Anmeldung wurde nicht abgeschlossen. Bitte erneut versuchen.','L’accesso non è stato completato. Riprova.','O início de sessão não foi concluído. Tente novamente.'],
+  ['auth.register.title','Create your account','יצירת החשבון שלכם','Crea tu cuenta','Créez votre compte','Erstellen Sie Ihr Konto','Crea il tuo account','Crie a sua conta'],
+  ['auth.register.subtitle','A private space for your daily wellbeing practice','מרחב פרטי לתרגול הרווחה הנפשית היומי שלכם','Un espacio privado para tu práctica diaria de bienestar','Un espace privé pour votre pratique quotidienne de bien-être','Ein privater Raum für Ihre tägliche Wohlfühlpraxis','Uno spazio privato per la tua pratica quotidiana di benessere','Um espaço privado para a sua prática diária de bem-estar'],
+  ['auth.register.has_account','Already have an account?','כבר יש לכם חשבון?','¿Ya tienes una cuenta?','Vous avez déjà un compte ?','Sie haben bereits ein Konto?','Hai già un account?','Já tem uma conta?'],
+  ['auth.register.login','Sign in','כניסה','Iniciar sesión','Se connecter','Anmelden','Accedi','Entrar'],
+  ['auth.register.confirm_password','Confirm password','אימות סיסמה','Confirmar contraseña','Confirmer le mot de passe','Passwort bestätigen','Conferma password','Confirmar palavra-passe'],
+  ['auth.register.submit','Create account','יצירת חשבון','Crear cuenta','Créer le compte','Konto erstellen','Crea account','Criar conta'],
+  ['auth.register.loading','Creating account…','יוצרים חשבון…','Creando cuenta…','Création du compte…','Konto wird erstellt…','Creazione account…','A criar conta…'],
+  ['auth.register.password_mismatch','The passwords do not match.','הסיסמאות אינן תואמות.','Las contraseñas no coinciden.','Les mots de passe ne correspondent pas.','Die Passwörter stimmen nicht überein.','Le password non corrispondono.','As palavras-passe não coincidem.'],
+  ['auth.register.failed','We could not create the account. Please try again.','לא הצלחנו ליצור את החשבון. נסו שוב.','No pudimos crear la cuenta. Inténtalo de nuevo.','Impossible de créer le compte. Réessayez.','Das Konto konnte nicht erstellt werden. Bitte erneut versuchen.','Impossibile creare l’account. Riprova.','Não foi possível criar a conta. Tente novamente.'],
+  ['auth.or','or','או','o','ou','oder','oppure','ou'],
+  ['auth.social.continue_with','Continue with {{provider}}','המשך באמצעות {{provider}}','Continuar con {{provider}}','Continuer avec {{provider}}','Weiter mit {{provider}}','Continua con {{provider}}','Continuar com {{provider}}'],
+  ['auth.otp.title','Verify your email','אימות כתובת הדוא״ל','Verifica tu correo electrónico','Vérifiez votre e-mail','Bestätigen Sie Ihre E-Mail-Adresse','Verifica la tua e-mail','Verifique o seu e-mail'],
+  ['auth.otp.subtitle','We sent a code to {{email}}','שלחנו קוד אל {{email}}','Enviamos un código a {{email}}','Nous avons envoyé un code à {{email}}','Wir haben einen Code an {{email}} gesendet','Abbiamo inviato un codice a {{email}}','Enviámos um código para {{email}}'],
+  ['auth.otp.verify','Verify','אימות','Verificar','Vérifier','Bestätigen','Verifica','Verificar'],
+  ['auth.otp.verifying','Verifying…','מאמתים…','Verificando…','Vérification…','Wird bestätigt…','Verifica…','A verificar…'],
+  ['auth.otp.no_code','Did not receive the code?','לא קיבלתם את הקוד?','¿No recibiste el código?','Vous n’avez pas reçu le code ?','Code nicht erhalten?','Non hai ricevuto il codice?','Não recebeu o código?'],
+  ['auth.otp.resend','Resend','שליחה מחדש','Reenviar','Renvoyer','Erneut senden','Invia di nuovo','Reenviar'],
+  ['auth.otp.sent_title','Code sent','הקוד נשלח','Código enviado','Code envoyé','Code gesendet','Codice inviato','Código enviado'],
+  ['auth.otp.sent_description','Check your email for the new code.','בדקו את הדוא״ל לקבלת הקוד החדש.','Revisa tu correo para ver el nuevo código.','Consultez votre e-mail pour le nouveau code.','Prüfen Sie Ihre E-Mail auf den neuen Code.','Controlla la tua e-mail per il nuovo codice.','Consulte o seu e-mail para obter o novo código.'],
+  ['auth.otp.invalid','The verification code is invalid. Please try again.','קוד האימות אינו תקין. נסו שוב.','El código de verificación no es válido. Inténtalo de nuevo.','Le code de vérification est incorrect. Réessayez.','Der Bestätigungscode ist ungültig. Bitte erneut versuchen.','Il codice di verifica non è valido. Riprova.','O código de verificação é inválido. Tente novamente.'],
+  ['auth.otp.resend_failed','We could not resend the code. Please try again.','לא הצלחנו לשלוח את הקוד מחדש. נסו שוב.','No pudimos reenviar el código. Inténtalo de nuevo.','Impossible de renvoyer le code. Réessayez.','Der Code konnte nicht erneut gesendet werden. Bitte erneut versuchen.','Impossibile inviare nuovamente il codice. Riprova.','Não foi possível reenviar o código. Tente novamente.'],
+  ['onboarding.welcome.title','Welcome to Mindful Path','ברוכים הבאים ל־Mindful Path','Bienvenido a Mindful Path','Bienvenue sur Mindful Path','Willkommen bei Mindful Path','Benvenuto in Mindful Path','Bem-vindo ao Mindful Path'],
+  ['onboarding.welcome.description','A calm, private path that combines mindfulness, CBT tools and AI-guided support.','דרך רגועה ופרטית המשלבת מיינדפולנס, כלי CBT ותמיכה מונחית AI.','Un camino tranquilo y privado que combina mindfulness, herramientas de TCC y apoyo guiado por IA.','Un parcours calme et privé associant pleine conscience, outils TCC et accompagnement guidé par IA.','Ein ruhiger, privater Weg mit Achtsamkeit, CBT-Werkzeugen und KI-gestützter Begleitung.','Un percorso calmo e privato che unisce mindfulness, strumenti CBT e supporto guidato dall’IA.','Um caminho calmo e privado que combina mindfulness, ferramentas de TCC e apoio orientado por IA.'],
+  ['onboarding.welcome.privacy_note','Your choices can be changed later in Settings.','תוכלו לשנות את הבחירות בהמשך דרך ההגדרות.','Podrás cambiar tus elecciones más adelante en Ajustes.','Vous pourrez modifier vos choix plus tard dans les réglages.','Sie können Ihre Auswahl später in den Einstellungen ändern.','Potrai modificare le scelte in seguito nelle Impostazioni.','Pode alterar as suas escolhas mais tarde nas Definições.'],
+  ['onboarding.get_started','Get started','מתחילים','Comenzar','Commencer','Loslegen','Inizia','Começar'],
+  ['onboarding.focus.title','What would you like support with?','במה תרצו לקבל תמיכה?','¿En qué te gustaría recibir apoyo?','Sur quoi souhaitez-vous être accompagné ?','Wobei wünschen Sie Unterstützung?','Su cosa vorresti ricevere supporto?','Em que gostaria de receber apoio?'],
+  ['onboarding.focus.subtitle','Choose one or more areas.','בחרו תחום אחד או יותר.','Elige una o más áreas.','Choisissez un ou plusieurs domaines.','Wählen Sie einen oder mehrere Bereiche.','Scegli una o più aree.','Escolha uma ou mais áreas.'],
+  ['onboarding.focus.stress','Stress management','התמודדות עם לחץ','Manejo del estrés','Gestion du stress','Stressbewältigung','Gestione dello stress','Gestão do stress'],
+  ['onboarding.focus.anxiety','Anxiety relief','הקלה בחרדה','Alivio de la ansiedad','Apaisement de l’anxiété','Angst lindern','Sollievo dall’ansia','Alívio da ansiedade'],
+  ['onboarding.focus.sleep','Better sleep','שינה טובה יותר','Dormir mejor','Mieux dormir','Besser schlafen','Dormire meglio','Dormir melhor'],
+  ['onboarding.focus.mood','Mood support','תמיכה במצב הרוח','Apoyo para el estado de ánimo','Soutien de l’humeur','Unterstützung der Stimmung','Supporto per l’umore','Apoio ao humor'],
+  ['onboarding.focus.focus','Focus and clarity','מיקוד ובהירות','Concentración y claridad','Concentration et clarté','Fokus und Klarheit','Concentrazione e chiarezza','Foco e clareza'],
+  ['onboarding.focus.relationships','Relationships','מערכות יחסים','Relaciones','Relations','Beziehungen','Relazioni','Relações'],
+  ['onboarding.experience.title','How familiar are you with mindfulness or CBT?','עד כמה אתם מכירים מיינדפולנס או CBT?','¿Qué tan familiarizado estás con mindfulness o TCC?','Connaissez-vous la pleine conscience ou la TCC ?','Wie vertraut sind Sie mit Achtsamkeit oder CBT?','Quanto conosci mindfulness o CBT?','Até que ponto conhece mindfulness ou TCC?'],
+  ['onboarding.experience.subtitle','This helps us keep your first steps relevant and simple.','כך נוכל להתאים לכם צעדים ראשונים פשוטים ורלוונטיים.','Esto nos ayuda a ofrecerte primeros pasos sencillos y relevantes.','Cela nous aide à proposer des premières étapes simples et pertinentes.','So bleiben Ihre ersten Schritte einfach und passend.','Ci aiuta a proporti primi passi semplici e pertinenti.','Isto ajuda-nos a manter os primeiros passos simples e relevantes.'],
+  ['onboarding.experience.beginner','Just starting','רק מתחילים','Estoy empezando','Je débute','Ich fange gerade an','Sto iniziando','Estou a começar'],
+  ['onboarding.experience.beginner_desc','I am new to mindfulness and CBT.','מיינדפולנס ו־CBT חדשים עבורי.','Soy nuevo en mindfulness y TCC.','La pleine conscience et la TCC sont nouvelles pour moi.','Achtsamkeit und CBT sind neu für mich.','Mindfulness e CBT sono nuovi per me.','Mindfulness e TCC são novos para mim.'],
+  ['onboarding.experience.intermediate','Some experience','יש לי מעט ניסיון','Tengo algo de experiencia','J’ai un peu d’expérience','Ich habe etwas Erfahrung','Ho un po’ di esperienza','Tenho alguma experiência'],
+  ['onboarding.experience.intermediate_desc','I have tried meditation or therapy before.','ניסיתי בעבר מדיטציה או טיפול.','He probado la meditación o la terapia.','J’ai déjà essayé la méditation ou une thérapie.','Ich habe Meditation oder Therapie ausprobiert.','Ho già provato meditazione o terapia.','Já experimentei meditação ou terapia.'],
+  ['onboarding.experience.advanced','Regular practice','מתרגלים בקביעות','Práctica habitual','Pratique régulière','Regelmäßige Praxis','Pratica regolare','Prática regular'],
+  ['onboarding.experience.advanced_desc','I regularly practise mindfulness or CBT skills.','אני מתרגל/ת בקביעות מיינדפולנס או מיומנויות CBT.','Practico habitualmente mindfulness o habilidades de TCC.','Je pratique régulièrement la pleine conscience ou des compétences TCC.','Ich übe regelmäßig Achtsamkeit oder CBT-Fähigkeiten.','Pratico regolarmente mindfulness o abilità CBT.','Pratico regularmente mindfulness ou competências de TCC.'],
+  ['onboarding.back','Back','חזרה','Atrás','Retour','Zurück','Indietro','Voltar'],
+  ['onboarding.continue','Continue','המשך','Continuar','Continuer','Weiter','Continua','Continuar'],
+  ['onboarding.complete','Finish setup','סיום ההגדרה','Finalizar configuración','Terminer la configuration','Einrichtung abschließen','Completa configurazione','Concluir configuração'],
+  ['onboarding.completing','Saving…','שומרים…','Guardando…','Enregistrement…','Wird gespeichert…','Salvataggio…','A guardar…'],
+  ['onboarding.error','We could not save your choices. Please try again.','לא הצלחנו לשמור את הבחירות. נסו שוב.','No pudimos guardar tus elecciones. Inténtalo de nuevo.','Impossible d’enregistrer vos choix. Réessayez.','Ihre Auswahl konnte nicht gespeichert werden. Bitte erneut versuchen.','Impossibile salvare le scelte. Riprova.','Não foi possível guardar as suas escolhas. Tente novamente.'],
+  ['onboarding.step_label','Step {{step}} of 3','שלב {{step}} מתוך 3','Paso {{step}} de 3','Étape {{step}} sur 3','Schritt {{step}} von 3','Passaggio {{step}} di 3','Passo {{step}} de 3'],
+  ['daily_path.eyebrow','Your next gentle step','הצעד העדין הבא שלכם','Tu siguiente paso amable','Votre prochaine étape en douceur','Ihr nächster sanfter Schritt','Il tuo prossimo passo gentile','O seu próximo passo tranquilo'],
+  ['daily_path.title','Today’s path','המסלול להיום','El camino de hoy','Le parcours du jour','Ihr heutiger Weg','Il percorso di oggi','O caminho de hoje'],
+  ['daily_path.description','Three simple steps. Start wherever feels right.','שלושה צעדים פשוטים. התחילו במקום שמרגיש נכון.','Tres pasos sencillos. Empieza donde te resulte adecuado.','Trois étapes simples. Commencez là où cela vous convient.','Drei einfache Schritte. Beginnen Sie dort, wo es sich richtig anfühlt.','Tre semplici passi. Inizia da dove ti sembra giusto.','Três passos simples. Comece onde lhe parecer certo.'],
+  ['daily_path.checkin.title','Check in','בדיקה יומית','Registro','Point quotidien','Check-in','Check-in','Registo'],
+  ['daily_path.checkin.description','Notice how you feel right now.','שימו לב כיצד אתם מרגישים עכשיו.','Observa cómo te sientes ahora.','Observez comment vous vous sentez maintenant.','Nehmen Sie wahr, wie Sie sich gerade fühlen.','Nota come ti senti adesso.','Observe como se sente agora.'],
+  ['daily_path.coach.title','Talk with your coach','שיחה עם המאמן','Habla con tu guía','Parler avec votre coach','Mit Ihrem Coach sprechen','Parla con il tuo coach','Falar com o seu coach'],
+  ['daily_path.coach.description','Start or continue a private AI conversation.','התחילו או המשיכו שיחת AI פרטית.','Inicia o continúa una conversación privada con IA.','Commencez ou poursuivez une conversation privée avec l’IA.','Beginnen oder setzen Sie ein privates KI-Gespräch fort.','Inizia o continua una conversazione privata con l’IA.','Inicie ou continue uma conversa privada com IA.'],
+  ['daily_path.action.title','One useful action','פעולה מועילה אחת','Una acción útil','Une action utile','Eine hilfreiche Handlung','Un’azione utile','Uma ação útil'],
+  ['daily_path.action.description','Choose one short exercise for today.','בחרו תרגיל קצר אחד להיום.','Elige un ejercicio breve para hoy.','Choisissez un exercice court pour aujourd’hui.','Wählen Sie eine kurze Übung für heute.','Scegli un breve esercizio per oggi.','Escolha um exercício curto para hoje.'],
+  ['daily_path.open','Open','פתיחה','Abrir','Ouvrir','Öffnen','Apri','Abrir'],
+  ['stage_b.nav.coach','Coach','מאמן','Guía','Coach','Coach','Coach','Coach'],
+  ['stage_b.nav.path','My Path','המסלול שלי','Mi camino','Mon parcours','Mein Weg','Il mio percorso','O meu caminho'],
+  ['stage_b.nav.tools','Tools','כלים','Herramientas','Outils','Werkzeuge','Strumenti','Ferramentas']
+];
+
+function setNested(target, path, value) {
+  const parts = path.split('.');
+  let cursor = target;
+  for (let index = 0; index < parts.length - 1; index += 1) {
+    cursor[parts[index]] = cursor[parts[index]] || {};
+    cursor = cursor[parts[index]];
+  }
+  cursor[parts[parts.length - 1]] = value;
+}
+
+export function applyStageBUiTranslations(translations) {
+  rows.forEach((row) => {
+    languages.forEach((language, index) => {
+      const root = translations[language]?.translation;
+      if (root) setNested(root, row[0], row[index + 1]);
+    });
+  });
+}
