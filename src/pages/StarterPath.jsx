@@ -424,7 +424,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                   </h3>
 
                   {generatedContent?.example &&
-                <div className="mb-4 p-4 text-[hsl(var(--background))]" style={{
+                <div className="mb-4 p-4 text-[hsl(var(--background))] bg-[hsl(var(--background))]" style={{
                   borderRadius: 'var(--r-md)',
                   backgroundColor: 'rgb(var(--surface-2))',
                   border: '1px solid rgb(var(--theme-border))'
