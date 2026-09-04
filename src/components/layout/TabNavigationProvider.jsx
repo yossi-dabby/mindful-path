@@ -12,31 +12,34 @@ export function useTabNavigation() {
 const TAB_ROOTS = {
   Home: 'Home',
   Chat: 'Chat',
-  Coach: 'Coach',
+  MyPath: 'MyPath',
   Journal: 'Journal',
-  MoodTracker: 'MoodTracker',
-  Exercises: 'Exercises',
-  Progress: 'Progress',
+  Tools: 'Tools',
 };
 
 // Pages that belong to specific tabs
 const TAB_MAPPING = {
-  StarterPath: 'Home',
-  Videos: 'Home',
-  VideoPlayer: 'Home',
-  Playlists: 'Home',
-  PlaylistDetail: 'Home',
-  Journeys: 'Home',
-  ExperientialGames: 'Home',
+  MoodTracker: 'Home',
   ThoughtCoach: 'Chat',
-  GoalCoach: 'Coach',
-  ExerciseView: 'Exercises',
-  Goals: 'Progress',
-  Community: 'Progress',
-  PersonalizedFeed: 'Progress',
-  AdvancedAnalytics: 'Progress',
+  Coach: 'Chat',
+  GoalCoach: 'Chat',
+  StarterPath: 'MyPath',
+  Goals: 'MyPath',
+  Progress: 'MyPath',
+  PersonalizedFeed: 'MyPath',
+  AdvancedAnalytics: 'MyPath',
+  Exercises: 'Tools',
+  ExerciseView: 'Tools',
+  TherapeuticForms: 'Tools',
+  Videos: 'Tools',
+  VideoPlayer: 'Tools',
+  Playlists: 'Tools',
+  PlaylistDetail: 'Tools',
+  Journeys: 'Tools',
+  ExperientialGames: 'Tools',
+  Resources: 'Tools',
+  Community: null,
   Settings: null,
-  Resources: null,
 };
 
 function getTabForPage(pageName) {
@@ -75,7 +78,7 @@ function tabReducer(state, action) {
 
     case 'PUSH_PAGE': {
       const { tab, path, pageName } = action;
-      const stack = state.tabStacks[tab];
+      const stack = state.tabStacks[tab] || [{ path: `/${TAB_ROOTS[tab] || tab}`, pageName: TAB_ROOTS[tab] || tab }];
       if (stack[stack.length - 1]?.path === path) return state; // already top
       return {
         ...state,
@@ -84,7 +87,7 @@ function tabReducer(state, action) {
     }
 
     case 'POP_PAGE': {
-      const stack = state.tabStacks[action.tab];
+      const stack = state.tabStacks[action.tab] || [];
       if (stack.length <= 1) return state;
       return {
         ...state,
@@ -128,7 +131,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
     if (!currentTab) return;
 
     const currentPath = location.pathname + location.search;
-    const stack = tabStacks[currentTab];
+    const stack = tabStacks[currentTab] || [{ path: `/${TAB_ROOTS[currentTab]}`, pageName: TAB_ROOTS[currentTab] }];
     const top = stack[stack.length - 1];
 
     if (top?.path === currentPath) return; // already at top — no-op
@@ -143,6 +146,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
 
   // ── Switch tab ────────────────────────────────────────────────────────────
   const switchToTab = useCallback((tabName) => {
+    if (!TAB_ROOTS[tabName]) return;
     const currentPath = location.pathname + location.search;
 
     if (tabName === activeTab) {
@@ -183,7 +187,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
   // hardware-back button both work correctly. The tracking effect above
   // automatically pops our in-memory stack when the location changes.
   const goBackInTab = useCallback(() => {
-    if (tabStacks[activeTab].length > 1) {
+    if ((tabStacks[activeTab]?.length || 0) > 1) {
       navigate(-1);
       return true;
     }
@@ -191,7 +195,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
   }, [activeTab, tabStacks, navigate]);
 
   const canGoBack = useCallback(
-    () => tabStacks[activeTab].length > 1,
+    () => (tabStacks[activeTab]?.length || 0) > 1,
     [activeTab, tabStacks]
   );
 
