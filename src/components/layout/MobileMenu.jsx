@@ -2,17 +2,15 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import {
-  Activity,
   BookOpen,
-  Dumbbell,
-  Heart,
   Home,
   Menu,
   MessageCircle,
+  Route,
   Settings,
   ShieldCheck,
   Sparkles,
-  Users,
+  Wrench,
   X
 } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerClose, DrawerTitle } from '@/components/ui/drawer';
@@ -27,17 +25,13 @@ export default function MobileMenu() {
 
   const mainItems = [
     { name: t('sidebar.home.name'), description: t('sidebar.home.description'), icon: Home, path: 'Home' },
-    { name: t('sidebar.chat.name'), description: t('sidebar.chat.description'), icon: MessageCircle, path: 'Chat' },
-    { name: t('sidebar.coach.name'), description: t('sidebar.coach.description'), icon: Heart, path: 'Coach' },
-    { name: t('sidebar.mood.name'), description: t('sidebar.mood.description'), icon: Activity, path: 'MoodTracker' },
+    { name: t('stage_b.nav.coach'), description: t('sidebar.chat.description'), icon: MessageCircle, path: 'Chat' },
+    { name: t('stage_b.nav.path'), description: t('my_path.subtitle'), icon: Route, path: 'MyPath' },
     { name: t('sidebar.journal.name'), description: t('sidebar.journal.description'), icon: BookOpen, path: 'Journal' },
-    { name: t('sidebar.progress.name'), description: t('sidebar.progress.description'), icon: Activity, path: 'Progress' },
-    { name: t('sidebar.exercises.name'), description: t('sidebar.exercises.description'), icon: Dumbbell, path: 'Exercises' }
+    { name: t('stage_b.nav.tools'), description: t('tools_hub.subtitle'), icon: Wrench, path: 'Tools' }
   ];
 
   const secondaryItems = [
-    { name: t('sidebar.community.name'), icon: Users, path: 'Community', testId: 'mobile-nav-community' },
-    { name: t('sidebar.resources.name'), icon: BookOpen, path: 'Resources', testId: 'mobile-nav-resources' },
     { name: t('sidebar.settings.name'), icon: Settings, path: 'Settings', testId: 'mobile-nav-settings' }
   ];
 
