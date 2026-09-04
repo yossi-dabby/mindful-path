@@ -312,7 +312,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
   }
 
   return (
-    <div className="min-h-dvh p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div data-testid="starter-path-page" className="min-h-dvh p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {showPersonalization &&
       <PersonalizationSetup onComplete={handlePersonalizationComplete} />
       }
@@ -392,6 +392,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
                   <Button
                   onClick={() => setStep('exercise')}
+                  data-testid="starter-path-begin"
                   className="w-full transition-calm text-white px-7 py-6"
                   style={{
                     borderRadius: '9999px',
@@ -424,7 +425,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                   </h3>
 
                   {generatedContent?.example &&
-                    <div className="mb-4 rounded-2xl border border-teal-200 bg-teal-50/90 p-4 shadow-sm">
+                    <div data-testid="starter-path-example" className="mb-4 rounded-2xl border border-teal-200 bg-teal-50/90 p-4 shadow-sm">
                       <p className="text-sm leading-6 text-teal-950">
                         {generatedContent.example}
                       </p>
