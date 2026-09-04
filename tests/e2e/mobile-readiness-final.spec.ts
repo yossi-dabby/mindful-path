@@ -151,9 +151,23 @@ test.describe('Bottom Tabs (mobile)', () => {
     }
   });
 
-  test('all 6 nav items are reachable with keyboard (tabindex reachable)', async ({ page }) => {
+  test('all 5 primary nav items are reachable with keyboard', async ({ page }) => {
     const links = page.locator('nav[aria-label="Main navigation"] a');
-    await expect(links).toHaveCount(6);
+    await expect(links).toHaveCount(5);
+  });
+
+  test('My Path and Tools open from the bottom bar without a blank screen', async ({ page }) => {
+    const nav = page.locator('nav[aria-label="Main navigation"]');
+
+    await nav.locator('a[href="/MyPath"]').click();
+    await expect(page).toHaveURL(/\/MyPath$/);
+    await expect(page.getByRole('heading', { name: /My Path|המסלול שלי/i })).toBeVisible();
+    await expect(page.locator('#root')).not.toBeEmpty();
+
+    await nav.locator('a[href="/Tools"]').click();
+    await expect(page).toHaveURL(/\/Tools$/);
+    await expect(page.getByRole('heading', { name: /Tools|כלים/i })).toBeVisible();
+    await expect(page.locator('#root')).not.toBeEmpty();
   });
 });
 
