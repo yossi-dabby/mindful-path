@@ -24,11 +24,11 @@ export default function MobileMenu() {
   const isRtl = i18n.dir() === 'rtl';
 
   const mainItems = [
-    { name: t('sidebar.home.name'), description: t('sidebar.home.description'), icon: Home, path: 'Home' },
-    { name: t('stage_b.nav.coach'), description: t('sidebar.chat.description'), icon: MessageCircle, path: 'Chat' },
-    { name: t('stage_b.nav.path'), description: t('my_path.subtitle'), icon: Route, path: 'MyPath' },
-    { name: t('sidebar.journal.name'), description: t('sidebar.journal.description'), icon: BookOpen, path: 'Journal' },
-    { name: t('stage_b.nav.tools'), description: t('tools_hub.subtitle'), icon: Wrench, path: 'Tools' }
+    { name: t('sidebar.home.name'), description: t('sidebar.home.description'), icon: Home, path: 'Home', testId: 'mobile-nav-home' },
+    { name: t('stage_b.nav.coach'), description: t('sidebar.chat.description'), icon: MessageCircle, path: 'Chat', testId: 'mobile-nav-chat' },
+    { name: t('stage_b.nav.path'), description: t('my_path.subtitle'), icon: Route, path: 'MyPath', testId: 'mobile-nav-my-path' },
+    { name: t('sidebar.journal.name'), description: t('sidebar.journal.description'), icon: BookOpen, path: 'Journal', testId: 'mobile-nav-journal' },
+    { name: t('stage_b.nav.tools'), description: t('tools_hub.subtitle'), icon: Wrench, path: 'Tools', testId: 'mobile-nav-tools' }
   ];
 
   const secondaryItems = [
