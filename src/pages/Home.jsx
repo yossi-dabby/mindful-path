@@ -12,7 +12,7 @@ import QuickActions from '../components/home/QuickActions';
 import WelcomeWizard from '../components/onboarding/WelcomeWizard';
 import StreakWidget from '../components/gamification/StreakWidget';
 import BadgeDisplay from '../components/gamification/BadgeDisplay';
-import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
+import DailyPath from '../components/home/DailyPath';
 import DailyReflection from '../components/home/DailyReflection';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
@@ -247,13 +247,20 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Daily Check-in - Primary CTA */}
+        {/* Stage B: one calm daily path with three primary choices */}
         <div className="mb-8">
-          <StandaloneDailyCheckIn />
+          <DailyPath
+            checkInComplete={Boolean(todayMood || todayFlow?.check_in_completed)}
+            exerciseComplete={Boolean(todayFlow?.exercise_completed)}
+            hasRecommendedExercise={Boolean(todayExercise)}
+            onCheckIn={handleStartCheckIn}
+            onCoach={() => navigate('/Chat')}
+            onExercise={() => todayExercise ? handleStartExercise() : navigate('/Exercises')}
+          />
         </div>
 
           {/* Secondary Content - Progress Context */}
-        <div className="bg-teal-50 text-emerald-200 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="hidden bg-teal-50 text-emerald-200 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -364,7 +371,7 @@ export default function Home() {
         </div>
 
         {/* Supporting Actions */}
-        <div className="bg-teal-50 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
+        <div className="hidden bg-teal-50 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
 
