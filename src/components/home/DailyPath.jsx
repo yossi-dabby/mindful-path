@@ -46,6 +46,7 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
               key={key}
               onClick={onClick}
               disabled={disabled}
+              data-testid={`daily-path-${key}`}
               className="group flex min-h-[132px] flex-col rounded-[24px] border border-teal-100 bg-gradient-to-br from-white to-teal-50/70 p-4 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:opacity-60"
             >
               <div className="flex w-full items-center justify-between gap-3">
