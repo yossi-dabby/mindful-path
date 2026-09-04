@@ -1,129 +1,70 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { FileText, Dumbbell, BookOpen, ExternalLink, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '../../utils';
 import { useTranslation } from 'react-i18next';
+import { CalendarClock, CheckCircle2, Sparkles } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { createPageUrl } from '../../utils';
 
 export default function SessionSummary({ conversation }) {
   const { t } = useTranslation();
-  const { data: exercises } = useQuery({
+  const { data: exercises = [] } = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
-    initialData: []
+    initialData: [],
   });
 
-  const suggestedExercises = exercises.filter(ex => 
-    conversation.suggested_exercises?.includes(ex.id)
+  if (!conversation?.session_summary) return null;
+
+  const recommendedExercise = exercises.find((exercise) =>
+    conversation.suggested_exercises?.includes(exercise.id)
   );
 
-  if (!conversation.session_summary) return null;
-
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-t border-purple-200 p-4 md:p-6 overflow-x-hidden">
-      <Card className="max-w-4xl mx-auto border-0 shadow-lg w-full">
-        <CardHeader className="border-b bg-white">
-          <CardTitle className="flex items-center gap-2 text-purple-900">
-            <FileText className="w-5 h-5" />
-            {t('chat.session_summary.title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6 space-y-6 bg-white">
-          {/* Summary Text */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-              {t('chat.session_summary.key_takeaways')}
-            </h3>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {conversation.session_summary}
-            </p>
-          </div>
+    <div className="overflow-x-hidden border-t border-teal-100 bg-teal-50/80 p-4 md:p-6">
+      <Card className="mx-auto max-w-3xl rounded-[28px] border border-white/80 bg-white/92 shadow-[0_18px_50px_rgba(36,105,92,0.13)]">
+        <CardContent className="space-y-3 p-5 sm:p-6">
+          <SummarySection icon={CheckCircle2} title={t('chat_stage.summary.understood')}>
+            <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{conversation.session_summary}</p>
+          </SummarySection>
 
-          {/* Suggested Exercises */}
-          {suggestedExercises.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <Dumbbell className="w-4 h-4 text-purple-600" />
-                {t('chat.session_summary.recommended_exercises')}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {suggestedExercises.map((exercise) => (
-                  <Link key={exercise.id} to={createPageUrl('Exercises')}>
-                    <Card className="border-2 border-purple-200 hover:border-purple-400 transition-colors cursor-pointer">
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold text-gray-800 mb-1">{exercise.title}</h4>
-                        <p className="text-xs text-gray-600 mb-2">{exercise.description}</p>
-                        {exercise.duration_options?.length > 0 ? (
-                          <Badge variant="outline" className="text-xs">
-                            {exercise.duration_options.join(', ')} min
-                          </Badge>
-                        ) : exercise.duration_minutes ? (
-                          <Badge variant="outline" className="text-xs">
-                            {exercise.duration_minutes} min
-                          </Badge>
-                        ) : null}
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+          <SummarySection icon={Sparkles} title={t('chat_stage.summary.practice')}>
+            {recommendedExercise ? (
+              <div className="flex flex-col gap-3 rounded-2xl bg-teal-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-semibold text-slate-900">{recommendedExercise.title}</p>
+                  {recommendedExercise.description && <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{recommendedExercise.description}</p>}
+                </div>
+                <Link to={createPageUrl('Exercises')} className="shrink-0">
+                  <Button className="min-h-11 w-full rounded-xl bg-teal-700 font-semibold text-white hover:bg-teal-800 sm:w-auto">
+                    {t('chat_stage.summary.open_practice')}
+                  </Button>
+                </Link>
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm leading-6 text-slate-700">{t('daily_path.action.description')}</p>
+            )}
+          </SummarySection>
 
-          {/* Recommended Resources */}
-          {conversation.recommended_resources?.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-blue-600" />
-                {t('chat.session_summary.helpful_resources')}
-              </h3>
-              <div className="space-y-2">
-                {conversation.recommended_resources.map((resource, index) => (
-                  <a
-                    key={index}
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-800 mb-1">{resource.title}</h4>
-                        <p className="text-xs text-gray-600">{resource.description}</p>
-                        {resource.type && (
-                          <Badge variant="secondary" className="mt-2 text-xs">
-                            {resource.type}
-                          </Badge>
-                        )}
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="pt-4 border-t flex flex-col sm:flex-row gap-3">
-            <Link to={createPageUrl('Journal')} className="flex-1">
-              <Button variant="outline" className="w-full">
-                {t('chat.session_summary.reflect_button')}
-              </Button>
-            </Link>
-            <Link to={createPageUrl('Exercises')} className="flex-1">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                {t('chat.session_summary.view_exercises_button')}
-              </Button>
-            </Link>
-          </div>
+          <SummarySection icon={CalendarClock} title={t('chat_stage.summary.return')}>
+            <p className="text-sm leading-6 text-slate-700">{t('chat_stage.summary.return_body')}</p>
+          </SummarySection>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function SummarySection({ icon: Icon, title, children }) {
+  return (
+    <section className="rounded-2xl border border-slate-100 bg-white p-4">
+      <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-teal-900">
+        <Icon className="h-4 w-4 text-teal-700" aria-hidden="true" />
+        {title}
+      </h3>
+      {children}
+    </section>
   );
 }
