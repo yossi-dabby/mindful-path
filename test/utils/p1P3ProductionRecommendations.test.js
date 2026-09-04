@@ -14,7 +14,8 @@ describe('P1–P3 production recommendations', () => {
     expect(start).toContain('conversationInitializingRef.current = true');
     expect(start).toContain('await base44.agents.addMessage');
     expect(start).not.toContain('setTimeout(async');
-    expect(source).toContain('disabled={isLoading || isConversationInitializing || isUploadingFile}');
+    expect(source).toContain('disabled={(isLoading && !chatOrchestratorV2EnabledRef.current) || isConversationInitializing || isUploadingFile}');
+    expect(source).toContain('disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}');
     expect(source).toContain("setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText)");
     expect(source).not.toContain("if (!_isV2QueuedExecution) {\n        setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);");
     expect(source).toContain('conversationId: currentConversationIdRef.current');
