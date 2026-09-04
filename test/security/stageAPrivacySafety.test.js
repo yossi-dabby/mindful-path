@@ -79,7 +79,7 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
     const banner = read('src/components/chat/InlineConsentBanner.jsx');
     expect(banner).toContain('await base44.entities.ConsentRecord.create');
     expect(banner).toContain('persistCurrentChatConsent(undefined, currentUserId)');
-    expect(banner).toContain('AI access remains locked');
+    expect(banner).toContain("t('consent.save_error')");
     expect(banner).toContain('to="/terms"');
     expect(banner).toContain('to="/privacy"');
     expect(banner).not.toMatch(/ip_address|device_id|message_content/);
