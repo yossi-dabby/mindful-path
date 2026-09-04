@@ -1,7 +1,6 @@
 import React from 'react';
 import { Check, ChevronRight, Circle, HeartPulse, MessageCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
