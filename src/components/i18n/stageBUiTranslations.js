@@ -90,7 +90,20 @@ const rows = [
   ['daily_path.open','Open','פתיחה','Abrir','Ouvrir','Öffnen','Apri','Abrir'],
   ['stage_b.nav.coach','Coach','מאמן','Guía','Coach','Coach','Coach','Coach'],
   ['stage_b.nav.path','My Path','המסלול שלי','Mi camino','Mon parcours','Mein Weg','Il mio percorso','O meu caminho'],
-  ['stage_b.nav.tools','Tools','כלים','Herramientas','Outils','Werkzeuge','Strumenti','Ferramentas']
+  ['stage_b.nav.tools','Tools','כלים','Herramientas','Outils','Werkzeuge','Strumenti','Ferramentas'],
+  ['my_path.title','My Path','המסלול שלי','Mi camino','Mon parcours','Mein Weg','Il mio percorso','O meu caminho'],
+  ['my_path.subtitle','Goals, progress and your seven-day starting plan in one place.','מטרות, התקדמות ותוכנית הפתיחה לשבעה ימים במקום אחד.','Objetivos, progreso y tu plan inicial de siete días en un solo lugar.','Objectifs, progression et programme de démarrage de sept jours au même endroit.','Ziele, Fortschritt und Ihr siebentägiger Startplan an einem Ort.','Obiettivi, progressi e piano iniziale di sette giorni in un unico posto.','Objetivos, progresso e plano inicial de sete dias num só lugar.'],
+  ['my_path.goals','Goals','מטרות','Objetivos','Objectifs','Ziele','Obiettivi','Objetivos'],
+  ['my_path.progress','Progress','התקדמות','Progreso','Progression','Fortschritt','Progressi','Progresso'],
+  ['my_path.starter','Seven-day path','מסלול פתיחה לשבעה ימים','Camino de siete días','Parcours de sept jours','Siebentägiger Weg','Percorso di sette giorni','Caminho de sete dias'],
+  ['tools_hub.title','Tools','כלים','Herramientas','Outils','Werkzeuge','Strumenti','Ferramentas'],
+  ['tools_hub.subtitle','Choose a tool only when it supports what you need now.','בחרו כלי רק כשהוא מתאים למה שאתם צריכים עכשיו.','Elige una herramienta solo cuando responda a lo que necesitas ahora.','Choisissez un outil uniquement s’il répond à votre besoin du moment.','Wählen Sie ein Werkzeug nur, wenn es zu Ihrem aktuellen Bedarf passt.','Scegli uno strumento solo quando risponde a ciò che ti serve ora.','Escolha uma ferramenta apenas quando apoiar aquilo de que precisa agora.'],
+  ['tools_hub.exercises','Exercises','תרגילים','Ejercicios','Exercices','Übungen','Esercizi','Exercícios'],
+  ['tools_hub.forms','CBT worksheets','טפסי CBT','Hojas de trabajo TCC','Fiches TCC','CBT-Arbeitsblätter','Schede CBT','Fichas TCC'],
+  ['tools_hub.videos','Videos','סרטונים','Vídeos','Vidéos','Videos','Video','Vídeos'],
+  ['tools_hub.games','Practice games','משחקי תרגול','Juegos de práctica','Jeux de pratique','Übungsspiele','Giochi di pratica','Jogos de prática'],
+  ['tools_hub.resources','Resources','משאבים','Recursos','Ressources','Ressourcen','Risorse','Recursos'],
+  ['tools_hub.open','Open','פתיחה','Abrir','Ouvrir','Öffnen','Apri','Abrir']
 ];
 
 function setNested(target, path, value) {
