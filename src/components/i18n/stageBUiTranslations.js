@@ -102,6 +102,7 @@ const rows = [
   ['tools_hub.forms','CBT worksheets','טפסי CBT','Hojas de trabajo TCC','Fiches TCC','CBT-Arbeitsblätter','Schede CBT','Fichas TCC'],
   ['tools_hub.videos','Videos','סרטונים','Vídeos','Vidéos','Videos','Video','Vídeos'],
   ['tools_hub.games','Practice games','משחקי תרגול','Juegos de práctica','Jeux de pratique','Übungsspiele','Giochi di pratica','Jogos de prática'],
+  ['tools_hub.journeys','Guided journeys','מסלולים מודרכים','Recorridos guiados','Parcours guidés','Geführte Wege','Percorsi guidati','Percursos guiados'],
   ['tools_hub.resources','Resources','משאבים','Recursos','Ressources','Ressourcen','Risorse','Recursos'],
   ['tools_hub.open','Open','פתיחה','Abrir','Ouvrir','Öffnen','Apri','Abrir'],
   ['chat_stage.intent_label','What would help right now?','מה יעזור לכם כרגע?','¿Qué te ayudaría ahora?','Qu’est-ce qui vous aiderait maintenant ?','Was würde Ihnen gerade helfen?','Cosa ti aiuterebbe adesso?','O que ajudaria agora?'],
