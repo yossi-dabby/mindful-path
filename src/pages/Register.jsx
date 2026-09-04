@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import SocialAuthButtons from "@/components/SocialAuthButtons";
@@ -12,6 +13,7 @@ import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 export default function Register() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,19 +22,19 @@ export default function Register() {
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("auth.register.password_mismatch"));
       return;
     }
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
+      await base44.auth.register({ email: email.trim(), password });
       setShowOtp(true);
-    } catch (err) {
-      setError(err.message || "Registration failed");
+    } catch {
+      setError(t("auth.register.failed"));
     } finally {
       setLoading(false);
     }
@@ -42,13 +44,11 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.access_token) {
-        base44.auth.setToken(result.access_token);
-      }
+      const result = await base44.auth.verifyOtp({ email: email.trim(), otpCode });
+      if (result?.access_token) base44.auth.setToken(result.access_token);
       window.location.href = safeReturnTo();
-    } catch (err) {
-      setError(err.message || "Invalid verification code");
+    } catch {
+      setError(t("auth.otp.invalid"));
     } finally {
       setLoading(false);
     }
@@ -57,167 +57,86 @@ export default function Register() {
   const handleResend = async () => {
     setError("");
     try {
-      await base44.auth.resendOtp(email);
-      toast({
-        title: "Code sent",
-        description: "Check your email for the new code.",
-      });
-    } catch (err) {
-      setError(err.message || "Failed to resend code");
+      await base44.auth.resendOtp(email.trim());
+      toast({ title: t("auth.otp.sent_title"), description: t("auth.otp.sent_description") });
+    } catch {
+      setError(t("auth.otp.resend_failed"));
     }
   };
 
   if (showOtp) {
     return (
-      <AuthLayout
-        icon={Mail}
-        title="Verify your email"
-        subtitle={`We sent a code to ${email}`}
-      >
-        {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-            {error}
-          </div>
-        )}
-        <div className="flex justify-center mb-6">
-          <InputOTP
-            maxLength={6}
-            value={otpCode}
-            onChange={setOtpCode}
-            autoFocus
-            autoComplete="one-time-code"
-          >
+      <AuthLayout icon={Mail} title={t("auth.otp.title")} subtitle={t("auth.otp.subtitle", { email })}>
+        {error && <div role="alert" className="mb-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        <div className="mb-6 flex justify-center" dir="ltr">
+          <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
             <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
+              {[0, 1, 2, 3, 4, 5].map((index) => <InputOTPSlot key={index} index={index} />)}
             </InputOTPGroup>
           </InputOTP>
         </div>
-        <Button
-          className="w-full h-12 font-medium"
-          onClick={handleVerify}
-          disabled={loading || otpCode.length < 6}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Verifying...
-            </>
-          ) : (
-            "Verify"
-          )}
+        <Button className="h-12 w-full rounded-2xl bg-teal-700 font-semibold hover:bg-teal-800" onClick={handleVerify} disabled={loading || otpCode.length < 6}>
+          {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+          {loading ? t("auth.otp.verifying") : t("auth.otp.verify")}
         </Button>
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Didn't receive the code?{" "}
-          <button onClick={handleResend} className="text-primary font-medium hover:underline">
-            Resend
-          </button>
+        <p className="mt-4 text-center text-sm text-slate-500">
+          {t("auth.otp.no_code")}{" "}
+          <button type="button" onClick={handleResend} className="font-semibold text-teal-700 hover:underline">{t("auth.otp.resend")}</button>
         </p>
       </AuthLayout>
     );
   }
 
+  const loginTo = "/login" + (safeReturnTo() !== "/" ? "?returnTo=" + encodeURIComponent(safeReturnTo()) : "");
+
   return (
     <AuthLayout
       icon={UserPlus}
-      title="Create your account"
-      subtitle="Sign up to get started"
+      title={t("auth.register.title")}
+      subtitle={t("auth.register.subtitle")}
       footer={
         <>
-          Already have an account?{" "}
-          <Link
-            to={"/login" + (safeReturnTo() !== "/" ? "?returnTo=" + encodeURIComponent(safeReturnTo()) : "")}
-            className="text-primary font-medium hover:underline"
-          >
-            Log in
-          </Link>
+          {t("auth.register.has_account")}{" "}
+          <Link to={loginTo} className="font-semibold text-teal-800 hover:underline">{t("auth.register.login")}</Link>
         </>
       }
     >
-      <div className="mb-6">
-        <SocialAuthButtons />
+      <SocialAuthButtons />
+
+      <div className="relative my-5">
+        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
+        <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-3 text-slate-400">{t("auth.or")}</span></div>
       </div>
 
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
-        </div>
-      </div>
+      {error && <div role="alert" className="mb-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="confirm"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating account...
-            </>
-          ) : (
-            "Create account"
-          )}
+      <form onSubmit={handleSubmit} className="space-y-3.5">
+        <Field icon={Mail} id="register-email" label={t("auth.login.email")} type="email" autoComplete="email" value={email} onChange={setEmail} placeholder="you@example.com" autoFocus />
+        <Field icon={Lock} id="register-password" label={t("auth.login.password")} type="password" autoComplete="new-password" value={password} onChange={setPassword} placeholder="••••••••" />
+        <Field icon={Lock} id="register-confirm" label={t("auth.register.confirm_password")} type="password" autoComplete="new-password" value={confirmPassword} onChange={setConfirmPassword} placeholder="••••••••" />
+        <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-teal-200 font-semibold text-teal-800" disabled={loading}>
+          {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+          {loading ? t("auth.register.loading") : t("auth.register.submit")}
         </Button>
       </form>
+
+      <p className="mt-5 text-center text-xs leading-5 text-slate-500">
+        <Link to="/privacy" className="font-semibold text-teal-800 underline underline-offset-4">{t("settings.data_privacy.privacy_policy")}</Link>
+        <span aria-hidden="true"> · </span>
+        <Link to="/terms" className="font-semibold text-teal-800 underline underline-offset-4">{t("settings.data_privacy.terms_of_service")}</Link>
+      </p>
     </AuthLayout>
+  );
+}
+
+function Field({ icon: Icon, id, label, value, onChange, ...props }) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <div className="relative">
+        <Icon className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+        <Input id={id} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 rounded-2xl ps-10" required {...props} />
+      </div>
+    </div>
   );
 }
