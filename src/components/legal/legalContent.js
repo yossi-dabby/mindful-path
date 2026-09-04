@@ -1,3 +1,5 @@
+import { additionalLegalCopies } from './legalContentAdditional';
+
 export const LEGAL_EFFECTIVE_DATE = '2026-09-03';
 export const LEGAL_CONSENT_VERSION = '2026-09-03';
 export const LEGAL_CONTACT_EMAIL = 'support@mindful-path.app';
@@ -252,7 +254,9 @@ const he = {
   },
 };
 
+const legalCopies = { en, he, ...additionalLegalCopies };
+
 export function getLegalCopy(language) {
   const normalized = String(language || 'en').toLowerCase().split('-')[0];
-  return normalized === 'he' ? he : en;
+  return legalCopies[normalized] || en;
 }
