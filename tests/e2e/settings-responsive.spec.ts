@@ -47,8 +47,9 @@ test.describe('Premium settings and mobile menu', () => {
 
     const drawer = page.getByTestId('mobile-drawer');
     await expect(drawer).toBeVisible();
-    await expect(page.getByTestId('mobile-nav-community')).toBeVisible();
-    await expect(page.getByTestId('mobile-nav-resources')).toBeVisible();
+    for (const item of ['home', 'chat', 'my-path', 'journal', 'tools']) {
+      await expect(page.getByTestId(`mobile-nav-${item}`), item).toBeVisible();
+    }
     await expect(page.getByTestId('mobile-nav-settings')).toHaveAttribute('aria-current', 'page');
 
     await expect.poll(async () => {
