@@ -1,4 +1,4 @@
-import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '@/components/i18n/appLocale';
+import { SUPPORTED_APP_LOCALES, normalizeAppLocale } from '../components/i18n/appLocale.js';
 
 export const HUMAN_SUPPORT_DIRECTORY_VERSION = '2026-09-06.2';
 export const SUPPORTED_HUMAN_SUPPORT_REGIONS = Object.freeze(['US', 'IL', 'ES', 'FR', 'DE', 'IT', 'PT']);
