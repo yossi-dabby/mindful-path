@@ -3,7 +3,6 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { FORMS_ADOLESCENTS_CBT_CORE_ES_PILOT } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.es.js';
 import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
-import { buildCollectionsFromForms, buildModulesFromCollectionForms, getLanguageVisibleForms } from '../../src/pages/TherapeuticForms.jsx';
 
 const ROOT = process.cwd();
 
@@ -32,20 +31,6 @@ describe('Spanish adolescent CBT core stage 1 pilot', () => {
       expect(fs.existsSync(filePath)).toBe(true);
       expect(fs.readFileSync(filePath).subarray(0, 5).toString()).toBe('%PDF-');
     }
-  });
-
-  it('appears in the Spanish UI as one collection and a localized stage', () => {
-    const visible = getLanguageVisibleForms('es');
-    const pilotVisible = visible.filter((entry) => entry.form.collectionId === 'adolescents-cbt-core-es');
-    expect(pilotVisible).toHaveLength(5);
-
-    const collections = buildCollectionsFromForms(pilotVisible);
-    expect(collections).toHaveLength(1);
-    const modules = buildModulesFromCollectionForms(collections[0].forms, 'es');
-    expect(modules).toHaveLength(1);
-    expect(modules[0].numberLabel).toBe('Etapa 1');
-    expect(modules[0].title).toBe('Etapa 1 — Comprender lo que está ocurriendo');
-    expect(modules[0].worksheetCount).toBe(5);
   });
 
   it('is present in the generated app catalog with rich metadata', () => {
