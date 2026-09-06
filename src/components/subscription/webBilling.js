@@ -6,6 +6,23 @@ export function isWebBillingAvailable() {
   return WEB_BILLING_ENABLED && !Capacitor.isNativePlatform();
 }
 
+export async function confirmWebCheckoutFromCurrentUrl() {
+  if (Capacitor.isNativePlatform() || typeof window === 'undefined') return null;
+
+  const currentUrl = new URL(window.location.href);
+  const sessionId = currentUrl.searchParams.get('session_id');
+  if (currentUrl.searchParams.get('billing') !== 'success' || !sessionId) return null;
+  if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) return null;
+
+  const response = await base44.functions.invoke('confirmStripeCheckout', { sessionId });
+  const result = response?.data || response;
+
+  currentUrl.searchParams.delete('billing');
+  currentUrl.searchParams.delete('session_id');
+  window.history.replaceState({}, document.title, currentUrl.toString());
+  return result;
+}
+
 export async function startWebMonthlyCheckout() {
   if (!isWebBillingAvailable()) {
     throw new Error('WEB_BILLING_NOT_CONFIGURED');
