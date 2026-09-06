@@ -102,7 +102,11 @@ export async function purchaseNativeMonthly(user, monthlyPackage) {
     throw new Error('PREMIUM_ENTITLEMENT_NOT_GRANTED');
   }
 
-  return verifyEntitlementOnServer();
+  const verified = await verifyEntitlementOnServer();
+  if (!verified?.active) {
+    throw new Error('PREMIUM_ENTITLEMENT_NOT_VERIFIED');
+  }
+  return verified;
 }
 
 export async function restoreNativePurchases(user) {
@@ -111,7 +115,8 @@ export async function restoreNativePurchases(user) {
   const verified = await verifyEntitlementOnServer();
 
   return {
-    restored: hasPremiumEntitlement(result?.customerInfo),
+    restored: Boolean(verified?.active),
+    storeReportedActive: hasPremiumEntitlement(result?.customerInfo),
     verified
   };
 }
