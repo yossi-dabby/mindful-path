@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +28,12 @@ import LanguageSelector from '../components/settings/LanguageSelector';
 import NotificationSettings from '../components/settings/NotificationSettings';
 import DeleteAccountFlow from '../components/settings/DeleteAccountFlow';
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
+import {
+  SUBSCRIPTIONS_ENABLED,
+  getSubscriptionReadinessCopy,
+  isPremiumSubscription
+} from '../components/subscription/subscriptionReadiness.js';
+import { getCurrentAppLocale } from '../components/i18n/appLocale.js';
 import { performLogout } from '@/lib/platform';
 import { createPageUrl } from '../utils';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -52,7 +58,7 @@ const DEFAULT_EMAIL_NOTIFICATIONS = {
 const cardClassName = 'settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl';
 
 export default function Settings() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const reduceMotion = useReducedMotion();
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
@@ -63,6 +69,17 @@ export default function Settings() {
   const [dashboardLayout, setDashboardLayout] = useState('default');
   const [showPremium, setShowPremium] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const subscriptionCopy = getSubscriptionReadinessCopy(getCurrentAppLocale(i18n));
+
+  const { data: subscription = null } = useQuery({
+    queryKey: ['settings-subscription', user?.email],
+    queryFn: async () => {
+      const subscriptions = await base44.entities.Subscription.filter({ created_by: user.email });
+      return subscriptions[0] || null;
+    },
+    enabled: Boolean(user?.email)
+  });
+  const hasPremium = isPremiumSubscription(subscription);
 
   useEffect(() => {
     let active = true;
@@ -435,9 +452,13 @@ export default function Settings() {
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-lg font-bold text-slate-900">{t('settings.subscription.title')}</h2>
-                        <Badge className="border-0 bg-emerald-100 text-emerald-800">{t('settings.subscription.active')}</Badge>
+                        <Badge className={hasPremium ? 'border-0 bg-emerald-100 text-emerald-800' : 'border-0 bg-amber-100 text-amber-900'}>
+                          {hasPremium ? t('settings.subscription.active') : subscriptionCopy.pending}
+                        </Badge>
                       </div>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{t('settings.subscription.description')}</p>
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                        {hasPremium ? t('settings.subscription.premium_benefits') : subscriptionCopy.description}
+                      </p>
                       <ul className="mt-3 grid gap-1 text-sm text-slate-600 sm:grid-cols-3">
                         <li>{t('settings.subscription.feature_sessions')}</li>
                         <li>{t('settings.subscription.feature_exercises')}</li>
@@ -448,11 +469,12 @@ export default function Settings() {
                   <Button
                     type="button"
                     onClick={() => setShowPremium(true)}
-                    className="min-h-[50px] shrink-0 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 font-bold text-white shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-orange-600"
+                    disabled={!SUBSCRIPTIONS_ENABLED || hasPremium}
+                    className="min-h-[50px] shrink-0 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 font-bold text-white shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-orange-600 disabled:cursor-not-allowed disabled:opacity-65"
                     data-testid="settings-upgrade-button"
                   >
                     <Sparkles className="me-2 h-4 w-4" />
-                    {t('settings_ui.upgrade_button')}
+                    {hasPremium ? t('settings.subscription.active') : subscriptionCopy.button}
                   </Button>
                 </div>
               </CardContent>
