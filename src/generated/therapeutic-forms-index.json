@@ -27467,6 +27467,566 @@
     "parentId": null
   },
   {
+    "id": "adolescents-cbt-core-es-1-1",
+    "slug": "adolescents-cbt-core-es-1-1-que-me-esta-pasando-ahora-mismo",
+    "parentSeriesId": "adolescents-cbt-core-es",
+    "type": "individual_worksheet",
+    "approved": true,
+    "title": "¿Qué me está pasando ahora mismo?",
+    "description": "Reconocer el estado actual y empezar a identificar lo que está ocurriendo ahora mismo.",
+    "language": "es",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_core",
+    "subcategory": "Etapa 1 — Comprender lo que está ocurriendo",
+    "secondaryCategories": [
+      "therapeutic_workbooks",
+      "thought_records",
+      "emotional_regulation",
+      "coping_tools"
+    ],
+    "worksheetNumber": "1.1",
+    "formNumber": "1.1",
+    "stageNumber": 1,
+    "moduleNumber": 1,
+    "moduleCode": null,
+    "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "pageNumberInWorkbook": 1,
+    "series": null,
+    "therapeuticGoal": "Desarrollar una primera conciencia de los pensamientos, las emociones y el contexto presentes.",
+    "whenToUse": "Usar cuando un adolescente necesita hacer una pausa y describir lo que está ocurriendo.",
+    "clinicalKeywords": [
+      "registro personal",
+      "autoconciencia",
+      "estado actual",
+      "TCC para adolescentes",
+      "formulario 1.1"
+    ],
+    "intentPhrases": [
+      "¿Qué me está pasando ahora mismo?",
+      "formulario 1.1",
+      "enviar formulario 1.1"
+    ],
+    "notFor": [
+      "menores de 12 años",
+      "personas adultas",
+      "intervención en crisis",
+      "emergencias de salud mental",
+      "procesamiento de trauma sin apoyo profesional"
+    ],
+    "aiMatchingSummary": null,
+    "safetyNotes": null,
+    "fileUrl": "/forms/es/adolescents/cbt-core/stage-01/01-01-que-me-esta-pasando-ahora-mismo.pdf",
+    "filePath": "public/forms/es/adolescents/cbt-core/stage-01/01-01-que-me-esta-pasando-ahora-mismo.pdf",
+    "previewPath": null,
+    "sourceManifest": null,
+    "aiMetadataQuality": "rich",
+    "languages": {
+      "es": {
+        "title": "¿Qué me está pasando ahora mismo?",
+        "description": "Reconocer el estado actual y empezar a identificar lo que está ocurriendo ahora mismo.",
+        "file_url": "/forms/es/adolescents/cbt-core/stage-01/01-01-que-me-esta-pasando-ahora-mismo.pdf",
+        "file_type": "pdf",
+        "file_name": "01-01-que-me-esta-pasando-ahora-mismo.pdf",
+        "rtl": false
+      }
+    },
+    "worksheet_number": "1.1",
+    "module_number": 1,
+    "module_title": "Etapa 1 — Comprender lo que está ocurriendo",
+    "therapeutic_goal": "Desarrollar una primera conciencia de los pensamientos, las emociones y el contexto presentes.",
+    "when_to_use": "Usar cuando un adolescente necesita hacer una pausa y describir lo que está ocurriendo.",
+    "keywords": [
+      "registro personal",
+      "autoconciencia",
+      "estado actual",
+      "TCC para adolescentes",
+      "formulario 1.1"
+    ],
+    "ai_matching_summary": null,
+    "safety_notes": null,
+    "file_path": "public/forms/es/adolescents/cbt-core/stage-01/01-01-que-me-esta-pasando-ahora-mismo.pdf",
+    "preview_path": null,
+    "source_manifest": null,
+    "logical_form_id": "adolescents-cbt-core-1-1",
+    "variant_language": "es",
+    "available_languages": [
+      "en",
+      "es"
+    ],
+    "sibling_variant_ids": [
+      "adolescents-cbt-core-en-1-1"
+    ],
+    "source_language": "en",
+    "is_language_variant": true,
+    "variant_group_id": "adolescents-cbt-core-1-1",
+    "collectionId": "adolescents-cbt-core-es",
+    "collectionType": "core",
+    "cardType": "worksheet",
+    "clinicalDomain": "general_cbt",
+    "displayOrder": 1001004,
+    "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
+    "localizedDisplay": {
+      "es": {
+        "title": "¿Qué me está pasando ahora mismo?",
+        "description": "Reconocer el estado actual y empezar a identificar lo que está ocurriendo ahora mismo.",
+        "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+        "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo"
+      }
+    },
+    "parentId": "adolescents-cbt-core-es-stage-01"
+  },
+  {
+    "id": "adolescents-cbt-core-es-1-2",
+    "slug": "adolescents-cbt-core-es-1-2-mi-cuerpo-me-da-senales",
+    "parentSeriesId": "adolescents-cbt-core-es",
+    "type": "individual_worksheet",
+    "approved": true,
+    "title": "Mi cuerpo me da señales",
+    "description": "Identificar señales corporales relacionadas con el estrés, la ansiedad y la activación emocional.",
+    "language": "es",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_core",
+    "subcategory": "Etapa 1 — Comprender lo que está ocurriendo",
+    "secondaryCategories": [
+      "therapeutic_workbooks",
+      "thought_records",
+      "emotional_regulation",
+      "coping_tools"
+    ],
+    "worksheetNumber": "1.2",
+    "formNumber": "1.2",
+    "stageNumber": 1,
+    "moduleNumber": 1,
+    "moduleCode": null,
+    "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "pageNumberInWorkbook": 2,
+    "series": null,
+    "therapeuticGoal": "Ayudar a adolescentes a reconocer sensaciones corporales como señales tempranas para regularse.",
+    "whenToUse": "Usar ante consultas sobre señales corporales, síntomas físicos o emociones en el cuerpo.",
+    "clinicalKeywords": [
+      "señales corporales",
+      "sensaciones físicas",
+      "regulación emocional",
+      "TCC para adolescentes",
+      "formulario 1.2"
+    ],
+    "intentPhrases": [
+      "Mi cuerpo me da señales",
+      "formulario 1.2",
+      "enviar formulario 1.2"
+    ],
+    "notFor": [
+      "menores de 12 años",
+      "personas adultas",
+      "intervención en crisis",
+      "emergencias de salud mental",
+      "procesamiento de trauma sin apoyo profesional"
+    ],
+    "aiMatchingSummary": null,
+    "safetyNotes": null,
+    "fileUrl": "/forms/es/adolescents/cbt-core/stage-01/01-02-mi-cuerpo-me-da-senales.pdf",
+    "filePath": "public/forms/es/adolescents/cbt-core/stage-01/01-02-mi-cuerpo-me-da-senales.pdf",
+    "previewPath": null,
+    "sourceManifest": null,
+    "aiMetadataQuality": "rich",
+    "languages": {
+      "es": {
+        "title": "Mi cuerpo me da señales",
+        "description": "Identificar señales corporales relacionadas con el estrés, la ansiedad y la activación emocional.",
+        "file_url": "/forms/es/adolescents/cbt-core/stage-01/01-02-mi-cuerpo-me-da-senales.pdf",
+        "file_type": "pdf",
+        "file_name": "01-02-mi-cuerpo-me-da-senales.pdf",
+        "rtl": false
+      }
+    },
+    "worksheet_number": "1.2",
+    "module_number": 1,
+    "module_title": "Etapa 1 — Comprender lo que está ocurriendo",
+    "therapeutic_goal": "Ayudar a adolescentes a reconocer sensaciones corporales como señales tempranas para regularse.",
+    "when_to_use": "Usar ante consultas sobre señales corporales, síntomas físicos o emociones en el cuerpo.",
+    "keywords": [
+      "señales corporales",
+      "sensaciones físicas",
+      "regulación emocional",
+      "TCC para adolescentes",
+      "formulario 1.2"
+    ],
+    "ai_matching_summary": null,
+    "safety_notes": null,
+    "file_path": "public/forms/es/adolescents/cbt-core/stage-01/01-02-mi-cuerpo-me-da-senales.pdf",
+    "preview_path": null,
+    "source_manifest": null,
+    "logical_form_id": "adolescents-cbt-core-1-2",
+    "variant_language": "es",
+    "available_languages": [
+      "en",
+      "es"
+    ],
+    "sibling_variant_ids": [
+      "adolescents-cbt-core-en-1-2"
+    ],
+    "source_language": "en",
+    "is_language_variant": true,
+    "variant_group_id": "adolescents-cbt-core-1-2",
+    "collectionId": "adolescents-cbt-core-es",
+    "collectionType": "core",
+    "cardType": "worksheet",
+    "clinicalDomain": "general_cbt",
+    "displayOrder": 1002004,
+    "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
+    "localizedDisplay": {
+      "es": {
+        "title": "Mi cuerpo me da señales",
+        "description": "Identificar señales corporales relacionadas con el estrés, la ansiedad y la activación emocional.",
+        "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+        "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo"
+      }
+    },
+    "parentId": "adolescents-cbt-core-es-stage-01"
+  },
+  {
+    "id": "adolescents-cbt-core-es-1-3",
+    "slug": "adolescents-cbt-core-es-1-3-que-me-activo",
+    "parentSeriesId": "adolescents-cbt-core-es",
+    "type": "individual_worksheet",
+    "approved": true,
+    "title": "¿Qué me activó?",
+    "description": "Identificar situaciones, lugares, pensamientos o comentarios que provocaron activación emocional.",
+    "language": "es",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_core",
+    "subcategory": "Etapa 1 — Comprender lo que está ocurriendo",
+    "secondaryCategories": [
+      "therapeutic_workbooks",
+      "thought_records",
+      "emotional_regulation",
+      "coping_tools"
+    ],
+    "worksheetNumber": "1.3",
+    "formNumber": "1.3",
+    "stageNumber": 1,
+    "moduleNumber": 1,
+    "moduleCode": null,
+    "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "pageNumberInWorkbook": 3,
+    "series": null,
+    "therapeuticGoal": "Aumentar la conciencia de los desencadenantes antes de que la reacción se intensifique.",
+    "whenToUse": "Usar para reconocer qué inició una emoción o reacción intensa.",
+    "clinicalKeywords": [
+      "desencadenante",
+      "situación",
+      "activación",
+      "TCC para adolescentes",
+      "formulario 1.3"
+    ],
+    "intentPhrases": [
+      "¿Qué me activó?",
+      "formulario 1.3",
+      "enviar formulario 1.3"
+    ],
+    "notFor": [
+      "menores de 12 años",
+      "personas adultas",
+      "intervención en crisis",
+      "emergencias de salud mental",
+      "procesamiento de trauma sin apoyo profesional"
+    ],
+    "aiMatchingSummary": null,
+    "safetyNotes": null,
+    "fileUrl": "/forms/es/adolescents/cbt-core/stage-01/01-03-que-me-activo.pdf",
+    "filePath": "public/forms/es/adolescents/cbt-core/stage-01/01-03-que-me-activo.pdf",
+    "previewPath": null,
+    "sourceManifest": null,
+    "aiMetadataQuality": "rich",
+    "languages": {
+      "es": {
+        "title": "¿Qué me activó?",
+        "description": "Identificar situaciones, lugares, pensamientos o comentarios que provocaron activación emocional.",
+        "file_url": "/forms/es/adolescents/cbt-core/stage-01/01-03-que-me-activo.pdf",
+        "file_type": "pdf",
+        "file_name": "01-03-que-me-activo.pdf",
+        "rtl": false
+      }
+    },
+    "worksheet_number": "1.3",
+    "module_number": 1,
+    "module_title": "Etapa 1 — Comprender lo que está ocurriendo",
+    "therapeutic_goal": "Aumentar la conciencia de los desencadenantes antes de que la reacción se intensifique.",
+    "when_to_use": "Usar para reconocer qué inició una emoción o reacción intensa.",
+    "keywords": [
+      "desencadenante",
+      "situación",
+      "activación",
+      "TCC para adolescentes",
+      "formulario 1.3"
+    ],
+    "ai_matching_summary": null,
+    "safety_notes": null,
+    "file_path": "public/forms/es/adolescents/cbt-core/stage-01/01-03-que-me-activo.pdf",
+    "preview_path": null,
+    "source_manifest": null,
+    "logical_form_id": "adolescents-cbt-core-1-3",
+    "variant_language": "es",
+    "available_languages": [
+      "en",
+      "es"
+    ],
+    "sibling_variant_ids": [
+      "adolescents-cbt-core-en-1-3"
+    ],
+    "source_language": "en",
+    "is_language_variant": true,
+    "variant_group_id": "adolescents-cbt-core-1-3",
+    "collectionId": "adolescents-cbt-core-es",
+    "collectionType": "core",
+    "cardType": "worksheet",
+    "clinicalDomain": "general_cbt",
+    "displayOrder": 1003004,
+    "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
+    "localizedDisplay": {
+      "es": {
+        "title": "¿Qué me activó?",
+        "description": "Identificar situaciones, lugares, pensamientos o comentarios que provocaron activación emocional.",
+        "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+        "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo"
+      }
+    },
+    "parentId": "adolescents-cbt-core-es-stage-01"
+  },
+  {
+    "id": "adolescents-cbt-core-es-1-4",
+    "slug": "adolescents-cbt-core-es-1-4-pensamiento-emocion-accion",
+    "parentSeriesId": "adolescents-cbt-core-es",
+    "type": "individual_worksheet",
+    "approved": true,
+    "title": "Pensamiento, emoción y acción",
+    "description": "Representar la relación entre un pensamiento, una emoción y una conducta.",
+    "language": "es",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_core",
+    "subcategory": "Etapa 1 — Comprender lo que está ocurriendo",
+    "secondaryCategories": [
+      "therapeutic_workbooks",
+      "thought_records",
+      "emotional_regulation",
+      "coping_tools"
+    ],
+    "worksheetNumber": "1.4",
+    "formNumber": "1.4",
+    "stageNumber": 1,
+    "moduleNumber": 1,
+    "moduleCode": null,
+    "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "pageNumberInWorkbook": 4,
+    "series": null,
+    "therapeuticGoal": "Enseñar de manera práctica la conexión central del triángulo de la TCC.",
+    "whenToUse": "Usar cuando se necesita analizar la relación entre pensamiento, emoción y acción.",
+    "clinicalKeywords": [
+      "triángulo TCC",
+      "pensamiento emoción acción",
+      "cadena de reacción",
+      "TCC para adolescentes",
+      "formulario 1.4"
+    ],
+    "intentPhrases": [
+      "Pensamiento, emoción y acción",
+      "formulario 1.4",
+      "enviar formulario 1.4"
+    ],
+    "notFor": [
+      "menores de 12 años",
+      "personas adultas",
+      "intervención en crisis",
+      "emergencias de salud mental",
+      "procesamiento de trauma sin apoyo profesional"
+    ],
+    "aiMatchingSummary": null,
+    "safetyNotes": null,
+    "fileUrl": "/forms/es/adolescents/cbt-core/stage-01/01-04-pensamiento-emocion-accion.pdf",
+    "filePath": "public/forms/es/adolescents/cbt-core/stage-01/01-04-pensamiento-emocion-accion.pdf",
+    "previewPath": null,
+    "sourceManifest": null,
+    "aiMetadataQuality": "rich",
+    "languages": {
+      "es": {
+        "title": "Pensamiento, emoción y acción",
+        "description": "Representar la relación entre un pensamiento, una emoción y una conducta.",
+        "file_url": "/forms/es/adolescents/cbt-core/stage-01/01-04-pensamiento-emocion-accion.pdf",
+        "file_type": "pdf",
+        "file_name": "01-04-pensamiento-emocion-accion.pdf",
+        "rtl": false
+      }
+    },
+    "worksheet_number": "1.4",
+    "module_number": 1,
+    "module_title": "Etapa 1 — Comprender lo que está ocurriendo",
+    "therapeutic_goal": "Enseñar de manera práctica la conexión central del triángulo de la TCC.",
+    "when_to_use": "Usar cuando se necesita analizar la relación entre pensamiento, emoción y acción.",
+    "keywords": [
+      "triángulo TCC",
+      "pensamiento emoción acción",
+      "cadena de reacción",
+      "TCC para adolescentes",
+      "formulario 1.4"
+    ],
+    "ai_matching_summary": null,
+    "safety_notes": null,
+    "file_path": "public/forms/es/adolescents/cbt-core/stage-01/01-04-pensamiento-emocion-accion.pdf",
+    "preview_path": null,
+    "source_manifest": null,
+    "logical_form_id": "adolescents-cbt-core-1-4",
+    "variant_language": "es",
+    "available_languages": [
+      "en",
+      "es"
+    ],
+    "sibling_variant_ids": [
+      "adolescents-cbt-core-en-1-4"
+    ],
+    "source_language": "en",
+    "is_language_variant": true,
+    "variant_group_id": "adolescents-cbt-core-1-4",
+    "collectionId": "adolescents-cbt-core-es",
+    "collectionType": "core",
+    "cardType": "worksheet",
+    "clinicalDomain": "general_cbt",
+    "displayOrder": 1004004,
+    "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
+    "localizedDisplay": {
+      "es": {
+        "title": "Pensamiento, emoción y acción",
+        "description": "Representar la relación entre un pensamiento, una emoción y una conducta.",
+        "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+        "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo"
+      }
+    },
+    "parentId": "adolescents-cbt-core-es-stage-01"
+  },
+  {
+    "id": "adolescents-cbt-core-es-1-5",
+    "slug": "adolescents-cbt-core-es-1-5-mi-mapa-personal",
+    "parentSeriesId": "adolescents-cbt-core-es",
+    "type": "individual_worksheet",
+    "approved": true,
+    "title": "Mi mapa personal",
+    "description": "Crear un mapa personal de recursos, apoyos y acciones útiles.",
+    "language": "es",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_core",
+    "subcategory": "Etapa 1 — Comprender lo que está ocurriendo",
+    "secondaryCategories": [
+      "therapeutic_workbooks",
+      "thought_records",
+      "emotional_regulation",
+      "coping_tools"
+    ],
+    "worksheetNumber": "1.5",
+    "formNumber": "1.5",
+    "stageNumber": 1,
+    "moduleNumber": 1,
+    "moduleCode": null,
+    "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+    "pageNumberInWorkbook": 5,
+    "series": null,
+    "therapeuticGoal": "Fortalecer una estructura personal de afrontamiento y planificación de apoyo.",
+    "whenToUse": "Usar cuando un adolescente quiere identificar apoyos y acciones que le ayudan.",
+    "clinicalKeywords": [
+      "mapa de afrontamiento",
+      "apoyos",
+      "recursos personales",
+      "TCC para adolescentes",
+      "formulario 1.5"
+    ],
+    "intentPhrases": [
+      "Mi mapa personal",
+      "formulario 1.5",
+      "enviar formulario 1.5"
+    ],
+    "notFor": [
+      "menores de 12 años",
+      "personas adultas",
+      "intervención en crisis",
+      "emergencias de salud mental",
+      "procesamiento de trauma sin apoyo profesional"
+    ],
+    "aiMatchingSummary": null,
+    "safetyNotes": null,
+    "fileUrl": "/forms/es/adolescents/cbt-core/stage-01/01-05-mi-mapa-personal.pdf",
+    "filePath": "public/forms/es/adolescents/cbt-core/stage-01/01-05-mi-mapa-personal.pdf",
+    "previewPath": null,
+    "sourceManifest": null,
+    "aiMetadataQuality": "rich",
+    "languages": {
+      "es": {
+        "title": "Mi mapa personal",
+        "description": "Crear un mapa personal de recursos, apoyos y acciones útiles.",
+        "file_url": "/forms/es/adolescents/cbt-core/stage-01/01-05-mi-mapa-personal.pdf",
+        "file_type": "pdf",
+        "file_name": "01-05-mi-mapa-personal.pdf",
+        "rtl": false
+      }
+    },
+    "worksheet_number": "1.5",
+    "module_number": 1,
+    "module_title": "Etapa 1 — Comprender lo que está ocurriendo",
+    "therapeutic_goal": "Fortalecer una estructura personal de afrontamiento y planificación de apoyo.",
+    "when_to_use": "Usar cuando un adolescente quiere identificar apoyos y acciones que le ayudan.",
+    "keywords": [
+      "mapa de afrontamiento",
+      "apoyos",
+      "recursos personales",
+      "TCC para adolescentes",
+      "formulario 1.5"
+    ],
+    "ai_matching_summary": null,
+    "safety_notes": null,
+    "file_path": "public/forms/es/adolescents/cbt-core/stage-01/01-05-mi-mapa-personal.pdf",
+    "preview_path": null,
+    "source_manifest": null,
+    "logical_form_id": "adolescents-cbt-core-1-5",
+    "variant_language": "es",
+    "available_languages": [
+      "en",
+      "es"
+    ],
+    "sibling_variant_ids": [
+      "adolescents-cbt-core-en-1-5"
+    ],
+    "source_language": "en",
+    "is_language_variant": true,
+    "variant_group_id": "adolescents-cbt-core-1-5",
+    "collectionId": "adolescents-cbt-core-es",
+    "collectionType": "core",
+    "cardType": "worksheet",
+    "clinicalDomain": "general_cbt",
+    "displayOrder": 1005004,
+    "isCombinedPdf": false,
+    "age_min": 12,
+    "age_max": 17,
+    "localizedDisplay": {
+      "es": {
+        "title": "Mi mapa personal",
+        "description": "Crear un mapa personal de recursos, apoyos y acciones útiles.",
+        "moduleTitle": "Etapa 1 — Comprender lo que está ocurriendo",
+        "stageTitle": "Etapa 1 — Comprender lo que está ocurriendo"
+      }
+    },
+    "parentId": "adolescents-cbt-core-es-stage-01"
+  },
+  {
     "id": "adolescents-cbt-core-he-1-1",
     "slug": "adolescents-cbt-core-he-1-1",
     "parentSeriesId": "adolescents-cbt-core-he",
