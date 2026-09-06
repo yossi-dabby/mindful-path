@@ -19,7 +19,15 @@ import { Page, expect } from '@playwright/test';
  * // ... test actions ...
  * await checkConsole();
  */
-export function assertNoConsoleErrorsOrWarnings(page: Page): () => Promise<void> {
+type ConsoleIgnoreOptions = {
+  ignoredErrors?: RegExp[];
+  ignoredWarnings?: RegExp[];
+};
+
+export function assertNoConsoleErrorsOrWarnings(
+  page: Page,
+  { ignoredErrors = [], ignoredWarnings = [] }: ConsoleIgnoreOptions = {},
+): () => Promise<void> {
   const consoleErrors: string[] = [];
   const consoleWarnings: string[] = [];
 
@@ -28,9 +36,13 @@ export function assertNoConsoleErrorsOrWarnings(page: Page): () => Promise<void>
     const type = msg.type();
     const text = msg.text();
     if (type === 'error') {
-      consoleErrors.push(msg.text());
+      if (ignoredErrors.some((pattern) => pattern.test(text))) return;
+      consoleErrors.push(text);
     } else if (type === 'warning') {
-      if (text.includes('React Router Future Flag Warning')) {
+      if (
+        text.includes('React Router Future Flag Warning') ||
+        ignoredWarnings.some((pattern) => pattern.test(text))
+      ) {
         return;
       }
       consoleWarnings.push(text);
