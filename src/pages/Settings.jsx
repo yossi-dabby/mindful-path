@@ -71,7 +71,7 @@ export default function Settings() {
   const [saveError, setSaveError] = useState(false);
   const subscriptionCopy = getSubscriptionReadinessCopy(getCurrentAppLocale(i18n));
 
-  const { data: subscription = null } = useQuery({
+  const { data: subscription = null, refetch: refetchSubscription } = useQuery({
     queryKey: ['settings-subscription', user?.email],
     queryFn: async () => {
       const subscriptions = await base44.entities.Subscription.filter({ created_by: user.email });
@@ -538,7 +538,12 @@ export default function Settings() {
         </footer>
       </div>
 
-      {showPremium && <PremiumPaywall onClose={() => setShowPremium(false)} />}
+      {showPremium && (
+        <PremiumPaywall
+          onClose={() => setShowPremium(false)}
+          onSuccess={() => refetchSubscription()}
+        />
+      )}
     </div>
   );
 }
