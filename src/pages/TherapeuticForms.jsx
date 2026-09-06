@@ -176,13 +176,25 @@ function getLocalizedField(form, lang, field) {
   return '';
 }
 
+const MODULE_LABELS = Object.freeze({
+  en: Object.freeze({ module: 'Module', stage: 'Stage' }),
+  he: Object.freeze({ module: 'מודול', stage: 'שלב' }),
+  es: Object.freeze({ module: 'Módulo', stage: 'Etapa' }),
+  fr: Object.freeze({ module: 'Module', stage: 'Étape' }),
+  de: Object.freeze({ module: 'Modul', stage: 'Stufe' }),
+  it: Object.freeze({ module: 'Modulo', stage: 'Fase' }),
+  pt: Object.freeze({ module: 'Módulo', stage: 'Etapa' }),
+});
+
+function getModuleLabel(lang, type, number = null) {
+  const labels = MODULE_LABELS[normalizeLanguageCode(lang)] || MODULE_LABELS.en;
+  const label = labels[type] || MODULE_LABELS.en[type];
+  return number == null ? label : `${label} ${number}`;
+}
+
 function buildModuleFallbackTitle(module, lang) {
   const number = module.stageNumber ?? module.moduleNumber;
-  if (number == null) {
-    return lang === 'he' ? 'מודול' : 'Module';
-  }
-  if (lang === 'he') return `שלב ${number}`;
-  return `Stage ${number}`;
+  return getModuleLabel(lang, number == null ? 'module' : 'stage', number);
 }
 
 export function getLanguageVisibleForms(lang) {
@@ -322,8 +334,8 @@ export function buildModulesFromCollectionForms(collectionForms, lang) {
       return {
         id: module.id,
         title,
-        numberLabel: module.stageNumber || module.moduleNumber ?
-          (lang === 'he' ? `שלב ${module.stageNumber || module.moduleNumber}` : `Stage ${module.stageNumber || module.moduleNumber}`)
+        numberLabel: module.stageNumber || module.moduleNumber
+          ? getModuleLabel(lang, 'stage', module.stageNumber || module.moduleNumber)
           : '',
         stageNumber: module.stageNumber,
         moduleNumber: module.moduleNumber,
