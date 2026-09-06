@@ -1,6 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import Stripe from 'npm:stripe';
 
+// Fail closed until web billing and both app-store purchase/restore flows are approved.
+// Enabling this requires verified live price IDs, store-compliant purchase routing,
+// restore-purchase support, legal copy, and end-to-end webhook validation.
+const BILLING_ENABLED = false;
+
 // Server-side allowlist of approved Stripe price IDs.
 // Only explicitly approved price IDs may be used to create a checkout session.
 // To add a new plan, it must be added here with explicit approval.
@@ -42,6 +47,10 @@ Deno.serve(async (req) => {
         status: 405,
         headers: { Allow: 'POST' },
       });
+    }
+
+    if (!BILLING_ENABLED) {
+      return Response.json({ error: 'Subscriptions are not available yet.' }, { status: 503 });
     }
 
     const declaredLength = Number(req.headers.get('content-length') || 0);
