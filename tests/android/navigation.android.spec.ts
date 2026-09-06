@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
+import { mockApi } from '../helpers/ui';
 
 /**
  * Android Navigation & Optimistic UI Tests
@@ -28,58 +29,11 @@ const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 // Shared API mocking helper
 // ---------------------------------------------------------------------------
 async function mockApis(page: import('@playwright/test').Page) {
-  await page.route('**/api/apps/**', async (route) => {
-    const url = route.request().url();
-    if (url.includes('/public-settings/')) {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ id: 'test-app-id', appId: 'test-app-id', appName: 'Test App', isPublic: true }),
-      });
-    } else if (url.includes('/entities/User')) {
-      // auth.me() calls /apps/{id}/entities/User/me
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user',
-          onboarding_completed: true,
-          preferences: {},
-        }),
-      });
-    } else {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-    }
-  });
-
-  await page.route('**/api/auth/**', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        id: 'test-user-id',
-        email: 'test@example.com',
-        full_name: 'Test User',
-        role: 'user',
-        onboarding_completed: true,
-        preferences: {},
-      }),
-    });
-  });
-
-  await page.route('**/api/entities/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-  });
-
-  await page.route('**/analytics/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-  });
-
+  await mockApi(page);
   await page.addInitScript(() => {
-    document.body.setAttribute('data-test-env', 'true');
+    localStorage.setItem('language', 'en');
+    localStorage.setItem('chat_consent_accepted', 'true');
+    localStorage.setItem('age_verified', 'true');
     (window as any).__TEST_APP_ID__ = 'test-app-id';
     (window as any).__DISABLE_ANALYTICS__ = true;
   });
