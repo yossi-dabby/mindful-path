@@ -17,11 +17,13 @@ const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 
 const TEST_CONVERSATION_ID = 'test-conversation-123';
 let postedUserMessages: string[] = [];
+let postedMessagePayloads: string[] = [];
 let conversationMessages: Array<Record<string, unknown>> = [];
 
 test.describe('Android Chat Readiness', () => {
   test.beforeEach(async ({ page }) => {
     postedUserMessages = [];
+    postedMessagePayloads = [];
     conversationMessages = [];
     await mockApi(page);
 
@@ -35,6 +37,7 @@ test.describe('Android Chat Readiness', () => {
 
         const body = route.request().postDataJSON?.() as { content?: string };
         const content = String(body?.content || '');
+        postedMessagePayloads.push(content);
         const userIndex = conversationMessages.filter((message) => message.role === 'user').length + 1;
         conversationMessages.push({
           id: `user-${userIndex}`,
@@ -113,54 +116,12 @@ test.describe('Android Chat Readiness', () => {
       return document.querySelector('[data-page-ready="true"]') !== null;
     }, { timeout: 20000 });
 
-    // Locate the chat composer - try multiple possible selectors
-    const composerSelectors = [
-      '[data-testid="therapist-chat-input"]',
-      '[data-testid="chat-input"]',
-      'textarea',
-      '[contenteditable="true"]'
-    ];
+    const composerSelector = '[data-testid="therapist-chat-input"]';
+    const composer = page.locator(composerSelector);
+    const sendButton = page.locator('[data-testid="therapist-chat-send"]');
 
-    let composer = null;
-    for (const selector of composerSelectors) {
-      const element = page.locator(selector).first();
-      if (await element.count() > 0) {
-        composer = element;
-        test.info().annotations.push({ type: 'info', description: `Found composer with selector: ${selector}` });
-        break;
-      }
-    }
-
-    if (!composer) {
-      test.skip(true, 'Chat composer not found - skipping test');
-      return;
-    }
-
-    // Verify composer is visible initially
     await expect(composer).toBeVisible({ timeout: 10000 });
-
-    // Locate the send button - try multiple possible selectors
-    const sendButtonSelectors = [
-      '[data-testid="therapist-chat-send"]',
-      '[data-testid="send-button"]',
-      'button:has-text("Send")',
-      'button[aria-label*="Send"]'
-    ];
-
-    let sendButton = null;
-    for (const selector of sendButtonSelectors) {
-      const element = page.locator(selector).first();
-      if (await element.count() > 0) {
-        sendButton = element;
-        test.info().annotations.push({ type: 'info', description: `Found send button with selector: ${selector}` });
-        break;
-      }
-    }
-
-    if (!sendButton) {
-      test.skip(true, 'Send button not found - skipping test');
-      return;
-    }
+    await expect(sendButton).toBeVisible({ timeout: 10000 });
 
     // Send 15 consecutive messages
     for (let i = 1; i <= 15; i++) {
@@ -183,7 +144,7 @@ test.describe('Android Chat Readiness', () => {
     );
 
     // After repeated interactions, verify composer is still visible and tappable
-    await assertElementVisibleAndTappable(page, composerSelectors[0]);
+    await assertElementVisibleAndTappable(page, composerSelector);
 
     // Attempt to call window.printChatStabilityReport() if defined
     const hasStabilityReport = await page.evaluate(() => {
@@ -202,4 +163,42 @@ test.describe('Android Chat Readiness', () => {
     // Assert no console errors or warnings
     await checkConsole();
   });
+
+  const intentCases = [
+    {
+      label: 'I just want to unload',
+      prompt: 'I mainly need a calm space to unload right now. Please listen before suggesting an exercise.',
+    },
+    {
+      label: 'I want a practical solution',
+      prompt: 'I would like one practical next step. Please help me focus on a single useful action.',
+    },
+  ];
+
+  for (const intentCase of intentCases) {
+    test(`should send the selected "${intentCase.label}" intent to the therapist`, async ({ page }) => {
+      const checkConsole = assertNoConsoleErrorsOrWarnings(page, {
+        ignoredErrors: [/Connection rejected by server/],
+        ignoredWarnings: [/cdn\.tailwindcss\.com should not be used in production/],
+      });
+
+      await page.goto(`${BASE_URL}/Chat?_s2=CHAT_ORCHESTRATOR_V2_ENABLED`, { waitUntil: 'networkidle' });
+      await expect(page.locator('[data-page-ready="true"]')).toBeVisible({ timeout: 20000 });
+
+      const composer = page.getByTestId('therapist-chat-input');
+      const sendButton = page.getByTestId('therapist-chat-send');
+      const intentChooser = page.getByTestId('chat-intent-chooser');
+
+      await expect(intentChooser).toBeVisible();
+      await page.getByRole('button', { name: intentCase.label, exact: true }).click();
+      await expect(composer).toHaveValue(intentCase.prompt);
+      await expect(sendButton).toBeEnabled();
+      await sendButton.click();
+
+      await expect.poll(() => postedMessagePayloads.length, { timeout: 20000 }).toBe(1);
+      expect(postedMessagePayloads[0]).toContain(intentCase.prompt);
+      await expect(intentChooser).toBeHidden();
+      await checkConsole();
+    });
+  }
 });
