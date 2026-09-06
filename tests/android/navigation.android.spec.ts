@@ -43,7 +43,7 @@ async function mockApis(page: import('@playwright/test').Page) {
 function bottomNavLink(page: import('@playwright/test').Page, path: string) {
   // Use the ARIA role "navigation" which only matches the visible BottomNav on mobile
   // (the sidebar nav is display:none and is excluded from the accessibility tree).
-  return page.getByRole('navigation').locator(`a[href="/${path}"]`).first();
+  return page.getByRole('navigation', { name: 'Main navigation' }).locator(`a[href="/${path}"]`).first();
 }
 
 // ===========================================================================
