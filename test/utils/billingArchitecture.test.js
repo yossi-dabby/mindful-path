@@ -46,6 +46,14 @@ describe('Stage D billing architecture', () => {
     expect(source).not.toContain('const { priceId,');
   });
 
+  it('confirms the Stripe checkout session against the authenticated user', () => {
+    const source = read('base44/functions/confirmStripeCheckout/entry.ts');
+    expect(source).toContain("stripe.checkout.sessions.retrieve(sessionId)");
+    expect(source).toContain('sessionUserId !== user.id');
+    expect(source).toContain("session.metadata?.plan_id !== 'premium_monthly'");
+    expect(source).toContain('stripe.subscriptions.retrieve(session.subscription)');
+  });
+
   it('validates Stripe signatures and reconciles renewals and failures', () => {
     const source = read('base44/functions/stripeWebhook/entry.ts');
     expect(source).toContain('stripe.webhooks.constructEvent');
