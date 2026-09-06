@@ -1,6 +1,7 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { LifeBuoy } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
@@ -271,6 +272,16 @@ export default function Layout({ children, currentPageName }) {
         </AnimatePresence>
       </AppContent>
       
+        <Link
+          to="/contact"
+          data-testid="persistent-human-support"
+          className="fixed end-4 bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] z-[36] inline-flex min-h-11 items-center gap-2 rounded-full border border-teal-200 bg-white/95 px-4 py-2 text-sm font-semibold text-teal-800 shadow-lg backdrop-blur hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 md:bottom-6"
+          aria-label={i18n.language?.startsWith('he') ? 'עזרה אנושית' : 'Human support'}
+        >
+          <LifeBuoy className="h-5 w-5" aria-hidden="true" />
+          <span>{i18n.language?.startsWith('he') ? 'עזרה אנושית' : 'Human support'}</span>
+        </Link>
+
         {/* Bottom Navigation - Mobile only */}
         <BottomNav currentPageName={currentPageName} />
       </div>
