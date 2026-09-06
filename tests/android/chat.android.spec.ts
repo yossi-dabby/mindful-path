@@ -15,9 +15,78 @@ import { mockApi } from '../helpers/ui';
 
 const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 
+const TEST_CONVERSATION_ID = 'test-conversation-123';
+let postedUserMessages: string[] = [];
+let conversationMessages: Array<Record<string, unknown>> = [];
+
 test.describe('Android Chat Readiness', () => {
   test.beforeEach(async ({ page }) => {
+    postedUserMessages = [];
+    conversationMessages = [];
     await mockApi(page);
+
+    await page.route(
+      new RegExp(`/agents/conversations/${TEST_CONVERSATION_ID}/messages(?:\\?.*)?$`),
+      async (route) => {
+        if (route.request().method() !== 'POST') {
+          await route.continue();
+          return;
+        }
+
+        const body = route.request().postDataJSON?.() as { content?: string };
+        const content = String(body?.content || '');
+        const userIndex = conversationMessages.filter((message) => message.role === 'user').length + 1;
+        conversationMessages.push({
+          id: `user-${userIndex}`,
+          role: 'user',
+          content,
+          status: 'completed',
+          created_at: new Date().toISOString(),
+        });
+        if (content.startsWith('Android test message ')) postedUserMessages.push(content);
+        conversationMessages.push({
+          id: `assistant-${userIndex}`,
+          role: 'assistant',
+          content: `Assistant reply ${userIndex}`,
+          status: 'completed',
+          metadata: { status: 'completed', completed: true },
+          created_at: new Date().toISOString(),
+        });
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: `user-${userIndex}`,
+            role: 'user',
+            content,
+            created_date: new Date().toISOString(),
+          }),
+        });
+      },
+    );
+
+    await page.route(
+      new RegExp(`/agents/conversations/${TEST_CONVERSATION_ID}(?:\\?.*)?$`),
+      async (route) => {
+        if (route.request().method() !== 'GET') {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: TEST_CONVERSATION_ID,
+            agent_name: 'cbt_therapist',
+            metadata: { name: 'Android queue test' },
+            messages: conversationMessages.slice(),
+            created_date: new Date().toISOString(),
+          }),
+        });
+      },
+    );
+
     await page.addInitScript(() => {
       localStorage.setItem('language', 'en');
       localStorage.setItem('chat_consent_accepted', 'true');
@@ -27,12 +96,13 @@ test.describe('Android Chat Readiness', () => {
     });
   });
 
-  test('should handle 15 consecutive messages and maintain composer visibility', async ({ page }) => {
+  test('should send 15 queued messages in FIFO order and keep the composer usable', async ({ page }) => {
+    test.setTimeout(120000);
     // Set up console monitoring at the start
     const checkConsole = assertNoConsoleErrorsOrWarnings(page);
     
     // Navigate to Chat page
-    await page.goto(`${BASE_URL}/Chat`, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/Chat?_s2=CHAT_ORCHESTRATOR_V2_ENABLED`, { waitUntil: 'networkidle' });
     
     // Wait for page to be ready
     await page.waitForFunction(() => {
@@ -102,6 +172,11 @@ test.describe('Android Chat Readiness', () => {
       // Brief wait to allow UI to update
       await page.waitForTimeout(300);
     }
+
+    await expect.poll(() => postedUserMessages.length, { timeout: 60000 }).toBe(15);
+    expect(postedUserMessages).toEqual(
+      Array.from({ length: 15 }, (_, index) => `Android test message ${index + 1}`),
+    );
 
     // After repeated interactions, verify composer is still visible and tappable
     await assertElementVisibleAndTappable(page, composerSelectors[0]);
