@@ -56,8 +56,6 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
 
   test('switching between tabs navigates without console warnings', async ({ page }) => {
     const checkConsole = assertNoConsoleErrorsOrWarnings(page);
-    page.on('console', (message) => console.log('BROWSER_CONSOLE', message.type(), message.text()));
-    page.on('pageerror', (error) => console.log('BROWSER_PAGE_ERROR', error.message));
 
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1000);
@@ -70,7 +68,6 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
     await bottomNavLink(page, 'Journal').click();
     await page.waitForTimeout(500);
     expect(page.url()).toContain('/Journal');
-    console.log('NAV_DIAG', page.url(), (await page.locator('body').innerText()).slice(0, 1200));
 
     // Switch to Home tab
     await bottomNavLink(page, 'Home').click();
