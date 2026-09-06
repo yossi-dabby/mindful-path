@@ -144,12 +144,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    const parsedSuccessUrl = new URL(successUrl);
+    parsedSuccessUrl.hash = '';
+    const checkoutSuccessUrl = `${parsedSuccessUrl.toString()}${parsedSuccessUrl.search ? '&' : '?'}session_id={CHECKOUT_SESSION_ID}`;
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       client_reference_id: user.id,
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: successUrl,
+      success_url: checkoutSuccessUrl,
       cancel_url: cancelUrl,
       allow_promotion_codes: false,
       metadata: {
