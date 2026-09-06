@@ -43,7 +43,7 @@ test.describe('Android Chat Readiness', () => {
           status: 'completed',
           created_at: new Date().toISOString(),
         });
-        const userMessageMarker = content.match(/Android test message \\d+/)?.[0];
+        const userMessageMarker = content.match(/Android test message \d+/)?.[0];
         if (userMessageMarker) postedUserMessages.push(userMessageMarker);
         conversationMessages.push({
           id: `assistant-${userIndex}`,
