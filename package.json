@@ -39,6 +39,7 @@
     "@base44/vite-plugin": "^1.0.35",
     "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@revenuecat/purchases-capacitor": "^13.5.0",
     "@capacitor/ios": "^8.4.1",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
