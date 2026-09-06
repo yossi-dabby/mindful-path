@@ -183,7 +183,7 @@ test.describe('Android Chat Readiness', () => {
       });
 
       await page.goto(`${BASE_URL}/Chat?_s2=CHAT_ORCHESTRATOR_V2_ENABLED`, { waitUntil: 'networkidle' });
-      await expect(page.locator('[data-page-ready="true"]')).toBeVisible({ timeout: 20000 });
+      await expect(page.getByTestId('chat-root')).toBeVisible({ timeout: 20000 });
 
       const composer = page.getByTestId('therapist-chat-input');
       const sendButton = page.getByTestId('therapist-chat-send');
