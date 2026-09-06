@@ -9,6 +9,7 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { TrendingUp, Brain, Target, Activity, Download, Crown, Lock, ArrowLeft } from 'lucide-react';
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
 import PremiumBadge from '../components/subscription/PremiumBadge';
+import { isPremiumSubscription } from '../components/subscription/subscriptionReadiness.js';
 
 const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
 
@@ -40,7 +41,7 @@ export default function AdvancedAnalytics() {
   const { t } = useTranslation();
   const [showPaywall, setShowPaywall] = useState(false);
 
-  const { data: subscription } = useQuery({
+  const { data: subscription, refetch: refetchSubscription } = useQuery({
     queryKey: ['subscription'],
     queryFn: async () => {
       const user = await base44.auth.me();
@@ -72,7 +73,7 @@ export default function AdvancedAnalytics() {
     initialData: []
   });
 
-  const isPremium = subscription?.status === 'active' && subscription?.plan_type !== 'free';
+  const isPremium = isPremiumSubscription(subscription);
 
   // Calculate mood trends - memoized to prevent re-calculation on every render
   const moodTrends = useMemo(() => 
@@ -416,7 +417,12 @@ export default function AdvancedAnalytics() {
           </TabsContent>
         </Tabs>
 
-        {showPaywall && <PremiumPaywall onClose={() => setShowPaywall(false)} />}
+        {showPaywall && (
+          <PremiumPaywall
+            onClose={() => setShowPaywall(false)}
+            onSuccess={() => refetchSubscription()}
+          />
+        )}
       </div>
     </div>
   );
