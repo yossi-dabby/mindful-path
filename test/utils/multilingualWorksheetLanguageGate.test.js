@@ -26,6 +26,7 @@ const EXPLICIT_ENGLISH_REQUESTS = Object.freeze({
 
 const SUPPORTED_LOCALES = Object.freeze(['en', 'he', 'es', 'fr', 'de', 'it', 'pt']);
 const ADDITIONAL_LOCALES = Object.freeze(['es', 'fr', 'de', 'it', 'pt']);
+const LOCALES_WITHOUT_INSTALLED_FORMS = Object.freeze(['fr', 'de', 'it', 'pt']);
 
 function makeAdultForm(language) {
   return {
@@ -90,8 +91,18 @@ describe('Multilingual worksheet language eligibility gate', () => {
     expect(result).toMatchObject({ allowed: true, reason: 'eligible' });
   });
 
-  it('keeps the no-exact-match policy attachment-free for every additional locale', () => {
-    for (const locale of ADDITIONAL_LOCALES) {
+  it('exposes the five installed Spanish pilot forms to the policy', () => {
+    const { policy, diagnostics } = getTherapeuticFormsPolicyPayload({
+      sessionLanguage: 'es',
+      environment: 'production',
+    });
+    expect(diagnostics.activeLanguage).toBe('es');
+    expect(diagnostics.formsCountAvailableToAI).toBe(5);
+    expect(policy).not.toContain('no exact form matches the current language/audience filters');
+  });
+
+  it('keeps the no-exact-match policy attachment-free for locales without installed forms', () => {
+    for (const locale of LOCALES_WITHOUT_INSTALLED_FORMS) {
       const { policy, diagnostics } = getTherapeuticFormsPolicyPayload({
         sessionLanguage: locale,
         environment: 'production',
