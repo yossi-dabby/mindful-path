@@ -176,6 +176,16 @@ function getLocalizedField(form, lang, field) {
   return '';
 }
 
+const FORMS_PAGE_LABELS = Object.freeze({
+  en: Object.freeze({ allForms: 'All forms', collection: 'Collection', collectionFallback: 'Therapeutic Forms Collection', browse: 'Browse', viewWorksheets: 'View worksheets', worksheet: 'Worksheet', core: 'Core', specialized: 'Specialized', chat: 'Go to chat', callout: 'Not sure which form to choose? Ask the AI therapist to recommend the right worksheet based on the client’s need.' }),
+  he: Object.freeze({ allForms: 'כל הטפסים', collection: 'סדרה', collectionFallback: 'סדרת טפסים טיפוליים', browse: 'עיין בסדרה', viewWorksheets: 'הצג טפסים', worksheet: 'טופס', core: 'ליבה', specialized: 'ייעודי', chat: 'לצ׳אט', callout: 'לא בטוחים איזה טופס לבחור? אפשר לבקש מהמטפל ב־AI להמליץ על הטופס המתאים לפי הצורך.' }),
+  es: Object.freeze({ allForms: 'Todos los formularios', collection: 'Colección', collectionFallback: 'Colección de formularios terapéuticos', browse: 'Explorar', viewWorksheets: 'Ver formularios', worksheet: 'Formulario', core: 'Central', specialized: 'Especializado', chat: 'Ir al chat', callout: '¿No sabes qué formulario elegir? Pide al terapeuta de IA que recomiende el más adecuado según la necesidad.' }),
+  fr: Object.freeze({ allForms: 'Tous les formulaires', collection: 'Collection', collectionFallback: 'Collection de formulaires thérapeutiques', browse: 'Parcourir', viewWorksheets: 'Voir les formulaires', worksheet: 'Formulaire', core: 'Fondamental', specialized: 'Spécialisé', chat: 'Aller au chat', callout: 'Vous ne savez pas quel formulaire choisir ? Demandez au thérapeute IA de recommander le plus adapté au besoin.' }),
+  de: Object.freeze({ allForms: 'Alle Formulare', collection: 'Sammlung', collectionFallback: 'Sammlung therapeutischer Formulare', browse: 'Durchsuchen', viewWorksheets: 'Formulare anzeigen', worksheet: 'Formular', core: 'Kern', specialized: 'Spezialisiert', chat: 'Zum Chat', callout: 'Unsicher, welches Formular passt? Bitte den KI-Therapeuten um eine Empfehlung passend zum Bedarf.' }),
+  it: Object.freeze({ allForms: 'Tutti i moduli', collection: 'Raccolta', collectionFallback: 'Raccolta di moduli terapeutici', browse: 'Esplora', viewWorksheets: 'Visualizza i moduli', worksheet: 'Modulo', core: 'Base', specialized: 'Specializzato', chat: 'Vai alla chat', callout: 'Non sai quale modulo scegliere? Chiedi al terapeuta IA di consigliare quello più adatto alla necessità.' }),
+  pt: Object.freeze({ allForms: 'Todos os formulários', collection: 'Coleção', collectionFallback: 'Coleção de formulários terapêuticos', browse: 'Explorar', viewWorksheets: 'Ver formulários', worksheet: 'Formulário', core: 'Central', specialized: 'Especializado', chat: 'Ir para o chat', callout: 'Não sabe qual formulário escolher? Peça ao terapeuta de IA uma recomendação adequada à necessidade.' }),
+});
+
 const MODULE_LABELS = Object.freeze({
   en: Object.freeze({ module: 'Module', stage: 'Stage' }),
   he: Object.freeze({ module: 'מודול', stage: 'שלב' }),
@@ -395,6 +405,7 @@ export default function TherapeuticForms() {
   const location = useLocation();
   const navigate = useNavigate();
   const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
+  const uiLabels = FORMS_PAGE_LABELS[lang] || FORMS_PAGE_LABELS.en;
   const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
   const restoredViewerState = getRestoredFormsViewerState(location.state);
 
@@ -557,7 +568,7 @@ export default function TherapeuticForms() {
     const translatedCategory = t(categoryKey);
     const collectionTitle = translatedCategory !== categoryKey
       ? translatedCategory
-      : getLocalizedField(collection.representativeForm?.form, lang, 'title') || (lang === 'he' ? 'סדרת טפסים טיפוליים' : 'Therapeutic Forms Collection');
+      : getLocalizedField(collection.representativeForm?.form, lang, 'title') || uiLabels.collectionFallback;
 
     return {
       ...collection,
@@ -567,7 +578,7 @@ export default function TherapeuticForms() {
 
   const breadcrumbs = [
     {
-      label: lang === 'he' ? 'כל הטפסים' : 'All forms',
+      label: uiLabels.allForms,
       onClick: selectedCollection ? () => {
         setSelectedCollectionId(null);
         setSelectedModuleId(null);
@@ -579,7 +590,7 @@ export default function TherapeuticForms() {
   if (selectedCollection) {
     const selectedCollectionCard = collectionCards.find((collection) => collection.collectionId === selectedCollection.collectionId);
     breadcrumbs.push({
-      label: selectedCollectionCard?.title || (lang === 'he' ? 'סדרה' : 'Collection'),
+      label: selectedCollectionCard?.title || uiLabels.collection,
       onClick: selectedModule ? () => {
         setSelectedModuleId(null);
         pushNavState(selectedCollection.collectionId, null);
@@ -628,9 +639,7 @@ export default function TherapeuticForms() {
     label: t(`therapeutic_forms.audience.${audience}`),
   }));
 
-  const calloutText = lang === 'he'
-    ? 'לא בטוחים איזה טופס לבחור? אפשר לבקש מהמטפל ב־AI להמליץ על הטופס המתאים לפי הצורך.'
-    : 'Not sure which form to choose? Ask the AI therapist to recommend the right worksheet based on the client’s need.';
+  const calloutText = uiLabels.callout;
 
   const canGoBack = navigationState.index > 0;
   const canGoForward = navigationState.index < navigationState.history.length - 1;
@@ -649,7 +658,7 @@ export default function TherapeuticForms() {
         <p>
           {calloutText}{' '}
           <Link className="underline underline-offset-2 text-teal-600 hover:text-teal-500" to="/Chat">
-            {lang === 'he' ? 'לצ׳אט' : 'Go to chat'}
+            {uiLabels.chat}
           </Link>
         </p>
       </div>
@@ -708,8 +717,8 @@ export default function TherapeuticForms() {
                 collection={collection}
                 audienceLabel={t(`therapeutic_forms.audience.${collection.audience}`)}
                 languageLabel={String(collection.language || '').toUpperCase()}
-                collectionTypeLabel={lang === 'he' ? (collection.collectionType === 'core' ? 'ליבה' : 'ייעודי') : (collection.collectionType === 'core' ? 'Core' : 'Specialized')}
-                browseLabel={lang === 'he' ? 'עיין בסדרה' : 'Browse'}
+                collectionTypeLabel={collection.collectionType === 'core' ? uiLabels.core : uiLabels.specialized}
+                browseLabel={uiLabels.browse}
                 onBrowse={() => navigateToCollection(collection.collectionId)}
                 viewMode={viewMode}
               />
@@ -731,10 +740,10 @@ export default function TherapeuticForms() {
                   ...module,
                   clinicalDomainLabel: lang === 'he' ? '' : formatClinicalDomain(module.clinicalDomain),
                   numberLabel: module.numberLabel,
-                  typeLabel: lang === 'he' ? 'מודול' : 'Module',
+                  typeLabel: getModuleLabel(lang, 'module'),
                 }}
-                showClinicalDomain={lang !== 'he'}
-                viewWorksheetsLabel={lang === 'he' ? 'הצג טפסים' : 'View worksheets'}
+                showClinicalDomain={lang === 'en'}
+                viewWorksheetsLabel={uiLabels.viewWorksheets}
                 openLabel={t('therapeutic_forms.open_form')}
                 downloadLabel={t('therapeutic_forms.download_form')}
                 onViewWorksheets={() => navigateToModule(module.id)}
@@ -777,7 +786,7 @@ export default function TherapeuticForms() {
                   onOpen={() => handleOpenForm(worksheet.languageData.file_url)}
                   onDownload={() => handleDownloadForm(worksheet.languageData.file_url, worksheet.languageData.file_name)}
                   viewMode={viewMode}
-                  typeLabel={lang === 'he' ? 'טופס' : 'Worksheet'}
+                  typeLabel={uiLabels.worksheet}
                   stageLabel={selectedModule.numberLabel}
                 />
               ))}
