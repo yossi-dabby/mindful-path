@@ -60,12 +60,9 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1000);
 
-    // Verify the bottom nav exists on this viewport (mobile only)
-    const bottomNav = page.getByRole('navigation');
-    if (await bottomNav.count() === 0) {
-      test.skip(true, 'No navigation found – skipping');
-      return;
-    }
+    // The Pixel 5 profile must render the mobile bottom navigation.
+    const bottomNav = page.getByRole('navigation', { name: 'Main navigation' });
+    await expect(bottomNav).toBeVisible({ timeout: 10000 });
 
     // Switch to Journal tab
     await bottomNavLink(page, 'Journal').click();
