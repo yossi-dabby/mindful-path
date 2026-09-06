@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { TrendingUp, Brain, Target, Activity, Download, Crown, Lock, ArrowLeft }
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
 import PremiumBadge from '../components/subscription/PremiumBadge';
 import { isPremiumSubscription } from '../components/subscription/subscriptionReadiness.js';
+import { confirmWebCheckoutFromCurrentUrl } from '../components/subscription/webBilling.js';
 
 const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
 
@@ -51,6 +52,22 @@ export default function AdvancedAnalytics() {
     staleTime: 30000,
     refetchOnWindowFocus: false
   });
+
+  useEffect(() => {
+    let active = true;
+
+    confirmWebCheckoutFromCurrentUrl()
+      .then((result) => {
+        if (active && result?.active) refetchSubscription();
+      })
+      .catch(() => {
+        // Keep the return parameters so the user can safely retry after a refresh.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [refetchSubscription]);
 
   const { data: moodData } = useQuery({
     queryKey: ['moodAnalytics'],
