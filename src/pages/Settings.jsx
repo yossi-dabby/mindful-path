@@ -28,6 +28,7 @@ import LanguageSelector from '../components/settings/LanguageSelector';
 import NotificationSettings from '../components/settings/NotificationSettings';
 import DeleteAccountFlow from '../components/settings/DeleteAccountFlow';
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
+import { confirmWebCheckoutFromCurrentUrl } from '../components/subscription/webBilling.js';
 import {
   SUBSCRIPTIONS_ENABLED,
   getSubscriptionReadinessCopy,
@@ -80,6 +81,22 @@ export default function Settings() {
     enabled: Boolean(user?.email)
   });
   const hasPremium = isPremiumSubscription(subscription);
+
+  useEffect(() => {
+    let active = true;
+
+    confirmWebCheckoutFromCurrentUrl()
+      .then((result) => {
+        if (active && result?.active) refetchSubscription();
+      })
+      .catch(() => {
+        // Keep the return parameters so the user can safely retry after a refresh.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [refetchSubscription]);
 
   useEffect(() => {
     let active = true;
