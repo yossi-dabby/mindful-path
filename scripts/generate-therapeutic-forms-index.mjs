@@ -3,6 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_ES_PILOT } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.es.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_HE } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.he.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE } from '../src/data/therapeuticForms/forms.adolescents.cbt-specialized.he.js';
@@ -242,6 +243,7 @@ function resolveFileUrlFromForm(form, languageCode) {
 function buildCuratedEntries(manifestByFileUrl) {
   const curatedForms = [
     ...FORMS_ADOLESCENTS_CBT_CORE_EN,
+    ...FORMS_ADOLESCENTS_CBT_CORE_ES_PILOT,
     ...FORMS_ADOLESCENTS_CBT_CORE_HE,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE,
