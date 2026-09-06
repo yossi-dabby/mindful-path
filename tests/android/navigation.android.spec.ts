@@ -56,6 +56,8 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
 
   test('switching between tabs navigates without console warnings', async ({ page }) => {
     const checkConsole = assertNoConsoleErrorsOrWarnings(page);
+    page.on('console', (message) => console.log('BROWSER_CONSOLE', message.type(), message.text()));
+    page.on('pageerror', (error) => console.log('BROWSER_PAGE_ERROR', error.message));
 
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1000);
