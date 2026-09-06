@@ -309,12 +309,16 @@ export function buildLocalProgressExport({
 } = {}) {
   const normalizedLocale = normalizeAppLocale(locale, DEFAULT_APP_LOCALE);
   const safeArray = (value) => Array.isArray(value) ? value : [];
-  const journalBaseFields = ['id', 'created_date', 'updated_date', 'entry_type', 'emotion_ratings', 'outcome_emotion_intensity', 'homework_tasks', 'custom_fields'];
+  const journalBaseFields = ['id', 'created_date', 'updated_date', 'entry_type', 'emotion_ratings', 'outcome_emotion_intensity', 'homework_tasks'];
   const narrativeFields = ['situation', 'automatic_thoughts', 'evidence_for', 'evidence_against', 'balanced_thought', 'reflection', 'notes'];
   const goalFields = ['id', 'title', 'status', 'progress', 'target_date', 'created_date', 'updated_date'];
   const exerciseFields = ['id', 'title', 'category', 'completed_count', 'last_completed', 'created_date', 'updated_date'];
   const moods = safeArray(moodEntries).map((item) => selectFields(item, ['id', 'date', 'mood', 'energy_level', 'intensity', 'created_date']));
-  const journals = safeArray(journalEntries).map((item) => selectFields(item, includeNarrative ? [...journalBaseFields, ...narrativeFields] : journalBaseFields));
+  const journals = safeArray(journalEntries).map((item) => {
+    const selected = selectFields(item, includeNarrative ? [...journalBaseFields, ...narrativeFields] : journalBaseFields);
+    const experimentMetrics = selectFields(item?.custom_fields, ['experiment_type', 'belief_after', 'completed_at']);
+    return Object.keys(experimentMetrics).length ? { ...selected, experimentMetrics } : selected;
+  });
   const selectedGoals = safeArray(goals).map((item) => selectFields(item, goalFields));
   const selectedExercises = safeArray(exercises).map((item) => selectFields(item, exerciseFields));
   const outcomes = safeArray(outcomeEntries).map((item) => selectFields(item, ['version', 'recordedAt', 'wellbeing', 'distress', 'functioning']));
