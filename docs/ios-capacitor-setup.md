@@ -9,9 +9,10 @@ This document describes how to set up, build, and test the Mindful Path app on i
 - macOS with Xcode 15+ installed (Xcode 15 ships with iOS 17 SDK; Xcode 16+ ships with iOS 18 SDK)
   - Minimum supported iOS deployment target for Capacitor 8.x is **iOS 14.0**
   - Recommended: Xcode 16+ to test on iOS 18 devices/simulators
-- Node.js 18+ and npm installed  
+- Node.js 22+ and npm installed (required by Capacitor 8.x)  
 - `@capacitor/cli` installed (already in devDependencies)  
-- `@capacitor/ios` installed (already in dependencies as of Phase 2)  
+- `@capacitor/ios` installed (already in dependencies as of Phase 2)
+- RevenueCat product, entitlement and public Apple SDK key configured before purchase testing  
 - Apple Developer account (for device/simulator testing and App Store submission)
 
 ---
