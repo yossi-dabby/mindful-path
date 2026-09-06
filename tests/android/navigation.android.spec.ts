@@ -68,6 +68,7 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
     await bottomNavLink(page, 'Journal').click();
     await page.waitForTimeout(500);
     expect(page.url()).toContain('/Journal');
+    console.log('NAV_DIAG', page.url(), (await page.locator('body').innerText()).slice(0, 1200));
 
     // Switch to Home tab
     await bottomNavLink(page, 'Home').click();
