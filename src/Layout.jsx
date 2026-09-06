@@ -9,6 +9,7 @@ import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
 import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
 import i18n from './components/i18n/i18nConfig';
+import { getHumanSupportCopy } from './lib/humanSupportDirectory';
 import {
   changeAppLocale,
   getCurrentAppLocale,
@@ -276,10 +277,10 @@ export default function Layout({ children, currentPageName }) {
           to="/contact"
           data-testid="persistent-human-support"
           className="fixed end-4 bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] z-[36] inline-flex min-h-11 items-center gap-2 rounded-full border border-teal-200 bg-white/95 px-4 py-2 text-sm font-semibold text-teal-800 shadow-lg backdrop-blur hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 md:bottom-6"
-          aria-label={i18n.language?.startsWith('he') ? 'עזרה אנושית' : 'Human support'}
+          aria-label={getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}
         >
           <LifeBuoy className="h-5 w-5" aria-hidden="true" />
-          <span>{i18n.language?.startsWith('he') ? 'עזרה אנושית' : 'Human support'}</span>
+          <span>{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
         </Link>
 
         {/* Bottom Navigation - Mobile only */}
