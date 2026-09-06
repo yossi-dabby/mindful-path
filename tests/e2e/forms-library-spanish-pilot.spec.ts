@@ -22,14 +22,16 @@ test.describe('Forms Library — Spanish pilot', () => {
 
     const collection = page.getByTestId('collection-card-adolescents-cbt-core-es');
     await expect(collection).toBeVisible();
-    await expect(collection).toContainText('¿Qué me está pasando ahora mismo?');
-    await collection.getByRole('button').first().click();
+    await expect(collection).toContainText('CBT central para adolescentes');
+    await expect(collection).toContainText('Explorar');
+    await collection.getByRole('button', { name: 'Explorar' }).click();
 
     await expect(page.getByTestId('modules-grid')).toBeVisible();
     const module = page.locator('[data-testid^="module-card-"]').first();
     await expect(module).toContainText('Etapa 1');
     await expect(module).toContainText('Comprender lo que está ocurriendo');
-    await module.getByRole('button').first().click();
+    await expect(module).toContainText('Ver formularios');
+    await module.getByRole('button', { name: 'Ver formularios' }).click();
 
     await expect(page.getByTestId('worksheets-grid')).toBeVisible();
     const cards = page.locator('[data-testid^="worksheet-card-"]');
