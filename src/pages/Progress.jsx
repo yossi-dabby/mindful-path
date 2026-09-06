@@ -13,6 +13,7 @@ import CorrelationInsights from '../components/progress/CorrelationInsights';
 import GoalsProgressTracker from '../components/progress/GoalsProgressTracker';
 import HealthDashboard from '../components/health/HealthDashboard';
 import EnhancedProgressDashboard from '../components/progress/EnhancedProgressDashboard';
+import ProgressDataPanel from '../components/progress/ProgressDataPanel';
 import GamificationHub from '../components/gamification/GamificationHub';
 import PullToRefresh from '../components/utils/PullToRefresh';
 
@@ -80,6 +81,8 @@ export default function Progress() {
           <TabsContent value="exercises"><ExerciseTracker exercises={exercises} /></TabsContent>
           <TabsContent value="health"><Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] overflow-hidden"><CardHeader className="p-4 sm:p-6"><CardTitle className="flex items-center gap-2 text-foreground"><Activity className="h-5 w-5 text-primary" />{t('progress.health_wellness')}</CardTitle></CardHeader><CardContent className="p-4 sm:p-6"><HealthDashboard /></CardContent></Card></TabsContent>
         </Tabs>}
+
+        {!isLoading && !isError && <ProgressDataPanel moodEntries={moodEntries} journalEntries={journalEntries} goals={goals} exercises={exercises} />}
 
         {!isLoading && !isError && <section className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2" aria-label={t('progress_ui.insights.title')}><InsightsPanel moodEntries={filteredMoodEntries} journalEntries={journalEntries} /><CorrelationInsights moodEntries={moodEntries} journalEntries={journalEntries} exercises={exercises} /></section>}
       </main>
