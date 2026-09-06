@@ -10,10 +10,10 @@ function asRows(value: unknown): any[] {
 }
 
 const safeTimestampToISO = (timestamp: unknown): string | undefined => {
-  if (!Number.isFinite(timestamp) || Number(timestamp) < 0 || !Number.isSafeInteger(timestamp)) {
+  if (typeof timestamp !== 'number' || !Number.isFinite(timestamp) || timestamp < 0 || !Number.isSafeInteger(timestamp)) {
     return undefined;
   }
-  const ms = Number(timestamp) * 1000;
+  const ms = timestamp * 1000;
   if (!Number.isSafeInteger(ms)) return undefined;
   return new Date(ms).toISOString();
 };
@@ -47,7 +47,7 @@ const markEventAsProcessed = async (
   }
 };
 
-function resolveStripeAccess(subscription: Stripe.Subscription) {
+function resolveStripeAccess(subscription: any) {
   const periodEnd = safeTimestampToISO(subscription.current_period_end);
   const periodEndMs = periodEnd ? new Date(periodEnd).getTime() : 0;
   const stillInsidePaidPeriod = periodEndMs > Date.now();
@@ -65,7 +65,7 @@ function resolveStripeAccess(subscription: Stripe.Subscription) {
   return { status: 'expired', active: false };
 }
 
-async function findSubscriptionRecord(base44: any, stripeSubscription: Stripe.Subscription) {
+async function findSubscriptionRecord(base44: any, stripeSubscription: any) {
   const byStripeId = asRows(
     await base44.asServiceRole.entities.Subscription.filter({
       stripe_subscription_id: stripeSubscription.id,
@@ -104,7 +104,7 @@ async function findSubscriptionRecord(base44: any, stripeSubscription: Stripe.Su
 
 async function upsertStripeSubscription(
   base44: any,
-  stripeSubscription: Stripe.Subscription,
+  stripeSubscription: any,
   fallbackMetadata: Record<string, string> = {},
 ) {
   const metadata = {
@@ -188,7 +188,7 @@ Deno.serve(async (req) => {
 
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object as any;
         if (typeof session.subscription === 'string') {
           const subscription = await stripe.subscriptions.retrieve(session.subscription);
           await upsertStripeSubscription(base44, subscription, {
@@ -204,14 +204,14 @@ Deno.serve(async (req) => {
       case 'customer.subscription.deleted': {
         await upsertStripeSubscription(
           base44,
-          event.data.object as Stripe.Subscription,
+          event.data.object as any,
         );
         break;
       }
 
       case 'invoice.paid':
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as any;
         if (typeof invoice.subscription === 'string') {
           const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
           await upsertStripeSubscription(base44, subscription);
