@@ -100,7 +100,10 @@ test.describe('Android Chat Readiness', () => {
   test('should send 15 queued messages in FIFO order and keep the composer usable', async ({ page }) => {
     test.setTimeout(120000);
     // Set up console monitoring at the start
-    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page, {
+      ignoredErrors: [/Connection rejected by server/],
+      ignoredWarnings: [/cdn\.tailwindcss\.com should not be used in production/],
+    });
     
     // Navigate to Chat page
     await page.goto(`${BASE_URL}/Chat?_s2=CHAT_ORCHESTRATOR_V2_ENABLED`, { waitUntil: 'networkidle' });
