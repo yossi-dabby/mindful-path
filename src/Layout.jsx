@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { Link, useLocation } from 'react-router-dom';
 import { LifeBuoy } from 'lucide-react';
@@ -8,7 +9,6 @@ import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
 import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
-import i18n from './components/i18n/i18nConfig';
 import { getHumanSupportCopy } from './lib/humanSupportDirectory';
 import {
   changeAppLocale,
@@ -18,6 +18,7 @@ import {
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const { i18n } = useTranslation();
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
 
