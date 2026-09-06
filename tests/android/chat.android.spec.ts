@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { assertNoConsoleErrorsOrWarnings, assertElementVisibleAndTappable } from './utils/androidHelpers';
-import { mockApi } from '../helpers/ui';
+import { mockApi, SAFE_CONVERSATION_ROUTE_PATTERNS } from '../helpers/ui';
 
 /**
  * Android Chat Readiness Test
@@ -26,7 +26,7 @@ test.describe('Android Chat Readiness', () => {
     await mockApi(page);
 
     await page.route(
-      new RegExp(`/agents/conversations/${TEST_CONVERSATION_ID}/messages(?:\\?.*)?$`),
+      SAFE_CONVERSATION_ROUTE_PATTERNS.MESSAGES_POST,
       async (route) => {
         if (route.request().method() !== 'POST') {
           await route.continue();
@@ -67,10 +67,10 @@ test.describe('Android Chat Readiness', () => {
     );
 
     await page.route(
-      new RegExp(`/agents/conversations/${TEST_CONVERSATION_ID}(?:\\?.*)?$`),
+      SAFE_CONVERSATION_ROUTE_PATTERNS.CONVERSATION_BY_ID,
       async (route) => {
         if (route.request().method() !== 'GET') {
-          await route.continue();
+          await route.fallback();
           return;
         }
         await route.fulfill({
