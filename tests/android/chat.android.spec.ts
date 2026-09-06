@@ -43,7 +43,8 @@ test.describe('Android Chat Readiness', () => {
           status: 'completed',
           created_at: new Date().toISOString(),
         });
-        if (content.startsWith('Android test message ')) postedUserMessages.push(content);
+        const userMessageMarker = content.match(/Android test message \\d+/)?.[0];
+        if (userMessageMarker) postedUserMessages.push(userMessageMarker);
         conversationMessages.push({
           id: `assistant-${userIndex}`,
           role: 'assistant',
@@ -173,7 +174,7 @@ test.describe('Android Chat Readiness', () => {
       await page.waitForTimeout(300);
     }
 
-    await expect.poll(() => postedUserMessages.length, { timeout: 60000 }).toBeGreaterThanOrEqual(14);
+    await expect.poll(() => postedUserMessages.length, { timeout: 60000 }).toBe(15);
     expect(postedUserMessages).toEqual(
       Array.from({ length: 15 }, (_, index) => `Android test message ${index + 1}`),
     );
