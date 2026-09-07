@@ -10,6 +10,14 @@ import {
   getTherapeuticFormsRegistryDiagnostics,
   THERAPEUTIC_CATEGORIES,
 } from '../../src/data/therapeuticForms/index.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_HE } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.he.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.he.js';
+import { FORMS_CHILDREN_CBT_CORE_EN } from '../../src/data/therapeuticForms/forms.children.cbt-core.en.js';
+import { FORMS_CHILDREN_CBT_CORE_HE } from '../../src/data/therapeuticForms/forms.children.cbt-core.he.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../../src/data/therapeuticForms/forms.children.cbt-specialized.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED_HE } from '../../src/data/therapeuticForms/forms.children.cbt-specialized.he.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
 const ROOT = path.resolve(process.cwd());
@@ -30,9 +38,19 @@ function walk(dirPath) {
 
 describe('therapeutic forms generated index parity', () => {
   it('loads canonical generated index and exposes it via ALL_FORMS', () => {
+    const expectedTotal =
+      FORMS_ADOLESCENTS_CBT_CORE_EN.length +
+      FORMS_ADOLESCENTS_CBT_CORE_HE.length +
+      FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN.length +
+      FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE.length +
+      FORMS_CHILDREN_CBT_CORE_EN.length +
+      FORMS_CHILDREN_CBT_CORE_HE.length +
+      FORMS_CHILDREN_CBT_SPECIALIZED.length +
+      FORMS_CHILDREN_CBT_SPECIALIZED_HE.length;
+
     expect(Array.isArray(generatedFormsIndex)).toBe(true);
     expect(generatedFormsIndex.length).toBeGreaterThan(0);
-    expect(generatedFormsIndex).toHaveLength(498);
+    expect(generatedFormsIndex).toHaveLength(expectedTotal);
     expect(ALL_FORMS).toHaveLength(generatedFormsIndex.length);
   });
 
