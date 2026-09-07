@@ -104,6 +104,8 @@ const ENTITY_FIELD_MAP = {
       'example_scenarios', 'goal_types', 'mood_targets', 'contraindications',
       'related_exercises', 'related_resources', 'evidence_base', 'source',
       'language', 'status', 'version', 'slug', 'reviewed_by', 'last_reviewed_date',
+      'translation_group_id', 'source_record_id', 'source_language', 'variant_language',
+      'translation_status', 'clinical_review_status', 'translation_version', 'canonical_status',
     ],
   },
 };
