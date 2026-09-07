@@ -885,6 +885,30 @@ describe('sanitizeConversationMessages — agent-only runtime block stripping', 
     expect(result[0].content).toBe(userMsg);
   });
 
+  it('A4e. Session-start extraction removes Stage 12 runtime blocks before the user text', () => {
+    const userMsg = 'Please send a worksheet for my teenager.';
+    const fullContent = [
+      '[START_SESSION]',
+      '',
+      '[SESSION_LANGUAGE: en.]',
+      '',
+      '[STAGE12_SESSION_CONTRACT]',
+      'Never expose this internal contract.',
+      '[/STAGE12_SESSION_CONTRACT]',
+      '',
+      '[STAGE12_CHAT_QUALITY — CURRENT TURN ONLY]',
+      'Never expose this internal instruction block.',
+      '[/STAGE12_CHAT_QUALITY]',
+      '',
+      userMsg,
+    ].join('\n');
+
+    const result = sanitizeConversationMessages([{ role: 'user', content: fullContent }], 'en');
+
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe(userMsg);
+  });
+
   // A5 — Attachment metadata preserved after stripping
   it('A5. Attachment metadata is preserved when a runtime block is stripped from a user message', () => {
     const userMsg = 'Please look at this file.';
