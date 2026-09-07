@@ -1,0 +1,170 @@
+# גל 4 — Ledger לביצוע הרחבה מדורגת של Trusted CBT
+
+תאריך: 2026-09-07  
+אפליקציה: Mindful Path  
+Base44 App ID: `69504b725a07f5aa75aeaf7d`  
+סטטוס: שער 4.0 וחבילה 4.1 הושלמו; יתרת גל 4 מחולקת לשבע חבילות נוספות.
+
+## 1. שער 4.0 — תיחום היתרה
+
+תמונת המצב לפני הפעולה:
+
+- 127 רשומות מקור באנגלית.
+- 109 רשומות Legacy ייחודיות שנותרו לאחר הכפילויות הזהות וה-Canary.
+- 10 קבוצות Legacy חפפו לעשרת מקורות הפיילוט הפתוחים של גל 2.
+- היקף גל 4 לאחר הסרת החפיפה: 99 יחידות מקור.
+
+פעולות שבוצעו:
+
+- 10 קבוצות Legacy שחפפו לפיילוט סומנו `canonical_status: duplicate` ו-`translation_status: excluded`.
+- `is_active` לא שונה; אין שינוי בהתנהגות ה-Production הקיימת.
+- נשמר Checkpoint לפני הפעולה.
+- לא נמחקה אף רשומה.
+
+## 2. חבילה 4.1 — מנה פתוחה ראשונה
+
+נוצרו חמישה מקורות אנגליים קנוניים חדשים בסיכון נמוך יחסית:
+
+| # | קבוצת תרגום | מזהה מקור אנגלי | נושא |
+|---:|---|---|---|
+| 1 | `trusted-cbt-open::activity-planning-low-mood` | `6a9ea3ab667902ab5cddb87b` | תכנון פעילות ומצב רוח ירוד |
+| 2 | `trusted-cbt-open::graded-task-planning` | `6a9ea3ab667902ab5cddb87c` | תכנון משימות מדורג |
+| 3 | `trusted-cbt-open::practical-problem-solving` | `6a9ea3ab667902ab5cddb87d` | פתרון בעיות מעשי |
+| 4 | `trusted-cbt-open::worry-time-action-plan` | `6a9ea3ab667902ab5cddb87e` | זמן דאגה ותוכנית פעולה |
+| 5 | `trusted-cbt-open::sleep-habits-insomnia` | `6a9ea3ab667902ab5cddb87f` | הרגלי שינה ונדודי שינה |
+
+לכל מקור נוצרו גרסאות טיוטה בשש שפות:
+
+| שפה | מקורות/גרסאות | סטטוס |
+|---|---:|---|
+| אנגלית `en` | 5 | source / pending / inactive |
+| עברית `he` | 5 | draft / pending / inactive |
+| ספרדית `es` | 5 | draft / pending / inactive |
+| צרפתית `fr` | 5 | draft / pending / inactive |
+| גרמנית `de` | 5 | draft / pending / inactive |
+| איטלקית `it` | 5 | draft / pending / inactive |
+| פורטוגזית `pt` | 5 | draft / pending / inactive |
+| **סה״כ** | **35** | **לא זמין לאחזור חי** |
+
+## 3. מקור ורישוי בחבילה 4.1
+
+החומר נוסח מחדש כעיבוד של מידע ציבורי המותר לשימוש תחת Open Government Licence v3.0:
+
+- https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/tackling-your-to-do-list/
+- https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/problem-solving/
+- https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/tackling-your-worries/
+- https://www.nhs.uk/conditions/insomnia/
+- https://www.nhs.uk/our-policies/terms-and-conditions/
+
+בכל רשומת מקור נשמר נוסח הייחוס: `Contains public sector information licensed under the Open Government Licence v3.0.`
+
+התרגומים והעיבודים אינם מוצגים כאילו קיבלו אישור קליני של NHS ואינם מרמזים על חסות או תמיכה.
+
+## 4. החלפת מקורות Legacy בחבילה 4.1
+
+חמש רשומות Legacy מקבילות סומנו `duplicate/excluded` לתהליך התרגום:
+
+1. Behavioural Activation: Activity Monitoring
+2. Graded Task Assignment for Depression
+3. Problem-Solving Therapy Basics
+4. Worry and Generalised Anxiety: Intolerance of Uncertainty
+5. Sleep Hygiene and Cognitive Factors in Insomnia
+
+הרשומות לא נמחקו ולא הושבתו ב-Production. מטרת הסימון היא למנוע תרגום כפול או תרגום של נוסח שמקורו מוגן או לא מתועד דיו.
+
+## 5. אימות חבילה 4.1
+
+| בדיקה | תוצאה |
+|---|---:|
+| מספר הרשומות הצפוי | 35 |
+| מספר הרשומות בפועל | 35 |
+| חמש רשומות בכל אחת משבע השפות | עבר |
+| source_record_id תקין | 35/35 |
+| translation_group_id ייחודי בכל שפה | 35/35 |
+| Safety notes מלאים | 35/35 |
+| Contraindications מלאים | 35/35 |
+| כפילויות שפה-קבוצה | 0 |
+| רשומות פעילות | 0 |
+| אישור קליני מלאכותי | 0 |
+
+נשמר Checkpoint לאחר כל שער שפה.
+
+## 6. יתרת גל 4 לאחר חבילה 4.1
+
+| מדד | יתרה |
+|---|---:|
+| מקורות Legacy שנותרו בתור | 94 |
+| Canonical | 48 |
+| Review required | 46 |
+| Adapted / רישוי לא מספיק לתרגום | 92 |
+| Open אך דורש בדיקת תחולה ותנאים | 2 |
+| חסר Safety notes | 62 |
+| חסר Contraindications | 43 |
+
+התפלגות נושאים:
+
+| נושא | מקורות |
+|---|---:|
+| Anxiety | 24 |
+| Trauma | 10 |
+| Depression | 9 |
+| Relationships | 9 |
+| Emotion regulation | 6 |
+| Self-esteem | 5 |
+| Behavior change | 3 |
+| Eating disorders | 3 |
+| Grief | 3 |
+| Health anxiety | 3 |
+| ADHD | 2 |
+| Addiction | 2 |
+| Anger | 2 |
+| Bipolar disorder | 2 |
+| Chronic pain | 2 |
+| Perfectionism | 2 |
+| Relapse prevention | 2 |
+| Sleep | 2 |
+| Stress | 2 |
+| Crisis | 1 |
+
+## 7. חלוקת יתרת גל 4 לחבילות
+
+כל חבילה מוגבלת לעד 15 מקורות. לפני תרגום, כל מקור חייב לקבל מקור פתוח/הרשאה מתועדת, מקור קנוני יחיד, Safety notes ו-Contraindications.
+
+| חבילה | תחום | תקרה |
+|---|---|---:|
+| 4.2 | דיכאון, לחץ ושינה שאינם רגישים | 13 |
+| 4.3 | ויסות רגשי, שינוי התנהגותי, פרפקציוניזם וערך עצמי | 15 |
+| 4.4 | יחסים, יתרת ערך עצמי וכעס | 12 |
+| 4.5 | חרדה כללית ופאניקה ללא חשיפה | 15 |
+| 4.6 | ADHD, אבל, כאב כרוני, חרדת בריאות ומניעת הישנות | 12 |
+| 4.7 | חשיפה וחרדה מורכבת — רק לאחר שער קליני מוגבר | עד 15 |
+| 4.8 | טראומה, התמכרות, הפרעות אכילה, דו-קוטביות ומשבר — אחרונים בלבד | יתרה |
+
+## 8. תהליך קבוע לכל חבילה
+
+1. בחירת עד 15 קבוצות מקור.
+2. הכרעה קנונית ונטרול כפילויות.
+3. אימות זכות עיבוד ותרגום.
+4. השלמת Safety notes ו-Contraindications.
+5. יצירת מקור אנגלי פתוח וקנוני לא פעיל בעת הצורך.
+6. יצירת טיוטות בסדר: עברית, ספרדית, צרפתית, גרמנית, איטלקית, פורטוגזית.
+7. בדיקת שפה, קישורי מקור, ייחודיות וסטטוס.
+8. Checkpoint לאחר כל שפה.
+9. שמירה כ-`draft/pending/inactive`.
+10. הפעלה רק לאחר בדיקה לשונית וקלינית אנושית.
+
+## 9. תנאי בטיחות מחייבים
+
+- אין fallback שקט לאנגלית.
+- אין תרגום של מקור `adapted` ללא הרשאה מתועדת או החלפתו במקור פתוח.
+- אין מילוי `reviewed_by` או תאריך סקירה ללא בדיקה אנושית בפועל.
+- אין הפעלה אוטומטית של מקור או תרגום.
+- אין תרגום מקביל של שתי שפות באותו שער.
+- תוכני חשיפה, טראומה, הפרעות אכילה, התמכרות, דו-קוטביות ומשבר נשארים לסוף ומחייבים שער קליני מוגבר.
+
+## 10. סטטוס גל 4
+
+- שער 4.0: הושלם.
+- חבילה 4.1: הושלמה.
+- חבילות 4.2–4.8: ממתינות לביצוע מדורג.
+- גל 4 כולו אינו מסומן כגמור עד השלמת 94 המקורות הנותרים או החלטת החרגה מתועדת עבורם.
