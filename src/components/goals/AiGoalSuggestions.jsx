@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,8 +9,11 @@ import { Sparkles, Loader2, Target, TrendingUp, CheckCircle } from 'lucide-react
 import { motion } from 'framer-motion';
 import { normalizeGoalData, safeJoin, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 import { safeInvokeLLM } from '../utils/safeInvokeLLM';
+import { getStage11Copy } from '../i18n/stage11UiCopy.js';
 
 export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
+  const { t, i18n } = useTranslation();
+  const copy = getStage11Copy(i18n.resolvedLanguage || i18n.language);
   const [suggestions, setSuggestions] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -71,7 +75,9 @@ For each goal, provide:
 5. **Initial Milestones**: 3-4 actionable first steps
 6. **Why This Goal**: Brief explanation of why this goal was suggested based on their patterns
 
-Focus on goals that address recurring patterns, emotional needs, or areas for growth identified in their entries.`,
+Focus on goals that address recurring patterns, emotional needs, or areas for growth identified in their entries.
+
+LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Keep the JSON property names unchanged.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -106,7 +112,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
       }, true); // Skip risk gate - system-generated prompt
 
       if (!response || !response.goals || response.goals.length === 0) {
-        throw new Error('No goal suggestions were generated. Try adding more journal entries or mood check-ins.');
+        throw new Error(copy.goals.noSuggestions);
       }
 
       // Normalize all goal data to ensure arrays are valid
@@ -114,7 +120,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
       setSuggestions({ goals: normalizedGoals });
     } catch (error) {
       console.error('Failed to generate goal suggestions:', error.message, error.stack);
-      alert(error.message || 'Failed to generate goal suggestions. Please try again later.');
+      alert(error.message || copy.goals.error);
     } finally {
       setIsLoading(false);
     }
@@ -134,9 +140,9 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">AI Goal Suggestions</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{copy.goals.introTitle}</h2>
             <p className="text-gray-600 mb-6">
-              Let AI analyze your journal entries and mood patterns to suggest personalized SMART goals for your growth journey.
+              {copy.goals.introText}
             </p>
             <div className="flex gap-3 justify-center">
               <Button
@@ -145,10 +151,10 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                Generate Goal Suggestions
+                {copy.goals.generate}
               </Button>
               <Button onClick={() => onClose()} variant="outline">
-                Cancel
+                {copy.goals.cancel}
               </Button>
             </div>
           </CardContent>
@@ -169,7 +175,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
         <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
           <CardContent className="p-12 text-center">
             <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Analyzing your patterns and generating personalized goals...</p>
+            <p className="text-gray-600">{copy.goals.loading}</p>
           </CardContent>
         </Card>
       </div>
@@ -190,10 +196,10 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
           <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <div className="flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-purple-600" />
-              <h2 className="text-2xl font-bold text-gray-800">Suggested SMART Goals</h2>
+              <h2 className="text-2xl font-bold text-gray-800">{copy.goals.resultsTitle}</h2>
             </div>
             <Button onClick={onClose} variant="ghost">
-              Close
+              {copy.goals.close}
             </Button>
           </div>
 
@@ -211,7 +217,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                       <div>
                         <h3 className="text-xl font-semibold text-gray-800 mb-1">{goal.title}</h3>
                         <Badge variant="outline" className="capitalize">
-                          {goal.category}
+                          {t(`goals.categories.${goal.category}`, { defaultValue: goal.category })}
                         </Badge>
                       </div>
                       <Target className="w-6 h-6 text-purple-600" />
@@ -222,7 +228,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                     {/* Why Suggested */}
                     <div className="bg-blue-50 p-3 rounded-lg mb-4">
                       <p className="text-sm text-gray-700">
-                        <span className="font-semibold text-blue-700">Why this goal: </span>
+                        <span className="font-semibold text-blue-700">{copy.goals.why}: </span>
                         {goal.why_suggested}
                       </p>
                     </div>
@@ -232,36 +238,36 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                       <div className="bg-white p-4 rounded-lg border mb-4">
                         <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-600" />
-                          SMART Breakdown
+                          {copy.goals.smart}
                         </h4>
                         <div className="space-y-2 text-sm">
                           {goal.smart_breakdown.specific && (
                             <div>
-                              <span className="font-semibold text-gray-700">Specific:</span>
+                              <span className="font-semibold text-gray-700">{copy.goals.specific}:</span>
                               <p className="text-gray-600">{goal.smart_breakdown.specific}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.measurable && (
                             <div>
-                              <span className="font-semibold text-gray-700">Measurable:</span>
+                              <span className="font-semibold text-gray-700">{copy.goals.measurable}:</span>
                               <p className="text-gray-600">{goal.smart_breakdown.measurable}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.achievable && (
                             <div>
-                              <span className="font-semibold text-gray-700">Achievable:</span>
+                              <span className="font-semibold text-gray-700">{copy.goals.achievable}:</span>
                               <p className="text-gray-600">{goal.smart_breakdown.achievable}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.relevant && (
                             <div>
-                              <span className="font-semibold text-gray-700">Relevant:</span>
+                              <span className="font-semibold text-gray-700">{copy.goals.relevant}:</span>
                               <p className="text-gray-600">{goal.smart_breakdown.relevant}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.time_bound && (
                             <div>
-                              <span className="font-semibold text-gray-700">Time-bound:</span>
+                              <span className="font-semibold text-gray-700">{copy.goals.timeBound}:</span>
                               <p className="text-gray-600">{goal.smart_breakdown.time_bound}</p>
                             </div>
                           )}
@@ -274,13 +280,13 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                       <div className="bg-white p-4 rounded-lg border mb-4">
                         <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-orange-600" />
-                          First Steps
+                          {copy.goals.firstSteps}
                         </h4>
                         <ul className="space-y-1">
                           {safeArray(goal.milestones).map((milestone, i) => (
                             <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                               <span className="text-orange-600 mt-0.5">•</span>
-                              <span>{typeof milestone === 'string' ? milestone : milestone.title || milestone.description || 'Step'}</span>
+                              <span>{typeof milestone === 'string' ? milestone : milestone.title || milestone.description || copy.goals.step}</span>
                             </li>
                           ))}
                         </ul>
@@ -289,18 +295,18 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
 
                     <Button
                       onClick={() => onSelectGoal({
-                        title: safeText(goal.title, 'New Goal'),
+                        title: safeText(goal.title, copy.goals.newGoal),
                         category: safeText(goal.category, 'lifestyle'),
                         description: safeText(goal.description, ''),
                         milestones: safeArray(goal.milestones).map((m, idx) => ({ 
-                          title: typeof m === 'string' ? safeText(m, `Step ${idx + 1}`) : safeText(m.title || m.description || m.name, `Step ${idx + 1}`), 
+                          title: typeof m === 'string' ? safeText(m, `${copy.goals.step} ${idx + 1}`) : safeText(m.title || m.description || m.name, `${copy.goals.step} ${idx + 1}`), 
                           completed: false 
                         }))
                       })}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                     >
                       <Target className="w-4 h-4 mr-2" />
-                      Create This Goal
+                      {copy.goals.create}
                     </Button>
                   </CardContent>
                 </Card>
