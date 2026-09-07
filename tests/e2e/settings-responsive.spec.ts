@@ -74,17 +74,9 @@ test.describe('Premium settings and mobile menu', () => {
     await expect(page.getByText('Email Notifications', { exact: true })).toHaveCount(0);
   });
 
-  test('upgrade action opens and closes the accessible Premium dialog', async ({ page }) => {
+  test('upgrade action is unavailable while subscriptions are disabled', async ({ page }) => {
     await prepareSettings(page);
-    await page.getByTestId('settings-upgrade-button').click();
-
-    const paywall = page.getByTestId('premium-paywall');
-    await expect(paywall).toBeVisible();
-    await expect(paywall).toHaveAttribute('role', 'dialog');
-    await expect(page.getByRole('heading', { name: 'Unlock Premium' })).toBeVisible();
-
-    await page.getByRole('button', { name: 'Close Premium offer' }).click();
-    await expect(paywall).not.toBeVisible();
+    await expect(page.getByTestId('settings-upgrade-button')).toBeDisabled();
   });
 
   test('quick navigation keeps large touch targets on mobile', async ({ page }) => {
