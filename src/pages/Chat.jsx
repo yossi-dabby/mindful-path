@@ -5476,6 +5476,10 @@ export default function Chat() {
                         <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => setInputMessage(t('chat_stage.intent.practical_prompt'))}>
                           {t('chat_stage.intent.practical')}
                         </Button>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-violet-200 bg-violet-50/70 text-violet-800 hover:bg-violet-100" onClick={() => setInputMessage(t('chat_stage.intent.guided_prompt'))}>
+                          <Sparkles className="me-1 h-4 w-4" />
+                          {t('chat_stage.intent.guided')}
+                        </Button>
                       </div>
                     </div>
                   )}
