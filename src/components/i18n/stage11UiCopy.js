@@ -103,8 +103,7 @@ const COPY = {
       introTitle: 'Suggestions d’objectifs par IA', introText: 'L’IA examinera vos notes récentes et proposera des objectifs SMART clairs et concrets.',
       generate: 'Générer des suggestions', cancel: 'Annuler', loading: 'Analyse de vos tendances et préparation des suggestions…',
       resultsTitle: 'Objectifs SMART suggérés', close: 'Fermer', why: 'Pourquoi cet objectif', smart: 'Plan d’objectif clair',
-      specific: 'Action à mener', measurable: 'Comment la mesurer', achievable: 'Pourquoi elle est réaliste', relevant relevant: '',
-      relevant: 'Pourquoi elle compte', timeBound: 'Délai proposé', firstSteps: 'Premières étapes', step: 'Étape', newGoal: 'Nouvel objectif',
+      specific: 'Action à mener', measurable: 'Comment la mesurer', achievable: 'Pourquoi elle est réaliste', relevant: 'Pourquoi elle compte', timeBound: 'Délai proposé', firstSteps: 'Premières étapes', step: 'Étape', newGoal: 'Nouvel objectif',
       create: 'Créer cet objectif', noSuggestions: 'Aucune suggestion générée. Ajoutez une note ou un suivi d’humeur, puis réessayez.',
       error: 'Impossible de générer des suggestions. Réessayez.'
     },
