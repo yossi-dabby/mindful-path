@@ -18,9 +18,10 @@ import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
 import GoalsDashboardWidget from '../components/goals/GoalsDashboardWidget';
 import PullToRefresh from '../components/utils/PullToRefresh';
+import { beginTimeToFirstValue, completeTimeToFirstValue } from '@/lib/timeToFirstValue.js';
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showMoodCheckIn, setShowMoodCheckIn] = useState(false);
@@ -118,6 +119,14 @@ export default function Home() {
     enabled: !!todayFlow?.exercise_id
   });
 
+  useEffect(() => {
+    if (!showExercise || !todayExercise) return;
+    completeTimeToFirstValue({
+      valueType: 'exercise_opened',
+      locale: i18n.language || 'en',
+    });
+  }, [i18n.language, showExercise, todayExercise]);
+
   // Cache all exercises with longer stale time for assignment logic
   const { data: allExercises } = useQuery({
     queryKey: ['allExercises'],
@@ -183,6 +192,13 @@ export default function Home() {
   });
 
   const handleStartCheckIn = () => {
+    beginTimeToFirstValue({
+      entryPoint: 'home_daily_checkin',
+      valueType: 'assistant_response',
+      locale: i18n.language || 'en',
+      baselineAssistantCount: 0,
+      restart: true,
+    });
     // Route to AI with daily_checkin intent instead of showing form
     navigate('/Chat?intent=daily_checkin');
   };
@@ -193,6 +209,12 @@ export default function Home() {
   };
 
   const handleStartExercise = () => {
+    beginTimeToFirstValue({
+      entryPoint: 'home_guided_exercise',
+      valueType: 'exercise_opened',
+      locale: i18n.language || 'en',
+      restart: true,
+    });
     setShowExercise(true);
   };
 
