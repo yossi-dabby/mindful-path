@@ -9,9 +9,12 @@ import {
   Gauge,
   Loader2,
   PauseCircle,
+  RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getJourneyProgressPercentage } from './journeyUtils';
+import { getStage11Copy } from '../i18n/stage11UiCopy.js';
 
 export default function JourneyCard({
   journey,
@@ -19,9 +22,13 @@ export default function JourneyCard({
   onStart,
   onContinue,
   onView,
+  onRestart,
+  onRemove,
   isStarting = false,
+  isManaging = false,
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const copy = getStage11Copy(i18n.resolvedLanguage || i18n.language);
   const isStarted = Boolean(progress);
   const isCompleted = progress?.status === 'completed';
   const isPaused = progress?.status === 'paused';
@@ -144,6 +151,33 @@ export default function JourneyCard({
             {t('journeys.card.view_details')}
           </Button>
         </div>
+
+        {isStarted && (
+          <div className="mt-2 flex flex-wrap gap-2 border-t border-teal-900/8 pt-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onRestart?.(journey, progress)}
+              disabled={isManaging}
+              className="min-h-11 flex-1 rounded-xl text-teal-800 hover:bg-teal-50"
+              data-testid={'journey-restart-' + journey.id}
+            >
+              {isManaging ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+              {copy.journey.restart}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onRemove?.(journey, progress)}
+              disabled={isManaging}
+              className="min-h-11 flex-1 rounded-xl text-red-700 hover:bg-red-50"
+              data-testid={'journey-remove-' + journey.id}
+            >
+              <Trash2 className="h-4 w-4" />
+              {copy.journey.remove}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
