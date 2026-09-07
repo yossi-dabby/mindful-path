@@ -71,6 +71,83 @@
       "default": "en",
       "description": "Language of this content chunk"
     },
+    "translation_group_id": {
+      "type": "string",
+      "description": "Stable identifier shared by the canonical source and all language variants"
+    },
+    "source_record_id": {
+      "type": "string",
+      "description": "ID of the canonical source-language record"
+    },
+    "source_language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "he",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt"
+      ],
+      "default": "en",
+      "description": "Language of the canonical source record"
+    },
+    "variant_language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "he",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt"
+      ],
+      "default": "en",
+      "description": "Language of this specific content variant"
+    },
+    "translation_status": {
+      "type": "string",
+      "enum": [
+        "source",
+        "draft",
+        "in_review",
+        "approved",
+        "rejected",
+        "excluded"
+      ],
+      "default": "source",
+      "description": "Translation lifecycle state; translated variants remain non-approved until review"
+    },
+    "clinical_review_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_review",
+        "approved",
+        "changes_requested"
+      ],
+      "default": "pending",
+      "description": "Clinical review state for this language variant"
+    },
+    "translation_version": {
+      "type": "number",
+      "minimum": 1,
+      "default": 1,
+      "description": "Version of this language variant"
+    },
+    "canonical_status": {
+      "type": "string",
+      "enum": [
+        "canonical",
+        "review_required",
+        "duplicate",
+        "excluded"
+      ],
+      "default": "review_required",
+      "description": "Canonicalization state used to block duplicate or unresolved sources from translation"
+    },
     "priority_score": {
       "type": "number",
       "minimum": 0,
