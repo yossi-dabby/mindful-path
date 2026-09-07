@@ -159,6 +159,7 @@ function isInternalContextSufficient(items, config) {
  * @param {boolean} [options.liveRetrievalAllowed=false] - Whether live retrieval is allowed by flags
  * @param {string} [options.liveRetrievalUrl]            - URL to query for live retrieval
  * @param {string} [options.liveRetrievalQuery]          - Optional query context
+ * @param {string} [options.locale]                      - App locale used to isolate Resource retrieval
  * @param {object} [config]                - Retrieval config override
  * @returns {Promise<V4RetrievalResult>}
  */
@@ -173,7 +174,9 @@ export async function executeV4BoundedRetrieval(
   // ── Step 1–4: Execute V3 retrieval (unchanged internal-first sources) ──────
   let v3Result;
   try {
-    v3Result = await executeV3BoundedRetrieval(entities, safeConfig);
+    v3Result = await executeV3BoundedRetrieval(entities, safeConfig, {
+      locale: options.locale,
+    });
   } catch {
     // V3 entirely failed — return empty V4 result with no live retrieval
     return {
