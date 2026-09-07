@@ -343,6 +343,39 @@ describe('Phase 5.1 — executeV3BoundedRetrieval: queries real app data', () =>
     // Should only include the real therapist memory record (1), not the companion note
     expect(memItems.length).toBe(1);
   });
+
+  it('filters Resources by the normalized active locale and active status', async () => {
+    const entities = makeMockEntities();
+    const resourceCalls = [];
+    entities.Resource.filter = async (...args) => {
+      resourceCalls.push(args);
+      return [makeMockResource('Hebrew resource')];
+    };
+
+    await executeV3BoundedRetrieval(entities, undefined, { locale: 'he-IL' });
+
+    expect(resourceCalls).toHaveLength(1);
+    expect(resourceCalls[0][0]).toEqual({ language: 'he', status: 'active' });
+    expect(resourceCalls[0][1]).toBe('title');
+    expect(resourceCalls[0][2]).toBeGreaterThan(0);
+  });
+
+  it('forwards the session locale from the V3 injector to Resource retrieval', async () => {
+    const entities = makeMockEntities();
+    const resourceCalls = [];
+    entities.Resource.filter = async (...args) => {
+      resourceCalls.push(args);
+      return [makeMockResource('Recurso en español')];
+    };
+
+    await buildV3SessionStartContentAsync(
+      CBT_THERAPIST_WIRING_STAGE2_V3,
+      entities,
+      { locale: 'es' },
+    );
+
+    expect(resourceCalls[0][0]).toEqual({ language: 'es', status: 'active' });
+  });
 });
 
 // ─── Section 3 — executeV3BoundedRetrieval: retrieval order ──────────────────
