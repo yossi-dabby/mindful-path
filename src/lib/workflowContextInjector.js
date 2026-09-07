@@ -564,6 +564,8 @@ export function buildSessionStartContent(wiring, options = {}) {
  *
  * @param {object} wiring   - The active therapist wiring config object
  * @param {object} entities - Base44 entity client map (e.g. base44.entities)
+ * @param {object} [options] - Session options
+ * @param {string} [options.locale] - Active app locale for exact-language Resource retrieval
  * @returns {Promise<string>} The session-start message content
  */
 export async function buildV3SessionStartContentAsync(wiring, entities, options = {}) {
@@ -578,7 +580,11 @@ export async function buildV3SessionStartContentAsync(wiring, entities, options 
   // Execute real bounded retrieval against app entity stores
   let retrievalResult;
   try {
-    retrievalResult = await executeV3BoundedRetrieval(entities ?? {});
+    retrievalResult = await executeV3BoundedRetrieval(
+      entities ?? {},
+      undefined,
+      { locale: options.locale },
+    );
   } catch {
     // Fail-open: retrieval execution failed — return base content without context package
     return baseContent;
@@ -791,6 +797,7 @@ export function buildV4RuntimeStatusBlock(v4Result) {
  * @param {boolean} [options.liveRetrievalAllowed=false] - Whether live retrieval is allowed
  * @param {string}  [options.liveRetrievalUrl]            - URL to query for live retrieval
  * @param {string}  [options.liveRetrievalQuery]          - Optional query context
+ * @param {string}  [options.locale]                      - Active app locale for exact-language Resource retrieval
  * @returns {Promise<string>} The session-start message content
  */
 export async function buildV4SessionStartContentAsync(
@@ -832,6 +839,7 @@ export async function buildV4SessionStartContentAsync(
         liveRetrievalAllowed: options.liveRetrievalAllowed ?? false,
         liveRetrievalUrl: options.liveRetrievalUrl ?? '',
         liveRetrievalQuery: options.liveRetrievalQuery ?? '',
+        locale: options.locale,
       },
     );
   } catch {
