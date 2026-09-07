@@ -88,6 +88,8 @@ import {
   isTherapistMemoryRecord,
 } from './therapistMemoryModel.js';
 
+import { normalizeAppLocale } from '../components/i18n/appLocale.js';
+
 // ─── Character truncation limits (per item) ───────────────────────────────────
 
 /**
@@ -342,7 +344,7 @@ async function fetchSessionContextItems(entities, limit) {
  * @param {number} limit    - Maximum number of items to return
  * @returns {Promise<object[]>} Array of RetrievedItem objects
  */
-async function fetchInternalKnowledgeItems(entities, limit) {
+async function fetchInternalKnowledgeItems(entities, limit, resourceLanguage) {
   const items = [];
   let count = 0;
 
@@ -379,7 +381,11 @@ async function fetchInternalKnowledgeItems(entities, limit) {
   try {
     if (count < limit) {
       const resourceLimit = limit - count + 1;
-      const resources = await entities.Resource.list('title', resourceLimit);
+      const resources = await entities.Resource.filter(
+        { language: resourceLanguage, status: 'active' },
+        'title',
+        resourceLimit,
+      );
       if (Array.isArray(resources)) {
         for (const res of resources) {
           if (count >= limit) break;
@@ -494,9 +500,11 @@ async function fetchExternalKnowledgeItems(entities, limit) {
  *
  * @param {object} entities      - Base44 entity client map (e.g. base44.entities)
  * @param {object} [config]      - Retrieval config override (defaults to RETRIEVAL_CONFIG)
+ * @param {object} [options]     - Runtime options
+ * @param {string} [options.locale] - App locale used to isolate Resource retrieval
  * @returns {Promise<V3RetrievalResult>}
  */
-export async function executeV3BoundedRetrieval(entities, config = RETRIEVAL_CONFIG) {
+export async function executeV3BoundedRetrieval(entities, config = RETRIEVAL_CONFIG, options = {}) {
   if (!entities || typeof entities !== 'object') {
     return {
       items: [],
@@ -506,6 +514,7 @@ export async function executeV3BoundedRetrieval(entities, config = RETRIEVAL_CON
   }
 
   const safeConfig = config && typeof config === 'object' ? config : RETRIEVAL_CONFIG;
+  const resourceLanguage = normalizeAppLocale(options?.locale, 'en');
   const memLimit  = safeConfig.MAX_THERAPIST_MEMORY_ITEMS   ?? RETRIEVAL_CONFIG.MAX_THERAPIST_MEMORY_ITEMS;
   const ctxLimit  = safeConfig.MAX_SESSION_CONTEXT_ITEMS    ?? RETRIEVAL_CONFIG.MAX_SESSION_CONTEXT_ITEMS;
   const intLimit  = safeConfig.MAX_INTERNAL_KNOWLEDGE_ITEMS ?? RETRIEVAL_CONFIG.MAX_INTERNAL_KNOWLEDGE_ITEMS;
@@ -535,7 +544,7 @@ export async function executeV3BoundedRetrieval(entities, config = RETRIEVAL_CON
 
   // ── Source 3: internal_knowledge ──────────────────────────────────────────
   try {
-    const intItems = await fetchInternalKnowledgeItems(entities, intLimit);
+    const intItems = await fetchInternalKnowledgeItems(entities, intLimit, resourceLanguage);
     allItems.push(...intItems);
     sources_queried.push(RETRIEVAL_SOURCE_TYPES.INTERNAL_KNOWLEDGE);
   } catch {
