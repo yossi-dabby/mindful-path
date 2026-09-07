@@ -113,6 +113,10 @@ import {
   completeTimeToFirstValue,
 } from '@/lib/timeToFirstValue.js';
 import {
+  buildStage12SessionContract,
+  buildStage12TurnSupplement,
+} from '@/lib/chatQualityStage12.js';
+import {
   buildInternalCorrectionDiagnostic,
   consumeInternalCorrectionIntent,
   createInternalCorrectionIntent,
@@ -4060,9 +4064,15 @@ export default function Chat() {
         }),
       });
 
+      const qualitySupplement = buildStage12TurnSupplement(
+        messageText,
+        sessionLanguageRef.current || i18n.language,
+        { hasAttachment: !!attachmentToUpload },
+      );
       let messageContent = buildOutboundUserMessageContent({
         runtimeSupplement,
         formulationSupplement,
+        qualitySupplement,
         messageText,
       });
       if (!isNewConversation) {
@@ -4114,7 +4124,10 @@ export default function Chat() {
           ),
           sessionLanguageRef.current
         );
-        messageContent = sessionStartContent + '\n\n' + messageContent;
+        const stage12SessionContract = buildStage12SessionContract(
+          sessionLanguageRef.current || i18n.language,
+        );
+        messageContent = sessionStartContent + '\n\n' + stage12SessionContract + '\n\n' + messageContent;
       }
       const outboundContentClean = !hasCorrectionBlockAttached(messageContent);
       logS2DebugLifecycle({
