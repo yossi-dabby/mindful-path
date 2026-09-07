@@ -13,6 +13,7 @@ import {
   validateChatAttachment,
 } from '../../src/components/chat/utils/fileValidation.js';
 import { chatUiByLanguage } from '../../src/components/i18n/chatUiTranslations.js';
+import { translations } from '../../src/components/i18n/translations.jsx';
 
 describe('Stage 12 multilingual chat-quality release gate', () => {
   it('defines exactly seven repeatable scenarios in all seven supported languages', () => {
@@ -160,9 +161,10 @@ describe('Stage 12 multilingual chat-quality release gate', () => {
       expect(chat.errors.queue_desc).toBeTruthy();
       expect(chat.errors.file_upload_title).toBeTruthy();
       expect(chat.errors.file_upload_desc).toBeTruthy();
-      expect(chat.delivery.failed).toBeTruthy();
-      expect(chat.delivery.failed_title).toBeTruthy();
-      expect(chat.delivery.failed_description).toBeTruthy();
+      const delivery = translations[language].translation.chat.delivery;
+      expect(delivery.failed).toBeTruthy();
+      expect(delivery.failed_title).toBeTruthy();
+      expect(delivery.failed_description).toBeTruthy();
     }
   });
 });
