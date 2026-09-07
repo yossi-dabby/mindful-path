@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,8 +11,11 @@ import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
 import { normalizeFeedData, safeJoin, safeArray } from '@/components/utils/aiDataNormalizer';
 import PullToRefresh from '@/components/utils/PullToRefresh';
+import { getCurrentAppLocale } from '@/components/i18n/appLocale';
 
 export default function PersonalizedContentFeed({ userInterests = [], contentType = 'all', sortBy = 'relevance' }) {
+  const { i18n } = useTranslation();
+  const appLocale = getCurrentAppLocale(i18n);
   const [feed, setFeed] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,8 +45,12 @@ export default function PersonalizedContentFeed({ userInterests = [], contentTyp
   });
 
   const { data: resources } = useQuery({
-    queryKey: ['resources'],
-    queryFn: () => base44.entities.Resource.list(),
+    queryKey: ['resources', appLocale],
+    queryFn: () => base44.entities.Resource.filter(
+      { language: appLocale, status: 'active' },
+      '-publication_date',
+      100
+    ),
     initialData: []
   });
 
