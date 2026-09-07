@@ -2149,6 +2149,9 @@ export default function Chat() {
                   role: 'user',
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
+                // Match the regular new-session path: poll immediately if the live
+                // subscription is late so the opening assistant message is visible.
+                sessionStartOpenerFallbackRef.current?.start(conversation.id);
                 emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
               }
             }
@@ -2218,6 +2221,9 @@ export default function Chat() {
                   role: 'user',
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
+                // Match the regular new-session path: poll immediately if the live
+                // subscription is late so the opening assistant message is visible.
+                sessionStartOpenerFallbackRef.current?.start(conversation.id);
                 emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
               }
             }
