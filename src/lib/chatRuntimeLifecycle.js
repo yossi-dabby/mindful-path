@@ -370,15 +370,13 @@ export function buildPendingCorrectionPrefix(correctionBlocks) {
 export function buildOutboundUserMessageContent({
   runtimeSupplement,
   formulationSupplement,
+  qualitySupplement,
   messageText,
 }) {
-  if (runtimeSupplement) {
-    return runtimeSupplement + '\n\n' + messageText;
-  }
-  if (formulationSupplement) {
-    return formulationSupplement + '\n\n' + messageText;
-  }
-  return messageText;
+  const workflowSupplement = runtimeSupplement || formulationSupplement;
+  return [workflowSupplement, qualitySupplement, messageText]
+    .filter(Boolean)
+    .join('\n\n');
 }
 
 export function hasCorrectionBlockAttached(pendingCorrectionPrefix) {
