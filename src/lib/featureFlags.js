@@ -1171,6 +1171,14 @@ export function isQualityEvaluatorEnabled(flagName = 'QUALITY_EVALUATOR_ENABLED'
  *
  * @type {Readonly<Record<string, boolean>>}
  */
+export const CHAT_ORCHESTRATOR_V2_PINNED_PREVIEW_HOST =
+  'preview--mindful-path-75aeaf7d.base44.app';
+
+export function isPinnedChatOrchestratorV2PreviewHost(hostname) {
+  if (!hostname || typeof hostname !== 'string') return false;
+  return hostname.trim().toLowerCase() === CHAT_ORCHESTRATOR_V2_PINNED_PREVIEW_HOST;
+}
+
 export const CHAT_ORCHESTRATOR_FLAGS = Object.freeze({
   /**
    * Phase 1 — Chat Orchestrator V2 master gate.
@@ -1373,6 +1381,11 @@ const _chatOrchestratorStagingOverrides = _readChatOrchestratorStagingOverrides(
 export function isChatOrchestratorV2Enabled(flagName = 'CHAT_ORCHESTRATOR_V2_ENABLED') {
   if (!(flagName in CHAT_ORCHESTRATOR_FLAGS)) return false;
   if (CHAT_ORCHESTRATOR_FLAGS[flagName] === true) return true;
+  if (
+    flagName === 'CHAT_ORCHESTRATOR_V2_ENABLED' &&
+    typeof window !== 'undefined' &&
+    isPinnedChatOrchestratorV2PreviewHost(window.location?.hostname)
+  ) return true;
   if (_chatOrchestratorStagingOverrides[flagName] === true) return true;
   return false;
 }
