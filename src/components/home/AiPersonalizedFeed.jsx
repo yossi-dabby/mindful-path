@@ -99,8 +99,12 @@ export default function AiPersonalizedFeed() {
         retry: 1
       },
       {
-        queryKey: ['resources'],
-        queryFn: () => base44.entities.Resource.list(),
+        queryKey: ['resources', appLocale],
+        queryFn: () => base44.entities.Resource.filter(
+          { language: appLocale, status: 'active' },
+          '-publication_date',
+          100
+        ),
         staleTime: 1000 * 60 * 30,
         refetchOnWindowFocus: false,
         retry: 1
