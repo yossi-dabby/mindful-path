@@ -5,11 +5,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, CheckCircle2, Loader2, RotateCcw, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PersonalizationSetup from '../components/starterpath/PersonalizationSetup';
+import { getStage11Copy } from '../components/i18n/stage11UiCopy.js';
 
 const DAY_STRUCTURE = [
 {
@@ -65,6 +66,7 @@ const DAY_STRUCTURE = [
 
 export default function StarterPath() {
   const { t, i18n } = useTranslation();
+  const copy = getStage11Copy(i18n.resolvedLanguage || i18n.language);
   const [step, setStep] = useState('loading'); // loading, intro, exercise, complete
   const [userResponse, setUserResponse] = useState('');
   const [generatedContent, setGeneratedContent] = useState(null);
@@ -107,8 +109,19 @@ export default function StarterPath() {
       await base44.auth.updateMe({
         starter_path_preferences: preferences
       });
+      if (!starterPath) {
+        await base44.entities.StarterPath.create({
+          current_day: 1,
+          started_date: new Date().toISOString().split('T')[0],
+          completed: false,
+          day_exercises: {}
+        });
+      }
       setUserPreferences(preferences);
       setShowPersonalization(false);
+      setGeneratedContent(null);
+      setStep('loading');
+      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
     } catch (error) {
       console.error('Error saving preferences:', error);
     }
@@ -231,12 +244,48 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
     }
   });
 
+  const managePathMutation = useMutation({
+    mutationFn: async (action) => {
+      if (!starterPath?.id) return;
+      if (action === 'restart') {
+        await base44.entities.StarterPath.update(starterPath.id, {
+          current_day: 1,
+          started_date: new Date().toISOString().split('T')[0],
+          completed: false,
+          day_exercises: {}
+        });
+        return;
+      }
+      await base44.entities.StarterPath.delete(starterPath.id);
+    },
+    onSuccess: (_data, action) => {
+      setGeneratedContent(null);
+      setUserResponse('');
+      setStep('loading');
+      if (action === 'remove') setShowPersonalization(true);
+      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
+    },
+    onError: () => alert(copy.starter.actionError)
+  });
+
+  const handleRestartPath = () => {
+    if (window.confirm(copy.starter.restartConfirm)) managePathMutation.mutate('restart');
+  };
+
+  const handleRemovePath = () => {
+    if (window.confirm(copy.starter.removeConfirm)) managePathMutation.mutate('remove');
+  };
+
   // Generate content on mount
   useEffect(() => {
     if (starterPath && !generatedContent && step === 'loading') {
       generateContentMutation.mutate();
     }
   }, [starterPath?.id, step]);
+
+  if (showPersonalization && !starterPath) {
+    return <PersonalizationSetup onComplete={handlePersonalizationComplete} />;
+  }
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (
@@ -351,6 +400,16 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                 )}
               </div>
             </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" variant="outline" onClick={handleRestartPath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-teal-700/20 bg-white/75 text-teal-900">
+              <RotateCcw className="me-2 h-4 w-4" />
+              {copy.starter.restart}
+            </Button>
+            <Button type="button" variant="outline" onClick={handleRemovePath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-red-200 bg-white/75 text-red-700 hover:bg-red-50">
+              <Trash2 className="me-2 h-4 w-4" />
+              {copy.starter.remove}
+            </Button>
           </div>
         </div>
 
