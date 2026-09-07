@@ -108,6 +108,11 @@ import {
 } from '@/lib/chatRuntimeLifecycle.js';
 import { createSessionStartOpenerFallbackController } from '@/lib/sessionStartOpenerFallback.js';
 import {
+  beginTimeToFirstValue,
+  bindTimeToFirstValueConversation,
+  completeTimeToFirstValue,
+} from '@/lib/timeToFirstValue.js';
+import {
   buildInternalCorrectionDiagnostic,
   consumeInternalCorrectionIntent,
   createInternalCorrectionIntent,
@@ -2903,8 +2908,27 @@ export default function Chat() {
     }
   }, [currentConversationId, messages.length]);
 
+  // Stage 11: complete the metric only when a new visible assistant response exists.
+  // The helper rejects historical assistant messages using the stored baseline.
+  useEffect(() => {
+    if (!currentConversationId) return;
+    const assistantCount = messages.filter((message) => message.role === 'assistant').length;
+    completeTimeToFirstValue({
+      valueType: 'assistant_response',
+      locale: i18n.language || 'en',
+      conversationId: currentConversationId,
+      assistantCount,
+    });
+  }, [currentConversationId, i18n.language, messages]);
+
   const startNewConversationWithIntent = async (intentParam) => {
     if (conversationInitializingRef.current) return;
+    beginTimeToFirstValue({
+      entryPoint: intentParam ? `chat_intent_${intentParam}` : 'chat_new_session',
+      valueType: 'assistant_response',
+      locale: i18n.language || 'en',
+      baselineAssistantCount: 0,
+    });
     conversationInitializingRef.current = true;
     setIsConversationInitializing(true);
     setIsLoading(true);
@@ -2969,6 +2993,7 @@ export default function Chat() {
 
       rememberConversationSessionIdentity(conversation.id, newSessionInstanceId);
       setCurrentConversationId(conversation.id);
+      bindTimeToFirstValueConversation(conversation.id, 0);
       setMessages([]);
       clearLocalAudioDraft();
       lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
@@ -3802,6 +3827,14 @@ export default function Chat() {
     }
 
     const messageText = rawInputText;
+    const assistantCountBeforeSend = messages.filter((message) => message.role === 'assistant').length;
+    beginTimeToFirstValue({
+      entryPoint: 'chat_message',
+      valueType: 'assistant_response',
+      locale: i18n.language || 'en',
+      conversationId: sendConversationId,
+      baselineAssistantCount: assistantCountBeforeSend,
+    });
     if (!_isV2QueuedExecution) setInputMessage('');
     setShowSummaryPrompt(false);
 
@@ -3958,6 +3991,7 @@ export default function Chat() {
         refetchConversations();
         setShowSidebar(false);
       }
+      bindTimeToFirstValueConversation(convId, messages.filter((message) => message.role === 'assistant').length);
       let conversation = null;
       try {
         conversation = await base44.agents.getConversation(convId);
@@ -4876,6 +4910,18 @@ export default function Chat() {
     });
   };
 
+  const handleChatIntentChoice = (entryPoint, prompt) => {
+    beginTimeToFirstValue({
+      entryPoint,
+      valueType: 'assistant_response',
+      locale: i18n.language || 'en',
+      conversationId: currentConversationId,
+      baselineAssistantCount: messages.filter((message) => message.role === 'assistant').length,
+      restart: true,
+    });
+    setInputMessage(prompt);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -5470,13 +5516,13 @@ export default function Chat() {
                     <div className="mb-1 rounded-2xl border border-teal-100 bg-white/75 p-2.5" data-testid="chat-intent-chooser">
                       <p className="mb-2 text-xs font-semibold text-slate-600">{t('chat_stage.intent_label')}</p>
                       <div className="flex flex-wrap gap-2">
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => setInputMessage(t('chat_stage.intent.unload_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_listen', t('chat_stage.intent.unload_prompt'))}>
                           {t('chat_stage.intent.unload')}
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => setInputMessage(t('chat_stage.intent.practical_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_practical', t('chat_stage.intent.practical_prompt'))}>
                           {t('chat_stage.intent.practical')}
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-violet-200 bg-violet-50/70 text-violet-800 hover:bg-violet-100" onClick={() => setInputMessage(t('chat_stage.intent.guided_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-violet-200 bg-violet-50/70 text-violet-800 hover:bg-violet-100" onClick={() => handleChatIntentChoice('chat_intent_guided', t('chat_stage.intent.guided_prompt'))}>
                           <Sparkles className="me-1 h-4 w-4" />
                           {t('chat_stage.intent.guided')}
                         </Button>
