@@ -4,7 +4,10 @@
  * Retrieves the most relevant TrustedCBTChunk records for the CBT therapist agent.
  *
  * INPUT:
- *   { userMessage, topicHint?, emotionalState?, maxResults? }
+ *   { userMessage, language, topicHint?, emotionalState?, maxResults? }
+ *
+ * Language is required. Missing or unsupported language returns zero results;
+ * the function never falls back silently to English.
  *
  * OUTPUT:
  *   { results: TrustedCBTChunk[], total_results, mode }
@@ -20,13 +23,20 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const DEFAULT_MAX = 5;
 const MAX_LIMIT = 10;
+const SUPPORTED_LANGUAGES = new Set(['en', 'he', 'es', 'fr', 'de', 'it', 'pt']);
+
+function normalizeLanguage(value) {
+  if (!value || typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase().replace('_', '-').split('-')[0];
+  return SUPPORTED_LANGUAGES.has(normalized) ? normalized : null;
+}
 
 /**
  * Tokenize a string into lowercase words, stripping punctuation.
  */
 function tokenize(str) {
   if (!str || typeof str !== 'string') return [];
-  return str.toLowerCase().replace(/[^a-z0-9\u0590-\u05ff\s]/g, ' ').split(/\s+/).filter(Boolean);
+  return str.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean);
 }
 
 /**
@@ -73,7 +83,19 @@ Deno.serve(async (req) => {
       topicHint = '',
       emotionalState = '',
       maxResults,
+      language,
+      locale,
     } = body;
+
+    const requestedLanguage = normalizeLanguage(language || locale);
+    if (!requestedLanguage) {
+      return Response.json({
+        results: [],
+        total_results: 0,
+        mode: 'keyword',
+        reason: 'missing_or_unsupported_language',
+      });
+    }
 
     const effectiveMax = Math.min(MAX_LIMIT, Math.max(1, Number(maxResults) || DEFAULT_MAX));
 
@@ -82,10 +104,18 @@ Deno.serve(async (req) => {
     const queryTokens = tokenize(combinedQuery);
 
     // Fetch all active chunks (service role for read access)
-    const allChunks = await base44.asServiceRole.entities.TrustedCBTChunk.filter({ is_active: true });
+    const allChunks = await base44.asServiceRole.entities.TrustedCBTChunk.filter({
+      is_active: true,
+      language: requestedLanguage,
+    });
 
     if (!allChunks || allChunks.length === 0) {
-      return Response.json({ results: [], total_results: 0, mode: 'keyword' });
+      return Response.json({
+        results: [],
+        total_results: 0,
+        mode: 'keyword',
+        language: requestedLanguage,
+      });
     }
 
     // Score and sort
@@ -95,12 +125,13 @@ Deno.serve(async (req) => {
       .slice(0, effectiveMax)
       .map(({ chunk }) => chunk);
 
-    console.log(`[TrustedCBT:RETRIEVE] query_tokens=${queryTokens.length} active_chunks=${allChunks.length} returned=${scored.length}`);
+    console.log(`[TrustedCBT:RETRIEVE] language=${requestedLanguage} query_tokens=${queryTokens.length} active_chunks=${allChunks.length} returned=${scored.length}`);
 
     return Response.json({
       results: scored,
       total_results: scored.length,
       mode: 'keyword',
+      language: requestedLanguage,
     });
 
   } catch (error) {
