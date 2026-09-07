@@ -140,13 +140,13 @@ const SIGNAL_PATTERNS = Object.freeze({
     /pequeno passo prático/i,
   ],
   automatic_thought: [
-    /mistake.{0,45}(failure|fail)/i,
+    /mistake.{0,80}(failure|fail)|(failure|fail).{0,80}mistake/i,
     /טעות.{0,45}כישלון/u,
-    /error.{0,45}fracaso/i,
-    /erreur.{0,45}échec/i,
-    /Fehler.{0,45}Versager/i,
-    /errore.{0,45}fallimento/i,
-    /erro.{0,45}fracasso/i,
+    /error.{0,80}fracaso|fracaso.{0,80}error/i,
+    /erreur.{0,80}échec|échec.{0,80}erreur/i,
+    /Fehler.{0,80}Versager|Versager.{0,80}Fehler/i,
+    /errore.{0,80}fallimento|fallimento.{0,80}errore/i,
+    /erro.{0,80}fracasso|fracasso.{0,80}erro/i,
   ],
 });
 
