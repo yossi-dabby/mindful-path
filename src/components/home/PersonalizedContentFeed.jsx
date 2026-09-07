@@ -62,7 +62,7 @@ export default function PersonalizedContentFeed({ userInterests = [], contentTyp
 
   useEffect(() => {
     generateFeed();
-  }, [goals, moodEntries, journalEntries, userInterests]);
+  }, [goals, moodEntries, journalEntries, userInterests, resources, appLocale]);
 
   const generateFeed = async () => {
     setIsLoading(true);
