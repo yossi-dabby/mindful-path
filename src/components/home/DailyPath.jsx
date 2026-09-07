@@ -3,9 +3,11 @@ import { Check, ChevronRight, Circle, HeartPulse, MessageCircle, Sparkles } from
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { getStage11Copy } from '../i18n/stage11UiCopy.js';
 
 export default function DailyPath({ checkInComplete, exerciseComplete, hasRecommendedExercise, onCheckIn, onCoach, onExercise }) {
   const { t, i18n } = useTranslation();
+  const copy = getStage11Copy(i18n.resolvedLanguage || i18n.language);
   const isRtl = i18n.dir() === 'rtl';
   const Arrow = isRtl ? ({ className }) => <ChevronRight className={cn(className, 'rotate-180')} /> : ChevronRight;
 
@@ -15,12 +17,14 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
       Icon: HeartPulse,
       complete: checkInComplete,
       onClick: onCheckIn,
+      modeLabel: copy.home.checkinMode,
     },
     {
       key: 'coach',
       Icon: MessageCircle,
       complete: false,
       onClick: onCoach,
+      modeLabel: copy.home.coachMode,
     },
     {
       key: 'action',
@@ -40,7 +44,7 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
         <p className="mt-2 text-sm leading-6 text-slate-600">{t('daily_path.description')}</p>
 
         <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {steps.map(({ key, Icon, complete, onClick, disabled }) => (
+          {steps.map(({ key, Icon, complete, onClick, disabled, modeLabel }) => (
             <button
               type="button"
               key={key}
@@ -54,6 +58,7 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
                 {complete ? <Check className="h-5 w-5 text-emerald-600" /> : <Circle className="h-4 w-4 text-teal-300" />}
               </div>
               <span className="mt-3 text-sm font-bold text-slate-900">{t(`daily_path.${key}.title`)}</span>
+              {modeLabel && <span className={cn('mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-bold', key === 'checkin' ? 'bg-amber-100 text-amber-800' : 'bg-violet-100 text-violet-800')}>{modeLabel}</span>}
               <span className="mt-1 flex-1 text-xs leading-5 text-slate-500">{t(`daily_path.${key}.description`)}</span>
               <span className="mt-3 inline-flex items-center text-xs font-bold text-teal-700">
                 {t('daily_path.open')}
