@@ -134,18 +134,8 @@ describe('Multilingual deterministic therapeutic-form routing', () => {
     }
   });
 
-  it('attaches an exact-language pilot form for Spanish requests', () => {
-    const item = CASES.find((entry) => entry.locale === 'es');
-    const result = resolveFormForAIRequest(item.send, { language: 'es' });
-    expect(result.intent?.type).toBe('send_best_matching_form');
-    expect(result.generatedFile?.language).toBe('es');
-    expect(result.generatedFiles).toHaveLength(1);
-    expect(result.usedFallbackLanguage).toBe(false);
-    expect(result.resolvedLanguage).toBe('es');
-  });
-
   it('does not silently attach English or Hebrew forms when the active locale has no installed forms', () => {
-    for (const item of CASES.filter((entry) => entry.locale !== 'es')) {
+    for (const item of CASES) {
       const result = resolveFormForAIRequest(item.send, { language: item.locale });
       expect(result.intent?.type, `resolved intent: ${item.locale}`).toBe('send_best_matching_form');
       expect(result.generatedFile, `single fallback: ${item.locale}`).toBeNull();
