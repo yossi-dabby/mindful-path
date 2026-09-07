@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PullToRefresh from '../components/utils/PullToRefresh';
+import { getStage11Copy } from '../components/i18n/stage11UiCopy.js';
 
 function JourneyEmptyState({ icon: Icon, title, description }) {
   return (
@@ -35,7 +36,7 @@ function JourneyEmptyState({ icon: Icon, title, description }) {
   );
 }
 
-function JourneyGrid({ journeys, progressMap, onStart, onContinue, onView, startingJourneyId }) {
+function JourneyGrid({ journeys, progressMap, onStart, onContinue, onView, onRestart, onRemove, startingJourneyId, managingProgressId }) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="journeys-grid">
       {journeys.map((journey) => (
@@ -46,7 +47,10 @@ function JourneyGrid({ journeys, progressMap, onStart, onContinue, onView, start
           onStart={onStart}
           onContinue={onContinue}
           onView={onView}
+          onRestart={onRestart}
+          onRemove={onRemove}
           isStarting={startingJourneyId === journey.id}
+          isManaging={managingProgressId === progressMap[journey.id]?.id}
         />
       ))}
     </div>
@@ -55,6 +59,7 @@ function JourneyGrid({ journeys, progressMap, onStart, onContinue, onView, start
 
 export default function JourneysPage() {
   const { t, i18n } = useTranslation();
+  const copy = getStage11Copy(i18n.resolvedLanguage || i18n.language);
   const [selectedJourney, setSelectedJourney] = useState(null);
   const [selectedProgress, setSelectedProgress] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -146,6 +151,52 @@ export default function JourneysPage() {
     setSelectedJourney(journey);
     setSelectedProgress(progress || null);
     setShowDetail(true);
+  };
+
+  const manageJourneyMutation = useMutation({
+    mutationFn: async ({ action, progress }) => {
+      if (!progress?.id) return;
+      if (action === 'restart') {
+        return base44.entities.UserJourneyProgress.update(progress.id, {
+          status: 'in_progress',
+          started_date: new Date().toISOString().split('T')[0],
+          current_step: 0,
+          completed_steps: []
+        });
+      }
+      await base44.entities.UserJourneyProgress.delete(progress.id);
+      return null;
+    },
+    onSuccess: (nextProgress, { action, progress }) => {
+      queryClient.setQueryData(['journey_progress'], (current = []) => action === 'remove'
+        ? current.filter((item) => item.id !== progress.id)
+        : current.map((item) => item.id === progress.id ? nextProgress : item));
+      if (selectedProgress?.id === progress.id) {
+        if (action === 'remove') {
+          setShowDetail(false);
+          setSelectedProgress(null);
+        } else {
+          setSelectedProgress(nextProgress);
+        }
+      }
+      setActiveTab(action === 'remove' ? 'available' : 'in-progress');
+      queryClient.invalidateQueries({ queryKey: ['journey_progress'] });
+    },
+    onError: () => setActionError(copy.journey.actionError)
+  });
+
+  const handleRestartJourney = (journey, progress) => {
+    if (window.confirm(copy.journey.restartConfirm)) {
+      setActionError('');
+      manageJourneyMutation.mutate({ action: 'restart', journey, progress });
+    }
+  };
+
+  const handleRemoveJourney = (journey, progress) => {
+    if (window.confirm(copy.journey.removeConfirm)) {
+      setActionError('');
+      manageJourneyMutation.mutate({ action: 'remove', journey, progress });
+    }
   };
 
   const handleProgressChange = (nextProgress) => {
@@ -277,6 +328,9 @@ export default function JourneysPage() {
                     onContinue={openJourney}
                     onView={openJourney}
                     startingJourneyId={startJourneyMutation.variables?.id}
+                    onRestart={handleRestartJourney}
+                    onRemove={handleRemoveJourney}
+                    managingProgressId={manageJourneyMutation.variables?.progress?.id}
                   />
                 ) : (
                   <JourneyEmptyState icon={Map} title={t('journeys.empty_state.no_available')} description={t('journeys.premium.empty_available_description')} />
@@ -291,6 +345,9 @@ export default function JourneysPage() {
                     onStart={handleStartJourney}
                     onContinue={openJourney}
                     onView={openJourney}
+                    onRestart={handleRestartJourney}
+                    onRemove={handleRemoveJourney}
+                    managingProgressId={manageJourneyMutation.variables?.progress?.id}
                   />
                 ) : (
                   <JourneyEmptyState icon={Route} title={t('journeys.empty_state.no_in_progress')} description={t('journeys.premium.empty_active_description')} />
@@ -305,6 +362,9 @@ export default function JourneysPage() {
                     onStart={handleStartJourney}
                     onContinue={openJourney}
                     onView={openJourney}
+                    onRestart={handleRestartJourney}
+                    onRemove={handleRemoveJourney}
+                    managingProgressId={manageJourneyMutation.variables?.progress?.id}
                   />
                 ) : (
                   <JourneyEmptyState icon={CheckCircle2} title={t('journeys.empty_state.no_completed')} description={t('journeys.premium.empty_completed_description')} />
