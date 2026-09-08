@@ -33,7 +33,7 @@ export default function AppContent({ children, currentPageName }) {
       {/* Skip to main content link for keyboard users */}
       <a
         href="#app-scroll-container"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--radius-control)] focus:text-sm focus:font-medium focus:bg-primary focus:text-primary-foreground focus:shadow-[var(--shadow-md)]">
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--radius-control)] focus:text-sm focus:font-medium focus:bg-primary focus:text-primary-foreground focus:shadow-[var(--shadow-md)]">
 
         {t('shell.skip_to_main')}
       </a>
@@ -57,7 +57,8 @@ export default function AppContent({ children, currentPageName }) {
       <style>{`
         @media (min-width: ${desktopBreakpoint}px) {
           #app-scroll-container {
-            padding-left: ${SIDEBAR_WIDTH}px !important;
+            padding-inline-start: ${SIDEBAR_WIDTH}px !important;
+            padding-inline-end: 0 !important;
             /* Reset mobile header/nav paddings; sidebar is fixed so content starts at top */
             padding-bottom: env(safe-area-inset-bottom, 0px) !important;
             padding-top: env(safe-area-inset-top, 0px) !important;
