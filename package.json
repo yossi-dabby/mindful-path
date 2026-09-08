@@ -27,12 +27,15 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:android": "playwright test -c playwright.android.config.ts",
     "test:e2e:android:matrix": "playwright test -c playwright.android.matrix.config.ts",
+    "test:e2e:ios:matrix": "playwright test -c playwright.ios.matrix.config.ts",
     "android:build": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:run": "npx cap run android",
     "ios:build": "npm run build && npx cap sync ios",
+    "ios:sync": "npx cap sync ios",
     "ios:open": "npx cap open ios",
     "ios:add": "npx cap add ios",
+    "ios:run": "npx cap run ios",
     "inventory:lucide": "node scripts/inventory-lucide-icons.mjs"
   },
   "dependencies": {
