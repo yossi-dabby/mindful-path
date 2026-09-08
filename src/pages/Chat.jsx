@@ -5514,6 +5514,7 @@ export default function Chat() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*,.pdf,.doc,.docx,.txt,.csv"
+                  data-testid="chat-file-input"
                   className="hidden"
                   onChange={handleFileSelect}
                 />
