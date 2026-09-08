@@ -1,0 +1,91 @@
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+const AUTO_DIRECTION_SELECTOR =
+  'input:not([dir]), textarea:not([dir]), [contenteditable]:not([dir]), [data-user-content]:not([dir])';
+
+function applyAutomaticDirection(root) {
+  if (!root || typeof root.querySelectorAll !== 'function') return;
+
+  if (typeof root.matches === 'function' && root.matches(AUTO_DIRECTION_SELECTOR)) {
+    root.setAttribute('dir', 'auto');
+  }
+
+  root.querySelectorAll(AUTO_DIRECTION_SELECTOR).forEach((element) => {
+    element.setAttribute('dir', 'auto');
+  });
+}
+
+function getCurrentPageLabel() {
+  const heading = document.querySelector(
+    '#app-scroll-container h1, main h1, [role="main"] h1, h1'
+  );
+  return heading?.textContent?.trim() || document.title;
+}
+
+/**
+ * Cross-cutting accessibility behaviour for Stage 13:
+ * - announces client-side route changes to screen readers;
+ * - moves keyboard/screen-reader focus to the main landmark after navigation;
+ * - gives mixed-direction user input an automatic Unicode direction.
+ */
+export default function AccessibilityManager() {
+  const location = useLocation();
+  const { i18n } = useTranslation();
+  const [announcement, setAnnouncement] = React.useState('');
+
+  React.useEffect(() => {
+    let secondFrame = null;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        const main = document.querySelector('#app-scroll-container, main, [role="main"]');
+        const activeElement = document.activeElement;
+        const isEditing =
+          activeElement instanceof HTMLElement &&
+          (activeElement.matches('input, textarea, select, [contenteditable="true"]') ||
+            activeElement.closest('[role="dialog"]'));
+
+        if (main instanceof HTMLElement && !isEditing) {
+          main.focus({ preventScroll: true });
+        }
+
+        const pageLabel = getCurrentPageLabel();
+        setAnnouncement('');
+        requestAnimationFrame(() => setAnnouncement(pageLabel));
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame !== null) cancelAnimationFrame(secondFrame);
+    };
+  }, [location.pathname, i18n.resolvedLanguage, i18n.language]);
+
+  React.useEffect(() => {
+    applyAutomaticDirection(document);
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node instanceof Element) applyAutomaticDirection(node);
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      data-a11y-route-announcer
+      className="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {announcement}
+    </div>
+  );
+}
