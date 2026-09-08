@@ -7,7 +7,7 @@ This document describes how to set up, build, and test the Mindful Path app on i
 ## Prerequisites
 
 - macOS with Xcode 15+ installed (Xcode 15 ships with iOS 17 SDK; Xcode 16+ ships with iOS 18 SDK)
-  - Minimum supported iOS deployment target for Capacitor 8.x is **iOS 14.0**
+  - This project targets **iOS 15.0** (matching the generated Capacitor 8 Swift package)
   - Recommended: Xcode 16+ to test on iOS 18 devices/simulators
 - Node.js 22+ and npm installed (required by Capacitor 8.x)  
 - `@capacitor/cli` installed (already in devDependencies)  
@@ -19,23 +19,18 @@ This document describes how to set up, build, and test the Mindful Path app on i
 
 ## First-Time iOS Platform Setup
 
-Run the following commands in the repository root:
+The native Xcode project is committed under `ios/App/App.xcodeproj` as part of Stage 15. Do not run `ios:add` again while that directory exists.
+
+After cloning, run:
 
 ```bash
-# 1. Build the web app
-npm run build
-
-# 2. Add the iOS Capacitor platform (creates the ios/ directory)
-npm run ios:add
-# Equivalent to: npx cap add ios
-
-# 3. Sync web assets into the iOS project
+npm install
 npm run ios:build
-# Equivalent to: npm run build && npx cap sync ios
 ```
 
-This creates the `ios/` directory containing the Xcode project.  
-The `ios/` directory is `.gitignore`d (native build artifacts) — regenerate it locally as above.
+This builds the web app and synchronizes its assets plus all Capacitor plugins into the existing iOS project. Generated build products, user-specific Xcode data and copied web assets remain ignored by `ios/.gitignore`.
+
+For the complete signing, device-matrix and Apple IAP Sandbox procedure, see `docs/ios-native-stage15.md`.
 
 ---
 
