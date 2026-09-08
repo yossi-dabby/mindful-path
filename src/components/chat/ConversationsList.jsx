@@ -210,7 +210,7 @@ export default function ConversationsList({
             <div className="space-y-2">
               {visibleConversations.map((conversation, index) => (
                 <div
-                  key={conversation.id}
+                  key={`${conversation.id || 'conversation'}-${index}`}
                   className={cn(
                     'group relative overflow-hidden transition-all rounded-2xl border',
                     currentConversationId === conversation.id
