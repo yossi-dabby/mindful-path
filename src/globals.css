@@ -697,6 +697,17 @@ input[type="url"] {
   }
 }
 
+/* Prevent Safari/WKWebView from zooming the page when an editable
+   control receives focus. iOS auto-zooms controls whose computed font is
+   smaller than 16px. */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* Native iOS viewport and keyboard geometry.
    viewport-fit=cover exposes the safe-area variables; the native bridge keeps
    the visual viewport height current while the software keyboard animates. */
