@@ -6,8 +6,8 @@ const read = (path) => fs.readFileSync(path, 'utf8');
 describe('Stage 14 Android Native architecture', () => {
   it('uses the official Capacitor App and Keyboard plugins', () => {
     const pkg = JSON.parse(read('package.json'));
-    expect(pkg.dependencies['@capacitor/app']).toBe('^8.4.1');
-    expect(pkg.dependencies['@capacitor/keyboard']).toBe('^8.4.1');
+    expect(pkg.dependencies['@capacitor/app']).toBe('^8.1.1');
+    expect(pkg.dependencies['@capacitor/keyboard']).toBe('^8.0.5');
 
     const config = read('capacitor.config.ts');
     expect(config).toContain('disableBackButtonHandler: false');
