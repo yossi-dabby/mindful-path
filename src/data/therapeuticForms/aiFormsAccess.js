@@ -713,6 +713,7 @@ export function hasExplicitFormSuppressionIntent(text) {
       /\b(?:senza|nessun(?:a|o)?)\b/iu.test(clause) ||
       // Portuguese: não envie/anexe/ofereça; sem/nenhum formulário.
       /\bnão\s+(?:me\s+)?(?:envie|envia|anexe|anexa|compartilhe|ofereça|proponha)\b/iu.test(clause) ||
+      /\bnão\s+(?:quero|gostaria|pretendo)\b/iu.test(clause) ||
       /\b(?:sem|nenhum(?:a)?)\b/iu.test(clause);
 
     if (hasSuppression) return true;
