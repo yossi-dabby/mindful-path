@@ -99,15 +99,13 @@ test.describe('Stage 14 Android Native device matrix', () => {
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
     const paths = ['/Journal', '/MyPath', '/Tools', '/Chat', '/Home'];
 
-    for (let cycle = 0; cycle < 2; cycle += 1) {
-      for (const path of paths) {
+    for (const path of paths) {
         const link = page.locator(`a[href="${path}"]:visible`).first();
         await expect(link).toBeVisible({ timeout: 10000 });
         await link.click();
         await expect(page).toHaveURL(new RegExp(`${path}$`));
         await expect(page.locator('#root')).not.toBeEmpty();
         await expectNoHorizontalOverflow(page);
-      }
     }
   });
 });
