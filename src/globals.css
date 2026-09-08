@@ -697,6 +697,25 @@ input[type="url"] {
   }
 }
 
+/* Native iOS viewport and keyboard geometry.
+   viewport-fit=cover exposes the safe-area variables; the native bridge keeps
+   the visual viewport height current while the software keyboard animates. */
+html[data-native-platform="ios"],
+html[data-native-platform="ios"] body,
+html[data-native-platform="ios"] #root {
+  min-height: var(--app-viewport-height, 100dvh);
+}
+
+html[data-native-platform="ios"],
+html[data-native-platform="ios"] #app-scroll-container {
+  scroll-padding-top: var(--sat, 0px);
+  scroll-padding-bottom: calc(var(--sab, 0px) + var(--native-keyboard-height, 0px));
+}
+
+html[data-native-platform="ios"][data-native-keyboard="open"] {
+  overscroll-behavior-y: contain;
+}
+
 /* Settings surfaces share a softer, premium radius across breakpoints. */
 .settings-surface {
   border-radius: 1.75rem;
