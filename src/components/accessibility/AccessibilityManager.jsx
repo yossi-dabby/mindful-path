@@ -43,6 +43,7 @@ export default function AccessibilityManager() {
     let announcementFrame = null;
     let settleTimeoutId = null;
     let fallbackTimeoutId = null;
+    let pendingPageLabel = '';
     let disposed = false;
 
     const synchronizeRoute = (allowDocumentTitle = false) => {
@@ -81,16 +82,25 @@ export default function AccessibilityManager() {
       if (synchronizeRoute()) stopObserving();
     };
 
+    const queueSettledSync = () => {
+      const nextPageLabel = getCurrentPageLabel();
+      if (!nextPageLabel) return;
+      if (nextPageLabel === pendingPageLabel && settleTimeoutId !== null) return;
+
+      pendingPageLabel = nextPageLabel;
+      if (settleTimeoutId !== null) clearTimeout(settleTimeoutId);
+      settleTimeoutId = setTimeout(attemptSettledSync, 200);
+    };
+
     const firstFrame = requestAnimationFrame(() => {
-      observer = new MutationObserver(() => {
-        if (settleTimeoutId === null) {
-          settleTimeoutId = setTimeout(attemptSettledSync, 100);
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
+      observer = new MutationObserver(queueSettledSync);
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
       // Let the previous animated route leave before reading the next page heading.
-      settleTimeoutId = setTimeout(attemptSettledSync, 600);
+      settleTimeoutId = setTimeout(() => {
+        settleTimeoutId = null;
+        queueSettledSync();
+      }, 600);
       fallbackTimeoutId = setTimeout(() => {
         synchronizeRoute(true);
         observer?.disconnect();
