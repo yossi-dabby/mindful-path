@@ -4,6 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import RouteMetadata from '@/components/seo/RouteMetadata'
 import AccessibilityManager from '@/components/accessibility/AccessibilityManager'
+import AndroidNativeBridge from '@/components/native/AndroidNativeBridge'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -137,6 +138,7 @@ function App() {
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <RouteMetadata />
           <AccessibilityManager />
+          <AndroidNativeBridge />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
