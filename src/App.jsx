@@ -5,6 +5,7 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import RouteMetadata from '@/components/seo/RouteMetadata'
 import AccessibilityManager from '@/components/accessibility/AccessibilityManager'
 import AndroidNativeBridge from '@/components/native/AndroidNativeBridge'
+import IOSNativeBridge from '@/components/native/IOSNativeBridge'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -139,6 +140,7 @@ function App() {
           <RouteMetadata />
           <AccessibilityManager />
           <AndroidNativeBridge />
+          <IOSNativeBridge />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
