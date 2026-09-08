@@ -64,12 +64,18 @@ export default function AccessibilityManager() {
     };
 
     const firstFrame = requestAnimationFrame(() => {
-      if (synchronizeRoute()) return;
+      if (synchronizeRoute()) {
+        // Route transitions can replace animated page content after the first paint.
+        // Re-apply focus and announce the settled heading once the transition has mounted.
+        timeoutId = setTimeout(synchronizeRoute, 250);
+        return;
+      }
 
       observer = new MutationObserver(() => {
         if (synchronizeRoute()) {
           observer?.disconnect();
           if (timeoutId !== null) clearTimeout(timeoutId);
+          timeoutId = setTimeout(synchronizeRoute, 250);
         }
       });
       observer.observe(document.body, { childList: true, subtree: true });
