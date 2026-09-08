@@ -103,6 +103,15 @@ export const STAGE12_CHAT_SCENARIOS = Object.freeze([
 ]);
 
 const SIGNAL_PATTERNS = Object.freeze({
+  late_return: [
+    /returning to our earlier conversation|continue only from details that are actually available/i,
+    /חזרתי לשיחה הקודמת|פרטים שבאמת זמינים/u,
+    /vuelvo a nuestra conversación anterior|detalles que estén realmente disponibles/i,
+    /je reviens à notre conversation précédente|détails réellement disponibles/i,
+    /kehre zu unserem früheren Gespräch zurück|tatsächlich verfügbaren Details/i,
+    /torno alla nostra conversazione precedente|dettagli realmente disponibili/i,
+    /(?:regresso|voltei) à nossa conversa anterior|detalhes (?:que )?realmente (?:estão )?disponíveis/i,
+  ],
   negative_feedback: [
     /did not help|didn't help|not helpful|not feel understood/i,
     /לא עזר|לא הרגשתי שהבנת|לא הבנת אותי/u,
@@ -158,13 +167,15 @@ export function normalizeStage12Language(language) {
 export function classifyStage12Turn(messageText) {
   const text = String(messageText || '').trim();
   if (!text) return 'general';
-  for (const id of ['negative_feedback', 'vent_only', 'refusal', 'practical_step', 'automatic_thought']) {
+  for (const id of ['late_return', 'negative_feedback', 'vent_only', 'refusal', 'practical_step', 'automatic_thought']) {
     if (SIGNAL_PATTERNS[id].some((pattern) => pattern.test(text))) return id;
   }
   return 'general';
 }
 
 const TURN_RULES = Object.freeze({
+  late_return:
+    'LATE RETURN: use only prior details that are actually present in the current conversation or verified memory. If at least one verified detail is available, briefly mention exactly one relevant detail before inviting continuation. Only say that context is unavailable when no verified prior detail exists. Never fabricate recall.',
   vent_only:
     'VENT-ONLY: acknowledge and make space. Do not propose, start, or assign any exercise, tool, homework, goal, reframing, or action step. Do not convert the turn into problem-solving. Use at most one gentle invitation to continue sharing.',
   refusal:
