@@ -17,7 +17,8 @@ export default defineConfig({
   ...baseConfig,
   testDir: './tests/android',
   testMatch: ['**/stage14-native.android.spec.ts'],
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 2,
   projects: [
     {
       name: 'android-compact-portrait',
