@@ -80,6 +80,14 @@ describe('Multilingual deterministic therapeutic-form routing', () => {
     expect(resolveFormForAIRequest(runtimePrompt, { language: 'pt' }).intent).toBeNull();
   });
 
+  it('does not misroute a Portuguese vent-only refusal of an exercise', () => {
+    const ventOnly = 'Tive um dia difícil. Agora só quero desabafar e não quero fazer um exercício.';
+
+    expect(hasExplicitFormSuppressionIntent(ventOnly)).toBe(true);
+    expect(detectFormIntent(ventOnly)).toBeNull();
+    expect(resolveFormForAIRequest(ventOnly, { language: 'pt' }).intent).toBeNull();
+  });
+
   it('keeps an explicit Portuguese worksheet request positive', () => {
     expect(hasExplicitFormSuppressionIntent('Envie-me uma ficha de trabalho.')).toBe(false);
     expect(detectFormIntent('Envie-me uma ficha de trabalho.')).toMatchObject({
