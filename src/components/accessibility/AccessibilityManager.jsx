@@ -77,13 +77,15 @@ export default function AccessibilityManager() {
     };
 
     const attemptSettledSync = () => {
+      settleTimeoutId = null;
       if (synchronizeRoute()) stopObserving();
     };
 
     const firstFrame = requestAnimationFrame(() => {
       observer = new MutationObserver(() => {
-        if (settleTimeoutId !== null) clearTimeout(settleTimeoutId);
-        settleTimeoutId = setTimeout(attemptSettledSync, 100);
+        if (settleTimeoutId === null) {
+          settleTimeoutId = setTimeout(attemptSettledSync, 100);
+        }
       });
       observer.observe(document.body, { childList: true, subtree: true });
 
