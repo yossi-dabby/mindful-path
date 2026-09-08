@@ -17,6 +17,12 @@ const config: CapacitorConfig = {
     },
   },
   plugins: {
+    App: {
+      disableBackButtonHandler: false,
+    },
+    Keyboard: {
+      resizeOnFullScreen: true,
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: '#f8f8f6',
