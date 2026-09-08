@@ -44,7 +44,7 @@ describe('Stage 12 multilingual chat-quality release gate', () => {
     }
   });
 
-  it.each(['vent_only', 'practical_step', 'automatic_thought', 'refusal', 'negative_feedback'])(
+  it.each(['vent_only', 'practical_step', 'automatic_thought', 'refusal', 'negative_feedback', 'late_return'])(
     'classifies the %s canonical prompt consistently in every language',
     (scenarioId) => {
       const scenario = STAGE12_CHAT_SCENARIOS.find(({ id }) => id === scenarioId);
@@ -95,6 +95,16 @@ describe('Stage 12 multilingual chat-quality release gate', () => {
     );
     expect(thought).toContain('distinguish the event from the global self-judgment');
     expect(thought).toContain('before CBT guidance');
+  });
+
+  it('uses verified context for late returns and recognizes the live Portuguese wording', () => {
+    const livePortuguesePrompt = 'Voltei à nossa conversa anterior. Continue apenas com detalhes que realmente estão disponíveis.';
+    expect(classifyStage12Turn(livePortuguesePrompt)).toBe('late_return');
+
+    const supplement = buildStage12TurnSupplement(livePortuguesePrompt, 'pt');
+    expect(supplement).toContain('LATE RETURN');
+    expect(supplement).toContain('briefly mention exactly one relevant detail');
+    expect(supplement).toContain('Never fabricate recall');
   });
 
   it('adds a safe attachment contract for images and files', () => {
