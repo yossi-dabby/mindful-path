@@ -27,7 +27,7 @@ export default function Sidebar({ currentPageName }) {
 
   return (
     <nav
-      aria-label={t('shell.sidebar_navigation')} className={`bg-teal-100 py-6 rounded-2xl ${visibilityClass} fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
+      aria-label={t('shell.sidebar_navigation')} className={`bg-teal-100 py-6 rounded-2xl ${visibilityClass} fixed start-0 top-0 bottom-0 flex-col border-e border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
 
       style={{
         zIndex: 35,
@@ -66,7 +66,7 @@ export default function Sidebar({ currentPageName }) {
 
 
 
-                <Icon className="text-teal-600 lucide lucide-house w-5 h-5 icon-default scale-110" strokeWidth={2} />
+                <Icon aria-hidden="true" className="text-teal-600 lucide lucide-house w-5 h-5 icon-default scale-110" strokeWidth={2} />
                 <div className="flex-1">
                   <p className="bg-teal-50 text-teal-600 font-semibold leading-5">{item.name}</p>
                   {item.description &&
@@ -99,7 +99,7 @@ export default function Sidebar({ currentPageName }) {
                     "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
                   )}>
 
-                  <Icon className="text-teal-600 lucide lucide-users w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                  <Icon aria-hidden="true" className="text-teal-600 lucide lucide-users w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                   <span className="text-teal-600 text-sm">{item.name}</span>
                 </Link>);
 
