@@ -191,9 +191,11 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
             }
             <div className="flex items-center gap-2 flex-wrap">
+                {goal.category &&
                 <Badge className="bg-orange-100 text-orange-700 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60" variant="secondary">
                   {t(`goals.card.categories.${goal.category}`, { defaultValue: goal.category })}
                 </Badge>
+                }
                 {goal.target_date && (() => {
                 try {
                   const date = new Date(goal.target_date);
