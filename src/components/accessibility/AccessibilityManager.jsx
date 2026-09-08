@@ -18,9 +18,11 @@ function applyAutomaticDirection(root) {
 }
 
 function getCurrentPageLabel(allowDocumentTitle = false) {
-  const heading = document.querySelector(
-    '#app-scroll-container h1, main h1, [role="main"] h1, h1'
-  );
+  const heading =
+    document.querySelector('#app-scroll-container h1') ||
+    document.querySelector('main h1') ||
+    document.querySelector('[role="main"] h1') ||
+    document.querySelector('h1');
   const headingText = heading?.textContent?.trim();
   return headingText || (allowDocumentTitle ? document.title : '');
 }
