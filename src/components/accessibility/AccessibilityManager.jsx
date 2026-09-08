@@ -36,29 +36,56 @@ export default function AccessibilityManager() {
   const [announcement, setAnnouncement] = React.useState('');
 
   React.useEffect(() => {
-    let secondFrame = null;
+    let observer = null;
+    let announcementFrame = null;
+    let timeoutId = null;
+    let disposed = false;
+
+    const synchronizeRoute = () => {
+      if (disposed) return false;
+
+      const main = document.querySelector('#app-scroll-container, main, [role="main"]');
+      if (!(main instanceof HTMLElement)) return false;
+
+      const activeElement = document.activeElement;
+      const isEditing =
+        activeElement instanceof HTMLElement &&
+        (activeElement.matches('input, textarea, select, [contenteditable="true"]') ||
+          activeElement.closest('[role="dialog"]'));
+
+      if (!isEditing) {
+        main.focus({ preventScroll: true });
+      }
+
+      const pageLabel = getCurrentPageLabel();
+      setAnnouncement('');
+      announcementFrame = requestAnimationFrame(() => setAnnouncement(pageLabel));
+      return true;
+    };
+
     const firstFrame = requestAnimationFrame(() => {
-      secondFrame = requestAnimationFrame(() => {
-        const main = document.querySelector('#app-scroll-container, main, [role="main"]');
-        const activeElement = document.activeElement;
-        const isEditing =
-          activeElement instanceof HTMLElement &&
-          (activeElement.matches('input, textarea, select, [contenteditable="true"]') ||
-            activeElement.closest('[role="dialog"]'));
+      if (synchronizeRoute()) return;
 
-        if (main instanceof HTMLElement && !isEditing) {
-          main.focus({ preventScroll: true });
+      observer = new MutationObserver(() => {
+        if (synchronizeRoute()) {
+          observer?.disconnect();
+          if (timeoutId !== null) clearTimeout(timeoutId);
         }
-
-        const pageLabel = getCurrentPageLabel();
-        setAnnouncement('');
-        requestAnimationFrame(() => setAnnouncement(pageLabel));
       });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      timeoutId = setTimeout(() => {
+        synchronizeRoute();
+        observer?.disconnect();
+      }, 5000);
     });
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(firstFrame);
-      if (secondFrame !== null) cancelAnimationFrame(secondFrame);
+      if (announcementFrame !== null) cancelAnimationFrame(announcementFrame);
+      if (timeoutId !== null) clearTimeout(timeoutId);
+      observer?.disconnect();
     };
   }, [location.pathname, i18n.resolvedLanguage, i18n.language]);
 
