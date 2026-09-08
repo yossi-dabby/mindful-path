@@ -18,11 +18,8 @@ function applyAutomaticDirection(root) {
 }
 
 function getCurrentPageLabel(allowDocumentTitle = false) {
-  const heading =
-    document.querySelector('#app-scroll-container h1') ||
-    document.querySelector('main h1') ||
-    document.querySelector('[role="main"] h1') ||
-    document.querySelector('h1');
+  const main = document.querySelector('#app-scroll-container, main, [role="main"]');
+  const heading = main?.querySelector('h1') || (!main ? document.querySelector('h1') : null);
   const headingText = heading?.textContent?.trim();
   return headingText || (allowDocumentTitle ? document.title : '');
 }
@@ -73,20 +70,18 @@ export default function AccessibilityManager() {
       return true;
     };
 
-    const stopObserving = () => {
-      observer?.disconnect();
+    const completeSync = () => {
       if (fallbackTimeoutId !== null) clearTimeout(fallbackTimeoutId);
     };
 
     const attemptSettledSync = () => {
       settleTimeoutId = null;
-      if (synchronizeRoute()) stopObserving();
+      if (synchronizeRoute()) completeSync();
     };
 
     const queueSettledSync = () => {
       const nextPageLabel = getCurrentPageLabel();
-      if (!nextPageLabel) return;
-      if (nextPageLabel === pendingPageLabel && settleTimeoutId !== null) return;
+      if (!nextPageLabel || nextPageLabel === pendingPageLabel) return;
 
       pendingPageLabel = nextPageLabel;
       if (settleTimeoutId !== null) clearTimeout(settleTimeoutId);
