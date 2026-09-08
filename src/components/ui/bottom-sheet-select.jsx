@@ -4,7 +4,7 @@
  * Safe to use everywhere a native <select> or Radix Select was used.
  */
 import React, { useState } from 'react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -66,6 +66,7 @@ export default function BottomSheetSelect({
         <DrawerContent data-testid="bottom-sheet-select-options">
           <DrawerHeader className="border-b border-border/70 pb-3">
             <DrawerTitle>{title}</DrawerTitle>
+            <DrawerDescription className="sr-only">Select one option from the list.</DrawerDescription>
           </DrawerHeader>
           <div className="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label={ariaLabel || title}>
             {options.map((option) => {
