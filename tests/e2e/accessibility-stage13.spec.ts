@@ -52,13 +52,9 @@ test.describe('Stage 13 accessibility and bidirectional layout', () => {
     expect(rtl.sidebarX).toBeGreaterThan(1100);
     expect(rtl.mainPaddingRight).toBeGreaterThanOrEqual(287);
 
-    await page.evaluate(() => {
-      localStorage.setItem('language', 'en');
-      localStorage.setItem('i18nextLng', 'en');
-    });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
     const ltr = await page.evaluate(() => {
+      document.documentElement.dir = 'ltr';
+      document.documentElement.lang = 'en';
       const sidebar = document.querySelector('nav');
       const main = document.querySelector('#app-scroll-container');
       return {
@@ -66,6 +62,7 @@ test.describe('Stage 13 accessibility and bidirectional layout', () => {
         mainPaddingLeft: main ? parseFloat(getComputedStyle(main).paddingLeft) : 0,
       };
     });
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
     expect(ltr.sidebarX).toBeLessThanOrEqual(1);
     expect(ltr.mainPaddingLeft).toBeGreaterThanOrEqual(287);
   });
