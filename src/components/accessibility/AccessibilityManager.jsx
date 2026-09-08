@@ -44,6 +44,7 @@ export default function AccessibilityManager() {
     let settleTimeoutId = null;
     let fallbackTimeoutId = null;
     let pendingPageLabel = '';
+    let readyForSync = false;
     let disposed = false;
 
     const synchronizeRoute = (allowDocumentTitle = false) => {
@@ -93,12 +94,15 @@ export default function AccessibilityManager() {
     };
 
     const firstFrame = requestAnimationFrame(() => {
-      observer = new MutationObserver(queueSettledSync);
+      observer = new MutationObserver(() => {
+        if (readyForSync) queueSettledSync();
+      });
       observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
       // Let the previous animated route leave before reading the next page heading.
       settleTimeoutId = setTimeout(() => {
         settleTimeoutId = null;
+        readyForSync = true;
         queueSettledSync();
       }, 600);
       fallbackTimeoutId = setTimeout(() => {
