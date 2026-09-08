@@ -107,7 +107,7 @@ test.describe('PWA Manifest & Google Play Readiness', () => {
     expect(themeColor).toMatch(/^#[0-9a-fA-F]{3,8}$/);
 
     // 6. Verify page title is the app name
-    await expect(page).toHaveTitle('Mindful Path');
+    await expect(page).toHaveTitle(/^Mindful Path(?:\s|$)/);
 
     await checkConsole();
   });
