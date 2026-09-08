@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { Link, useLocation } from 'react-router-dom';
 import { LifeBuoy } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
@@ -19,34 +19,43 @@ import {
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const { i18n } = useTranslation();
+  const prefersReducedMotion = useReducedMotion();
+  const isRtl = i18n.dir() === 'rtl';
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
 
-  // Page transition variants for iOS-style navigation
-  const pageVariants = {
-    initial: {
-      x: '100%',
-      opacity: 0
-    },
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        type: 'tween',
-        ease: [0.4, 0.0, 0.2, 1],
-        duration: 0.3
+  // Page transitions follow the reading direction and respect the user's
+  // reduced-motion preference.
+  const pageVariants = prefersReducedMotion
+    ? {
+        initial: { x: 0, opacity: 1 },
+        animate: { x: 0, opacity: 1, transition: { duration: 0 } },
+        exit: { x: 0, opacity: 1, transition: { duration: 0 } }
       }
-    },
-    exit: {
-      x: '-30%',
-      opacity: 0,
-      transition: {
-        type: 'tween',
-        ease: [0.4, 0.0, 0.2, 1],
-        duration: 0.3
-      }
-    }
-  };
+    : {
+        initial: {
+          x: isRtl ? '-100%' : '100%',
+          opacity: 0
+        },
+        animate: {
+          x: 0,
+          opacity: 1,
+          transition: {
+            type: 'tween',
+            ease: [0.4, 0.0, 0.2, 1],
+            duration: 0.3
+          }
+        },
+        exit: {
+          x: isRtl ? '30%' : '-30%',
+          opacity: 0,
+          transition: {
+            type: 'tween',
+            ease: [0.4, 0.0, 0.2, 1],
+            duration: 0.3
+          }
+        }
+      };
 
   // Detect system dark mode preference and update theme-color meta tag only.
   // The dark class on <html> is managed by ThemeProvider (next-themes).
@@ -243,7 +252,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Offline Banner - Global */}
         {isOffline &&
-        <div className="fixed top-0 left-0 right-0 border-b border-border/70 bg-accent text-accent-foreground px-4 py-2 text-center text-sm font-medium shadow-[var(--shadow-md)]" style={{ zIndex: 100 }}>
+        <div role="status" aria-live="polite" className="fixed inset-x-0 top-0 border-b border-border/70 bg-accent text-accent-foreground px-4 py-2 text-center text-sm font-medium shadow-[var(--shadow-md)]" style={{ zIndex: 100 }}>
             {i18n.t('offline_banner', "You're offline. Check your connection.")}
           </div>
         }
