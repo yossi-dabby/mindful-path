@@ -31,6 +31,12 @@ export function assertNoConsoleErrorsOrWarnings(
   const consoleErrors: string[] = [];
   const consoleWarnings: string[] = [];
 
+  // Base44 page-visit telemetry is outside the feature under test and rejects
+  // anonymous localhost traffic for private apps. Keep Android E2E hermetic.
+  void page.route('**/api/app-logs/**', (route) =>
+    route.fulfill({ status: 204, body: '' })
+  );
+
   // Set up console listener
   const consoleListener = (msg: any) => {
     const type = msg.type();
@@ -41,6 +47,7 @@ export function assertNoConsoleErrorsOrWarnings(
     } else if (type === 'warning') {
       if (
         text.includes('React Router Future Flag Warning') ||
+        text.includes('cdn.tailwindcss.com should not be used in production') ||
         ignoredWarnings.some((pattern) => pattern.test(text))
       ) {
         return;
