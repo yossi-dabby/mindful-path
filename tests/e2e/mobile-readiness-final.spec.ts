@@ -416,7 +416,7 @@ test.describe('PullToRefresh — touchcancel and aria-live', () => {
     });
 
     // The aria-live element should appear when pulling
-    const liveRegion = page.locator('[role="status"][aria-live="polite"]');
+    const liveRegion = page.locator('[data-testid="pull-to-refresh"] [role="status"][aria-live="polite"]');
     // We cannot guarantee the indicator renders in jsdom, so check if it does:
     const count = await liveRegion.count();
     if (count > 0) {
@@ -450,7 +450,7 @@ test.describe('PullToRefresh — touchcancel and aria-live', () => {
 
     // After touchcancel, no pull indicator should be visible
     await page.waitForTimeout(50);
-    const liveRegion = page.locator('[role="status"][aria-live="polite"]');
+    const liveRegion = page.locator('[data-testid="pull-to-refresh"] [role="status"][aria-live="polite"]');
     const count = await liveRegion.count();
     if (count > 0) {
       await expect(liveRegion.first()).not.toBeVisible();
