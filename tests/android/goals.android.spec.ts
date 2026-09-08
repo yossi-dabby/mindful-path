@@ -302,12 +302,12 @@ test.describe('Android Goals Milestone Persistence', () => {
     const timelineHeading = page.locator('text=Milestones Timeline');
     await expect(timelineHeading).toBeVisible({ timeout: 5000 });
 
-    const goalFilter = page.getByRole('combobox').first();
+    const goalFilter = page.getByRole('button', { name: 'Filter by Goal' });
     await goalFilter.click();
     await expect(page.getByRole('option', { name: /all goals/i })).toBeVisible({ timeout: 5000 });
     await page.keyboard.press('Escape');
 
-    const dateFilter = page.getByRole('combobox').nth(1);
+    const dateFilter = page.getByRole('button', { name: 'Date Range' });
     await dateFilter.click();
     await expect(page.getByRole('option', { name: /all dates/i })).toBeVisible({ timeout: 5000 });
 
