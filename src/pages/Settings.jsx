@@ -546,7 +546,7 @@ export default function Settings() {
         <footer className="mt-8 rounded-3xl border border-white/70 bg-white/55 p-5 text-center backdrop-blur-lg">
           <p className="text-sm text-slate-600">
             {t('settings.footer.need_help')}{' '}
-            <Link to={createPageUrl('Contact')} className="inline-flex items-center gap-1 font-bold text-teal-700 hover:text-teal-800">
+            <Link to={createPageUrl('Contact')} className="inline-flex min-h-11 items-center gap-1 px-1 font-bold text-teal-700 hover:text-teal-800">
               {t('settings.footer.contact_support')}
               <ChevronRight className="h-4 w-4 rtl:rotate-180" />
             </Link>

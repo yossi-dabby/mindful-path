@@ -17,11 +17,11 @@ function applyAutomaticDirection(root) {
   });
 }
 
-function getCurrentPageLabel() {
-  const heading = document.querySelector(
-    '#app-scroll-container h1, main h1, [role="main"] h1, h1'
-  );
-  return heading?.textContent?.trim() || document.title;
+function getCurrentPageLabel(allowDocumentTitle = false) {
+  const main = document.querySelector('#app-scroll-container, main, [role="main"]');
+  const heading = main?.querySelector('h1') || (!main ? document.querySelector('h1') : null);
+  const headingText = heading?.textContent?.trim();
+  return headingText || (allowDocumentTitle ? document.title : '');
 }
 
 /**
@@ -38,45 +38,70 @@ export default function AccessibilityManager() {
   React.useEffect(() => {
     let observer = null;
     let announcementFrame = null;
-    let timeoutId = null;
+    let settleTimeoutId = null;
+    let fallbackTimeoutId = null;
+    let pendingPageLabel = '';
+    let readyForSync = false;
     let disposed = false;
 
-    const synchronizeRoute = () => {
+    const synchronizeRoute = (allowDocumentTitle = false) => {
       if (disposed) return false;
 
       const main = document.querySelector('#app-scroll-container, main, [role="main"]');
       if (!(main instanceof HTMLElement)) return false;
+
+      const pageLabel = getCurrentPageLabel(allowDocumentTitle);
+      if (!pageLabel) return false;
 
       const activeElement = document.activeElement;
       const isEditing =
         activeElement instanceof HTMLElement &&
         (activeElement.matches('input, textarea, select, [contenteditable="true"]') ||
           activeElement.closest('[role="dialog"]'));
+      const isAlreadyInsideMain =
+        activeElement instanceof HTMLElement && main.contains(activeElement);
 
-      if (!isEditing) {
+      if (!isEditing && !isAlreadyInsideMain) {
         main.focus({ preventScroll: true });
       }
 
-      const pageLabel = getCurrentPageLabel();
       setAnnouncement('');
       announcementFrame = requestAnimationFrame(() => setAnnouncement(pageLabel));
       return true;
     };
 
+    const completeSync = () => {
+      if (fallbackTimeoutId !== null) clearTimeout(fallbackTimeoutId);
+    };
+
+    const attemptSettledSync = () => {
+      settleTimeoutId = null;
+      if (synchronizeRoute()) completeSync();
+    };
+
+    const queueSettledSync = () => {
+      const nextPageLabel = getCurrentPageLabel();
+      if (!nextPageLabel || nextPageLabel === pendingPageLabel) return;
+
+      pendingPageLabel = nextPageLabel;
+      if (settleTimeoutId !== null) clearTimeout(settleTimeoutId);
+      settleTimeoutId = setTimeout(attemptSettledSync, 200);
+    };
+
     const firstFrame = requestAnimationFrame(() => {
-      if (synchronizeRoute()) return;
-
       observer = new MutationObserver(() => {
-        if (synchronizeRoute()) {
-          observer?.disconnect();
-          if (timeoutId !== null) clearTimeout(timeoutId);
-        }
+        if (readyForSync) queueSettledSync();
       });
-      observer.observe(document.body, { childList: true, subtree: true });
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
-      timeoutId = setTimeout(() => {
-        synchronizeRoute();
-        observer?.disconnect();
+      // Let the previous animated route leave before reading the next page heading.
+      settleTimeoutId = setTimeout(() => {
+        settleTimeoutId = null;
+        readyForSync = true;
+        queueSettledSync();
+      }, 600);
+      fallbackTimeoutId = setTimeout(() => {
+        synchronizeRoute(true);
       }, 5000);
     });
 
@@ -84,7 +109,8 @@ export default function AccessibilityManager() {
       disposed = true;
       cancelAnimationFrame(firstFrame);
       if (announcementFrame !== null) cancelAnimationFrame(announcementFrame);
-      if (timeoutId !== null) clearTimeout(timeoutId);
+      if (settleTimeoutId !== null) clearTimeout(settleTimeoutId);
+      if (fallbackTimeoutId !== null) clearTimeout(fallbackTimeoutId);
       observer?.disconnect();
     };
   }, [location.pathname, i18n.resolvedLanguage, i18n.language]);
