@@ -125,6 +125,9 @@ label {
     --sar: env(safe-area-inset-right, 0px);
     --sab: env(safe-area-inset-bottom, 0px);
     --sal: env(safe-area-inset-left, 0px);
+    --native-keyboard-height: 0px;
+    --app-viewport-height: 100dvh;
+    --app-viewport-width: 100vw;
   }
 
   .dark {
