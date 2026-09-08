@@ -443,7 +443,7 @@ Provide recommendations with:
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}>
 
-                  <Card className="border border-border/80 bg-card hover:shadow-[var(--shadow-md)] transition-all cursor-pointer" onClick={() => exercise && onSelectExercise(exercise)}>
+                  <Card className="border border-border/80 bg-card transition-all">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-xl bg-secondary text-primary flex items-center justify-center flex-shrink-0">
