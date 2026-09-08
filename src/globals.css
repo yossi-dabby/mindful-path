@@ -700,7 +700,7 @@ input[type="url"] {
 /* Prevent Safari/WKWebView from zooming the page when an editable
    control receives focus. iOS auto-zooms controls whose computed font is
    smaller than 16px. */
-@media (max-width: 768px) {
+@media (max-width: 768px), (pointer: coarse) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea,
   select {
