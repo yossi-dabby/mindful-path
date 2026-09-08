@@ -102,7 +102,6 @@ export default function AccessibilityManager() {
       }, 600);
       fallbackTimeoutId = setTimeout(() => {
         synchronizeRoute(true);
-        observer?.disconnect();
       }, 5000);
     });
 
