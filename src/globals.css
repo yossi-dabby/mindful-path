@@ -40,7 +40,7 @@ label {
     --surface-tint: 154 34% 94.1%;
     --surface-nested: 154 27% 92.2%;
     --overlay: 195 19% 20%;
-    --primary: 168 42% 42%;
+    --primary: 175 77% 27%;
     --primary-foreground: 0 0% 100%;
     --secondary: 156 30% 90.4%;
     --secondary-foreground: 170 28% 28%;
@@ -53,7 +53,7 @@ label {
     --destructive-foreground: 0 0% 100%;
     --border: 156 20% 81.5%;
     --input: 156 20% 81.5%;
-    --ring: 168 42% 42%;
+    --ring: 175 77% 27%;
     --surface-2: 154 25% 92.8%;
     --success: 145 35% 47%;
     --warning: 38 88% 58%;
@@ -610,6 +610,88 @@ textarea:focus-visible,
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+/* Stage 13 accessibility foundation */
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body,
+#root,
+main,
+[data-app-page-transition] {
+  min-inline-size: 0;
+}
+
+button:not([role="switch"]):not([role="checkbox"]),
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+nav a,
+input,
+select,
+textarea {
+  min-block-size: 2.75rem;
+}
+
+button:not([role="switch"]):not([role="checkbox"]),
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="option"] {
+  min-inline-size: 2.75rem;
+}
+
+input,
+select,
+textarea {
+  max-inline-size: 100%;
+  font: inherit;
+}
+
+[dir="auto"],
+[data-user-content],
+.bidi-plaintext {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+time,
+.tabular-nums,
+[data-bidi-isolate] {
+  unicode-bidi: isolate;
+}
+
+input[type="email"],
+input[type="tel"],
+input[type="url"] {
+  direction: ltr;
+  text-align: start;
+  unicode-bidi: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .app-page-transition {
+    transform: none !important;
+  }
 }
 
 /* Settings surfaces share a softer, premium radius across breakpoints. */
