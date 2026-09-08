@@ -134,10 +134,9 @@ export default function NotificationBell() {
     refetchOnWindowFocus: false
   });
 
+  // Treat malformed/partial API data as an empty list. React Query will refresh
+  // it normally without flooding the console during offline or resume recovery.
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
-  if (import.meta.env.DEV && !Array.isArray(notifications)) {
-    console.warn('[NotificationBell] notifications is not an array:', typeof notifications, notifications);
-  }
 
   const unreadCount = safeNotifications.filter((n) => !n.is_read).length;
 
