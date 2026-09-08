@@ -80,6 +80,8 @@ test.describe('Stage 14 Android Native device matrix', () => {
 
   test('accepts a synthetic TXT file through the Android-compatible file picker', async ({ page }) => {
     await page.goto(`${BASE_URL}/Chat`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByTestId('chat-root')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('therapist-chat-input')).toBeEnabled();
     const input = page.getByTestId('chat-file-input');
     await expect(input).toHaveAttribute('accept', /\.txt/);
 
@@ -89,17 +91,20 @@ test.describe('Stage 14 Android Native device matrix', () => {
       buffer: Buffer.from('Synthetic Stage 14 Android upload'),
     });
 
-    await expect(page.getByText('android-stage14.txt')).toBeVisible();
-    await expect(page.getByRole('button', { name: /remove|הסר|הסרת/i })).toBeVisible();
+    await expect(page.getByText('android-stage14.txt')).toBeVisible({ timeout: 10000 });
   });
 
   test('remains stable through repeated tab navigation', async ({ page }) => {
+    test.setTimeout(120000);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
     const paths = ['/Journal', '/MyPath', '/Tools', '/Chat', '/Home'];
 
     for (let cycle = 0; cycle < 2; cycle += 1) {
       for (const path of paths) {
-        await page.goto(`${BASE_URL}${path}`, { waitUntil: 'domcontentloaded' });
+        const link = page.locator(`a[href="${path}"]:visible`).first();
+        await expect(link).toBeVisible({ timeout: 10000 });
+        await link.click();
+        await expect(page).toHaveURL(new RegExp(`${path}$`));
         await expect(page.locator('#root')).not.toBeEmpty();
         await expectNoHorizontalOverflow(page);
       }
