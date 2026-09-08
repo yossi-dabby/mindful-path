@@ -245,7 +245,7 @@ test.describe('PullToRefresh gesture handling', () => {
 
     await expect(root).toHaveAttribute('data-pulling', 'false');
     await expect(root).toHaveAttribute('data-refreshing', 'false');
-    await expect(page.locator('[role="status"][aria-live="polite"]')).toHaveCount(0);
+    await expect(root.locator('[role="status"][aria-live="polite"]')).toHaveCount(0);
   });
 
   test('interrupted gesture resets when scrolling resumes', async ({ page }) => {
@@ -279,7 +279,9 @@ test.describe('PullToRefresh gesture handling', () => {
     );
     // The indicator element must carry the correct ARIA attributes for screen readers
     const attrs = await page.evaluate(() => {
-      const indicator = document.querySelector('[role="status"]');
+      const indicator = document.querySelector(
+        '[data-pull-to-refresh] [role="status"][aria-live="polite"]',
+      );
       if (!indicator) return null;
       return {
         role: indicator.getAttribute('role'),
