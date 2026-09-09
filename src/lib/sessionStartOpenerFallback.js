@@ -73,6 +73,7 @@ export function createSessionStartOpenerFallbackController(options) {
     setIsLoading,
     clearLoadingTimeout = () => {},
     emitStabilitySummary = () => {},
+    onExhausted = () => {},
     schedule = (fn, delay) => setTimeout(fn, delay),
     cancel = (timerId) => clearTimeout(timerId),
     getLifecycle = getDefaultSessionStartFallbackLifecycle,
@@ -222,6 +223,7 @@ export function createSessionStartOpenerFallbackController(options) {
       }
 
       if (state.attempts >= lifecycle.maxPollAttempts) {
+        onExhausted({ conversationId, reason: 'timeout' });
         stop('timeout', {
           clearLoading: true,
           clearLoadingTimeout: true,
@@ -232,6 +234,7 @@ export function createSessionStartOpenerFallbackController(options) {
 
       scheduleAttempt(runId, conversationId, attemptIndex + 1, lifecycle);
     } catch (error) {
+      onExhausted({ conversationId, reason: 'error', error });
       stop('error', {
         clearLoading: true,
         clearLoadingTimeout: true,
