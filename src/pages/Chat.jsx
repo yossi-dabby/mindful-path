@@ -394,6 +394,7 @@ export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(restoredPdfViewerConversationId);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const inputMessageRef = useRef('');
   const [isLoading, setIsLoading] = useState(false);
   const [isConversationInitializing, setIsConversationInitializing] = useState(false);
   const [deliveryStatus, setDeliveryStatus] = useState('idle');
@@ -3695,7 +3696,7 @@ export default function Chat() {
     const attachmentToUpload = _isV2QueuedExecution
       ? _v2QueuedParams.attachmentToUpload
       : attachedFile || (!isVoiceDerivedSend ? audioDraftFile : null);
-    const rawInputText = _isV2QueuedExecution ? _v2QueuedParams.messageText : inputMessage;
+    const rawInputText = _isV2QueuedExecution ? _v2QueuedParams.messageText : inputMessageRef.current;
 
     if (!rawInputText.trim() && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
@@ -3707,6 +3708,7 @@ export default function Chat() {
     const reasonCode = detectCrisisWithReason(rawInputText);
     if (reasonCode) {
       setShowRiskPanel(true);
+      inputMessageRef.current = '';
       setInputMessage('');
       isLoadingRef.current = false;
       setIsLoading(false);
@@ -3745,6 +3747,7 @@ export default function Chat() {
         }
 
         if (registration.queued) {
+          inputMessageRef.current = '';
           setInputMessage('');
           console.log('[V2Orchestrator] Short follow-up queued safely, depth:', chatCoordinatorV2Ref.current.getPendingTurnCount());
           return;
@@ -3861,7 +3864,10 @@ export default function Chat() {
       conversationId: sendConversationId,
       baselineAssistantCount: assistantCountBeforeSend,
     });
-    if (!_isV2QueuedExecution) setInputMessage('');
+    if (!_isV2QueuedExecution) {
+      inputMessageRef.current = '';
+      setInputMessage('');
+    }
     setShowSummaryPrompt(false);
 
     // The V2 active turn was reserved before Layer-2 safety detection so rapid
