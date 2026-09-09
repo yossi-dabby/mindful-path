@@ -105,6 +105,14 @@ export function createSessionStartOpenerFallbackController(options) {
       ? injectedEvaluatePollingAssistantFinality
       : evaluateFallbackPollingAssistantFinality;
 
+  const callOnExhausted = (payload) => {
+    try {
+      onExhausted(payload);
+    } catch (error) {
+      console.warn('[SessionStartFallback] Local opener fallback failed:', error);
+    }
+  };
+
   const clearTimer = () => {
     if (state.timerId !== null) {
       cancel(state.timerId);
@@ -223,7 +231,7 @@ export function createSessionStartOpenerFallbackController(options) {
       }
 
       if (state.attempts >= lifecycle.maxPollAttempts) {
-        onExhausted({ conversationId, reason: 'timeout' });
+        callOnExhausted({ conversationId, reason: 'timeout' });
         stop('timeout', {
           clearLoading: true,
           clearLoadingTimeout: true,
@@ -234,7 +242,7 @@ export function createSessionStartOpenerFallbackController(options) {
 
       scheduleAttempt(runId, conversationId, attemptIndex + 1, lifecycle);
     } catch (error) {
-      onExhausted({ conversationId, reason: 'error', error });
+      callOnExhausted({ conversationId, reason: 'error', error });
       stop('error', {
         clearLoading: true,
         clearLoadingTimeout: true,
