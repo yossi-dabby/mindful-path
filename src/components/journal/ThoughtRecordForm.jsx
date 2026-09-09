@@ -12,6 +12,7 @@ import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { X, Image as ImageIcon, Mic, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill';
+import DOMPurify from 'dompurify';
 import 'react-quill/dist/quill.snow.css';
 import AiJournalSuggestions from './AiJournalSuggestions';
 import AiDistortionAnalysis from './AiDistortionAnalysis';
@@ -23,6 +24,21 @@ const commonEmotions = [
   ['Overwhelmed', 'overwhelmed'], ['Guilty', 'guilty'], ['Ashamed', 'ashamed'], ['Hopeless', 'hopeless'],
   ['Worried', 'worried'], ['Fearful', 'fearful'], ['Irritated', 'irritated'], ['Lonely', 'lonely']
 ];
+
+const RICH_TEXT_FIELDS = ['situation', 'automatic_thoughts', 'evidence_for', 'evidence_against', 'balanced_thought'];
+
+function sanitizeJournalRichText(value) {
+  return DOMPurify.sanitize(String(value || ''), {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['img', 'video', 'audio', 'iframe', 'object', 'embed', 'svg', 'math'],
+  });
+}
+
+function sanitizeJournalRichTextFields(data) {
+  const sanitized = { ...data };
+  for (const field of RICH_TEXT_FIELDS) sanitized[field] = sanitizeJournalRichText(data?.[field]);
+  return sanitized;
+}
 
 const cognitiveDistortions = [
   ['All-or-Nothing Thinking', 'all_or_nothing_thinking'],
@@ -50,14 +66,14 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     entry_type: entry?.entry_type || template?.entry_type || 'cbt_standard',
     template_id: entry?.template_id || template?.id || null,
     template_name: entry?.template_name || localizeJournalTemplate(template, t)?.name || null,
-    situation: entry?.situation || initialSituation || '',
-    automatic_thoughts: entry?.automatic_thoughts || '',
+    situation: sanitizeJournalRichText(entry?.situation || initialSituation || ''),
+    automatic_thoughts: sanitizeJournalRichText(entry?.automatic_thoughts || ''),
     emotions: entry?.emotions || [],
     emotion_intensity: entry?.emotion_intensity || 5,
     cognitive_distortions: entry?.cognitive_distortions || [],
-    evidence_for: entry?.evidence_for || '',
-    evidence_against: entry?.evidence_against || '',
-    balanced_thought: entry?.balanced_thought || '',
+    evidence_for: sanitizeJournalRichText(entry?.evidence_for || ''),
+    evidence_against: sanitizeJournalRichText(entry?.evidence_against || ''),
+    balanced_thought: sanitizeJournalRichText(entry?.balanced_thought || ''),
     outcome_emotion_intensity: entry?.outcome_emotion_intensity || 5,
     custom_fields: entry?.custom_fields || {},
     tags: entry?.tags || [],
@@ -97,7 +113,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     mutationFn: (data) => {
       // Validate ranges before saving
       const validatedData = {
-        ...data,
+        ...sanitizeJournalRichTextFields(data),
         emotion_intensity: Math.max(1, Math.min(10, data.emotion_intensity || 5)),
         outcome_emotion_intensity: Math.max(1, Math.min(10, data.outcome_emotion_intensity || 5))
       };
@@ -114,7 +130,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
 
       // Optimistically update
       const validatedData = {
-        ...data,
+        ...sanitizeJournalRichTextFields(data),
         emotion_intensity: Math.max(1, Math.min(10, data.emotion_intensity || 5)),
         outcome_emotion_intensity: Math.max(1, Math.min(10, data.outcome_emotion_intensity || 5))
       };
@@ -437,7 +453,7 @@ Provide:
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.situation || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, situation: value }))}
+                    onChange={(value) => setFormData(prev => ({ ...prev, situation: sanitizeJournalRichText(value) }))}
                     placeholder={t('journal_ui.form.situation_placeholder')}
                     modules={{
                       toolbar: [
@@ -459,7 +475,7 @@ Provide:
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.automatic_thoughts || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, automatic_thoughts: value }))}
+                    onChange={(value) => setFormData(prev => ({ ...prev, automatic_thoughts: sanitizeJournalRichText(value) }))}
                     placeholder={t('journal_ui.form.thoughts_placeholder')}
                     modules={{
                       toolbar: [
@@ -615,7 +631,7 @@ Provide:
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_for || ''}
-                    onChange={(value) => setFormData({ ...formData, evidence_for: value })}
+                    onChange={(value) => setFormData({ ...formData, evidence_for: sanitizeJournalRichText(value) })}
                     placeholder={t('journal_ui.form.evidence_for_placeholder')}
                     modules={{
                       toolbar: [
@@ -636,7 +652,7 @@ Provide:
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_against || ''}
-                    onChange={(value) => setFormData({ ...formData, evidence_against: value })}
+                    onChange={(value) => setFormData({ ...formData, evidence_against: sanitizeJournalRichText(value) })}
                     placeholder={t('journal_ui.form.evidence_against_placeholder')}
                     modules={{
                       toolbar: [
@@ -670,7 +686,7 @@ Provide:
                 <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.balanced_thought || ''}
-                    onChange={(value) => setFormData({ ...formData, balanced_thought: value })}
+                    onChange={(value) => setFormData({ ...formData, balanced_thought: sanitizeJournalRichText(value) })}
                     placeholder={t('journal_ui.form.balanced_placeholder')}
                     modules={{
                       toolbar: [
