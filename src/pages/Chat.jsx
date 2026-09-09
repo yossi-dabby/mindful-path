@@ -5383,11 +5383,13 @@ export default function Chat() {
                         willChange: 'auto'
                       }}>
                         <p className="text-sm text-muted-foreground" aria-live="polite">
-                          {responseWaitSeconds >= 20
-                            ? t('chat.wait.still_working')
-                            : responseWaitSeconds >= 8
-                              ? t('chat.wait.checking_context')
-                              : t('chat.wait.preparing')}
+                          {messages.length === 0
+                            ? t('chat_stage.opening_preview')
+                            : responseWaitSeconds >= 20
+                              ? t('chat.wait.still_working')
+                              : responseWaitSeconds >= 8
+                                ? t('chat.wait.checking_context')
+                                : t('chat.wait.preparing')}
                         </p>
                       </div>
                     </div>);
