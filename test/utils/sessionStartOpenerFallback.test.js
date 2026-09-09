@@ -143,6 +143,7 @@ function createHarness(overrides = {}) {
   const setIsLoading = overrides.setIsLoading || vi.fn();
   const clearLoadingTimeout = overrides.clearLoadingTimeout || vi.fn();
   const emitStabilitySummary = overrides.emitStabilitySummary || vi.fn();
+  const onExhausted = overrides.onExhausted || vi.fn();
 
   const controller = createSessionStartOpenerFallbackController({
     fetchConversation,
@@ -157,6 +158,7 @@ function createHarness(overrides = {}) {
     setIsLoading,
     clearLoadingTimeout,
     emitStabilitySummary,
+    onExhausted,
     schedule: scheduler.schedule.bind(scheduler),
     cancel: scheduler.cancel.bind(scheduler),
     getLifecycle: overrides.getLifecycle || getDefaultSessionStartFallbackLifecycle,
@@ -175,6 +177,7 @@ function createHarness(overrides = {}) {
     setIsLoading,
     clearLoadingTimeout,
     emitStabilitySummary,
+    onExhausted,
   };
 }
 
@@ -349,6 +352,11 @@ describe('Session-start opener fallback controller', () => {
     const fallbackLifecycle = getDefaultSessionStartFallbackLifecycle();
     expect(fetchConversation).toHaveBeenCalledTimes(fallbackLifecycle.maxPollAttempts);
     expect(harness.safeUpdateMessages).not.toHaveBeenCalled();
+    expect(harness.onExhausted).toHaveBeenCalledOnce();
+    expect(harness.onExhausted).toHaveBeenCalledWith({
+      conversationId: 'conv-first-session',
+      reason: 'timeout',
+    });
     expect(harness.setIsLoading).toHaveBeenLastCalledWith(false);
     expect(harness.clearLoadingTimeout).toHaveBeenCalled();
     expect(harness.emitStabilitySummary).toHaveBeenCalledOnce();
@@ -419,6 +427,8 @@ describe('Session-start opener fallback integration guards', () => {
 
   it('cancels the opener fallback when the user switches conversations', () => {
     expect(CHAT_SOURCE).toContain("sessionStartOpenerFallbackRef.current?.stop('conversation_switch'");
+    expect(CHAT_SOURCE).toContain("'SessionStartLocalFallback'");
+    expect(CHAT_SOURCE).toContain('local_session_opener_fallback');
   });
 
   it('leaves ordinary typed-message polling lifecycle unchanged', () => {
