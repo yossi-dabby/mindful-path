@@ -395,6 +395,9 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const inputMessageRef = useRef('');
+  useEffect(() => {
+    inputMessageRef.current = inputMessage;
+  }, [inputMessage]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConversationInitializing, setIsConversationInitializing] = useState(false);
   const [deliveryStatus, setDeliveryStatus] = useState('idle');
