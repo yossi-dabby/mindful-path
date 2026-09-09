@@ -974,7 +974,7 @@ function sanitizeAssistantMessage(message, { preventFallback = false } = {}) {
       console.log('[Reasoning Filter] Message empty after filtering — preventFallback: hiding turn');
       return null;
     }
-    console.error('[Reasoning Filter] Message empty after filtering, using failsafe');
+    console.warn('[Reasoning Filter] Message empty after filtering; safe failsafe applied');
     return "I'm here with you. What's on your mind right now?";
   }
   
