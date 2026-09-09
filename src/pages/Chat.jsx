@@ -2132,14 +2132,14 @@ export default function Chat() {
             if (!sessionTriggeredRef.current.has(conversation.id)) {
               sessionTriggeredRef.current.add(conversation.id);
               {
-                // Safety fallback: clear loading after 10 s if subscription does not respond.
+                // Keep the localized opener preview visible while the bounded fallback polls.
                 if (!loadingTimeoutRef.current) {
                   loadingTimeoutRef.current = setTimeout(() => {
                     if (mountedRef.current) {
                       setIsLoading(false);
                       loadingTimeoutRef.current = null;
                     }
-                  }, 10000);
+                  }, 25000);
                 }
                 const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
@@ -2204,14 +2204,14 @@ export default function Chat() {
             if (!sessionTriggeredRef.current.has(conversation.id)) {
               sessionTriggeredRef.current.add(conversation.id);
               {
-                // Safety fallback: clear loading after 10 s if subscription does not respond.
+                // Keep the localized opener preview visible while the bounded fallback polls.
                 if (!loadingTimeoutRef.current) {
                   loadingTimeoutRef.current = setTimeout(() => {
                     if (mountedRef.current) {
                       setIsLoading(false);
                       loadingTimeoutRef.current = null;
                     }
-                  }, 10000);
+                  }, 25000);
                 }
                 const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
@@ -3016,7 +3016,7 @@ export default function Chat() {
       // message, append it to the same turn so the agent handles both together.
       clearLoadingTimeout();
         // Safety fallback: if the subscription does not deliver a reply within
-        // 10 s (e.g. in CI / test environments where the WebSocket is rejected),
+        // 25 s (e.g. in CI / test environments where the WebSocket is rejected),
         // clear the loading state so the send button is not stuck disabled.
         // The subscription or polling will clear this timeout early when the AI
         // actually responds — same pattern used by handleSendMessage.
@@ -3026,7 +3026,7 @@ export default function Chat() {
               setIsLoading(false);
               loadingTimeoutRef.current = null;
             }
-          }, 10000);
+          }, 25000);
         }
       const sessionComposerSelection = lockContextComposerV2SelectionForSession(conversation.id, effectiveWiring);
       const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
