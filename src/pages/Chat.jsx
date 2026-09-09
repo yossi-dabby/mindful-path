@@ -129,7 +129,7 @@ import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
-import { isChatOrchestratorV2Enabled, getDedupGuardPollingMode, getFormulationGuardMode, getGroundingGuardMode } from '@/lib/featureFlags.js';
+import { getDedupGuardPollingMode, getFormulationGuardMode, getGroundingGuardMode } from '@/lib/featureFlags.js';
 import {
   applyFormulationGuardWithMode,
   applyGroundingGuardWithMode,
@@ -572,7 +572,10 @@ export default function Chat() {
   // ─── V2 Chat Orchestrator ──────────────────────────────────────────────────
   // Evaluate the flag once at mount; frozen for the lifetime of this Chat instance.
   // Flag false preserves exact Phase 0 legacy behavior.
-  const chatOrchestratorV2EnabledRef = useRef(isChatOrchestratorV2Enabled());
+  // Stage 17 hardening: the validated V2 coordinator is now the production path.
+  // Rapid follow-ups depend on its FIFO queue and must not silently fall back
+  // to the legacy single-flight behavior when the build-time flag is absent.
+  const chatOrchestratorV2EnabledRef = useRef(true);
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
   // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
   // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
