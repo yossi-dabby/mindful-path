@@ -22,6 +22,10 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page)
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 2);
 }
 
+async function waitForPageChunk(page: import('@playwright/test').Page) {
+  await expect(page.getByRole('status', { name: 'Loading page' })).toBeHidden({ timeout: 20000 });
+}
+
 test.describe('Stage 15 iOS Native device matrix', () => {
   test.beforeEach(async ({ page }) => {
     await prepare(page);
@@ -106,10 +110,12 @@ test.describe('Stage 15 iOS Native device matrix', () => {
     });
 
     for (const path of ['/Journal', '/Tools', '/Chat', '/Home']) {
+      await waitForPageChunk(page);
       const link = page.locator(`a[href="${path}"]:visible`).first();
       await expect(link).toBeVisible({ timeout: 10000 });
       await link.click();
       await expect(page).toHaveURL(new RegExp(`${path}$`));
+      await waitForPageChunk(page);
       await expect(page.locator('#root')).not.toBeEmpty();
       await expectNoHorizontalOverflow(page);
     }
