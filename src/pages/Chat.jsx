@@ -2916,6 +2916,9 @@ export default function Chat() {
         clearLoadingTimeout: true,
       });
     }
+    legacyRapidQueueRef.current = legacyRapidQueueRef.current.filter(
+      (queuedSend) => queuedSend.conversationId === currentConversationId,
+    );
   }, [currentConversationId]);
 
   useEffect(() => {
@@ -4894,6 +4897,21 @@ export default function Chat() {
       }
     }
   };
+
+  useEffect(() => {
+    if (isLoading || chatOrchestratorV2EnabledRef.current) return undefined;
+    const nextQueuedSend = legacyRapidQueueRef.current.shift();
+    if (!nextQueuedSend) return undefined;
+    if (nextQueuedSend.conversationId !== currentConversationIdRef.current) {
+      return undefined;
+    }
+    const drainTimer = setTimeout(() => {
+      handleSendMessageWithParams(nextQueuedSend).catch((error) => {
+        console.error('[Send] Queued follow-up failed:', error);
+      });
+    }, 0);
+    return () => clearTimeout(drainTimer);
+  }, [isLoading, currentConversationId]);
 
   // Phase 5 — Conversation-switch memory write trigger.
   // Fires triggerConversationEndSummarization for `convId` if:
