@@ -28,8 +28,10 @@ describe('Stage 17 live-QA regression fixes', () => {
     expect(sendSource).toContain('lastConfirmedMessagesRef.current.length');
     expect(sendSource).toContain('inputMessageRef.current');
     expect(CHAT_SOURCE).toContain('inputMessageRef.current = e.target.value');
-    expect(CHAT_SOURCE).toContain('const chatOrchestratorV2EnabledRef = useRef(true)');
-    expect(sendSource).not.toContain('if (!_isV2QueuedExecution && isLoading)');
+    expect(CHAT_SOURCE).toContain('const legacyRapidQueueRef = useRef([])');
+    expect(sendSource).toContain('legacyRapidQueueRef.current.push');
+    expect(CHAT_SOURCE).toContain('const nextQueuedSend = legacyRapidQueueRef.current.shift()');
+    expect(sendSource).not.toContain("console.log('[Send] ⚠️ A reply is already in progress')");
   });
 
   it('forces readable white text inside the dark user bubble', () => {
