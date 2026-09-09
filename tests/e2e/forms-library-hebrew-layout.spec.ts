@@ -120,7 +120,7 @@ test.describe('Forms Library Hebrew RTL layout and overflow', () => {
 
   test('Hebrew page RTL baseline — direction attribute, Hebrew cards, no overflow', async ({ page }) => {
     // Hebrew page title is visible
-    await expect(page.getByText('טפסים טיפוליים')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'טפסים טיפוליים' })).toBeVisible();
 
     // Main content wrapper carries dir="rtl" when language is Hebrew
     const mainWrapper = page.getByTestId('therapeutic-forms-page');
