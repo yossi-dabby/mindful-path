@@ -4,7 +4,7 @@ import {
 } from './chatRuntimeLifecycle.js';
 import { evaluateAssistantReplyFinality } from './pollingAssistantFinality.js';
 
-const DEFAULT_SESSION_START_FALLBACK_DELAYS = Object.freeze([250, 500, 1000, 2000, 4000]);
+const DEFAULT_SESSION_START_FALLBACK_DELAYS = Object.freeze([0, 250, 500, 1000, 2000, 4000, 6000, 8000]);
 
 export function getDefaultSessionStartFallbackLifecycle() {
   return {
