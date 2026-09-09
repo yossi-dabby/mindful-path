@@ -115,7 +115,7 @@ test.describe('Forms Library runtime view-mode behavior', () => {
   });
 
   test('Hebrew view-mode controls are visible and default mode is detectable', async ({ page }) => {
-    await expect(page.getByText('טפסים טיפוליים')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'טפסים טיפוליים' })).toBeVisible();
     await expect(page.getByTestId('forms-view-mode-toggle')).toBeVisible();
 
     const availableModes = await getAvailableViewModes(page);
