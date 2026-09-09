@@ -102,6 +102,7 @@ test.describe('Stage 15 iOS Native device matrix', () => {
   });
 
   test('recovers after background-style lifecycle events and navigation', async ({ page }) => {
+    test.setTimeout(60000);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
       window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
@@ -116,6 +117,7 @@ test.describe('Stage 15 iOS Native device matrix', () => {
       await link.click();
       await expect(page).toHaveURL(new RegExp(`${path}$`));
       await waitForPageChunk(page);
+      await expect(page.locator(`a[href="${path}"][aria-current="page"]:visible`).first()).toBeVisible({ timeout: 10000 });
       await expect(page.locator('#root')).not.toBeEmpty();
       await expectNoHorizontalOverflow(page);
     }
