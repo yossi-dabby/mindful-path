@@ -3702,41 +3702,63 @@ export default function Chat() {
       return;
     }
 
-    if (!_isV2QueuedExecution && isLoading) {
-      if (!chatOrchestratorV2EnabledRef.current || attachmentToUpload) {
-        console.log('[Send] ⚠️ A reply is already in progress');
-        return;
-      }
-
-      // Queue short text turns before starting a new safety lifecycle. Each
-      // queued turn is safety-checked only when it becomes active, preventing
-      // a later message from invalidating the in-flight turn's crisis check.
-      const capturedParams = {
-        messageText: rawInputText,
-        attachmentToUpload: null,
-        isVoiceDerivedSend: false,
-        conversationId: currentConversationIdRef.current,
-      };
-      const { queued, queue_full: queueFull } = chatCoordinatorV2Ref.current.registerSend({
-        conversationId: currentConversationId || '__pending__',
-        executeSend: async () => handleSendMessageWithParams(capturedParams),
-      });
-
-      if (queueFull) {
-        toast({
-          title: t('chat.errors.queue_title'),
-          description: t('chat.errors.queue_desc'),
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (queued) {
-        setInputMessage('');
-        console.log('[V2Orchestrator] Short follow-up queued safely');
-      }
+    // Layer 1 stays synchronous and authoritative. Explicit crisis messages
+    // never enter the send queue or start an asynchronous detection lifecycle.
+    const reasonCode = detectCrisisWithReason(rawInputText);
+    if (reasonCode) {
+      setShowRiskPanel(true);
+      setInputMessage('');
+      isLoadingRef.current = false;
+      setIsLoading(false);
       return;
     }
+
+    // Reserve the V2 turn before any asynchronous work. This closes the small
+    // preflight window in which several rapid Enter presses could each start a
+    // Layer-2 check and invalidate the preceding message. Later sends are now
+    // captured FIFO immediately and safety-checked only when dequeued.
+    let v2ActiveTurn = null;
+    if (chatOrchestratorV2EnabledRef.current) {
+      if (_isV2QueuedExecution) {
+        v2ActiveTurn = chatCoordinatorV2Ref.current.getActiveTurn();
+      } else {
+        const capturedParams = {
+          messageText: rawInputText,
+          attachmentToUpload,
+          isVoiceDerivedSend,
+          conversationId: currentConversationIdRef.current,
+        };
+        const registration = chatCoordinatorV2Ref.current.registerSend({
+          conversationId: currentConversationIdRef.current || '__pending__',
+          executeSend: async () => handleSendMessageWithParams(capturedParams),
+        });
+
+        if (registration.queue_full) {
+          setInputMessage(rawInputText);
+          console.warn('[V2Orchestrator] Queue full — message not sent');
+          toast({
+            title: t('chat.errors.queue_title'),
+            description: t('chat.errors.queue_desc'),
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        if (registration.queued) {
+          setInputMessage('');
+          console.log('[V2Orchestrator] Short follow-up queued safely, depth:', chatCoordinatorV2Ref.current.getPendingTurnCount());
+          return;
+        }
+
+        v2ActiveTurn = registration.turn;
+      }
+    } else if (!_isV2QueuedExecution && isLoadingRef.current) {
+      console.log('[Send] ⚠️ A reply is already in progress');
+      return;
+    }
+
+    isLoadingRef.current = true;
+    setIsLoading(true);
 
     const crisisDetectionRequest = crisisDetectionLifecycleRef.current.begin(
       currentConversationIdRef.current,
@@ -3748,8 +3770,11 @@ export default function Chat() {
     // Reset subscription-confirmed flag for this new send cycle.
     subscriptionSucceededRef.current = false;
 
-    // Track expected message count for deterministic verification
-    expectedReplyCountRef.current = calculateExpectedReplyCount(messages.length); // user message + assistant reply
+    // Use the authoritative committed snapshot for queued sends. The React
+    // closure that originally captured executeSend may contain an older array.
+    expectedReplyCountRef.current = calculateExpectedReplyCount(
+      lastConfirmedMessagesRef.current.length,
+    );
     pollingFinalityStateRef.current = {
       assistantKey: null,
       content: null,
@@ -3761,15 +3786,6 @@ export default function Chat() {
       expected_reply_count: expectedReplyCountRef.current,
       delivery_source: 'send',
     });
-
-    // Layer 1: Regex-based crisis detection (fast, explicit patterns)
-    const reasonCode = detectCrisisWithReason(rawInputText);
-    if (reasonCode) {
-      setShowRiskPanel(true);
-      setInputMessage('');
-      setIsLoading(false);
-      return;
-    }
 
     // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
@@ -3804,7 +3820,13 @@ export default function Chat() {
         setInputMessage((currentDraft) => (
           clearSubmittedDraftIfUnchanged(currentDraft, rawInputText)
         ));
+        isLoadingRef.current = false;
         setIsLoading(false);
+        if (chatOrchestratorV2EnabledRef.current) {
+          // Safety hard-stop cancels this turn and any queued follow-ups. Nothing
+          // may bypass the crisis panel while the user is being redirected.
+          chatCoordinatorV2Ref.current.reset();
+        }
         base44.entities.CrisisAlert.create({
           surface: 'chat',
           conversation_id: currentConversationId || 'none',
@@ -3831,7 +3853,7 @@ export default function Chat() {
     }
 
     const messageText = rawInputText;
-    const assistantCountBeforeSend = messages.filter((message) => message.role === 'assistant').length;
+    const assistantCountBeforeSend = lastConfirmedMessagesRef.current.filter((message) => message.role === 'assistant').length;
     beginTimeToFirstValue({
       entryPoint: 'chat_message',
       valueType: 'assistant_response',
@@ -3842,59 +3864,9 @@ export default function Chat() {
     if (!_isV2QueuedExecution) setInputMessage('');
     setShowSummaryPrompt(false);
 
-    // V2: Single-flight queue. Register the send BEFORE setIsLoading so the
-    // active turn is atomically created. If a turn is in-flight, queue the
-    // complete send parameters for later execution.
-    // Legacy path (flag off): continues directly to setIsLoading below.
-    // V2 queued execution path: active turn already created by _drainQueue, skip registerSend.
-    let v2ActiveTurn = null;
-    if (chatOrchestratorV2EnabledRef.current && !_isV2QueuedExecution) {
-      const convIdForQueue = currentConversationId || '__pending__';
-
-      // Capture full send parameters for potential queueing.
-      const capturedParams = {
-        messageText,
-        attachmentToUpload,
-        isVoiceDerivedSend,
-        conversationId: currentConversationIdRef.current,
-      };
-
-      const { turn: regTurn, queued: regQueued, queue_full: regQueueFull } = chatCoordinatorV2Ref.current.registerSend({
-        conversationId: convIdForQueue,
-        executeSend: async () => {
-          await handleSendMessageWithParams(capturedParams);
-        },
-      });
-
-      if (regQueueFull) {
-        // Queue is at capacity — restore the input so the user message is not lost.
-        setInputMessage(messageText);
-        console.warn('[V2Orchestrator] Queue full — message not sent');
-        toast({
-          title: t('chat.errors.queue_title'),
-          description: t('chat.errors.queue_desc'),
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (regQueued) {
-        console.log('[V2Orchestrator] Send queued, depth:', chatCoordinatorV2Ref.current.getPendingTurnCount());
-        if (isS2DebugEnabled()) {
-          console.log('[V2Orchestrator] queued send', buildV2DebugDiagnostic({
-            ...chatCoordinatorV2Ref.current.getDiagnosticState(),
-            delivery_source: 'send',
-          }));
-        }
-        return;
-      }
-
-      // Turn atomically created — store for this send cycle.
-      v2ActiveTurn = regTurn;
-    } else if (chatOrchestratorV2EnabledRef.current && _isV2QueuedExecution) {
-      // Queued execution: active turn was already created by _drainQueue before executeSend ran.
-      v2ActiveTurn = chatCoordinatorV2Ref.current.getActiveTurn();
-    }
+    // The V2 active turn was reserved before Layer-2 safety detection so rapid
+    // sends cannot invalidate an earlier preflight. Queued execution reuses the
+    // atomically-created turn from the coordinator drain path.
 
     setDeliveryStatus('saving');
     setIsLoading(true);
@@ -3961,7 +3933,7 @@ export default function Chat() {
     }, 10000);
 
     try {
-      let convId = currentConversationId;
+      let convId = sendConversationId || currentConversationIdRef.current;
       let isNewConversation = false;
       // Phase 0.2A: holds the locked effective wiring when a new conversation is created.
       // Set in the isNewConversation block; used in the session-start content block below.
