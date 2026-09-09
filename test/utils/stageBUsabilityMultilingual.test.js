@@ -152,4 +152,23 @@ describe('Stage B usability contracts', () => {
       }
     }
   });
+
+  it('instruments time to first value from entry point through a new assistant response', () => {
+    const measurement = read('src/lib/timeToFirstValue.js');
+    const home = read('src/pages/Home.jsx');
+    const chat = read('src/pages/Chat.jsx');
+
+    expect(measurement).toContain("const STORAGE_KEY = 'mindful_path_time_to_first_value_v1'");
+    expect(measurement).toContain("eventName: 'time_to_first_value_completed'");
+    for (const property of ['duration_ms', 'entry_point', 'value_type', 'locale', 'viewport']) {
+      expect(measurement, property).toContain(property);
+    }
+    expect(measurement).toContain('assistantCount <= (measurement.baselineAssistantCount || 0)');
+    expect(home).toContain("entryPoint: 'home_daily_checkin'");
+    expect(home).toContain("entryPoint: 'home_guided_exercise'");
+    expect(chat).toContain("entryPoint: 'chat_message'");
+    expect(chat).toContain("valueType: 'assistant_response'");
+    expect(chat).toContain('bindTimeToFirstValueConversation');
+    expect(chat).toContain('completeTimeToFirstValue');
+  });
 });
