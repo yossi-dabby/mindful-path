@@ -581,10 +581,10 @@ export default function Chat() {
   // ─── V2 Chat Orchestrator ──────────────────────────────────────────────────
   // Evaluate the flag once at mount; frozen for the lifetime of this Chat instance.
   // Flag false preserves exact Phase 0 legacy behavior.
-  // Stage 17 hardening: the validated V2 coordinator is now the production path.
-  // Rapid follow-ups depend on its FIFO queue and must not silently fall back
-  // to the legacy single-flight behavior when the build-time flag is absent.
-  const chatOrchestratorV2EnabledRef = useRef(true);
+  const chatOrchestratorV2EnabledRef = useRef(isChatOrchestratorV2Enabled());
+  // Production-safe FIFO for rapid follow-ups while the legacy single-flight
+  // path remains active. Each draft is captured before React can overwrite it.
+  const legacyRapidQueueRef = useRef([]);
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
   // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
   // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
@@ -3801,7 +3801,23 @@ export default function Chat() {
         v2ActiveTurn = registration.turn;
       }
     } else if (!_isV2QueuedExecution && isLoadingRef.current) {
-      console.log('[Send] ⚠️ A reply is already in progress');
+      if (legacyRapidQueueRef.current.length >= 10) {
+        setInputMessage(rawInputText);
+        toast({
+          title: t('chat.errors.queue_title'),
+          description: t('chat.errors.queue_desc'),
+          variant: 'destructive',
+        });
+        return;
+      }
+      legacyRapidQueueRef.current.push({
+        messageText: rawInputText,
+        attachmentToUpload,
+        isVoiceDerivedSend,
+        conversationId: currentConversationIdRef.current,
+      });
+      setInputMessage('');
+      console.log('[Send] Rapid follow-up queued safely, depth:', legacyRapidQueueRef.current.length);
       return;
     }
 
@@ -5568,7 +5584,7 @@ export default function Chat() {
                       </div>
                     </div>
                   )}
-                  {isLoading && chatOrchestratorV2EnabledRef.current && (
+                  {isLoading && (
                     <p className="px-1 text-xs leading-5 text-teal-700">{t('chat_stage.queue_hint')}</p>
                   )}
                   <Textarea
@@ -5584,7 +5600,7 @@ export default function Chat() {
                     autoCapitalize="sentences"
                     autoComplete="off"
                     autoCorrect="on"
-                    disabled={(isLoading && !chatOrchestratorV2EnabledRef.current) || isConversationInitializing || isUploadingFile} />
+                    disabled={isConversationInitializing || isUploadingFile} />
                   <div className="flex items-center flex-wrap gap-2 px-1 py-1">
                     <Button
                       type="button"
@@ -5674,7 +5690,7 @@ export default function Chat() {
                 <div className="flex flex-col justify-start gap-1 flex-shrink-0">
                   <Button
                     onClick={handleSendMessage}
-                    disabled={(!inputMessage.trim() && !attachedFile) || (isLoading && !chatOrchestratorV2EnabledRef.current) || isConversationInitializing || isUploadingFile || isTranscribingAudio || !isConsentResolved || showConsentBanner}
+                    disabled={(!inputMessage.trim() && !attachedFile) || isConversationInitializing || isUploadingFile || isTranscribingAudio || !isConsentResolved || showConsentBanner}
                     data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
                     {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </Button>
