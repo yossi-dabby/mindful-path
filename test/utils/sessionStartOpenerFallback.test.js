@@ -427,8 +427,8 @@ describe('Session-start opener fallback integration guards', () => {
       maxPollAttempts: 5,
     });
     expect(getDefaultSessionStartFallbackLifecycle()).toEqual({
-      pollDelays: [250, 500, 1000, 2000, 4000],
-      maxPollAttempts: 5,
+      pollDelays: [0, 250, 500, 1000, 2000, 4000, 6000, 8000],
+      maxPollAttempts: 8,
     });
   });
 });
