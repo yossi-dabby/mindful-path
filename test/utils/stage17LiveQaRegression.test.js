@@ -26,6 +26,8 @@ describe('Stage 17 live-QA regression fixes', () => {
     expect(layer2Index).toBeGreaterThan(registrationIndex);
     expect(sendSource).toContain('conversationId: currentConversationIdRef.current');
     expect(sendSource).toContain('lastConfirmedMessagesRef.current.length');
+    expect(sendSource).toContain('inputMessageRef.current');
+    expect(CHAT_SOURCE).toContain('inputMessageRef.current = e.target.value');
     expect(sendSource).not.toContain('if (!_isV2QueuedExecution && isLoading)');
   });
 
