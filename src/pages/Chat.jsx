@@ -393,11 +393,20 @@ export default function Chat() {
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentConversationId, setCurrentConversationId] = useState(restoredPdfViewerConversationId);
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessageState] = useState('');
   const inputMessageRef = useRef('');
-  useEffect(() => {
-    inputMessageRef.current = inputMessage;
-  }, [inputMessage]);
+  const setInputMessage = (nextValue) => {
+    if (typeof nextValue === 'function') {
+      setInputMessageState((previousValue) => {
+        const resolvedValue = nextValue(previousValue);
+        inputMessageRef.current = resolvedValue;
+        return resolvedValue;
+      });
+      return;
+    }
+    inputMessageRef.current = nextValue;
+    setInputMessageState(nextValue);
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [isConversationInitializing, setIsConversationInitializing] = useState(false);
   const [deliveryStatus, setDeliveryStatus] = useState('idle');
