@@ -129,7 +129,7 @@ import {
   createChatOrchestratorV2,
   buildV2DebugDiagnostic,
 } from '@/lib/chatOrchestratorV2.js';
-import { getDedupGuardPollingMode, getFormulationGuardMode, getGroundingGuardMode } from '@/lib/featureFlags.js';
+import { isChatOrchestratorV2Enabled, getDedupGuardPollingMode, getFormulationGuardMode, getGroundingGuardMode } from '@/lib/featureFlags.js';
 import {
   applyFormulationGuardWithMode,
   applyGroundingGuardWithMode,
