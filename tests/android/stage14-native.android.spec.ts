@@ -26,6 +26,17 @@ async function waitForPageChunk(page: import('@playwright/test').Page) {
   await expect(page.getByRole('status', { name: 'Loading page' })).toBeHidden({ timeout: 20000 });
 }
 
+async function expectDestinationReady(page: import('@playwright/test').Page, path: string) {
+  const markers: Record<string, import('@playwright/test').Locator> = {
+    '/Journal': page.getByTestId('journal-page'),
+    '/MyPath': page.getByRole('heading', { name: 'המסלול שלי' }),
+    '/Tools': page.getByRole('heading', { name: 'כלים' }),
+    '/Chat': page.getByTestId('chat-root'),
+    '/Home': page.getByTestId('daily-path'),
+  };
+  await expect(markers[path]).toBeVisible({ timeout: 20000 });
+}
+
 test.describe('Stage 14 Android Native device matrix', () => {
   test.beforeEach(async ({ page }) => {
     await prepare(page);
@@ -110,7 +121,7 @@ test.describe('Stage 14 Android Native device matrix', () => {
         await link.click();
         await expect(page).toHaveURL(new RegExp(`${path}$`));
         await waitForPageChunk(page);
-        await expect(page.locator(`a[href="${path}"][aria-current="page"]`).filter({ visible: true }).first()).toBeVisible({ timeout: 10000 });
+        await expectDestinationReady(page, path);
         await expect(page.locator('#root')).not.toBeEmpty();
         await expectNoHorizontalOverflow(page);
     }
