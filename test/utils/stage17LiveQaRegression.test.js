@@ -34,6 +34,7 @@ describe('Stage 17 live-QA regression fixes', () => {
   });
 
   it('shows a localized opening preview instead of a blank new session', () => {
+    expect(CHAT_SOURCE).toContain("isLoading || (isConversationInitializing && messages.length === 0)");
     expect(CHAT_SOURCE).toContain("messages.length === 0");
     expect(CHAT_SOURCE).toContain("t('chat_stage.opening_preview')");
   });
