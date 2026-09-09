@@ -147,7 +147,10 @@ export function TabNavigationProvider({ children, currentPageName }) {
   // ── Switch tab ────────────────────────────────────────────────────────────
   const switchToTab = useCallback((tabName) => {
     if (!TAB_ROOTS[tabName]) return;
-    const currentPath = location.pathname + location.search;
+    // Read the browser URL at interaction time. Rapid tab taps can happen
+    // before React commits the render carrying the latest location, so the
+    // callback closure may otherwise compare against a stale path.
+    const currentPath = window.location.pathname + window.location.search;
 
     if (tabName === activeTab) {
       // Re-tapping the active tab: reset its stack to root and scroll to top.
