@@ -540,7 +540,7 @@ function sanitizeAssistantMessage(message) {
     // Use English — this function has no language context and Hebrew is not appropriate
     // as a session-agnostic fallback for non-Hebrew sessions.
     if (!sanitized || sanitized.length < 10) {
-        console.error('[Reasoning Filter] Message empty after filtering, using failsafe');
+        console.warn('[Reasoning Filter] Message empty after filtering; safe failsafe applied');
         return "I'm here with you. What's on your mind right now?";
     }
     // Strip unsafe medical patterns
