@@ -2019,6 +2019,32 @@ export default function Chat() {
     safeUpdateMessages,
     setIsLoading,
     emitStabilitySummary,
+    commitLocalOpener: (conversationId) => {
+      if (!mountedRef.current || currentConversationIdRef.current !== conversationId) return false;
+      const confirmed = Array.isArray(lastConfirmedMessagesRef.current)
+        ? lastConfirmedMessagesRef.current
+        : [];
+      const alreadyVisible = confirmed.some((message) => (
+        message?.role === 'assistant' && String(message?.content || '').trim().length > 0
+      ));
+      if (alreadyVisible) return false;
+      const localOpener = {
+        id: `local-session-opener-${conversationId}`,
+        role: 'assistant',
+        content: t('chat_stage.opening_preview', { lng: sessionLanguageRef.current }),
+        status: 'final',
+        created_date: new Date().toISOString(),
+        metadata: {
+          is_final: true,
+          local_session_opener_fallback: true,
+          feedback_finality_verified: false,
+        },
+      };
+      return safeUpdateMessages([...confirmed, localOpener], 'SessionStartLocalFallback', {
+        pollFinality: { isFinal: true, reason: 'local_session_opener_fallback' },
+        suppressFeedback: true,
+      });
+    },
   };
 
   if (!sessionStartOpenerFallbackRef.current) {
@@ -2038,6 +2064,9 @@ export default function Chat() {
       setIsLoading: (value) => sessionStartOpenerFallbackDepsRef.current.setIsLoading(value),
       clearLoadingTimeout,
       emitStabilitySummary: () => sessionStartOpenerFallbackDepsRef.current.emitStabilitySummary(),
+      onExhausted: ({ conversationId }) => (
+        sessionStartOpenerFallbackDepsRef.current.commitLocalOpener(conversationId)
+      ),
     });
   }
 
