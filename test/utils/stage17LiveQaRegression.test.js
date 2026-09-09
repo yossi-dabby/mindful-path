@@ -28,6 +28,7 @@ describe('Stage 17 live-QA regression fixes', () => {
     expect(sendSource).toContain('lastConfirmedMessagesRef.current.length');
     expect(sendSource).toContain('inputMessageRef.current');
     expect(CHAT_SOURCE).toContain('inputMessageRef.current = e.target.value');
+    expect(CHAT_SOURCE).toContain('const chatOrchestratorV2EnabledRef = useRef(true)');
     expect(sendSource).not.toContain('if (!_isV2QueuedExecution && isLoading)');
   });
 
