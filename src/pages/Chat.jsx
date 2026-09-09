@@ -2917,7 +2917,7 @@ export default function Chat() {
       });
     }
     legacyRapidQueueRef.current = legacyRapidQueueRef.current.filter(
-      (queuedSend) => queuedSend.conversationId === currentConversationId,
+      (queuedSend) => !queuedSend.conversationId || queuedSend.conversationId === currentConversationId,
     );
   }, [currentConversationId]);
 
@@ -4902,7 +4902,7 @@ export default function Chat() {
     if (isLoading || chatOrchestratorV2EnabledRef.current) return undefined;
     const nextQueuedSend = legacyRapidQueueRef.current.shift();
     if (!nextQueuedSend) return undefined;
-    if (nextQueuedSend.conversationId !== currentConversationIdRef.current) {
+    if (nextQueuedSend.conversationId && nextQueuedSend.conversationId !== currentConversationIdRef.current) {
       return undefined;
     }
     const drainTimer = setTimeout(() => {
