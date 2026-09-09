@@ -119,4 +119,17 @@ describe('production security hardening', () => {
     expect(source).toContain('MAX_AUDIO_BYTES');
     expect(source).toContain('await base44.auth.me()');
   });
+
+  it('sanitizes every rich-text journal field before rendering and persistence', () => {
+    const source = read('src/components/journal/ThoughtRecordForm.jsx');
+    const packageJson = JSON.parse(read('package.json'));
+    expect(packageJson.dependencies.dompurify).toBeTruthy();
+    expect(source).toContain("import DOMPurify from 'dompurify'");
+    expect(source).toContain('DOMPurify.sanitize');
+    expect(source).toContain("FORBID_TAGS: ['img', 'video', 'audio', 'iframe', 'object', 'embed', 'svg', 'math']");
+    for (const field of ['situation', 'automatic_thoughts', 'evidence_for', 'evidence_against', 'balanced_thought']) {
+      expect(source, field).toContain(`${field}: sanitizeJournalRichText(`);
+    }
+    expect(source.match(/\.\.\.sanitizeJournalRichTextFields\(data\)/g)).toHaveLength(2);
+  });
 });
