@@ -386,7 +386,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
             }
                 {content ?
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere" dir="auto">{content}</p> :
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere !text-white" dir="auto">{content}</p> :
             null}
                 {/* Collapsible full PDF text — stored in metadata.pdf_extracted_text at send time */}
                 {isPdfAttachment && pdfFullText &&
