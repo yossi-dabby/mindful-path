@@ -3738,6 +3738,7 @@ export default function Chat() {
       return;
     }
 
+    // Layer 1: Regex-based crisis detection
     // Layer 1 stays synchronous and authoritative. Explicit crisis messages
     // never enter the send queue or start an asynchronous detection lifecycle.
     const reasonCode = detectCrisisWithReason(rawInputText);
