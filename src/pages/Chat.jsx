@@ -5361,7 +5361,7 @@ export default function Chat() {
                   conversationId={currentConversationId}
                   sessionLanguage={sessionLanguageRef.current}
                 />
-                {isLoading && currentConversationId && (() => {
+                {(isLoading || (isConversationInitializing && messages.length === 0)) && currentConversationId && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
                     <div
