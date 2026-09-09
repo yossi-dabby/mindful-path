@@ -804,6 +804,20 @@ function stripRoutingLeakage(text) {
   return cleaned.join('\n').trim();
 }
 
+// ─── Locale quality corrections ──────────────────────────────────────────────
+
+/**
+ * Applies narrowly-scoped, deterministic corrections for verified output
+ * defects. This must never paraphrase clinical content.
+ */
+export function applyLocaleQualityCorrections(text, lang) {
+  if (typeof text !== 'string') return text;
+  if (lang === 'de') {
+    return text.replace(/\bWörgen\b/g, 'Worten');
+  }
+  return text;
+}
+
 // ─── Main Governor ───────────────────────────────────────────────────────────
 
 /**
@@ -947,7 +961,7 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     return getFailsafe(lang);
   }
 
-  return result.trim();
+  return applyLocaleQualityCorrections(result.trim(), lang);
 }
 
 /**
