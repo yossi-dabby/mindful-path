@@ -5,8 +5,11 @@ import {
   THERAPEUTIC_FORMS_CONTENT_STATUS,
   getTherapeuticFormsAvailabilityCopy,
 } from '../../src/data/therapeuticForms/availability.js';
+import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
 import {
+  ALL_FORMS,
   THERAPEUTIC_FORMS_CATALOG,
+  getTherapeuticFormsForAI,
 } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormIntentRequest } from '../../src/utils/resolveFormIntent.js';
 
@@ -23,7 +26,10 @@ describe('therapeutic forms under-revision mode', () => {
   it('keeps metadata-only catalog entries without file locations', () => {
     expect(THERAPEUTIC_FORMS_CONTENT_AVAILABLE).toBe(false);
     expect(THERAPEUTIC_FORMS_CONTENT_STATUS).toBe('under_revision');
-    expect(THERAPEUTIC_FORMS_CATALOG.length).toBeGreaterThan(0);
+    expect(THERAPEUTIC_FORMS_CATALOG).toHaveLength(493);
+    expect(ALL_FORMS).toHaveLength(493);
+    expect(generatedFormsIndex).toEqual([]);
+    expect(getTherapeuticFormsForAI()).toEqual([]);
 
     for (const entry of THERAPEUTIC_FORMS_CATALOG) {
       expect(entry.approved).toBe(false);
@@ -36,17 +42,26 @@ describe('therapeutic forms under-revision mode', () => {
     }
   });
 
-  it('never attaches or exposes a form file while content is under review', () => {
-    const result = resolveFormIntentRequest('Please send me a CBT worksheet for a teenager', {
-      language: 'en',
-      audience: 'adolescents',
-    });
+  it('never attaches or exposes a form file in any supported language while content is under review', () => {
+    const requests = {
+      en: 'Please send me a CBT worksheet for a teenager',
+      he: 'שלח לי בבקשה טופס CBT למתבגר',
+      es: 'Envíame una hoja de trabajo de TCC para adolescentes',
+      fr: 'Envoyez-moi une fiche TCC pour adolescent',
+      de: 'Bitte sende mir ein CBT-Arbeitsblatt für Jugendliche',
+      it: 'Inviami una scheda CBT per adolescenti',
+      pt: 'Envie uma ficha de TCC para adolescentes',
+    };
 
-    expect(result.intent).toBeTruthy();
-    expect(result.contentStatus).toBe('under_revision');
-    expect(result.generatedFile).toBeNull();
-    expect(result.generatedFiles).toEqual([]);
-    expect(result.matches).toEqual([]);
-    expect(result.responseText).toContain('under review');
+    for (const [language, request] of Object.entries(requests)) {
+      const result = resolveFormIntentRequest(request, { language, audience: 'adolescents' });
+
+      expect(result.intent).toBeTruthy();
+      expect(result.contentStatus).toBe('under_revision');
+      expect(result.generatedFile).toBeNull();
+      expect(result.generatedFiles).toEqual([]);
+      expect(result.matches).toEqual([]);
+      expect(result.responseText).toBe(getTherapeuticFormsAvailabilityCopy(language).aiMessage);
+    }
   });
 });
