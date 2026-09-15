@@ -19,6 +19,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
 import {
   getAllTherapeuticForms,
@@ -618,5 +619,3 @@ describe('PR-11 Phase 6: Open/Download English parity assertions', () => {
     }
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
