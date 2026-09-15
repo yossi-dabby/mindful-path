@@ -34,7 +34,7 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     expect(packageForm?.fileUrl).toBe(SPECIALIZED_SERIES_URL);
   });
 
-  it('appears in TherapeuticForms only for English locale', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('appears in TherapeuticForms only for English locale', () => {
     const specializedForms = ALL_FORMS.filter((form) => form.category === 'adolescents_cbt_specialized');
     // 11 English (series + 10 modules) + 60 Hebrew individual worksheets
     expect(specializedForms).toHaveLength(71);
@@ -50,7 +50,7 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     expect(spanishResolvable).toHaveLength(0);
   });
 
-  it('resolves Open/Download URLs to real PDF files for full series and module PDFs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves Open/Download URLs to real PDF files for full series and module PDFs', () => {
     const allSpecialized = FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN;
     for (const form of allSpecialized) {
       const url = form.languages?.en?.file_url;
@@ -69,7 +69,7 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     expect(resolveFormWithLanguage(`${SPECIALIZED_SERIES_ID}-module-01`, 'es')).toBeNull();
   });
 
-  it('matches specialized content-aware intents for modules 01-10 in English', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('matches specialized content-aware intents for modules 01-10 in English', () => {
     const expectations = [
       ['test stress and courage ladder', '01'],
       ['low mood and energy reset support', '02'],
@@ -91,7 +91,7 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     }
   });
 
-  it('returns full specialized series only for explicit full-series requests', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('returns full specialized series only for explicit full-series requests', () => {
     const explicit = resolveAdolescentsCBTSpecializedEnglishFormByContent('Please send the full specialized series (all 60 forms)', { activeLanguage: 'en' });
     const general = resolveAdolescentsCBTSpecializedEnglishFormByContent('I need stress help', { activeLanguage: 'en' });
 
@@ -105,7 +105,7 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     expect(resolveAdolescentsCBTSpecializedEnglishFormByContent('full specialized series', { activeLanguage: 'pt' })).toBeNull();
   });
 
-  it('keeps existing adolescents CBT core series intact', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps existing adolescents CBT core series intact', () => {
     expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
     expect(FORMS_ADOLESCENTS_CBT_CORE_EN.find((form) => form.id === 'adolescents-cbt-core-en')).toBeTruthy();
     expect(FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL).toHaveLength(30);
@@ -114,3 +114,5 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     expect(coreMetadata?.form_id).toBe('adolescents-cbt-core-en-1-2');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
