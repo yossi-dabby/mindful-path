@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 
 const ROOT = process.cwd();
 const FORMS_ROOT = path.join(ROOT, 'public/forms');
@@ -59,8 +60,7 @@ describe('therapeutic forms manifest path safety', () => {
       try {
         parsed = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
       } catch (error) {
-        throw new Error(`Failed parsing manifest JSON: ${sourcePath}
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';\n${error?.message || error}`);
+        throw new Error(`Failed parsing manifest JSON: ${sourcePath}\n${error?.message || error}`);
       }
 
       const items = Array.isArray(parsed?.items) ? parsed.items : [];
