@@ -16,6 +16,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import {
   sanitizeConversationMessages,
   sanitizeConversationMessagesAligned,
@@ -25,8 +26,7 @@ import {
 
 // Exact Hebrew production message that triggered the V8-D failure.
 const HEBREW_PRODUCTION_MSG =
-  'אל תעבור להנחיות חירום אלא אם יש לכך סיבה בהודעה הנוכחית, ואל תציע
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';\n' +
+  'אל תעבור להנחיות חירום אלא אם יש לכך סיבה בהודעה הנוכחית, ואל תציע\n' +
   'או תצרף תרגיל, דף עבודה, טופס טיפולי או שיעורי בית.';
 
 // Exact English production message from the prior class of failure.
