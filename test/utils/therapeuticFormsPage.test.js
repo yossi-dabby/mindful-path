@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
@@ -195,5 +196,3 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(resolveFormWithLanguage('adolescents-cbt-core-en-2-2', 'en')?.languageData?.file_url).toContain('/forms/');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
