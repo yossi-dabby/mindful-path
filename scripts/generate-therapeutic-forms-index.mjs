@@ -695,7 +695,7 @@ function enrichHierarchyMetadata(entries) {
   });
 }
 
-export function validateEntries(entries) {
+export function validateEntries(entries, { fileExists = fs.existsSync } = {}) {
   const seenIds = new Set();
   const allIds = new Set(
     entries
@@ -817,7 +817,7 @@ export function validateEntries(entries) {
     }
 
     const absolute = path.join(ROOT, filePath);
-    if (!fs.existsSync(absolute)) {
+    if (!fileExists(absolute, filePath)) {
       errors.push(`Entry ${entry.id} references missing file path: ${filePath}`);
     }
   }
