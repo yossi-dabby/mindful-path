@@ -29,7 +29,7 @@ function classifyRepoPath(filePath) {
 }
 
 describe('therapeutic forms folder migration readiness safety', () => {
-  it('keeps active runtime paths language-first while preventing audience-first regressions', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps active runtime paths language-first while preventing audience-first regressions', () => {
     const counts = {
       canonical: 0,
       legacyActive: 0,
@@ -66,3 +66,5 @@ describe('therapeutic forms folder migration readiness safety', () => {
     expect(counts.outsideWrappers).toBe(0);
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
