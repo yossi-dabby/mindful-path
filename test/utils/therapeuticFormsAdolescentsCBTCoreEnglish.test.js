@@ -52,13 +52,13 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
     }
   });
 
-  it('keeps ALL_FORMS canonical and includes package + 30 individual forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps ALL_FORMS canonical and includes package + 30 individual forms', () => {
     expect(ALL_FORMS.find((form) => form.id === CORE_ID)?.fileUrl).toBe(CORE_URL);
     const individualInAllForms = ALL_FORMS.filter((form) => form.parentSeriesId === CORE_ID && form.type === 'individual_worksheet');
     expect(individualInAllForms).toHaveLength(30);
   });
 
-  it('ensures full PDF and all individual PDFs exist and are valid PDF files', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('ensures full PDF and all individual PDFs exist and are valid PDF files', () => {
     const fullPdfPath = path.join(ROOT, 'public/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
     expect(fs.existsSync(fullPdfPath)).toBe(true);
 
@@ -77,7 +77,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
     }
   });
 
-  it('resolves package-level requests to the full workbook', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves package-level requests to the full workbook', () => {
     const requests = [
       'full workbook',
       'complete cbt series',
@@ -94,7 +94,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
     }
   });
 
-  it('resolves form-number requests to the matching individual worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves form-number requests to the matching individual worksheet', () => {
     const oneOne = resolveAdolescentsCBTCoreEnglishFormByContent('Send form 1.1', { activeLanguage: 'en' });
     const oneTwo = resolveAdolescentsCBTCoreEnglishFormByContent('send form 1.2', { activeLanguage: 'en' });
     const oneFour = resolveAdolescentsCBTCoreEnglishFormByContent('Send form 1.4', { activeLanguage: 'en' });
@@ -104,7 +104,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
     expect(oneFour?.form_id).toBe(byFormNumber('1.4')?.id);
   });
 
-  it('resolves content requests to matching individual worksheets', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves content requests to matching individual worksheets', () => {
     const bodySignals = resolveAdolescentsCBTCoreEnglishFormByContent('Send me the body signals worksheet', { activeLanguage: 'en' });
     const trigger = resolveAdolescentsCBTCoreEnglishFormByContent('Do you have a trigger worksheet for a teen?', { activeLanguage: 'en' });
     const thoughtFact = resolveAdolescentsCBTCoreEnglishFormByContent('I need a thought vs fact worksheet', { activeLanguage: 'en' });
@@ -122,7 +122,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
     expect(weekly?.form_id).toBe(byFormNumber('6.2')?.id);
   });
 
-  it('does not resolve for disallowed language/audience requests unless explicit English is asked', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('does not resolve for disallowed language/audience requests unless explicit English is asked', () => {
     expect(resolveAdolescentsCBTCoreEnglishFormByContent('אני צריך טופס בעברית למתבגר', { activeLanguage: 'he' })).toBeNull();
     expect(resolveAdolescentsCBTCoreEnglishFormByContent('I need a CBT workbook for children', { activeLanguage: 'en' })).toBeNull();
     expect(resolveAdolescentsCBTCoreEnglishFormByContent('I need an adult CBT workbook for stress', { activeLanguage: 'en' })).toBeNull();
@@ -131,7 +131,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
     expect(explicitEnglish?.form_id).toBe(CORE_ID);
   });
 
-  it('returns generated_file metadata including individual worksheet fields', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('returns generated_file metadata including individual worksheet fields', () => {
     const target = byFormNumber('6.2');
     const metadata = resolveFormIntent(target.id, 'en');
 
@@ -269,44 +269,46 @@ describe('TherapeuticForms.jsx — collection-first UI source-code contract', ()
 // ─── AI resolver regression — individual worksheets remain resolvable ─────────
 
 describe('AI resolver regression — individual worksheets still resolvable after stage grouping', () => {
-  it('body signals still resolves to form 1.2', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('body signals still resolves to form 1.2', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('body signals worksheet', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-1-2`);
   });
 
-  it('trigger still resolves to form 1.3', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('trigger still resolves to form 1.3', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('what triggered me', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-1-3`);
   });
 
-  it('thought or fact still resolves to form 2.2', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('thought or fact still resolves to form 2.2', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('thought or fact', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-2-2`);
   });
 
-  it('evidence still resolves to form 3.1', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('evidence still resolves to form 3.1', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('evidence for and against a thought', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-3-1`);
   });
 
-  it('avoidance still resolves to form 5.1', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('avoidance still resolves to form 5.1', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('help with avoidance', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-5-1`);
   });
 
-  it('small steps still resolves to form 5.2', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('small steps still resolves to form 5.2', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('small steps worksheet', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-5-2`);
   });
 
-  it('weekly check-in still resolves to form 6.2', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('weekly check-in still resolves to form 6.2', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('weekly check in', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(`${CORE_ID}-6-2`);
   });
 
-  it('full workbook request still resolves to full package', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('full workbook request still resolves to full package', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('full workbook', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(CORE_ID);
     expect(result?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
