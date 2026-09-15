@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector.js';
 
@@ -14,5 +15,3 @@ describe('therapeuticFormsCanonicalCatalogIntegration.test.js', () => {
     expect(catalog).toContain('adolescents_cbt_specialized');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
