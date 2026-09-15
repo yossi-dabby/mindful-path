@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import {
   getAllTherapeuticForms,
   listFormsForAI,
@@ -410,5 +411,3 @@ describe('aiFormsAccess deterministic intent + grouping', () => {
     expect(groups.examples.length).toBeGreaterThan(0);
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
