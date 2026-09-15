@@ -14,6 +14,7 @@
  *   - Longest description: ~184 chars in adolescents-cbt-specialized-he OCD module
  */
 import { test, expect, type Page } from '@playwright/test';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -112,6 +113,7 @@ async function navigateToWorksheetsLevel(page: Page) {
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 test.describe('Forms Library Hebrew RTL layout and overflow', () => {
+  test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
   test.beforeEach(async ({ page }) => {
     await setupHebrewTherapeuticForms(page);
     await spaNavigate(page, '/TherapeuticForms');
