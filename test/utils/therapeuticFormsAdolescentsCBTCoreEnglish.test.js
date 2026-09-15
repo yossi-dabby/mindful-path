@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import {
   FORMS_ADOLESCENTS_CBT_CORE_EN,
@@ -310,5 +311,3 @@ describe('AI resolver regression — individual worksheets still resolvable afte
     expect(result?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
