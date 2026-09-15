@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 
@@ -97,5 +98,3 @@ describe('therapeutic forms asset path safety', () => {
     ).toEqual([]);
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
