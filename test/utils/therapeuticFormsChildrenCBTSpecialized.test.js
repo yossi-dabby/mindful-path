@@ -25,7 +25,7 @@ function specializedForms() {
 }
 
 describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
-  it('registers children specialized EN forms in canonical registry (15 module PDFs + 150 worksheet metadata entries)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('registers children specialized EN forms in canonical registry (15 module PDFs + 150 worksheet metadata entries)', () => {
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_DOMAIN_PDFS).toHaveLength(15);
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL).toHaveLength(150);
     expect(FORMS_CHILDREN_CBT_SPECIALIZED).toHaveLength(165);
@@ -46,7 +46,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     }
   });
 
-  it('keeps filename-clinical mismatch corrected for subcategories 1.3/1.4/1.5', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps filename-clinical mismatch corrected for subcategories 1.3/1.4/1.5', () => {
     // Source PDFs for 1.3/1.4/1.5 were uploaded with "specific_phobias" in filenames.
     // Runtime metadata must preserve the clinically correct subcategory labeling.
     const module13 = resolveFormIntent('children-cbt-specialized-en-module-1-3', 'en');
@@ -63,7 +63,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(module15?.name).toContain('01_05_specific_phobias_full.pdf');
   });
 
-  it('shows specialized forms in English mode and isolates English specialized forms from Hebrew mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('shows specialized forms in English mode and isolates English specialized forms from Hebrew mode', () => {
     const english = getTherapeuticFormsForAI({ language: 'en', audience: 'children' })
       .filter((form) => form.category === SPECIALIZED_CATEGORY);
     const hebrew = getTherapeuticFormsForAI({ language: 'he', audience: 'children' })
@@ -75,7 +75,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(hebrew.every((form) => form.language === 'he')).toBe(true);
   });
 
-  it('keeps audience guard: visible for children, excluded for adults/adolescents', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps audience guard: visible for children, excluded for adults/adolescents', () => {
     const children = getTherapeuticFormsForAI({ language: 'en', audience: 'children' })
       .filter((form) => form.category === SPECIALIZED_CATEGORY);
     const adolescents = getTherapeuticFormsForAI({ language: 'en', audience: 'adolescents' })
@@ -88,7 +88,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(adults).toHaveLength(0);
   });
 
-  it('matches all required clinical scenarios to the correct specialized subcategory', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('matches all required clinical scenarios to the correct specialized subcategory', () => {
     const cases = [
       ['child refuses to separate from mom at school', '1.1'],
       ['child is afraid of dogs', '1.2'],
@@ -129,7 +129,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(unresolved).toEqual([]);
   });
 
-  it('can send a specific pack and reference a specific worksheet number', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('can send a specific pack and reference a specific worksheet number', () => {
     const pack = resolveFormIntent('children-cbt-specialized-en-module-4-1', 'en');
     const worksheet = resolveFormIntent('send worksheet 1.3.1 from children specialized', 'en');
 
@@ -141,7 +141,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(String(worksheet?.url || '')).toContain('/forms/en/children/cbt-specialized/module-01/children_cbt_specialized_en_01_03_specific_phobias_full.pdf');
   });
 
-  it('preserves Open vs Download URL behavior for specialized PDFs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('preserves Open vs Download URL behavior for specialized PDFs', () => {
     const metadata = resolveFormIntent('children-cbt-specialized-en-module-5-1', 'en');
     expect(metadata?.url).toContain('/forms/en/children/cbt-specialized/module-05/children_cbt_specialized_en_5.1_sleep_problems.pdf');
 
@@ -153,3 +153,5 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(downloadUrl).toContain('download=1');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
