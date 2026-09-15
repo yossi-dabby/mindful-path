@@ -13,6 +13,7 @@
  */
 
 import GENERATED_THERAPEUTIC_FORMS_INDEX from '../../generated/therapeutic-forms-index.json';
+import UNDER_REVISION_FORMS_CATALOG from './catalog-under-revision.json';
 import { SUPPORTED_LANGUAGES, VALID_AUDIENCE_VALUES } from './categories.js';
 
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
@@ -67,8 +68,14 @@ function buildCanonicalRegistry(forms) {
  *
  * @type {readonly object[]}
  */
+export const THERAPEUTIC_FORMS_CATALOG = Object.freeze(UNDER_REVISION_FORMS_CATALOG);
+
 export const ALL_FORMS = buildCanonicalRegistry([
+  // Installed, approved files always take precedence when forms are restored.
   ...GENERATED_THERAPEUTIC_FORMS_INDEX,
+  // Metadata-only entries preserve the multilingual library architecture while
+  // the source PDFs are reviewed. They are never sendable (`approved: false`).
+  ...THERAPEUTIC_FORMS_CATALOG,
 ]);
 
 function hashStringFNV1a(input) {
