@@ -40,7 +40,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.content.length).toBeGreaterThan(0);
   });
 
-  it('injects generated_file from approved marker and rejects stale marker ids', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('injects generated_file from approved marker and rejects stale marker ids', () => {
     const approvedMessages = [
       { role: 'user', content: 'Please share the teen CBT workbook', metadata: { session_language: 'en' } },
       { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here you go [FORM:adolescents-cbt-core-en:en]' }) },
@@ -119,7 +119,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
-  it('attaches Hebrew adolescents stage-combined PDF in Hebrew session', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('attaches Hebrew adolescents stage-combined PDF in Hebrew session', () => {
     const messages = [
       { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'he' } },
       { role: 'assistant', content: 'בשמחה.' },
@@ -174,7 +174,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('children-cbt-core-he');
   });
 
-  it('stores deterministic multi-form attachments in metadata.generated_files while preserving generated_file', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('stores deterministic multi-form attachments in metadata.generated_files while preserving generated_file', () => {
     const messages = [
       { role: 'user', content: 'send all forms from module 06', metadata: { session_language: 'en' } },
       { role: 'assistant', content: 'Done.' },
@@ -200,7 +200,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
-  it('answers multi-form capability question accurately in Hebrew', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('answers multi-form capability question accurately in Hebrew', () => {
     const messages = [
       { role: 'user', content: 'האם אתה יכול לשלוח מספר טפסים במקביל או רק טופס אחד בכל פעם', metadata: { session_language: 'he' } },
       { role: 'assistant', content: 'אני יכול רק טופס אחד.' },
@@ -230,7 +230,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
 
   // ─── Positive flows required by PR 944 problem statement ─────────────────
 
-  it('adolescent form attaches when no audience conflict and no age restriction mismatch', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('adolescent form attaches when no audience conflict and no age restriction mismatch', () => {
     // Adolescents forms do not require an explicit numeric age (unlike children forms).
     // A send intent without age is sufficient if no incompatible audience is stated.
     const messages = [
@@ -261,3 +261,5 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(() => sanitizeConversationMessages(messages, 'en')).not.toThrow();
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
