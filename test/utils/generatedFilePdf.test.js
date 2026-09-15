@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
@@ -248,5 +249,3 @@ describe('therapeutic forms generated_file metadata contract', () => {
     expect(metadata?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
