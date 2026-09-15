@@ -9,6 +9,7 @@
  *   5. Distinctness contract — Open and Download are separate, non-interchangeable buttons
  */
 import { test, expect, type Page } from '@playwright/test';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
@@ -210,6 +211,7 @@ async function sendChatMessage(page: Page, message: string) {
 // ─── Test suite ─────────────────────────────────────────────────────────────────
 
 test.describe('Open vs Download runtime behavior — Forms Library and Chat', () => {
+  test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
   // ── Scenario 1: Forms Library Open ─────────────────────────────────────────
 
   test('Forms Library Open action navigates same-tab to PDF viewer and does not trigger download', async ({
