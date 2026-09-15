@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 
 import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
 
@@ -21,8 +22,7 @@ describe('therapeutic forms generated index safety', () => {
       encoding: 'utf8',
     });
 
-    expect(result.status, `Generator failed.
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+    expect(result.status, `Generator failed.\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
     expect(fs.existsSync(GENERATED_INDEX_PATH)).toBe(true);
   });
 
