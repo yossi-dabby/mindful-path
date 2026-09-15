@@ -12,6 +12,11 @@ import {
   detectFormIntent as detectDeterministicFormIntent,
   resolveFormForAIRequest as resolveDeterministicFormForAIRequest,
 } from '../data/therapeuticForms/aiFormsAccess.js';
+import {
+  THERAPEUTIC_FORMS_CONTENT_AVAILABLE,
+  THERAPEUTIC_FORMS_CONTENT_STATUS,
+  getTherapeuticFormsAvailabilityCopy,
+} from '../data/therapeuticForms/availability.js';
 
 const ADOLESCENTS_CBT_CORE_EN_ID = 'adolescents-cbt-core-en';
 const ADOLESCENTS_CBT_SPECIALIZED_EN_ID = 'adolescents-cbt-specialized-en';
@@ -910,5 +915,22 @@ export function detectFormIntent(userMessage) {
 }
 
 export function resolveFormIntentRequest(userMessage, context = {}) {
-  return resolveDeterministicFormForAIRequest(userMessage, context);
+  const resolved = resolveDeterministicFormForAIRequest(userMessage, context);
+  if (THERAPEUTIC_FORMS_CONTENT_AVAILABLE || !resolved?.intent) return resolved;
+
+  const language = context.language || context.activeLanguage || resolved.resolvedLanguage || 'en';
+  const copy = getTherapeuticFormsAvailabilityCopy(language);
+
+  return {
+    ...resolved,
+    matches: [],
+    nearestMatches: [],
+    generatedFile: null,
+    generatedFiles: [],
+    responseText: copy.aiMessage,
+    contentStatus: THERAPEUTIC_FORMS_CONTENT_STATUS,
+    usedFallbackLanguage: false,
+    fallbackReason: 'forms_under_revision',
+    availableLanguages: [],
+  };
 }
