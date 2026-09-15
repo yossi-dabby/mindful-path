@@ -14,13 +14,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
  * a per-user path segment (.../files/<bucket>/public/<OWNER_ID>/<filename>);
  * we require that <OWNER_ID> to equal the caller's user id so one user
  * cannot read text extracted from another user's private uploads.
- * App-bundled /forms/ paths are public static assets and are always allowed.
+ * Built-in therapeutic forms are intentionally not accepted here while their
+ * source files are under review; only authenticated user uploads are allowed.
  */
 function isFileUrlOwnedByUser(fileUrl, userId) {
   if (typeof fileUrl !== 'string' || !fileUrl.trim() || !userId) return false;
   const trimmed = fileUrl.trim();
-
-  if (trimmed.startsWith('/forms/')) return true;
 
   let pathname;
   try {
