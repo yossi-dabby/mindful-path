@@ -9,6 +9,7 @@
  * See: src/data/therapeuticForms/aiFormsAccess.js
  */
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import {
   detectFormIntent,
   resolveFormForAIRequest,
@@ -315,5 +316,3 @@ describe('no-form suppression — additional English positive-request regression
     expect(detectFormIntent('No worksheets or forms for now.')).toBeNull();
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
