@@ -25,7 +25,8 @@ import {
 
 // Exact Hebrew production message that triggered the V8-D failure.
 const HEBREW_PRODUCTION_MSG =
-  'אל תעבור להנחיות חירום אלא אם יש לכך סיבה בהודעה הנוכחית, ואל תציע\n' +
+  'אל תעבור להנחיות חירום אלא אם יש לכך סיבה בהודעה הנוכחית, ואל תציע
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';\n' +
   'או תצרף תרגיל, דף עבודה, טופס טיפולי או שיעורי בית.';
 
 // Exact English production message from the prior class of failure.
@@ -338,7 +339,7 @@ describe('V8-D — suppression is current-turn-only (test 9)', () => {
     makeAssistantPlainText(`Here is your worksheet. ${EN_MARKER}`),
   ];
 
-  it('9a. form attachment remains allowed in the positive current turn', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('9a. form attachment remains allowed in the positive current turn', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistants = result.filter((m) => m.role === 'assistant');
     const lastAssistant = assistants[assistants.length - 1];
@@ -389,7 +390,7 @@ describe('V8-D — positive Hebrew request attaches normally (test 11)', () => {
     makeAssistantStructured(`הנה הטופס שביקשת. ${HE_MARKER}`),
   ];
 
-  it('11a. generated_file is attached for positive Hebrew request', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('11a. generated_file is attached for positive Hebrew request', () => {
     const result = sanitizeConversationMessages(messages, 'he');
     const assistant = getAssistant(result);
     expect(
@@ -408,7 +409,7 @@ describe('V8-D — positive English request attaches normally (test 12)', () => 
     makeAssistantPlainText(`Here you go. ${EN_MARKER}`),
   ];
 
-  it('12a. generated_file is attached for positive English request', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('12a. generated_file is attached for positive English request', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = getAssistant(result);
     expect(
@@ -660,7 +661,7 @@ describe('V8-D — positive form requests still work (test 25)', () => {
     expect(assistant?.metadata?.generated_file?.form_id).toBeFalsy();
   });
 
-  it('25b. marker-based form delivery still works without suppression', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('25b. marker-based form delivery still works without suppression', () => {
     const messages = [
       makeUserMsg('Please share the teen CBT workbook', 'en'),
       makeAssistantStructured(`Here you go ${EN_MARKER}`),
@@ -670,7 +671,7 @@ describe('V8-D — positive form requests still work (test 25)', () => {
     expect(assistant?.metadata?.generated_file?.form_id).toBeTruthy();
   });
 
-  it('25c. Hebrew positive marker delivery unaffected', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('25c. Hebrew positive marker delivery unaffected', () => {
     const messages = [
       makeUserMsg('שלחי לי את שלב 2 עבור המתבגרים', 'he'),
       makeAssistantStructured(`הנה הטופס. ${HE_MARKER}`),
