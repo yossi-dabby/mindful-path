@@ -81,7 +81,7 @@ describe('no-form suppression — Hebrew suppression examples (tests 8–9)', ()
 // 10  Current-turn only
 // ─────────────────────────────────────────────────────────────────────────────
 describe('no-form suppression — current-turn only (test 10)', () => {
-  it('10. suppression applies only to the current turn; subsequent positive requests resolve normally', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('10. suppression applies only to the current turn; subsequent positive requests resolve normally', () => {
     const suppressed = resolveFormForAIRequest("Don't send me a worksheet.", { language: 'en' });
     expect(suppressed.intent).toBeNull();
     expect(suppressed.generatedFile).toBeNull();
@@ -103,7 +103,7 @@ describe('no-form suppression — positive requests must not be suppressed (test
     expect(result.intent).not.toBeNull();
   });
 
-  it('12. "Send me a therapeutic form" still routes positively with a generated file', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('12. "Send me a therapeutic form" still routes positively with a generated file', () => {
     const result = resolveFormForAIRequest('Send me a therapeutic form.', { language: 'en' });
     expect(result.intent).not.toBeNull();
     expect(result.generatedFile).not.toBeNull();
@@ -115,13 +115,13 @@ describe('no-form suppression — positive requests must not be suppressed (test
     expect(result.intent.type).toBe('list_all_forms');
   });
 
-  it('14. explicit form ID request still resolves', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('14. explicit form ID request still resolves', () => {
     const result = resolveFormForAIRequest('Send worksheet children-cbt-core-en-5-1', { language: 'en' });
     expect(result.intent).not.toBeNull();
     expect(result.generatedFile).not.toBeNull();
   });
 
-  it('15. Hebrew positive form request still resolves', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('15. Hebrew positive form request still resolves', () => {
     const result = resolveFormForAIRequest('שלח לי טופס לילד עם חרדה', { language: 'he' });
     expect(result.intent).not.toBeNull();
     expect(result.generatedFile).not.toBeNull();
@@ -190,7 +190,7 @@ describe('no-form suppression — infrastructure unchanged (tests 19–24)', () 
   // ─────────────────────────────────────────────────────────────────────────
   // 20  Audience/language filtering is unchanged
   // ─────────────────────────────────────────────────────────────────────────
-  it('20. audience and language filtering are unchanged', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('20. audience and language filtering are unchanged', () => {
     const heChildren = resolveFormForAIRequest('תשלח לי טופס לילדים', { language: 'he' });
     expect(heChildren.generatedFile).not.toBeNull();
     expect(heChildren.generatedFile.language).toBe('he');
@@ -204,7 +204,7 @@ describe('no-form suppression — infrastructure unchanged (tests 19–24)', () 
   // ─────────────────────────────────────────────────────────────────────────
   // 21  Catalog entries are unchanged
   // ─────────────────────────────────────────────────────────────────────────
-  it('21. catalog entries are unchanged (no additions, removals, or modifications)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('21. catalog entries are unchanged (no additions, removals, or modifications)', () => {
     const forms = getAllTherapeuticForms();
     expect(forms.length).toBeGreaterThan(0);
     const enForms = forms.filter(f => f?.approved === true && f?.language === 'en');
@@ -216,7 +216,7 @@ describe('no-form suppression — infrastructure unchanged (tests 19–24)', () 
   // ─────────────────────────────────────────────────────────────────────────
   // 22  No generated manifest changes — the suppression check is in-memory only
   // ─────────────────────────────────────────────────────────────────────────
-  it('22. generated manifest is not affected (forms still resolve from the same catalog)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('22. generated manifest is not affected (forms still resolve from the same catalog)', () => {
     const resolved = resolveFormForAIRequest('Send worksheet children-cbt-core-en-5-1', { language: 'en' });
     expect(resolved.generatedFile).not.toBeNull();
     expect(resolved.generatedFile.form_id).toBe('children-cbt-core-en-5-1');
@@ -315,3 +315,5 @@ describe('no-form suppression — additional English positive-request regression
     expect(detectFormIntent('No worksheets or forms for now.')).toBeNull();
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
