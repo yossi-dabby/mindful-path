@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 async function setupSpanishForms(page: Page) {
@@ -18,12 +19,20 @@ test.describe('Forms Library — Spanish empty architecture', () => {
     await spaNavigate(page, '/TherapeuticForms');
 
     await expect(page.getByRole('heading', { name: 'Formularios Terapéuticos' })).toBeVisible();
-    await expect(page.getByTestId('empty-state')).toBeVisible();
-    await expect(page.getByTestId('empty-state')).toContainText('No hay formularios disponibles');
-    await expect(page.getByTestId('empty-state')).toContainText(
-      'Ningún formulario terapéutico coincide con los filtros seleccionados',
-    );
-    await expect(page.locator('[data-testid^="collection-card-"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid^="worksheet-card-"]')).toHaveCount(0);
+
+    if (contentStatus.contentAvailable === true) {
+      await expect(page.getByTestId('empty-state')).toBeVisible();
+      await expect(page.getByTestId('empty-state')).toContainText('No hay formularios disponibles');
+      await expect(page.getByTestId('empty-state')).toContainText(
+        'Ningún formulario terapéutico coincide con los filtros seleccionados',
+      );
+      await expect(page.locator('[data-testid^="collection-card-"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid^="worksheet-card-"]')).toHaveCount(0);
+      return;
+    }
+
+    await expect(page.getByTestId('forms-under-revision')).toContainText('Los formularios se están actualizando');
+    await expect(page.getByTestId('collections-grid')).toHaveCount(0);
+    await expect(page.locator('a[href$=".pdf" i]')).toHaveCount(0);
   });
 });
