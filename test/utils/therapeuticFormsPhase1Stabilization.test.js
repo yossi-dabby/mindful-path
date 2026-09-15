@@ -64,7 +64,7 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     (f) => f.language === 'he' && f.category === 'adolescents_cbt_specialized' && f.type === 'individual_worksheet'
   );
 
-  it('generated index contains 60 Hebrew adolescents specialized worksheet entries', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('generated index contains 60 Hebrew adolescents specialized worksheet entries', () => {
     expect(heSpecialized).toHaveLength(60);
   });
 
@@ -85,7 +85,7 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     expect(fallback, 'Some entries still use fallback שלב N titles').toHaveLength(0);
   });
 
-  it('module 01 entries all have moduleTitle: "חרדה, לחץ ופחדים"', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('module 01 entries all have moduleTitle: "חרדה, לחץ ופחדים"', () => {
     const m01 = heSpecialized.filter((f) => f.moduleNumber === 1);
     expect(m01).toHaveLength(6);
     for (const f of m01) {
@@ -93,7 +93,7 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     }
   });
 
-  it('module 02 entries all have moduleTitle: "מצב רוח, תפקוד ואנרגיה"', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('module 02 entries all have moduleTitle: "מצב רוח, תפקוד ואנרגיה"', () => {
     const m02 = heSpecialized.filter((f) => f.moduleNumber === 2);
     expect(m02).toHaveLength(6);
     for (const f of m02) {
@@ -101,13 +101,13 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     }
   });
 
-  it('all 10 distinct Hebrew module titles are populated (one per module)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all 10 distinct Hebrew module titles are populated (one per module)', () => {
     const titles = new Set(heSpecialized.map((f) => f.moduleTitle));
     // 10 modules × 6 worksheets each; each module should have a unique title
     expect(titles.size).toBe(10);
   });
 
-  it('all 10 expected Hebrew module titles are present in the generated index', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all 10 expected Hebrew module titles are present in the generated index', () => {
     const expectedTitles = [
       'חרדה, לחץ ופחדים',                        // module 01
       'מצב רוח, תפקוד ואנרגיה',                  // module 02
@@ -131,7 +131,7 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
 // ── 3. Language gating — no regressions ──────────────────────────────────────
 
 describe('Phase 1 — language gating regression', () => {
-  it('existing Hebrew forms still appear only in Hebrew language context', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('existing Hebrew forms still appear only in Hebrew language context', () => {
     const heForms = ALL_FORMS.filter((f) => f.language === 'he' && f.approved === true);
     expect(heForms.length).toBeGreaterThan(0);
     // All Hebrew forms should resolve in Hebrew but not in English
@@ -143,7 +143,7 @@ describe('Phase 1 — language gating regression', () => {
     }
   });
 
-  it('existing English forms still appear only in English language context', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('existing English forms still appear only in English language context', () => {
     const enForms = ALL_FORMS.filter((f) => f.language === 'en' && f.approved === true);
     expect(enForms.length).toBeGreaterThan(0);
     for (const form of enForms.slice(0, 5)) {
@@ -205,7 +205,7 @@ describe('Phase 1 — open/download behavior unchanged', () => {
     expect(src).toMatch(/download/i);
   });
 
-  it('PDF asset paths have not changed — adolescents-cbt-core-en still at expected URL', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('PDF asset paths have not changed — adolescents-cbt-core-en still at expected URL', () => {
     const entry = ALL_FORMS.find((f) => f.id === 'adolescents-cbt-core-en');
     expect(entry).toBeDefined();
     expect(entry?.fileUrl).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
@@ -223,3 +223,5 @@ describe('Phase 1 baseline + Phase 3 UI contracts', () => {
     expect(src).toContain('FormsModuleCard');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
