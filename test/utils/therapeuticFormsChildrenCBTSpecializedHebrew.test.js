@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 
 import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
 import {
@@ -237,5 +238,3 @@ describe('Hebrew children CBT specialized integration', () => {
     }
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
