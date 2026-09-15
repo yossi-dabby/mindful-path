@@ -1,5 +1,7 @@
-export const THERAPEUTIC_FORMS_CONTENT_STATUS = 'under_revision';
-export const THERAPEUTIC_FORMS_CONTENT_AVAILABLE = false;
+import contentStatus from './content-status.json';
+
+export const THERAPEUTIC_FORMS_CONTENT_STATUS = contentStatus.status;
+export const THERAPEUTIC_FORMS_CONTENT_AVAILABLE = contentStatus.contentAvailable === true;
 
 const COPY = Object.freeze({
   en: Object.freeze({
