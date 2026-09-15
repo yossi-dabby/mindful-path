@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
 
 describe('chatSessionLanguage.test.js', () => {
@@ -14,5 +15,3 @@ describe('chatSessionLanguage.test.js', () => {
     expect(assistant?.metadata?.generated_file?.language).toBe('en');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
