@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
@@ -261,5 +262,3 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(() => sanitizeConversationMessages(messages, 'en')).not.toThrow();
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
