@@ -47,14 +47,14 @@ describe('PR-9 Phase 2: index-to-AI parity', () => {
     }
   });
 
-  it('no approved form silently disappears from AI access after a future upload', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('no approved form silently disappears from AI access after a future upload', () => {
     const totalApproved = generatedFormsIndex.filter((f) => f.approved === true).length;
     const allFormsFromRegistry = getAllTherapeuticForms();
     // If this fails after an upload, a form was added to the index but filtered out.
     expect(allFormsFromRegistry.length).toBe(totalApproved);
   });
 
-  it('Hebrew AI list contains only Hebrew forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew AI list contains only Hebrew forms', () => {
     const listedHe = listFormsForAI({ language: 'he', allowEnglishFallback: false });
     expect(listedHe.length).toBeGreaterThan(0);
     for (const form of listedHe) {
@@ -62,7 +62,7 @@ describe('PR-9 Phase 2: index-to-AI parity', () => {
     }
   });
 
-  it('English AI list contains only English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English AI list contains only English forms', () => {
     const listedEn = listFormsForAI({ language: 'en', allowEnglishFallback: false });
     expect(listedEn.length).toBeGreaterThan(0);
     for (const form of listedEn) {
@@ -79,7 +79,7 @@ describe('PR-9 Phase 2: index-to-AI parity', () => {
     }
   });
 
-  it('all four Hebrew CBT categories are covered in AI layer', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all four Hebrew CBT categories are covered in AI layer', () => {
     const requiredHebrewCategories = [
       'adolescents_cbt_core',
       'adolescents_cbt_specialized',
@@ -131,35 +131,35 @@ describe('PR-9 Phase 3: exact title lookup — Hebrew datasets', () => {
     (f) => f.language === 'he' && f.category === 'children_cbt_specialized' && !f.isCombinedPdf
   );
 
-  it('resolves representative adolescents_cbt_core_he form by title', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves representative adolescents_cbt_core_he form by title', () => {
     const rep = heAdolCore.find((f) => typeof f.title === 'string' && f.title.length > 3);
     expect(rep, 'No representative form found in adolescents_cbt_core_he').toBeTruthy();
     const results = searchFormsForAI(rep.title, { language: 'he', audience: 'adolescents' });
     expect(results.some((f) => f.id === rep.id), `Form ${rep.id} ("${rep.title}") not found by title search`).toBe(true);
   });
 
-  it('resolves representative adolescents_cbt_specialized_he form by title', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves representative adolescents_cbt_specialized_he form by title', () => {
     const rep = heAdolSpec.find((f) => typeof f.title === 'string' && f.title.length > 3);
     expect(rep, 'No representative form found in adolescents_cbt_specialized_he').toBeTruthy();
     const results = searchFormsForAI(rep.title, { language: 'he', audience: 'adolescents' });
     expect(results.some((f) => f.id === rep.id), `Form ${rep.id} ("${rep.title}") not found by title search`).toBe(true);
   });
 
-  it('resolves representative children_cbt_core_he form by title', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves representative children_cbt_core_he form by title', () => {
     const rep = heChildCore.find((f) => typeof f.title === 'string' && f.title.length > 3);
     expect(rep, 'No representative form found in children_cbt_core_he').toBeTruthy();
     const results = searchFormsForAI(rep.title, { language: 'he', audience: 'children' });
     expect(results.some((f) => f.id === rep.id), `Form ${rep.id} ("${rep.title}") not found by title search`).toBe(true);
   });
 
-  it('resolves representative children_cbt_specialized_he form by title', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves representative children_cbt_specialized_he form by title', () => {
     const rep = heChildSpec.find((f) => typeof f.title === 'string' && f.title.length > 3);
     expect(rep, 'No representative form found in children_cbt_specialized_he').toBeTruthy();
     const results = searchFormsForAI(rep.title, { language: 'he', audience: 'children' });
     expect(results.some((f) => f.id === rep.id), `Form ${rep.id} ("${rep.title}") not found by title search`).toBe(true);
   });
 
-  it('resolves multiple representative adolescents_cbt_core_he forms by title (3 spot-checks)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves multiple representative adolescents_cbt_core_he forms by title (3 spot-checks)', () => {
     const reps = heAdolCore.filter((f) => typeof f.title === 'string' && f.title.length > 3).slice(0, 3);
     expect(reps.length).toBeGreaterThanOrEqual(3);
     for (const rep of reps) {
@@ -169,7 +169,7 @@ describe('PR-9 Phase 3: exact title lookup — Hebrew datasets', () => {
     }
   });
 
-  it('resolves multiple representative adolescents_cbt_specialized_he forms by title (3 spot-checks)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves multiple representative adolescents_cbt_specialized_he forms by title (3 spot-checks)', () => {
     const reps = heAdolSpec.filter((f) => typeof f.title === 'string' && f.title.length > 3).slice(0, 3);
     expect(reps.length).toBeGreaterThanOrEqual(3);
     for (const rep of reps) {
@@ -179,7 +179,7 @@ describe('PR-9 Phase 3: exact title lookup — Hebrew datasets', () => {
     }
   });
 
-  it('resolves multiple representative children_cbt_specialized_he forms by title (3 spot-checks)', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves multiple representative children_cbt_specialized_he forms by title (3 spot-checks)', () => {
     const reps = heChildSpec.filter((f) => typeof f.title === 'string' && f.title.length > 3).slice(0, 3);
     expect(reps.length).toBeGreaterThanOrEqual(3);
     for (const rep of reps) {
@@ -207,7 +207,7 @@ describe('PR-9 Phase 3: exact title lookup — English datasets', () => {
     (f) => f.language === 'en' && f.category === 'children_cbt_core' && !f.isCombinedPdf
   );
 
-  it('resolves representative adolescents_cbt_core English form by title', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves representative adolescents_cbt_core English form by title', () => {
     const rep = enAdolCore.find((f) => typeof f.title === 'string' && f.title.length > 5);
     expect(rep, 'No representative form in adolescents_cbt_core EN').toBeTruthy();
     const results = searchFormsForAI(rep.title, { language: 'en', audience: 'adolescents' });
@@ -215,7 +215,7 @@ describe('PR-9 Phase 3: exact title lookup — English datasets', () => {
     expect(results.every((f) => f.language === 'en')).toBe(true);
   });
 
-  it('resolves representative children_cbt_core English form by title', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves representative children_cbt_core English form by title', () => {
     const rep = enChildCore.find((f) => typeof f.title === 'string' && f.title.length > 5);
     expect(rep, 'No representative form in children_cbt_core EN').toBeTruthy();
     const results = searchFormsForAI(rep.title, { language: 'en', audience: 'children' });
@@ -241,7 +241,7 @@ describe('PR-9 Phase 4: Hebrew clinical need lookup', () => {
   ];
 
   for (const { query, label } of HEBREW_CLINICAL_QUERIES) {
-    it(`Hebrew clinical query "${query}" (${label}) returns non-empty Hebrew results`, () => {
+    it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)(`Hebrew clinical query "${query}" (${label}) returns non-empty Hebrew results`, () => {
       const results = searchFormsForAI(query, { language: 'he' });
       expect(results.length, `No results for Hebrew clinical query: ${query}`).toBeGreaterThan(0);
       expect(results.every((f) => f.language === 'he'), `Non-Hebrew form returned for query: ${query}`).toBe(true);
@@ -254,7 +254,7 @@ describe('PR-9 Phase 4: Hebrew clinical need lookup', () => {
     });
   }
 
-  it('Hebrew clinical queries return forms with clinical metadata, not only titles', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew clinical queries return forms with clinical metadata, not only titles', () => {
     // This guards against AI seeing only titles and missing clinical content
     const results = searchFormsForAI('חרדה', { language: 'he' });
     expect(results.length).toBeGreaterThan(0);
@@ -264,7 +264,7 @@ describe('PR-9 Phase 4: Hebrew clinical need lookup', () => {
     expect(hasKeywords, 'Hebrew anxiety results should include forms with clinicalKeywords').toBe(true);
   });
 
-  it('Hebrew clinical queries return forms from multiple categories when appropriate', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew clinical queries return forms from multiple categories when appropriate', () => {
     // ויסות רגשי (emotional regulation) spans both core and specialized
     const results = searchFormsForAI('ויסות רגשי', { language: 'he' });
     expect(results.length).toBeGreaterThan(0);
@@ -272,20 +272,20 @@ describe('PR-9 Phase 4: Hebrew clinical need lookup', () => {
     expect(categories.size).toBeGreaterThan(0);
   });
 
-  it('חרדת פרידה query returns children specialized Hebrew forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('חרדת פרידה query returns children specialized Hebrew forms', () => {
     const results = searchFormsForAI('חרדת פרידה', { language: 'he' });
     expect(results.length).toBeGreaterThan(0);
     expect(results.some((f) => f.category === 'children_cbt_specialized')).toBe(true);
     expect(results.every((f) => f.language === 'he')).toBe(true);
   });
 
-  it('כעס query returns adolescents specialized Hebrew forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('כעס query returns adolescents specialized Hebrew forms', () => {
     const results = searchFormsForAI('כעס', { language: 'he' });
     expect(results.length).toBeGreaterThan(0);
     expect(results.every((f) => f.language === 'he')).toBe(true);
   });
 
-  it('טראומה query returns adolescents specialized Hebrew forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('טראומה query returns adolescents specialized Hebrew forms', () => {
     const results = searchFormsForAI('טראומה', { language: 'he' });
     expect(results.length).toBeGreaterThan(0);
     expect(results.some((f) => f.category === 'adolescents_cbt_specialized')).toBe(true);
@@ -303,7 +303,7 @@ describe('PR-9 Phase 4: English clinical need lookup', () => {
   ];
 
   for (const { query, label } of ENGLISH_CLINICAL_QUERIES) {
-    it(`English clinical query "${query}" (${label}) returns non-empty English results`, () => {
+    it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)(`English clinical query "${query}" (${label}) returns non-empty English results`, () => {
       const results = searchFormsForAI(query, { language: 'en' });
       expect(results.length, `No results for English clinical query: ${query}`).toBeGreaterThan(0);
       expect(results.every((f) => f.language === 'en'), `Hebrew form leaked into English results for: ${query}`).toBe(true);
@@ -314,28 +314,28 @@ describe('PR-9 Phase 4: English clinical need lookup', () => {
 // ─── Phase 5: Audience / Module / Stage Lookup ────────────────────────────────
 
 describe('PR-9 Phase 5: audience lookup — children vs adolescents isolation', () => {
-  it('Hebrew children query does not return adolescents as top result', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew children query does not return adolescents as top result', () => {
     const resolved = resolveFormForAIRequest('שלח לי טופס לילד עם חרדה', { language: 'he' });
     expect(resolved.generatedFile).not.toBeNull();
     expect(resolved.generatedFile.language).toBe('he');
     expect(resolved.generatedFile.audience).toBe('children');
   });
 
-  it('Hebrew adolescents query does not return children as top result', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew adolescents query does not return children as top result', () => {
     const resolved = resolveFormForAIRequest('שלח לי טופס למתבגר עם חרדה', { language: 'he' });
     expect(resolved.generatedFile).not.toBeNull();
     expect(resolved.generatedFile.language).toBe('he');
     expect(resolved.generatedFile.audience).toBe('adolescents');
   });
 
-  it('English children query returns children forms only', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English children query returns children forms only', () => {
     const forms = listFormsForAI({ language: 'en', audience: 'children' });
     expect(forms.length).toBeGreaterThan(0);
     expect(forms.every((f) => f.audience === 'children')).toBe(true);
     expect(forms.every((f) => f.language === 'en')).toBe(true);
   });
 
-  it('English adolescents query returns adolescents forms only', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English adolescents query returns adolescents forms only', () => {
     const forms = listFormsForAI({ language: 'en', audience: 'adolescents' });
     expect(forms.length).toBeGreaterThan(0);
     expect(forms.every((f) => f.audience === 'adolescents')).toBe(true);
@@ -354,7 +354,7 @@ describe('PR-9 Phase 5: audience lookup — children vs adolescents isolation', 
 });
 
 describe('PR-9 Phase 5: module and stage lookup', () => {
-  it('Hebrew adolescents stage request returns forms from the requested stage', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew adolescents stage request returns forms from the requested stage', () => {
     for (let stage = 1; stage <= 6; stage++) {
       const resolved = resolveFormForAIRequest(`שלח לי טפסים משלב ${stage}`, { language: 'he' });
       expect(Array.isArray(resolved.generatedFiles)).toBe(true);
@@ -363,7 +363,7 @@ describe('PR-9 Phase 5: module and stage lookup', () => {
     }
   });
 
-  it('Hebrew adolescents stage combined request resolves to combined PDF when available', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew adolescents stage combined request resolves to combined PDF when available', () => {
     // Stages 1-6 all have combined PDFs in the index
     const resolved = resolveFormForAIRequest('שלח לי את כל שלב 3', { language: 'he' });
     expect(resolved.generatedFile).not.toBeNull();
@@ -376,7 +376,7 @@ describe('PR-9 Phase 5: module and stage lookup', () => {
     expect(combinedFile || isCombinedById, 'Stage combined request should prefer a combined PDF').toBeTruthy();
   });
 
-  it('Hebrew children module request resolves to module PDF when available', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew children module request resolves to module PDF when available', () => {
     // Children CBT core HE has module combined PDFs for modules 01-05
     const resolved = resolveFormForAIRequest('שלח לי את הקובץ המאוחד של מודול 1', { language: 'he' });
     expect(resolved.generatedFile).not.toBeNull();
@@ -384,14 +384,14 @@ describe('PR-9 Phase 5: module and stage lookup', () => {
     expect(String(resolved.generatedFile.form_id || '')).toContain('children-cbt-core-he-module-0');
   });
 
-  it('Hebrew adolescents specialized module request returns specialized forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew adolescents specialized module request returns specialized forms', () => {
     const resolved = resolveFormForAIRequest('שלח לי טפסים ממודול 5 מהסדרה המתקדמת', { language: 'he' });
     expect(Array.isArray(resolved.generatedFiles)).toBe(true);
     expect(resolved.generatedFiles.length).toBeGreaterThan(0);
     expect(resolved.generatedFiles.every((f) => f.language === 'he')).toBe(true);
   });
 
-  it('English module request returns English forms only', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English module request returns English forms only', () => {
     const resolved = resolveFormForAIRequest('send all forms from module 06', { language: 'en' });
     expect(Array.isArray(resolved.generatedFiles)).toBe(true);
     expect(resolved.generatedFiles.length).toBeGreaterThan(0);
@@ -402,7 +402,7 @@ describe('PR-9 Phase 5: module and stage lookup', () => {
 // ─── Phase 6: Multi-form / Combined PDF Awareness ─────────────────────────────
 
 describe('PR-9 Phase 6: multi-form and combined PDF awareness', () => {
-  it('Hebrew "שלח לי כמה טפסים לילד עם חרדת פרידה" triggers multi-form intent', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew "שלח לי כמה טפסים לילד עם חרדת פרידה" triggers multi-form intent', () => {
     const resolved = resolveFormForAIRequest('שלח לי כמה טפסים לילד עם חרדת פרידה', { language: 'he' });
     expect(resolved.intent?.type).toBe('send_multiple_forms');
     expect(Array.isArray(resolved.generatedFiles)).toBe(true);
@@ -441,14 +441,14 @@ describe('PR-9 Phase 6: multi-form and combined PDF awareness', () => {
     expect(MAX_GENERATED_FILES_PER_RESPONSE).toBe(5);
   });
 
-  it('Hebrew whole-stage request prefers combined stage PDF over individual worksheets', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew whole-stage request prefers combined stage PDF over individual worksheets', () => {
     const resolved = resolveFormForAIRequest('שלח לי את כל שלב 2', { language: 'he' });
     expect(Array.isArray(resolved.generatedFiles)).toBe(true);
     expect(resolved.generatedFiles.length).toBe(1);
     expect(resolved.generatedFiles[0].form_id).toBe('adolescents-cbt-core-he-stage-2-combined');
   });
 
-  it('Hebrew multi-form request with clinical focus attaches forms from correct category', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew multi-form request with clinical focus attaches forms from correct category', () => {
     const resolved = resolveFormForAIRequest('שלח לי מספר טפסים לילד עם חרדת פרידה', { language: 'he' });
     expect(resolved.intent?.type).toBe('send_multiple_forms');
     expect(resolved.generatedFiles.length).toBeGreaterThan(0);
@@ -460,7 +460,7 @@ describe('PR-9 Phase 6: multi-form and combined PDF awareness', () => {
     expect(allChildrenOrNoAudience).toBe(true);
   });
 
-  it('combined PDFs in index are accessible to AI layer', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('combined PDFs in index are accessible to AI layer', () => {
     const combinedInIndex = generatedFormsIndex.filter((f) => f.isCombinedPdf === true && f.approved === true);
     expect(combinedInIndex.length).toBeGreaterThan(0);
     const allForms = getAllTherapeuticForms();
@@ -603,7 +603,7 @@ function createUploadDatasetSmokeTest(opts) {
   const { datasetLabel, language, audience, category, expectedIds, titleSamples, clinicalKeywords, multiFormQuery } = opts;
 
   describe(`Upload smoke: ${datasetLabel}`, () => {
-    it('all expected form IDs are in AI access layer', () => {
+    it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all expected form IDs are in AI access layer', () => {
       const forms = listFormsForAI({ language, audience, category, allowEnglishFallback: false });
       const formIds = new Set(forms.map((f) => f.id));
       for (const id of expectedIds) {
@@ -611,7 +611,7 @@ function createUploadDatasetSmokeTest(opts) {
       }
     });
 
-    it('all forms are language-correct in AI access layer', () => {
+    it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all forms are language-correct in AI access layer', () => {
       const forms = listFormsForAI({ language, audience, category, allowEnglishFallback: false });
       expect(forms.length).toBeGreaterThan(0);
       for (const form of forms) {
@@ -619,7 +619,7 @@ function createUploadDatasetSmokeTest(opts) {
       }
     });
 
-    it('title lookups work for representative forms', () => {
+    it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('title lookups work for representative forms', () => {
       for (const title of titleSamples) {
         const results = searchFormsForAI(title, { language, audience });
         expect(results.length, `No results for title "${title}"`).toBeGreaterThan(0);
@@ -627,7 +627,7 @@ function createUploadDatasetSmokeTest(opts) {
       }
     });
 
-    it('clinical keyword lookups return results in the correct language', () => {
+    it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('clinical keyword lookups return results in the correct language', () => {
       for (const keyword of clinicalKeywords) {
         const results = searchFormsForAI(keyword, { language });
         expect(results.length, `No results for clinical keyword "${keyword}"`).toBeGreaterThan(0);
@@ -636,7 +636,7 @@ function createUploadDatasetSmokeTest(opts) {
     });
 
     if (multiFormQuery) {
-      it('multi-form query returns multiple files within the cap', () => {
+      it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('multi-form query returns multiple files within the cap', () => {
         const resolved = resolveFormForAIRequest(multiFormQuery, { language });
         expect(Array.isArray(resolved.generatedFiles)).toBe(true);
         expect(resolved.generatedFiles.length).toBeGreaterThan(0);
@@ -711,3 +711,5 @@ createUploadDatasetSmokeTest({
   clinicalKeywords: ['חרדת פרידה', 'דימוי עצמי', 'שינה'],
   multiFormQuery: 'שלח לי כמה טפסים לילד עם חרדת פרידה',
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
