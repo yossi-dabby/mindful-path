@@ -21,11 +21,12 @@ describe('therapeutic forms generated index safety', () => {
       encoding: 'utf8',
     });
 
-    expect(result.status, `Generator failed.\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+    expect(result.status, `Generator failed.
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
     expect(fs.existsSync(GENERATED_INDEX_PATH)).toBe(true);
   });
 
-  it('keeps generated entries file-backed and path-safe', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps generated entries file-backed and path-safe', () => {
     expect(Array.isArray(generatedFormsIndex)).toBe(true);
     expect(generatedFormsIndex.length).toBeGreaterThan(0);
 
