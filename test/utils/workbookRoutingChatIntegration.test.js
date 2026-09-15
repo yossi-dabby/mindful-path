@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import {
   resolveWorkbookIntent,
   resolveWorkbookIntentWithContext,
@@ -19,5 +20,3 @@ describe('workbookRoutingChatIntegration.test.js', () => {
     expect(resolveSpanishWorkbookIntentWithContext('cuaderno para esto', 'pensamientos intrusivos y evitación')).toBeNull();
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
