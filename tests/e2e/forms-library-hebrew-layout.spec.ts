@@ -14,7 +14,7 @@
  *   - Longest description: ~184 chars in adolescents-cbt-specialized-he OCD module
  */
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
