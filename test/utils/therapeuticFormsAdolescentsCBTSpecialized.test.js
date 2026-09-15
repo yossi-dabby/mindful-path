@@ -81,7 +81,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescen
     })).toBe(true);
   });
 
-  it('all entry fileUrls point to existing PDFs on disk', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all entry fileUrls point to existing PDFs on disk', () => {
     const missing = FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE
       .map((f) => {
         const url = f.languages?.he?.file_url || f.fileUrl;
@@ -124,14 +124,14 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescen
     expect(count).toBe(60);
   });
 
-  it('generated index Hebrew specialized entries all have approved: true', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('generated index Hebrew specialized entries all have approved: true', () => {
     const entries = ALL_FORMS.filter(
       (f) => f.language === 'he' && f.category === 'adolescents_cbt_specialized'
     );
     expect(entries.every((f) => f.approved === true)).toBe(true);
   });
 
-  it('generated index Hebrew specialized entries all have rtl: true', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('generated index Hebrew specialized entries all have rtl: true', () => {
     const entries = ALL_FORMS.filter(
       (f) => f.language === 'he' && f.category === 'adolescents_cbt_specialized'
     );
@@ -157,7 +157,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescen
     expect(pageSource).toContain('form.language && form.language !== lang');
   });
 
-  it('Hebrew specialized forms resolved in Hebrew mode, not in English mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew specialized forms resolved in Hebrew mode, not in English mode', () => {
     const heEntries = ALL_FORMS.filter(
       (f) => f.language === 'he' && f.category === 'adolescents_cbt_specialized'
     );
@@ -206,7 +206,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — baseline', () =>
     expect(resolveFormIntent('tf-children-cbt-stage-2-2-premium-he', 'he')).toBeNull();
   });
 
-  it('has active runtime /forms PDF URLs in catalog', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('has active runtime /forms PDF URLs in catalog', () => {
     const activePdfUrls = ALL_FORMS
       .flatMap((form) => Object.values(form.languages || {}))
       .map((langBlock) => String(langBlock?.file_url || ''))
@@ -238,7 +238,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
   });
 
   // Test 3: Every fileUrl points to an existing PDF
-  it('every module 01 fileUrl points to an existing PDF', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('every module 01 fileUrl points to an existing PDF', () => {
     for (const form of FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE_MODULE_01) {
       const absolute = path.join(ROOT, 'public', form.fileUrl.replace(/^\//, ''));
       expect(fs.existsSync(absolute), `Missing PDF: ${form.fileUrl}`).toBe(true);
@@ -286,7 +286,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
   });
 
   // Test 9: TherapeuticForms page filter shows module 01 forms in Hebrew mode
-  it('page-level filter shows module 01 forms in Hebrew mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('page-level filter shows module 01 forms in Hebrew mode', () => {
     const hebrewSpecialized = ALL_FORMS.filter(
       (form) =>
         form.category === 'adolescents_cbt_specialized' &&
@@ -324,7 +324,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
   });
 
   // Test 12: AI retrieval finds at least one form by direct form ID
-  it('AI retrieval finds module 01 forms by direct form ID in Hebrew mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI retrieval finds module 01 forms by direct form ID in Hebrew mode', () => {
     const firstForm = FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE_MODULE_01[0];
     const resolved = resolveFormIntent(firstForm.id, 'he');
     expect(resolved).not.toBeNull();
@@ -333,7 +333,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
   });
 
   // Test 13: AI retrieval finds at least one form by clinical need (Hebrew keyword)
-  it('AI retrieval finds a module 01 form by clinical need in Hebrew mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI retrieval finds a module 01 form by clinical need in Hebrew mode', () => {
     const result = resolveFormIntent('חרדה לחץ ופחדים מתבגרים', 'he');
     expect(result).not.toBeNull();
     expect(result.language).toBe('he');
@@ -377,7 +377,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
   });
 
   // Test 19: languages.he.file_url and fileUrl are consistent
-  it('languages.he.file_url and fileUrl are consistent and point to valid PDFs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('languages.he.file_url and fileUrl are consistent and point to valid PDFs', () => {
     for (const form of FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE_MODULE_01) {
       expect(form.languages?.he?.file_url).toBe(form.fileUrl);
       expect(form.languages?.he?.file_type).toBe('pdf');
@@ -411,3 +411,5 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — regression', () 
     expect(heCore.filter((f) => f.type === 'stage_combined_pdf')).toHaveLength(6);
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
