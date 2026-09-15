@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
 import fs from 'node:fs';
 import path from 'node:path';
 import { mockApi, spaNavigate } from '../helpers/ui';
