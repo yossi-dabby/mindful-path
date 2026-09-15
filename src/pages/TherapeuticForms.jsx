@@ -16,6 +16,10 @@ import FormsBreadcrumb from '@/components/forms/FormsBreadcrumb';
 import FormsViewModeToggle, { FORMS_VIEW_MODES } from '@/components/forms/FormsViewModeToggle';
 import FormsNavigationControls from '@/components/forms/FormsNavigationControls';
 import FormsCombinedPdfCard from '@/components/forms/FormsCombinedPdfCard';
+import {
+  THERAPEUTIC_FORMS_CONTENT_AVAILABLE,
+  getTherapeuticFormsAvailabilityCopy,
+} from '@/data/therapeuticForms/availability.js';
 
 const AUDIENCE_ORDER = ['children', 'adolescents', 'adults', 'older_adults'];
 const COLLECTION_TYPE_ORDER = { core: 0, specialized: 1 };
@@ -399,7 +403,7 @@ function getWorksheetTags({ worksheet, module, t, lang }) {
   return Array.from(new Set(tags)).slice(0, 3);
 }
 
-export default function TherapeuticForms() {
+function TherapeuticFormsLibrary() {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const location = useLocation();
@@ -796,4 +800,71 @@ export default function TherapeuticForms() {
       )}
     </div>
   );
+}
+
+function TherapeuticFormsUnavailable() {
+  const { t, i18n } = useTranslation();
+  const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
+  const uiLabels = FORMS_PAGE_LABELS[lang] || FORMS_PAGE_LABELS.en;
+  const copy = getTherapeuticFormsAvailabilityCopy(lang);
+  const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
+
+  return (
+    <div
+      className="forms-library-teal mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom bg-teal-100/40"
+      dir={isRtl ? 'rtl' : 'ltr'}
+      data-testid="therapeutic-forms-page"
+    >
+      <div className="mb-8 mt-4">
+        <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
+          <ClipboardList className="w-8 h-8 text-teal-600" aria-hidden="true" />
+          {t('therapeutic_forms.page_title')}
+        </h1>
+        <p className="text-foreground">{t('therapeutic_forms.page_subtitle')}</p>
+      </div>
+
+      <section
+        className="mb-8 rounded-[var(--radius-card)] border border-amber-300 bg-amber-50 p-5 shadow-[var(--shadow-sm)]"
+        data-testid="forms-under-revision"
+        aria-labelledby="forms-under-revision-title"
+      >
+        <h2 id="forms-under-revision-title" className="mb-2 text-xl font-semibold text-amber-900">
+          {copy.title}
+        </h2>
+        <p className="text-amber-950">{copy.message}</p>
+        <p className="mt-3 text-sm text-amber-900">{copy.metadata}</p>
+      </section>
+
+      <section className="rounded-[var(--radius-card)] border border-teal-200 bg-white p-5">
+        <h2 className="mb-4 text-lg font-semibold text-teal-700">{copy.catalog}</h2>
+        <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" data-testid="forms-audience-architecture">
+          {AUDIENCE_ORDER.map((audience) => (
+            <div key={audience} className="rounded-lg border border-teal-200 bg-teal-50 p-4">
+              <p className="font-medium text-teal-800">{t(`therapeutic_forms.audience.${audience}`)}</p>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" data-testid="forms-collection-architecture">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="font-medium text-slate-800">{uiLabels.core}</p>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="font-medium text-slate-800">{uiLabels.specialized}</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-6 rounded-lg border border-teal-300 bg-white p-4 text-sm text-foreground">
+        <Link className="underline underline-offset-2 text-teal-700 hover:text-teal-600" to="/Chat">
+          {uiLabels.chat}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function TherapeuticForms() {
+  return THERAPEUTIC_FORMS_CONTENT_AVAILABLE
+    ? <TherapeuticFormsLibrary />
+    : <TherapeuticFormsUnavailable />;
 }
