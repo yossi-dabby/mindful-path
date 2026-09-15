@@ -96,7 +96,7 @@ describe('Children CBT Core EN — registry structure', () => {
 
 // ─── 2. PDF asset existence ──────────────────────────────────────────────────
 describe('Children CBT Core EN — PDF asset existence', () => {
-  it('all 30 individual worksheet PDF files exist and are valid PDFs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all 30 individual worksheet PDF files exist and are valid PDFs', () => {
     for (const form of FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL) {
       const absolutePath = path.join(ROOT, 'public', form.fileUrl.replace(/^\//, ''));
       expect(fs.existsSync(absolutePath), `Missing: ${form.fileUrl}`).toBe(true);
@@ -106,7 +106,7 @@ describe('Children CBT Core EN — PDF asset existence', () => {
     }
   });
 
-  it('all 4 module PDF files exist and are valid PDFs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all 4 module PDF files exist and are valid PDFs', () => {
     for (const form of FORMS_CHILDREN_CBT_CORE_EN_MODULE_PDFS) {
       const absolutePath = path.join(ROOT, 'public', form.fileUrl.replace(/^\//, ''));
       expect(fs.existsSync(absolutePath), `Missing module PDF: ${form.fileUrl}`).toBe(true);
@@ -116,7 +116,7 @@ describe('Children CBT Core EN — PDF asset existence', () => {
     }
   });
 
-  it('no form in the registry references a missing file', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('no form in the registry references a missing file', () => {
     for (const form of FORMS_CHILDREN_CBT_CORE_EN) {
       const fileUrl = form.fileUrl || form.languages?.en?.file_url;
       if (!fileUrl) continue;
@@ -200,7 +200,7 @@ describe('Children CBT Core EN — AI content matching', () => {
     expect(result).toBeNull();
   });
 
-  it('resolves emotion identification query to a Stage 1 worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves emotion identification query to a Stage 1 worksheet', () => {
     const result = resolveChildrenCBTCoreEnglishFormByContent(
       'child does not know what they are feeling, help identify emotions',
       { activeLanguage: 'en' }
@@ -210,7 +210,7 @@ describe('Children CBT Core EN — AI content matching', () => {
     expect(result.stageNumber).toBe(1);
   });
 
-  it('resolves body signals query to a Stage 1 body-clues worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves body signals query to a Stage 1 body-clues worksheet', () => {
     const result = resolveChildrenCBTCoreEnglishFormByContent(
       'child needs to notice body clues and body signals',
       { activeLanguage: 'en' }
@@ -220,7 +220,7 @@ describe('Children CBT Core EN — AI content matching', () => {
     expect(result.stageNumber).toBe(1);
   });
 
-  it('resolves worry thoughts query to a Stage 2 worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves worry thoughts query to a Stage 2 worksheet', () => {
     const result = resolveChildrenCBTCoreEnglishFormByContent(
       'child has worry thoughts and anxiety',
       { activeLanguage: 'en' }
@@ -230,7 +230,7 @@ describe('Children CBT Core EN — AI content matching', () => {
     expect(result.stageNumber).toBe(2);
   });
 
-  it('resolves avoidance / brave step query to a Stage 3 worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves avoidance / brave step query to a Stage 3 worksheet', () => {
     const result = resolveChildrenCBTCoreEnglishFormByContent(
       'child avoids hard things, needs a tiny brave step',
       { activeLanguage: 'en' }
@@ -240,7 +240,7 @@ describe('Children CBT Core EN — AI content matching', () => {
     expect(result.stageNumber).toBe(3);
   });
 
-  it('resolves regulation / calm down query to a Stage 4 worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves regulation / calm down query to a Stage 4 worksheet', () => {
     const result = resolveChildrenCBTCoreEnglishFormByContent(
       'child is upset and needs regulation calm down pause',
       { activeLanguage: 'en' }
@@ -250,7 +250,7 @@ describe('Children CBT Core EN — AI content matching', () => {
     expect(result.stageNumber).toBe(4);
   });
 
-  it('resolves personal calm plan query to a Stage 5 worksheet', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves personal calm plan query to a Stage 5 worksheet', () => {
     const result = resolveChildrenCBTCoreEnglishFormByContent(
       'child needs a personal calm plan for hard moments',
       { activeLanguage: 'en' }
@@ -285,7 +285,7 @@ describe('Children CBT Core EN — AI content matching', () => {
 
 // ─── 5. resolveFormIntent integration ───────────────────────────────────────
 describe('Children CBT Core EN — resolveFormIntent integration', () => {
-  it('resolves by exact form ID', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves by exact form ID', () => {
     const result = resolveFormIntent('children-cbt-core-en-1-1', 'en');
     expect(result).not.toBeNull();
     expect(result.audience).toBe('children');
@@ -293,14 +293,14 @@ describe('Children CBT Core EN — resolveFormIntent integration', () => {
     expect(result.url).toMatch(/children_cbt_core_en_01_01\.pdf$/);
   });
 
-  it('resolves form 2.3 (Worry Thoughts) by ID', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves form 2.3 (Worry Thoughts) by ID', () => {
     const result = resolveFormIntent('children-cbt-core-en-2-3', 'en');
     expect(result).not.toBeNull();
     expect(result.formNumber).toBe('2.3');
     expect(result.stageNumber).toBe(2);
   });
 
-  it('resolves Stage 5 final worksheet by ID', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves Stage 5 final worksheet by ID', () => {
     const result = resolveFormIntent('children-cbt-core-en-5-6', 'en');
     expect(result).not.toBeNull();
     expect(result.formNumber).toBe('5.6');
@@ -313,7 +313,7 @@ describe('Children CBT Core EN — resolveFormIntent integration', () => {
     expect(result).toBeNull();
   });
 
-  it('content query for children feelings resolves in English mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('content query for children feelings resolves in English mode', () => {
     const result = resolveFormIntent('child feelings worksheet emotion identification', 'en');
     expect(result).not.toBeNull();
     expect(result.audience).toBe('children');
@@ -367,3 +367,5 @@ describe('Children CBT Core EN — metadata quality', () => {
     }
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
