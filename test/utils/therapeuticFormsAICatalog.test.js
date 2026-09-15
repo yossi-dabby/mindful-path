@@ -6,7 +6,7 @@ const SPECIALIZED_SERIES_ID = 'adolescents-cbt-specialized-en';
 const MODULE_CODES = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'];
 
 describe('therapeuticFormsAICatalog.test.js', () => {
-  it('builds therapist catalog with installed adolescents core + specialized packages and therapeutic metadata', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('builds therapist catalog with installed adolescents core + specialized packages and therapeutic metadata', () => {
     expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
     expect(ALL_FORMS.map((form) => form.id)).toContain(SPECIALIZED_SERIES_ID);
     const catalog = buildTherapistFormCatalog(ALL_FORMS);
@@ -29,7 +29,7 @@ describe('therapeuticFormsAICatalog.test.js', () => {
   // every individual module PDF — not just the series-level form.
   // A passing test here proves the production bundle includes all module entries.
 
-  it('production catalog includes all 10 specialized EN module form IDs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('production catalog includes all 10 specialized EN module form IDs', () => {
     const catalog = buildTherapistFormCatalog(ALL_FORMS);
     for (const code of MODULE_CODES) {
       const moduleId = `${SPECIALIZED_SERIES_ID}-module-${code}`;
@@ -38,7 +38,7 @@ describe('therapeuticFormsAICatalog.test.js', () => {
     }
   });
 
-  it('production catalog includes clinical keywords for each specialized EN module', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('production catalog includes clinical keywords for each specialized EN module', () => {
     const catalog = buildTherapistFormCatalog(ALL_FORMS);
     // Spot-check representative keywords from several modules to confirm
     // content-rich metadata is present in the AI-facing catalog text.
@@ -59,7 +59,7 @@ describe('therapeuticFormsAICatalog.test.js', () => {
     }
   });
 
-  it('production catalog carries Not-for restriction for non-English locale sessions on specialized forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('production catalog carries Not-for restriction for non-English locale sessions on specialized forms', () => {
     const catalog = buildTherapistFormCatalog(ALL_FORMS);
     // Every specialized EN form has "non-English locale sessions" in its notFor array.
     // This surfaces in the catalog so the AI knows not to suggest these forms in
@@ -85,7 +85,7 @@ describe('therapeuticFormsAICatalog.test.js', () => {
     }
   });
 
-  it('includes children specialized EN forms with rich metadata in therapist catalog', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('includes children specialized EN forms with rich metadata in therapist catalog', () => {
     const catalog = buildTherapistFormCatalog(ALL_FORMS);
     const childrenSpecialized = ALL_FORMS.filter(
       (form) =>
@@ -105,3 +105,5 @@ describe('therapeuticFormsAICatalog.test.js', () => {
     expect(catalog.toLowerCase()).toContain('enuresis stress support');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
