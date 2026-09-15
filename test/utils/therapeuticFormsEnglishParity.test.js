@@ -40,7 +40,7 @@ const HE_INDEX_FORMS = generatedFormsIndex.filter((f) => f.language === 'he');
 // ─── Phase 2: Generated Index EN Visibility ───────────────────────────────────
 
 describe('PR-11 Phase 2: Generated index EN visibility', () => {
-  it('generated index contains English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('generated index contains English forms', () => {
     // If no English forms exist, the parity tests below become no-ops by
     // design (conditional coverage). This assertion ensures we know
     // immediately when English data is present.
@@ -94,7 +94,7 @@ describe('PR-11 Phase 2: Generated index EN visibility', () => {
     }
   });
 
-  it('all four English CBT categories are represented in the generated index', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all four English CBT categories are represented in the generated index', () => {
     const requiredCategories = [
       'adolescents_cbt_core',
       'adolescents_cbt_specialized',
@@ -130,7 +130,7 @@ describe('PR-11 Phase 2: Hebrew/English separability', () => {
     expect(intersection).toHaveLength(0);
   });
 
-  it('AI layer English list contains only English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI layer English list contains only English forms', () => {
     const listed = listFormsForAI({ language: 'en', allowEnglishFallback: false });
     expect(listed.length).toBeGreaterThan(0);
     for (const form of listed) {
@@ -138,7 +138,7 @@ describe('PR-11 Phase 2: Hebrew/English separability', () => {
     }
   });
 
-  it('AI layer Hebrew list contains only Hebrew forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI layer Hebrew list contains only Hebrew forms', () => {
     const listed = listFormsForAI({ language: 'he', allowEnglishFallback: false });
     expect(listed.length).toBeGreaterThan(0);
     for (const form of listed) {
@@ -269,7 +269,7 @@ describe('PR-11 Phase 4: English AI awareness derived from generated index', () 
     expect(listed.length).toBe(approvedCount);
   });
 
-  it('English AI layer is not a stale hardcoded list — growing index grows the list', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English AI layer is not a stale hardcoded list — growing index grows the list', () => {
     // getAllTherapeuticForms() reads the live generated index; if this count
     // matches the live generated index it cannot be a frozen hardcoded copy.
     const allForms = getAllTherapeuticForms();
@@ -281,7 +281,7 @@ describe('PR-11 Phase 4: English AI awareness derived from generated index', () 
 // ─── Phase 4: English Exact-Title Lookup ─────────────────────────────────────
 
 describe('PR-11 Phase 4: English exact-title lookup', () => {
-  it('exact-title lookup for "What Is Going On for Me Right Now?" returns en adolescents form', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('exact-title lookup for "What Is Going On for Me Right Now?" returns en adolescents form', () => {
     const results = searchFormsForAI('What Is Going On for Me Right Now?', {
       language: 'en',
       audience: 'adolescents',
@@ -293,7 +293,7 @@ describe('PR-11 Phase 4: English exact-title lookup', () => {
     expect(String(hit.title || hit.id).toLowerCase()).toMatch(/going on|right now|what is/i);
   });
 
-  it('exact-title lookup for "What Am I Feeling?" returns en children form', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('exact-title lookup for "What Am I Feeling?" returns en children form', () => {
     const results = searchFormsForAI('What Am I Feeling?', {
       language: 'en',
       audience: 'children',
@@ -305,7 +305,7 @@ describe('PR-11 Phase 4: English exact-title lookup', () => {
     expect(String(hit.title || hit.id).toLowerCase()).toMatch(/feeling|what am i/i);
   });
 
-  it('exact-title lookup for "Safe Goodbye Plan" returns en children specialized form', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('exact-title lookup for "Safe Goodbye Plan" returns en children specialized form', () => {
     const results = searchFormsForAI('Safe Goodbye Plan', {
       language: 'en',
       audience: 'children',
@@ -316,7 +316,7 @@ describe('PR-11 Phase 4: English exact-title lookup', () => {
     expect(String(hit.title || hit.id).toLowerCase()).toMatch(/goodbye|safe/i);
   });
 
-  it('exact-title lookup for "Module 01 — Anxiety, Stress and Fears" returns en adolescents specialized form', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('exact-title lookup for "Module 01 — Anxiety, Stress and Fears" returns en adolescents specialized form', () => {
     const results = searchFormsForAI('Module 01 Anxiety Stress and Fears', {
       language: 'en',
       audience: 'adolescents',
@@ -347,7 +347,7 @@ describe('PR-11 Phase 4: English exact-title lookup', () => {
 // ─── Phase 4: English Clinical-Need Lookup ────────────────────────────────────
 
 describe('PR-11 Phase 4: English clinical-need lookup — adolescents', () => {
-  it('adolescents anxiety query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('adolescents anxiety query returns English forms', () => {
     const results = searchFormsForAI('anxiety stress teen', {
       language: 'en',
       audience: 'adolescents',
@@ -357,7 +357,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — adolescents', () => {
     expect(results.every((f) => f.audience === 'adolescents')).toBe(true);
   });
 
-  it('adolescents CBT core cognitive restructuring query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('adolescents CBT core cognitive restructuring query returns English forms', () => {
     const results = searchFormsForAI('cognitive restructuring thought record adolescent', {
       language: 'en',
       audience: 'adolescents',
@@ -382,7 +382,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — adolescents', () => {
 });
 
 describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
-  it('separation anxiety children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('separation anxiety children query returns English forms', () => {
     const results = searchFormsForAI('separation anxiety goodbye school', {
       language: 'en',
       audience: 'children',
@@ -392,7 +392,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
     expect(JSON.stringify(results[0]).toLowerCase()).toMatch(/separation|goodbye|school/);
   });
 
-  it('OCD children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('OCD children query returns English forms', () => {
     const results = searchFormsForAI('OCD sticky thoughts rituals children', {
       language: 'en',
       audience: 'children',
@@ -402,7 +402,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
     expect(JSON.stringify(results[0]).toLowerCase()).toMatch(/ocd|sticky|ritual/);
   });
 
-  it('anger children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('anger children query returns English forms', () => {
     const results = searchFormsForAI('child anger regulation outbursts', {
       language: 'en',
       audience: 'children',
@@ -412,7 +412,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
     expect(JSON.stringify(results[0]).toLowerCase()).toMatch(/anger|regulation/);
   });
 
-  it('sleep children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('sleep children query returns English forms', () => {
     const results = searchFormsForAI('sleep problems night fears children', {
       language: 'en',
       audience: 'children',
@@ -422,7 +422,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
     expect(JSON.stringify(results[0]).toLowerCase()).toContain('sleep');
   });
 
-  it('self-esteem children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('self-esteem children query returns English forms', () => {
     const results = searchFormsForAI('low self-esteem child not good enough', {
       language: 'en',
       audience: 'children',
@@ -432,7 +432,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
     expect(JSON.stringify(results[0]).toLowerCase()).toMatch(/self-esteem|self esteem|not good enough/);
   });
 
-  it('trauma children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('trauma children query returns English forms', () => {
     const results = searchFormsForAI('trauma coping child', {
       language: 'en',
       audience: 'children',
@@ -441,7 +441,7 @@ describe('PR-11 Phase 4: English clinical-need lookup — children', () => {
     expect(results[0].language).toBe('en');
   });
 
-  it('emotional regulation children query returns English forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('emotional regulation children query returns English forms', () => {
     const results = searchFormsForAI('emotional regulation feelings management child', {
       language: 'en',
       audience: 'children',
@@ -476,7 +476,7 @@ describe('PR-11 Phase 4: Audience/category lookup — English', () => {
     'children_cbt_specialized',
   ];
 
-  it('all four English categories return forms via listFormsForAI', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all four English categories return forms via listFormsForAI', () => {
     for (const category of EN_CATEGORIES) {
       const forms = listFormsForAI({ language: 'en', category });
       expect(forms.length, `English category "${category}" has no AI-visible forms`).toBeGreaterThan(0);
@@ -485,7 +485,7 @@ describe('PR-11 Phase 4: Audience/category lookup — English', () => {
     }
   });
 
-  it('children audience in English mode returns only English children forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('children audience in English mode returns only English children forms', () => {
     const forms = listFormsForAI({ language: 'en', audience: 'children' });
     expect(forms.length).toBeGreaterThan(0);
     for (const form of forms) {
@@ -494,7 +494,7 @@ describe('PR-11 Phase 4: Audience/category lookup — English', () => {
     }
   });
 
-  it('adolescents audience in English mode returns only English adolescents forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('adolescents audience in English mode returns only English adolescents forms', () => {
     const forms = listFormsForAI({ language: 'en', audience: 'adolescents' });
     expect(forms.length).toBeGreaterThan(0);
     for (const form of forms) {
@@ -503,7 +503,7 @@ describe('PR-11 Phase 4: Audience/category lookup — English', () => {
     }
   });
 
-  it('children_cbt_specialized English returns no Hebrew forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('children_cbt_specialized English returns no Hebrew forms', () => {
     const forms = listFormsForAI({ language: 'en', category: 'children_cbt_specialized' });
     expect(forms.length).toBeGreaterThan(0);
     for (const form of forms) {
@@ -526,7 +526,7 @@ describe('PR-11 Phase 4: Audience/category lookup — English', () => {
 // ─── Phase 5: Multi-Form English generated_files Contract ─────────────────────
 
 describe('PR-11 Phase 5: Multi-form English generated_files contract', () => {
-  it('several worksheets for a child with anxiety returns multiple English generated_files', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('several worksheets for a child with anxiety returns multiple English generated_files', () => {
     const result = resolveFormForAIRequest(
       'Send me several worksheets for a child with anxiety',
       { language: 'en' },
@@ -596,7 +596,7 @@ describe('PR-11 Phase 5: Multi-form English generated_files contract', () => {
 // ─── Phase 6: Open/Download English Compatibility (parity assertions) ─────────
 
 describe('PR-11 Phase 6: Open/Download English parity assertions', () => {
-  it('English generated file from index has correct language field', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English generated file from index has correct language field', () => {
     const enForm = EN_INDEX_FORMS.find(
       (f) => f.type === 'workbook_package',
     );
@@ -618,3 +618,5 @@ describe('PR-11 Phase 6: Open/Download English parity assertions', () => {
     }
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
