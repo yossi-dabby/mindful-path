@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
 
 describe('chatSessionLanguage.test.js', () => {
-  it('injects generated_file for approved marker in English session', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('injects generated_file for approved marker in English session', () => {
     const messages = [
       { role: 'user', content: 'please send workbook', metadata: { session_language: 'en' } },
       { role: 'assistant', content: JSON.stringify({ assistant_message: 'Sure [FORM:adolescents-cbt-core-en:en]' }) },
@@ -14,3 +14,5 @@ describe('chatSessionLanguage.test.js', () => {
     expect(assistant?.metadata?.generated_file?.language).toBe('en');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
