@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 const VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode';
