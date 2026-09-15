@@ -28,7 +28,7 @@ function buildEntry(overrides = {}) {
 
 describe('therapeutic forms index generator validation', () => {
   it('accepts a valid entry', () => {
-    expect(() => validateEntries([buildEntry()])).not.toThrow();
+    expect(() => validateEntries([buildEntry()], { fileExists: () => true })).not.toThrow();
   });
 
   it('fails on duplicate IDs', () => {
@@ -74,7 +74,7 @@ describe('therapeutic forms index generator validation', () => {
       is_language_variant: true,
       variant_group_id: 'children_cbt_specialized_04_01_ocd',
     });
-    expect(() => validateEntries([multilingual])).not.toThrow();
+    expect(() => validateEntries([multilingual], { fileExists: () => true })).not.toThrow();
   });
 
   it('accepts Hebrew children core entry metadata shape used by generated registry', () => {
@@ -98,7 +98,7 @@ describe('therapeutic forms index generator validation', () => {
       therapeuticGoal: 'להפחית הצפה של דאגות ולבנות תגובה מאוזנת.',
       whenToUse: 'כשילד/ה עסוק/ה בדאגות לגבי טעויות, בית ספר או מצבים חברתיים.',
     });
-    expect(() => validateEntries([hebrewChildren])).not.toThrow();
+    expect(() => validateEntries([hebrewChildren], { fileExists: () => true })).not.toThrow();
   });
 
   it('preserves multilingual fields when applying variant metadata', () => {
