@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { getTherapeuticFormsForAI } from '../../src/data/therapeuticForms/index.js';
 import {
@@ -153,5 +154,3 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(downloadUrl).toContain('download=1');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
