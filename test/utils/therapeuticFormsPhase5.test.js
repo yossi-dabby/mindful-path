@@ -3,8 +3,8 @@ import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
 describe('therapeuticFormsPhase5.test.js — zero installed forms', () => {
-  it('keeps ALL_FORMS empty', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
+  it('keeps all catalog entries inactive while forms are under revision', () => {
+    expect(ALL_FORMS.filter((form) => form.approved === true)).toHaveLength(0);
   });
 
   it('does not resolve stale therapeutic form ids', () => {
@@ -17,6 +17,6 @@ describe('therapeuticFormsPhase5.test.js — zero installed forms', () => {
       .flatMap((form) => Object.values(form.languages || {}))
       .map((langBlock) => String(langBlock?.file_url || ''))
       .filter((url) => /\/forms\/.+\.pdf$/i.test(url));
-    expect(activePdfUrls).toContain('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(activePdfUrls).toHaveLength(0);
   });
 });
