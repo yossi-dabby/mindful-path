@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json';
 import fs from 'node:fs';
 import path from 'node:path';
 import { mockApi, spaNavigate } from '../helpers/ui';
@@ -284,6 +285,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
   });
 
   test('Capability question: supports up to 5 forms', async ({ page }) => {
+    test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
     await setupTherapeuticFormsChat(page, 'he');
 
     await sendChatMessage(page, 'כמה טפסים אפשר לבקש בכל פעם?');
@@ -329,6 +331,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
   });
 
   test('Forms Library to Chat parity', async ({ page }) => {
+    test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
     expect(fs.existsSync(INDEX_PATH)).toBe(true);
     const formsIndex = JSON.parse(fs.readFileSync(INDEX_PATH, 'utf-8')) as FormFixture[];
     const canonical = formsIndex.find((form) => form.id === LIBRARY_FORM.id);
