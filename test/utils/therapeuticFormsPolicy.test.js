@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import {
   getAllTherapeuticForms,
   getTherapeuticFormsForAI,
@@ -116,8 +117,7 @@ describe('therapeutic forms policy reliability', () => {
       id: 'conversation-stale',
       messages: [{
         role: 'user',
-        content: `${THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER}
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';\n[THERAPEUTIC_FORMS_POLICY]\n[THERAPEUTIC_FORMS_POLICY_VERSION: stale-version]`,
+        content: `${THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER}\n[THERAPEUTIC_FORMS_POLICY]\n[THERAPEUTIC_FORMS_POLICY_VERSION: stale-version]`,
       }],
     };
 
