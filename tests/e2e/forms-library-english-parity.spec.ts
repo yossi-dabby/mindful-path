@@ -19,6 +19,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+import contentStatus from '../../src/data/therapeuticForms/content-status.json';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -59,6 +60,7 @@ async function setupEnglishTherapeuticForms(page: Page) {
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 test.describe('Forms Library — English language-parity', () => {
+  test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
   test('Therapeutic Forms page loads in English mode without fatal errors', async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on('console', (msg) => {
