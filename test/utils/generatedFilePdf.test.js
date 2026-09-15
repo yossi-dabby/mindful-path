@@ -237,7 +237,7 @@ describe('sanitizeConversationMessages — generated_file metadata is preserved'
 
 
 describe('therapeutic forms generated_file metadata contract', () => {
-  it('includes canonical adolescents package metadata fields for approved marker resolution', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('includes canonical adolescents package metadata fields for approved marker resolution', () => {
     const metadata = resolveFormIntent('adolescents-cbt-core-en', 'en');
     expect(metadata).not.toBeNull();
     expect(metadata?.form_id).toBe('adolescents-cbt-core-en');
@@ -248,3 +248,5 @@ describe('therapeutic forms generated_file metadata contract', () => {
     expect(metadata?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
