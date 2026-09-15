@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import {
   FORMS_CHILDREN_CBT_CORE_EN,
@@ -367,5 +368,3 @@ describe('Children CBT Core EN — metadata quality', () => {
     }
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
