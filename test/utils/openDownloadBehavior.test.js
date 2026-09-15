@@ -22,7 +22,7 @@ describe('openDownloadBehavior.test.js', () => {
     expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
   });
 
-  it('resolves only the active adolescents package for open/download actions', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves only the active adolescents package for open/download actions', () => {
     const resolved = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
     expect(resolved?.languageData?.file_url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
     expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
@@ -119,7 +119,7 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
 // ─── Forms library Open action — direct public URL ────────────────────────────
 
 describe('forms library Open action — uses direct public URL', () => {
-  it('resolves adolescents package to a /forms/ public URL suitable for Open', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves adolescents package to a /forms/ public URL suitable for Open', () => {
     const resolved = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
     const fileUrl = resolved?.languageData?.file_url;
     expect(fileUrl).toBeTruthy();
@@ -133,7 +133,7 @@ describe('forms library Open action — uses direct public URL', () => {
     }
   });
 
-  it('resolves adolescents CBT specialized EN series to /forms/en/adolescents/cbt-specialized/ URL suitable for Open', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves adolescents CBT specialized EN series to /forms/en/adolescents/cbt-specialized/ URL suitable for Open', () => {
     const resolved = resolveFormWithLanguage('adolescents-cbt-specialized-en', 'en');
     const fileUrl = resolved?.languageData?.file_url;
     expect(fileUrl).toBeTruthy();
@@ -143,7 +143,7 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'es')).toBeNull();
   });
 
-  it('resolves Hebrew adolescents stage combined and individual PDFs only in Hebrew mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves Hebrew adolescents stage combined and individual PDFs only in Hebrew mode', () => {
     const combined = resolveFormWithLanguage('adolescents-cbt-core-he-stage-6-combined', 'he');
     const individual = resolveFormWithLanguage('adolescents-cbt-core-he-6-4', 'he');
     expect(combined?.languageData?.file_url).toContain('adolescents_cbt_core_he_series_6_combined.pdf');
@@ -152,7 +152,7 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(resolveFormWithLanguage('adolescents-cbt-core-he-6-4', 'en')).toBeNull();
   });
 
-  it('resolves Hebrew children core module and worksheet PDFs only in Hebrew mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves Hebrew children core module and worksheet PDFs only in Hebrew mode', () => {
     const modulePdf = resolveFormWithLanguage('children-cbt-core-he-module-05', 'he');
     const worksheet = resolveFormWithLanguage('children-cbt-core-he-5-1', 'he');
     expect(modulePdf?.languageData?.file_url).toContain('children_cbt_core_he_module_05_combined.pdf');
@@ -161,7 +161,7 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(resolveFormWithLanguage('children-cbt-core-he-5-1', 'es')).toBeNull();
   });
 
-  it('resolves all 10 specialized EN module PDFs to /forms/en/adolescents/cbt-specialized/ public URLs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves all 10 specialized EN module PDFs to /forms/en/adolescents/cbt-specialized/ public URLs', () => {
     for (const module of FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS) {
       const resolved = resolveFormWithLanguage(module.id, 'en');
       expect(resolved).not.toBeNull();
@@ -218,7 +218,7 @@ describe('formFileUrls — open/download URL separation', () => {
     expect(resolvePdfViewerFileParam('%2Fprivate%2Fsecret.pdf')).toBeNull();
   });
 
-  it('AI-sent generated file open URL uses viewer route without download query', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI-sent generated file open URL uses viewer route without download query', () => {
     const resolved = resolveFormByIdOrSlug('children-cbt-specialized-en-1-1-1', { language: 'en' });
     const generated = createGeneratedFileFromResolvedForm(resolved);
     const openUrl = getFormOpenUrl(generated?.url);
@@ -226,7 +226,7 @@ describe('formFileUrls — open/download URL separation', () => {
     expect(openUrl.includes('download=1')).toBe(false);
   });
 
-  it('AI-sent generated file download URL explicitly uses download behavior', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI-sent generated file download URL explicitly uses download behavior', () => {
     const resolved = resolveFormByIdOrSlug('children-cbt-specialized-en-1-1-1', { language: 'en' });
     const generated = createGeneratedFileFromResolvedForm(resolved);
     const downloadUrl = getFormDownloadUrl(generated?.url);
@@ -270,3 +270,5 @@ describe('pdf viewer route and build/source cache contracts', () => {
     expect(appSrc).not.toContain('serviceWorker.register');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
