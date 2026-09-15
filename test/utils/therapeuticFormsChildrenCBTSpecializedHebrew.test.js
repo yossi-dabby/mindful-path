@@ -86,7 +86,7 @@ describe('Hebrew children CBT specialized integration', () => {
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_HE).toHaveLength(121);
   });
 
-  it('matches canonical module/subcategory folders and verifies each folder contributes 11 non-zero PDFs with no previews', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('matches canonical module/subcategory folders and verifies each folder contributes 11 non-zero PDFs with no previews', () => {
     const folders = getHebrewSpecializedSubcategoryFolders();
     expect(folders).toEqual([
       'module-01/subcategory-01-01',
@@ -120,7 +120,7 @@ describe('Hebrew children CBT specialized integration', () => {
     }
   });
 
-  it('registers only file-backed approved Hebrew children entries with rtl language blocks', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('registers only file-backed approved Hebrew children entries with rtl language blocks', () => {
     for (const form of FORMS_CHILDREN_CBT_SPECIALIZED_HE) {
       expect(form.approved).toBe(true);
       expect(form.language).toBe('he');
@@ -132,7 +132,7 @@ describe('Hebrew children CBT specialized integration', () => {
     }
   });
 
-  it('adds the Hebrew specialized collection to the generated index with hierarchy metadata', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('adds the Hebrew specialized collection to the generated index with hierarchy metadata', () => {
     const forms = generatedFormsIndex.filter((form) => form.collectionId === COLLECTION_ID);
     expect(forms).toHaveLength(121);
     expect(forms.filter((form) => form.cardType === 'combined_pdf')).toHaveLength(11);
@@ -143,7 +143,7 @@ describe('Hebrew children CBT specialized integration', () => {
     expect(forms.filter((form) => form.cardType === 'worksheet').every((form) => typeof form.parentId === 'string' && form.parentId.startsWith(`${COLLECTION_ID}-module-`))).toBe(true);
   });
 
-  it('shows the Hebrew specialized collection only in Hebrew mode inside the collection-first forms library', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('shows the Hebrew specialized collection only in Hebrew mode inside the collection-first forms library', () => {
     const heCollections = collectionsFor('he');
     const enCollections = collectionsFor('en');
     const heCollection = heCollections.get(COLLECTION_ID);
@@ -167,7 +167,7 @@ describe('Hebrew children CBT specialized integration', () => {
     }
   });
 
-  it('keeps Hebrew-only visibility and preserves English children specialized forms unchanged', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps Hebrew-only visibility and preserves English children specialized forms unchanged', () => {
     const hebrewChildren = getTherapeuticFormsForAI({ language: 'he', audience: 'children' })
       .filter((form) => form.category === 'children_cbt_specialized');
     const englishChildren = getTherapeuticFormsForAI({ language: 'en', audience: 'children' })
@@ -182,7 +182,7 @@ describe('Hebrew children CBT specialized integration', () => {
     expect(spanishChildren).toHaveLength(0);
   });
 
-  it('supports Hebrew AI search by direct title, clinical need, topic request, and send flow', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('supports Hebrew AI search by direct title, clinical need, topic request, and send flow', () => {
     const byTitle = searchFormsForAI('נפרדים בשלום', { language: 'he', audience: 'children' })[0];
     const byNeed = searchFormsForAI('ילד עם חרדת פרידה', { language: 'he', audience: 'children' })[0];
     const byTopic = searchFormsForAI('חרדה חברתית', { language: 'he', audience: 'children' })[0];
@@ -203,14 +203,14 @@ describe('Hebrew children CBT specialized integration', () => {
     expect(String(sent.generatedFile?.form_id || '')).toContain('children-cbt-specialized-he');
   });
 
-  it('does not leak Hebrew specialized forms into English send requests without explicit Hebrew selection', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('does not leak Hebrew specialized forms into English send requests without explicit Hebrew selection', () => {
     const resolved = resolveFormForAIRequest('Send me a specialized child CBT form about separation anxiety', { language: 'en' });
     expect(resolved.generatedFile).not.toBeNull();
     expect(resolved.generatedFile.language).toBe('en');
     expect(String(resolved.generatedFile.form_id || '')).toContain('children-cbt-specialized-en');
   });
 
-  it('preserves open and download URL behavior for Hebrew specialized PDFs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('preserves open and download URL behavior for Hebrew specialized PDFs', () => {
     const form = ALL_FORMS.find((entry) => entry.id === 'children-cbt-specialized-he-module-4-2');
     const openUrl = getFormOpenUrl(form.fileUrl);
     const downloadUrl = getFormDownloadUrl(form.fileUrl);
@@ -220,7 +220,7 @@ describe('Hebrew children CBT specialized integration', () => {
     expect(downloadUrl).toContain('download=1');
   });
 
-  it('keeps every uploaded Hebrew specialized PDF represented in the canonical registry', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps every uploaded Hebrew specialized PDF represented in the canonical registry', () => {
     const uploadedPdfUrls = walk(PUBLIC_FORMS_DIR)
       .filter((filePath) => filePath.toLowerCase().endsWith('.pdf'))
       .map((filePath) => `/${path.relative(path.join(ROOT, 'public'), filePath).replace(/\\/g, '/')}`)
@@ -237,3 +237,5 @@ describe('Hebrew children CBT specialized integration', () => {
     }
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
