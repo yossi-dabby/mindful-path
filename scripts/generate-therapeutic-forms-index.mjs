@@ -14,6 +14,7 @@ import { FORMS_CHILDREN_CBT_SPECIALIZED_HE } from '../src/data/therapeuticForms/
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const OUTPUT_FILE = path.join(ROOT, 'src/generated/therapeutic-forms-index.json');
+const CONTENT_STATUS_FILE = path.join(ROOT, 'src/data/therapeuticForms/content-status.json');
 const FORMS_INDEX_PILOT_VARIANTS = process.env.FORMS_INDEX_PILOT_VARIANTS === 'true';
 
 const KNOWN_AUDIENCES = new Set(['children', 'adolescents', 'adults', 'older_adults', 'parents']);
@@ -827,6 +828,14 @@ export function validateEntries(entries) {
 }
 
 function main() {
+  const contentStatus = JSON.parse(fs.readFileSync(CONTENT_STATUS_FILE, 'utf8'));
+  if (contentStatus.contentAvailable !== true) {
+    fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
+    fs.writeFileSync(OUTPUT_FILE, '[]\n', 'utf8');
+    console.log(`[forms-index] content status is "${contentStatus.status || 'unavailable'}"; generated an empty installed-files index`);
+    return;
+  }
+
   const manifestByFileUrl = extractManifestItems();
 
   const curatedEntries = buildCuratedEntries(manifestByFileUrl);
