@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector.js';
 
@@ -105,5 +106,3 @@ describe('therapeuticFormsAICatalog.test.js', () => {
     expect(catalog.toLowerCase()).toContain('enuresis stress support');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
