@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { translations } from '../../src/components/i18n/translations.jsx';
 import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
 import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
@@ -223,5 +224,3 @@ describe('Phase 1 baseline + Phase 3 UI contracts', () => {
     expect(src).toContain('FormsModuleCard');
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
