@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import { checkWorksheetEligibilityGate } from '../../src/lib/worksheetEligibilityGate.js';
 import { getTherapeuticFormsPolicyPayload } from '../../src/lib/therapeuticFormsPolicy.js';
 
@@ -105,5 +106,3 @@ describe('Multilingual worksheet language eligibility gate', () => {
     }
   });
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
