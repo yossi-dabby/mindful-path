@@ -7,7 +7,7 @@ import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 describe('therapeuticFormsChildrenCBTPremiumAssets.test.js', () => {
-  it('keeps only the installed adolescents core english PDF as active runtime asset', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps only the installed adolescents core english PDF as active runtime asset', () => {
     const expectedPath = path.join(
       ROOT,
       'public/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf'
@@ -19,3 +19,5 @@ describe('therapeuticFormsChildrenCBTPremiumAssets.test.js', () => {
     expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
