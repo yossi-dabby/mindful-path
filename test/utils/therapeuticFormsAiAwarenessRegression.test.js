@@ -15,6 +15,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
 import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.json';
 import {
   getAllTherapeuticForms,
@@ -711,5 +712,3 @@ createUploadDatasetSmokeTest({
   clinicalKeywords: ['חרדת פרידה', 'דימוי עצמי', 'שינה'],
   multiFormQuery: 'שלח לי כמה טפסים לילד עם חרדת פרידה',
 });
-
-import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
