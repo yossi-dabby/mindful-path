@@ -37,7 +37,7 @@ function walk(dirPath) {
 }
 
 describe('therapeutic forms generated index parity', () => {
-  it('loads canonical generated index and exposes it via ALL_FORMS', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('loads canonical generated index and exposes it via ALL_FORMS', () => {
     const expectedTotal =
       FORMS_ADOLESCENTS_CBT_CORE_EN.length +
       FORMS_ADOLESCENTS_CBT_CORE_HE.length +
@@ -100,7 +100,7 @@ describe('therapeutic forms generated index parity', () => {
     expect(productionForms.length).toBe(previewForms.length);
   });
 
-  it('returns non-empty AI registries in preview and production language contexts', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('returns non-empty AI registries in preview and production language contexts', () => {
     const previewAiForms = getTherapeuticFormsForAI({ language: 'en', environment: 'preview' });
     const productionAiForms = getTherapeuticFormsForAI({ language: 'en', environment: 'production' });
     expect(previewAiForms.length).toBeGreaterThan(0);
@@ -149,7 +149,7 @@ describe('therapeutic forms generated index parity', () => {
     }
   });
 
-  it('resolves known children CBT core EN worksheet IDs', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves known children CBT core EN worksheet IDs', () => {
     const first = resolveFormIntent('children_cbt_core_en_05_01', 'en');
     const second = resolveFormIntent('children_cbt_core_en_04_02', 'en');
     expect(first?.form_id).toBe('children-cbt-core-en-5-1');
@@ -158,7 +158,7 @@ describe('therapeutic forms generated index parity', () => {
     expect(String(second?.url || '')).toContain('/forms/en/children/cbt-core/stage-04/children_cbt_core_en_04_02.pdf');
   });
 
-  it('resolves children worksheet content scenarios in English mode', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves children worksheet content scenarios in English mode', () => {
     const calmPlan = resolveFormIntent('child feels overwhelmed and needs a calm plan', 'en');
     const calmingTools = resolveFormIntent('child needs calming tools', 'en');
     const bodyClues = resolveFormIntent('child needs help noticing body clues', 'en');
@@ -167,7 +167,7 @@ describe('therapeutic forms generated index parity', () => {
     expect(bodyClues?.audience).toBe('children');
   });
 
-  it('applies language and audience filtering without collapsing the registry', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('applies language and audience filtering without collapsing the registry', () => {
     const englishChildren = getTherapeuticFormsForAI({ language: 'en', audience: 'children' });
     const hebrewChildren = getTherapeuticFormsForAI({ language: 'he', audience: 'children' });
     const hebrewAdolescentsCore = getTherapeuticFormsForAI({ language: 'he', audience: 'adolescents' })
@@ -197,7 +197,7 @@ describe('therapeutic forms generated index parity', () => {
     }
   });
 
-  it('keeps Hebrew children CBT core metadata approved, rtl, and file-backed', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps Hebrew children CBT core metadata approved, rtl, and file-backed', () => {
     const validCategories = new Set(THERAPEUTIC_CATEGORIES.map((cat) => cat.value));
     const hebrewChildrenCore = ALL_FORMS.filter(
       (form) => form.audience === 'children' && form.language === 'he' && form.category === 'children_cbt_core'
@@ -239,7 +239,7 @@ describe('therapeutic forms generated index parity', () => {
     }
   });
 
-  it('keeps Hebrew adolescents core metadata approved, rtl, and filter-compatible', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps Hebrew adolescents core metadata approved, rtl, and filter-compatible', () => {
     const validCategories = new Set(THERAPEUTIC_CATEGORIES.map((cat) => cat.value));
     const hebrewAdolescentsCore = ALL_FORMS.filter(
       (form) => form.audience === 'adolescents' && form.language === 'he' && form.category === 'adolescents_cbt_core'
@@ -269,7 +269,7 @@ describe('therapeutic forms generated index parity', () => {
     expect(maybeFullSeries).toHaveLength(0);
   });
 
-  it('keeps language and audience guards for children forms', () => {
+  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps language and audience guards for children forms', () => {
     const englishResult = resolveFormIntent('child feels overwhelmed and needs a calm plan', 'en');
     expect(englishResult?.audience).toBe('children');
     expect(englishResult?.language).toBe('en');
@@ -286,3 +286,5 @@ describe('therapeutic forms generated index parity', () => {
     expect(diagnostics.byLanguage.en).toBeGreaterThan(0);
   });
 });
+
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from '../../src/data/therapeuticForms/availability.js';
