@@ -36,6 +36,7 @@
  * internal_instruction_leak
  * conclusion_drawn_when_explicitly_blocked
  * unsupported_current_turn_grounding_claim
+ * clinical_overreach_certainty
  *
  * LOCALE SUPPORT
  * --------------
@@ -97,6 +98,12 @@ const HEBREW_CURRENT_TURN_GROUNDING_FALLBACK =
 const ENGLISH_CURRENT_TURN_GROUNDING_FALLBACK =
   'There is not yet enough information to determine what is causing this tension. What is the first thing that goes through your mind or body at the moment the tension starts?';
 
+const HEBREW_CLINICAL_OVERREACH_FALLBACK =
+  'ייתכן שהימנעות והקלה מיידית ממלאות כאן תפקיד, אבל עדיין אין מספיק מידע לקבוע שזה כל המנגנון או שמדובר בבחירה מודעת בלבד. לפני שמסיקים מסקנה, כדאי לבדוק אירוע אחד ממשי ולשקול גם הסברים נוספים. תרצה לבחור דוגמה אחת מהשבוע?';
+
+const ENGLISH_CLINICAL_OVERREACH_FALLBACK =
+  'Avoidance and immediate relief may be part of the pattern, but there is not enough information to conclude that this is the whole mechanism or simply a conscious choice. Before drawing a conclusion, it would help to examine one concrete event and consider other explanations too. Would you like to choose one example from this week?';
+
 const FORMULATION_FALLBACKS = Object.freeze({
   he: HEBREW_FALLBACK,
   en: ENGLISH_FALLBACK,
@@ -125,6 +132,16 @@ const CURRENT_TURN_GROUNDING_FALLBACKS = Object.freeze({
   de: 'Es gibt noch nicht genügend Informationen, um festzustellen, was diese Anspannung verursacht. Was geht dir als Erstes durch den Kopf oder den Körper, wenn die Anspannung beginnt?',
   it: 'Non ci sono ancora informazioni sufficienti per determinare che cosa provochi questa tensione. Qual è la prima cosa che ti passa per la mente o nel corpo quando la tensione inizia?',
   pt: 'Ainda não há informações suficientes para determinar o que está causando essa tensão. Qual é a primeira coisa que passa pela sua mente ou pelo seu corpo quando a tensão começa?',
+});
+
+const CLINICAL_OVERREACH_FALLBACKS = Object.freeze({
+  he: HEBREW_CLINICAL_OVERREACH_FALLBACK,
+  en: ENGLISH_CLINICAL_OVERREACH_FALLBACK,
+  es: 'La evitación y el alivio inmediato pueden formar parte del patrón, pero aún no hay información suficiente para concluir que sean todo el mecanismo o una elección plenamente consciente. Antes de concluir, conviene examinar un episodio concreto y considerar otras explicaciones. ¿Quieres elegir un ejemplo de esta semana?',
+  fr: 'L’évitement et le soulagement immédiat peuvent faire partie du schéma, mais les informations ne suffisent pas pour conclure qu’ils constituent tout le mécanisme ou un choix pleinement conscient. Avant de conclure, examinons une situation concrète et d’autres explications possibles. Souhaitez-vous choisir un exemple de cette semaine ?',
+  de: 'Vermeidung und unmittelbare Erleichterung können Teil des Musters sein, aber es gibt nicht genug Informationen, um daraus den gesamten Mechanismus oder eine rein bewusste Entscheidung abzuleiten. Vor einer Schlussfolgerung sollten wir eine konkrete Situation und weitere Erklärungen prüfen. Möchtest du ein Beispiel aus dieser Woche auswählen?',
+  it: 'L’evitamento e il sollievo immediato possono far parte dello schema, ma non ci sono informazioni sufficienti per concludere che siano l’intero meccanismo o una scelta pienamente consapevole. Prima di concludere, esaminiamo un episodio concreto e altre possibili spiegazioni. Vuoi scegliere un esempio di questa settimana?',
+  pt: 'A evitação e o alívio imediato podem fazer parte do padrão, mas ainda não há informação suficiente para concluir que sejam todo o mecanismo ou uma escolha plenamente consciente. Antes de concluir, vale examinar uma situação concreta e outras explicações possíveis. Quer escolher um exemplo desta semana?',
 });
 
 function _normalizeSupportedLocale(locale) {
