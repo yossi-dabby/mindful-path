@@ -107,6 +107,23 @@ describe('Stage 12 multilingual chat-quality release gate', () => {
     expect(supplement).toContain('Never fabricate recall');
   });
 
+  it('handles missing responses without inventing delivery state', () => {
+    expect(classifyStage12Turn('למה לא ענית לי? לא קיבלתי תשובה.')).toBe('delayed_response');
+    const supplement = buildStage12TurnSupplement('למה לא ענית לי?', 'he');
+    expect(supplement).toContain('DELAYED OR MISSING RESPONSE');
+    expect(supplement).toContain('Never claim that a response was previously sent');
+    expect(supplement).toContain('answer the user’s pending question now');
+  });
+
+  it('frames requested therapeutic sessions safely and structurally', () => {
+    expect(classifyStage12Turn('אני רוצה להתחיל סשן טיפולי של 40 דקות')).toBe('session_request');
+    const supplement = buildStage12TurnSupplement('אני רוצה להתחיל סשן טיפולי של 40 דקות', 'he');
+    expect(supplement).toContain('STRUCTURED SESSION REQUEST');
+    expect(supplement).toContain('not a replacement for licensed therapy');
+    expect(supplement).toContain('Do not promise uninterrupted clock time');
+    expect(supplement).toContain('ask what has already been tried');
+  });
+
   it('adds a safe attachment contract for images and files', () => {
     const supplement = buildStage12TurnSupplement('', 'pt', { hasAttachment: true });
     expect(supplement).toContain('use only content actually available');
