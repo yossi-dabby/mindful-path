@@ -284,13 +284,34 @@ describe('legacy visible snapshot normalization for hydration/load', () => {
     });
   });
 
-  it('V2-enabled path bypasses legacy normalization and keeps snapshot sequence unchanged', () => {
+  it('normalizes visible assistant blocks in both V2 and legacy paths', () => {
     const v2Snapshot = applyLegacyVisibleAssistantNormalizationGate(rawWithTwoPairs, true);
     const legacySnapshot = applyLegacyVisibleAssistantNormalizationGate(rawWithTwoPairs, false);
 
-    expect(v2Snapshot).toBe(rawWithTwoPairs);
-    expect(v2Snapshot.map((m) => m.id)).toEqual(['u1', 'a1p', 'a1f', 'u2', 'a2p', 'a2f']);
+    expect(v2Snapshot.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
     expect(legacySnapshot.map((m) => m.id)).toEqual(['u1', 'a1f', 'u2', 'a2f']);
+  });
+
+  it('merges multiple completed assistant records into one visible answer', () => {
+    const first = {
+      role: 'assistant',
+      id: 'completed-1',
+      __rawIndex: 1,
+      content: 'אפשרות אחת היא שהימנעות נותנת הקלה מיידית.',
+      metadata: { status: 'completed' },
+    };
+    const second = {
+      role: 'assistant',
+      id: 'completed-2',
+      __rawIndex: 2,
+      content: 'כדאי לבדוק יחד גם הסברים חלופיים.',
+      metadata: { status: 'completed' },
+    };
+
+    const normalized = applyLegacyVisibleAssistantNormalizationGate([user1, first, second], true);
+    expect(normalized).toHaveLength(2);
+    expect(normalized[1].content).toContain(first.content);
+    expect(normalized[1].content).toContain(second.content);
   });
 
   it('contiguous progress+final within one block: selects final, never concatenates their content', () => {
