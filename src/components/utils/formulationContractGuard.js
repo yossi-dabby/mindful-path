@@ -209,6 +209,52 @@ const PROHIBITED_PHRASES_OTHER = [
   'descobrir algo sobre você que não consegue suportar', 'a questão de quem você é',
 ];
 
+const CLINICAL_OVERREACH_PHRASES_HE = [
+  'התמונה מסתדרת לה מלאה',
+  'התמונה עכשיו מלאה',
+  'זה המנגנון עצמו',
+  'הוא נשמר כי אתה מחליט',
+  'אתה מחליט — במודע',
+  'אתה מחליט במודע',
+  'הרף הנמוך למה שנחשב',
+  'מעולם לא נתת לעצמך הזדמנות',
+  'הטיפול עבד על הסימפטומים',
+  'אבל לא על המנגנון שמתחת',
+  'הדפוס לא נעלם אלא החליף צורה',
+];
+
+const CLINICAL_OVERREACH_PHRASES_EN = [
+  'the picture is now complete',
+  'this is the mechanism itself',
+  'it persists because you choose',
+  'you consciously choose',
+  'your low threshold for difficulty',
+  'you have never given yourself a chance',
+  'the treatment worked on the symptoms',
+  'but not on the underlying mechanism',
+  'the pattern did not disappear; it changed form',
+];
+
+const CLINICAL_OVERREACH_PHRASES_OTHER = [
+  'la imagen está completa', 'este es el mecanismo en sí',
+  'le tableau est complet', 'c’est le mécanisme lui-même', "c'est le mécanisme lui-même",
+  'das bild ist vollständig', 'das ist der mechanismus selbst',
+  'il quadro è completo', 'questo è il meccanismo stesso',
+  'o quadro está completo', 'este é o próprio mecanismo',
+];
+
+function _findClinicalOverreachPhrase(content) {
+  if (typeof content !== 'string' || !content.trim()) return null;
+  for (const phrase of CLINICAL_OVERREACH_PHRASES_HE) {
+    if (content.includes(phrase)) return phrase;
+  }
+  const lower = content.toLowerCase();
+  for (const phrase of [...CLINICAL_OVERREACH_PHRASES_EN, ...CLINICAL_OVERREACH_PHRASES_OTHER]) {
+    if (lower.includes(phrase)) return phrase;
+  }
+  return null;
+}
+
 const EXPLICIT_CONCLUSION_BLOCKERS_HE = [
   'אל תקבע עדיין מסקנה',
   'בלי לקבוע מסקנה',
