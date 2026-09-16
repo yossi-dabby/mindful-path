@@ -103,6 +103,24 @@ export const STAGE12_CHAT_SCENARIOS = Object.freeze([
 ]);
 
 const SIGNAL_PATTERNS = Object.freeze({
+  delayed_response: [
+    /why (?:is there|was there) no (?:reply|response)|why (?:didn't|did not) you (?:reply|answer)|i (?:didn't|did not) receive (?:a|your) (?:reply|response|answer)/i,
+    /מדוע אין מענה|למה (?:לא )?(?:ענית|הגבת)|לא קיבלתי תשובה|לא הגיעה תשובה/u,
+    /por qué no (?:respondiste|hay respuesta)|no recibí (?:una )?respuesta/i,
+    /pourquoi (?:tu n'as|vous n'avez) pas répondu|je n'ai pas reçu de réponse/i,
+    /warum (?:hast du|haben sie) nicht geantwortet|ich habe keine antwort erhalten/i,
+    /perché non (?:hai|avete) risposto|non ho ricevuto (?:una )?risposta/i,
+    /por que não (?:respondeste|respondeu)|não recebi (?:uma )?resposta/i,
+  ],
+  session_request: [
+    /(?:start|begin|have|do).{0,20}(?:therapy|therapeutic|cbt) session|(?:40|forty)[ -]minute session/i,
+    /סשן טיפולי|מפגש טיפולי|פגישה טיפולית|(?:40|ארבעים) דקות.{0,12}(?:סשן|מפגש|טיפול)/u,
+    /sesión terapéutica|sesión de (?:40|cuarenta) minutos/i,
+    /séance thérapeutique|séance de (?:40|quarante) minutes/i,
+    /therapeutische sitzung|(?:40|vierzig)[ -]minütige sitzung/i,
+    /sessione terapeutica|sessione di (?:40|quaranta) minuti/i,
+    /sessão terapêutica|sessão de (?:40|quarenta) minutos/i,
+  ],
   late_return: [
     /returning to our earlier conversation|continue only from details that are actually available/i,
     /חזרתי לשיחה הקודמת|פרטים שבאמת זמינים/u,
@@ -176,13 +194,17 @@ export function normalizeStage12Language(language) {
 export function classifyStage12Turn(messageText) {
   const text = String(messageText || '').trim();
   if (!text) return 'general';
-  for (const id of ['late_return', 'negative_feedback', 'vent_only', 'refusal', 'guided_exercise', 'practical_step', 'automatic_thought']) {
+  for (const id of ['delayed_response', 'session_request', 'late_return', 'negative_feedback', 'vent_only', 'refusal', 'guided_exercise', 'practical_step', 'automatic_thought']) {
     if (SIGNAL_PATTERNS[id].some((pattern) => pattern.test(text))) return id;
   }
   return 'general';
 }
 
 const TURN_RULES = Object.freeze({
+  delayed_response:
+    'DELAYED OR MISSING RESPONSE: acknowledge the apparent delivery failure. Never claim that a response was previously sent, delivered, displayed, or seen unless verified runtime state explicitly confirms it. Say that the prior response may not have been delivered, then answer the user’s pending question now without blame.',
+  session_request:
+    'STRUCTURED SESSION REQUEST: explain briefly that this is a supportive structured conversation and not a replacement for licensed therapy. Do not promise uninterrupted clock time. When clinically indicated, check immediate distress or safety briefly; agree on one goal; ask what has already been tried and what happened; work from one concrete recent event; choose one collaborative micro-step; and close with a short summary.',
   late_return:
     'LATE RETURN: use only prior details that are actually present in the current conversation or verified memory. If at least one verified detail is available, briefly mention exactly one relevant detail before inviting continuation. Only say that context is unavailable when no verified prior detail exists. Never fabricate recall.',
   vent_only:
@@ -230,6 +252,8 @@ export function buildStage12SessionContract(language) {
     '5. Negative feedback: repair briefly, specifically, and without defensiveness.',
     '6. Short-message sequence: preserve arrival order, combine context, and never drop or duplicate a message.',
     '7. Late return: continue only from verified conversation or memory data; never fabricate recall.',
+    'Missing response: acknowledge possible delivery failure, never claim an unverified prior send, and answer now.',
+    'Structured session request: set scope, agree one goal, review prior attempts, work one event, choose one micro-step, and summarize; do not promise continuous clock time or present this as licensed therapy.',
     'Guided exercise: when explicitly requested, begin one brief, low-risk exercise immediately in the current language; do not replace it with an intake question.',
     'For image/file turns, reason only from accessible attachment content and disclose limitations.',
     'Safety policy has precedence over every item above.',
