@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   STAGE12_CHAT_SCENARIOS,
+  STAGE12_CLINICAL_HUMILITY_BY_LANGUAGE,
   STAGE12_SUPPORTED_LANGUAGES,
   buildStage12SessionContract,
   buildStage12TurnSupplement,
@@ -172,6 +173,20 @@ describe('Stage 12 multilingual chat-quality release gate', () => {
       expect(contract).toContain('verified conversation or memory data');
       expect(contract).toContain('never fabricate recall');
       expect(contract).toContain('Safety policy has precedence');
+    }
+  });
+
+  it('injects localized clinical humility with full seven-language parity', () => {
+    expect(Object.keys(STAGE12_CLINICAL_HUMILITY_BY_LANGUAGE).sort())
+      .toEqual([...STAGE12_SUPPORTED_LANGUAGES].sort());
+
+    for (const language of STAGE12_SUPPORTED_LANGUAGES) {
+      const localizedRule = STAGE12_CLINICAL_HUMILITY_BY_LANGUAGE[language];
+      expect(localizedRule).toBeTruthy();
+      expect(buildStage12TurnSupplement('neutral message', language)).toContain(localizedRule);
+      expect(buildStage12SessionContract(language)).toContain(
+        'Clinical humility in every supported language',
+      );
     }
   });
 
