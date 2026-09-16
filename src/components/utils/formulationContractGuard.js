@@ -37,6 +37,7 @@
  * conclusion_drawn_when_explicitly_blocked
  * unsupported_current_turn_grounding_claim
  * clinical_overreach_certainty
+ * diagnostic_uncertainty_escalation
  *
  * LOCALE SUPPORT
  * --------------
@@ -317,6 +318,46 @@ function _findClinicalOverreachPhrase(content) {
   return CLINICAL_OVERREACH_PATTERNS.some((pattern) => pattern.test(content))
     ? 'semantic_overreach_pattern'
     : null;
+}
+
+const DIAGNOSTIC_UNCERTAINTY_RULES = Object.freeze([
+  Object.freeze({
+    diagnosis: /חרדה\s+מוכללת/u,
+    uncertainty: /(?:יש\s+סיכוי|אולי|ייתכן|יתכן|כנראה|אפשרות|חשד|משוער|סביר)/u,
+  }),
+  Object.freeze({
+    diagnosis: /generalized\s+anxiety(?:\s+disorder)?/iu,
+    uncertainty: /(?:possible|possibly|might|may|suspected|probable|likely|chance)/iu,
+  }),
+  Object.freeze({
+    diagnosis: /ansiedad\s+generalizada/iu,
+    uncertainty: /(?:posible|posiblemente|podría|sospecha|sospechado|probable|quizá|tal\s+vez)/iu,
+  }),
+  Object.freeze({
+    diagnosis: /anxiété\s+généralisée/iu,
+    uncertainty: /(?:possible|peut-être|pourrait|suspectée?|probable|éventuelle?)/iu,
+  }),
+  Object.freeze({
+    diagnosis: /generalisierte[nr]?\s+angst(?:störung)?/iu,
+    uncertainty: /(?:möglich|möglicherweise|könnte|vermutet|wahrscheinlich|verdacht)/iu,
+  }),
+  Object.freeze({
+    diagnosis: /ansia\s+generalizzata/iu,
+    uncertainty: /(?:possibile|forse|potrebbe|sospetta|probabile|ipotesi)/iu,
+  }),
+  Object.freeze({
+    diagnosis: /ansiedade\s+generalizada/iu,
+    uncertainty: /(?:possível|talvez|poderia|suspeita|provável|hipótese)/iu,
+  }),
+]);
+
+function _hasDiagnosticUncertaintyEscalation(assistantContent, visibleUserContent) {
+  if (typeof assistantContent !== 'string' || typeof visibleUserContent !== 'string') return false;
+  return DIAGNOSTIC_UNCERTAINTY_RULES.some(({ diagnosis, uncertainty }) => {
+    if (!diagnosis.test(visibleUserContent) || !uncertainty.test(visibleUserContent)) return false;
+    if (!diagnosis.test(assistantContent)) return false;
+    return !uncertainty.test(assistantContent);
+  });
 }
 
 const EXPLICIT_CONCLUSION_BLOCKERS_HE = [
@@ -1250,6 +1291,22 @@ export function evaluateCurrentTurnGroundingContractDetailed(assistantContent, r
     };
   }
 
+  if (_hasDiagnosticUncertaintyEscalation(assistantContent, visibleUser)) {
+    return {
+      pass: false,
+      reasonCodes: ['diagnostic_uncertainty_escalation'],
+      strictMode,
+      visibleUserLength: visibleUser.length,
+      visibleUserHash: _hashDiagnosticText(visibleUser),
+      sentenceIndex: null,
+      matchedClaimGroup: 'diagnostic_uncertainty',
+      matchedAssistantTerm: 'unsupported_diagnostic_certainty',
+      matchedAffirmativeUserTerm: 'uncertain_diagnostic_language',
+      rejectedSentenceSnippet: null,
+      correctionBlockDetected,
+    };
+  }
+
   const matchedClinicalOverreach = _findClinicalOverreachPhrase(assistantContent);
   if (matchedClinicalOverreach) {
     return {
@@ -1924,7 +1981,10 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
       continue;
     }
 
-    const fallbackText = evaluation.reasonCodes.includes('clinical_overreach_certainty')
+    const needsClinicalHumilityFallback = evaluation.reasonCodes.some((reasonCode) =>
+      ['clinical_overreach_certainty', 'diagnostic_uncertainty_escalation'].includes(reasonCode)
+    );
+    const fallbackText = needsClinicalHumilityFallback
       ? buildClinicalOverreachFallback(effectiveLocale)
       : buildCurrentTurnGroundingFallback(effectiveLocale);
     const replacedMsg = {
