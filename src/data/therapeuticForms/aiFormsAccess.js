@@ -744,10 +744,19 @@ export function hasExplicitFormAccessRequest(userMessage) {
     return true;
   }
 
-  const hasFormObject = FORM_OBJECT_PATTERN.test(text);
-  const hasExplicitAction =
-    FORM_INTENT_PATTERNS.send.test(text) ||
-    EXPLICIT_FORM_REQUEST_ACTION_PATTERN.test(text);
+  const formObjectMatch = text.match(FORM_OBJECT_PATTERN);
+  const sendActionMatch = text.match(FORM_INTENT_PATTERNS.send);
+  const accessActionMatch = text.match(EXPLICIT_FORM_REQUEST_ACTION_PATTERN);
+  const hasFormObject = !!formObjectMatch;
+  const formObjectIndex = formObjectMatch?.index ?? -1;
+  const hasNearbySendAction =
+    !!sendActionMatch &&
+    Math.abs((sendActionMatch.index ?? -1) - formObjectIndex) <= 100;
+  const hasForwardAccessAction =
+    !!accessActionMatch &&
+    (accessActionMatch.index ?? -1) <= formObjectIndex &&
+    formObjectIndex - (accessActionMatch.index ?? -1) <= 100;
+  const hasExplicitAction = hasNearbySendAction || hasForwardAccessAction;
   const hasExplicitQuestion = EXPLICIT_FORM_REQUEST_QUESTION_PATTERN.test(text);
   const isDirectNounPhrase =
     text.length <= 160 && DIRECT_FORM_NOUN_PHRASE_PATTERN.test(text);
