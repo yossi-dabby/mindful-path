@@ -200,6 +200,16 @@ export function classifyStage12Turn(messageText) {
   return 'general';
 }
 
+export const STAGE12_CLINICAL_HUMILITY_BY_LANGUAGE = Object.freeze({
+  en: 'CLINICAL HUMILITY: keep formulations provisional and collaborative. Preserve uncertainty in possible or suspected diagnoses. A real practical mismatch and avoidance can coexist. Before a causal conclusion or action step, examine one concrete event, consider at least two plausible alternatives, and frame the step as an experiment. Do not judge prior-therapy confidentiality without facts about consent and what was shared.',
+  he: 'ענווה קלינית: הצג כל המשגה כהשערה זמנית ומשותפת. שמור במדויק על אי־ודאות באבחנה אפשרית או משוערת. חוסר התאמה מעשי והימנעות יכולים להתקיים יחד. לפני מסקנה סיבתית או צעד מעשי, בדוק אירוע קונקרטי אחד, שקול לפחות שתי חלופות סבירות והצג את הצעד כניסוי משותף. אל תקבע שהופרה סודיות בטיפול קודם בלי לברר הסכמה ומה הועבר בפועל.',
+  es: 'HUMILDAD CLÍNICA: mantén cada formulación como una hipótesis provisional y colaborativa. Conserva la incertidumbre de un diagnóstico posible o sospechado. Una incompatibilidad práctica real y la evitación pueden coexistir. Antes de una conclusión causal o un paso de acción, examina un episodio concreto, considera al menos dos alternativas plausibles y presenta el paso como un experimento. No juzgues la confidencialidad de una terapia previa sin datos sobre el consentimiento y lo compartido.',
+  fr: 'HUMILITÉ CLINIQUE : présente toute formulation comme une hypothèse provisoire et collaborative. Préserve l’incertitude d’un diagnostic possible ou suspecté. Une incompatibilité pratique réelle et l’évitement peuvent coexister. Avant une conclusion causale ou une action, examine une situation concrète, considère au moins deux explications plausibles et présente l’action comme une expérience. Ne conclus pas à une violation de confidentialité antérieure sans vérifier le consentement et les informations échangées.',
+  de: 'KLINISCHE DEMUT: Behandle jede Formulierung als vorläufige, gemeinsam zu prüfende Hypothese. Bewahre die Unsicherheit möglicher oder vermuteter Diagnosen. Eine echte praktische Unpassung und Vermeidung können gleichzeitig bestehen. Prüfe vor einer kausalen Schlussfolgerung oder Handlung eine konkrete Situation und mindestens zwei plausible Alternativen; rahme den Schritt als Experiment. Beurteile frühere Vertraulichkeit nicht ohne Fakten zu Einwilligung und Informationsaustausch.',
+  it: 'UMILTÀ CLINICA: tratta ogni formulazione come un’ipotesi provvisoria e collaborativa. Mantieni l’incertezza di una diagnosi possibile o sospetta. Una reale incompatibilità pratica e l’evitamento possono coesistere. Prima di una conclusione causale o di un’azione, esamina un episodio concreto, considera almeno due alternative plausibili e presenta il passo come esperimento. Non giudicare la riservatezza della terapia precedente senza dati sul consenso e su ciò che è stato condiviso.',
+  pt: 'HUMILDADE CLÍNICA: trate cada formulação como hipótese provisória e colaborativa. Preserve a incerteza de um diagnóstico possível ou suspeito. Uma incompatibilidade prática real e a evitação podem coexistir. Antes de uma conclusão causal ou passo de ação, examine um episódio concreto, considere pelo menos duas alternativas plausíveis e apresente o passo como experimento. Não julgue a confidencialidade da terapia anterior sem fatos sobre consentimento e informações partilhadas.',
+});
+
 const TURN_RULES = Object.freeze({
   delayed_response:
     'DELAYED OR MISSING RESPONSE: acknowledge the apparent delivery failure. Never claim that a response was previously sent, delivered, displayed, or seen unless verified runtime state explicitly confirms it. Say that the prior response may not have been delivered, then answer the user’s pending question now without blame.',
@@ -230,6 +240,7 @@ export function buildStage12TurnSupplement(messageText, language, options = {}) 
     'Safety rules remain authoritative and override this block whenever necessary.',
     `Reply in ${normalizeStage12Language(language)} with the same warmth and clinical quality as every supported language.`,
     TURN_RULES[scenario],
+    STAGE12_CLINICAL_HUMILITY_BY_LANGUAGE[normalizeStage12Language(language)],
   ];
   if (options.hasAttachment === true) {
     rules.push(
@@ -254,6 +265,7 @@ export function buildStage12SessionContract(language) {
     '7. Late return: continue only from verified conversation or memory data; never fabricate recall.',
     'Missing response: acknowledge possible delivery failure, never claim an unverified prior send, and answer now.',
     'Structured session request: set scope, agree one goal, review prior attempts, work one event, choose one micro-step, and summarize; do not promise continuous clock time or present this as licensed therapy.',
+    'Clinical humility in every supported language: preserve diagnostic uncertainty, test one concrete event and at least two alternatives before causal closure, allow practical mismatch and avoidance to coexist, and frame action as an experiment.',
     'Guided exercise: when explicitly requested, begin one brief, low-risk exercise immediately in the current language; do not replace it with an intake question.',
     'For image/file turns, reason only from accessible attachment content and disclose limitations.',
     'Safety policy has precedence over every item above.',
