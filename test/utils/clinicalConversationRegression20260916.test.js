@@ -78,6 +78,6 @@ describe('2026-09-16 clinical conversation regression', () => {
     expect(instructions).toContain('Clinical humility and non-blaming formulation');
     expect(instructions).toContain('Never claim that the picture is complete');
     expect(instructions).toContain('Do not convert avoidance');
-    expect(instructions).toContain('ask what has already been tried');
+    expect(instructions).toContain('check what has already been tried');
   });
 });
