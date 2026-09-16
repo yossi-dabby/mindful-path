@@ -1186,6 +1186,23 @@ export function evaluateCurrentTurnGroundingContractDetailed(assistantContent, r
     };
   }
 
+  const matchedClinicalOverreach = _findClinicalOverreachPhrase(assistantContent);
+  if (matchedClinicalOverreach) {
+    return {
+      pass: false,
+      reasonCodes: ['clinical_overreach_certainty'],
+      strictMode,
+      visibleUserLength: visibleUser.length,
+      visibleUserHash: _hashDiagnosticText(visibleUser),
+      sentenceIndex: null,
+      matchedClaimGroup: 'clinical_overreach',
+      matchedAssistantTerm: 'bounded_overreach_pattern',
+      matchedAffirmativeUserTerm: 'not_applicable',
+      rejectedSentenceSnippet: null,
+      correctionBlockDetected,
+    };
+  }
+
   const sentences = _splitSentences(assistantContent);
   for (let groupIndex = 0; groupIndex < CURRENT_TURN_GROUNDING_CLAIM_GROUPS.length; groupIndex++) {
     const group = CURRENT_TURN_GROUNDING_CLAIM_GROUPS[groupIndex];
@@ -1504,6 +1521,10 @@ export function buildFormulationSafeFallback(
 
 export function buildCurrentTurnGroundingFallback(locale) {
   return CURRENT_TURN_GROUNDING_FALLBACKS[_normalizeSupportedLocale(locale)];
+}
+
+export function buildClinicalOverreachFallback(locale) {
+  return CLINICAL_OVERREACH_FALLBACKS[_normalizeSupportedLocale(locale)];
 }
 
 // ─── Phase 7: Next-turn correction block ────────────────────────────────────
@@ -1839,7 +1860,9 @@ export function applyCurrentTurnGroundingGuardToConversationMessages(
       continue;
     }
 
-    const fallbackText = buildCurrentTurnGroundingFallback(effectiveLocale);
+    const fallbackText = evaluation.reasonCodes.includes('clinical_overreach_certainty')
+      ? buildClinicalOverreachFallback(effectiveLocale)
+      : buildCurrentTurnGroundingFallback(effectiveLocale);
     const replacedMsg = {
       ...msg,
       content: fallbackText,
