@@ -243,6 +243,68 @@ const CLINICAL_OVERREACH_PHRASES_OTHER = [
   'o quadro está completo', 'este é o próprio mecanismo',
 ];
 
+// Semantic families cover paraphrases of the same unsafe clinical move rather
+// than relying only on a fixed sentence. Each supported locale has parity for:
+// premature closure, totalizing mechanism claims, blame/choice language,
+// unsupported exclusion of alternatives, and false job-fit/avoidance binaries.
+const CLINICAL_OVERREACH_PATTERNS = [
+  // Hebrew
+  /(?:זה|זו)\s+בדיוק\s+(?:ה)?מנגנון/u,
+  /(?:המעגל|הדפוס|המנגנון)\s+(?:כבר\s+)?(?:ברור|מאושר)/u,
+  /זה\s+משנה\s+(?:את\s+)?הכל/u,
+  /(?:הנוחות|ההקלה)(?:\s+המיידית)?\s+מנצחת/u,
+  /ההימנעות.{0,45}לא\s+נובעת\s+מפחד\s+ספציפי/u,
+  /(?:הדחייה|הסיבה).{0,65}(?:לא|אינה)\s+מקצועית\s+אלא\s+הימנעות/u,
+
+  // English
+  /this\s+is\s+(?:exactly\s+)?the\s+(?:whole\s+)?mechanism/i,
+  /(?:the\s+)?(?:cycle|pattern|mechanism)\s+is\s+(?:now\s+)?(?:clear|confirmed)/i,
+  /this\s+changes\s+everything/i,
+  /(?:comfort|immediate\s+relief)\s+wins/i,
+  /avoidance.{0,55}does\s+not\s+(?:come|stem)\s+from\s+(?:one|a)\s+specific\s+fear/i,
+  /(?:rejection|reason).{0,70}not\s+professional.{0,25}(?:but|rather)\s+avoidance/i,
+
+  // Spanish
+  /este\s+es\s+exactamente\s+el\s+mecanismo/iu,
+  /(?:el\s+)?(?:ciclo|patrón|mecanismo)\s+(?:ya\s+)?está\s+(?:claro|confirmado)/iu,
+  /esto\s+lo\s+cambia\s+todo/iu,
+  /(?:la\s+comodidad|el\s+alivio\s+inmediato)\s+gana/iu,
+  /la\s+evitación.{0,55}no\s+proviene\s+de\s+un\s+miedo\s+específico/iu,
+  /(?:rechazo|razón).{0,70}no\s+es\s+profesional.{0,25}sino\s+evitación/iu,
+
+  // French
+  /c['’]est\s+exactement\s+le\s+mécanisme/iu,
+  /(?:le\s+)?(?:cycle|schéma|mécanisme)\s+est\s+(?:maintenant\s+)?(?:clair|confirmé)/iu,
+  /cela\s+change\s+tout/iu,
+  /(?:le\s+confort|le\s+soulagement\s+immédiat)\s+l['’]emporte/iu,
+  /l['’]évitement.{0,55}ne\s+vient\s+pas\s+d['’]une\s+peur\s+précise/iu,
+  /(?:rejet|raison).{0,70}n['’]est\s+pas\s+professionnel.{0,25}mais\s+de\s+l['’]évitement/iu,
+
+  // German
+  /das\s+ist\s+genau\s+der\s+mechanismus/iu,
+  /(?:der\s+)?(?:kreislauf|muster|mechanismus)\s+ist\s+(?:jetzt\s+)?(?:klar|bestätigt)/iu,
+  /das\s+ändert\s+alles/iu,
+  /(?:komfort|sofortige\s+erleichterung)\s+gewinnt/iu,
+  /vermeidung.{0,55}stammt\s+nicht\s+aus\s+einer\s+bestimmten\s+angst/iu,
+  /(?:ablehnung|grund).{0,70}nicht\s+beruflich.{0,25}sondern\s+vermeidung/iu,
+
+  // Italian
+  /questo\s+è\s+esattamente\s+il\s+meccanismo/iu,
+  /(?:il\s+)?(?:ciclo|schema|meccanismo)\s+è\s+(?:ora\s+)?(?:chiaro|confermato)/iu,
+  /questo\s+cambia\s+tutto/iu,
+  /(?:il\s+comfort|il\s+sollievo\s+immediato)\s+vince/iu,
+  /l['’]evitamento.{0,55}non\s+deriva\s+da\s+una\s+paura\s+specifica/iu,
+  /(?:rifiuto|motivo).{0,70}non\s+è\s+professionale.{0,25}ma\s+evitamento/iu,
+
+  // Portuguese
+  /este\s+é\s+exatamente\s+o\s+mecanismo/iu,
+  /(?:o\s+)?(?:ciclo|padrão|mecanismo)\s+está\s+(?:agora\s+)?(?:claro|confirmado)/iu,
+  /isso\s+muda\s+tudo/iu,
+  /(?:o\s+conforto|o\s+alívio\s+imediato)\s+vence/iu,
+  /a\s+evitação.{0,55}não\s+vem\s+de\s+um\s+medo\s+específico/iu,
+  /(?:rejeição|motivo).{0,70}não\s+é\s+profissional.{0,25}mas\s+evitação/iu,
+];
+
 function _findClinicalOverreachPhrase(content) {
   if (typeof content !== 'string' || !content.trim()) return null;
   for (const phrase of CLINICAL_OVERREACH_PHRASES_HE) {
@@ -252,7 +314,9 @@ function _findClinicalOverreachPhrase(content) {
   for (const phrase of [...CLINICAL_OVERREACH_PHRASES_EN, ...CLINICAL_OVERREACH_PHRASES_OTHER]) {
     if (lower.includes(phrase)) return phrase;
   }
-  return null;
+  return CLINICAL_OVERREACH_PATTERNS.some((pattern) => pattern.test(content))
+    ? 'semantic_overreach_pattern'
+    : null;
 }
 
 const EXPLICIT_CONCLUSION_BLOCKERS_HE = [
