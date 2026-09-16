@@ -722,12 +722,54 @@ export function hasExplicitFormSuppressionIntent(text) {
   return false;
 }
 
+const EXPLICIT_FORM_REQUEST_ACTION_PATTERN =
+  /(?:\b(?:show|open|download|find|search\s+for|look\s+for|need|want|choose|recommend|provide)\b|(?:תראה|תראי|הצג|הציגי|פתח|פתחי|הורד|הורידי|מצא|מצאי|חפש|חפשי|צריך|צריכה|רוצה|רוצה\s+לקבל|בחר|בחרי|המלץ|המליצי|צרף|צרפי)|(?:mu[eé]strame|necesito|quiero|busca|encuentra)|(?:montre-moi|j['’]ai\s+besoin|je\s+veux|cherche|trouve)|(?:zeig|brauche|möchte|suche|finde)|(?:mostra|ho\s+bisogno|voglio|cerca|trova)|(?:mostre|preciso|quero|procure|encontre))/iu;
+
+const EXPLICIT_FORM_REQUEST_QUESTION_PATTERN =
+  /(?:\b(?:what|which|where|can\s+you|could\s+you|do\s+you\s+have)\b.{0,80}(?:forms?|worksheets?|workbooks?|handouts?)\b|(?:איזה|אילו|איפה|האם\s+יש|יש\s+לך|אפשר).{0,80}(?:טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת)|(?:qu[eé]|cu[aá]l|d[oó]nde|puedes).{0,80}(?:formularios?|hojas?\s+de\s+trabajo|cuadernos?)|(?:quel|quelle|où|pouvez-vous).{0,80}(?:formulaires?|feuilles?\s+de\s+travail|cahiers?)|(?:welche|wo|kannst\s+du).{0,80}(?:formulare?|arbeitsbl(?:att|ätter?|aetter?))|(?:quale|quali|dove|puoi).{0,80}(?:modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae])|(?:qual|quais|onde|pode).{0,80}(?:formulários?|folhas?\s+de\s+trabalho|fichas?\s+de\s+trabalho))/iu;
+
+const DIRECT_FORM_NOUN_PHRASE_PATTERN =
+  /^(?:please\s+|בבקשה\s+)?(?:a\s+|an\s+|the\s+)?(?:therapeutic\s+)?(?:form|worksheet|workbook|handout)\b|^(?:בבקשה\s+)?(?:טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת)\b/iu;
+
+/**
+ * Returns true only when the current turn explicitly asks to access the forms
+ * library. Merely mentioning CBT, therapy, sessions, tools, prior homework, or
+ * having used a worksheet in the past is not a forms request.
+ */
+export function hasExplicitFormAccessRequest(userMessage) {
+  const text = normalizeText(userMessage);
+  if (!text || hasExplicitFormSuppressionIntent(userMessage)) return false;
+
+  if (FORM_INTENT_PATTERNS.list.test(text) || asksMultiFormCapability(text)) {
+    return true;
+  }
+
+  const hasFormObject = FORM_OBJECT_PATTERN.test(text);
+  const hasExplicitAction =
+    FORM_INTENT_PATTERNS.send.test(text) ||
+    EXPLICIT_FORM_REQUEST_ACTION_PATTERN.test(text);
+  const hasExplicitQuestion = EXPLICIT_FORM_REQUEST_QUESTION_PATTERN.test(text);
+  const isDirectNounPhrase =
+    text.length <= 160 && DIRECT_FORM_NOUN_PHRASE_PATTERN.test(text);
+  const hasRequestedModule =
+    MODULE_SCOPE_PATTERN.test(text) &&
+    (hasExplicitAction || /(?:קובץ\s*מאוחד|כל\s*שלב)/u.test(text));
+
+  return (hasFormObject && (hasExplicitAction || hasExplicitQuestion || isDirectNounPhrase)) ||
+    hasRequestedModule;
+}
+
 export function detectFormIntent(userMessage) {
   const text = normalizeText(userMessage);
   if (!text) return null;
 
   // Guard: explicit suppression of form delivery in the current turn → no intent.
   if (hasExplicitFormSuppressionIntent(userMessage)) return null;
+
+  // A forms notice/attachment is allowed only for an explicit current-turn
+  // request. Clinical discussion that merely mentions CBT or prior tools must
+  // continue normally without the forms-library policy taking over.
+  if (!hasExplicitFormAccessRequest(userMessage)) return null;
 
   const requestedAudience = extractRequestedAudience(text);
   const requestedLanguage = extractRequestedLanguage(text);
