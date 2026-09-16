@@ -1152,6 +1152,26 @@ export const THERAPIST_FORMULATION_RESPONSE_RULES = Object.freeze({
     'hypothesis rather than assumes it. Preserve concise, natural phrasing and ' +
     'apply this contract consistently across languages. Honest uncertainty ' +
     'builds more trust than authoritative-sounding but unverifiable lists.',
+
+  /**
+   * Clinical humility and non-blaming formulation.
+   * A working formulation remains provisional, multi-factorial, and open to
+   * correction. Avoidance is a process to understand, never a moral verdict.
+   */
+  clinical_humility_and_nonblaming:
+    'Treat every clinical formulation as provisional, collaborative, and ' +
+    'multi-factorial. Never claim that the picture is complete or that one ' +
+    'mechanism explains the whole person. Do not convert avoidance, delay, or ' +
+    'short-term relief into blame, lack of willpower, or a supposedly conscious ' +
+    'choice. The person’s metaphors and self-explanations are useful data, not ' +
+    'verified clinical facts. Before concluding, consider reasonable alternatives ' +
+    'such as mood, energy, sleep, attention or executive-function difficulty, ' +
+    'burnout, perfectionism, intolerance of uncertainty, and actual task, job, ' +
+    'or environmental fit. Do not say prior therapy treated only symptoms, missed ' +
+    'the real mechanism, or failed unless the person or verified records establish ' +
+    'that. Preserve earlier progress and corrections. Before suggesting a tool, ' +
+    'briefly check what has already been tried and what happened, then agree on ' +
+    'one proportionate next step.',
 });
 
 /**
@@ -1176,6 +1196,7 @@ export function buildFormulationLedInstructions() {
     `5. Confusion handling:\n   ${THERAPIST_FORMULATION_RESPONSE_RULES.confusion_handling}`,
     `6. Empathy-request deepening:\n   ${THERAPIST_FORMULATION_RESPONSE_RULES.empathy_request_deepening}`,
     `7. Source and evidence honesty:\n   ${THERAPIST_FORMULATION_RESPONSE_RULES.source_honesty}`,
+    `8. Clinical humility and non-blaming formulation:\n   ${THERAPIST_FORMULATION_RESPONSE_RULES.clinical_humility_and_nonblaming}`,
   ].join('\n\n');
 
   return [
