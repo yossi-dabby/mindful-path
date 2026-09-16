@@ -10,7 +10,7 @@
  * SECTION A — FORMULATION ENGINE EXPORTS
  *  1.  THERAPIST_FORMULATION_RESPONSE_RULES is exported from therapistWorkflowEngine.js
  *  2.  THERAPIST_FORMULATION_RESPONSE_RULES is a frozen object
- *  3.  THERAPIST_FORMULATION_RESPONSE_RULES has exactly 7 keys
+ *  3.  THERAPIST_FORMULATION_RESPONSE_RULES has exactly 8 keys
  *  4.  already_known_context rule exists and is a non-empty string
  *  5.  formulation_before_questioning rule exists and is a non-empty string
  *  6.  no_early_protocol_rituals rule exists and is a non-empty string
@@ -22,7 +22,7 @@
  *  12. THERAPIST_FORMULATION_INSTRUCTIONS is exported and is a non-empty string
  *  13. THERAPIST_FORMULATION_INSTRUCTIONS starts with the Phase 10 header
  *  14. THERAPIST_FORMULATION_INSTRUCTIONS ends with the Phase 10 footer
- *  15. THERAPIST_FORMULATION_INSTRUCTIONS contains all 7 rule labels
+ *  15. THERAPIST_FORMULATION_INSTRUCTIONS contains all 8 rule labels
  *  16. buildFormulationLedInstructions() returns the same string as THERAPIST_FORMULATION_INSTRUCTIONS
  *
  * SECTION B — V6 WIRING CONFIG
@@ -134,8 +134,8 @@ describe('Phase 10 — THERAPIST_FORMULATION_RESPONSE_RULES exists and is well-f
     expect(Object.isFrozen(THERAPIST_FORMULATION_RESPONSE_RULES)).toBe(true);
   });
 
-  it('has exactly 7 keys', () => {
-    expect(Object.keys(THERAPIST_FORMULATION_RESPONSE_RULES)).toHaveLength(7);
+  it('has exactly 8 keys', () => {
+    expect(Object.keys(THERAPIST_FORMULATION_RESPONSE_RULES)).toHaveLength(8);
   });
 
   it('already_known_context rule exists and is a non-empty string', () => {
