@@ -69,7 +69,7 @@ const FORM_INTENT_PATTERNS = Object.freeze({
 });
 
 const FORM_OBJECT_PATTERN =
-  /(?:\b(?:forms?|worksheets?|workbooks?|handouts?)\b|טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|folhas?\s+de\s+trabalho|fichas?\s+de\s+trabalho|exercícios?|cadernos?)/iu;
+  /(?:\b(?:forms?|worksheets?|workbooks?|handouts?)\b|טופס|טפסים|דף\s*עבודה|דפי\s*עבודה|חוברת|formularios?|hojas?\s+de\s+trabajo|cuadernos?|formulaires?|fiches?|feuilles?\s+de\s+travail|cahiers?|formulare?|arbeitsbl(?:att|ätter?|aetter?)|modul[oi]|fogli(?:o)?\s+di\s+lavoro|sched[ae]|formulários?|fichas?|folhas?\s+de\s+trabalho|exercícios?|cadernos?)/iu;
 
 const MODULE_SCOPE_PATTERN =
   /(?:module|stage|מודול|שלב|módulo|modulo|étape|etape|stufe)\s*0?([1-9]|10)\b/iu;
@@ -747,6 +747,7 @@ export function hasExplicitFormAccessRequest(userMessage) {
   const formObjectMatch = text.match(FORM_OBJECT_PATTERN);
   const sendActionMatch = text.match(FORM_INTENT_PATTERNS.send);
   const accessActionMatch = text.match(EXPLICIT_FORM_REQUEST_ACTION_PATTERN);
+  const explicitIdMatch = text.match(/\b[a-z0-9]+(?:[_-][a-z0-9]+){2,}\b/i);
   const hasFormObject = !!formObjectMatch;
   const formObjectIndex = formObjectMatch?.index ?? -1;
   const hasNearbySendAction =
@@ -757,6 +758,11 @@ export function hasExplicitFormAccessRequest(userMessage) {
     (accessActionMatch.index ?? -1) <= formObjectIndex &&
     formObjectIndex - (accessActionMatch.index ?? -1) <= 100;
   const hasExplicitAction = hasNearbySendAction || hasForwardAccessAction;
+  const hasExplicitIdRequest =
+    !!explicitIdMatch &&
+    !!sendActionMatch &&
+    (sendActionMatch.index ?? -1) <= (explicitIdMatch.index ?? -1) &&
+    (explicitIdMatch.index ?? -1) - (sendActionMatch.index ?? -1) <= 120;
   const hasExplicitQuestion = EXPLICIT_FORM_REQUEST_QUESTION_PATTERN.test(text);
   const isDirectNounPhrase =
     text.length <= 160 && DIRECT_FORM_NOUN_PHRASE_PATTERN.test(text);
@@ -765,6 +771,7 @@ export function hasExplicitFormAccessRequest(userMessage) {
     (hasExplicitAction || /(?:קובץ\s*מאוחד|כל\s*שלב)/u.test(text));
 
   return (hasFormObject && (hasExplicitAction || hasExplicitQuestion || isDirectNounPhrase)) ||
+    hasExplicitIdRequest ||
     hasRequestedModule;
 }
 
