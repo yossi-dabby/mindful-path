@@ -156,7 +156,7 @@ function PdfFullTextCard({ text, pageCount }) {
   );
 }
 
-export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
+export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage, showFeedback = false }) {
   // Stage 1 runtime-path lock:
   // Shared bubble renderer used by multiple surfaces.
   // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
@@ -567,6 +567,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
                   {/* Feedback for assistant messages */}
                   {!isUser &&
+          showFeedback &&
           conversationId &&
           messageIndex !== undefined &&
           message?.metadata?.feedback_finality_verified === true &&
