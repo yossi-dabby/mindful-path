@@ -247,7 +247,7 @@ function selectCanonicalAssistantWithinBlock(blockMessages) {
   // their raw indexes are contiguous.
   // Priority 3: latest non-administrative message (progress -> final collapse).
   // Priority 4: last message in the block.
-  let latestFinalNonAdmin = null;
+  const explicitlyFinalNonAdminMessages = [];
   const nonAdministrativeMessages = [];
 
   for (let i = 0; i < messages.length; i++) {
@@ -256,12 +256,18 @@ function selectCanonicalAssistantWithinBlock(blockMessages) {
     if (!isAdmin) {
       nonAdministrativeMessages.push(candidate);
       if (isExplicitlyFinalAssistantMessage(candidate)) {
-        latestFinalNonAdmin = candidate;
+        explicitlyFinalNonAdminMessages.push(candidate);
       }
     }
   }
 
-  if (latestFinalNonAdmin !== null) return latestFinalNonAdmin;
+  if (explicitlyFinalNonAdminMessages.length > 0) {
+    let canonical = explicitlyFinalNonAdminMessages[0];
+    for (let i = 1; i < explicitlyFinalNonAdminMessages.length; i++) {
+      canonical = mergeAssistantMessages(canonical, explicitlyFinalNonAdminMessages[i]);
+    }
+    return canonical;
+  }
 
   if (nonAdministrativeMessages.length > 1) {
     let persistenceBoundaryIndex = -1;
@@ -358,9 +364,11 @@ export function normalizeLegacyVisibleAssistantBlocks(msgs) {
 }
 
 export function applyLegacyVisibleAssistantNormalizationGate(finalMessages, chatOrchestratorV2Enabled) {
-  return chatOrchestratorV2Enabled === true
-    ? finalMessages
-    : normalizeLegacyVisibleAssistantBlocks(finalMessages);
+  // Correlation and orchestration operate on the raw snapshot. The visible layer
+  // must still guarantee one canonical assistant bubble per user turn in both
+  // legacy and V2 runtimes.
+  void chatOrchestratorV2Enabled;
+  return normalizeLegacyVisibleAssistantBlocks(finalMessages);
 }
 
 export function buildPendingCorrectionPrefix(correctionBlocks) {
