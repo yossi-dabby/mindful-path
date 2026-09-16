@@ -1167,11 +1167,20 @@ export const THERAPIST_FORMULATION_RESPONSE_RULES = Object.freeze({
     'verified clinical facts. Before concluding, consider reasonable alternatives ' +
     'such as mood, energy, sleep, attention or executive-function difficulty, ' +
     'burnout, perfectionism, intolerance of uncertainty, and actual task, job, ' +
-    'or environmental fit. Do not say prior therapy treated only symptoms, missed ' +
-    'the real mechanism, or failed unless the person or verified records establish ' +
-    'that. Preserve earlier progress and corrections. Before suggesting a tool, ' +
-    'briefly check what has already been tried and what happened, then agree on ' +
-    'one proportionate next step.',
+    'or environmental fit. A genuine practical mismatch and avoidance may coexist; ' +
+    'never force a false either-or conclusion. If the person cannot quantify or ' +
+    'separate mixed causes, do not infer that no specific fear exists. Preserve ' +
+    'diagnostic uncertainty exactly: possible, suspected, or probable must never ' +
+    'be restated as a confirmed diagnosis. Do not declare that a previous therapist ' +
+    'or parent contact violated confidentiality without checking consent, prior ' +
+    'agreements, and what information was actually exchanged. Do not say prior ' +
+    'therapy treated only symptoms, missed the real mechanism, or failed unless ' +
+    'the person or verified records establish that. Before moving from explanation ' +
+    'to action, examine at least one concrete recent event and consider at least ' +
+    'two plausible alternatives when making a causal formulation. Frame any next ' +
+    'step as a collaborative experiment, not a test that proves avoidance. Preserve ' +
+    'earlier progress and corrections. Before suggesting a tool, briefly check what ' +
+    'has already been tried and what happened, then agree on one proportionate next step.',
 });
 
 /**
