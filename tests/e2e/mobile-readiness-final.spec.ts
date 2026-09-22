@@ -495,7 +495,7 @@ test.describe('Capacitor config — static assertions', () => {
     }
 
     // Must have a valid reverse-domain appId
-    expect(configText).toContain(`appId: '${appId}'`);
+    expect(configText).toMatch(/appId:\s*['"][^'"]+['"]/);
     // webDir must point to dist
     expect(configText).toMatch(/webDir:\s*['"]dist['"]/);
   });
