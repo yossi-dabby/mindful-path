@@ -462,15 +462,40 @@ test.describe('PullToRefresh — touchcancel and aria-live', () => {
 // 6. CAPACITOR CONFIG STATIC ASSERTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Capacitor config — static assertions', () => {
-  test('capacitor.config.ts has correct appId format', async () => {
+  const readCapacitorConfigText = async () => {
     const { readFileSync } = await import('fs');
     const { join } = await import('path');
-    const configText = readFileSync(
+
+    return readFileSync(
       join(process.cwd(), 'capacitor.config.ts'),
       'utf8'
     );
+  };
+
+  const readCapacitorAppId = async () => {
+    const configText = await readCapacitorConfigText();
+    const appIdMatch = configText.match(/appId:\s*['"]([^'"]+)['"]/);
+    const appId = appIdMatch?.[1];
+
+    expect(appId).toBeTruthy();
+    if (!appId) {
+      throw new Error('Expected capacitor.config.ts to define an appId');
+    }
+
+    return { appId, configText };
+  };
+
+  test('capacitor.config.ts has correct appId format', async () => {
+    const { appId, configText } = await readCapacitorAppId();
+    const appIdSegments = appId.split('.');
+
+    expect(appIdSegments.length).toBeGreaterThan(1);
+    for (const segment of appIdSegments) {
+      expect(segment).toMatch(/^[A-Za-z][A-Za-z0-9_]*$/);
+    }
+
     // Must have a valid reverse-domain appId
-    expect(configText).toMatch(/appId:\s*['"]com\.\w+\.\w+/);
+    expect(configText).toMatch(/appId:\s*['"][^'"]+['"]/);
     // webDir must point to dist
     expect(configText).toMatch(/webDir:\s*['"]dist['"]/);
   });
@@ -498,10 +523,14 @@ test.describe('Capacitor config — static assertions', () => {
   test('MainActivity extends BridgeActivity (Capacitor back button support)', async () => {
     const { readFileSync } = await import('fs');
     const { join } = await import('path');
+    const { appId } = await readCapacitorAppId();
+
+    const packagePath = appId.replaceAll('.', '/');
     const mainActivity = readFileSync(
-      join(process.cwd(), 'android/app/src/main/java/com/mindfulpath/app/MainActivity.java'),
+      join(process.cwd(), 'android/app/src/main/java', packagePath, 'MainActivity.java'),
       'utf8'
     );
+    expect(mainActivity).toContain(`package ${appId};`);
     expect(mainActivity).toContain('BridgeActivity');
   });
 
