@@ -94,7 +94,7 @@ CI (`playwright.yml` / `webpack.yml`) runs on Linux and therefore **cannot** per
 ## Capacitor Config Reference
 
 See `capacitor.config.ts` in the repository root for the full configuration:
-- `appId`: `com.mindfulpath.app`
+- `appId`: `me.mindfulpath.app`
 - `appName`: `Mindful Path`
 - `webDir`: `dist`
 - iOS: `allowsLinkPreview: false` (prevents unintended link previews in WKWebView)
