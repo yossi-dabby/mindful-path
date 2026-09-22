@@ -55,7 +55,7 @@ cd android && ./gradlew testDebugUnitTest assembleDebug bundleRelease
 
 ### One-time configuration
 
-1. In Google Play Console, create/activate subscription product `mindful_path_premium_monthly` for package `com.mindfulpath.app`.
+1. In Google Play Console, create/activate subscription product `mindful_path_premium_monthly` for package `me.mindfulpath.app`.
 2. Publish an AAB to an Internal testing track (or Internal app sharing) and add the tester Google accounts.
 3. Add the same accounts under Play Console license testing.
 4. In RevenueCat, connect the Google Play app, import `mindful_path_premium_monthly`, attach it to entitlement `premium`, and place it in the current offering as `$rc_monthly`.
