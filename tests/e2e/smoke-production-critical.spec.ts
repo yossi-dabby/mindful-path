@@ -137,12 +137,19 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
       
       await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
       
-      // Verify we're on the Goals page
-      const goalsUrl = page.url();
-      expect(goalsUrl).toContain('/Goals');
-      console.log('[Navigation] ✓ Goals page loaded');
+      // Goals is protected in production. An authenticated session reaches
+      // the page directly; a guest must be redirected to login while retaining
+      // the requested destination.
+      const goalsUrl = new URL(page.url());
+      if (goalsUrl.pathname === '/Goals') {
+        console.log('[Navigation] ✓ Goals page loaded');
+      } else {
+        expect(goalsUrl.pathname).toBe('/login');
+        expect(goalsUrl.searchParams.get('from_url')).toBe('/Goals');
+        console.log('[Navigation] ✓ Guest redirected to login with Goals return URL');
+      }
 
-      // Wait for Goals page to fully render
+      // Wait for the resulting page to fully render
       await page.waitForFunction(
         () => {
           const root = document.querySelector('#root');
