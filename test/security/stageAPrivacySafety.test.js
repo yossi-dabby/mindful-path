@@ -39,6 +39,23 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
     expect(hebrew.consent.crisisBody).toBeTruthy();
   });
 
+  it('keeps public legal and information pages outside the authenticated app', () => {
+    const source = read('src/App.jsx');
+    const protectedAppIndex = source.indexOf('<Route path="/*" element={<ProtectedApp />} />');
+
+    expect(protectedAppIndex).toBeGreaterThan(-1);
+    for (const publicRoute of [
+      '<Route path="/about" element={<About />} />',
+      '<Route path="/privacy" element={<Privacy />} />',
+      '<Route path="/terms" element={<Terms />} />',
+      '<Route path="/contact" element={<Contact />} />',
+    ]) {
+      const routeIndex = source.indexOf(publicRoute);
+      expect(routeIndex, publicRoute).toBeGreaterThan(-1);
+      expect(routeIndex, publicRoute).toBeLessThan(protectedAppIndex);
+    }
+  });
+
   it('accepts only the current consent version', () => {
     const storage = createStorage();
     expect(hasCurrentChatConsent(storage, 'user-a')).toBe(false);
