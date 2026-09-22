@@ -28,8 +28,8 @@ Apple and Google may show a localized currency and tax-inclusive store price. Th
 ### RevenueCat
 
 1. Create the Mindful Path project.
-2. Add the Apple app with bundle ID `com.mindfulpath.app`.
-3. Add the Google app with package name `com.mindfulpath.app`.
+2. Add the Apple app with bundle ID `me.mindfulpath.app`.
+3. Add the Google app with package name `me.mindfulpath.app`.
 4. Connect App Store Connect and Google Play service credentials.
 5. Import both monthly products.
 6. Attach both products to entitlement `premium`.
