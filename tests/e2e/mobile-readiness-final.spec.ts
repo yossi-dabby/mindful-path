@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { test, expect, devices } from '@playwright/test';
 
 /**
@@ -24,6 +26,16 @@ const BASE_URL =
 // apply the remaining device settings (viewport, isMobile, hasTouch, etc.) per
 // describe block without forcing a new worker.
 const { defaultBrowserType: _pixel5DefaultBrowserType, ...pixel5Device } = devices['Pixel 5'];
+
+function readRepositoryFile(...parts: string[]) {
+  return readFileSync(join(process.cwd(), ...parts), 'utf8');
+}
+
+function extractCapacitorAppId(configText: string) {
+  const match = configText.match(/appId:\s*['"]([a-z][\w]*(?:\.[a-z][\w]*)+)['"]/i);
+  expect(match?.[1]).toBeTruthy();
+  return match?.[1] ?? '';
+}
 
 // ── Shared API mock helper ────────────────────────────────────────────────────
 async function mockApis(page: import('@playwright/test').Page) {
@@ -463,55 +475,39 @@ test.describe('PullToRefresh — touchcancel and aria-live', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Capacitor config — static assertions', () => {
   test('capacitor.config.ts has correct appId format', async () => {
-    const { readFileSync } = await import('fs');
-    const { join } = await import('path');
-    const configText = readFileSync(
-      join(process.cwd(), 'capacitor.config.ts'),
-      'utf8'
-    );
-    // Must have a valid reverse-domain appId
-    expect(configText).toMatch(/appId:\s*['"]com\.\w+\.\w+/);
+    const configText = readRepositoryFile('capacitor.config.ts');
+    expect(extractCapacitorAppId(configText)).toMatch(/^[a-z][\w]*(?:\.[a-z][\w]*)+$/i);
     // webDir must point to dist
     expect(configText).toMatch(/webDir:\s*['"]dist['"]/);
   });
 
   test('AndroidManifest.xml supports RTL (android:supportsRtl="true")', async () => {
-    const { readFileSync } = await import('fs');
-    const { join } = await import('path');
-    const manifest = readFileSync(
-      join(process.cwd(), 'android/app/src/main/AndroidManifest.xml'),
-      'utf8'
-    );
+    const manifest = readRepositoryFile('android', 'app', 'src', 'main', 'AndroidManifest.xml');
     expect(manifest).toContain('android:supportsRtl="true"');
   });
 
   test('AndroidManifest.xml uses singleTask launchMode (prevents duplicate stack)', async () => {
-    const { readFileSync } = await import('fs');
-    const { join } = await import('path');
-    const manifest = readFileSync(
-      join(process.cwd(), 'android/app/src/main/AndroidManifest.xml'),
-      'utf8'
-    );
+    const manifest = readRepositoryFile('android', 'app', 'src', 'main', 'AndroidManifest.xml');
     expect(manifest).toContain('android:launchMode="singleTask"');
   });
 
   test('MainActivity extends BridgeActivity (Capacitor back button support)', async () => {
-    const { readFileSync } = await import('fs');
-    const { join } = await import('path');
-    const mainActivity = readFileSync(
-      join(process.cwd(), 'android/app/src/main/java/com/mindfulpath/app/MainActivity.java'),
-      'utf8'
+    const appId = extractCapacitorAppId(readRepositoryFile('capacitor.config.ts'));
+    const mainActivity = readRepositoryFile(
+      'android',
+      'app',
+      'src',
+      'main',
+      'java',
+      ...appId.split('.'),
+      'MainActivity.java'
     );
+    expect(mainActivity).toContain(`package ${appId};`);
     expect(mainActivity).toContain('BridgeActivity');
   });
 
   test('capacitor.config.ts disables link preview (iOS prevents accidental navigation)', async () => {
-    const { readFileSync } = await import('fs');
-    const { join } = await import('path');
-    const configText = readFileSync(
-      join(process.cwd(), 'capacitor.config.ts'),
-      'utf8'
-    );
+    const configText = readRepositoryFile('capacitor.config.ts');
     expect(configText).toContain('allowsLinkPreview: false');
   });
 });
