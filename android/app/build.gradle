@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 android {
     namespace = "me.mindfulpath.app"
     compileSdk = rootProject.ext.compileSdkVersion
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId "me.mindfulpath.app"
         minSdkVersion rootProject.ext.minSdkVersion
