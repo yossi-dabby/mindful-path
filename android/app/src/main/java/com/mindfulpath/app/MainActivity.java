@@ -1,4 +1,4 @@
-package com.mindfulpath.app;
+package me.mindfulpath.app;
 
 import com.getcapacitor.BridgeActivity;
 
