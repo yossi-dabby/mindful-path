@@ -19,9 +19,11 @@ describe('Android startup diagnostics', () => {
 
   it('enables WebView inspection only for debug builds', () => {
     const activity = read('android/app/src/main/java/me/mindfulpath/app/MainActivity.java');
+    const buildGradle = read('android/app/build.gradle');
 
     expect(activity).toContain('if (BuildConfig.DEBUG)');
     expect(activity).toContain('WebView.setWebContentsDebuggingEnabled(true)');
+    expect(buildGradle).toContain('buildConfig = true');
   });
 
   it('uses a separate application id and label for diagnostic builds', () => {
