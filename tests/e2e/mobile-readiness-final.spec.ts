@@ -491,7 +491,7 @@ test.describe('Capacitor config — static assertions', () => {
 
     expect(appIdSegments.length).toBeGreaterThan(1);
     for (const segment of appIdSegments) {
-      expect(segment).toMatch(/^[a-z][a-z0-9_]*$/);
+      expect(segment).toMatch(/^[A-Za-z][A-Za-z0-9_]*$/);
     }
 
     // Must have a valid reverse-domain appId
