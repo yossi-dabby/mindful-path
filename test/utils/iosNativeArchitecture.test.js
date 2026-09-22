@@ -7,8 +7,8 @@ describe('Stage 15 iOS Native architecture', () => {
   it('contains a generated Xcode project for the configured Bundle ID', () => {
     const config = read('capacitor.config.ts');
     const project = read('ios/App/App.xcodeproj/project.pbxproj');
-    expect(config).toContain("appId: 'com.mindfulpath.app'");
-    expect(project).toContain('PRODUCT_BUNDLE_IDENTIFIER = com.mindfulpath.app;');
+    expect(config).toContain("appId: 'me.mindfulpath.app'");
+    expect(project).toContain('PRODUCT_BUNDLE_IDENTIFIER = me.mindfulpath.app;');
     expect(project).toContain('TARGETED_DEVICE_FAMILY = "1,2";');
     expect(project).toContain('IPHONEOS_DEPLOYMENT_TARGET = 15.0;');
   });
