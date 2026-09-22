@@ -5,7 +5,7 @@
 | תחום | מצב |
 |---|---|
 | פרויקט Xcode | נוצר ונשמר תחת `ios/App/App.xcodeproj` |
-| Bundle ID | `com.mindfulpath.app` |
+| Bundle ID | `me.mindfulpath.app` |
 | Signing | Automatic Signing מוגדר; בחירת Team מתבצעת ב-Xcode בלבד |
 | Capacitor Sync | App, Keyboard ו-RevenueCat מסונכרנים באמצעות Swift Package Manager |
 | Simulator | תשתית ופקודות מוכנות; הרצה דורשת macOS ו-Xcode |
@@ -36,7 +36,7 @@ npm run ios:open
 
 ## Bundle ID וגרסאות
 
-- Bundle ID: `com.mindfulpath.app`
+- Bundle ID: `me.mindfulpath.app`
 - שם מוצר: `Mindful Path`
 - יעד מינימלי: iOS 15
 - משפחות מכשירים: iPhone ו-iPad
@@ -52,7 +52,7 @@ npm run ios:open
 3. פתח **Signing & Capabilities**.
 4. השאר **Automatically manage signing** מסומן.
 5. בחר את ה-Development Team של Mindful Path.
-6. ודא שה-Bundle Identifier הוא `com.mindfulpath.app`.
+6. ודא שה-Bundle Identifier הוא `me.mindfulpath.app`.
 7. ודא שאין שגיאת Provisioning Profile.
 8. אין לשמור תעודות, קובצי `.p12`, מפתחות או פרופילים בריפו.
 
@@ -105,7 +105,7 @@ npm run ios:run
 
 ### App Store Connect
 
-1. צור App Record עם Bundle ID `com.mindfulpath.app`.
+1. צור App Record עם Bundle ID `me.mindfulpath.app`.
 2. צור Auto-Renewable Subscription.
 3. Product ID: `mindful_path_premium_monthly`.
 4. צרף אותו ל-Subscription Group.
