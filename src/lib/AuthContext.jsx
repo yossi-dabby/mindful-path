@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { AUTH_CHECK_TIMEOUT_MS, withTimeout } from '@/lib/promiseTimeout';
 
 const AuthContext = createContext();
 
@@ -19,7 +20,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingAuth(true);
       setAuthError(null);
-      const currentUser = await base44.auth.me();
+      const currentUser = await withTimeout(
+        base44.auth.me(),
+        AUTH_CHECK_TIMEOUT_MS,
+        'Authentication check timed out',
+      );
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
@@ -49,6 +54,11 @@ export const AuthProvider = ({ children }) => {
         // /login route. Calling redirectToLogin would stack a second auth
         // flow on top of the custom Login page (especially in incognito).
         setIsLoadingAuth(false);
+        return;
+      }
+
+      if (error?.code === 'PROMISE_TIMEOUT') {
+        setAuthError({ type: 'auth_timeout', message: error.message });
         return;
       }
 
