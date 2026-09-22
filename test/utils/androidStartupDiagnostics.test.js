@@ -32,4 +32,15 @@ describe('Android startup diagnostics', () => {
     expect(buildGradle).toContain('versionNameSuffix "-diagnostic"');
     expect(debugStrings).toContain('Mindful Path Diagnostic');
   });
+
+  it('keeps the React startup error screen in document flow', () => {
+    const app = read('src/App.jsx');
+    const startupScreen = app.slice(
+      app.indexOf('const StartupErrorScreen'),
+      app.indexOf('const LayoutWrapper'),
+    );
+
+    expect(startupScreen).toContain('className="min-h-screen');
+    expect(startupScreen).not.toContain('className="fixed inset-0');
+  });
 });
