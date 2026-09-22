@@ -61,8 +61,7 @@ const StartupErrorScreen = ({ message, onRetry }) => {
     <main
       role="alert"
       data-testid="startup-error-screen"
-      className="fixed inset-0 flex items-center justify-center p-6 bg-stone-50 text-slate-900"
-      style={{ zIndex: AUTH_OVERLAY_Z_INDEX }}
+      className="min-h-screen flex items-center justify-center p-6 bg-stone-50 text-slate-900"
     >
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
         <h1 className="text-xl font-semibold">{title}</h1>
