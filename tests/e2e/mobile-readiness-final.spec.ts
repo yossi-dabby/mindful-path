@@ -470,7 +470,7 @@ test.describe('Capacitor config — static assertions', () => {
       'utf8'
     );
     // Must have a valid reverse-domain appId
-    expect(configText).toMatch(/appId:\s*['"]([a-z]\w*\.)+[a-z]\w*['"]/);
+    expect(configText).toMatch(/appId:\s*['"]([a-z][a-z0-9]*\.)+[a-z][a-z0-9]*['"]/);
     // webDir must point to dist
     expect(configText).toMatch(/webDir:\s*['"]dist['"]/);
   });
