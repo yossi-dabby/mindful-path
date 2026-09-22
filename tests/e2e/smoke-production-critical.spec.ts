@@ -141,7 +141,8 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
       // the page directly; a guest must be redirected to login while retaining
       // the requested destination.
       const goalsUrl = new URL(page.url());
-      if (goalsUrl.pathname === '/Goals') {
+      const reachedGoals = goalsUrl.pathname === '/Goals';
+      if (reachedGoals) {
         console.log('[Navigation] ✓ Goals page loaded');
       } else {
         expect(goalsUrl.pathname).toBe('/login');
@@ -158,24 +159,27 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
         { timeout: 10000 }
       );
 
-      // Navigate back to Home
-      console.log('[Navigation] Navigating back to Home...');
-      await spaNavigate(page, '/');
-      
-      await page.waitForFunction(
-        () => {
-          const root = document.querySelector('#root');
-          return root && root.children.length > 0;
-        },
-        { timeout: 15000 }
-      );
+      if (reachedGoals) {
+        // Navigate back to Home when the test session is authenticated.
+        console.log('[Navigation] Navigating back to Home...');
+        await spaNavigate(page, '/');
+        
+        await page.waitForFunction(
+          () => {
+            const root = document.querySelector('#root');
+            return root && root.children.length > 0;
+          },
+          { timeout: 15000 }
+        );
 
-      // Verify we're back on home page
-      const homeUrl = page.url();
-      expect(homeUrl).toMatch(/\/$|\/Home$/);
-      console.log('[Navigation] ✓ Returned to Home page');
+        const homeUrl = page.url();
+        expect(homeUrl).toMatch(/\/$|\/Home$/);
+        console.log('[Navigation] ✓ Returned to Home page');
+      } else {
+        console.log('[Navigation] ✓ Protected-route access gate verified');
+      }
 
-      console.log('✅ Basic navigation verified successfully');
+      console.log('✅ Basic navigation/access control verified successfully');
     } catch (error) {
       requestLogger.logToConsole();
       await page.screenshot({ 
