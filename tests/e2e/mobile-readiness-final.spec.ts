@@ -470,7 +470,7 @@ test.describe('Capacitor config — static assertions', () => {
       'utf8'
     );
     // Must have a valid reverse-domain appId
-    expect(configText).toMatch(/appId:\s*['"]com\.\w+\.\w+/);
+    expect(configText).toMatch(/appId:\s*['"]([a-z]\w*\.)+[a-z]\w*['"]/);
     // webDir must point to dist
     expect(configText).toMatch(/webDir:\s*['"]dist['"]/);
   });
@@ -498,10 +498,24 @@ test.describe('Capacitor config — static assertions', () => {
   test('MainActivity extends BridgeActivity (Capacitor back button support)', async () => {
     const { readFileSync } = await import('fs');
     const { join } = await import('path');
-    const mainActivity = readFileSync(
-      join(process.cwd(), 'android/app/src/main/java/com/mindfulpath/app/MainActivity.java'),
+    const configText = readFileSync(
+      join(process.cwd(), 'capacitor.config.ts'),
       'utf8'
     );
+    const appIdMatch = configText.match(/appId:\s*['"]([^'"]+)['"]/);
+    const appId = appIdMatch?.[1];
+
+    expect(appId).toBeTruthy();
+    if (!appId) {
+      throw new Error('Expected capacitor.config.ts to define an appId');
+    }
+
+    const packagePath = appId.replaceAll('.', '/');
+    const mainActivity = readFileSync(
+      join(process.cwd(), 'android/app/src/main/java', packagePath, 'MainActivity.java'),
+      'utf8'
+    );
+    expect(mainActivity).toContain(`package ${appId};`);
     expect(mainActivity).toContain('BridgeActivity');
   });
 
