@@ -50,18 +50,56 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 // (BottomNav: 35, MobileHeader: 40, DraggableAiCompanion: 40, pull-to-refresh: 50)
 const AUTH_OVERLAY_Z_INDEX = 9999;
 
+const StartupErrorScreen = ({ message, onRetry }) => {
+  const isHebrew = document.documentElement.lang === 'he';
+  const title = isHebrew ? 'לא הצלחנו להפעיל את Mindful Path' : 'Mindful Path could not start';
+  const body = isHebrew
+    ? 'בדוק את החיבור לאינטרנט ונסה שוב. אם הבעיה נמשכת, הפעל מחדש את האפליקציה.'
+    : 'Check your internet connection and try again. If the problem continues, restart the app.';
+
+  return (
+    <main
+      role="alert"
+      data-testid="startup-error-screen"
+      className="fixed inset-0 flex items-center justify-center p-6 bg-stone-50 text-slate-900"
+      style={{ zIndex: AUTH_OVERLAY_Z_INDEX }}
+    >
+      <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <h1 className="text-xl font-semibold">{title}</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-600">{body}</p>
+        {message && (
+          <p className="mt-3 break-words rounded-lg bg-slate-100 p-3 text-xs text-slate-600" data-testid="startup-error-detail">
+            {message}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-5 min-h-11 rounded-xl bg-teal-700 px-5 py-2.5 font-medium text-white"
+        >
+          {isHebrew ? 'נסה שוב' : 'Try again'}
+        </button>
+      </section>
+    </main>
+  );
+};
+
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, checkAppState } = useAuth();
 
   // Only render the explicit "not registered" error screen here. All other
   // unauthenticated states are handled by the ProtectedRoute layout route
   // below, which navigates to /login.
   if (!isLoadingPublicSettings && !isLoadingAuth && authError?.type === 'user_not_registered') {
     return <UserNotRegisteredError />;
+  }
+
+  if (!isLoadingPublicSettings && !isLoadingAuth && authError) {
+    return <StartupErrorScreen message={authError.message} onRetry={() => checkAppState()} />;
   }
 
   // Always render the main app routes so that the Layout shell (including
@@ -129,6 +167,10 @@ const ProtectedApp = () => (
 
 
 function App() {
+
+  React.useEffect(() => {
+    window.__MINDFUL_PATH_MARK_MOUNTED__?.();
+  }, []);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="theme">
