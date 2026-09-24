@@ -3,15 +3,17 @@ import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 import { normalizeEntityList } from '@/lib/entityListNormalizer';
 import { installExerciseProgressAdapter } from '@/lib/exerciseProgress';
+import { resolveBase44AuthBaseUrl } from '@/lib/base44AuthUrl';
 
 const { appId, token, functionsVersion } = appParams;
 
-// Base URL is configurable via VITE_BASE44_APP_BASE_URL.
-// Falls back to the current origin so that auth.redirectToLogin() always
-// redirects to THIS app's /login page (e.g. https://share--...base44.app/login)
-// rather than the platform root (https://base44.app/login) which returns 404.
-const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL ||
-  (typeof window !== 'undefined' ? window.location.origin : 'https://base44.app');
+// OAuth must start on the app-specific Base44 host. The public Railway host
+// serves the SPA and the verified Android callback, but it does not implement
+// Base44's /api/apps/auth/login endpoint.
+const AUTH_BASE_URL = resolveBase44AuthBaseUrl({
+  configuredAuthBaseUrl: import.meta.env.VITE_BASE44_AUTH_BASE_URL,
+  runtimeOrigin: typeof window !== 'undefined' ? window.location.origin : undefined,
+});
 
 //Create a client with authentication required
 export const base44 = createClient({
@@ -19,7 +21,7 @@ export const base44 = createClient({
   token,
   functionsVersion,
   requiresAuth: false,
-  appBaseUrl: APP_BASE_URL,
+  appBaseUrl: AUTH_BASE_URL,
 });
 
 // Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
