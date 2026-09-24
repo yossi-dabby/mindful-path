@@ -3,6 +3,8 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 import { focusManager } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { parseAndroidOAuthCallback } from '@/lib/nativeOAuth';
 import { queryClientInstance } from '@/lib/query-client';
 
 const OVERLAY_SELECTOR =
@@ -45,9 +47,9 @@ function dispatchNativeEvent(name, detail) {
  * Android-only Capacitor integration.
  *
  * The component is deliberately inert on the web. It centralizes hardware Back,
- * foreground/background recovery, restored plugin results, keyboard geometry,
- * and orientation metrics so page components do not register competing native
- * listeners.
+ * foreground/background recovery, verified OAuth app links, restored plugin
+ * results, keyboard geometry, and orientation metrics so page components do not
+ * register competing native listeners.
  */
 export default function AndroidNativeBridge() {
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function AndroidNativeBridge() {
     const handles = [];
     const root = document.documentElement;
     let disposed = false;
+    let processedOAuthUrl = null;
 
     root.dataset.nativePlatform = 'android';
     updateViewportMetrics();
@@ -69,6 +72,22 @@ export default function AndroidNativeBridge() {
       } else {
         handles.push(handle);
       }
+    };
+
+    const handleNativeUrl = ({ url } = {}) => {
+      if (!url) return;
+
+      dispatchNativeEvent('mindfulpath:native-url-open', {
+        url,
+        platform: 'android',
+      });
+
+      const callback = parseAndroidOAuthCallback(url);
+      if (!callback || processedOAuthUrl === url) return;
+
+      processedOAuthUrl = url;
+      base44.auth.setToken(callback.accessToken);
+      window.location.replace(callback.returnTo);
     };
 
     addHandle(CapacitorApp.addListener('backButton', async ({ canGoBack }) => {
@@ -97,6 +116,16 @@ export default function AndroidNativeBridge() {
         requestAnimationFrame(updateViewportMetrics);
       }
     }));
+
+    addHandle(CapacitorApp.addListener('appUrlOpen', handleNativeUrl));
+
+    CapacitorApp.getLaunchUrl()
+      .then((launchUrl) => {
+        if (!disposed && launchUrl?.url) {
+          handleNativeUrl(launchUrl);
+        }
+      })
+      .catch(() => {});
 
     addHandle(CapacitorApp.addListener('appRestoredResult', (result) => {
       dispatchNativeEvent('mindfulpath:native-restored-result', result);
