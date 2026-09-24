@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Capacitor } from "@capacitor/core";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import GoogleIcon from "@/components/GoogleIcon";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { buildOAuthReturnTo } from "@/lib/nativeOAuth";
 
 const ALTERNATIVE_PROVIDERS = [
   { id: "apple", label: "Apple", Icon: AppleIcon },
@@ -15,7 +17,14 @@ const ALTERNATIVE_PROVIDERS = [
 export default function SocialAuthButtons() {
   const { t } = useTranslation();
   const [showAlternatives, setShowAlternatives] = useState(false);
-  const handle = (provider) => () => base44.auth.loginWithProvider(provider, safeReturnTo());
+
+  const handle = (provider) => () => {
+    const returnTo = buildOAuthReturnTo(safeReturnTo(), {
+      isNativePlatform: Capacitor.isNativePlatform(),
+      platform: Capacitor.getPlatform(),
+    });
+    base44.auth.loginWithProvider(provider, returnTo);
+  };
 
   return (
     <div className="space-y-3">
