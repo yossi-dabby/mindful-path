@@ -13,7 +13,8 @@ function normalizeOrigin(value) {
 
 function isBase44HostedOrigin(origin) {
   try {
-    return new URL(origin).hostname.endsWith('.base44.app');
+    const url = new URL(origin);
+    return url.protocol === 'https:' && url.hostname.endsWith('.base44.app');
   } catch {
     return false;
   }
