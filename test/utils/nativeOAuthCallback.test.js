@@ -5,7 +5,7 @@ import {
   buildOAuthReturnTo,
   parseAndroidOAuthCallback,
   sanitizeNativeReturnTo,
-} from '@/lib/nativeOAuth';
+} from '../../src/lib/nativeOAuth.js';
 
 describe('Android native OAuth callback', () => {
   it('keeps browser OAuth return paths unchanged', () => {
