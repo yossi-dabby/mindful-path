@@ -35,6 +35,25 @@ describe('Android startup diagnostics', () => {
     expect(debugStrings).toContain('Mindful Path Diagnostic');
   });
 
+  it('registers the verified Android OAuth app link and Play signing key', () => {
+    const manifest = read('android/app/src/main/AndroidManifest.xml');
+    const bridge = read('src/components/native/AndroidNativeBridge.jsx');
+    const assetLinks = JSON.parse(read('public/.well-known/assetlinks.json'));
+    const target = assetLinks[0]?.target;
+
+    expect(manifest).toContain('android:autoVerify="true"');
+    expect(manifest).toContain('android:host="mindful-path-production-7704.up.railway.app"');
+    expect(manifest).toContain('android:pathPrefix="/native-auth-callback"');
+    expect(bridge).toContain("CapacitorApp.addListener('appUrlOpen'");
+    expect(bridge).toContain('CapacitorApp.getLaunchUrl()');
+    expect(bridge).toContain('base44.auth.setToken(callback.accessToken)');
+
+    expect(target?.package_name).toBe('me.mindfulpath.app');
+    expect(target?.sha256_cert_fingerprints).toContain(
+      'CE:1B:14:79:1E:6B:EA:F6:4B:82:5E:49:75:0D:3E:F9:F5:2A:ED:0A:A4:FB:1F:C9:AD:9C:0B:86:0B:97:72:3F',
+    );
+  });
+
   it('keeps the React startup error screen in document flow', () => {
     const app = read('src/App.jsx');
     const startupScreen = app.slice(
