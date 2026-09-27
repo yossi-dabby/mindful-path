@@ -17,6 +17,7 @@ import About from './pages/About';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Contact from './pages/Contact';
+import AccountDeletion from './pages/AccountDeletion';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -188,6 +189,7 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/account-deletion" element={<AccountDeletion />} />
             <Route path="/*" element={<ProtectedApp />} />
           </Routes>
         </Router>
