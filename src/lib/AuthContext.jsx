@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { AUTH_CHECK_TIMEOUT_MS, withTimeout } from '@/lib/promiseTimeout';
+import { shouldRecoverAuthOnOnline } from '@/lib/authRecovery';
 
 const AuthContext = createContext();
 
@@ -12,11 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
   const [appPublicSettings] = useState(null);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async (retryCount = 0) => {
+  const checkAuth = useCallback(async function checkAuth(retryCount = 0) {
     try {
       setIsLoadingAuth(true);
       setAuthError(null);
@@ -66,7 +63,24 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setIsLoadingAuth(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (!shouldRecoverAuthOnOnline(authError)) return undefined;
+
+    const retryWhenOnline = () => {
+      if (window.navigator.onLine !== false) {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('online', retryWhenOnline);
+    return () => window.removeEventListener('online', retryWhenOnline);
+  }, [authError, checkAuth]);
 
   const logout = (shouldRedirect = true) => {
     setUser(null);
