@@ -24,6 +24,7 @@ const USER_OWNED_ENTITIES = [
   'UserPoints',
   'Subscription',
   'VideoProgress',
+  'UserExerciseProgress',
   'Playlist',
   'PlaylistVideo',
   'UserJourneyProgress',
