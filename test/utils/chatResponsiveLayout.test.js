@@ -55,4 +55,12 @@ describe('Chat responsive layout contract', () => {
     expect(appContent).toContain('paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px');
     expect(appContent).not.toContain('BOTTOM_NAV_HEIGHT + 72');
   });
+
+  it('keeps an oversized mobile welcome card reachable above the composer', () => {
+    expect(chat).toContain('data-testid="chat-empty-state-scroll"');
+    expect(chat).toContain('h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4');
+    expect(chat).toContain("WebkitOverflowScrolling: 'touch', touchAction: 'pan-y'");
+    expect(chat).toContain('items-start justify-center sm:min-h-full sm:items-center');
+    expect(chat).toContain('p-3 sm:p-6 text-center');
+  });
 });
