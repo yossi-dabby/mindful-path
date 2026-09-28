@@ -20,7 +20,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
   // Prefer the prop; fall back to what the TabNavigationProvider knows
   const currentPageName = currentPageNameProp ?? tabNav?.currentPageName;
-  const visibilityClass = currentPageName === 'Chat' ? 'lg:hidden' : 'md:hidden';
+  const visibilityClass = 'md:hidden';
 
   // Pages that are always treated as sub-routes (show back button regardless of path depth)
   const ALWAYS_BACK_PAGES = new Set([

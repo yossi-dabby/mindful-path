@@ -1,6 +1,6 @@
 import React from 'react';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
-import { SIDEBAR_WIDTH } from './Sidebar';
+import { CHAT_SIDEBAR_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
 import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +26,8 @@ import { useTranslation } from 'react-i18next';
 export default function AppContent({ children, currentPageName }) {
   const mainRef = React.useRef(null);
   const { t } = useTranslation();
-  const desktopBreakpoint = currentPageName === 'Chat' ? 1024 : 768;
+  const desktopBreakpoint = 768;
+  const sidebarWidth = currentPageName === 'Chat' ? CHAT_SIDEBAR_WIDTH : SIDEBAR_WIDTH;
 
   return (
     <>
@@ -57,7 +58,7 @@ export default function AppContent({ children, currentPageName }) {
       <style>{`
         @media (min-width: ${desktopBreakpoint}px) {
           #app-scroll-container {
-            padding-inline-start: ${SIDEBAR_WIDTH}px !important;
+            padding-inline-start: ${sidebarWidth}px !important;
             padding-inline-end: 0 !important;
             /* Reset mobile header/nav paddings; sidebar is fixed so content starts at top */
             padding-bottom: env(safe-area-inset-bottom, 0px) !important;

@@ -283,7 +283,7 @@ export default function Layout({ children, currentPageName }) {
         </AnimatePresence>
       </AppContent>
       
-        <Link
+        {currentPageName !== 'Chat' && <Link
           to="/contact"
           data-testid="persistent-human-support"
           className="fixed end-4 bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] z-[36] inline-flex min-h-11 items-center gap-2 rounded-full border border-teal-200 bg-white/95 px-4 py-2 text-sm font-semibold text-teal-800 shadow-lg backdrop-blur hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 md:bottom-6"
@@ -291,7 +291,7 @@ export default function Layout({ children, currentPageName }) {
         >
           <LifeBuoy className="h-5 w-5" aria-hidden="true" />
           <span>{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
-        </Link>
+        </Link>}
 
         {/* Bottom Navigation - Mobile only */}
         <BottomNav currentPageName={currentPageName} />

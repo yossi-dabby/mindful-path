@@ -7,12 +7,13 @@ describe('Chat visual hierarchy contract', () => {
   const proactive = readFileSync('src/components/chat/ProactiveCheckIn.jsx', 'utf8');
 
   it('keeps the in-chat heading compact while the mobile shell title is visible', () => {
-    expect(chat).toContain('hidden lg:flex flex-1 min-w-0 items-center gap-3');
+    expect(chat).toContain('hidden md:flex flex-1 min-w-0 items-center gap-3');
     expect(chat).toContain('bg-white/80');
   });
 
   it('gives the welcome state a centered, responsive visual anchor', () => {
-    expect(chat).toContain('mx-auto mb-5 rounded-2xl w-16 h-16');
+    expect(chat).toContain('mx-auto mb-3 sm:mb-4 rounded-2xl w-12 h-12 sm:w-14 sm:h-14');
+    expect(chat).toContain('p-3 flex items-center justify-center sm:p-4 lg:p-6');
     expect(chat).toContain('w-full sm:w-auto');
     expect(chat).not.toContain('mr-20 ml-24');
   });
