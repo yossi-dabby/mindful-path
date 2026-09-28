@@ -126,11 +126,12 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
     expect(frontend).toContain('href="#settings-account"');
   });
 
-  it('keeps account deletion authenticated, admin-blocked, batched, and complete for consent records', () => {
+  it('keeps account deletion authenticated, admin-blocked, batched, and complete for user-owned records', () => {
     const source = read('base44/functions/deleteMyAccount/entry.ts');
     expect(source).toContain('await base44.auth.me()');
     expect(source).toContain("user.role === 'admin'");
     expect(source).toContain("'ConsentRecord'");
+    expect(source).toContain("'UserExerciseProgress'");
     expect(source).toContain('BATCH_SIZE = 100');
     expect(source).toContain('{ created_by: email }');
     expect(source.indexOf('deleteAllOwnedRecords')).toBeLessThan(source.indexOf('entities.User.delete'));
