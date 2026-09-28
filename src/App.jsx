@@ -190,6 +190,7 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/account-deletion" element={<AccountDeletion />} />
+            <Route path="/data-deletion" element={<AccountDeletion defaultSection="data" />} />
             <Route path="/*" element={<ProtectedApp />} />
           </Routes>
         </Router>
