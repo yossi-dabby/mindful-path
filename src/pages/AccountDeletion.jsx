@@ -3,7 +3,31 @@ import { ArrowLeft, ShieldCheck, Trash2 } from 'lucide-react';
 
 const SUPPORT_EMAIL = 'support@mindful-path.app';
 
-export default function AccountDeletion() {
+function PartialDataDeletion() {
+  return (
+    <section id="delete-data" className="scroll-mt-6">
+      <h2 className="text-xl font-bold text-slate-900">Delete selected data without deleting your account</h2>
+      <p className="mt-3 leading-7 text-slate-700">
+        You can permanently delete individual records while keeping your Mindful Path account active.
+      </p>
+      <ol className="mt-3 list-decimal space-y-2 ps-6 leading-7 text-slate-700">
+        <li>Sign in to Mindful Path.</li>
+        <li>Open the area containing the record, such as <strong>Journal</strong>, <strong>Goals</strong>, <strong>Home check-ins</strong>, <strong>Coach</strong>, or <strong>Playlists</strong>.</li>
+        <li>Open the item menu or the delete control, select <strong>Delete</strong>, and confirm.</li>
+      </ol>
+      <p className="mt-3 leading-7 text-slate-700">
+        This removes the selected active record without closing your account. Residual encrypted backups may take up to 90 days to expire.
+      </p>
+      <p className="mt-3 leading-7 text-slate-700">
+        If you cannot access the app, email <a className="font-medium text-teal-800 underline" href={`mailto:${SUPPORT_EMAIL}?subject=Mindful%20Path%20partial%20data%20deletion%20request`}>{SUPPORT_EMAIL}</a> from the registered address. Use the subject “Mindful Path partial data deletion request” and identify only the categories or date range you want deleted. Do not include sensitive journal or conversation content in the email. We may ask you to verify account ownership.
+      </p>
+    </section>
+  );
+}
+
+export default function AccountDeletion({ defaultSection = 'account' }) {
+  const isDataDeletion = defaultSection === 'data';
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-teal-50/80 via-white to-amber-50/40 px-4 py-8 text-slate-800 sm:px-6 sm:py-12">
       <article className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-white/90 bg-white/90 shadow-[0_24px_70px_rgba(15,118,110,0.12)] backdrop-blur-xl">
@@ -18,16 +42,22 @@ export default function AccountDeletion() {
             </span>
             <div>
               <p className="mb-1 text-sm font-semibold tracking-wide text-teal-700">Mindful Path</p>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Delete your account and data</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                {isDataDeletion ? 'Delete selected data' : 'Delete your account and data'}
+              </h1>
             </div>
           </div>
           <p className="mt-6 text-base leading-7 text-slate-700">
-            This page explains how to request permanent deletion of a Mindful Path account and its associated data.
+            {isDataDeletion
+              ? 'This page explains how to delete selected Mindful Path data while keeping your account active.'
+              : 'This page explains how to request permanent deletion of a Mindful Path account and its associated data.'}
           </p>
         </header>
 
         <div className="space-y-8 px-5 py-8 sm:px-9 sm:py-10">
-          <section>
+          {isDataDeletion && <PartialDataDeletion />}
+
+          <section id="delete-account" className="scroll-mt-6">
             <h2 className="text-xl font-bold text-slate-900">Delete from the app</h2>
             <ol className="mt-3 list-decimal space-y-2 ps-6 leading-7 text-slate-700">
               <li>Sign in to Mindful Path.</li>
@@ -36,6 +66,8 @@ export default function AccountDeletion() {
               <li>Enter the confirmation text shown in the app and confirm permanent deletion.</li>
             </ol>
           </section>
+
+          {!isDataDeletion && <PartialDataDeletion />}
 
           <section>
             <h2 className="text-xl font-bold text-slate-900">Request deletion without app access</h2>
@@ -68,6 +100,7 @@ export default function AccountDeletion() {
 
         <footer className="flex flex-wrap gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-6 text-sm sm:px-9">
           <Link className="rounded-lg px-2 py-2 font-medium text-teal-800 underline-offset-4 hover:underline" to="/privacy">Privacy Notice</Link>
+          <Link className="rounded-lg px-2 py-2 font-medium text-teal-800 underline-offset-4 hover:underline" to="/data-deletion">Delete selected data</Link>
           <Link className="rounded-lg px-2 py-2 font-medium text-teal-800 underline-offset-4 hover:underline" to="/contact">Contact</Link>
           <a className="rounded-lg px-2 py-2 font-medium text-teal-800 underline-offset-4 hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
         </footer>
