@@ -8,10 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { AppWordmark, GrowingShieldMark } from '@/components/brand/AppBrand';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
+export const CHAT_SIDEBAR_WIDTH = 224;
 
 export default function Sidebar({ currentPageName }) {
   const { t } = useTranslation();
-  const visibilityClass = currentPageName === 'Chat' ? 'hidden lg:flex' : 'hidden md:flex';
+  const isCompactChat = currentPageName === 'Chat';
+  const visibilityClass = 'hidden md:flex';
 
   const navItems = [
   { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
@@ -27,15 +29,15 @@ export default function Sidebar({ currentPageName }) {
 
   return (
     <nav
-      aria-label={t('shell.sidebar_navigation')} className={`bg-teal-100 py-6 rounded-2xl ${visibilityClass} fixed start-0 top-0 bottom-0 flex-col border-e border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
+      aria-label={t('shell.sidebar_navigation')} className={`bg-teal-100 ${isCompactChat ? 'py-3' : 'py-6'} rounded-2xl ${visibilityClass} fixed start-0 top-0 bottom-0 flex-col border-e border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
 
       style={{
         zIndex: 35,
-        width: `${SIDEBAR_WIDTH}px`
+        width: `${isCompactChat ? CHAT_SIDEBAR_WIDTH : SIDEBAR_WIDTH}px`
       }}>
 
       {/* Logo */}
-      <div className="bg-teal-100 mb-8 px-6">
+      <div className={`bg-teal-100 ${isCompactChat ? 'mb-4 px-4' : 'mb-8 px-6'}`}>
         <div className="bg-teal-100 text-teal-600 flex items-center gap-3">
           <GrowingShieldMark size={42} />
           <div className="flex-1 min-w-0 pb-1">
@@ -49,7 +51,7 @@ export default function Sidebar({ currentPageName }) {
       </div>
 
       {/* Main Navigation */}
-      <div className="bg-teal-50 text-teal-600 px-3 flex-1 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+      <div className={`bg-teal-50 text-teal-600 ${isCompactChat ? 'px-2' : 'px-3'} flex-1 overflow-y-auto`} style={{ overscrollBehavior: 'none' }}>
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -58,7 +60,7 @@ export default function Sidebar({ currentPageName }) {
               <Link
                 key={item.path}
                 to={createPageUrl(item.path)}
-                aria-current={isActive ? 'page' : undefined} className="bg-teal-50 text-foreground px-4 py-3 rounded-2xl flex items-center gap-3 transition-calm group border border-border/70 shadow-[var(--shadow-sm)]">
+                aria-current={isActive ? 'page' : undefined} className={`bg-teal-50 text-foreground ${isCompactChat ? 'px-3 py-2.5 gap-2' : 'px-4 py-3 gap-3'} rounded-2xl flex items-center transition-calm group border border-border/70 shadow-[var(--shadow-sm)]`}>
 
 
 
@@ -66,11 +68,11 @@ export default function Sidebar({ currentPageName }) {
 
 
 
-                <Icon aria-hidden="true" className="text-teal-600 lucide lucide-house w-5 h-5 icon-default scale-110" strokeWidth={2} />
+                <Icon aria-hidden="true" className={`${isCompactChat ? 'w-4 h-4' : 'w-5 h-5'} text-teal-600 lucide lucide-house icon-default scale-110`} strokeWidth={2} />
                 <div className="flex-1">
-                  <p className="bg-teal-50 text-teal-600 font-semibold leading-5">{item.name}</p>
+                  <p className={`bg-teal-50 text-teal-600 font-semibold ${isCompactChat ? 'text-sm leading-4' : 'leading-5'}`}>{item.name}</p>
                   {item.description &&
-                  <p className="text-teal-600 mt-0.5 text-xs leading-4">{item.description}</p>
+                  <p className={`text-teal-600 mt-0.5 ${isCompactChat ? 'text-[10px] leading-3.5' : 'text-xs leading-4'}`}>{item.description}</p>
                   }
                 </div>
                 {isActive &&
@@ -82,7 +84,7 @@ export default function Sidebar({ currentPageName }) {
         </div>
 
         {/* Secondary Items */}
-        <div className="mt-8 pt-6 border-t border-border/70">
+        <div className={`${isCompactChat ? 'mt-4 pt-3' : 'mt-8 pt-6'} border-t border-border/70`}>
           <div className="space-y-1">
             {secondaryItems.map((item) => {
               const Icon = item.icon;

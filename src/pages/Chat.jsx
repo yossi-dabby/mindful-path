@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, Play, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, Play, PanelLeftClose, PanelLeftOpen, LifeBuoy } from 'lucide-react';
 import PremiumIcon from '@/components/ui/PremiumIcon';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -63,6 +63,7 @@ import {
 import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
+import { getHumanSupportCopy } from '../lib/humanSupportDirectory';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
 import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
@@ -5228,7 +5229,7 @@ export default function Chat() {
         {/* On desktop (≥1024px) there is no fixed mobile header or bottom nav,
                                                   so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
-          @media (min-width: 1024px) {
+          @media (min-width: 768px) {
             [data-testid="chat-root"] {
               height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
             }
@@ -5268,7 +5269,7 @@ export default function Chat() {
       {/* Main Chat Area */}
       <div className="rounded-2xl flex-1 flex flex-col min-h-0 min-w-0">
         {/* Header */}
-        <div className="bg-white/80 px-2 py-2 rounded-2xl sm:px-4 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-teal-100/80 backdrop-blur-xl shadow-[var(--shadow-sm)]">
+        <div className="bg-white/80 min-h-12 px-2 py-1 rounded-2xl sm:min-h-14 sm:px-4 sm:py-2 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-teal-100/80 backdrop-blur-xl shadow-[var(--shadow-sm)]">
           <Button
               variant="ghost"
               size="icon"
@@ -5297,7 +5298,7 @@ export default function Chat() {
               ? <PanelLeftOpen className="h-5 w-5 rtl:scale-x-[-1]" />
               : <PanelLeftClose className="h-5 w-5 rtl:scale-x-[-1]" />}
           </Button>
-          <div className="hidden lg:flex flex-1 min-w-0 items-center gap-3">
+          <div className="hidden md:flex flex-1 min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center border border-teal-200/80 shadow-[var(--shadow-sm)]">
               <Sparkles className="w-5 h-5" aria-hidden="true" />
             </div>
@@ -5334,20 +5335,20 @@ export default function Chat() {
           {!currentConversationId ?
             <div className="h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
-              <div className="p-4 flex-1 flex items-center justify-center sm:p-6 lg:p-8 bg-gradient-to-b from-white/35 to-teal-50/45">
-                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-6 sm:p-8 text-center rounded-3xl backdrop-blur-xl max-w-lg border border-white/90 shadow-[var(--shadow-lg)]">
-                  <div className="mx-auto mb-5 rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
-                    <PremiumIcon name="sparkle" size="lg" bare className="h-8 w-8" />
+              <div className="min-h-full p-3 flex items-center justify-center sm:p-4 lg:p-6 bg-gradient-to-b from-white/35 to-teal-50/45">
+                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-4 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
+                  <div className="mx-auto mb-3 sm:mb-4 rounded-2xl w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
+                    <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
-                  <h2 className="text-teal-700 mb-3 text-2xl sm:text-3xl font-semibold tracking-tight">
+                  <h2 className="text-teal-700 mb-2 sm:mb-3 text-xl sm:text-2xl font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p className="text-slate-600 mb-6 leading-relaxed">
+                  <p className="text-slate-600 mb-4 sm:mb-5 text-sm leading-relaxed">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
                     data-testid="chat-start-first-session"
-                    onClick={startNewConversation} className="bg-teal-600 text-white px-6 min-h-[52px] text-base sm:text-lg font-semibold tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-normal border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 shadow-[var(--shadow-md)] hover:bg-teal-700 hover:shadow-[var(--shadow-lg)] active:bg-teal-800 w-full sm:w-auto">
+                    onClick={startNewConversation} className="bg-teal-600 text-white px-5 min-h-[44px] text-sm font-semibold tracking-[0.005em] rounded-xl inline-flex items-center justify-center gap-2 whitespace-normal border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 shadow-[var(--shadow-md)] hover:bg-teal-700 hover:shadow-[var(--shadow-lg)] active:bg-teal-800 w-full sm:w-auto">
 
 
                     {t('chat.welcome.start_session', 'Start Your First Session')}
@@ -5552,10 +5553,10 @@ export default function Chat() {
           }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="bg-teal-50 text-teal-600 pr-4 pl-2 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+        <div className="bg-teal-50 text-teal-600 rounded-2xl px-2 py-1.5 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
-          <div className="text-teal-600 mx-auto max-w-4xl flex gap-2 min-w-0">
+          <div className="text-teal-600 mx-auto max-w-5xl flex min-w-0">
             {variantProfileBlocked ?
               <div className="flex-1 flex flex-col gap-3">
                 <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
@@ -5586,16 +5587,16 @@ export default function Chat() {
                     </div>
                   )}
                   {messages.filter((message) => message.role === 'user').length === 0 && !inputMessage.trim() && (
-                    <div className="mb-1 rounded-2xl border border-teal-100 bg-white/75 p-2.5" data-testid="chat-intent-chooser">
-                      <p className="mb-2 text-xs font-semibold text-slate-600">{t('chat_stage.intent_label')}</p>
-                      <div className="flex flex-wrap gap-2">
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_listen', t('chat_stage.intent.unload_prompt'))}>
+                    <div className="mb-1 rounded-2xl border border-teal-100 bg-white/75 p-2 sm:p-2.5" data-testid="chat-intent-chooser">
+                      <p className="mb-1.5 text-[11px] font-semibold text-slate-600 sm:mb-2 sm:text-xs">{t('chat_stage.intent_label')}</p>
+                      <div data-testid="chat-intent-options" className="flex flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible sm:pb-0">
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_listen', t('chat_stage.intent.unload_prompt'))}>
                           {t('chat_stage.intent.unload')}
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_practical', t('chat_stage.intent.practical_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_practical', t('chat_stage.intent.practical_prompt'))}>
                           {t('chat_stage.intent.practical')}
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 rounded-xl border-violet-200 bg-violet-50/70 text-violet-800 hover:bg-violet-100" onClick={() => handleChatIntentChoice('chat_intent_guided', t('chat_stage.intent.guided_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-violet-200 bg-violet-50/70 text-violet-800 hover:bg-violet-100" onClick={() => handleChatIntentChoice('chat_intent_guided', t('chat_stage.intent.guided_prompt'))}>
                           <Sparkles className="me-1 h-4 w-4" />
                           {t('chat_stage.intent.guided')}
                         </Button>
@@ -5605,21 +5606,29 @@ export default function Chat() {
                   {isLoading && (
                     <p className="px-1 text-xs leading-5 text-teal-700">{t('chat_stage.queue_hint')}</p>
                   )}
-                  <Textarea
-                    value={inputMessage}
-                    onChange={(e) => {
-                      inputMessageRef.current = e.target.value;
-                      setInputMessage(e.target.value);
-                    }}
-                    onKeyDown={handleKeyDown}
-                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
-                    data-testid="therapist-chat-input"
-                    enterKeyHint="send"
-                    autoCapitalize="sentences"
-                    autoComplete="off"
-                    autoCorrect="on"
-                    disabled={isConversationInitializing || isUploadingFile} />
-                  <div className="flex items-center flex-wrap gap-2 px-1 py-1">
+                  <div data-testid="chat-composer-row" className="flex min-w-0 items-end gap-2">
+                    <Textarea
+                      value={inputMessage}
+                      onChange={(e) => {
+                        inputMessageRef.current = e.target.value;
+                        setInputMessage(e.target.value);
+                      }}
+                      onKeyDown={handleKeyDown}
+                      placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex min-w-0 flex-1 border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
+                      data-testid="therapist-chat-input"
+                      enterKeyHint="send"
+                      autoCapitalize="sentences"
+                      autoComplete="off"
+                      autoCorrect="on"
+                      disabled={isConversationInitializing || isUploadingFile} />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={(!inputMessage.trim() && !attachedFile) || isConversationInitializing || isUploadingFile || isTranscribingAudio || !isConsentResolved || showConsentBanner}
+                      data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-[48px] min-h-[48px] w-[48px] flex-shrink-0 p-0 sm:h-[44px] sm:min-h-[44px] sm:w-[44px]">
+                      {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                    </Button>
+                  </div>
+                  <div data-testid="chat-actions-row" className="flex min-w-0 items-center flex-wrap gap-1 px-1 py-0.5 sm:gap-2 sm:py-1">
                     <Button
                       type="button"
                       variant="ghost"
@@ -5702,17 +5711,18 @@ export default function Chat() {
                         </Button>
                       </>
                     }
+                    <Link
+                      to="/contact"
+                      data-testid="chat-human-support"
+                      aria-label={getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}
+                      className="ms-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-teal-200 bg-white/95 p-0 text-xs font-semibold text-teal-800 shadow-[var(--shadow-sm)] hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:h-auto sm:w-auto sm:min-h-10 sm:gap-2 sm:rounded-full sm:px-3 sm:py-2"
+                    >
+                      <LifeBuoy className="h-4 w-4" aria-hidden="true" />
+                      <span className="hidden sm:inline">{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
+                    </Link>
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-start gap-1 flex-shrink-0">
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={(!inputMessage.trim() && !attachedFile) || isConversationInitializing || isUploadingFile || isTranscribingAudio || !isConsentResolved || showConsentBanner}
-                    data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
-                    {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                  </Button>
-                </div>
               </>
               }
           </div>
@@ -5727,7 +5737,7 @@ export default function Chat() {
             </p>
           )}
           {/* Compact disclaimer */}
-          <p className="text-center mt-1 text-xs text-muted-foreground">
+          <p data-testid="chat-disclaimer" className="mt-0.5 px-2 text-center text-[10px] leading-4 text-muted-foreground sm:text-xs">
             {t('chat.disclaimer.title')} — {t('chat.disclaimer.message')}
           </p>
         </div>

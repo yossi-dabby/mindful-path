@@ -16,7 +16,7 @@ export default function BottomNav({ currentPageName }) {
   const navigate = useNavigate();
   const tabNav = useTabNavigation();
   const activeTab = tabNav?.activeTab ?? currentPageName;
-  const visibilityClass = currentPageName === 'Chat' ? 'lg:hidden' : 'md:hidden';
+  const visibilityClass = 'md:hidden';
 
   // Memoised so icon/label objects aren't recreated on every render.
   const navItems = useMemo(() => [
