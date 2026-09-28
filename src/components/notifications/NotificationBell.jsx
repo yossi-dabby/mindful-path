@@ -146,9 +146,9 @@ export default function NotificationBell() {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
       const previous = queryClient.getQueryData(['notifications']);
       queryClient.setQueryData(['notifications'], (current = []) =>
-        current.map((notification) =>
-          notification.id === id ? { ...notification, is_read: true } : notification
-        )
+      current.map((notification) =>
+      notification.id === id ? { ...notification, is_read: true } : notification
+      )
       );
       return { previous };
     },
@@ -167,7 +167,7 @@ export default function NotificationBell() {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
       const previous = queryClient.getQueryData(['notifications']);
       queryClient.setQueryData(['notifications'], (current = []) =>
-        current.map((notification) => ({ ...notification, is_read: true }))
+      current.map((notification) => ({ ...notification, is_read: true }))
       );
       return { previous };
     },
@@ -183,7 +183,7 @@ export default function NotificationBell() {
       await queryClient.cancelQueries({ queryKey: ['notifications'] });
       const previous = queryClient.getQueryData(['notifications']);
       queryClient.setQueryData(['notifications'], (current = []) =>
-        current.filter((notification) => notification.id !== id)
+      current.filter((notification) => notification.id !== id)
       );
       return { previous };
     },
@@ -292,7 +292,7 @@ export default function NotificationBell() {
     <>
       <button
         ref={buttonRef}
-        onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-3xl relative w-10 h-10 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground"
+        onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-3xl relative w-10 h-10 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground mx-auto"
 
         aria-label={t('settings.notifications.panel.bell_aria')}
         aria-expanded={open}
