@@ -292,7 +292,7 @@ export default function NotificationBell() {
     <>
       <button
         ref={buttonRef}
-        onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-3xl relative w-10 h-10 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground mx-auto"
+        onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-3xl relative w-10 h-10 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground ml-1"
 
         aria-label={t('settings.notifications.panel.bell_aria')}
         aria-expanded={open}
