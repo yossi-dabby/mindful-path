@@ -11,9 +11,9 @@ describe('Chat visual hierarchy contract', () => {
     expect(chat).toContain('bg-white/80');
   });
 
-  it('gives the welcome state a centered, responsive visual anchor', () => {
-    expect(chat).toContain('mx-auto mb-3 sm:mb-4 rounded-2xl w-12 h-12 sm:w-14 sm:h-14');
-    expect(chat).toContain('p-3 flex items-center justify-center sm:p-4 lg:p-6');
+  it('keeps the welcome state compact and reachable on mobile while centering it on larger screens', () => {
+    expect(chat).toContain('mx-auto mb-2 sm:mb-4 rounded-2xl w-10 h-10 sm:w-14 sm:h-14');
+    expect(chat).toContain('p-2 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6');
     expect(chat).toContain('w-full sm:w-auto');
     expect(chat).not.toContain('mr-20 ml-24');
   });

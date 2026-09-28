@@ -5333,17 +5333,20 @@ export default function Chat() {
         {/* Messages Area */}
         <div className="bg-teal-400 text-slate-50 my-1 px-1 py-1 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
-            <div className="h-full overflow-y-auto">
+            <div
+              data-testid="chat-empty-state-scroll"
+              className="h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4"
+              style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Welcome Section - Separate container */}
-              <div className="min-h-full p-3 flex items-center justify-center sm:p-4 lg:p-6 bg-gradient-to-b from-white/35 to-teal-50/45">
-                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-4 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
-                  <div className="mx-auto mb-3 sm:mb-4 rounded-2xl w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
+              <div className="p-2 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6 bg-gradient-to-b from-white/35 to-teal-50/45">
+                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-3 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
+                  <div className="mx-auto mb-2 sm:mb-4 rounded-2xl w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
                     <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
-                  <h2 className="text-teal-700 mb-2 sm:mb-3 text-xl sm:text-2xl font-semibold tracking-tight">
+                  <h2 className="text-teal-700 mb-1 sm:mb-3 text-lg sm:text-2xl font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p className="text-slate-600 mb-4 sm:mb-5 text-sm leading-relaxed">
+                  <p className="text-slate-600 mb-2.5 sm:mb-5 text-[13px] leading-5 sm:text-sm sm:leading-relaxed">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
