@@ -64,6 +64,7 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
     expect(source).toContain('Mindful Path partial data deletion request');
     expect(source).toContain('keeping your Mindful Path account active');
     expect(source).toContain('Residual encrypted backups may take up to 90 days');
+    expect(source).toContain('isDataDeletion ? <PartialDataDeletion /> : <AccountDeletionDetails />');
   });
 
   it('accepts only the current consent version', () => {
