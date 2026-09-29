@@ -16,7 +16,9 @@ describe('Chat responsive layout contract', () => {
     expect(mobileHeader).toContain("const visibilityClass = 'md:hidden'");
     expect(bottomNav).toContain("const visibilityClass = 'md:hidden'");
     expect(chat).toContain('@media (min-width: 768px)');
-    expect(sidebar).toContain('CHAT_SIDEBAR_WIDTH = 224');
+    expect(sidebar).toContain('SIDEBAR_WIDTH = 288');
+    expect(sidebar).not.toContain('CHAT_SIDEBAR_WIDTH');
+    expect(appContent).toContain('const sidebarWidth = SIDEBAR_WIDTH');
   });
 
   it('uses the conversation list as a drawer and allows it to collapse on extra-wide desktop', () => {
@@ -61,6 +63,14 @@ describe('Chat responsive layout contract', () => {
     expect(chat).toContain('h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4');
     expect(chat).toContain("WebkitOverflowScrolling: 'touch', touchAction: 'pan-y'");
     expect(chat).toContain('items-start justify-center sm:min-h-full sm:items-center');
-    expect(chat).toContain('p-3 sm:p-6 text-center');
+    expect(chat).toContain('data-testid="chat-empty-welcome-shell"');
+    expect(chat).toContain('p-2 sm:p-6 text-center');
+    expect(chat).toContain('data-testid="chat-welcome-title"');
+    expect(chat).toContain('data-testid="chat-welcome-copy"');
+  });
+
+  it('keeps the sidebar brand and notification bell from competing for width', () => {
+    expect(sidebar).toContain('width: `${SIDEBAR_WIDTH}px`');
+    expect(sidebar).toContain('<div className="shrink-0">');
   });
 });

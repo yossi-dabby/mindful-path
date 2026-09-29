@@ -1,6 +1,6 @@
 import React from 'react';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
-import { CHAT_SIDEBAR_WIDTH, SIDEBAR_WIDTH } from './Sidebar';
+import { SIDEBAR_WIDTH } from './Sidebar';
 import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +27,7 @@ export default function AppContent({ children, currentPageName }) {
   const mainRef = React.useRef(null);
   const { t } = useTranslation();
   const desktopBreakpoint = 768;
-  const sidebarWidth = currentPageName === 'Chat' ? CHAT_SIDEBAR_WIDTH : SIDEBAR_WIDTH;
+  const sidebarWidth = SIDEBAR_WIDTH;
 
   return (
     <>

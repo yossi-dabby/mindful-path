@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { AppWordmark, GrowingShieldMark } from '@/components/brand/AppBrand';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
-export const CHAT_SIDEBAR_WIDTH = 224;
 
 export default function Sidebar({ currentPageName }) {
   const { t } = useTranslation();
@@ -33,7 +32,7 @@ export default function Sidebar({ currentPageName }) {
 
       style={{
         zIndex: 35,
-        width: `${isCompactChat ? CHAT_SIDEBAR_WIDTH : SIDEBAR_WIDTH}px`
+        width: `${SIDEBAR_WIDTH}px`
       }}>
 
       {/* Logo */}
@@ -46,7 +45,9 @@ export default function Sidebar({ currentPageName }) {
             </h1>
             <p className="mt-2 truncate text-xs text-teal-700/80">{t('global.app_tagline')}</p>
           </div>
-          <NotificationBell />
+          <div className="shrink-0">
+            <NotificationBell />
+          </div>
         </div>
       </div>
 
