@@ -12,8 +12,8 @@ describe('Chat visual hierarchy contract', () => {
   });
 
   it('keeps the welcome state compact and reachable on mobile while centering it on larger screens', () => {
-    expect(chat).toContain('mx-auto mb-2 sm:mb-4 rounded-2xl w-10 h-10 sm:w-14 sm:h-14');
-    expect(chat).toContain('p-2 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6');
+    expect(chat).toContain('mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14');
+    expect(chat).toContain('p-1.5 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6');
     expect(chat).toContain('w-full sm:w-auto');
     expect(chat).not.toContain('mr-20 ml-24');
   });

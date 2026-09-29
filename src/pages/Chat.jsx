@@ -5338,15 +5338,15 @@ export default function Chat() {
               className="h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4"
               style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Welcome Section - Separate container */}
-              <div className="p-2 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6 bg-gradient-to-b from-white/35 to-teal-50/45">
-                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-3 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
-                  <div className="mx-auto mb-2 sm:mb-4 rounded-2xl w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
+              <div data-testid="chat-empty-welcome-shell" className="p-1.5 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6 bg-gradient-to-b from-white/35 to-teal-50/45">
+                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-2 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
+                  <div data-testid="chat-welcome-icon" className="mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
                     <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
-                  <h2 className="text-teal-700 mb-1 sm:mb-3 text-lg sm:text-2xl font-semibold tracking-tight">
+                  <h2 data-testid="chat-welcome-title" className="text-teal-700 mb-1 sm:mb-3 text-base leading-5 sm:text-2xl sm:leading-normal font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p className="text-slate-600 mb-2.5 sm:mb-5 text-[13px] leading-5 sm:text-sm sm:leading-relaxed">
+                  <p data-testid="chat-welcome-copy" className="text-slate-600 mb-2 sm:mb-5 text-xs leading-4 sm:text-sm sm:leading-relaxed">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
@@ -5556,7 +5556,7 @@ export default function Chat() {
           }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="bg-teal-50 text-teal-600 rounded-2xl px-2 py-1.5 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+        <div className="bg-teal-50 text-teal-600 rounded-2xl px-2 py-1 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-5xl flex min-w-0">
@@ -5590,9 +5590,9 @@ export default function Chat() {
                     </div>
                   )}
                   {messages.filter((message) => message.role === 'user').length === 0 && !inputMessage.trim() && (
-                    <div className="mb-1 rounded-2xl border border-teal-100 bg-white/75 p-2 sm:p-2.5" data-testid="chat-intent-chooser">
-                      <p className="mb-1.5 text-[11px] font-semibold text-slate-600 sm:mb-2 sm:text-xs">{t('chat_stage.intent_label')}</p>
-                      <div data-testid="chat-intent-options" className="flex flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible sm:pb-0">
+                    <div className="mb-1 flex min-w-0 items-center gap-2 rounded-2xl border border-teal-100 bg-white/75 p-1.5 sm:block sm:p-2.5" data-testid="chat-intent-chooser">
+                      <p className="mb-0 w-[7.25rem] shrink-0 text-[10px] font-semibold leading-4 text-slate-600 sm:mb-2 sm:w-auto sm:text-xs">{t('chat_stage.intent_label')}</p>
+                      <div data-testid="chat-intent-options" className="flex min-w-0 flex-1 flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible sm:pb-0">
                         <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_listen', t('chat_stage.intent.unload_prompt'))}>
                           {t('chat_stage.intent.unload')}
                         </Button>
