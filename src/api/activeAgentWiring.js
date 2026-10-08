@@ -55,6 +55,7 @@
 
 import {
   CBT_THERAPIST_WIRING_HYBRID,
+  AI_COACH_WIRING,
   AI_COMPANION_WIRING_HYBRID,
   CBT_THERAPIST_WIRING_STAGE2_V1,
   CBT_THERAPIST_WIRING_STAGE2_V2,
@@ -542,6 +543,9 @@ export function resolveCompanionWiring() {
  */
 export const ACTIVE_CBT_THERAPIST_WIRING = resolveTherapistWiring();
 
+/** Active runtime wiring for the Coach screen (separate from AI Companion). */
+export const ACTIVE_AI_COACH_WIRING = AI_COACH_WIRING;
+
 /**
  * Active wiring for the AI Companion agent.
  * Resolved via resolveCompanionWiring() — evaluates the companion upgrade flags
@@ -551,12 +555,23 @@ export const ACTIVE_CBT_THERAPIST_WIRING = resolveTherapistWiring();
 export const ACTIVE_AI_COMPANION_WIRING = resolveCompanionWiring();
 
 /**
- * Map of all active agent wirings, keyed by agent name.
- * Useful for runtime lookup by agent name string.
+ * Backward-compatible legacy lookup.
+ *
+ * Keep this shape stable for code that still imports the historic two-agent
+ * map. New in-app routing must use APP_RUNTIME_AGENT_WIRINGS instead.
  */
 export const ACTIVE_AGENT_WIRINGS = {
   cbt_therapist: ACTIVE_CBT_THERAPIST_WIRING,
   ai_companion:  ACTIVE_AI_COMPANION_WIRING,
+};
+
+/**
+ * Agents that are actually mounted by the current application.
+ * AI Companion is intentionally absent because its UI surface is disabled.
+ */
+export const APP_RUNTIME_AGENT_WIRINGS = {
+  cbt_therapist: ACTIVE_CBT_THERAPIST_WIRING,
+  ai_coach:      ACTIVE_AI_COACH_WIRING,
 };
 
 // ─── Phase 0.2A — Runtime Authority Decision API ─────────────────────────────

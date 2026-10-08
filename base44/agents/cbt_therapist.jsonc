@@ -63,16 +63,24 @@
       ]
     },
     {
-      "function_name": "retrieveTrustedCBTContent"
+      "function_name": "retrieveTrustedCBTContent",
+      "description": "Retrieves clinically reviewed CBT knowledge chunks only. Use for grounded CBT guidance; never for private user history or crisis handling."
     },
     {
-      "function_name": "retrieveRelevantContent"
+      "function_name": "retrieveRelevantContent",
+      "description": "Searches the shared app content library for relevant exercises, journal templates, psychoeducation, or resources. Never use it to retrieve private user records."
     },
     {
-      "function_name": "retrieveTherapistMemory"
+      "function_name": "retrieveCurriculumUnit",
+      "description": "Retrieves one approved CBT curriculum unit for the current domain and intervention need. Apply it silently, preserve domain lock, and never expose internal curriculum metadata."
     },
     {
-      "function_name": "writeTherapistMemory"
+      "function_name": "retrieveTherapistMemory",
+      "description": "Reads the current user's therapist continuity memory. Use only after confirming that the current message explicitly matches the remembered topic; suppress cross-topic recall."
+    },
+    {
+      "function_name": "writeTherapistMemory",
+      "description": "Writes bounded therapist continuity memory for the current user after a confirmed outcome or session transition. Do not store crisis disclosures, diagnoses, inferred traits, or unrelated sensitive details."
     }
   ]
 }

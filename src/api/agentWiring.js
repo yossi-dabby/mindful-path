@@ -383,6 +383,38 @@ export const AI_COMPANION_WIRING_HYBRID = {
   ],
 };
 
+/**
+ * Runtime wiring for the Coach screen.
+ *
+ * The Coach is separate from the disabled AI Companion. Its context is
+ * intentionally read-mostly: the model may inspect coaching inputs, while the
+ * only mutable record exposed to it is the active CoachingSession. An update
+ * remains subject to the explicit-consent rule in the ai_coach instructions.
+ */
+export const AI_COACH_WIRING = {
+  name: 'ai_coach',
+  tool_configs: [
+    {
+      entity_name: 'CompanionMemory',
+      access_level: 'restricted',
+      source_order: 1,
+      read_only: true,
+      use_for_clinical_reasoning: false,
+    },
+    { entity_name: 'Goal', access_level: 'preferred', source_order: 2, read_only: true },
+    { entity_name: 'MoodEntry', access_level: 'preferred', source_order: 3, read_only: true },
+    { entity_name: 'ThoughtJournal', access_level: 'restricted', source_order: 4, read_only: true },
+    {
+      entity_name: 'CoachingSession',
+      access_level: 'preferred',
+      source_order: 5,
+      allowed_operations: ['read', 'update'],
+      update_requires_user_confirmation: true,
+    },
+    { entity_name: 'Exercise', access_level: 'allowed', source_order: 6, read_only: true },
+  ],
+};
+
 // ─── Stage 2 wiring configs (Phase 1 and Phase 3 — not yet active) ───────────
 
 /**

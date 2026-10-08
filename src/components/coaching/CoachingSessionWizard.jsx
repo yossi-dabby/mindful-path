@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
-import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
+import { ACTIVE_AI_COACH_WIRING } from '@/api/activeAgentWiring.js';
 import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -94,15 +94,15 @@ export default function CoachingSessionWizard({ onClose }) {
         try {
           memoryContext = await buildCompanionSessionStartContextAsync(
             base44.entities,
-            ACTIVE_AI_COMPANION_WIRING,
+            ACTIVE_AI_COACH_WIRING,
           );
         } catch {
           // Fail-closed: session start continues without context
         }
 
         const conversation = await base44.agents.createConversation({
-          agent_name: 'ai_coach',
-          tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
+          agent_name: ACTIVE_AI_COACH_WIRING.name,
+          tool_configs: ACTIVE_AI_COACH_WIRING.tool_configs,
           metadata: {
             name: `Coaching: ${data.title}`,
             type: 'coaching_session',
