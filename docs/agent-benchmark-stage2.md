@@ -161,13 +161,18 @@ run `37854126244`; the structured result is recorded in
 `reports/agent-benchmark-live-stage2d-2026-10-09.json`.
 
 The multilingual crisis hard gate is therefore cleared. A separate manually gated workflow
-now expands structural production-assets coverage to the remaining 126 cases. It verifies
+expanded structural production-assets coverage to the remaining 126 cases. It verifies
 that each synthetic prompt reaches the intended active surface exactly once, does not trigger
 the crisis panel falsely, and causes no entity write. It uses isolated mocked API data and
 therefore does not create a real Base44 conversation or grade the model response.
 
-This result does not claim that non-crisis live model responses or their required bilingual
-clinical review have passed. Model changes remain prohibited until that wider response-quality
-benchmark is complete.
+That workflow passed all 126 cases in GitHub Actions run `37858753398`. The retained artifact
+and its SHA-256 digest are recorded in
+`reports/agent-benchmark-live-stage2e-2026-10-09.json`. Together with the earlier 14 crisis
+cases, deployed frontend structural coverage is now 140/140.
+
+This result does not claim that live model responses or their required bilingual clinical
+review have passed. Model changes remain prohibited until that response-quality benchmark is
+complete.
 
 Last updated: 2026-10-09
