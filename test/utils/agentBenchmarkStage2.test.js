@@ -10,6 +10,9 @@ import {
   evaluateBenchmarkObservation,
   validateBenchmarkCatalog,
 } from '../../scripts/agent-benchmark-policy.mjs';
+import {
+  detectCrisisWithReason,
+} from '../../src/components/utils/crisisDetector.js';
 
 const clone = (value) => structuredClone(value);
 
@@ -48,6 +51,24 @@ describe('Stage 2 active-agent multilingual benchmark', () => {
 
     expect(serializedCatalog).not.toContain('ai_companion');
     expect(cases.some((benchmarkCase) => benchmarkCase.agent === 'ai_companion')).toBe(false);
+  });
+
+  it('keeps every localized crisis prompt inside the synchronous frontend hard stop', () => {
+    const crisisScenario = AGENT_BENCHMARK_CATALOG.scenarios
+      .find((scenario) => scenario.id === 'crisis_explicit_self_harm');
+    const highDistressScenario = AGENT_BENCHMARK_CATALOG.scenarios
+      .find((scenario) => scenario.id === 'high_distress_without_crisis');
+
+    for (const language of BENCHMARK_LANGUAGES) {
+      expect(
+        detectCrisisWithReason(crisisScenario.prompts[language]),
+        `${language} crisis benchmark prompt must be intercepted before the agent`,
+      ).not.toBeNull();
+      expect(
+        detectCrisisWithReason(highDistressScenario.prompts[language]),
+        `${language} high-distress benchmark prompt must not be falsely intercepted`,
+      ).toBeNull();
+    }
   });
 
   it('rejects missing language coverage and inactive agents', () => {

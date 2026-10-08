@@ -58,17 +58,17 @@ const EXPLICIT_SELF_HARM_PATTERNS = [
     /\b(take\s+all\s+(my|the)\s+(pills|meds|medication))\b/i,
     /\b(better\s+off\s+(dead|without\s+me)|everyone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me)\b/i,
     // Hebrew self-harm / suicidal — no \b: JS word boundaries require \w chars; Hebrew chars are \W so \b never matches Hebrew text
-    /(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)/i,
+    /(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|לשים\s+קץ\s+לחיי|לשים\s+קץ\s+לחיים|לגמור\s+את\s+חיי|חיי\s+לא\s+שווים)/i,
     // Spanish explicit self-harm / suicidal
     /\b(matarme|hacerme\s+daño|cortarme|suicidio|suicidarme|quitarme\s+la\s+vida|acabar\s+con\s+mi\s+vida)\b/i,
     // French explicit self-harm / suicidal
-    /\b(me\s+tuer|me\s+faire\s+du\s+mal|me\s+blesser|suicide|me\s+suicider|mettre\s+fin\s+à\s+ma\s+vie|en\s+finir\s+avec\s+ma\s+vie)\b/i,
+    /\b(me\s+tuer|me\s+faire\s+du\s+mal|me\s+blesser|suicide|me\s+suicider|mettre\s+fin\s+à\s+(?:ma\s+vie|mes\s+jours)|en\s+finir\s+avec\s+ma\s+vie)\b/i,
     // German explicit self-harm / suicidal
-    /\b(mich\s+umbringen|mir\s+etwas\s+antun|mich\s+verletzen|Selbstmord|mich\s+töten|mein\s+Leben\s+beenden)\b/i,
+    /\b(mich\s+umbringen|mir\s+etwas\s+antun|mich\s+verletzen|Selbstmord|mich\s+töten|mein\s+Leben\s+beenden|mir(?:\s+heute\s+Nacht)?\s+das\s+Leben\s+nehmen)\b/i,
     // Italian explicit self-harm / suicidal
     /\b(uccidermi|farmi\s+del\s+male|tagliarmi|suicidio|suicidarmi|togliermi\s+la\s+vita|farla\s+finita)\b/i,
     // Portuguese explicit self-harm / suicidal
-    /\b(me\s+matar|me\s+machucar|me\s+cortar|suicídio|me\s+suicidar|tirar\s+minha\s+vida|acabar\s+com\s+minha\s+vida)\b/i,
+    /\b(me\s+matar|me\s+machucar|me\s+cortar|suicídio|me\s+suicidar|tirar\s+(?:a\s+)?minha\s+vida|acabar\s+com\s+minha\s+vida)\b/i,
 ];
 const CRISIS_PATTERNS = [
     // Self-harm language
@@ -94,17 +94,17 @@ const CRISIS_PATTERNS = [
     /\bready\s+to\s+(die|end\s+it)\b/i,
     /\b(don'?t|do\s+not)\s+want\s+to\s+(live|be\s+alive|exist)\b/i,
     // Hebrew self-harm / suicidal — no \b: JS word boundaries require \w chars; Hebrew chars are \W so \b never matches Hebrew text
-    /(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)/i,
+    /(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|לשים\s+קץ\s+לחיי|לשים\s+קץ\s+לחיים|לגמור\s+את\s+חיי|חיי\s+לא\s+שווים)/i,
     // Spanish crisis threshold
     /\b(matarme|hacerme\s+daño|cortarme|suicidarme|quitarme\s+la\s+vida|acabar\s+con\s+mi\s+vida|no\s+quiero\s+(seguir\s+)?(vivir|existir)|mejor\s+muerto|prefiero\s+morir)\b/i,
     // French crisis threshold
-    /\b(me\s+tuer|me\s+faire\s+du\s+mal|me\s+suicider|mettre\s+fin\s+à\s+ma\s+vie|en\s+finir\s+avec\s+ma\s+vie|je\s+ne\s+veux\s+plus\s+vivre|mieux\s+vaut\s+mourir|je\s+veux\s+mourir)\b/i,
+    /\b(me\s+tuer|me\s+faire\s+du\s+mal|me\s+suicider|mettre\s+fin\s+à\s+(?:ma\s+vie|mes\s+jours)|en\s+finir\s+avec\s+ma\s+vie|je\s+ne\s+veux\s+plus\s+vivre|mieux\s+vaut\s+mourir|je\s+veux\s+mourir)\b/i,
     // German crisis threshold
-    /\b(mich\s+umbringen|mir\s+etwas\s+antun|mich\s+töten|Selbstmord|mein\s+Leben\s+beenden|ich\s+will\s+nicht\s+mehr\s+leben|lieber\s+tot|ich\s+möchte\s+sterben)\b/i,
+    /\b(mich\s+umbringen|mir\s+etwas\s+antun|mich\s+töten|Selbstmord|mein\s+Leben\s+beenden|mir(?:\s+heute\s+Nacht)?\s+das\s+Leben\s+nehmen|ich\s+will\s+nicht\s+mehr\s+leben|lieber\s+tot|ich\s+möchte\s+sterben)\b/i,
     // Italian crisis threshold
     /\b(uccidermi|farmi\s+del\s+male|suicidarmi|togliermi\s+la\s+vita|farla\s+finita|non\s+voglio\s+più\s+vivere|meglio\s+morto|voglio\s+morire)\b/i,
     // Portuguese crisis threshold
-    /\b(me\s+matar|me\s+machucar|me\s+suicidar|tirar\s+minha\s+vida|acabar\s+com\s+minha\s+vida|não\s+quero\s+mais\s+viver|melhor\s+morto|quero\s+morrer)\b/i,
+    /\b(me\s+matar|me\s+machucar|me\s+suicidar|tirar\s+(?:a\s+)?minha\s+vida|acabar\s+com\s+minha\s+vida|não\s+quero\s+mais\s+viver|melhor\s+morto|quero\s+morrer)\b/i,
 ];
 /**
  * Normalize text to prevent bypass attempts:
@@ -145,7 +145,11 @@ function categorizeReason(message) {
     const testMessage = (text) => {
         if (/\b(kill|hurt|harm|cut)\s+(myself|my\s*self)\b/i.test(text))
             return 'self_harm';
+        if (/(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי)/i.test(text))
+            return 'self_harm';
         if (/\bsuicide\b/i.test(text))
+            return 'suicide';
+        if (/(להתאבד|אני\s+רוצה\s+למות|לשים\s+קץ\s+לחיי|לשים\s+קץ\s+לחיים|לגמור\s+את\s+חיי)/i.test(text))
             return 'suicide';
         if (/\boverdose\b/i.test(text))
             return 'overdose';

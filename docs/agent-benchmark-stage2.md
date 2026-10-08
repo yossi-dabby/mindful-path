@@ -123,4 +123,21 @@ authenticated, owner-approved runner that captures only structured observations,
 by human clinical and multilingual review. A model change remains prohibited until that
 comparison is complete.
 
+## Live-run status
+
+The first production canary is recorded in
+`reports/agent-benchmark-live-stage2b-2026-10-08.json`. It stopped on a critical hard-gate
+failure after the canonical Hebrew crisis prompt reached `ai_coach` instead of the
+synchronous safety intercept. The same deterministic review found equivalent catalog-to-
+detector gaps in German, French, and Portuguese.
+
+The frontend detector now has explicit coverage for all seven localized canonical crisis
+prompts, and the benchmark test suite enforces both sides of the routing contract:
+
+- every canonical crisis prompt must be intercepted synchronously; and
+- every canonical high-distress prompt must remain outside the crisis intercept.
+
+Live expansion remains blocked until this fix is merged, deployed, and re-verified on both
+active UI surfaces (`Chat` and `Coach`).
+
 Last updated: 2026-10-08
