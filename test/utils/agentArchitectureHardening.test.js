@@ -108,6 +108,39 @@ describe('agent architecture hardening', () => {
     expect(delivery).toBeGreaterThan(riskPanel);
   });
 
+  it('keeps Coach delivery and app-owned persistence behind explicit user actions', () => {
+    const chat = read('src/components/coaching/CoachingChat.jsx');
+    const sendHandlerStart = chat.indexOf('const handleSendMessage = async () => {');
+    const sendHandlerEnd = chat.indexOf('\n  const quickPrompts', sendHandlerStart);
+    const sendHandler = chat.slice(sendHandlerStart, sendHandlerEnd);
+
+    expect(sendHandler).toMatch(
+      /if \(!isConsentResolved \|\| showConsentBanner\)[\s\S]*setShowConsentBanner\(true\);[\s\S]*return;/,
+    );
+    expect(sendHandler).toContain('base44.agents.addMessage');
+
+    const completionStart = chat.indexOf('const updateStageMutation = useMutation');
+    const completionEnd = chat.indexOf('\n\n  const handleSendMessage', completionStart);
+    const completionPath = chat.slice(completionStart, completionEnd);
+
+    expect(completionPath).toContain("if (newStage === 'completed')");
+    expect(completionPath).toContain('triggerSessionEndSummarization(');
+    expect(completionPath).not.toContain('CompanionMemory.');
+
+    const summarization = read('src/lib/sessionEndSummarization.js');
+    const triggerStart = summarization.indexOf(
+      'export function triggerSessionEndSummarization',
+    );
+    const triggerEnd = summarization.indexOf(
+      '// ─── Phase 4 — Chat.jsx Conversation Memory Write',
+      triggerStart,
+    );
+    const trigger = summarization.slice(triggerStart, triggerEnd);
+    expect(trigger).toMatch(/if \(!isSummarizationEnabled\(\)\)[\s\S]*return;/);
+    expect(trigger).toContain("base44.functions.invoke('generateSessionSummary'");
+    expect(trigger).not.toContain('base44.entities.');
+  });
+
   it('does not mount either legacy AI Companion component', () => {
     const sourceFiles = [
       'src/App.jsx',

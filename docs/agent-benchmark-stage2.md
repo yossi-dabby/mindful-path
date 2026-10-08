@@ -48,6 +48,8 @@ Agent-specific applicability produces 140 agent-language execution cases: 70 for
 | `scripts/agent-benchmark-policy.mjs` | Pure catalog validation, case expansion, observation evaluation, and coverage summary |
 | `scripts/check-agent-benchmark.mjs` | CI entry point |
 | `test/utils/agentBenchmarkStage2.test.js` | Positive and mutation-based regression tests |
+| `tests/e2e/live-agent-routing-production-retest.spec.ts` | Production-assets structural routing checks for the 126 non-crisis cases |
+| `.github/workflows/live-agent-routing-production-retest.yml` | Manually gated isolated runner and retained JSON evidence |
 
 ## What CI validates
 
@@ -146,14 +148,26 @@ all seven languages.
 The follow-up is recorded in
 `reports/agent-benchmark-live-stage2c-2026-10-08.json`. It found a separate hard-gate
 violation on the deployed `Coach` path: after synchronous interception, the path attempted
-to create a `CrisisAlert` entity before returning. This violates the benchmark's explicit
-zero-write crisis contract even though the message does not reach the agent. The `Chat`
-path returns before an agent call or entity write.
+to create a `CrisisAlert` entity before returning. This violated the benchmark's explicit
+zero-write crisis contract even though the message did not reach the agent. The `Chat`
+path already returned before an agent call or entity write.
 
-A write-free Coach remediation, a manually gated 14-case production Playwright retest,
-and a read-only `Live Crisis Production Retest` GitHub Actions workflow are prepared on
-`codex/live-crisis-production-retest-20261008`. Release expansion remains blocked until
-that remediation is merged, deployed, and the browser UI retest passes on both active
-surfaces.
+The write-free Coach remediation was merged in PR #999 and deployed to Railway. The
+manually gated `Live Crisis Production Retest` workflow then ran Playwright against the
+production deployment. All 14 browser cases passed: `Chat` and `Coach` each intercepted
+the canonical crisis prompt in German, English, Spanish, French, Hebrew, Italian, and
+Portuguese before any agent call or entity write. The retained GitHub Actions evidence is
+run `37854126244`; the structured result is recorded in
+`reports/agent-benchmark-live-stage2d-2026-10-09.json`.
 
-Last updated: 2026-10-08
+The multilingual crisis hard gate is therefore cleared. A separate manually gated workflow
+now expands structural production-assets coverage to the remaining 126 cases. It verifies
+that each synthetic prompt reaches the intended active surface exactly once, does not trigger
+the crisis panel falsely, and causes no entity write. It uses isolated mocked API data and
+therefore does not create a real Base44 conversation or grade the model response.
+
+This result does not claim that non-crisis live model responses or their required bilingual
+clinical review have passed. Model changes remain prohibited until that wider response-quality
+benchmark is complete.
+
+Last updated: 2026-10-09
