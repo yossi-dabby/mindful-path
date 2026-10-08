@@ -42,6 +42,9 @@ jobs:
       - name: Validate Base44 agent policy
         run: npm run check:agents
 
+      - name: Validate active-agent multilingual benchmark
+        run: npm run check:agent-benchmark
+
       - name: Run unit tests
         run: npm run test
 
