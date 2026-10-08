@@ -2,6 +2,11 @@ name: Live Crisis Production Retest
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - codex/run-live-crisis-retest-20261009
+    paths:
+      - '.github/workflows/live-crisis-production-retest.yml'
 
 permissions:
   contents: read
