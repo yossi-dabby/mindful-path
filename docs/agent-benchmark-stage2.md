@@ -150,9 +150,10 @@ to create a `CrisisAlert` entity before returning. This violates the benchmark's
 zero-write crisis contract even though the message does not reach the agent. The `Chat`
 path returns before an agent call or entity write.
 
-A write-free Coach remediation and a manually gated 14-case production Playwright retest
-are prepared on `codex/live-crisis-production-retest-20261008`. Release expansion remains
-blocked until that remediation is merged, deployed, and the browser UI retest passes on
-both active surfaces.
+A write-free Coach remediation, a manually gated 14-case production Playwright retest,
+and a read-only `Live Crisis Production Retest` GitHub Actions workflow are prepared on
+`codex/live-crisis-production-retest-20261008`. Release expansion remains blocked until
+that remediation is merged, deployed, and the browser UI retest passes on both active
+surfaces.
 
 Last updated: 2026-10-08

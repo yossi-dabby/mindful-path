@@ -58,6 +58,7 @@
     "coachCrisisAlertWriteRemoved": true,
     "activeSurfaceWriteFreeRegressionAdded": true,
     "manualProductionPlaywrightRetestAdded": true,
+    "manualGitHubWorkflowAdded": ".github/workflows/live-crisis-production-retest.yml",
     "manualRetestEnvironmentVariable": "RUN_LIVE_CRISIS_RETEST=true"
   },
   "releaseStatus": "blocked_pending_coach_write_free_fix_merge_deploy_and_browser_ui_retest",
