@@ -22,7 +22,7 @@ resolve. They are therefore archived rather than deleted.
 | Agent | Current runtime entry point | Decision | Data posture |
 |---|---|---|---|
 | cbt_therapist | src/pages/Chat.jsx | Active | Existing clinically reviewed wiring; curriculum function restored |
-| ai_coach | CoachingSessionWizard.jsx → CoachingChat.jsx | Active | Dedicated read-mostly wiring; only CoachingSession.update remains writable and requires explicit consent |
+| ai_coach | CoachingSessionWizard.jsx → CoachingChat.jsx | Active | Dedicated read-only entity wiring; no direct entity writes |
 | ai_companion | No mounted component | Archived | No tools |
 | cbt_therapist_strict | Historical conversation lookup only | Archived | No tools |
 | cbt_therapist_standard | Historical conversation lookup only | Archived | No tools |
@@ -45,9 +45,10 @@ The deployed Coach definition could create and update goals and companion
 memory, and update exercises without an application-level confirmation
 boundary.
 
-The Coach is now read-only for CompanionMemory, Exercise, Goal, MoodEntry, and
-ThoughtJournal. The only write is CoachingSession.update; the prompt requires
-an exact description plus a current-turn yes/no confirmation before that write.
+The Coach is now read-only for CompanionMemory, Exercise, Goal, MoodEntry,
+ThoughtJournal, and CoachingSession. It has no direct entity write capability.
+Any future persistence must be implemented in application-owned code behind an
+enforceable consent gate rather than relying on model or prompt compliance.
 
 ### Incomplete therapist tool registration
 

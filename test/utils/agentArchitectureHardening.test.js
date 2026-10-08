@@ -27,20 +27,17 @@ describe('agent architecture hardening', () => {
     expect(chat).toContain('agentName="ai_coach"');
   });
 
-  it('keeps coach context read-mostly and gates its only write', () => {
+  it('keeps every Coach entity tool read-only', () => {
     const mutable = AI_COACH_WIRING.tool_configs.filter(
-      (tool) => Array.isArray(tool.allowed_operations) && tool.allowed_operations.includes('update'),
+      (tool) => Array.isArray(tool.allowed_operations)
+        && tool.allowed_operations.some((operation) => operation !== 'read'),
     );
-    expect(mutable).toEqual([
-      expect.objectContaining({
-        entity_name: 'CoachingSession',
-        update_requires_user_confirmation: true,
-      }),
-    ]);
+    expect(mutable).toEqual([]);
 
     for (const tool of AI_COACH_WIRING.tool_configs) {
-      if (tool.entity_name !== 'CoachingSession') {
+      if (tool.entity_name) {
         expect(tool.read_only).toBe(true);
+        expect(tool.allowed_operations).toEqual(['read']);
       }
     }
   });
@@ -52,13 +49,9 @@ describe('agent architecture hardening', () => {
       tool.allowed_operations.some((operation) => operation === 'create' || operation === 'update'),
     );
 
-    expect(writes).toEqual([
-      expect.objectContaining({
-        entity_name: 'CoachingSession',
-        allowed_operations: ['read', 'update'],
-      }),
-    ]);
-    expect(coach.instructions).toContain('only after the user explicitly confirms');
+    expect(writes).toEqual([]);
+    expect(entityTools.every((tool) => tool.allowed_operations.join(',') === 'read')).toBe(true);
+    expect(coach.instructions).toContain('Every connected entity record is read-only');
     expect(coach.instructions).toContain('Do not force an exercise or homework item on every turn');
 
     const retrieval = coach.tool_configs.find(
