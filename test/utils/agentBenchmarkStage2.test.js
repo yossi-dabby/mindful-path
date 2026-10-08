@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   AGENT_BENCHMARK_CATALOG,
   BENCHMARK_AGENTS,
@@ -68,6 +69,50 @@ describe('Stage 2 active-agent multilingual benchmark', () => {
         detectCrisisWithReason(highDistressScenario.prompts[language]),
         `${language} high-distress benchmark prompt must not be falsely intercepted`,
       ).toBeNull();
+    }
+  });
+
+  it('keeps both active UI crisis hard stops free of agent calls and entity writes', () => {
+    const coachSource = readFileSync(
+      new URL('../../src/components/coaching/CoachingChat.jsx', import.meta.url),
+      'utf8',
+    );
+    const chatSource = readFileSync(
+      new URL('../../src/pages/Chat.jsx', import.meta.url),
+      'utf8',
+    );
+
+    const coachStart = coachSource.indexOf(
+      'const reasonCode = detectCrisisWithReason(inputMessage);',
+    );
+    const coachEnd = coachSource.indexOf('\n    try {', coachStart);
+    const coachHardStop = coachSource.slice(coachStart, coachEnd);
+
+    const chatStart = chatSource.indexOf(
+      'const reasonCode = detectCrisisWithReason(rawInputText);',
+    );
+    const chatEnd = chatSource.indexOf(
+      '\n    // Reserve the V2 turn before any asynchronous work.',
+      chatStart,
+    );
+    const chatHardStop = chatSource.slice(chatStart, chatEnd);
+
+    for (const [surface, hardStop] of [
+      ['Coach', coachHardStop],
+      ['Chat', chatHardStop],
+    ]) {
+      expect(hardStop, `${surface} hard stop must be present`).toContain(
+        'setShowRiskPanel(true)',
+      );
+      expect(hardStop, `${surface} hard stop must return synchronously`).toMatch(
+        /setShowRiskPanel\(true\);[\s\S]*return;/,
+      );
+      expect(hardStop, `${surface} hard stop must not call an agent`).not.toMatch(
+        /base44\.agents\./,
+      );
+      expect(hardStop, `${surface} hard stop must not write an entity`).not.toMatch(
+        /base44\.entities\./,
+      );
     }
   });
 

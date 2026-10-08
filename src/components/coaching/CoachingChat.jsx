@@ -127,22 +127,6 @@ export default function CoachingChat({ session, onBack }) {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-
-      // Log crisis alert (non-blocking)
-      (async () => {
-        try {
-          const user = await base44.auth.me();
-          await base44.entities.CrisisAlert.create({
-            surface: 'coach',
-            conversation_id: currentSession.agent_conversation_id || 'none',
-            session_id: session.id,
-            reason_code: reasonCode,
-            user_email: user?.email || 'unknown'
-          });
-        } catch (error) {
-          console.error('[CRISIS ALERT] Failed to log alert:', error);
-        }
-      })();
       return;
     }
 
