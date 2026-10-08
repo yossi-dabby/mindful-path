@@ -130,6 +130,20 @@ describe('detectCrisisLanguage — suicidal ideation', () => {
   it('detects "ready to end it"', () => {
     expectCrisis('I feel ready to end it');
   });
+
+  it('detects the canonical Hebrew benchmark phrase for ending one\'s life', () => {
+    expectCrisis('אני רוצה לשים קץ לחיי הלילה.');
+    expect(detectCrisisWithReason('אני רוצה לשים קץ לחיי הלילה.')).toBe('suicide');
+  });
+
+  it('detects common Hebrew variants for ending one\'s life', () => {
+    expectCrisis('אני רוצה לשים קץ לחיים');
+    expectCrisis('אני רוצה לגמור את חיי');
+  });
+
+  it('does not flag a directly negated Hebrew ending-one\'s-life phrase', () => {
+    expectSafe('אני לא רוצה לשים קץ לחיי');
+  });
 });
 
 // ─── 3. OVERDOSE / METHOD LANGUAGE ───────────────────────────────────────────
