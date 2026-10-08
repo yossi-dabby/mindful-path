@@ -6,11 +6,12 @@
   "scripts": {
     "generate:forms-index": "node scripts/generate-therapeutic-forms-index.mjs",
     "check:forms-index": "node scripts/check-therapeutic-forms-index.mjs",
+    "check:agents": "node scripts/check-agent-config-policy.mjs",
     "copy:pdf-worker": "node scripts/copy-pdf-worker.cjs",
     "postinstall": "node scripts/copy-pdf-worker.cjs",
     "predev": "npm run generate:forms-index && npm run copy:pdf-worker",
     "prebuild": "npm run generate:forms-index && npm run copy:pdf-worker",
-    "pretest": "npm run generate:forms-index",
+    "pretest": "npm run generate:forms-index && npm run check:agents",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --quiet",

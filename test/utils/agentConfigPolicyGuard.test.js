@@ -1,0 +1,98 @@
+import { describe, expect, it } from 'vitest';
+import {
+  EXPECTED_AGENT_NAMES,
+  loadAgentConfigurations,
+  validateAgentConfigurations,
+} from '../../scripts/agent-config-policy.mjs';
+
+const clone = (value) => structuredClone(value);
+
+describe('Base44 agent configuration policy guard', () => {
+  it('accepts the canonical repository configuration', () => {
+    const configs = loadAgentConfigurations();
+
+    expect(Object.keys(configs).sort()).toEqual(EXPECTED_AGENT_NAMES);
+    expect(validateAgentConfigurations(configs)).toEqual([]);
+  });
+
+  it('rejects inventory drift', () => {
+    const configs = loadAgentConfigurations();
+    configs.unreviewed_agent = clone(configs.ai_coach);
+    configs.unreviewed_agent.name = 'unreviewed_agent';
+
+    expect(validateAgentConfigurations(configs)).toContain(
+      `Agent inventory must be exactly: ${EXPECTED_AGENT_NAMES.join(', ')}`,
+    );
+  });
+
+  it('rejects cross-user memory or anonymous access', () => {
+    const configs = loadAgentConfigurations();
+    configs.ai_coach.memory_config.scope = 'both';
+    configs.ai_coach.memory_config.include_other_conversation_context = true;
+    configs.ai_coach.memory_config.instructions = 'Import context from every conversation.';
+    configs.ai_coach.allow_anonymous_access = true;
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors).toContain('ai_coach.memory_config.scope must remain "user"');
+    expect(errors).toContain(
+      'ai_coach.memory_config.include_other_conversation_context must remain false',
+    );
+    expect(errors).toContain(
+      'ai_coach.memory_config.instructions must remain null until explicitly reviewed',
+    );
+    expect(errors).toContain('ai_coach.allow_anonymous_access must remain false');
+  });
+
+  it('rejects Coach writes and delete access', () => {
+    const configs = loadAgentConfigurations();
+    configs.ai_coach.tool_configs[0].allowed_operations = ['read', 'update', 'delete'];
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors).toContain('ai_coach.CompanionMemory operations must be exactly: read');
+    expect(errors).toContain('ai_coach.CompanionMemory must never receive delete access');
+  });
+
+  it('rejects a missing therapist function or an empty function description', () => {
+    const configs = loadAgentConfigurations();
+    configs.cbt_therapist.tool_configs = configs.cbt_therapist.tool_configs
+      .filter((tool) => tool.function_name !== 'retrieveCurriculumUnit');
+    const trustedContent = configs.cbt_therapist.tool_configs
+      .find((tool) => tool.function_name === 'retrieveTrustedCBTContent');
+    trustedContent.description = '';
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors.some((error) => error.startsWith('cbt_therapist function tools must be exactly:')))
+      .toBe(true);
+    expect(errors).toContain(
+      'cbt_therapist.retrieveTrustedCBTContent must retain a safety-aware description',
+    );
+  });
+
+  it('rejects reactivation of archived agents', () => {
+    const configs = loadAgentConfigurations();
+    configs.ai_companion.memory_config.enabled = true;
+    configs.ai_companion.tool_configs = [{ entity_name: 'Goal', allowed_operations: ['read'] }];
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors).toContain('ai_companion.memory_config.enabled must be false');
+    expect(errors).toContain('ai_companion.tool_configs must remain an empty array');
+  });
+
+  it('rejects unapproved connectors, skills, channels, or model changes', () => {
+    const configs = loadAgentConfigurations();
+    configs.ai_coach.app_user_connector_configs = [{ connector: 'telegram' }];
+    configs.ai_coach.selected_skill_names = ['unversioned-safety-skill'];
+    configs.ai_coach.telegram_greeting = 'Hello';
+    configs.ai_coach.model = 'unbenchmarked-model';
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors).toContain('ai_coach.app_user_connector_configs must remain an empty array');
+    expect(errors).toContain('ai_coach.selected_skill_names must remain an empty array');
+    expect(errors).toContain(
+      'ai_coach.telegram_greeting must remain empty until that channel is explicitly approved',
+    );
+    expect(errors).toContain(
+      'ai_coach.model must remain "automatic" until a benchmark approves a change',
+    );
+  });
+});
