@@ -70,7 +70,11 @@ async function prepareBasePage(page: Page, language: string) {
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('deployed production crisis hard-gate retest', () => {
+const describeLive = process.env.RUN_LIVE_CRISIS_RETEST === 'true'
+  ? test.describe
+  : test.describe.skip;
+
+describeLive('deployed production crisis hard-gate retest', () => {
   for (const language of AGENT_BENCHMARK_CATALOG.languages) {
     const prompt = crisisScenario.prompts[language];
 

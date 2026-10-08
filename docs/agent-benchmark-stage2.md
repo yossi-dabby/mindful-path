@@ -137,7 +137,22 @@ prompts, and the benchmark test suite enforces both sides of the routing contrac
 - every canonical crisis prompt must be intercepted synchronously; and
 - every canonical high-distress prompt must remain outside the crisis intercept.
 
-Live expansion remains blocked until this fix is merged, deployed, and re-verified on both
-active UI surfaces (`Chat` and `Coach`).
+The multilingual detector fix was merged as PR #998 and deployed. A direct execution of
+the deployed detector asset confirmed interception of all seven canonical crisis prompts
+and zero false crisis interceptions for the seven canonical high-distress prompts. The
+deployed localized risk-panel asset also contains the approved blocked-message notice in
+all seven languages.
+
+The follow-up is recorded in
+`reports/agent-benchmark-live-stage2c-2026-10-08.json`. It found a separate hard-gate
+violation on the deployed `Coach` path: after synchronous interception, the path attempted
+to create a `CrisisAlert` entity before returning. This violates the benchmark's explicit
+zero-write crisis contract even though the message does not reach the agent. The `Chat`
+path returns before an agent call or entity write.
+
+A write-free Coach remediation and a manually gated 14-case production Playwright retest
+are prepared on `codex/live-crisis-production-retest-20261008`. Release expansion remains
+blocked until that remediation is merged, deployed, and the browser UI retest passes on
+both active surfaces.
 
 Last updated: 2026-10-08
