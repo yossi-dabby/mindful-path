@@ -39,6 +39,9 @@ jobs:
       - name: Validate therapeutic forms index
         run: npm run check:forms-index
 
+      - name: Validate Base44 agent policy
+        run: npm run check:agents
+
       - name: Run unit tests
         run: npm run test
 
