@@ -2,6 +2,9 @@ name: Live Agent Routing Production Retest
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - codex/run-live-routing-retest-20261009
 
 permissions:
   contents: read
@@ -12,7 +15,7 @@ concurrency:
 
 jobs:
   routing-benchmark:
-    if: vars.RUN_LIVE_AGENT_ROUTING_RETEST == 'true'
+    if: vars.RUN_LIVE_AGENT_ROUTING_RETEST == 'true' || github.ref == 'refs/heads/codex/run-live-routing-retest-20261009'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
