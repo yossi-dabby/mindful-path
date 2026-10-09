@@ -90,6 +90,8 @@ describe('live agent response benchmark', () => {
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
     expect(workflow).toContain('timeout-minutes: 180');
     expect(workflow).toContain('retention-days: 14');
+    expect(workflow).toContain('live-agent-response-benchmark-${{ github.event_name }}-${{ github.ref }}');
+    expect(workflow).toContain('cancel-in-progress: true');
   });
 
   it('supports an isolated 70-case coach model experiment without rewiring production', () => {
