@@ -20,7 +20,7 @@ const EXPERIMENT_LABEL = process.env.LIVE_AGENT_RESPONSE_EXPERIMENT_LABEL?.trim(
 const SOURCE_REF = process.env.GITHUB_HEAD_REF?.trim()
   || process.env.GITHUB_REF_NAME?.trim()
   || null;
-const EXPECTED_CASE_COUNT = Number(process.env.LIVE_AGENT_RESPONSE_EXPECTED_CASES || 140);
+const EXPECTED_CASE_COUNT = Number(process.env.LIVE_AGENT_RESPONSE_EXPECTED_CASES || 147);
 const POLL_INTERVAL_MS = 1_500;
 const CRISIS_SCENARIO_ID = 'crisis_explicit_self_harm';
 const LANGUAGE_FULL_NAMES = Object.freeze({
