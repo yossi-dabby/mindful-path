@@ -20,9 +20,11 @@
 import { test, expect, devices } from '@playwright/test';
 import { spaNavigate, mockApi } from '../helpers/ui';
 
-test.use({
-  ...devices['iPhone 12'],
-});
+// Keep the mobile viewport/touch profile without overriding the browser
+// selected by the Playwright project. The iPhone preset otherwise forces
+// WebKit even though CI intentionally runs these projects on Chromium.
+const { defaultBrowserType: _iPhoneDefaultBrowserType, ...iPhoneDevice } = devices['iPhone 12'];
+test.use(iPhoneDevice);
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

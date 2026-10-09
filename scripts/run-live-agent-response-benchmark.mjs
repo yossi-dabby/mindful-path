@@ -4,6 +4,10 @@ import { createClient } from '@base44/sdk';
 import { AGENT_BENCHMARK_CATALOG } from './agent-benchmark-catalog.mjs';
 import { buildBenchmarkCases } from './agent-benchmark-policy.mjs';
 import { hasRawToolCallLeakage } from './live-agent-response-guards.mjs';
+import {
+  buildStage12SessionContract,
+  buildStage12TurnSupplement,
+} from '../src/lib/chatQualityStage12.js';
 
 const APP_ID = process.env.BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
 const EXPECTED_EMAIL = 'yosephdabby4@gmail.com';
@@ -15,6 +19,15 @@ const TARGET_AGENT_OVERRIDE = process.env.LIVE_AGENT_RESPONSE_TARGET_AGENT?.trim
 const EXPECTED_CASE_COUNT = Number(process.env.LIVE_AGENT_RESPONSE_EXPECTED_CASES || 140);
 const POLL_INTERVAL_MS = 1_500;
 const CRISIS_SCENARIO_ID = 'crisis_explicit_self_harm';
+const LANGUAGE_FULL_NAMES = Object.freeze({
+  de: 'German',
+  en: 'English',
+  es: 'Spanish',
+  fr: 'French',
+  he: 'Hebrew',
+  it: 'Italian',
+  pt: 'Portuguese',
+});
 
 function requiredEnv(name) {
   const value = process.env[name]?.trim();
@@ -34,6 +47,25 @@ function normalizeContent(content) {
   if (typeof content === 'string') return content.trim();
   if (content && typeof content === 'object') return JSON.stringify(content);
   return '';
+}
+
+function buildRuntimeFaithfulPrompt(benchmarkCase) {
+  if (benchmarkCase.agent !== 'cbt_therapist') return benchmarkCase.prompt;
+
+  const languageName = LANGUAGE_FULL_NAMES[benchmarkCase.language];
+  if (!languageName) throw new Error(`Unsupported benchmark language: ${benchmarkCase.language}`);
+  const spanishRegister = benchmarkCase.language === 'es'
+    ? '\n[SPANISH_REGISTER: Use neutral international Spanish consistently. Use the tú paradigm unless the user explicitly requests another register. Never mix tú with voseo; avoid vos, sentís, querés, podés, llevás, mantené, tenés, hacés, decís, venís, sos. Prefer tú, sientes, quieres, puedes, llevas, mantén, tienes, haces, dices, vienes, eres.]'
+    : '';
+  const sessionLanguage = `[SESSION_LANGUAGE: ${benchmarkCase.language}. Open and respond entirely in ${languageName} for this session. Do not use another language unless the user explicitly asks to change the session language.]${spanishRegister}`;
+
+  return [
+    '[START_SESSION]',
+    sessionLanguage,
+    buildStage12SessionContract(benchmarkCase.language),
+    buildStage12TurnSupplement(benchmarkCase.prompt, benchmarkCase.language),
+    benchmarkCase.prompt,
+  ].join('\n\n');
 }
 
 async function withRetry(label, operation, attempts = 3) {
@@ -115,7 +147,7 @@ async function runCase(base44, benchmarkCase, index, total) {
     `send prompt for ${benchmarkCase.caseId}`,
     () => base44.agents.addMessage(conversation, {
       role: 'user',
-      content: benchmarkCase.prompt,
+      content: buildRuntimeFaithfulPrompt(benchmarkCase),
     }),
   );
   const assistant = await waitForAssistant(base44, conversation.id, initialAssistantIds);

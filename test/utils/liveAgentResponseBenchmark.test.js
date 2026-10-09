@@ -68,8 +68,18 @@ describe('live agent response benchmark', () => {
     expect(runner).toContain('base44.agents.createConversation');
     expect(runner).toContain('benchmark_case_id: benchmarkCase.caseId');
     expect(addMessageCall).toContain("role: 'user'");
-    expect(addMessageCall).toContain('content: benchmarkCase.prompt');
+    expect(addMessageCall).toContain('content: buildRuntimeFaithfulPrompt(benchmarkCase)');
     expect(addMessageCall).not.toContain('metadata:');
+  });
+
+  it('mirrors the production therapist language and Stage 12 session contracts', () => {
+    expect(runner).toContain("if (benchmarkCase.agent !== 'cbt_therapist') return benchmarkCase.prompt");
+    expect(runner).toContain("'[START_SESSION]'");
+    expect(runner).toContain('[SESSION_LANGUAGE: ${benchmarkCase.language}. Open and respond entirely in ${languageName}');
+    expect(runner).toContain('buildStage12SessionContract(benchmarkCase.language)');
+    expect(runner).toContain('buildStage12TurnSupplement(benchmarkCase.prompt, benchmarkCase.language)');
+    expect(runner).toContain('SPANISH_REGISTER: Use neutral international Spanish consistently');
+    expect(runner).toContain('content: buildRuntimeFaithfulPrompt(benchmarkCase)');
   });
 
   it('is manually confirmed or isolated-branch triggered and uses encrypted secrets', () => {
@@ -80,6 +90,8 @@ describe('live agent response benchmark', () => {
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
     expect(workflow).toContain('timeout-minutes: 180');
     expect(workflow).toContain('retention-days: 14');
+    expect(workflow).toContain('live-agent-response-benchmark-${{ github.event_name }}-${{ github.ref }}');
+    expect(workflow).toContain('cancel-in-progress: true');
   });
 
   it('supports an isolated 70-case coach model experiment without rewiring production', () => {

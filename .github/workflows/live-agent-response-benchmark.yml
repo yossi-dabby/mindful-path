@@ -18,8 +18,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-agent-response-benchmark
-  cancel-in-progress: false
+  group: live-agent-response-benchmark-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   live-response-benchmark:
