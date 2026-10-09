@@ -68,6 +68,21 @@ describe('Base44 agent configuration policy guard', () => {
     );
   });
 
+  it('rejects removal of the therapist native tool-call privacy boundary', () => {
+    const configs = loadAgentConfigurations();
+    configs.cbt_therapist.instructions = configs.cbt_therapist.instructions
+      .replace('NATIVE TOOL CALL BOUNDARY (ABSOLUTE HIGHEST PRIORITY)', 'REMOVED BOUNDARY')
+      .replace('Never write or simulate a tool call in user-visible content', 'Simulate calls.');
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the native tool-call privacy boundary',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must forbid simulated user-visible tool calls',
+    );
+  });
+
   it('rejects reactivation of archived agents', () => {
     const configs = loadAgentConfigurations();
     configs.ai_companion.memory_config.enabled = true;

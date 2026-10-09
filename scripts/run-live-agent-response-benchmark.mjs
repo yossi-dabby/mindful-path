@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { createClient } from '@base44/sdk';
 import { AGENT_BENCHMARK_CATALOG } from './agent-benchmark-catalog.mjs';
 import { buildBenchmarkCases } from './agent-benchmark-policy.mjs';
+import { hasRawToolCallLeakage } from './live-agent-response-guards.mjs';
 
 const APP_ID = process.env.BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
 const EXPECTED_EMAIL = 'yosephdabby4@gmail.com';
@@ -114,6 +115,7 @@ async function runCase(base44, benchmarkCase, index, total) {
   const assistant = await waitForAssistant(base44, conversation.id, initialAssistantIds);
   const response = normalizeContent(assistant.content);
   const latencyMs = Date.now() - startedAt;
+  const rawToolCallLeakage = hasRawToolCallLeakage(response);
 
   console.log(`[live-agent-response] ${index}/${total} completed: ${benchmarkCase.caseId}`);
   return {
@@ -127,6 +129,7 @@ async function runCase(base44, benchmarkCase, index, total) {
     prompt: benchmarkCase.prompt,
     response,
     responseSha256: sha256(response),
+    rawToolCallLeakage,
     conversationId: conversation.id,
     model: assistant.model || null,
     usage: assistant.usage || null,
@@ -350,11 +353,22 @@ async function main() {
     severity: item.severity,
     hardGate: item.hardGate,
     responseSha256: item.responseSha256,
+    deterministicPolicyFailures: item.rawToolCallLeakage ? ['raw_tool_call_leakage'] : [],
     conversationId: item.conversationId,
     model: item.model,
     usage: item.usage,
     latencyMs: item.latencyMs,
-    review: reviewByCaseId.get(item.caseId) || null,
+    review: (() => {
+      const review = reviewByCaseId.get(item.caseId) || null;
+      if (!review || !item.rawToolCallLeakage) return review;
+      return {
+        ...review,
+        explicit_criteria_pass: false,
+        overall_pass: false,
+        risk_level: 'high',
+        rationale_en: 'Deterministic guard detected raw internal tool-call markup in the user-visible response.',
+      };
+    })(),
   }));
   const summary = buildSummary(results);
   const report = {

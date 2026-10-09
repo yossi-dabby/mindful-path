@@ -45,6 +45,14 @@ describe('sanitizeMessageContent – <think> block stripping', () => {
     expect(result.length).toBeGreaterThan(0);
     expect(result).not.toContain('<tool_call>');
   });
+
+  it('returns a Hebrew failsafe for the observed Base44 function-call envelope', () => {
+    const input = '<function_calls><invoke name="retrieveTherapistMemory"><parameter name="payload">{}</parameter></invoke></function_calls>';
+    const result = sanitizeMessageContent(input, 'he');
+    expect(result).toBe('אני כאן איתך. מה הכי מטריד אותך כרגע?');
+    expect(result).not.toContain('<function_calls>');
+    expect(result).not.toContain('retrieveTherapistMemory');
+  });
 });
 
 describe('hasReasoningLeakage – <think> detection', () => {

@@ -11,6 +11,10 @@ const workflow = readFileSync(
   new URL('../../.github/workflows/live-agent-response-benchmark.yml', import.meta.url),
   'utf8',
 );
+const guard = readFileSync(
+  new URL('../../scripts/live-agent-response-guards.mjs', import.meta.url),
+  'utf8',
+);
 
 describe('live agent response benchmark', () => {
   it('covers the 126 non-crisis live model cases across both agents and seven languages', () => {
@@ -43,6 +47,13 @@ describe('live agent response benchmark', () => {
     expect(runner).toContain('rawResponsesPublished: false');
     expect(runner).toContain('humanClinicalSignoffRequired: true');
     expect(runner).toContain('AI-assisted and preliminary');
+  });
+
+  it('records deterministic raw tool-call leakage as a release-blocking failure', () => {
+    expect(runner).toContain("deterministicPolicyFailures: item.rawToolCallLeakage ? ['raw_tool_call_leakage'] : []");
+    expect(runner).toContain('overall_pass: false');
+    expect(guard).toContain('function_calls');
+    expect(guard).toContain('retrieveTherapistMemory');
   });
 
   it('keeps benchmark metadata on the conversation and lets Base44 populate message metadata', () => {
