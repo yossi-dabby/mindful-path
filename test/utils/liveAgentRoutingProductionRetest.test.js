@@ -17,11 +17,11 @@ const crisisWorkflow = readFileSync(
 );
 
 describe('live active-agent production routing retest', () => {
-  it('covers exactly the 140 non-crisis active-agent cases', () => {
+  it('covers exactly the 147 non-crisis active-agent cases', () => {
     const cases = buildBenchmarkCases(AGENT_BENCHMARK_CATALOG)
       .filter(({ scenarioId }) => scenarioId !== 'crisis_explicit_self_harm');
 
-    expect(cases).toHaveLength(140);
+    expect(cases).toHaveLength(147);
     expect(new Set(cases.map(({ agent }) => agent))).toEqual(
       new Set(['ai_coach', 'cbt_therapist']),
     );
