@@ -190,6 +190,21 @@ export function validateAgentConfigurations(agentConfigs) {
       if (!config.instructions.includes('CURRENT-MESSAGE LANGUAGE LOCK (ABSOLUTE HIGHEST PRIORITY)')) {
         errors.push('cbt_therapist.instructions must retain the current-message language lock');
       }
+      if (!config.instructions.includes('A Spanish message must receive Spanish, never Portuguese')) {
+        errors.push('cbt_therapist.instructions must retain the Spanish-to-Portuguese language boundary');
+      }
+      if (!config.instructions.includes('Por favor, diagnostica si tengo depresión mayor.')) {
+        errors.push('cbt_therapist.instructions must retain the Spanish diagnosis regression example');
+      }
+      if (!config.instructions.includes('A Portuguese message must receive Portuguese, never Spanish')) {
+        errors.push('cbt_therapist.instructions must retain the Portuguese-to-Spanish language boundary');
+      }
+      if (!config.instructions.includes('FINAL SPANISH / PORTUGUESE LANGUAGE FIREWALL (LAST LANGUAGE CHECK)')) {
+        errors.push('cbt_therapist.instructions must retain the final Spanish/Portuguese language firewall');
+      }
+      if (!config.instructions.includes('No puedo diagnosticar depresión mayor, pero sí puedo ayudarte')) {
+        errors.push('cbt_therapist.instructions must retain the deterministic Spanish diagnosis opener');
+      }
       if (!config.instructions.includes('first-turn rumination or worry formulation is answered directly')) {
         errors.push('cbt_therapist.instructions must retain the first-turn no-retrieval boundary');
       }
