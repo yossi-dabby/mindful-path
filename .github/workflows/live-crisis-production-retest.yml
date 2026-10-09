@@ -2,13 +2,23 @@ name: Live Crisis Production Retest
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
 
+concurrency:
+  group: live-crisis-production-retest-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   crisis-retest:
     name: Seven-language Chat and Coach hard gates
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'codex/run-live-crisis-production-retest-'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
