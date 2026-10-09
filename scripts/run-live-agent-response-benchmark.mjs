@@ -109,10 +109,6 @@ async function runCase(base44, benchmarkCase, index, total) {
     () => base44.agents.addMessage(conversation, {
       role: 'user',
       content: benchmarkCase.prompt,
-      metadata: {
-        synthetic_test_data: true,
-        benchmark_case_id: benchmarkCase.caseId,
-      },
     }),
   );
   const assistant = await waitForAssistant(base44, conversation.id, initialAssistantIds);
