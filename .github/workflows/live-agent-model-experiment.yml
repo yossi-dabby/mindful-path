@@ -33,6 +33,7 @@ jobs:
       LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'ai_coach'
       LIVE_AGENT_RESPONSE_TARGET_AGENT: 'ai_coach_benchmark'
       LIVE_AGENT_RESPONSE_EXPECTED_CASES: '70'
+      LIVE_AGENT_RESPONSE_EXPERIMENT_LABEL: ${{ github.head_ref || github.ref_name }}
       LIVE_AGENT_RESPONSE_OUTPUT_DIR: test-results/live-agent-model-experiment
 
     steps:
