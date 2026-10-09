@@ -199,6 +199,12 @@ export function validateAgentConfigurations(agentConfigs) {
       if (!config.instructions.includes('A Portuguese message must receive Portuguese, never Spanish')) {
         errors.push('cbt_therapist.instructions must retain the Portuguese-to-Spanish language boundary');
       }
+      if (!config.instructions.includes('FINAL SPANISH / PORTUGUESE LANGUAGE FIREWALL (LAST LANGUAGE CHECK)')) {
+        errors.push('cbt_therapist.instructions must retain the final Spanish/Portuguese language firewall');
+      }
+      if (!config.instructions.includes('No puedo diagnosticar depresión mayor, pero sí puedo ayudarte')) {
+        errors.push('cbt_therapist.instructions must retain the deterministic Spanish diagnosis opener');
+      }
       if (!config.instructions.includes('first-turn rumination or worry formulation is answered directly')) {
         errors.push('cbt_therapist.instructions must retain the first-turn no-retrieval boundary');
       }
