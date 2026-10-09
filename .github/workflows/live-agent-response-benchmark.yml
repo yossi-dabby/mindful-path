@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirmation:
-        description: Type RUN_140_LIVE_CASES to confirm live model usage
+        description: Type RUN_147_LIVE_CASES to confirm live model usage
         required: true
         type: string
   push:
@@ -25,7 +25,7 @@ jobs:
   live-response-benchmark:
     if: >-
       github.event_name == 'push' ||
-      inputs.confirmation == 'RUN_140_LIVE_CASES' ||
+      inputs.confirmation == 'RUN_147_LIVE_CASES' ||
       (github.event_name == 'pull_request' && startsWith(github.head_ref, 'codex/run-live-agent-response-benchmark-'))
     runs-on: ubuntu-latest
     timeout-minutes: 180
@@ -51,7 +51,7 @@ jobs:
           npm run check:agents
           npm run check:agent-benchmark
 
-      - name: Run 140 live model-response cases and preliminary review
+      - name: Run 147 live model-response cases and preliminary review
         run: node scripts/run-live-agent-response-benchmark.mjs
 
       - name: Upload redacted review evidence

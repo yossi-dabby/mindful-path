@@ -15,16 +15,20 @@ const modelExperimentWorkflow = readFileSync(
   new URL('../../.github/workflows/live-agent-model-experiment.yml', import.meta.url),
   'utf8',
 );
+const therapistPermissionWorkflow = readFileSync(
+  new URL('../../.github/workflows/live-therapist-permission-experiment.yml', import.meta.url),
+  'utf8',
+);
 const guard = readFileSync(
   new URL('../../scripts/live-agent-response-guards.mjs', import.meta.url),
   'utf8',
 );
 
 describe('live agent response benchmark', () => {
-  it('covers the 140 non-crisis live model cases across both agents and seven languages', () => {
+  it('covers the 147 non-crisis live model cases across both agents and seven languages', () => {
     const cases = buildBenchmarkCases(AGENT_BENCHMARK_CATALOG)
       .filter(({ scenarioId }) => scenarioId !== 'crisis_explicit_self_harm');
-    expect(cases).toHaveLength(140);
+    expect(cases).toHaveLength(147);
     expect(new Set(cases.map(({ agent }) => agent))).toEqual(
       new Set(['ai_coach', 'cbt_therapist']),
     );
@@ -55,6 +59,8 @@ describe('live agent response benchmark', () => {
 
   it('records deterministic raw tool-call leakage as a release-blocking failure', () => {
     expect(runner).toContain("deterministicPolicyFailures: item.rawToolCallLeakage ? ['raw_tool_call_leakage'] : []");
+    expect(runner).toContain('rawToolCallLeakageTypes: item.rawToolCallLeakageTypes');
+    expect(runner).toContain('classifyRawToolCallLeakage(response)');
     expect(runner).toContain('overall_pass: false');
     expect(guard).toContain('function_calls');
     expect(guard).toContain('retrieveTherapistMemory');
@@ -84,7 +90,7 @@ describe('live agent response benchmark', () => {
 
   it('is manually confirmed or isolated-branch triggered and uses encrypted secrets', () => {
     expect(workflow).toContain('workflow_dispatch:');
-    expect(workflow).toContain("confirmation == 'RUN_140_LIVE_CASES'");
+    expect(workflow).toContain("confirmation == 'RUN_147_LIVE_CASES'");
     expect(workflow).toContain("'codex/run-live-agent-response-benchmark-*'");
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
@@ -108,5 +114,16 @@ describe('live agent response benchmark', () => {
     expect(modelExperimentWorkflow).toContain("startsWith(github.head_ref, 'codex/run-live-agent-model-experiment-')");
     expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
     expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
+  });
+
+  it('supports an isolated therapist permission experiment without changing production first', () => {
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'cbt_therapist'");
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_TARGET_AGENT: 'cbt_therapist_benchmark'");
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_EXPECTED_CASES: '77'");
+    expect(therapistPermissionWorkflow).toContain(
+      "startsWith(github.head_ref, 'codex/run-live-therapist-permission-experiment-')",
+    );
+    expect(therapistPermissionWorkflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
+    expect(therapistPermissionWorkflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
   });
 });

@@ -82,16 +82,21 @@ describe('agent architecture hardening', () => {
     expect(chat).toContain('Fail-closed guard');
   });
 
-  it('wires every therapist backend function with an operational description', () => {
+  it('keeps every therapist entity read-only and wires only retrieval functions', () => {
     const therapist = readAgent('cbt_therapist');
+    const entityTools = therapist.tool_configs.filter((tool) => tool.entity_name);
     const functions = therapist.tool_configs.filter((tool) => tool.function_name);
     const names = functions.map((tool) => tool.function_name);
 
+    expect(entityTools).not.toHaveLength(0);
+    expect(entityTools.every((tool) => tool.allowed_operations.join(',') === 'read')).toBe(true);
     expect(names).toContain('retrieveCurriculumUnit');
     expect(names).toContain('retrieveRelevantContent');
     expect(names).toContain('retrieveTrustedCBTContent');
     expect(names).toContain('retrieveTherapistMemory');
-    expect(names).toContain('writeTherapistMemory');
+    expect(names).not.toContain('writeTherapistMemory');
+    expect(therapist.instructions).toContain('Every connected entity record is read-only');
+    expect(therapist.instructions).toContain('leave all persistence to the application');
     for (const tool of functions) {
       expect(tool.description?.trim().length).toBeGreaterThan(40);
     }

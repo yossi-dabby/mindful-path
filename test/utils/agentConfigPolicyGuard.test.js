@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   EXPECTED_AGENT_NAMES,
+  THERAPIST_BENCHMARK_AGENT_NAME,
+  THERAPIST_BENCHMARK_BRANCH_PREFIX,
   loadAgentConfigurations,
   validateAgentConfigurations,
 } from '../../scripts/agent-config-policy.mjs';
@@ -10,9 +12,38 @@ const clone = (value) => structuredClone(value);
 describe('Base44 agent configuration policy guard', () => {
   it('accepts the canonical repository configuration', () => {
     const configs = loadAgentConfigurations();
+    delete configs[THERAPIST_BENCHMARK_AGENT_NAME];
 
     expect(Object.keys(configs).sort()).toEqual(EXPECTED_AGENT_NAMES);
-    expect(validateAgentConfigurations(configs)).toEqual([]);
+    expect(validateAgentConfigurations(configs, { headRef: '' })).toEqual([]);
+  });
+
+  it('allows only the isolated therapist benchmark on its approved experiment PR', () => {
+    const configs = loadAgentConfigurations();
+    if (!configs[THERAPIST_BENCHMARK_AGENT_NAME]) {
+      configs[THERAPIST_BENCHMARK_AGENT_NAME] = clone(configs.cbt_therapist);
+      configs[THERAPIST_BENCHMARK_AGENT_NAME].name = THERAPIST_BENCHMARK_AGENT_NAME;
+    }
+
+    expect(validateAgentConfigurations(configs, {
+      headRef: THERAPIST_BENCHMARK_BRANCH_PREFIX + 'policy-test',
+    })).toEqual([]);
+    expect(validateAgentConfigurations(configs, { headRef: '' })).toContain(
+      `Agent inventory must be exactly: ${EXPECTED_AGENT_NAMES.join(', ')}`,
+    );
+  });
+
+  it('rejects an unrelated benchmark agent on the therapist experiment branch', () => {
+    const configs = loadAgentConfigurations();
+    delete configs[THERAPIST_BENCHMARK_AGENT_NAME];
+    configs.ai_coach_benchmark = clone(configs.ai_coach);
+    configs.ai_coach_benchmark.name = 'ai_coach_benchmark';
+
+    expect(validateAgentConfigurations(configs, {
+      headRef: THERAPIST_BENCHMARK_BRANCH_PREFIX + 'policy-test',
+    })).toContain(
+      `Agent inventory must be exactly: ${EXPECTED_AGENT_NAMES.join(', ')}`,
+    );
   });
 
   it('rejects inventory drift', () => {

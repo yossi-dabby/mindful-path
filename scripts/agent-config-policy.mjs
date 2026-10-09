@@ -18,15 +18,23 @@ export const EXPECTED_AGENT_NAMES = Object.freeze([
   ...ARCHIVED_AGENT_NAMES,
 ].sort());
 
+export const THERAPIST_BENCHMARK_AGENT_NAME = 'cbt_therapist_benchmark';
+export const THERAPIST_BENCHMARK_BRANCH_PREFIX =
+  'codex/run-live-therapist-permission-experiment-';
+
+function therapistBenchmarkIsAllowed(headRef) {
+  return typeof headRef === 'string' && headRef.startsWith(THERAPIST_BENCHMARK_BRANCH_PREFIX);
+}
+
 const THERAPIST_ENTITY_POLICY = Object.freeze({
-  CoachingSession: ['create', 'read', 'update'],
-  Conversation: ['read', 'update'],
-  DailyFlow: ['create', 'read', 'update'],
+  CoachingSession: ['read'],
+  Conversation: ['read'],
+  DailyFlow: ['read'],
   Exercise: ['read'],
-  Goal: ['create', 'read', 'update'],
-  MoodEntry: ['create', 'read', 'update'],
-  SessionSummary: ['create'],
-  ThoughtJournal: ['create', 'read', 'update'],
+  Goal: ['read'],
+  MoodEntry: ['read'],
+  SessionSummary: ['read'],
+  ThoughtJournal: ['read'],
 });
 
 const THERAPIST_FUNCTIONS = Object.freeze([
@@ -34,7 +42,6 @@ const THERAPIST_FUNCTIONS = Object.freeze([
   'retrieveRelevantContent',
   'retrieveTherapistMemory',
   'retrieveTrustedCBTContent',
-  'writeTherapistMemory',
 ].sort());
 
 const COACH_ENTITY_POLICY = Object.freeze({
@@ -155,11 +162,20 @@ function validateToolPolicy(errors, agentName, tools, expectedEntities, expected
   }
 }
 
-export function validateAgentConfigurations(agentConfigs) {
+export function validateAgentConfigurations(
+  agentConfigs,
+  { headRef = process.env.GITHUB_HEAD_REF || '' } = {},
+) {
   const errors = [];
   const actualNames = Object.keys(agentConfigs).sort();
+  const benchmarkAllowed = therapistBenchmarkIsAllowed(headRef);
+  const canonicalInventory = sameStringSet(actualNames, EXPECTED_AGENT_NAMES);
+  const experimentInventory = benchmarkAllowed && sameStringSet(
+    actualNames,
+    [...EXPECTED_AGENT_NAMES, THERAPIST_BENCHMARK_AGENT_NAME].sort(),
+  );
 
-  if (!sameStringSet(actualNames, EXPECTED_AGENT_NAMES)) {
+  if (!canonicalInventory && !experimentInventory) {
     errors.push(`Agent inventory must be exactly: ${EXPECTED_AGENT_NAMES.join(', ')}`);
   }
 
@@ -218,6 +234,12 @@ export function validateAgentConfigurations(agentConfigs) {
       if (!config.instructions.includes('first-turn rumination or worry formulation is answered directly')) {
         errors.push('cbt_therapist.instructions must retain the first-turn no-retrieval boundary');
       }
+      if (!config.instructions.includes('Every connected entity record is read-only')) {
+        errors.push('cbt_therapist.instructions must retain the application-owned persistence boundary');
+      }
+      if (!config.instructions.includes('leave all persistence to the application')) {
+        errors.push('cbt_therapist.instructions must leave persistence to application-owned code');
+      }
       if (/TOOL:|Call with:/.test(config.instructions)) {
         errors.push('cbt_therapist.instructions must not contain pseudo-tool invocation syntax');
       }
@@ -247,6 +269,28 @@ export function validateAgentConfigurations(agentConfigs) {
         errors.push(`${agentName}.instructions must clearly mark the agent as archived`);
       }
     }
+  }
+
+  const therapistBenchmark = agentConfigs[THERAPIST_BENCHMARK_AGENT_NAME];
+  if (therapistBenchmark && benchmarkAllowed) {
+    validateCommonConfig(
+      errors,
+      THERAPIST_BENCHMARK_AGENT_NAME,
+      therapistBenchmark,
+      { enabled: true, scope: 'user' },
+    );
+    if (!therapistBenchmark.instructions.includes('APPLICATION-OWNED PERSISTENCE BOUNDARY')) {
+      errors.push(
+        `${THERAPIST_BENCHMARK_AGENT_NAME}.instructions must retain the application-owned persistence boundary`,
+      );
+    }
+    validateToolPolicy(
+      errors,
+      THERAPIST_BENCHMARK_AGENT_NAME,
+      therapistBenchmark.tool_configs,
+      THERAPIST_ENTITY_POLICY,
+      THERAPIST_FUNCTIONS,
+    );
   }
 
   return errors;
