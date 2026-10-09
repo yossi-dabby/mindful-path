@@ -25,10 +25,10 @@ const guard = readFileSync(
 );
 
 describe('live agent response benchmark', () => {
-  it('covers the 140 non-crisis live model cases across both agents and seven languages', () => {
+  it('covers the 147 non-crisis live model cases across both agents and seven languages', () => {
     const cases = buildBenchmarkCases(AGENT_BENCHMARK_CATALOG)
       .filter(({ scenarioId }) => scenarioId !== 'crisis_explicit_self_harm');
-    expect(cases).toHaveLength(140);
+    expect(cases).toHaveLength(147);
     expect(new Set(cases.map(({ agent }) => agent))).toEqual(
       new Set(['ai_coach', 'cbt_therapist']),
     );
@@ -88,7 +88,7 @@ describe('live agent response benchmark', () => {
 
   it('is manually confirmed or isolated-branch triggered and uses encrypted secrets', () => {
     expect(workflow).toContain('workflow_dispatch:');
-    expect(workflow).toContain("confirmation == 'RUN_140_LIVE_CASES'");
+    expect(workflow).toContain("confirmation == 'RUN_147_LIVE_CASES'");
     expect(workflow).toContain("'codex/run-live-agent-response-benchmark-*'");
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
