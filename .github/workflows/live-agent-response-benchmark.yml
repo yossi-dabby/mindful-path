@@ -10,6 +10,9 @@ on:
   push:
     branches:
       - 'codex/run-live-agent-response-benchmark-*'
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -20,7 +23,10 @@ concurrency:
 
 jobs:
   live-response-benchmark:
-    if: github.event_name == 'push' || inputs.confirmation == 'RUN_140_LIVE_CASES'
+    if: >-
+      github.event_name == 'push' ||
+      inputs.confirmation == 'RUN_140_LIVE_CASES' ||
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'codex/run-live-agent-response-benchmark-'))
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
