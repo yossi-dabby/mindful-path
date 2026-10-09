@@ -99,9 +99,12 @@ describe('live agent response benchmark', () => {
     expect(runner).toContain('LIVE_AGENT_RESPONSE_TARGET_AGENT');
     expect(runner).toContain('benchmark_runtime_agent: runtimeAgent');
     expect(runner).toContain('targetAgentOverride: TARGET_AGENT_OVERRIDE');
+    expect(runner).toContain('experimentLabel: EXPERIMENT_LABEL');
+    expect(runner).toContain('sourceRef: SOURCE_REF');
     expect(modelExperimentWorkflow).toContain("LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'ai_coach'");
     expect(modelExperimentWorkflow).toContain("LIVE_AGENT_RESPONSE_TARGET_AGENT: 'ai_coach_benchmark'");
     expect(modelExperimentWorkflow).toContain("LIVE_AGENT_RESPONSE_EXPECTED_CASES: '70'");
+    expect(modelExperimentWorkflow).toContain('LIVE_AGENT_RESPONSE_EXPERIMENT_LABEL: ${{ github.head_ref || github.ref_name }}');
     expect(modelExperimentWorkflow).toContain("startsWith(github.head_ref, 'codex/run-live-agent-model-experiment-')");
     expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
     expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
