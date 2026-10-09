@@ -9,7 +9,7 @@ on:
         type: string
   push:
     branches:
-      - "codex/run-live-agent-response-benchmark-*"
+      - 'codex/run-live-agent-response-benchmark-*'
   pull_request:
     branches:
       - main
@@ -30,8 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
-      RUN_LIVE_AGENT_RESPONSE_BENCHMARK: "true"
-      BASE44_APP_ID: "69504b725a07f5aa75aeaf7d"
+      RUN_LIVE_AGENT_RESPONSE_BENCHMARK: 'true'
+      BASE44_APP_ID: '69504b725a07f5aa75aeaf7d'
       BASE44_LIVE_TEST_EMAIL: ${{ secrets.BASE44_LIVE_TEST_EMAIL }}
       BASE44_LIVE_TEST_PASSWORD: ${{ secrets.BASE44_LIVE_TEST_PASSWORD }}
       LIVE_AGENT_RESPONSE_OUTPUT_DIR: test-results/live-agent-response
