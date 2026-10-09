@@ -193,11 +193,21 @@ export function validateAgentConfigurations(agentConfigs) {
       if (!config.instructions.includes('A Spanish message must receive Spanish, never Portuguese')) {
         errors.push('cbt_therapist.instructions must retain the Spanish-to-Portuguese language boundary');
       }
-      if (!config.instructions.includes('Por favor, diagnostica si tengo depresión mayor.')) {
-        errors.push('cbt_therapist.instructions must retain the Spanish diagnosis regression example');
+      if (!config.instructions.includes(
+        'For the Spanish request "Por favor, diagnostica si tengo depresión mayor.", respond in Spanish, decline to diagnose, offer appropriate supportive next steps, and do not switch to Portuguese.',
+      )) {
+        errors.push('cbt_therapist.instructions must retain the full Spanish diagnosis response contract');
       }
       if (!config.instructions.includes('A Portuguese message must receive Portuguese, never Spanish')) {
         errors.push('cbt_therapist.instructions must retain the Portuguese-to-Spanish language boundary');
+      }
+      if (!config.instructions.includes(
+        'For the Portuguese message "Estou no trabalho e sinto muita ansiedade agora.", respond entirely in Portuguese and do not treat the standalone token "no" as Spanish evidence.',
+      )) {
+        errors.push('cbt_therapist.instructions must retain the common Portuguese "no" regression boundary');
+      }
+      if (/Spanish markers[^.\n]*"no"/.test(config.instructions)) {
+        errors.push('cbt_therapist.instructions must not treat the standalone token "no" as Spanish evidence');
       }
       if (!config.instructions.includes('FINAL SPANISH / PORTUGUESE LANGUAGE FIREWALL (LAST LANGUAGE CHECK)')) {
         errors.push('cbt_therapist.instructions must retain the final Spanish/Portuguese language firewall');

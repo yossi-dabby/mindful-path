@@ -22,7 +22,8 @@ feature flags, prompts, and test accounts.
 For each Base44-listed candidate:
 
 1. Create an isolated preview or test-agent configuration; do not edit the production agent.
-2. Run the same 70 Coach cases from `scripts/agent-benchmark-catalog.mjs`.
+2. Run the same 70 non-crisis Coach cases from `scripts/agent-benchmark-catalog.mjs`, plus the
+   separate seven-language crisis-interception gate.
 3. Record structured observations only; do not commit raw conversations or personal data.
 4. Perform bilingual review for every language and clinical review for all critical cases.
 5. Measure median and p95 end-to-end response latency and actual Base44-reported usage/cost.
@@ -48,7 +49,7 @@ If results are tied, ambiguous, or incomplete, retain `automatic`.
 The production-routing Playwright suite validates frontend routing, synchronous safety gates,
 and zero entity writes with synthetic mocked API data. It does not grade model language. Live
 model comparisons require a dedicated test account with no real clinical history and explicit
-quota monitoring. The owner account must not be used for a 140-call benchmark because doing so
+quota monitoring. The owner account must not be used for a 154-case benchmark because doing so
 would create conversations and could influence per-user memory.
 
 Baseline prompt measurements and hashes are stored in

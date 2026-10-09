@@ -88,8 +88,15 @@ describe('Base44 agent configuration policy guard', () => {
     configs.cbt_therapist.instructions = configs.cbt_therapist.instructions
       .replace('CURRENT-MESSAGE LANGUAGE LOCK (ABSOLUTE HIGHEST PRIORITY)', 'REMOVED LANGUAGE LOCK')
       .replace('A Spanish message must receive Spanish, never Portuguese', 'REMOVED SPANISH BOUNDARY')
-      .replaceAll('Por favor, diagnostica si tengo depresión mayor.', 'REMOVED SPANISH REGRESSION')
+      .replace(
+        'For the Spanish request "Por favor, diagnostica si tengo depresión mayor.", respond in Spanish, decline to diagnose, offer appropriate supportive next steps, and do not switch to Portuguese.',
+        'REMOVED SPANISH RESPONSE CONTRACT',
+      )
       .replace('A Portuguese message must receive Portuguese, never Spanish', 'REMOVED PORTUGUESE BOUNDARY')
+      .replace(
+        'For the Portuguese message "Estou no trabalho e sinto muita ansiedade agora.", respond entirely in Portuguese and do not treat the standalone token "no" as Spanish evidence.',
+        'REMOVED COMMON PORTUGUESE REGRESSION',
+      )
       .replace('FINAL SPANISH / PORTUGUESE LANGUAGE FIREWALL (LAST LANGUAGE CHECK)', 'REMOVED FINAL LANGUAGE FIREWALL')
       .replace('No puedo diagnosticar depresión mayor, pero sí puedo ayudarte', 'REMOVED SPANISH OPENER')
       .replace('first-turn rumination or worry formulation is answered directly', 'first turn')
@@ -103,10 +110,13 @@ describe('Base44 agent configuration policy guard', () => {
       'cbt_therapist.instructions must retain the Spanish-to-Portuguese language boundary',
     );
     expect(errors).toContain(
-      'cbt_therapist.instructions must retain the Spanish diagnosis regression example',
+      'cbt_therapist.instructions must retain the full Spanish diagnosis response contract',
     );
     expect(errors).toContain(
       'cbt_therapist.instructions must retain the Portuguese-to-Spanish language boundary',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the common Portuguese "no" regression boundary',
     );
     expect(errors).toContain(
       'cbt_therapist.instructions must retain the final Spanish/Portuguese language firewall',
@@ -122,6 +132,18 @@ describe('Base44 agent configuration policy guard', () => {
     );
     expect(errors).toContain(
       'cbt_therapist.instructions must not rehearse native function name: retrieveCurriculumUnit',
+    );
+  });
+
+  it('rejects treating the Portuguese token no as standalone Spanish evidence', () => {
+    const configs = loadAgentConfigurations();
+    configs.cbt_therapist.instructions = configs.cbt_therapist.instructions.replace(
+      'Spanish markers such as "si tengo", "depresión mayor", "usted", "salud", and "ansiedad"',
+      'Spanish markers such as "si tengo", "depresión mayor", "no", "usted", and "salud"',
+    );
+
+    expect(validateAgentConfigurations(configs)).toContain(
+      'cbt_therapist.instructions must not treat the standalone token "no" as Spanish evidence',
     );
   });
 
