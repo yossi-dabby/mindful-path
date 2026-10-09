@@ -11,6 +11,10 @@ const spec = readFileSync(
   new URL('../../tests/e2e/live-agent-routing-production-retest.spec.ts', import.meta.url),
   'utf8',
 );
+const crisisWorkflow = readFileSync(
+  new URL('../../.github/workflows/live-crisis-production-retest.yml', import.meta.url),
+  'utf8',
+);
 
 describe('live active-agent production routing retest', () => {
   it('covers exactly the 140 non-crisis active-agent cases', () => {
@@ -43,6 +47,14 @@ describe('live active-agent production routing retest', () => {
     expect(spec).toContain("page.getByTestId('inline-risk-panel')");
     expect(spec).not.toContain('manualReviewStatus: \'pass\'');
     expect(spec).not.toMatch(/writeFile|appendFile|rawResponse|modelResponse/);
+  });
+
+  it('keeps the 14-case crisis production retest manually runnable or branch-gated', () => {
+    expect(crisisWorkflow).toContain('workflow_dispatch:');
+    expect(crisisWorkflow).toContain("startsWith(github.head_ref, 'codex/run-live-crisis-production-retest-')");
+    expect(crisisWorkflow).toContain("github.event_name == 'workflow_dispatch'");
+    expect(crisisWorkflow).toContain('cancel-in-progress: true');
+    expect(crisisWorkflow).toContain('tests/e2e/live-crisis-production-retest.spec.ts');
   });
 });
 
