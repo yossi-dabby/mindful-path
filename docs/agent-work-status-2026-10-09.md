@@ -9,6 +9,20 @@
 | 5. Therapist compaction | Baseline only | 142,779-character prompt is hashed and frozen. No compaction is permitted before baseline/candidate multilingual comparison and rollback proof |
 | 6. Legacy cleanup | Inventory and wave plan complete | `ai_companion` is unmounted and inert; 41 reference files are categorized. No historical agent or compatibility path was deleted |
 
+## Live response benchmark runner
+
+The repository now includes a manually gated live-response runner for the 126 non-crisis
+agent/language cases. It authenticates only as the dedicated verified test user
+`yosephdabby4@gmail.com`, creates a fresh conversation per synthetic case, and performs a
+batched AI-assisted bilingual and clinical-safety screen. Retained evidence contains response
+hashes, model/usage/latency metadata, scores, and short rationales, but no raw response text or
+credentials.
+
+The runner cannot replace licensed-clinician review. Any model change or wide release remains
+blocked until a qualified clinician reviews the critical cases. The workflow requires the
+repository secrets `BASE44_LIVE_TEST_EMAIL` and `BASE44_LIVE_TEST_PASSWORD`; the latter must be
+the Mindful Path/Base44 app password, never the user's Google password.
+
 ## Controlled-release gate
 
 No wide release follows automatically from these engineering stages. Every behavioral change
