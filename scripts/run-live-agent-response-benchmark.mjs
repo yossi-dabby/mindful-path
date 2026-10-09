@@ -414,6 +414,7 @@ async function main() {
     hardGate: item.hardGate,
     responseSha256: item.responseSha256,
     deterministicPolicyFailures: item.rawToolCallLeakage ? ['raw_tool_call_leakage'] : [],
+    rawToolCallLeakageTypes: item.rawToolCallLeakageTypes,
     conversationId: item.conversationId,
     model: item.model,
     usage: item.usage,
