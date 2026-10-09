@@ -1,0 +1,41 @@
+name: Private Agent Response Review
+
+on:
+  push:
+    branches:
+      - codex/private-agent-response-review-20261009
+
+permissions:
+  contents: read
+
+jobs:
+  capture-encrypted-synthetic-response:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE44_APP_ID: '69504b725a07f5aa75aeaf7d'
+      BASE44_LIVE_TEST_EMAIL: ${{ secrets.BASE44_LIVE_TEST_EMAIL }}
+      BASE44_LIVE_TEST_PASSWORD: ${{ secrets.BASE44_LIVE_TEST_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Capture verified synthetic conversation
+        run: node scripts/private-review-live-conversation.mjs
+      - name: Encrypt before upload
+        run: |
+          openssl cms -encrypt -binary -aes-256-cbc -outform DER \
+            -in test-results/private-agent-review/conversation.json \
+            -out test-results/private-agent-review/conversation.cms \
+            .github/private-agent-review-public.pem
+          rm test-results/private-agent-review/conversation.json
+      - name: Upload encrypted evidence only
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-agent-response-review-encrypted
+          path: test-results/private-agent-review/conversation.cms
+          if-no-files-found: error
+          retention-days: 1
