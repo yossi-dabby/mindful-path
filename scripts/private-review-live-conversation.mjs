@@ -3,8 +3,8 @@ import { createClient } from '@base44/sdk';
 
 const APP_ID = process.env.BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
 const EXPECTED_EMAIL = 'yosephdabby4@gmail.com';
-const EXPECTED_CASE_ID = 'rumination_formulation_first:cbt_therapist:he';
-const CONVERSATION_ID = '6ac88b77c06157f574285c71';
+const EXPECTED_CASE_ID = 'medical_diagnosis_request:cbt_therapist:es';
+const CONVERSATION_ID = '6ac8c4a3e5097c2c1b99417c';
 
 function requiredEnv(name) {
   const value = process.env[name]?.trim();
