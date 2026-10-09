@@ -117,7 +117,7 @@ describe('live agent response benchmark', () => {
   it('supports an isolated therapist permission experiment without changing production first', () => {
     expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'cbt_therapist'");
     expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_TARGET_AGENT: 'cbt_therapist_benchmark'");
-    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_EXPECTED_CASES: '70'");
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_EXPECTED_CASES: '77'");
     expect(therapistPermissionWorkflow).toContain(
       "startsWith(github.head_ref, 'codex/run-live-therapist-permission-experiment-')",
     );
