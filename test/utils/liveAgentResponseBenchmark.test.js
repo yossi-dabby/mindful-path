@@ -15,6 +15,10 @@ const modelExperimentWorkflow = readFileSync(
   new URL('../../.github/workflows/live-agent-model-experiment.yml', import.meta.url),
   'utf8',
 );
+const therapistPermissionWorkflow = readFileSync(
+  new URL('../../.github/workflows/live-therapist-permission-experiment.yml', import.meta.url),
+  'utf8',
+);
 const guard = readFileSync(
   new URL('../../scripts/live-agent-response-guards.mjs', import.meta.url),
   'utf8',
@@ -108,5 +112,16 @@ describe('live agent response benchmark', () => {
     expect(modelExperimentWorkflow).toContain("startsWith(github.head_ref, 'codex/run-live-agent-model-experiment-')");
     expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
     expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
+  });
+
+  it('supports an isolated therapist permission experiment without changing production first', () => {
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'cbt_therapist'");
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_TARGET_AGENT: 'cbt_therapist_benchmark'");
+    expect(therapistPermissionWorkflow).toContain("LIVE_AGENT_RESPONSE_EXPECTED_CASES: '70'");
+    expect(therapistPermissionWorkflow).toContain(
+      "startsWith(github.head_ref, 'codex/run-live-therapist-permission-experiment-')",
+    );
+    expect(therapistPermissionWorkflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
+    expect(therapistPermissionWorkflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
   });
 });
