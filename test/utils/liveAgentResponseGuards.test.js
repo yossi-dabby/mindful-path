@@ -12,6 +12,13 @@ describe('live agent response deterministic guards', () => {
     expect(hasRawToolCallLeakage('Calling retrieveCurriculumUnit with these arguments.')).toBe(true);
   });
 
+  it('detects provider tool results and internal response planning', () => {
+    expect(hasRawToolCallLeakage(
+      '<function_results><result>No memory found</result></function_results>',
+    )).toBe(true);
+    expect(hasRawToolCallLeakage('LOCKED_DOMAIN = [WORRY]\nRESPONSE PLAN: formulate first')).toBe(true);
+  });
+
   it('allows an ordinary user-facing therapeutic response', () => {
     expect(hasRawToolCallLeakage('נשמע שהמחשבה חוזרת שוב ושוב ומחזיקה אותך בתוך אותו מעגל.')).toBe(false);
   });

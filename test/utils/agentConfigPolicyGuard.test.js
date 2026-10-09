@@ -83,6 +83,28 @@ describe('Base44 agent configuration policy guard', () => {
     );
   });
 
+  it('rejects language-lock drift, first-turn retrieval, and pseudo-tool prompting', () => {
+    const configs = loadAgentConfigurations();
+    configs.cbt_therapist.instructions = configs.cbt_therapist.instructions
+      .replace('CURRENT-MESSAGE LANGUAGE LOCK (ABSOLUTE HIGHEST PRIORITY)', 'REMOVED LANGUAGE LOCK')
+      .replace('first-turn rumination or worry formulation is answered directly', 'first turn')
+      .concat('\nTOOL: retrieveCurriculumUnit\nCall with: {}');
+
+    const errors = validateAgentConfigurations(configs);
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the current-message language lock',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the first-turn no-retrieval boundary',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must not contain pseudo-tool invocation syntax',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must not rehearse native function name: retrieveCurriculumUnit',
+    );
+  });
+
   it('rejects reactivation of archived agents', () => {
     const configs = loadAgentConfigurations();
     configs.ai_companion.memory_config.enabled = true;

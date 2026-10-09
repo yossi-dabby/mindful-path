@@ -1,7 +1,8 @@
 const RAW_TOOL_CALL_PATTERNS = Object.freeze([
-  /<\/?(?:tool_call|tool_calls|function_call|function_calls)\b[^>]*>/i,
-  /<\/?(?:invoke|parameter)\b[^>]*>/i,
+  /<\/?(?:tool_call|tool_calls|function_call|function_calls|function_result|function_results)\b[^>]*>/i,
+  /<\/?(?:invoke|parameter|result)\b[^>]*>/i,
   /\b(?:retrieveCurriculumUnit|retrieveTherapistMemory|writeTherapistMemory|retrieveTrustedCBTContent|retrieveRelevantContent)\b/i,
+  /^\s*(?:LOCKED_DOMAIN|INTERVENTION_MODE|RESPONSE PLAN)\b/im,
 ]);
 
 export function hasRawToolCallLeakage(content) {

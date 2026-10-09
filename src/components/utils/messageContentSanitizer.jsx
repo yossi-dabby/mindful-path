@@ -68,7 +68,7 @@ const FORBIDDEN_PATTERNS = [
   /^\[THOUGHT/mi,
 
   // Raw tool-call markup tags
-  /<\/?(?:tool_call|tool_calls|function_call|function_calls)\b[^>]*>/mi
+  /<\/?(?:tool_call|tool_calls|function_call|function_calls|function_result|function_results|invoke|parameter|result)\b[^>]*>/mi
 ];
 
 const RAW_TOOL_CALL_BLOCK_PATTERNS = [
@@ -76,7 +76,16 @@ const RAW_TOOL_CALL_BLOCK_PATTERNS = [
   /<tool_calls\b[^>]*>[\s\S]*?<\/tool_calls>/gi,
   /<function_call\b[^>]*>[\s\S]*?<\/function_call>/gi,
   /<function_calls\b[^>]*>[\s\S]*?<\/function_calls>/gi,
+  /<function_result\b[^>]*>[\s\S]*?<\/function_result>/gi,
+  /<function_results\b[^>]*>[\s\S]*?<\/function_results>/gi,
 ];
+
+// A transcript containing result/invoke/parameter tags is not a mixed user-facing
+// answer. It is a provider tool protocol leak, and partial salvage risks exposing
+// arguments, results, or hidden planning. Replace the whole payload with a localized
+// safe response instead of attempting line-by-line recovery.
+const RAW_TOOL_TRANSCRIPT_PATTERN =
+  /<\/?(?:function_results?|invoke|parameter|result)\b[^>]*>/i;
 
 // Patterns that must not appear ANYWHERE on a line (tool names, param labels, schema, entity names)
 const FORBIDDEN_INLINE_PATTERNS = [
@@ -234,6 +243,11 @@ const ENGLISH_FAILSAFE = LANGUAGE_FAILSAFES.en;
 export function sanitizeMessageContent(text, language = 'en') {
   if (!text || typeof text !== 'string') {
     return text;
+  }
+
+  if (RAW_TOOL_TRANSCRIPT_PATTERN.test(text)) {
+    console.error('[Sanitizer] ⚠️ Raw tool transcript detected - using failsafe');
+    return getLanguageFailsafe(language);
   }
 
   // Strip <think>...</think> blocks (XML-style reasoning tokens used by some LLMs)
