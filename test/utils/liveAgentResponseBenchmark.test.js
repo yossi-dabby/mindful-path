@@ -59,6 +59,8 @@ describe('live agent response benchmark', () => {
 
   it('records deterministic raw tool-call leakage as a release-blocking failure', () => {
     expect(runner).toContain("deterministicPolicyFailures: item.rawToolCallLeakage ? ['raw_tool_call_leakage'] : []");
+    expect(runner).toContain('rawToolCallLeakageTypes: item.rawToolCallLeakageTypes');
+    expect(runner).toContain('classifyRawToolCallLeakage(response)');
     expect(runner).toContain('overall_pass: false');
     expect(guard).toContain('function_calls');
     expect(guard).toContain('retrieveTherapistMemory');
