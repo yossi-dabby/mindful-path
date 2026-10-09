@@ -45,6 +45,18 @@ describe('live agent response benchmark', () => {
     expect(runner).toContain('AI-assisted and preliminary');
   });
 
+  it('keeps benchmark metadata on the conversation and lets Base44 populate message metadata', () => {
+    const addMessageStart = runner.indexOf('base44.agents.addMessage');
+    const addMessageEnd = runner.indexOf(');', addMessageStart);
+    const addMessageCall = runner.slice(addMessageStart, addMessageEnd);
+
+    expect(runner).toContain('base44.agents.createConversation');
+    expect(runner).toContain('benchmark_case_id: benchmarkCase.caseId');
+    expect(addMessageCall).toContain("role: 'user'");
+    expect(addMessageCall).toContain('content: benchmarkCase.prompt');
+    expect(addMessageCall).not.toContain('metadata:');
+  });
+
   it('is manually confirmed or isolated-branch triggered and uses encrypted secrets', () => {
     expect(workflow).toContain('workflow_dispatch:');
     expect(workflow).toContain("confirmation == 'RUN_126_LIVE_CASES'");
