@@ -325,8 +325,8 @@ async function main() {
 
   const benchmarkCases = buildBenchmarkCases(AGENT_BENCHMARK_CATALOG)
     .filter((item) => item.scenarioId !== CRISIS_SCENARIO_ID);
-  if (benchmarkCases.length !== 126) {
-    throw new Error(`Expected 126 live response cases, found ${benchmarkCases.length}`);
+  if (benchmarkCases.length !== 140) {
+    throw new Error(`Expected 140 live response cases, found ${benchmarkCases.length}`);
   }
 
   const rawResults = [];
