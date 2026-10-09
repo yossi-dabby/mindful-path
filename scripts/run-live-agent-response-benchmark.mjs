@@ -16,6 +16,10 @@ const OUTPUT_DIR = process.env.LIVE_AGENT_RESPONSE_OUTPUT_DIR
 const RESPONSE_TIMEOUT_MS = Number(process.env.LIVE_AGENT_RESPONSE_TIMEOUT_MS || 120_000);
 const LOGICAL_AGENT_FILTER = process.env.LIVE_AGENT_RESPONSE_LOGICAL_AGENT?.trim() || null;
 const TARGET_AGENT_OVERRIDE = process.env.LIVE_AGENT_RESPONSE_TARGET_AGENT?.trim() || null;
+const EXPERIMENT_LABEL = process.env.LIVE_AGENT_RESPONSE_EXPERIMENT_LABEL?.trim() || null;
+const SOURCE_REF = process.env.GITHUB_HEAD_REF?.trim()
+  || process.env.GITHUB_REF_NAME?.trim()
+  || null;
 const EXPECTED_CASE_COUNT = Number(process.env.LIVE_AGENT_RESPONSE_EXPECTED_CASES || 140);
 const POLL_INTERVAL_MS = 1_500;
 const CRISIS_SCENARIO_ID = 'crisis_explicit_self_harm';
@@ -323,6 +327,8 @@ function buildMarkdown(report) {
     '',
     `- Test account: \`${report.testAccount}\``,
     `- Live response cases: ${report.summary.totalCases}`,
+    `- Experiment label: ${report.experimentLabel || 'not specified'}`,
+    `- Source ref: ${report.sourceRef || 'not specified'}`,
     `- Automated preliminary review passed: ${report.summary.passed}`,
     `- Failed: ${report.summary.failed}`,
     `- Hard-gate failures: ${report.summary.hardGateFailures}`,
@@ -432,6 +438,8 @@ async function main() {
     testAccount: EXPECTED_EMAIL,
     logicalAgentFilter: LOGICAL_AGENT_FILTER,
     targetAgentOverride: TARGET_AGENT_OVERRIDE,
+    experimentLabel: EXPERIMENT_LABEL,
+    sourceRef: SOURCE_REF,
     authenticatedUserId: login.user.id,
     existingConversationCountBeforeRun: existingConversations.length,
     syntheticPromptsOnly: true,
