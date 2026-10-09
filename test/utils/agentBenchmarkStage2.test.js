@@ -42,8 +42,8 @@ describe('Stage 2 active-agent multilingual benchmark', () => {
     expect(report.scenarioFamilies).toBe(13);
     expect(report.localizedPrompts).toBe(91);
     expect(report.executionCases).toBe(161);
-    expect(report.byAgent).toEqual({ ai_coach: 77, cbt_therapist: 77 });
-    expect(Object.values(report.byLanguage)).toEqual(Array(7).fill(22));
+    expect(report.byAgent).toEqual({ ai_coach: 77, cbt_therapist: 84 });
+    expect(Object.values(report.byLanguage)).toEqual(Array(7).fill(23));
   });
 
   it('excludes the archived ai_companion agent', () => {
