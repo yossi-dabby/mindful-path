@@ -181,6 +181,12 @@ export function validateAgentConfigurations(agentConfigs) {
     );
 
     if (agentName === 'cbt_therapist') {
+      if (!config.instructions.includes('NATIVE TOOL CALL BOUNDARY (ABSOLUTE HIGHEST PRIORITY)')) {
+        errors.push('cbt_therapist.instructions must retain the native tool-call privacy boundary');
+      }
+      if (!config.instructions.includes('Never write or simulate a tool call in user-visible content')) {
+        errors.push('cbt_therapist.instructions must forbid simulated user-visible tool calls');
+      }
       validateToolPolicy(
         errors,
         agentName,
