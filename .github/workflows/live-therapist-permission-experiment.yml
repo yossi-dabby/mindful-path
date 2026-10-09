@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirmation:
-        description: Type RUN_70_THERAPIST_PERMISSION_CASES to confirm live usage
+        description: Type RUN_77_THERAPIST_PERMISSION_CASES to confirm live usage
         required: true
         type: string
   pull_request:
@@ -21,7 +21,7 @@ concurrency:
 jobs:
   live-therapist-permission-experiment:
     if: >-
-      inputs.confirmation == 'RUN_70_THERAPIST_PERMISSION_CASES' ||
+      inputs.confirmation == 'RUN_77_THERAPIST_PERMISSION_CASES' ||
       (github.event_name == 'pull_request' && startsWith(github.head_ref, 'codex/run-live-therapist-permission-experiment-'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -32,7 +32,7 @@ jobs:
       BASE44_LIVE_TEST_PASSWORD: ${{ secrets.BASE44_LIVE_TEST_PASSWORD }}
       LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'cbt_therapist'
       LIVE_AGENT_RESPONSE_TARGET_AGENT: 'cbt_therapist_benchmark'
-      LIVE_AGENT_RESPONSE_EXPECTED_CASES: '70'
+      LIVE_AGENT_RESPONSE_EXPECTED_CASES: '77'
       LIVE_AGENT_RESPONSE_EXPERIMENT_LABEL: ${{ github.head_ref || github.ref_name }}
       LIVE_AGENT_RESPONSE_OUTPUT_DIR: test-results/live-therapist-permission-experiment
 
@@ -51,7 +51,7 @@ jobs:
           npm run check:agents
           npm run check:agent-benchmark
 
-      - name: Run 70 live therapist cases against the isolated read-only agent
+      - name: Run 77 live therapist cases against the isolated read-only agent
         run: node scripts/run-live-agent-response-benchmark.mjs
 
       - name: Upload redacted therapist permission evidence
