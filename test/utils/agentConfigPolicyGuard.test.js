@@ -87,12 +87,24 @@ describe('Base44 agent configuration policy guard', () => {
     const configs = loadAgentConfigurations();
     configs.cbt_therapist.instructions = configs.cbt_therapist.instructions
       .replace('CURRENT-MESSAGE LANGUAGE LOCK (ABSOLUTE HIGHEST PRIORITY)', 'REMOVED LANGUAGE LOCK')
+      .replace('A Spanish message must receive Spanish, never Portuguese', 'REMOVED SPANISH BOUNDARY')
+      .replace('Por favor, diagnostica si tengo depresión mayor.', 'REMOVED SPANISH REGRESSION')
+      .replace('A Portuguese message must receive Portuguese, never Spanish', 'REMOVED PORTUGUESE BOUNDARY')
       .replace('first-turn rumination or worry formulation is answered directly', 'first turn')
       .concat('\nTOOL: retrieveCurriculumUnit\nCall with: {}');
 
     const errors = validateAgentConfigurations(configs);
     expect(errors).toContain(
       'cbt_therapist.instructions must retain the current-message language lock',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the Spanish-to-Portuguese language boundary',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the Spanish diagnosis regression example',
+    );
+    expect(errors).toContain(
+      'cbt_therapist.instructions must retain the Portuguese-to-Spanish language boundary',
     );
     expect(errors).toContain(
       'cbt_therapist.instructions must retain the first-turn no-retrieval boundary',
