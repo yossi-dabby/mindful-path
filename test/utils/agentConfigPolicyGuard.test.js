@@ -33,6 +33,19 @@ describe('Base44 agent configuration policy guard', () => {
     );
   });
 
+  it('rejects an unrelated benchmark agent on the therapist experiment branch', () => {
+    const configs = loadAgentConfigurations();
+    delete configs[THERAPIST_BENCHMARK_AGENT_NAME];
+    configs.ai_coach_benchmark = clone(configs.ai_coach);
+    configs.ai_coach_benchmark.name = 'ai_coach_benchmark';
+
+    expect(validateAgentConfigurations(configs, {
+      headRef: THERAPIST_BENCHMARK_BRANCH_PREFIX + 'policy-test',
+    })).toContain(
+      `Agent inventory must be exactly: ${EXPECTED_AGENT_NAMES.join(', ')}`,
+    );
+  });
+
   it('rejects inventory drift', () => {
     const configs = loadAgentConfigurations();
     configs.unreviewed_agent = clone(configs.ai_coach);
