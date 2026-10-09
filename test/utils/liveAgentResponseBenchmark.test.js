@@ -11,6 +11,10 @@ const workflow = readFileSync(
   new URL('../../.github/workflows/live-agent-response-benchmark.yml', import.meta.url),
   'utf8',
 );
+const modelExperimentWorkflow = readFileSync(
+  new URL('../../.github/workflows/live-agent-model-experiment.yml', import.meta.url),
+  'utf8',
+);
 const guard = readFileSync(
   new URL('../../scripts/live-agent-response-guards.mjs', import.meta.url),
   'utf8',
@@ -76,5 +80,18 @@ describe('live agent response benchmark', () => {
     expect(workflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
     expect(workflow).toContain('timeout-minutes: 180');
     expect(workflow).toContain('retention-days: 14');
+  });
+
+  it('supports an isolated 70-case coach model experiment without rewiring production', () => {
+    expect(runner).toContain('LIVE_AGENT_RESPONSE_LOGICAL_AGENT');
+    expect(runner).toContain('LIVE_AGENT_RESPONSE_TARGET_AGENT');
+    expect(runner).toContain('benchmark_runtime_agent: runtimeAgent');
+    expect(runner).toContain('targetAgentOverride: TARGET_AGENT_OVERRIDE');
+    expect(modelExperimentWorkflow).toContain("LIVE_AGENT_RESPONSE_LOGICAL_AGENT: 'ai_coach'");
+    expect(modelExperimentWorkflow).toContain("LIVE_AGENT_RESPONSE_TARGET_AGENT: 'ai_coach_benchmark'");
+    expect(modelExperimentWorkflow).toContain("LIVE_AGENT_RESPONSE_EXPECTED_CASES: '70'");
+    expect(modelExperimentWorkflow).toContain("startsWith(github.head_ref, 'codex/run-live-agent-model-experiment-')");
+    expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_EMAIL');
+    expect(modelExperimentWorkflow).toContain('secrets.BASE44_LIVE_TEST_PASSWORD');
   });
 });
