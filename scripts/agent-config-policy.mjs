@@ -19,14 +19,14 @@ export const EXPECTED_AGENT_NAMES = Object.freeze([
 ].sort());
 
 const THERAPIST_ENTITY_POLICY = Object.freeze({
-  CoachingSession: ['create', 'read', 'update'],
-  Conversation: ['read', 'update'],
-  DailyFlow: ['create', 'read', 'update'],
+  CoachingSession: ['read'],
+  Conversation: ['read'],
+  DailyFlow: ['read'],
   Exercise: ['read'],
-  Goal: ['create', 'read', 'update'],
-  MoodEntry: ['create', 'read', 'update'],
-  SessionSummary: ['create'],
-  ThoughtJournal: ['create', 'read', 'update'],
+  Goal: ['read'],
+  MoodEntry: ['read'],
+  SessionSummary: ['read'],
+  ThoughtJournal: ['read'],
 });
 
 const THERAPIST_FUNCTIONS = Object.freeze([
@@ -34,7 +34,6 @@ const THERAPIST_FUNCTIONS = Object.freeze([
   'retrieveRelevantContent',
   'retrieveTherapistMemory',
   'retrieveTrustedCBTContent',
-  'writeTherapistMemory',
 ].sort());
 
 const COACH_ENTITY_POLICY = Object.freeze({
@@ -217,6 +216,12 @@ export function validateAgentConfigurations(agentConfigs) {
       }
       if (!config.instructions.includes('first-turn rumination or worry formulation is answered directly')) {
         errors.push('cbt_therapist.instructions must retain the first-turn no-retrieval boundary');
+      }
+      if (!config.instructions.includes('Every connected entity record is read-only')) {
+        errors.push('cbt_therapist.instructions must retain the application-owned persistence boundary');
+      }
+      if (!config.instructions.includes('leave all persistence to the application')) {
+        errors.push('cbt_therapist.instructions must leave persistence to application-owned code');
       }
       if (/TOOL:|Call with:/.test(config.instructions)) {
         errors.push('cbt_therapist.instructions must not contain pseudo-tool invocation syntax');
