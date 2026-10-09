@@ -187,6 +187,20 @@ export function validateAgentConfigurations(agentConfigs) {
       if (!config.instructions.includes('Never write or simulate a tool call in user-visible content')) {
         errors.push('cbt_therapist.instructions must forbid simulated user-visible tool calls');
       }
+      if (!config.instructions.includes('CURRENT-MESSAGE LANGUAGE LOCK (ABSOLUTE HIGHEST PRIORITY)')) {
+        errors.push('cbt_therapist.instructions must retain the current-message language lock');
+      }
+      if (!config.instructions.includes('first-turn rumination or worry formulation is answered directly')) {
+        errors.push('cbt_therapist.instructions must retain the first-turn no-retrieval boundary');
+      }
+      if (/TOOL:|Call with:/.test(config.instructions)) {
+        errors.push('cbt_therapist.instructions must not contain pseudo-tool invocation syntax');
+      }
+      for (const functionName of THERAPIST_FUNCTIONS) {
+        if (config.instructions.includes(functionName)) {
+          errors.push(`cbt_therapist.instructions must not rehearse native function name: ${functionName}`);
+        }
+      }
       validateToolPolicy(
         errors,
         agentName,

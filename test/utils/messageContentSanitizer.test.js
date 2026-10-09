@@ -53,6 +53,23 @@ describe('sanitizeMessageContent – <think> block stripping', () => {
     expect(result).not.toContain('<function_calls>');
     expect(result).not.toContain('retrieveTherapistMemory');
   });
+
+  it('replaces a complete leaked Base44 tool transcript instead of partially exposing it', () => {
+    const input = [
+      '<function_calls><invoke name="retrieveTherapistMemory"><parameter name="payload">{}</parameter></invoke></function_calls>',
+      '<function_results><result name="retrieveTherapistMemory">No memory found</result>',
+      'LOCKED_DOMAIN = [WORRY]',
+      'RESPONSE PLAN: explain the loop before assigning a technique.',
+      'טוב שפנית. נשמע שהראש מנסה לפתור שוב ושוב את אותה דאגה.',
+      '</function_results>',
+    ].join('\n');
+
+    const result = sanitizeMessageContent(input, 'he');
+    expect(result).toBe('אני כאן איתך. מה הכי מטריד אותך כרגע?');
+    expect(result).not.toContain('function_results');
+    expect(result).not.toContain('LOCKED_DOMAIN');
+    expect(result).not.toContain('RESPONSE PLAN');
+  });
 });
 
 describe('hasReasoningLeakage – <think> detection', () => {
@@ -70,6 +87,10 @@ describe('hasReasoningLeakage – <think> detection', () => {
 
   it('detects raw tool-call markup as leakage', () => {
     expect(hasReasoningLeakage('<tool_call>{"name":"retrieveRelevantContent"}</tool_call>')).toBe(true);
+  });
+
+  it('detects raw tool result transcripts as leakage', () => {
+    expect(hasReasoningLeakage('<function_results><result>internal</result></function_results>')).toBe(true);
   });
 });
 
