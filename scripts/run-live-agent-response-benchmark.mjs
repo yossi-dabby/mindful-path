@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { createClient } from '@base44/sdk';
 import { AGENT_BENCHMARK_CATALOG } from './agent-benchmark-catalog.mjs';
 import { buildBenchmarkCases } from './agent-benchmark-policy.mjs';
-import { hasRawToolCallLeakage } from './live-agent-response-guards.mjs';
+import { classifyRawToolCallLeakage } from './live-agent-response-guards.mjs';
 import {
   buildStage12SessionContract,
   buildStage12TurnSupplement,
@@ -157,7 +157,8 @@ async function runCase(base44, benchmarkCase, index, total) {
   const assistant = await waitForAssistant(base44, conversation.id, initialAssistantIds);
   const response = normalizeContent(assistant.content);
   const latencyMs = Date.now() - startedAt;
-  const rawToolCallLeakage = hasRawToolCallLeakage(response);
+  const rawToolCallLeakageTypes = classifyRawToolCallLeakage(response);
+  const rawToolCallLeakage = rawToolCallLeakageTypes.length > 0;
 
   console.log(`[live-agent-response] ${index}/${total} completed: ${benchmarkCase.caseId}`);
   return {
@@ -173,6 +174,7 @@ async function runCase(base44, benchmarkCase, index, total) {
     response,
     responseSha256: sha256(response),
     rawToolCallLeakage,
+    rawToolCallLeakageTypes,
     conversationId: conversation.id,
     model: assistant.model || null,
     usage: assistant.usage || null,
