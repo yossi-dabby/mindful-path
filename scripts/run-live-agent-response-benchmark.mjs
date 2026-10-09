@@ -10,6 +10,9 @@ const EXPECTED_EMAIL = 'yosephdabby4@gmail.com';
 const OUTPUT_DIR = process.env.LIVE_AGENT_RESPONSE_OUTPUT_DIR
   || 'test-results/live-agent-response';
 const RESPONSE_TIMEOUT_MS = Number(process.env.LIVE_AGENT_RESPONSE_TIMEOUT_MS || 120_000);
+const LOGICAL_AGENT_FILTER = process.env.LIVE_AGENT_RESPONSE_LOGICAL_AGENT?.trim() || null;
+const TARGET_AGENT_OVERRIDE = process.env.LIVE_AGENT_RESPONSE_TARGET_AGENT?.trim() || null;
+const EXPECTED_CASE_COUNT = Number(process.env.LIVE_AGENT_RESPONSE_EXPECTED_CASES || 140);
 const POLL_INTERVAL_MS = 1_500;
 const CRISIS_SCENARIO_ID = 'crisis_explicit_self_harm';
 
@@ -87,13 +90,16 @@ async function waitForAssistant(base44, conversationId, initialAssistantIds) {
 
 async function runCase(base44, benchmarkCase, index, total) {
   const startedAt = Date.now();
+  const runtimeAgent = TARGET_AGENT_OVERRIDE || benchmarkCase.agent;
   const conversation = await withRetry(
     `create conversation for ${benchmarkCase.caseId}`,
     () => base44.agents.createConversation({
-      agent_name: benchmarkCase.agent,
+      agent_name: runtimeAgent,
       metadata: {
         benchmark_id: AGENT_BENCHMARK_CATALOG.benchmarkId,
         benchmark_case_id: benchmarkCase.caseId,
+        benchmark_logical_agent: benchmarkCase.agent,
+        benchmark_runtime_agent: runtimeAgent,
         synthetic_test_data: true,
         contains_personal_data: false,
       },
@@ -122,6 +128,7 @@ async function runCase(base44, benchmarkCase, index, total) {
     caseId: benchmarkCase.caseId,
     scenarioId: benchmarkCase.scenarioId,
     agent: benchmarkCase.agent,
+    runtimeAgent,
     language: benchmarkCase.language,
     category: benchmarkCase.category,
     severity: benchmarkCase.severity,
@@ -324,9 +331,19 @@ async function main() {
   console.log(`[live-agent-response] authenticated dedicated test account; existing conversations: ${existingConversations.length}`);
 
   const benchmarkCases = buildBenchmarkCases(AGENT_BENCHMARK_CATALOG)
-    .filter((item) => item.scenarioId !== CRISIS_SCENARIO_ID);
-  if (benchmarkCases.length !== 140) {
-    throw new Error(`Expected 140 live response cases, found ${benchmarkCases.length}`);
+    .filter((item) => item.scenarioId !== CRISIS_SCENARIO_ID)
+    .filter((item) => !LOGICAL_AGENT_FILTER || item.agent === LOGICAL_AGENT_FILTER);
+  if (TARGET_AGENT_OVERRIDE && !LOGICAL_AGENT_FILTER) {
+    throw new Error('LIVE_AGENT_RESPONSE_TARGET_AGENT requires LIVE_AGENT_RESPONSE_LOGICAL_AGENT');
+  }
+  if (LOGICAL_AGENT_FILTER && !AGENT_BENCHMARK_CATALOG.agents.includes(LOGICAL_AGENT_FILTER)) {
+    throw new Error(`Unsupported logical agent filter: ${LOGICAL_AGENT_FILTER}`);
+  }
+  if (!Number.isInteger(EXPECTED_CASE_COUNT) || EXPECTED_CASE_COUNT <= 0) {
+    throw new Error('LIVE_AGENT_RESPONSE_EXPECTED_CASES must be a positive integer');
+  }
+  if (benchmarkCases.length !== EXPECTED_CASE_COUNT) {
+    throw new Error(`Expected ${EXPECTED_CASE_COUNT} live response cases, found ${benchmarkCases.length}`);
   }
 
   const rawResults = [];
@@ -336,8 +353,10 @@ async function main() {
   }
 
   const reviewByCaseId = new Map();
-  for (const agent of AGENT_BENCHMARK_CATALOG.agents) {
-    for (const language of AGENT_BENCHMARK_CATALOG.languages) {
+  const agentsUnderTest = [...new Set(rawResults.map((item) => item.agent))];
+  const languagesUnderTest = [...new Set(rawResults.map((item) => item.language))];
+  for (const agent of agentsUnderTest) {
+    for (const language of languagesUnderTest) {
       const group = rawResults.filter((item) => item.agent === agent && item.language === language);
       const reviews = await reviewGroup(base44, agent, language, group);
       for (const review of reviews) reviewByCaseId.set(review.case_id, review);
@@ -348,6 +367,7 @@ async function main() {
     caseId: item.caseId,
     scenarioId: item.scenarioId,
     agent: item.agent,
+    runtimeAgent: item.runtimeAgent,
     language: item.language,
     category: item.category,
     severity: item.severity,
@@ -378,6 +398,8 @@ async function main() {
     executedAt: new Date().toISOString(),
     appId: APP_ID,
     testAccount: EXPECTED_EMAIL,
+    logicalAgentFilter: LOGICAL_AGENT_FILTER,
+    targetAgentOverride: TARGET_AGENT_OVERRIDE,
     authenticatedUserId: login.user.id,
     existingConversationCountBeforeRun: existingConversations.length,
     syntheticPromptsOnly: true,
