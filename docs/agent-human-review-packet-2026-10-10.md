@@ -35,7 +35,7 @@ These character counts do not establish token, latency, or quality improvements.
 Values are historical runs, not simultaneous randomized controls. Formatting did not demonstrate
 a latency or response-length improvement; investigate longer answers in the human review.
 Latency median is computed with the midpoint for even samples; p95 uses the runner's
-nearest-rank convention. Models reported by Automatic may vary between runs.
+lower empirical percentile (index floor(0.95 × (n − 1))). Models reported by Automatic may vary between runs.
 
 Therapist instruction baseline SHA256:
 `8c90e3b9f7ffd3fc8d950799db113df76bff32d4c77d9d18bde4a1504f8c82d3`.
