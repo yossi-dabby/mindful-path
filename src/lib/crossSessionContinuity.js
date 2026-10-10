@@ -430,7 +430,9 @@ function _buildContinuityContentLines(continuity) {
   if (continuity.recentInterventionsUsed?.length > 0) {
     lines.push('Most recent session interventions: ' + continuity.recentInterventionsUsed.join('; '));
   }
-  lines.push('The following patterns, tasks and interventions aggregate selected sessions; do not attribute them to the most recent session without direct evidence.');
+  if (continuity.recurringPatterns.length || continuity.openFollowUpTasks.length || continuity.interventionsUsed.length) {
+    lines.push('The following patterns, tasks and interventions aggregate selected sessions; do not attribute them to the most recent session without direct evidence.');
+  }
 
   if (continuity.recurringPatterns.length > 0) {
     lines.push('Recurring patterns: ' + continuity.recurringPatterns.join('; '));
