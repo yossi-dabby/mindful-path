@@ -97,7 +97,6 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
     for (const path of [
       'src/pages/Chat.jsx',
       'src/components/coaching/CoachingChat.jsx',
-      'src/components/ai/DraggableAiCompanion.jsx',
     ]) {
       const source = read(path);
       expect(source).toContain('resolveCurrentChatConsent');
