@@ -21,8 +21,7 @@
   },
   "include": [
     "src/vite-env.d.ts",
-    "src/api/base44Client.js",
-    "src/components/ai/DraggableAiCompanion.jsx"
+    "src/api/base44Client.js"
   ],
   "exclude": ["node_modules", "dist", "src/vite-plugins", "src/components/ui", "src/api", "src/lib"]
 }
