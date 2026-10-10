@@ -54,6 +54,11 @@ describe('last-session source attribution', () => {
     expect(block).not.toContain('Most recent session follow-up tasks:');
     expect(block).not.toContain('Most recent session interventions:');
   });
+  it('does not emit instructions as memory when all fields are empty', async () => {
+    const result = await buildCrossSessionContinuityBlockWithDiagnostic(entities([record('empty', '')]));
+    expect(result.block).toBe('');
+    expect(result.diagnostic.continuity_block_emitted).toBe(false);
+  });
   it('keeps failed reads empty rather than fabricating last-session details', async () => {
     const e = { CompanionMemory: { list: vi.fn().mockRejectedValue(new Error('unavailable')) } };
     const result = await buildCrossSessionContinuityBlockWithDiagnostic(e);
