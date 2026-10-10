@@ -586,6 +586,8 @@ export default function Chat() {
   // Production-safe FIFO for rapid follow-ups while the legacy single-flight
   // path remains active. Each draft is captured before React can overwrite it.
   const legacyRapidQueueRef = useRef([]);
+  // The loading failsafe must not release FIFO while persistence is in flight.
+  const legacyMessagePersistencePendingRef = useRef(false);
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
   // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
   // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
@@ -3804,7 +3806,7 @@ export default function Chat() {
 
         v2ActiveTurn = registration.turn;
       }
-    } else if (!_isV2QueuedExecution && isLoadingRef.current) {
+    } else if (!_isV2QueuedExecution && (isLoadingRef.current || legacyMessagePersistencePendingRef.current)) {
       if (legacyRapidQueueRef.current.length >= 10) {
         setInputMessage(rawInputText);
         toast({
@@ -3975,11 +3977,13 @@ export default function Chat() {
         )
       : null;
 
+    legacyMessagePersistencePendingRef.current = !chatOrchestratorV2EnabledRef.current;
+
     // CRITICAL: Add loading timeout failsafe (10s)
     // V2: the coordinator's polling exhaustion/error paths own terminal timeout state.
     // Do NOT call setIsLoading(false) from the 10s timer when V2 is active and the
     // turn is still in-flight (PENDING/SENT/GENERATING) with bounded polling running.
-    // Legacy (V2 disabled): preserve the exact 10s clear-loading behavior.
+    // Legacy: persistence and bounded polling retain ownership of the FIFO turn.
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
     }
@@ -3995,6 +3999,12 @@ export default function Chat() {
           loadingTimeoutRef.current = null;
           return;
         }
+      }
+      if (!v2Active && (legacyMessagePersistencePendingRef.current || pollingIntervalRef.current)) {
+        // Persistence and bounded authoritative polling still own this turn.
+        // Clearing loading here would drain the next draft into the same request.
+        loadingTimeoutRef.current = null;
+        return;
       }
       console.error('[Send] ⏱️ Loading timeout after 10s - forcing recovery');
       instrumentationRef.current.THINKING_OVER_10S++;
@@ -4284,6 +4294,11 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      legacyMessagePersistencePendingRef.current = false;
+      if (!chatOrchestratorV2EnabledRef.current) {
+        isLoadingRef.current = true;
+        setIsLoading(true);
+      }
       setDeliveryStatus('sent');
       // Consume the correction intent only after successful addMessage.
       // If addMessage throws, the pending intent is retained so the user can retry.
@@ -4896,11 +4911,13 @@ export default function Chat() {
           variant: 'destructive'
         });
       }
+    } finally {
+      legacyMessagePersistencePendingRef.current = false;
     }
   };
 
   useEffect(() => {
-    if (isLoading || chatOrchestratorV2EnabledRef.current) return undefined;
+    if (isLoading || legacyMessagePersistencePendingRef.current || chatOrchestratorV2EnabledRef.current) return undefined;
     const nextQueuedSend = legacyRapidQueueRef.current.shift();
     if (!nextQueuedSend) return undefined;
     if (nextQueuedSend.conversationId && nextQueuedSend.conversationId !== currentConversationIdRef.current) {
