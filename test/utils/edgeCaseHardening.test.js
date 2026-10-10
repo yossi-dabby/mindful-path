@@ -882,11 +882,10 @@ describe('Section 7: Role isolation regression', () => {
 
   it('7.7 triggerConversationEndSummarization is not referenced in any companion source file', () => {
     // Static analysis: companion components must not call the therapist write path.
-    // These are the three entry points identified in PR #543 (companion routing consistency).
+    // These are the remaining companion entry points after the unmounted widget cleanup.
     // If a companion file is renamed, update this list alongside the component itself.
     const companionFiles = [
       'src/components/ai/AiCompanion.jsx',
-      'src/components/ai/DraggableAiCompanion.jsx',
       'src/components/coaching/CoachingSessionWizard.jsx',
     ];
     for (const filePath of companionFiles) {
