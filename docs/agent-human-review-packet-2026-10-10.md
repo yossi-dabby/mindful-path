@@ -5,8 +5,8 @@ Prepared after the engineering verification. This is a review protocol, not comp
 ## Current release decision
 
 Production remains Automatic for both active agents. The coach refinement candidate is rejected
-(68/70, two hard-gate failures). Therapist formatting-only compaction is under isolated live
-evaluation; it is not deployed to the production therapist. No semantic shortening is approved.
+(68/70, two hard-gate failures). Therapist formatting-only compaction passed 77/77 preliminary live cases with zero hard-gate
+failures (11/11 in each language); it is not deployed to the production therapist. No semantic shortening is approved.
 
 ## Engineering evidence
 
@@ -17,12 +17,41 @@ evaluation; it is not deployed to the production therapist. No semantic shorteni
 | Live persistence | #1022 run 38071364970 succeeded | Synthetic app-owned summary written and retrieved after fresh authentication, distinct session |
 | Runtime/UI continuity | 264 targeted unit tests and 12 mocked desktop/mobile checks passed | App-owned end-session and continuity gates; not a fully live UI/model carryover |
 | Legacy UI removal | #1025, 158 targeted unit tests and 8 archive read fixtures | Four archived profile names/messages remain readable through mocked SDK GETs |
+| Therapist compaction | #1024 run 38071607703; 77/77, zero hard-gate failures | Formatting candidate passed preliminary review, not human sign-off |
 | Coach candidate | #1023 run 38071587060; 68/70, two hard-gate failures | Rejected; XML tool markup in Hebrew distress case and technical output flagged in Portuguese goal case |
 
 Candidate builder: #1021. It never deploys; it preserves baseline tool/model/memory configuration.
 Therapist baseline has 150,256 instruction characters; formatting candidate 142,599 (-7,657,
 5.1%). A semantic-character projection and idempotence test protect content and order.
 These character counts do not establish token, latency, or quality improvements.
+
+| Direct-agent reference | Passed | Median latency | p95 latency | Average output tokens |
+|---|---:|---:|---:|---:|
+| Coach Automatic baseline | 70/70 | 5.056s | 9.351s | 236.8 |
+| Coach refinement (rejected) | 68/70 | 4.690s | 8.292s | 238.0 |
+| Therapist read-only baseline | 77/77 | 8.166s | 25.078s | 1,042.4 |
+| Therapist formatting candidate | 77/77 | 8.693s | 27.966s | 1,344.6 |
+
+Values are historical runs, not simultaneous randomized controls. Formatting did not demonstrate
+a latency or response-length improvement; investigate longer answers in the human review.
+Latency median is computed with the midpoint for even samples; p95 uses the runner's
+nearest-rank convention. Models reported by Automatic may vary between runs.
+
+Therapist instruction baseline SHA256:
+`8c90e3b9f7ffd3fc8d950799db113df76bff32d4c77d9d18bde4a1504f8c82d3`.
+Candidate:
+`d5de43f558a4c68dc99eb15228a95547f87c55416dd8017169408d0ee87ef126`.
+Therapist artifact 11676634734:
+`sha256:674f5fbc0897182daf225fda186a8d8bb0ade69d22370d3d733be3d37dd8c186`.
+Coach rejected artifact 11676658888:
+`sha256:a3e7534a7718133aeb59662b034bf4485865b6528cc1d1ec1a93ae1184fe1e8e`.
+
+Temporary benchmark source records were auto-synced during the isolated remote runs, which
+temporarily failed the canonical inventory CI check on other PRs. They were removed after both
+runs. Checkpoint c88f107a2ab8a1231e0a6f681c481dd79316b354 has a clean source tree identical
+to the verified production baseline: two active and four archived agents. Production prompt,
+tool, model, memory and UI configuration were not modified. Use a separate remote app branch
+for future experiments to avoid temporary inventory changes on main.
 
 ## Review setup
 
