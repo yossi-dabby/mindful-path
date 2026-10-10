@@ -63,7 +63,7 @@ test('legacy chat serializes follow-ups during slow ' + delayedPhase, async ({ p
     releaseFirst();
   }
   await expect(page.getByRole('log').getByText('Confirmed answer 1', { exact: true })).toBeVisible({ timeout: 20000 });
-  await expect.poll(() => posts.length).toBe(2);
+  await expect.poll(() => posts.length, { timeout: 20000 }).toBe(2);
   await expect(page.getByRole('log').getByText('Confirmed answer 2', { exact: true })).toBeVisible({ timeout: 20000 });
   expect(posts[0]).toContain('First synthetic message');
   expect(posts[1]).toContain('Second synthetic message');
