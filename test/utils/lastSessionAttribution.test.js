@@ -54,6 +54,17 @@ describe('last-session source attribution', () => {
     expect(block).not.toContain('Most recent session follow-up tasks:');
     expect(block).not.toContain('Most recent session interventions:');
   });
+  it('bounds latest fields without adding raw records or transcript fields', async () => {
+    const long = Array.from({ length: 8 }, (_, index) => String(index) + 'a'.repeat(300));
+    const result = await readCrossSessionContinuity(entities([record('latest', 'Reading session', long, long)]));
+    for (const values of [result.recentFollowUpTasks, result.recentInterventionsUsed]) {
+      expect(values.length).toBeLessThanOrEqual(4);
+      expect(values.every(value => typeof value === 'string' && value.length <= 120)).toBe(true);
+    }
+    expect(result).not.toHaveProperty('messages');
+    expect(result).not.toHaveProperty('records');
+    expect(result).not.toHaveProperty('transcript');
+  });
   it('does not emit instructions as memory when all fields are empty', async () => {
     const result = await buildCrossSessionContinuityBlockWithDiagnostic(entities([record('empty', '')]));
     expect(result.block).toBe('');
