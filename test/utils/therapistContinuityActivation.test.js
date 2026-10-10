@@ -531,6 +531,7 @@ describe('Section 8: Privacy contract — no raw message content in write or rea
     const allowedKeys = [
       'sessionCount', 'recurringPatterns', 'openFollowUpTasks',
       'interventionsUsed', 'riskFlags', 'recentSummary',
+      'recentFollowUpTasks', 'recentInterventionsUsed',
     ];
     for (const key of Object.keys(result)) {
       expect(allowedKeys).toContain(key);

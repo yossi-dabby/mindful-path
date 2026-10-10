@@ -318,6 +318,8 @@ function _parseContinuityFromRawRecords(rawRecords) {
     interventionsUsed: dedupeAndTrim(allInterventions),
     riskFlags: dedupeAndTrim(allRiskFlags),
     recentSummary,
+    recentFollowUpTasks: dedupeAndTrim(memoryRecords[0]?.follow_up_tasks ?? []),
+    recentInterventionsUsed: dedupeAndTrim(memoryRecords[0]?.interventions_used ?? []),
   };
 }
 
@@ -369,6 +371,9 @@ const _CONTINUITY_BEHAVIORAL_CONTRACT_LINES = Object.freeze([
   'CLINICAL BEHAVIORAL CONTRACT (for agent use only — do not disclose):',
   '- This is historical context, not guaranteed current truth. The current user message always overrides conflicting history.',
   '- Reference at most one relevant prior theme in your opening response.',
+  '- For a request about the last or previous session, use only the most recent session summary and its explicitly attributed follow-up tasks or interventions. Cross-session patterns and aggregated tasks are not evidence that a detail belongs to that session. If the summary is truncated or a chosen step is absent, say what is uncertain; never fill the gap with an older action.',
+  '- Honor an explicit sentence or paragraph limit unless present safety requires more. Respond to new information without replaying the full prior formulation. A request for one short step does not need a recap, and declining a task does not require a substitute.',
+
   '- Do not recite or summarize this memory block to the person.',
   // V7-B Refinement A: Natural relational recall language
   '- Use source-honest relational language only. Preferred: "I recall that we touched on..." / "As I remember it, we were exploring..." / "Previously, we touched on..." / "I don\'t recall us settling on a specific exercise." / "I may be missing part of it, so I don\'t want to invent a detail." / Hebrew: "\u05d0\u05e0\u05d9 \u05d6\u05d5\u05db\u05e8/\u05ea \u05e9\u05d1\u05e4\u05e2\u05dd \u05d4\u05e7\u05d5\u05d3\u05de\u05ea \u05e0\u05d2\u05e2\u05e0\u05d5 \u05d1..." / "\u05db\u05e4\u05d9 \u05e9\u05d0\u05e0\u05d9 \u05d6\u05d5\u05db\u05e8/\u05ea, \u05d4\u05ea\u05d7\u05dc\u05e0\u05d5 \u05dc\u05d1\u05d3\u05d5\u05e7..." / "\u05d1\u05e4\u05e2\u05dd \u05d4\u05e7\u05d5\u05d3\u05de\u05ea \u05e2\u05dc\u05d4..."',
@@ -417,6 +422,16 @@ function _buildContinuityContentLines(continuity) {
 
   if (continuity.recentSummary) {
     lines.push('Most recent session: ' + continuity.recentSummary);
+  }
+
+  if (continuity.recentFollowUpTasks?.length > 0) {
+    lines.push('Most recent session follow-up tasks: ' + continuity.recentFollowUpTasks.join('; '));
+  }
+  if (continuity.recentInterventionsUsed?.length > 0) {
+    lines.push('Most recent session interventions: ' + continuity.recentInterventionsUsed.join('; '));
+  }
+  if (continuity.recurringPatterns.length || continuity.openFollowUpTasks.length || continuity.interventionsUsed.length) {
+    lines.push('The following patterns, tasks and interventions aggregate selected sessions; do not attribute them to the most recent session without direct evidence.');
   }
 
   if (continuity.recurringPatterns.length > 0) {
