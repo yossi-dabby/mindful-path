@@ -55,3 +55,9 @@ Audit documents remain historical evidence rather than being rewritten.
 Validation and rollout: targeted unit tests and desktop/mobile Playwright fixture first;
 required PR Test Suite/Playwright checks and preview/Android smoke remain before merging.
 Rollback is a revert of this single UI cleanup change.
+
+Validation completed in the isolated combined worktree: 10,980 unit tests passed with 267
+pre-existing skips; repository lint passed; build produced dist/index.html; 18 desktop/mobile
+boot/coach/continuity smoke checks and all 8 archive SDK read fixtures passed. Temporary
+benchmark resources are now removed, so final CI must evaluate the restored canonical
+inventory. Human preview/web/Android checks remain pending before merge.
