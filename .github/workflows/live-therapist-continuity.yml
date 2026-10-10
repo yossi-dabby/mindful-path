@@ -1,0 +1,29 @@
+name: Live Therapist Continuity Verification
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: live-therapist-continuity-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  continuity:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'codex/run-live-continuity-verification-'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BASE44_LIVE_TEST_EMAIL: ${{ secrets.BASE44_LIVE_TEST_EMAIL }}
+      BASE44_LIVE_TEST_PASSWORD: ${{ secrets.BASE44_LIVE_TEST_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Verify isolated app-owned write and fresh-session read
+        run: node scripts/verify-live-therapist-continuity.mjs
