@@ -5,7 +5,7 @@
 | 1. Configuration protection | Complete | CI enforces exactly two active agents, inert archives, per-user memory, approved tools, no unplanned connectors/channels, and `automatic` models |
 | 2. Quality benchmark | Corrected live baseline completed | PR #1013 / run 37946159587: 140/140 passed preliminary live-response review. PR #1020 / run 37969173230: production crisis workflow succeeded. Human bilingual/clinical review remains pending |
 | 3. Coach model experiment | Completed; promotion pending human review | Automatic, GPT-6 Luna, GPT-6 Sol: 70/70. Claude Sonnet 5: 69/70, rejected for Portuguese/Spanish mismatch. See ai-coach-model-comparison-2026-10-09.md. Production stays automatic |
-| 4. Coach improvement | First isolated candidate rejected | #1023 / run 38071587060: 68/70, two hard-gate failures (Hebrew raw tool markup, Portuguese technical output). No promotion; production instructions unchanged |
+| 4. Coach improvement | First candidate rejected; revised proposal prepared | #1023 / run 38071587060: 68/70, two hard-gate failures (Hebrew raw tool markup, Portuguese technical output). No promotion; production instructions unchanged |
 | 5. Therapist compaction | Preliminary live comparison passed; human review pending | #1024 / run 38071607703: 77/77, 11/11 per language, zero hard-gate failures. Formatting candidate 150,256 → 142,599 characters; no latency/length improvement demonstrated. Production unchanged |
 | 6. Legacy cleanup | First UI cleanup PR prepared | #1025 removes the unmounted draggable widget; 158 targeted unit tests and 8 archive SDK read fixtures pass. Four archived agents and all data retained; full CI and human web/Android smoke remain |
 
@@ -50,3 +50,14 @@ Base44 source checkpoint: `945294067616dd0f8841a2d2d9554d8f18a0c678`.
 - Combined isolated worktree: 10,980 tests passed, 267 pre-existing skips; lint passed; build produced dist/index.html; 18 boot/coach/continuity checks and 8 archive read checks passed.
 - Temporary remote benchmark configs removed. Checkpoint c88f107a2ab8a1231e0a6f681c481dd79316b354 has source content identical to verified baseline 945294067616dd0f8841a2d2d9554d8f18a0c678. Canonical 2-active/4-archived policy passes.
 - #1021, #1022 and #1025 are reviewable PRs, not merged production changes. Final CI and human preview/web/Android checks remain release gates.
+
+## Post-1026 human verification — 2026-10-10
+
+- #1021 and #1026 are merged. Base44 source matches #1026 merge fb40d56288284c55462018dfb2bfa45ed5f8efd5.
+- Yossi reported overlapping sends and refresh passed in Base44 Preview and again in the published web app. Preview refusal respected; last-session recall retained the reading obstacle and one-page Tuesday step. This is owner-reported live evidence, not agent-observed production testing.
+- Recall initially also mentioned an older walking topic; a correction removed it. Revised quality proposal adds explicit session attribution and caller-requested brevity, without changing tools/models/entities. Live output quality remains unverified for this proposal.
+- Four merged Preview regressions passed (slow persistence/generation on desktop/mobile), with mocked model responses.
+- #1020 crisis workflow succeeded historically; bilingual/clinical review is still pending.
+- #1022 remains open with passing Test Suite/Playwright and live persistence evidence. #1025 remains open with passing final CI; archive UI/Android human smoke is pending. Neither is merged by this work.
+- Therapist formatting compaction already passed the isolated seven-language comparison. No new semantic compaction or production promotion is performed here.
+- The cloud UI connection timed out during agent live QA. New live quality validation must run after restoring a usable browser or on an isolated remote app branch; production agents are not experiment targets.
