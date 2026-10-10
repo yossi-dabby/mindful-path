@@ -586,6 +586,15 @@ export default function Chat() {
   // Production-safe FIFO for rapid follow-ups while the legacy single-flight
   // path remains active. Each draft is captured before React can overwrite it.
   const legacyRapidQueueRef = useRef([]);
+  // The loading failsafe must not release FIFO while persistence is in flight.
+  const legacyMessagePersistencePendingRef = useRef(false);
+  const legacyAwaitingReplyRef = useRef(false);
+  const [legacyReplyReleaseVersion, setLegacyReplyReleaseVersion] = useState(0);
+  const releaseLegacyReply = () => {
+    if (!legacyAwaitingReplyRef.current) return;
+    legacyAwaitingReplyRef.current = false;
+    setLegacyReplyReleaseVersion((version) => version + 1);
+  };
   const responsePolicyEnforcementEnabledRef = useRef(isChatOrchestratorV2Enabled('RESPONSE_POLICY_ENFORCEMENT_ENABLED'));
   // Guard Isolation Audit — dedup guard polling mode (ENFORCE / SHADOW / OFF).
   // Frozen at component mount; OFF is the false-default (legacy behavior preserved).
@@ -2600,6 +2609,13 @@ export default function Chat() {
           }
 
           if (updated) {
+            if (legacyAwaitingReplyRef.current &&
+                (!subscriptionFinality.isFinal || processedMessages.length < expectedReplyCountRef.current)) {
+              // A user-only or previous-turn update cannot release the pending reply.
+              setIsLoading(true);
+              return;
+            }
+            releaseLegacyReply();
             // CRITICAL: Always reset loading when safe update succeeds
             console.log('[Subscription] ✅ Loading OFF');
             // Mark subscription as having delivered confirmed content for this send
@@ -2643,7 +2659,9 @@ export default function Chat() {
             // succeeded and do NOT drain the queue — leave later snapshots eligible.
             // Legacy (V2 disabled): preserve original behavior of marking succeeded
             // when finality is confirmed even if the update was a no-op.
-            if (!chatOrchestratorV2EnabledRef.current && subscriptionFinality.isFinal === true) {
+            if (!chatOrchestratorV2EnabledRef.current && subscriptionFinality.isFinal === true &&
+                processedMessages.length >= expectedReplyCountRef.current) {
+              releaseLegacyReply();
               subscriptionSucceededRef.current = true;
               setIsLoading(false);
               emitStabilitySummary();
@@ -2685,6 +2703,7 @@ export default function Chat() {
     // Timeout after 60s
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
+        releaseLegacyReply();
         console.error('[Subscription] ⏱️ Timeout after 60s - forcing recovery');
         instrumentationRef.current.THINKING_OVER_10S++;
         setIsLoading(false);
@@ -2917,6 +2936,7 @@ export default function Chat() {
         clearLoadingTimeout: true,
       });
     }
+    releaseLegacyReply();
     legacyRapidQueueRef.current = legacyRapidQueueRef.current.filter(
       (queuedSend) => !queuedSend.conversationId || queuedSend.conversationId === currentConversationId,
     );
@@ -3804,7 +3824,7 @@ export default function Chat() {
 
         v2ActiveTurn = registration.turn;
       }
-    } else if (!_isV2QueuedExecution && isLoadingRef.current) {
+    } else if (!_isV2QueuedExecution && (isLoadingRef.current || legacyMessagePersistencePendingRef.current || legacyAwaitingReplyRef.current)) {
       if (legacyRapidQueueRef.current.length >= 10) {
         setInputMessage(rawInputText);
         toast({
@@ -3975,11 +3995,13 @@ export default function Chat() {
         )
       : null;
 
+    legacyMessagePersistencePendingRef.current = !chatOrchestratorV2EnabledRef.current;
+
     // CRITICAL: Add loading timeout failsafe (10s)
     // V2: the coordinator's polling exhaustion/error paths own terminal timeout state.
     // Do NOT call setIsLoading(false) from the 10s timer when V2 is active and the
     // turn is still in-flight (PENDING/SENT/GENERATING) with bounded polling running.
-    // Legacy (V2 disabled): preserve the exact 10s clear-loading behavior.
+    // Legacy: persistence and bounded polling retain ownership of the FIFO turn.
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
     }
@@ -3995,6 +4017,12 @@ export default function Chat() {
           loadingTimeoutRef.current = null;
           return;
         }
+      }
+      if (!v2Active && (legacyMessagePersistencePendingRef.current || pollingIntervalRef.current)) {
+        // Persistence and bounded authoritative polling still own this turn.
+        // Clearing loading here would drain the next draft into the same request.
+        loadingTimeoutRef.current = null;
+        return;
       }
       console.error('[Send] ⏱️ Loading timeout after 10s - forcing recovery');
       instrumentationRef.current.THINKING_OVER_10S++;
@@ -4284,6 +4312,12 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      legacyMessagePersistencePendingRef.current = false;
+      legacyAwaitingReplyRef.current = !chatOrchestratorV2EnabledRef.current;
+      if (!chatOrchestratorV2EnabledRef.current) {
+        isLoadingRef.current = true;
+        setIsLoading(true);
+      }
       setDeliveryStatus('sent');
       // Consume the correction intent only after successful addMessage.
       // If addMessage throws, the pending intent is retained so the user can retry.
@@ -4421,7 +4455,8 @@ export default function Chat() {
                     if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
                       instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
                       chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
-                      setIsLoading(false);
+                      releaseLegacyReply();
+                  setIsLoading(false);
                       emitStabilitySummary();
                       if (pollingIntervalRef.current) {
                         clearTimeout(pollingIntervalRef.current);
@@ -4453,6 +4488,7 @@ export default function Chat() {
                       terminal_reason: 'response_deduplicated',
                     });
                   }
+                  releaseLegacyReply();
                   setIsLoading(false);
                   if (pollingIntervalRef.current) {
                     clearTimeout(pollingIntervalRef.current);
@@ -4490,7 +4526,8 @@ export default function Chat() {
                         terminal_reason: 'turn_already_completed_early_exit',
                       });
                     }
-                    setIsLoading(false);
+                    releaseLegacyReply();
+                  setIsLoading(false);
                     emitStabilitySummary();
                     if (pollingIntervalRef.current) {
                       clearTimeout(pollingIntervalRef.current);
@@ -4553,7 +4590,8 @@ export default function Chat() {
                   if (hasPollingAttemptTimedOut(pollAttempts, maxPollAttempts)) {
                     instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
                     chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
-                    setIsLoading(false);
+                    releaseLegacyReply();
+                  setIsLoading(false);
                     emitStabilitySummary();
                     if (pollingIntervalRef.current) {
                       clearTimeout(pollingIntervalRef.current);
@@ -4758,6 +4796,7 @@ export default function Chat() {
                       terminal_reason: 'polling_exhausted_after_rejection',
                     });
                   }
+                  releaseLegacyReply();
                   setIsLoading(false);
                   emitStabilitySummary();
                   if (pollingIntervalRef.current) {
@@ -4776,7 +4815,8 @@ export default function Chat() {
 
               // Terminal accepted path (legacy or V2 accepted):
               // Clear loading once finality is verified.
-              setIsLoading(false);
+              releaseLegacyReply();
+                  setIsLoading(false);
 
               if (pollingIntervalRef.current) {
                 clearTimeout(pollingIntervalRef.current);
@@ -4796,7 +4836,8 @@ export default function Chat() {
                   chatCoordinatorV2Ref.current.markTimedOut(v2ActiveTurn.client_request_id);
                 }
                 safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
-                setIsLoading(false);
+                releaseLegacyReply();
+                  setIsLoading(false);
                 emitStabilitySummary();
                 if (pollingIntervalRef.current) {
                   clearTimeout(pollingIntervalRef.current);
@@ -4826,7 +4867,8 @@ export default function Chat() {
 
               // CRITICAL: Safe update with validation
               safeUpdateMessages(guardedPoll, 'Polling-Timeout', { pollFinality });
-              setIsLoading(false);
+              releaseLegacyReply();
+                  setIsLoading(false);
               emitStabilitySummary();
 
               if (pollingIntervalRef.current) {
@@ -4850,7 +4892,8 @@ export default function Chat() {
                 const failedNext = chatCoordinatorV2Ref.current.markFailed(v2ActiveTurn.client_request_id);
                 if (failedNext) failedNext.executeSend();
               }
-              setIsLoading(false);
+              releaseLegacyReply();
+                  setIsLoading(false);
               emitStabilitySummary();
               if (pollingIntervalRef.current) {
                 clearTimeout(pollingIntervalRef.current);
@@ -4867,6 +4910,7 @@ export default function Chat() {
       pollWithBackoff(0);
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
+      releaseLegacyReply();
       setDeliveryStatus('failed');
       if (currentConversationIdRef.current === sendConversationId) {
         setInputMessage((currentDraft) => currentDraft.trim() ? currentDraft : messageText);
@@ -4896,11 +4940,13 @@ export default function Chat() {
           variant: 'destructive'
         });
       }
+    } finally {
+      legacyMessagePersistencePendingRef.current = false;
     }
   };
 
   useEffect(() => {
-    if (isLoading || chatOrchestratorV2EnabledRef.current) return undefined;
+    if (isLoading || legacyMessagePersistencePendingRef.current || legacyAwaitingReplyRef.current || chatOrchestratorV2EnabledRef.current) return undefined;
     const nextQueuedSend = legacyRapidQueueRef.current.shift();
     if (!nextQueuedSend) return undefined;
     if (nextQueuedSend.conversationId && nextQueuedSend.conversationId !== currentConversationIdRef.current) {
@@ -4912,7 +4958,7 @@ export default function Chat() {
       });
     }, 0);
     return () => clearTimeout(drainTimer);
-  }, [isLoading, currentConversationId]);
+  }, [isLoading, currentConversationId, legacyReplyReleaseVersion]);
 
   // Phase 5 — Conversation-switch memory write trigger.
   // Fires triggerConversationEndSummarization for `convId` if:
