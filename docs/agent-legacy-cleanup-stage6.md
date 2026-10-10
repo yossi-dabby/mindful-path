@@ -37,3 +37,21 @@ still contain `ai_companion`. They fall into four groups:
 Each wave requires Test Suite, Playwright, Base44 preview, web/Android smoke tests, and an
 immediate revert path. This document authorizes no deletion by itself.
 
+
+## Wave 1 candidate — 2026-10-10
+
+Removed the unmounted DraggableAiCompanion UI source and its exclusive import assertion;
+updated the remaining source-path checks and type-check include list.
+The existing mounted-entry architecture checks still assert that this widget and the archived
+companion are absent from active layout/routing. Archived agent definitions, SDK read APIs,
+compatibility wiring and all conversation/memory data remain intact.
+
+The new archived-conversation Playwright fixture verifies SDK retrieval of synthetic existing
+conversations for all four archived agent names without conversation creation or message
+submission. It verifies API compatibility, not a historical conversation browser in the UI,
+and does not establish that every historical production record is readable.
+Audit documents remain historical evidence rather than being rewritten.
+
+Validation and rollout: targeted unit tests and desktop/mobile Playwright fixture first;
+required PR Test Suite/Playwright checks and preview/Android smoke remain before merging.
+Rollback is a revert of this single UI cleanup change.
