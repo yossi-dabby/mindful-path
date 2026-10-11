@@ -5,7 +5,7 @@
 | 1. Configuration protection | Complete | CI enforces exactly two active agents, inert archives, per-user memory, approved tools, no unplanned connectors/channels, and `automatic` models |
 | 2. Quality benchmark | Corrected live baseline completed | PR #1013 / run 37946159587: 140/140 passed preliminary live-response review. PR #1020 / run 37969173230: production crisis workflow succeeded. Human bilingual/clinical review remains pending |
 | 3. Coach model experiment | Completed; promotion pending human review | Automatic, GPT-6 Luna, GPT-6 Sol: 70/70. Claude Sonnet 5: 69/70, rejected for Portuguese/Spanish mismatch. See ai-coach-model-comparison-2026-10-09.md. Production stays automatic |
-| 4. Coach improvement | First candidate rejected; revised proposal prepared | #1023 / run 38071587060: 68/70, two hard-gate failures (Hebrew raw tool markup, Portuguese technical output). No promotion; production instructions unchanged |
+| 4. Coach improvement | #1028 merged; MAIN Preview wording refinement verified | Historical #1023 rejected. Current Coach: silent retrieval, concise opening, no unsolicited history, tentative outcome review in seven languages. Automatic retained; human/clinical review pending |
 | 5. Therapist compaction | Preliminary live comparison passed; human review pending | #1024 / run 38071607703: 77/77, 11/11 per language, zero hard-gate failures. Formatting candidate 150,256 → 142,599 characters; no latency/length improvement demonstrated. Production unchanged |
 | 6. Legacy cleanup | First UI cleanup PR prepared | #1025 removes the unmounted draggable widget; 158 targeted unit tests and 8 archive SDK read fixtures pass. Four archived agents and all data retained; full CI and human web/Android smoke remain |
 
