@@ -23,6 +23,29 @@ const cases = [
   ['pt', 'Ler uma página na terça-feira', 'Caminhar cinco minutos'],
 ];
 describe('last-session source attribution', () => {
+  it.each([
+    ['he', 'ההתחלה הייתה קשה ואחר כך היה קל יותר.'],
+    ['en', 'Starting was difficult but afterward it was easier.'],
+    ['es', 'Empezar fue difícil, pero después fue más fácil.'],
+    ['fr', 'Le démarrage était difficile, puis c’était plus facile.'],
+    ['de', 'Der Anfang war schwierig, danach wurde es leichter.'],
+    ['it', 'Iniziare è stato difficile, ma poi è diventato più facile.'],
+    ['pt', 'Foi difícil começar, mas depois ficou mais fácil.'],
+  ])('%s preserves an outcome beyond the old 200-character cutoff', async (_language, outcome) => {
+    const summary = 'Session context. '.repeat(25) + outcome;
+    const e = entities([record('latest', summary), record('old', 'OLDER_SESSION_OUTCOME')]);
+    const result = await readCrossSessionContinuity(e);
+    expect(result.recentSummary).toContain(outcome);
+    expect(result.recentSummary).not.toContain('OLDER_SESSION_OUTCOME');
+    const { block } = await buildCrossSessionContinuityBlockWithDiagnostic(e);
+    expect(block).toContain(outcome);
+  });
+  it('keeps the latest summary bounded even for oversized stored input', async () => {
+    const result = await readCrossSessionContinuity(entities([record('latest', 'a'.repeat(5000))]));
+    expect(result.recentSummary).toHaveLength(2000);
+    expect(result).not.toHaveProperty('messages');
+  });
+
   it.each(cases)('%s keeps latest actions separate from older actions', async (_language, latest, older) => {
     const e = entities([
       record('reading', 'Latest session: difficulty beginning reading after work.', [latest], ['reading']),

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Send, Loader2, Target, CheckCircle2 } from 'lucide-react';
+import { detectLanguage } from '../utils/finalOutputGovernor';
 import MessageBubble from '../chat/MessageBubble';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
 import { resolveCurrentChatConsent } from '@/lib/chatConsent';
@@ -64,20 +65,67 @@ export default function CoachingChat({ session, onBack }) {
   });
 
   useEffect(() => {
-    if (currentSession.agent_conversation_id) {
-      const unsubscribe = base44.agents.subscribeToConversation(
-        currentSession.agent_conversation_id,
-        (data) => {
-          setMessages(data.messages || []);
-          setIsLoading(false);
-        },
-        (error) => {
+    const conversationId = currentSession.agent_conversation_id;
+    if (!conversationId) return;
+    let active = true;
+    let revision = 0;
+    let openingComplete = false;
+    let reading = false;
+    let attempts = 0;
+    let timer = null;
+    setMessages([]);
+    setIsLoading(true);
+
+    const acceptSnapshot = (data) => {
+      if (!active) return;
+      revision += 1;
+      const next = data?.messages || [];
+      setMessages(next);
+      if (next.some((message) => message.role === 'assistant' && message.content)) {
+        openingComplete = true;
+        if (timer) clearInterval(timer);
+        setIsLoading(false);
+      }
+    };
+    const hydrateOpening = async () => {
+      if (!active || reading || openingComplete) return;
+      if (attempts >= 20) {
+        if (timer) clearInterval(timer);
+        setIsLoading(false);
+        return;
+      }
+      reading = true;
+      attempts += 1;
+      const readRevision = revision;
+      try {
+        const data = await base44.agents.getConversation(conversationId);
+        // A late initial read must not replace a newer subscription event.
+        if (active && revision === readRevision) acceptSnapshot(data);
+      } catch (error) {
+        if (active) console.error('Conversation hydration error:', error);
+      } finally {
+        reading = false;
+      }
+    };
+    const unsubscribe = base44.agents.subscribeToConversation(
+      conversationId,
+      acceptSnapshot,
+      (error) => {
+        if (active) {
           console.error('Conversation subscription error:', error);
           setIsLoading(false);
         }
-      );
-      return () => unsubscribe();
-    }
+      },
+    );
+    // The wizard sends the opener before this component subscribes.
+    // Hydrate existing messages and briefly poll if its response is still pending.
+    if (!openingComplete) timer = setInterval(hydrateOpening, 1500);
+    void hydrateOpening();
+    return () => {
+      active = false;
+      clearInterval(timer);
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, [currentSession.agent_conversation_id]);
 
   useEffect(() => {
@@ -215,7 +263,9 @@ export default function CoachingChat({ session, onBack }) {
                 conversationId={currentSession.agent_conversation_id}
                 messageIndex={index}
                 agentName="ai_coach"
-                context="coach" />
+                context="coach"
+                userMessage={messages.slice(0, messages.indexOf(message) + 1).filter((m) => m.role === 'user').at(-1)?.content}
+                sessionLanguage={detectLanguage(messages.slice(0, messages.indexOf(message) + 1).filter((m) => m.role === 'user').at(-1)?.content || '')} />
 
               )}
               {isLoading &&

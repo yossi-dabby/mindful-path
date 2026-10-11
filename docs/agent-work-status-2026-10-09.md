@@ -1,4 +1,4 @@
-# Active-Agent Work Status — updated 2026-10-10
+# Active-Agent Work Status — updated 2026-10-11
 
 | Stage | Status | Evidence / remaining gate |
 |---|---|---|
@@ -61,3 +61,14 @@ Base44 source checkpoint: `945294067616dd0f8841a2d2d9554d8f18a0c678`.
 - #1022 remains open with passing Test Suite/Playwright and live persistence evidence. #1025 remains open with passing final CI; archive UI/Android human smoke is pending. Neither is merged by this work.
 - Therapist formatting compaction already passed the isolated seven-language comparison. No new semantic compaction or production promotion is performed here.
 - The cloud UI connection timed out during agent live QA. New live quality validation must run after restoring a usable browser or on an isolated remote app branch; production agents are not experiment targets.
+
+
+## QA consolidation — 2026-10-11
+
+- #1027 is merged; current main baseline is 6a855e59e7a6d7f1d61a447d959d4d3be02f2dc1. The separate QA clone contains the proposed post-merge fixes, not production verification.
+- Consolidation fixes summary delivery through the normal send lifecycle, summary cache synchronization and per-conversation offers; preserves sanitized most-recent summary outcomes up to the backend 2000-character bound; opens Coach conversations directly after the wizard and hydrates prior opening messages.
+- Coach rendering receives the language of its preceding user message and retains sanitized discussion/outcome reviews instead of replacing them with directive templates. Native tool markup sanitization and routing stripping remain active. Agent configuration changes only instructions; both models remain automatic and read-only tool/memory boundaries remain unchanged.
+- Owner reported live therapist tests across seven languages, summary visibility without refresh and latest-session retrieval; the negation-attribution detail was explicitly accepted as non-blocking. No complete professional language or clinical sign-off is claimed.
+- Codex executed focused live Preview Coach retests in PT/FR/IT/EN/ES through the wizard. The French-to-Spanish directive substitution did not recur; IT/PT single actions and ES/IT openings without multi-day homework passed the focused checks. Evidence calibration, chronology assumptions, extra opening questions/length and subtle English immediacy remain documented in docs/qa/coach-live-focused-retest-2026-10-11.md.
+- QA-only Vite feature-flag definitions are intentionally excluded. Production activation and backend/frontend flag parity require separate verification after an approved merge; no production rollout, semantic compaction or main publication occurs in this consolidation.
+- Human bilingual/clinical review, published-site smoke and limited pilot remain release gates. Revert this consolidation PR for code rollback; no schema or historical records are removed.

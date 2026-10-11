@@ -415,6 +415,8 @@ export default function Chat() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(true);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
+  const summaryPromptShownConversationIdsRef = useRef(new Set());
+  const [summaryPromptConversationId, setSummaryPromptConversationId] = useState(null);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
@@ -2393,6 +2395,16 @@ export default function Chat() {
           return;
         }
 
+        // Summary metadata is independent of streaming message reconciliation.
+        // Keep the rendered summary current without requiring a page refresh.
+        if (data && Object.prototype.hasOwnProperty.call(data, 'session_summary')) {
+          queryClient.setQueryData(['currentConversation', currentConversationId], (previous) => ({
+            ...(previous || { id: currentConversationId }),
+            session_summary: data.session_summary,
+            ...(data.suggested_exercises ? { suggested_exercises: data.suggested_exercises } : {}),
+          }));
+        }
+
         // V2 path: do NOT suppress subscription events — all delivery paths flow
         // through reconcileSnapshot() which handles dedup and stale guards.
         // Legacy path: suppress subscription events while loading (polling is authoritative).
@@ -2975,8 +2987,9 @@ export default function Chat() {
 
   // Check if we should show summary prompt (after 5+ messages, only once)
   useEffect(() => {
-    if (messages.length >= 6 && messages[messages.length - 1]?.role === 'assistant' && !showSummaryPrompt && currentConversationId) {
-      // Only set once per conversation
+    if (messages.length >= 6 && messages[messages.length - 1]?.role === 'assistant' && currentConversationId && !summaryPromptShownConversationIdsRef.current.has(currentConversationId)) {
+      summaryPromptShownConversationIdsRef.current.add(currentConversationId);
+      setSummaryPromptConversationId(currentConversationId);
       setShowSummaryPrompt(true);
     }
   }, [currentConversationId, messages.length]);
@@ -3751,6 +3764,7 @@ export default function Chat() {
     // When _v2QueuedParams is set, the active turn is already created by _drainQueue.
     const _v2QueuedParams = _opts?._v2QueuedParams || null;
     const _isV2QueuedExecution = _v2QueuedParams !== null;
+    const isSummaryRequest = typeof _opts?.summaryMessage === 'string';
     const sendConversationId = _isV2QueuedExecution
       ? _v2QueuedParams.conversationId
       : currentConversationIdRef.current;
@@ -3760,11 +3774,11 @@ export default function Chat() {
     isAndroidRuntime() && !attachedFile && !!audioDraftFile && !!inputMessage.trim();
     const isVoiceDerivedSend = _isV2QueuedExecution
       ? _v2QueuedParams.isVoiceDerivedSend
-      : !attachedFile && !!inputMessage.trim() && (hasRecordedAudioDraft || isAndroidVoiceDraftSend);
+      : !isSummaryRequest && !attachedFile && !!inputMessage.trim() && (hasRecordedAudioDraft || isAndroidVoiceDraftSend);
     const attachmentToUpload = _isV2QueuedExecution
       ? _v2QueuedParams.attachmentToUpload
-      : attachedFile || (!isVoiceDerivedSend ? audioDraftFile : null);
-    const rawInputText = _isV2QueuedExecution ? _v2QueuedParams.messageText : inputMessageRef.current;
+      : isSummaryRequest ? null : attachedFile || (!isVoiceDerivedSend ? audioDraftFile : null);
+    const rawInputText = _isV2QueuedExecution ? _v2QueuedParams.messageText : isSummaryRequest ? _opts.summaryMessage : inputMessageRef.current;
 
     if (!rawInputText.trim() && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
@@ -3953,7 +3967,8 @@ export default function Chat() {
       inputMessageRef.current = '';
       setInputMessage('');
     }
-    setShowSummaryPrompt(false);
+    // Keep an eligible summary offer available after the next reply.
+    // Rendering already hides it during generation.
 
     // The V2 active turn was reserved before Layer-2 safety detection so rapid
     // sends cannot invalidate an earlier preflight. Queued execution reuses the
@@ -4990,8 +5005,6 @@ export default function Chat() {
   const requestSummary = async () => {
     if (!currentConversationId) return;
 
-    const conversation = await base44.agents.getConversation(currentConversationId);
-    setIsLoading(true);
     setShowSummaryPrompt(false);
 
     // Phase 4 — Trigger non-blocking conversation-end memory write for V7
@@ -5021,10 +5034,9 @@ export default function Chat() {
     };
     const summaryPrompt = summaryPromptByLang[userLang] || summaryPromptByLang['en'];
 
-    await base44.agents.addMessage(conversation, {
-      role: 'user',
-      content: summaryPrompt
-    });
+    // Use the normal persistence, finality, subscription and polling path.
+    // Direct addMessage bypasses expectedReplyCount and leaves the summary invisible.
+    await handleSendMessage({ summaryMessage: summaryPrompt });
   };
 
   const handleChatIntentChoice = (entryPoint, prompt) => {
@@ -5554,7 +5566,7 @@ export default function Chat() {
               }
 
               {/* Summary Prompt Section - Separate container with border */}
-              {showSummaryPrompt && !isLoading &&
+              {showSummaryPrompt && summaryPromptConversationId === currentConversationId && !isLoading &&
               <div data-testid="summary-prompt-card" className="bg-teal-50 p-4 md:p-6 border-t border-border/70">
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
