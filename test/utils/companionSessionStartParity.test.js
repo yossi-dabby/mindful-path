@@ -263,16 +263,6 @@ describe('E. Parity: shared module exports are usable by all entry points', () =
     expect(src).toContain('buildCompanionSessionStartContextAsync');
   });
 
-  it('DraggableAiCompanion.jsx imports buildCompanionSessionStartContextAsync', async () => {
-    const fs = await import('fs');
-    const src = fs.readFileSync(
-      new URL('../../src/components/ai/DraggableAiCompanion.jsx', import.meta.url),
-      'utf8',
-    );
-    expect(src).toContain("from '@/lib/companionContinuity.js'");
-    expect(src).toContain('buildCompanionSessionStartContextAsync');
-  });
-
   it('CoachingSessionWizard.jsx imports buildCompanionSessionStartContextAsync', async () => {
     const fs = await import('fs');
     const src = fs.readFileSync(
@@ -283,11 +273,10 @@ describe('E. Parity: shared module exports are usable by all entry points', () =
     expect(src).toContain('buildCompanionSessionStartContextAsync');
   });
 
-  it('all three entry points pass memory_context to createConversation metadata', async () => {
+  it('remaining companion entry points pass memory_context to createConversation metadata', async () => {
     const fs = await import('fs');
     const files = [
       '../../src/components/ai/AiCompanion.jsx',
-      '../../src/components/ai/DraggableAiCompanion.jsx',
       '../../src/components/coaching/CoachingSessionWizard.jsx',
     ];
     for (const filePath of files) {
