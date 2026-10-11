@@ -1642,7 +1642,10 @@ describe('Chat monotonic guarded-message merge regressions', () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(new URL('../../src/pages/Chat.jsx', import.meta.url), 'utf8');
     const addMessageCalls = (source.match(/base44\.agents\.addMessage\(/g) || []).length;
-    expect(addMessageCalls).toBe(6);
+    expect(addMessageCalls).toBe(5);
+    const summaryPath = source.split('const requestSummary = async () => {')[1].split('const handleChatIntentChoice')[0];
+    expect(summaryPath).toContain('await handleSendMessage({ summaryMessage: summaryPrompt });');
+    expect(summaryPath).not.toContain('base44.agents.addMessage(');
   });
 
   it('16. bounded guard metadata/log payload does not include raw rejected text', () => {

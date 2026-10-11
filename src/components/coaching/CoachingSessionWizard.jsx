@@ -25,7 +25,7 @@ const focusAreaDefinitions = [
 ];
 
 
-export default function CoachingSessionWizard({ onClose }) {
+export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const contentScrollRef = useRef(null);
@@ -116,6 +116,7 @@ export default function CoachingSessionWizard({ onClose }) {
           await base44.entities.CoachingSession.update(session.id, {
             agent_conversation_id: conversation.id
           });
+          session.agent_conversation_id = conversation.id;
 
           // Send initial coaching message
           await base44.agents.addMessage(conversation, {
@@ -134,9 +135,10 @@ export default function CoachingSessionWizard({ onClose }) {
 
       return session;
     },
-    onSuccess: () => {
+    onSuccess: (session) => {
       queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
-      onClose();
+      if (onSessionCreated) onSessionCreated(session);
+      else onClose();
     },
     onError: (error) => {
       console.error('Session creation error:', error);

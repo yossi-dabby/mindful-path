@@ -850,7 +850,7 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   // for Romance languages (PT/IT/ES) that share high-frequency vocabulary.
   // Running contamination detection on known-language sessions was the root cause
   // of Portuguese and Italian sessions being misidentified as Spanish.
-  if (normalizedLang === undefined && hasLanguageContamination(result, lang)) {
+  if (!opts.preserveCoachingResponse && normalizedLang === undefined && hasLanguageContamination(result, lang)) {
     console.warn('[CP12-F] Language contamination detected for lang:', lang);
     if (SECONDARY_LANG_REWRITES[lang]) return pickSecondaryLangRewrite(lang);
     return getFailsafe(lang);
@@ -884,6 +884,10 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     console.error('[CP12-D] Empty after routing strip — failsafe');
     return getFailsafe(lang);
   }
+
+  // Coaching permits discussion and outcome review without a directive rewrite.
+  // Leakage sanitization and routing removal above still apply.
+  if (opts.preserveCoachingResponse) return applyLocaleQualityCorrections(result.trim(), lang);
 
   // Pass 3: Generic worksheet block strip — Component E
   if (hasWorksheetDrift(result)) {

@@ -63,6 +63,9 @@ export const CONTINUITY_MAX_PRIOR_SESSIONS = 3;
  */
 export const CONTINUITY_INJECT_MAX_CHARS = 120;
 
+// Match the sanitized backend summary bound; 200 characters can drop the outcome.
+export const CONTINUITY_RECENT_SUMMARY_MAX_CHARS = 2000;
+
 /**
  * Maximum items injected per continuity array field.
  * @type {number}
@@ -309,7 +312,7 @@ function _parseContinuityFromRawRecords(rawRecords) {
   const allRiskFlags = memoryRecords.flatMap(r => r.risk_flags ?? []);
 
   // Use the most recent session's summary as the anchor
-  const recentSummary = (memoryRecords[0]?.session_summary ?? '').trim().slice(0, 200);
+  const recentSummary = (memoryRecords[0]?.session_summary ?? '').trim().slice(0, CONTINUITY_RECENT_SUMMARY_MAX_CHARS);
 
   return {
     sessionCount: memoryRecords.length,

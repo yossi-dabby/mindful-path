@@ -83,7 +83,10 @@ export default function Coach() {
 
   // If wizard is shown, render it as the main content (not overlay)
   if (showWizard) {
-    return <CoachingSessionWizard onClose={handleCloseWizard} />;
+    return <CoachingSessionWizard onClose={handleCloseWizard} onSessionCreated={(session) => {
+      setSelectedSession(session);
+      setShowWizard(false);
+    }} />;
   }
 
   // If session is selected, show chat

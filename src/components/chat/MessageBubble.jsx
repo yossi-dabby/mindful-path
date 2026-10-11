@@ -275,6 +275,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     // back to content-based detection.
     const sanitized = isUser ? contentForGovernor : applyFinalOutputGovernor(contentForGovernor, {
       lang: sessionLanguage || undefined,
+      preserveCoachingResponse: context === 'coach',
       userMessage: userMessage || undefined,
     });
     content = !isUser ? sanitizeAssistantContentForAttachmentSurfaces(sanitized, assistantAttachments) : sanitized;
