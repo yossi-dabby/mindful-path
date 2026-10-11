@@ -169,7 +169,12 @@ export function validateAgentConfigurations(
   const errors = [];
   const actualNames = Object.keys(agentConfigs).sort();
   const benchmarkAllowed = therapistBenchmarkIsAllowed(headRef);
-  const canonicalInventory = sameStringSet(actualNames, EXPECTED_AGENT_NAMES);
+  const retainedBenchmarkNames = ['ai_coach_benchmark', 'cbt_therapist_benchmark']
+    .filter((name) => agentConfigs[name] && /ARCHIVED/i.test(agentConfigs[name].instructions || ''));
+  const canonicalInventory = sameStringSet(
+    actualNames,
+    [...EXPECTED_AGENT_NAMES, ...retainedBenchmarkNames].sort(),
+  );
   const experimentInventory = benchmarkAllowed && sameStringSet(
     actualNames,
     [...EXPECTED_AGENT_NAMES, THERAPIST_BENCHMARK_AGENT_NAME].sort(),
@@ -271,8 +276,16 @@ export function validateAgentConfigurations(
     }
   }
 
+  // Base44 retains resource names for historical records. Optional benchmark
+  // resources are accepted only in the same disabled state as archived agents.
+  for (const agentName of retainedBenchmarkNames) {
+    const config = agentConfigs[agentName];
+    validateCommonConfig(errors, agentName, config, { enabled: false, scope: 'both' });
+    expectEmptyArray(errors, agentName, 'tool_configs', config.tool_configs);
+  }
+
   const therapistBenchmark = agentConfigs[THERAPIST_BENCHMARK_AGENT_NAME];
-  if (therapistBenchmark && benchmarkAllowed) {
+  if (therapistBenchmark && benchmarkAllowed && !retainedBenchmarkNames.includes(THERAPIST_BENCHMARK_AGENT_NAME)) {
     validateCommonConfig(
       errors,
       THERAPIST_BENCHMARK_AGENT_NAME,
