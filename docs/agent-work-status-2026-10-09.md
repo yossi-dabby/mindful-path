@@ -72,3 +72,14 @@ Base44 source checkpoint: `945294067616dd0f8841a2d2d9554d8f18a0c678`.
 - Codex executed focused live Preview Coach retests in PT/FR/IT/EN/ES through the wizard. The French-to-Spanish directive substitution did not recur; IT/PT single actions and ES/IT openings without multi-day homework passed the focused checks. Evidence calibration, chronology assumptions, extra opening questions/length and subtle English immediacy remain documented in docs/qa/coach-live-focused-retest-2026-10-11.md.
 - QA-only Vite feature-flag definitions are intentionally excluded. Production activation and backend/frontend flag parity require separate verification after an approved merge; no production rollout, semantic compaction or main publication occurs in this consolidation.
 - Human bilingual/clinical review, published-site smoke and limited pilot remain release gates. Revert this consolidation PR for code rollback; no schema or historical records are removed.
+
+## MAIN Preview closure after #1028 — 2026-10-11
+
+- #1028 merged baseline: a783f3dc08328ccab85881cf53374dce2ddd8f30. Current engineering closure is in MAIN app 69504b725a07f5aa75aeaf7d Preview, not the separate QA clone.
+- Coach final response contract tightened: silent context retrieval, no unsolicited prior-history intake, short declarative outline and focused question, tentative single-attempt outcome interpretation. Both active models remain Automatic.
+- Direct wizard opening and automatic opening-message hydration passed. Focused seven-language outcome reviews passed; HE/EN/ES opening retests passed the targeted checks. This is focused synthetic live evidence, not comprehensive human language or clinical approval.
+- Two server-retained benchmark resources are inert archives with tools/memory/connectors disabled; originals retained for audit, no historical conversations removed. Policy guard validates the canonical inventory and these known inert optional names.
+- Full suite 11,004 passed / 267 skipped / zero failed. Agent policy, multilingual benchmark, lint and build passed. Full suite used an isolated worktree with pinned GitHub workflow fixtures absent from the Base44 clone.
+- Final live summary/continuity results and reviewer instructions: docs/qa/main-preview-closure-2026-10-11.md. Earlier dated sections remain historical evidence, not current release state.
+- Human language and qualified clinical review remain pending. Published-site/Android smoke and explicit limited-pilot decision remain separate gates. No broad publish, model promotion or therapist semantic compaction was performed.
+
