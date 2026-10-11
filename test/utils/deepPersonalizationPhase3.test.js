@@ -521,8 +521,8 @@ describe('Section 6: readCrossSessionContinuity — successful reads', () => {
     expect(result.sessionCount).toBeLessThanOrEqual(CONTINUITY_MAX_PRIOR_SESSIONS);
   });
 
-  it('truncates summary to 200 characters', async () => {
-    const longSummary = 'X'.repeat(300);
+  it('truncates summary to 2000 characters', async () => {
+    const longSummary = 'X'.repeat(2500);
     const record = makeTherapistMemoryRecord({
       [THERAPIST_MEMORY_VERSION_KEY]: THERAPIST_MEMORY_VERSION,
       session_summary: longSummary,
@@ -531,7 +531,7 @@ describe('Section 6: readCrossSessionContinuity — successful reads', () => {
 
     const result = await readCrossSessionContinuity(entities);
 
-    expect(result.recentSummary.length).toBeLessThanOrEqual(200);
+    expect(result.recentSummary.length).toBe(2000);
   });
 
   it('surface risk_flags in the output when present', async () => {
