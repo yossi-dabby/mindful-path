@@ -13,6 +13,7 @@ describe('Base44 agent configuration policy guard', () => {
   it('accepts the canonical repository configuration', () => {
     const configs = loadAgentConfigurations();
     delete configs[THERAPIST_BENCHMARK_AGENT_NAME];
+    delete configs.ai_coach_benchmark;
 
     expect(Object.keys(configs).sort()).toEqual(EXPECTED_AGENT_NAMES);
     expect(validateAgentConfigurations(configs, { headRef: '' })).toEqual([]);
@@ -20,10 +21,9 @@ describe('Base44 agent configuration policy guard', () => {
 
   it('allows only the isolated therapist benchmark on its approved experiment PR', () => {
     const configs = loadAgentConfigurations();
-    if (!configs[THERAPIST_BENCHMARK_AGENT_NAME]) {
-      configs[THERAPIST_BENCHMARK_AGENT_NAME] = clone(configs.cbt_therapist);
-      configs[THERAPIST_BENCHMARK_AGENT_NAME].name = THERAPIST_BENCHMARK_AGENT_NAME;
-    }
+    delete configs.ai_coach_benchmark;
+    configs[THERAPIST_BENCHMARK_AGENT_NAME] = clone(configs.cbt_therapist);
+    configs[THERAPIST_BENCHMARK_AGENT_NAME].name = THERAPIST_BENCHMARK_AGENT_NAME;
 
     expect(validateAgentConfigurations(configs, {
       headRef: THERAPIST_BENCHMARK_BRANCH_PREFIX + 'policy-test',
@@ -203,6 +203,36 @@ describe('Base44 agent configuration policy guard', () => {
     );
     expect(errors).toContain(
       'ai_coach.model must remain "automatic" until a benchmark approves a change',
+    );
+  });
+});
+
+describe('Retained archived benchmark resources', () => {
+  function archivedConfigs() {
+    const configs = loadAgentConfigurations();
+    for (const name of ['ai_coach_benchmark', 'cbt_therapist_benchmark']) {
+      configs[name] = clone(configs.ai_companion);
+      configs[name].name = name;
+    }
+    return configs;
+  }
+  it('permits only disabled known resources for historical compatibility', () => {
+    expect(validateAgentConfigurations(archivedConfigs(), { headRef: '' })).toEqual([]);
+  });
+  it.each(['ai_coach_benchmark', 'cbt_therapist_benchmark'])('rejects restored tools or memory for %s', (name) => {
+    const configs = archivedConfigs();
+    configs[name].tool_configs = clone(configs.ai_coach.tool_configs);
+    configs[name].memory_config.enabled = true;
+    const errors = validateAgentConfigurations(configs, { headRef: '' });
+    expect(errors).toContain(name + '.tool_configs must remain an empty array');
+    expect(errors).toContain(name + '.memory_config.enabled must be false');
+  });
+  it('rejects any unknown archived resource', () => {
+    const configs = archivedConfigs();
+    configs.unreviewed_benchmark = clone(configs.ai_companion);
+    configs.unreviewed_benchmark.name = 'unreviewed_benchmark';
+    expect(validateAgentConfigurations(configs, { headRef: '' })).toContain(
+      'Agent inventory must be exactly: ' + EXPECTED_AGENT_NAMES.join(', '),
     );
   });
 });
