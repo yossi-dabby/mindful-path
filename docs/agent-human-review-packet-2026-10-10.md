@@ -2,6 +2,8 @@
 
 Prepared after the engineering verification. This is a review protocol, not completed clinical sign-off.
 
+**Current review entry point (2026-10-11):** See `qa/main-preview-closure-2026-10-11.md` for the post-#1028 MAIN Preview changes, seven-language focused Coach results, passing live summary/continuity checks, and reviewer sign-off table. The dated candidate/release descriptions below are historical; the original rejected candidate remains rejected. Both current active models remain Automatic. Human/clinical approval and published/Android smoke are still pending.
+
 ## Current release decision
 
 Production remains Automatic for both active agents. The coach refinement candidate is rejected
