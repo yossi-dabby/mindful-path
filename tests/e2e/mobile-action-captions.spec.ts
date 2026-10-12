@@ -26,7 +26,7 @@ for (const [language, more] of labels) {
     await expect(actions).toHaveCount(3);
     for (const action of await actions.all()) {
       expect((await action.innerText()).trim()).not.toBe('');
-      const box = await action.boundingBox(); expect(box!.height).toBeGreaterThanOrEqual(44);
+      await expect.poll(async () => (await action.boundingBox())?.height || 0).toBeGreaterThanOrEqual(44);
     }
     await actions.first().click();
     await expect(page.getByRole('menu')).not.toBeVisible();
