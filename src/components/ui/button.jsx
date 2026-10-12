@@ -39,7 +39,9 @@ const buttonVariants = cva(
 const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, mobileLabel, mobileLabelKey, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
   const { t } = useTranslation()
-  const caption = mobileLabelKey ? t(`mobile_actions.${mobileLabelKey}`) : mobileLabel
+  const legacyKeys = { Play: 'play', Pause: 'pause', Mute: 'mute', Unmute: 'unmute', 'Mute audio': 'mute', 'Unmute audio': 'unmute', 'Add to favorites': 'favorite', 'Remove from favorites': 'remove', 'Collapse goal details': 'details', 'Expand goal details': 'details', 'Skip forward 10 seconds': 'forward10' }
+  const captionKey = mobileLabelKey || legacyKeys[mobileLabel]
+  const caption = captionKey ? t(`mobile_actions.${captionKey}`) : mobileLabel
 
   const handleClick = (e) => {
     // Trigger haptic feedback on base button interactions (not on asChild which
