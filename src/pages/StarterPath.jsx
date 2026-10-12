@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -377,9 +378,9 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
+              <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}: {t(`starter_path.day_structure.${currentDay}.title`, { defaultValue: dayStructure.title })}
-              </h1>
+              </h1><BotanicalAccent variant="landscape" className="botanical-title-art" /></div>
               <p style={{ color: 'rgb(var(--theme-muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
             </div>
             <div className="text-right">

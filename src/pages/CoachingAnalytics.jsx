@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -122,7 +123,7 @@ export default function CoachingAnalytics() {
               {t('coaching_analytics.back_to_coaching')}
             </Button>
           </Link>
-          <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1>
+          <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
         </header>
 
@@ -151,7 +152,7 @@ export default function CoachingAnalytics() {
             {t('coaching_analytics.back_to_coaching')}
           </Button>
         </Link>
-        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1>
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
       </header>
 

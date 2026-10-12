@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -58,7 +59,7 @@ export default function Progress() {
             <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="min-h-11 min-w-11 shrink-0 rounded-full" aria-label={t('common.go_back_aria')}>
               <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </Button>
-            <div className="min-w-0"><h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('progress.page_title')}</h1><p className="mt-1 text-sm sm:text-base text-muted-foreground break-words">{t('progress.page_subtitle_full')}</p></div>
+            <div className="min-w-0"><div className="botanical-title-row"><h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('progress.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div><p className="mt-1 text-sm sm:text-base text-muted-foreground break-words">{t('progress.page_subtitle_full')}</p></div>
           </div>
         </header>
 

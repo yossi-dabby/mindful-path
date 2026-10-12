@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -71,9 +72,9 @@ export default function Playlists() {
           </Button>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="max-w-2xl">
-              <h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
+              <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
                 {t('playlists.title')}
-              </h1>
+              </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="text-base" style={{ color: '#718096' }}>
                 {t('playlists.subtitle')}
               </p>

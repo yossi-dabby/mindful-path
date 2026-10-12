@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -142,7 +143,7 @@ export default function Community() {
     <PullToRefresh queryKeys={['forumPosts','communityGroups','groupMemberships','sharedProgress','communityReactions']}>
       <div data-testid="community-page" className="mx-auto min-h-[100dvh] max-w-7xl bg-transparent p-3 pb-36 sm:p-5 md:p-8 md:pb-8">
         <header className="mb-6 mt-2 sm:mb-8 sm:mt-4">
-          <h1 className="mb-2 break-words text-2xl font-semibold leading-tight text-teal-700 sm:text-3xl md:text-4xl">{t('community.page_title')}</h1>
+          <div className="botanical-title-row"><h1 className="mb-2 break-words text-2xl font-semibold leading-tight text-teal-700 sm:text-3xl md:text-4xl">{t('community.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           <p className="max-w-3xl break-words font-medium leading-relaxed text-teal-800">{t('community.page_subtitle')}</p>
         </header>
 

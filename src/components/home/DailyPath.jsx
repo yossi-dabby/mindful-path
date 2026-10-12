@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from 'react';
 import { Check, ChevronRight, Circle, HeartPulse, MessageCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -51,9 +52,9 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
               onClick={onClick}
               disabled={disabled}
               data-testid={`daily-path-${key}`}
-              className="group flex min-h-[132px] flex-col rounded-[24px] border border-teal-100 bg-gradient-to-br from-white to-teal-50/70 p-4 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:opacity-60"
+              className="botanical-daily-card group flex min-h-[132px] flex-col rounded-[24px] border border-teal-100 bg-gradient-to-br from-white to-teal-50/70 p-4 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:opacity-60"
             >
-              <div className="flex w-full items-center justify-between gap-3">
+              <BotanicalAccent variant={key === 'checkin' ? 'progress' : key === 'coach' ? 'leaves' : 'sprout'} className="botanical-daily-art" /><div className="botanical-daily-status flex w-full items-center justify-between gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-100 text-teal-700"><Icon className="h-5 w-5" /></span>
                 {complete ? <Check className="h-5 w-5 text-emerald-600" /> : <Circle className="h-4 w-4 text-teal-300" />}
               </div>

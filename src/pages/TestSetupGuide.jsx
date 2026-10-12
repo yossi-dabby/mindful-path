@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -232,10 +233,10 @@ jobs:
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <div className="botanical-title-row"><h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
             <Terminal className="w-8 h-8 text-blue-600" />
             Test Setup Guide
-          </h1>
+          </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           <p className="text-gray-600">Complete setup for Vitest, property-based testing, and CI/CD</p>
         </div>
 

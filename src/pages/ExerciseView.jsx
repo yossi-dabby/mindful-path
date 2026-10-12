@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -117,7 +118,7 @@ export default function ExerciseViewPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-xl font-semibold text-gray-800">{exercise.title || t('exercise_view.untitled')}</h1>
+              <div className="botanical-title-row"><h1 className="text-xl font-semibold text-gray-800">{exercise.title || t('exercise_view.untitled')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             </div>
             <button
               onClick={() => toggleFavoriteMutation.mutate()}

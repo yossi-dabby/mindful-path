@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import PersonalizedContentFeed from '../components/home/PersonalizedContentFeed';
@@ -48,7 +49,7 @@ export default function PersonalizedFeed() {
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-6 h-6" style={{ color: '#26A69A' }} />
-              <h1 className="text-3xl md:text-4xl font-light" style={{ color: '#2D3748' }}>{t('personalized_feed.title')}</h1>
+              <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-light" style={{ color: '#2D3748' }}>{t('personalized_feed.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             </div>
             <p className="mt-1" style={{ color: '#718096' }}>{t('personalized_feed.subtitle')}</p>
           </div>

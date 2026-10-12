@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -29,7 +30,7 @@ export default function LegalDocumentPage({ document }) {
             </span>
             <div>
               <p className="mb-1 text-sm font-semibold tracking-wide text-teal-700">{copy.common.appName}</p>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{content.title}</h1>
+              <div className="botanical-title-row"><h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{content.title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="mt-3 text-sm text-slate-600">
                 {copy.common.effectiveDateLabel}: <time dateTime={LEGAL_EFFECTIVE_DATE}>{LEGAL_EFFECTIVE_DATE}</time>
               </p>

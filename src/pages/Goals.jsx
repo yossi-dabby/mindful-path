@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import MoreActions from '@/components/ui/MoreActions';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
@@ -196,7 +197,7 @@ export default function Goals() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <PullToRefresh queryKeys={['allGoals', 'recentGoals']}>
-        <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100dvh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+        <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100dvh' }}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
@@ -210,7 +211,7 @@ export default function Goals() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           </Button>
           <div>
-            <h1 className="mb-1 text-2xl font-medium md:text-3xl lg:text-4xl md:mb-2" style={{ color: '#1A3A34' }}>{t('goals.title')}</h1>
+            <div className="botanical-title-row"><h1 className="mb-1 text-2xl font-medium md:text-3xl lg:text-4xl md:mb-2" style={{ color: '#1A3A34' }}>{t('goals.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             <p className="text-slate-950 text-sm font-medium text-right md:text-base" style={{ color: '#5A7A72' }}>{t('goals.subtitle')}</p>
           </div>
         </div>

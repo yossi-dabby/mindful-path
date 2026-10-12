@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -47,9 +48,9 @@ export default function Videos() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
           <div>
-            <h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl">
+            <div className="botanical-title-row"><h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl">
               {t('videos.title')}
-            </h1>
+            </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             <p className="text-teal-600 text-sm">
               {t('videos.subtitle')}
             </p>

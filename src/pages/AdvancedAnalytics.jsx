@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -154,7 +155,7 @@ export default function AdvancedAnalytics() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <h1 className="text-2xl md:text-4xl font-light text-gray-800">{t('advanced_analytics.title')}</h1>
+              <div className="botanical-title-row"><h1 className="text-2xl md:text-4xl font-light text-gray-800">{t('advanced_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <PremiumBadge locked={!isPremium} compact />
             </div>
             <p className="text-sm md:text-base text-gray-500 ml-12 md:ml-0">

@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -5401,7 +5402,7 @@ export default function Chat() {
                   <div data-testid="chat-welcome-icon" className="mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
                     <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
-                  <h2 data-testid="chat-welcome-title" className="text-teal-700 mb-1 sm:mb-3 text-base leading-5 sm:text-2xl sm:leading-normal font-semibold tracking-tight">
+                  <BotanicalAccent variant="landscape" className="botanical-chat-art" /><h2 data-testid="chat-welcome-title" className="text-teal-700 mb-1 sm:mb-3 text-base leading-5 sm:text-2xl sm:leading-normal font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
                   <p data-testid="chat-welcome-copy" className="text-slate-600 mb-2 sm:mb-5 text-xs leading-4 sm:text-sm sm:leading-relaxed">

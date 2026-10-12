@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
@@ -197,7 +198,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="break-words text-lg font-bold leading-tight tracking-tight text-teal-950 sm:text-xl">{t('coach.wizard.title')}</h1>
+                <div className="botanical-title-row"><h1 className="break-words text-lg font-bold leading-tight tracking-tight text-teal-950 sm:text-xl">{t('coach.wizard.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
                 <p className="text-sm font-semibold text-teal-700">{t('coach.wizard.step', { step })}</p>
               </div>
             </div>

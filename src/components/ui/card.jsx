@@ -1,22 +1,23 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef(({ className, ...props }, ref) => (
+const Card = React.forwardRef(({ className, children, ...props }, ref) => (
   <div
     ref={ref}
     data-ui="card"
-    className={cn("rounded-[var(--radius-card)] border border-border/60 bg-[hsl(var(--card)/0.94)] text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-[10px]", className)}
-    {...props} />
+    className={cn("botanical-card rounded-[var(--radius-card)] border border-border/60 bg-[hsl(var(--card)/0.94)] text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-[10px]", className)}
+    {...props}>{children}<BotanicalAccent variant="garden" className="botanical-card-corner-art" /></div>
 ))
 Card.displayName = "Card"
 
-const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
+const CardHeader = React.forwardRef(({ className, children, ...props }, ref) => (
   <div
     ref={ref}
     data-ui="card-header"
     className={cn("flex flex-col space-y-2 p-6", className)}
-    {...props} />
+    {...props}>{children}<BotanicalAccent variant="leaves" className="botanical-card-header-art" /></div>
 ))
 CardHeader.displayName = "CardHeader"
 

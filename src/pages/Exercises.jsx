@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -294,7 +295,7 @@ export default function Exercises() {
               <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </Button>
             <div className="min-w-0">
-              <h1 className="text-teal-600 text-2xl font-semibold md:text-3xl lg:text-4xl whitespace-nowrap">{t('exercises.page_title')}</h1>
+              <div className="botanical-title-row"><h1 className="text-teal-600 text-2xl font-semibold md:text-3xl lg:text-4xl whitespace-nowrap">{t('exercises.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
             </div>
           </div>

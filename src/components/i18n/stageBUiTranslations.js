@@ -1,6 +1,10 @@
 const languages = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 const rows = [
+  ["botanical.goals","Choose a direction and a small step","בחירת כיוון וצעד קטן","Elige un rumbo y un pequeño paso","Choisir une direction et un petit pas","Eine Richtung und einen kleinen Schritt wählen","Scegli una direzione e un piccolo passo","Escolha uma direção e um pequeno passo"],
+  ["botanical.progress","Review your activity","סקירת הפעילות שלכם","Revisa tu actividad","Consulter votre activité","Ihre Aktivitäten ansehen","Rivedi la tua attività","Veja sua atividade"],
+  ["botanical.starter","Explore tools at your own pace","היכרות עם כלים בקצב שלכם","Explora herramientas a tu ritmo","Découvrir les outils à votre rythme","Werkzeuge in Ihrem Tempo kennenlernen","Esplora gli strumenti al tuo ritmo","Explore ferramentas no seu ritmo"],
+  ["botanical.open","Open","פתיחה","Abrir","Ouvrir","Öffnen","Apri","Abrir"],
   ["mobile_actions.edit","Edit","עריכה","Editar","Modifier","Bearbeiten","Modifica","Editar"],
   ["mobile_actions.delete","Delete","מחיקה","Eliminar","Supprimer","Löschen","Elimina","Excluir"],
   ["mobile_actions.remove","Remove","הסרה","Quitar","Retirer","Entfernen","Rimuovi","Remover"],

@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -145,9 +146,9 @@ export default function Journal() {
                 <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
               </Button>
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-teal-800 sm:text-3xl lg:text-4xl">
+                <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-teal-800 sm:text-3xl lg:text-4xl">
                   {focusedEntryId ? t('journal.title_entry') : focusedSummaryId ? t('journal.title_summary') : t('journal.title_default')}
-                </h1>
+                </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
                 <p className="mt-1 max-w-2xl text-sm font-medium text-teal-700/80 sm:text-base">
                   {focusedEntryId ? t('journal.subtitle_entry') : focusedSummaryId ? t('journal.subtitle_summary') : t('journal.subtitle_default')}
                 </p>

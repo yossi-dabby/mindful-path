@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -127,7 +128,7 @@ export default function Coach() {
               <Heart className="w-5 h-5 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-teal-600 text-sm font-semibold">{t('coach.title')}</h1>
+              <div className="botanical-title-row"><h1 className="text-teal-600 text-sm font-semibold">{t('coach.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="text-teal-600 text-xs font-medium">{t('coach.subtitle')}</p>
             </div>
           </div>
@@ -174,7 +175,7 @@ export default function Coach() {
               <Heart className="w-6 h-6 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-teal-600 text-xl font-semibold">{t('coach.title')}</h1>
+              <div className="botanical-title-row"><h1 className="text-teal-600 text-xl font-semibold">{t('coach.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="text-teal-600 text-sm">{t('coach.subtitle')}</p>
             </div>
           </div>

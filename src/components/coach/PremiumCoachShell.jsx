@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, X } from 'lucide-react';
@@ -43,7 +44,7 @@ export function PremiumCoachShell({
               <Icon className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-lg font-bold tracking-tight text-teal-950 sm:text-xl">{title}</h1>
+              <div className="botanical-title-row"><h1 className="truncate text-lg font-bold tracking-tight text-teal-950 sm:text-xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="mt-0.5 text-xs font-semibold text-teal-700 sm:text-sm">{stepLabel}</p>
             </div>
             <Button

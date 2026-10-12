@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -260,10 +261,10 @@ export default function Resources() {
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                 {t('resources_ui.eyebrow')}
               </p>
-              <h1 className="flex items-center gap-3 text-3xl font-semibold text-foreground md:text-4xl">
+              <div className="botanical-title-row"><h1 className="flex items-center gap-3 text-3xl font-semibold text-foreground md:text-4xl">
                 <Library className="h-8 w-8 shrink-0 text-primary" aria-hidden="true" />
                 {t('resources.page_title')}
-              </h1>
+              </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
                 {t('resources_ui.page_subtitle')}
               </p>

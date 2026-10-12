@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
@@ -300,9 +301,9 @@ export default function Settings() {
                   {t('settings_ui.protected')}
                 </span>
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+              <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
                 {t('settings_ui.hero_title')}
-              </h1>
+              </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-slate-600 sm:text-base">
                 {t('settings_ui.hero_subtitle')}
               </p>

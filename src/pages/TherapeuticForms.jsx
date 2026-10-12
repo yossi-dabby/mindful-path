@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -651,10 +652,10 @@ function TherapeuticFormsLibrary() {
   return (
     <div className="forms-library-teal mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom bg-teal-100/40" dir={isRtl ? 'rtl' : 'ltr'} data-testid="therapeutic-forms-page">
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
           <ClipboardList className="w-8 h-8 text-teal-600" />
           {t('therapeutic_forms.page_title')}
-        </h1>
+        </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="text-foreground">{t('therapeutic_forms.page_subtitle')}</p>
       </div>
 
@@ -816,10 +817,10 @@ function TherapeuticFormsUnavailable() {
       data-testid="therapeutic-forms-page"
     >
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
           <ClipboardList className="w-8 h-8 text-teal-600" aria-hidden="true" />
           {t('therapeutic_forms.page_title')}
-        </h1>
+        </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="text-foreground">{t('therapeutic_forms.page_subtitle')}</p>
       </div>
 

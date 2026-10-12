@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -252,9 +253,9 @@ export default function JourneysPage() {
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)]">
                     <Compass className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <h1 className="min-w-0 break-words text-3xl font-bold leading-tight tracking-tight text-teal-950 sm:text-4xl">
+                  <div className="botanical-title-row"><h1 className="min-w-0 break-words text-3xl font-bold leading-tight tracking-tight text-teal-950 sm:text-4xl">
                     {t('journeys.page_title')}
-                  </h1>
+                  </h1><BotanicalAccent variant="landscape" className="botanical-title-art" /></div>
                 </div>
                 <p className="max-w-3xl break-words text-sm leading-7 text-slate-600 sm:text-base">
                   {t('journeys.premium.hero_description')}

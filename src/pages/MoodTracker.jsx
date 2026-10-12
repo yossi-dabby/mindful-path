@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -88,7 +89,7 @@ export default function MoodTracker() {
                   <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                 </Button>
                 <div className="min-w-0">
-                  <h1 className="break-words text-2xl font-semibold text-primary md:text-3xl">{t('mood_tracker.page_title')}</h1>
+                  <div className="botanical-title-row"><h1 className="break-words text-2xl font-semibold text-primary md:text-3xl">{t('mood_tracker.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
                   <p className="mt-1 max-w-2xl text-sm font-medium leading-6 text-foreground/70 md:text-base">{t('mood_tracker.page_subtitle')}</p>
                 </div>
               </div>

@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -155,7 +156,7 @@ export default function JournalDashboard() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-teal-900 sm:text-3xl">{t('journal_ui.dashboard.title')}</h1>
+            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-teal-900 sm:text-3xl">{t('journal_ui.dashboard.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             <p className="mt-1 text-sm font-medium text-teal-800/70 sm:text-base">{t('journal_ui.dashboard.subtitle')}</p>
           </div>
         </div>

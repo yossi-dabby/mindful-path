@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +24,7 @@ export default function Tools() {
     <main className="page-container mx-auto min-h-[100dvh] max-w-5xl px-4 pb-28 pt-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <header className="rounded-[32px] border border-white/80 bg-white/85 p-6 shadow-[0_24px_64px_rgba(36,105,92,0.14)] backdrop-blur-xl">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">{t('daily_path.eyebrow')}</p>
-        <h1 className="mt-1 text-3xl font-bold text-slate-900">{t('tools_hub.title')}</h1>
+        <div className="botanical-title-row"><h1 className="mt-1 text-3xl font-bold text-slate-900">{t('tools_hub.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{t('tools_hub.subtitle')}</p>
       </header>
       <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

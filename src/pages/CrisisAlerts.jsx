@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
@@ -127,7 +128,7 @@ export default function CrisisAlerts() {
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
             <AlertTriangle className="w-8 h-8 text-red-600" />
-            <h1 className="text-3xl font-bold text-gray-900">{t('crisis_alerts.title')}</h1>
+            <div className="botanical-title-row"><h1 className="text-3xl font-bold text-gray-900">{t('crisis_alerts.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           </div>
           <p className="text-gray-600">
             {t('crisis_alerts.subtitle')}

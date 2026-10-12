@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -252,12 +253,12 @@ export default function Home() {
         <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="bg-emerald-50 mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
         {/* Header */}
-        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] mb-6 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px] mt-6">
+        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] botanical-home-hero mb-6 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px] mt-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
+              <div className="botanical-title-row"><h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
                 {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-              </h1>
+              </h1><BotanicalAccent variant="leaves" className="botanical-home-hero-art" /></div>
               <div className="bg-[linear-gradient(180deg,rgba(214,239,231,0.96)_0%,rgba(242,235,223,0.92)_100%)] text-teal-600 px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-2 border border-[rgba(110,169,154,0.34)] shadow-[0_10px_24px_rgba(68,108,96,0.12)]">
                 <Sparkles className="w-3.5 h-3.5" />
                 {t('home.oasis_label')}

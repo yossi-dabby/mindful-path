@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -196,7 +197,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-800">{t('thought_coach.title')}</h1>
+                <div className="botanical-title-row"><h1 className="text-xl font-semibold text-gray-800">{t('thought_coach.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
                 <p className="text-sm text-gray-500">{t('thought_coach.step_label', { step })}</p>
               </div>
             </div>

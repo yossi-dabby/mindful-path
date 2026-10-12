@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -139,9 +140,9 @@ export default function VideoPlayer() {
               <ArrowLeft className="w-4 h-4 me-2 rtl:scale-x-[-1]" />
               {t('video_player.back_to_library')}
             </Button>
-            <h1 className="text-2xl font-semibold" style={{ color: '#2D3748' }}>
+            <div className="botanical-title-row"><h1 className="text-2xl font-semibold" style={{ color: '#2D3748' }}>
               {title}
-            </h1>
+            </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           </div>
 
           {/* Video Player Card */}

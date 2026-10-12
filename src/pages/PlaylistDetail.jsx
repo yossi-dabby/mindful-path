@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -142,9 +143,9 @@ export default function PlaylistDetail() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('playlist_detail.back_to_playlists')}
           </Button>
-          <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
+          <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
             {playlist.name}
-          </h1>
+          </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           {playlist.description && (
             <p className="text-base mb-2" style={{ color: 'rgb(var(--theme-muted))' }}>
               {playlist.description}

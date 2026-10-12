@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from "react";
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
 
   return (
     <main
-      className="relative min-h-[100dvh] overflow-hidden bg-[linear-gradient(145deg,#dff5ef_0%,#f8f6ef_48%,#e5f2ef_100%)] px-4 py-5 sm:py-8"
+      className="botanical-theme relative min-h-[100dvh] overflow-hidden bg-[linear-gradient(145deg,#dff5ef_0%,#f8f6ef_48%,#e5f2ef_100%)] px-4 py-5 sm:py-8"
       dir={isRtl ? "rtl" : "ltr"}
     >
       <div className="pointer-events-none absolute -start-24 -top-28 h-72 w-72 rounded-full bg-teal-300/25 blur-3xl" />
@@ -30,7 +31,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
             <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-lg shadow-teal-700/20">
               <Icon className="h-6 w-6" aria-hidden="true" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
+            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             {subtitle && <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-600">{subtitle}</p>}
           </div>
 

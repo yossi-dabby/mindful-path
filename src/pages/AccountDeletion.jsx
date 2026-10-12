@@ -1,3 +1,4 @@
+import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Trash2 } from 'lucide-react';
 
@@ -83,9 +84,9 @@ export default function AccountDeletion({ defaultSection = 'account' }) {
             </span>
             <div>
               <p className="mb-1 text-sm font-semibold tracking-wide text-teal-700">Mindful Path</p>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              <div className="botanical-title-row"><h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                 {isDataDeletion ? 'Delete selected data' : 'Delete your account and data'}
-              </h1>
+              </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             </div>
           </div>
           <p className="mt-6 text-base leading-7 text-slate-700">
