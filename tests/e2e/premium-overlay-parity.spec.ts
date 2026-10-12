@@ -13,7 +13,7 @@ for (const language of ['en', 'he']) {
       (window as any).__DISABLE_ANALYTICS__ = true;
     }, { language });
     await page.goto('/Goals');
-    await page.getByRole('button', { name: language === 'he' ? 'הצעות AI' : 'AI Suggestions', exact: true }).click();
+    await page.getByRole('button', { name: language === 'he' ? 'הצעות AI' : 'AI Suggestions', exact: true }).first().click();
     const overlay = page.locator('.premium-overlay');
     await expect(overlay).toBeVisible();
     expect(await overlay.evaluate(e => e.parentElement?.tagName)).toBe('BODY');
