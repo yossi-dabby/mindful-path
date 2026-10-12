@@ -276,7 +276,7 @@ export default function Home() {
             exerciseComplete={Boolean(todayFlow?.exercise_completed)}
             hasRecommendedExercise={Boolean(todayExercise)}
             onCheckIn={handleStartCheckIn}
-            onCoach={() => navigate('/Chat')}
+            onCoach={() => navigate(createPageUrl('Coach'))}
             onExercise={() => todayExercise ? handleStartExercise() : navigate('/Exercises')}
           />
         </div>
