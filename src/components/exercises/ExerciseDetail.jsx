@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -209,7 +210,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
   }
 
   return createPortal(
-    <div
+    <PremiumOverlay
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -455,7 +456,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                           <Button
                             key={duration}
                             onClick={() => handleStartBreathing(duration)}
-                            className="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-6 text-lg font-semibold">
+                            className="bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 py-6 text-lg font-semibold">
 
                           {t('exercise_view.minutes_short', { count: duration })}
                         </Button>
@@ -626,7 +627,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         </Card>
       </motion.div>
       </div>
-    </div>,
+    </PremiumOverlay>,
     document.body
   );
 

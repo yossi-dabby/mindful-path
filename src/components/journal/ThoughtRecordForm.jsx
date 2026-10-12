@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -384,7 +385,7 @@ Provide:
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div
+      <PremiumOverlay
         className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
         role="dialog"
         aria-modal="true"
@@ -1006,7 +1007,7 @@ Provide:
           )}
         </CardContent>
       </Card>
-      </div>
+      </PremiumOverlay>
     </>
   );
 }

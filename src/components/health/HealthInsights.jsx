@@ -173,7 +173,7 @@ Be specific with data points and focus on actionable insights.`,
           </p>
           <Button
             onClick={generateInsights}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            className="bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Generate Health Insights

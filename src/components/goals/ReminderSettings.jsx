@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -149,7 +150,7 @@ export default function ReminderSettings({ goal, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <PremiumOverlay className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="max-w-2xl w-full max-h-[90vh] overflow-auto">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -343,6 +344,6 @@ export default function ReminderSettings({ goal, onClose }) {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }

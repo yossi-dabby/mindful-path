@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -201,7 +202,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
   };
 
   return (
-    <div 
+    <PremiumOverlay 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -373,6 +374,6 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           )}
         </CardContent>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }

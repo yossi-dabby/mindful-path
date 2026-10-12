@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -224,7 +225,7 @@ ${t('goals.form.ai_prompt_request')}`,
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div 
+      <PremiumOverlay 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto" 
         style={{ 
           zIndex: 50,
@@ -528,7 +529,7 @@ ${t('goals.form.ai_prompt_request')}`,
           </div>
         </CardContent>
       </Card>
-      </div>
+      </PremiumOverlay>
     </>
   );
 }

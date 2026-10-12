@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -911,12 +912,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
   const StepIcon = STEPS[currentStep - 1].icon;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <PremiumOverlay className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-600 to-emerald-700 flex items-center justify-center">
                 <StepIcon className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -968,7 +969,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !isStepValid()}
-                className="bg-gradient-to-r from-purple-600 to-blue-600"
+                className="bg-gradient-to-r from-teal-600 to-emerald-700"
               >
                 {isSubmitting ? t('six_step_goal.saving') : (
                   <>
@@ -981,6 +982,6 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
           </div>
         </div>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }

@@ -335,7 +335,7 @@ export default function ExerciseViewPage() {
                         <Button
                           key={duration}
                           onClick={() => handleStartBreathing(duration)}
-                          className="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-6 text-lg font-semibold"
+                          className="bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 py-6 text-lg font-semibold"
                         >
                           {duration} min
                         </Button>

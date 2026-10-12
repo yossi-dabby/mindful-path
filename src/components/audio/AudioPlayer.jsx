@@ -118,7 +118,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
         <Button
           onClick={togglePlay}
           size="icon"
-          className="rounded-full bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          className="rounded-full bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
@@ -226,7 +226,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
             <Button
               onClick={togglePlay}
               size="lg"
-              className="rounded-full w-14 h-14 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+              className="rounded-full w-14 h-14 bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 shadow-lg"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}

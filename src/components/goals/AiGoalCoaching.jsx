@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -81,7 +82,7 @@ Format as JSON with: {
   });
 
   return (
-    <div 
+    <PremiumOverlay 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -271,6 +272,6 @@ Format as JSON with: {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </PremiumOverlay>
   );
 }

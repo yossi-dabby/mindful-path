@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -64,7 +65,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-template-title" aria-describedby="journal-template-description">
       <Card className="my-0 flex max-h-[100dvh] w-full max-w-4xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/95 shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
         <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/70 p-4 sm:p-6">
@@ -137,7 +138,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
           )}
         </CardContent>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }
 

@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -72,7 +73,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
   const popularTemplates = localizedTemplates.filter((template) => template.is_popular);
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <PremiumOverlay className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <Card
         className="w-full max-w-5xl max-h-[90vh] overflow-y-auto border-0 bg-card"
         style={{ borderRadius: '32px' }}
@@ -188,7 +189,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
           </section>
         </CardContent>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }
 

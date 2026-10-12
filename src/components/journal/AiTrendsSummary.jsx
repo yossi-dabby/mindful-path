@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -125,7 +126,7 @@ Mood context: ${JSON.stringify(recentMoods)}`,
   const TrendDirectionIcon = summary?.emotional_patterns?.trend_direction === 'improving' ? TrendingUp : TrendingDown;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-trends-title" aria-describedby="journal-trends-description">
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="my-0 w-full max-w-4xl sm:my-8">
         <Card className="flex max-h-[100dvh] flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/95 shadow-2xl sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
@@ -275,7 +276,7 @@ Mood context: ${JSON.stringify(recentMoods)}`,
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </PremiumOverlay>
   );
 }
 

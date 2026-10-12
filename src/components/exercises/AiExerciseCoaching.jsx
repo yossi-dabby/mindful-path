@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -148,7 +149,7 @@ Format as JSON:
   };
 
   return createPortal((
-    <div role="dialog" aria-modal="true" aria-labelledby="ai-practice-title" data-testid="ai-practice-dialog" dir={locale === 'he' ? 'rtl' : 'ltr'} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] flex items-center justify-center p-4" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <PremiumOverlay role="dialog" aria-modal="true" aria-labelledby="ai-practice-title" data-testid="ai-practice-dialog" dir={locale === 'he' ? 'rtl' : 'ltr'} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] flex items-center justify-center p-4" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -303,6 +304,6 @@ Format as JSON:
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </PremiumOverlay>
   ), document.body);
 }

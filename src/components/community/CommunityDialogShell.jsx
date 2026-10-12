@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useEffect, useId, useRef } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export default function CommunityDialogShell({ title, closeLabel, onClose, child
   }, [onClose]);
 
   return (
-    <div
+    <PremiumOverlay
       className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4"
       role="presentation"
       onMouseDown={(event) => {
@@ -52,6 +53,6 @@ export default function CommunityDialogShell({ title, closeLabel, onClose, child
           {children}
         </CardContent>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }

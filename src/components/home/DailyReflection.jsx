@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -65,7 +66,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
 
   if (completeMutation.isSuccess) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <PremiumOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -95,12 +96,12 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
+      </PremiumOverlay>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <PremiumOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -235,6 +236,6 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </PremiumOverlay>
   );
 }

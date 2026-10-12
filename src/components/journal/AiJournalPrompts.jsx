@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -102,7 +103,7 @@ The prompts should support emotional processing, cognitive flexibility, self-ref
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="ai-journal-prompts-title" aria-describedby="ai-journal-prompts-description">
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
         className="my-0 w-full max-w-2xl sm:my-8">
@@ -173,6 +174,6 @@ The prompts should support emotional processing, cognitive flexibility, self-ref
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </PremiumOverlay>
   );
 }

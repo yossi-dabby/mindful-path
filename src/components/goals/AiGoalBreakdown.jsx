@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -89,7 +90,7 @@ Make each step concrete and actionable, not vague.`,
 
   if (isLoading) {
     return (
-      <div 
+      <PremiumOverlay 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -102,14 +103,14 @@ Make each step concrete and actionable, not vague.`,
             <p className="text-gray-600">Breaking down your goal into actionable steps...</p>
           </CardContent>
         </Card>
-      </div>
+      </PremiumOverlay>
     );
   }
 
   if (!breakdown) return null;
 
   return (
-    <div 
+    <PremiumOverlay 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -226,7 +227,7 @@ Make each step concrete and actionable, not vague.`,
             <div className="flex gap-3">
               <Button
                 onClick={() => onApplySteps(breakdown)}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Apply These Steps to Goal
@@ -238,6 +239,6 @@ Make each step concrete and actionable, not vague.`,
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PremiumOverlay>
   );
 }

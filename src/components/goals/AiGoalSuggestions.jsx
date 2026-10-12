@@ -1,3 +1,4 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -128,7 +129,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
 
   if (!suggestions && !isLoading) {
     return (
-      <div 
+      <PremiumOverlay 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -137,7 +138,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
       >
         <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">{copy.goals.introTitle}</h2>
@@ -148,7 +149,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
               <Button
                 onClick={() => generateSuggestions()}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 {copy.goals.generate}
@@ -159,13 +160,13 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
             </div>
           </CardContent>
         </Card>
-      </div>
+      </PremiumOverlay>
     );
   }
 
   if (isLoading) {
     return (
-      <div 
+      <PremiumOverlay 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -178,12 +179,12 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
             <p className="text-gray-600">{copy.goals.loading}</p>
           </CardContent>
         </Card>
-      </div>
+      </PremiumOverlay>
     );
   }
 
   return (
-    <div 
+    <PremiumOverlay 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -303,7 +304,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
                           completed: false 
                         }))
                       })}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      className="w-full bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
                     >
                       <Target className="w-4 h-4 mr-2" />
                       {copy.goals.create}
@@ -316,6 +317,6 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
         </CardContent>
         </Card>
       </div>
-    </div>
+    </PremiumOverlay>
   );
 }
