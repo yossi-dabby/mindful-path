@@ -175,7 +175,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
       >
         <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
           <CardContent className="p-12 text-center">
-            <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+            <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">{copy.goals.loading}</p>
           </CardContent>
         </Card>
@@ -196,7 +196,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
         <CardContent className="p-4 md:p-6 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-purple-600" />
+              <Sparkles className="w-6 h-6 text-teal-600" />
               <h2 className="text-2xl font-bold text-gray-800">{copy.goals.resultsTitle}</h2>
             </div>
             <Button onClick={onClose} variant="ghost">
@@ -212,7 +212,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50">
+                <Card className="border-2 border-teal-200 bg-gradient-to-br from-white to-teal-50">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -221,15 +221,15 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
                           {t(`goals.categories.${goal.category}`, { defaultValue: goal.category })}
                         </Badge>
                       </div>
-                      <Target className="w-6 h-6 text-purple-600" />
+                      <Target className="w-6 h-6 text-teal-600" />
                     </div>
 
                     <p className="text-gray-700 mb-4">{goal.description}</p>
 
                     {/* Why Suggested */}
-                    <div className="bg-blue-50 p-3 rounded-lg mb-4">
+                    <div className="bg-teal-50 p-3 rounded-lg mb-4">
                       <p className="text-sm text-gray-700">
-                        <span className="font-semibold text-blue-700">{copy.goals.why}: </span>
+                        <span className="font-semibold text-teal-700">{copy.goals.why}: </span>
                         {goal.why_suggested}
                       </p>
                     </div>
