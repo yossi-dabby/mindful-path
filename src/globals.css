@@ -436,6 +436,27 @@ label {
   }
 }
 
+
+/* Responsive rich-text toolbar: fixed icon size and touch-friendly controls. */
+.ql-toolbar.ql-snow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 8px; }
+.ql-toolbar.ql-snow .ql-formats { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 2px; margin: 0; }
+.ql-toolbar.ql-snow .ql-formats button {
+  display: inline-flex; align-items: center; justify-content: center; float: none;
+  width: 32px; height: 32px; min-width: 32px; min-height: 32px;
+  padding: 7px; border-radius: 8px; flex: 0 0 auto;
+}
+.ql-toolbar.ql-snow .ql-formats button svg {
+  display: block; width: 18px; height: 18px; min-width: 18px; max-width: 18px; flex: 0 0 18px;
+}
+.ql-toolbar.ql-snow .ql-formats button:hover,
+.ql-toolbar.ql-snow .ql-formats button.ql-active { background: hsl(var(--primary) / 0.1); }
+.ql-toolbar.ql-snow .ql-formats button:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 1px; }
+.journal-rich-text .ql-container { height: auto; min-height: 128px; }
+.journal-rich-text .ql-editor { min-height: 128px; max-height: 320px; overflow-y: auto; }
+@media (max-width: 1024px), (pointer: coarse) {
+  .ql-toolbar.ql-snow .ql-formats button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 13px; }
+}
+
 /* Calm Oasis rich text editor styling */
 .ql-toolbar.ql-snow {
   border: 1px solid hsl(var(--border) / 0.86) !important;
