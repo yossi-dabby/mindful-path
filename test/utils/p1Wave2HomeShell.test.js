@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { translations } from '../../src/components/i18n/translations.jsx';
+import { applyStageBUiTranslations } from '../../src/components/i18n/stageBUiTranslations.js';
+
+applyStageBUiTranslations(translations);
 
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 const REQUIRED_KEYS = [
