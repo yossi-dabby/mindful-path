@@ -2,12 +2,14 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { mockApi } from '../helpers/ui';
 
+test.describe.configure({ mode: 'parallel' });
+
 const config = readFileSync('src/pages.config.js', 'utf8');
 const pagesBlock = config.split('export const PAGES = {').at(-1)!.split('}')[0];
 const appRoutes = [...pagesBlock.matchAll(/"([^"]+)":/g)].map(match => '/' + match[1]);
 const routes = [...appRoutes, '/KnowledgeStudio', '/AdminFeatureFlags', '/TherapistTraining',
   '/about', '/privacy', '/terms', '/contact', '/account-deletion',
-  '/login', '/register', '/forgot-password', '/reset-password'];
+  '/login', '/register', '/forgot-password', '/reset-password', '/pdf-viewer', '/data-deletion'];
 for (const route of routes) {
   test(`premium route layout has no overflow: ${route}`, async ({ page }) => {
     test.setTimeout(90000);
