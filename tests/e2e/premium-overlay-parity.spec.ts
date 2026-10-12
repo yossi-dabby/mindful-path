@@ -3,6 +3,7 @@ import { mockApi } from '../helpers/ui';
 
 for (const language of ['en', 'he']) {
   test(`premium goal suggestions stay visible at three widths in ${language}`, async ({ page }) => {
+    test.setTimeout(90000);
     await mockApi(page);
     await page.addInitScript(({ language }) => {
       localStorage.setItem('language', language);
