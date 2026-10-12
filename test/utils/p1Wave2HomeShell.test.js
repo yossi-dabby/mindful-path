@@ -4,6 +4,7 @@ import { translations } from '../../src/components/i18n/translations.jsx';
 
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 const REQUIRED_KEYS = [
+  ...['title', 'close', 'intro', 'description', 'generate', 'generating', 'overview', 'outcomes', 'schedule', 'day', 'minutes', 'start', 'reason', 'focus', 'progression', 'error'].map((key) => `ai_practice.${key}`),
   'shell.skip_to_main',
   'shell.main_navigation',
   'shell.sidebar_navigation',
