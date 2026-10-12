@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Target, Sparkles, BookOpen, Dumbbell, Bell, X, ChevronRight, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export default function ProactiveCheckIn({ onSendMessage }) {
+export default function ProactiveCheckIn({ onSendMessage, className = '' }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [dismissedSuggestionIds, setDismissedSuggestionIds] = useState(() => {
@@ -215,7 +215,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   };
 
   return (
-    <div className="mb-4 px-1 sm:px-2 space-y-3">
+    <div data-testid="proactive-check-in" className={`mb-4 px-1 sm:px-2 space-y-3 ${className}`}>
       <div className="mb-3 flex items-center gap-2 text-teal-700">
         <span className="w-8 h-8 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center">
           <Sparkles className="w-4 h-4" />
