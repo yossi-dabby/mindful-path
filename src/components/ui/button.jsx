@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { Slot } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority";
 
@@ -35,8 +36,10 @@ const buttonVariants = cva(
   }
 )
 
-const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, mobileLabel, children, ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, mobileLabel, mobileLabelKey, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
+  const { t } = useTranslation()
+  const caption = mobileLabelKey ? t(`mobile_actions.${mobileLabelKey}`) : mobileLabel
 
   const handleClick = (e) => {
     // Trigger haptic feedback on base button interactions (not on asChild which
@@ -47,12 +50,12 @@ const Button = React.forwardRef(({ className, variant, size, asChild = false, on
 
   return (
     (<Comp
-      className={cn(buttonVariants({ variant, size, className }), mobileLabel && !asChild && "mobile-labeled-button")}
+      className={cn(buttonVariants({ variant, size, className }), caption && !asChild && "mobile-labeled-button")}
       data-ui="button"
       ref={ref}
       onClick={handleClick}
       {...props}>
-      {asChild ? children : <>{children}{mobileLabel && <span className="mobile-action-label md:hidden">{mobileLabel}</span>}</>}
+      {asChild ? children : <>{children}{caption && <span className="mobile-action-label md:hidden">{caption}</span>}</>}
     </Comp>)
   );
 })
