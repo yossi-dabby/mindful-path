@@ -212,7 +212,7 @@ export default function CoachingChat({ session, onBack }) {
           <div className="mb-3 flex items-center justify-between gap-2">
             <Button variant="ghost" onClick={onBack} className="text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 min-h-[44px] md:min-h-0 gap-2">
               <ChevronLeft className="w-4 h-4 rtl:scale-x-[-1]" />
-              <span className="hidden sm:inline">{t('coach.chat.back')}</span>
+              <span className="inline">{t('coach.chat.back')}</span>
             </Button>
             <Badge variant="outline" className="bg-[hsl(var(--card)/0.82)] text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 gap-2">
               <Target className="w-3 h-3" />
@@ -230,7 +230,7 @@ export default function CoachingChat({ session, onBack }) {
               size="sm"
               onClick={() => setShowActionPanel(!showActionPanel)}
               className="min-h-[44px] shrink-0 gap-2"
-              aria-label={`${t('coach.chat.action_plan')}: ${completedActions}/${totalActions}`}>
+              aria-label={`${t('coach.chat.action_plan')}: ${completedActions}/${totalActions}`} mobileLabel={`${t('coach.chat.action_plan')}: ${completedActions}/${totalActions}`}>
 
                 <CheckCircle2 className="w-4 h-4" />
                 {completedActions}/{totalActions}
@@ -330,7 +330,7 @@ export default function CoachingChat({ session, onBack }) {
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading || !isConsentResolved || showConsentBanner}
                 aria-label={t('coach.chat.send_aria')}
-                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]">
+                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]" mobileLabel={t('coach.chat.send_aria')}>
 
 
                 <Send className="w-5 h-5" />

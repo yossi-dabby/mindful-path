@@ -135,7 +135,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate, className 
                 onClick={() => removeAction(index)}
                 disabled={updateActionsMutation.isPending}
                 aria-label={t('coach.action_plan.remove_aria', { number: index + 1 })}
-              >
+               mobileLabel={t('coach.action_plan.remove_aria', { number: index + 1 })}>
                 <X className="w-3 h-3" />
               </Button>
             </div>

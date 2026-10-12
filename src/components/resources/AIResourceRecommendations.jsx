@@ -274,7 +274,9 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
                       aria-label={t(isSaved ? 'resources_ui.card.remove' : 'resources_ui.card.save', {
                         title: recommendation.resource.title
                       })}
-                    >
+                     mobileLabel={t(isSaved ? 'resources_ui.card.remove' : 'resources_ui.card.save', {
+                        title: recommendation.resource.title
+                      })}>
                       {isSaved ? (
                         <BookmarkCheck className="h-4 w-4 fill-primary text-primary" aria-hidden="true" />
                       ) : (

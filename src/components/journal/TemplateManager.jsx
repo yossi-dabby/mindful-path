@@ -153,10 +153,10 @@ function TemplateCard({ template, displayName, displayDescription, onSelect, onE
           </div>
           <div className="flex gap-1">
             {onEdit && <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={onEdit}
-              aria-label={editLabel || t('journal_ui.common.edit_aria', { item: displayName })}><Edit className="h-4 w-4" /></Button>}
+              aria-label={editLabel || t('journal_ui.common.edit_aria', { item: displayName })} mobileLabel={editLabel || t('journal_ui.common.edit_aria', { item: displayName })}><Edit className="h-4 w-4" /></Button>}
             {onDelete && <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
               if (window.confirm(t('journal_ui.templates.delete_confirm'))) onDelete();
-            }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.templates.item') })}><Trash2 className="h-4 w-4" /></Button>}
+            }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.templates.item') })} mobileLabel={t('journal_ui.common.delete_aria', { item: t('journal_ui.templates.item') })}><Trash2 className="h-4 w-4" /></Button>}
           </div>
         </div>
         <h3 className="font-bold text-teal-950">{displayName}</h3>

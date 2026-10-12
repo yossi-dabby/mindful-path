@@ -307,7 +307,7 @@ Provide recommendations with:
 
 
               <Sparkles className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">{t('exercises.recommendations.customize')}</span>
+              <span className="inline">{t('exercises.recommendations.customize')}</span>
             </Button>
             <Button
               onClick={handleGenerate}

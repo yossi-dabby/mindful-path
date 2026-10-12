@@ -275,7 +275,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     {emotion}
                     <button type="button" aria-label={t('six_step_goal.remove_item', { item: emotion })} onClick={() => removeFromArray('problem_definition.emotions', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
-                    </button>
+                    <span className="mobile-action-label md:hidden">{t('six_step_goal.remove_item', { item: emotion })}</span></button>
                   </Badge>
                 ))}
               </div>
@@ -492,7 +492,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     {dist}
                     <button type="button" aria-label={t('six_step_goal.remove_item', { item: dist })} onClick={() => removeFromArray('obstacles.cognitive_distortions', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
-                    </button>
+                    <span className="mobile-action-label md:hidden">{t('six_step_goal.remove_item', { item: dist })}</span></button>
                   </Badge>
                 ))}
               </div>
@@ -625,7 +625,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     {skill}
                     <button type="button" aria-label={t('six_step_goal.remove_item', { item: skill })} onClick={() => removeFromArray('action_plan.coping_skills', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
-                    </button>
+                    <span className="mobile-action-label md:hidden">{t('six_step_goal.remove_item', { item: skill })}</span></button>
                   </Badge>
                 ))}
               </div>
@@ -701,7 +701,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                     {support}
                     <button type="button" aria-label={t('six_step_goal.remove_item', { item: support })} onClick={() => removeFromArray('action_plan.support_system', i)}>
                       <X className="w-3 h-3" aria-hidden="true" />
-                    </button>
+                    <span className="mobile-action-label md:hidden">{t('six_step_goal.remove_item', { item: support })}</span></button>
                   </Badge>
                 ))}
               </div>

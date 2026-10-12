@@ -156,7 +156,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             }}
             className="text-white/80 hover:text-white hover:bg-white/10 rounded-full h-8 w-8 md:h-10 md:w-10"
             aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-          >
+           mobileLabel={isMuted ? "Unmute audio" : "Mute audio"}>
             {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
           </Button>
           <Slider

@@ -134,7 +134,7 @@ export default function QuickActions() {
                   title={t('quick_actions.aria.guided_intro_video')}>
 
                     <CirclePlay className="h-6 w-6 text-teal-600" strokeWidth={2.2} />
-                  </button>
+                  <span className="mobile-action-label md:hidden">{t('quick_actions.aria.guided_intro_video')}</span></button>
                 </div>
                 <button
                   type="button"
@@ -192,7 +192,7 @@ export default function QuickActions() {
                         title={t('quick_actions.aria.guided_intro_video')}>
 
                         <CirclePlay className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2.2} />
-                      </button>
+                      <span className="mobile-action-label md:hidden">{t('quick_actions.aria.guided_intro_video')}</span></button>
                       }
                     </div>
                     <div className="pointer-events-none relative z-10">

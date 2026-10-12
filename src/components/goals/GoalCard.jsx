@@ -226,7 +226,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 e.stopPropagation();
                 onEdit(goal);
               }}
-              aria-label={t('goals.card.edit_aria')}>
+              aria-label={t('goals.card.edit_aria')} mobileLabel={t('goals.card.edit_aria')}>
 
               <Edit className="w-4 h-4 text-gray-400" />
             </Button>
@@ -241,7 +241,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 }
               }}
               disabled={isDeleting}
-              aria-label={t('goals.card.delete_aria')}>
+              aria-label={t('goals.card.delete_aria')} mobileLabel={t('goals.card.delete_aria')}>
 
               <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
             </Button>

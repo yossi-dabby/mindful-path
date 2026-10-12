@@ -54,10 +54,10 @@ export default function SessionSummaryCard({ summary, onDelete }) {
         </div>
         <div className="flex shrink-0 justify-end gap-1">
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportSessionSummaryPdf(summary)}
-            aria-label={t('journal_ui.common.export_pdf')}><Download className="h-4 w-4 text-teal-700" /></Button>
+            aria-label={t('journal_ui.common.export_pdf')} mobileLabel={t('journal_ui.common.export_pdf')}><Download className="h-4 w-4 text-teal-700" /></Button>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
             if (window.confirm(t('journal_ui.cards.delete_summary_confirm'))) deleteSummaryMutation.mutate(summary.id);
-          }} disabled={deleteSummaryMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })}>
+          }} disabled={deleteSummaryMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })} mobileLabel={t('journal_ui.common.delete_aria', { item: itemLabel })}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

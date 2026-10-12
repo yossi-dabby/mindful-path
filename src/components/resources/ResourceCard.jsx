@@ -127,7 +127,7 @@ export default function ResourceCard({
             className="h-11 w-11 shrink-0 rounded-full bg-background/90"
             aria-label={saveLabel}
             aria-pressed={isSaved}
-          >
+           mobileLabel={saveLabel}>
             {isSaved ? (
               <BookmarkCheck className="h-5 w-5 fill-primary text-primary" aria-hidden="true" />
             ) : (

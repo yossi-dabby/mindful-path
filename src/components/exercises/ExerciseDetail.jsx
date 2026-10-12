@@ -241,7 +241,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
 
                     <Heart className={`w-5 h-5 transition-transform duration-200 ${exercise.favorite ? 'fill-red-500 text-red-500 scale-110' : 'fill-none text-muted-foreground'}`} />
-                  </button>
+                  <span className="mobile-action-label md:hidden">{exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}</span></button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="outline" className="bg-teal-200 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
@@ -292,25 +292,25 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <BookOpen className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{t('exercise_view.tabs.overview')}</span>
+                  <span className="inline">{t('exercise_view.tabs.overview')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="instructions" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Play className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{t('exercise_view.tabs.practice')}</span>
+                  <span className="inline">{t('exercise_view.tabs.practice')}</span>
                 </TabsTrigger>
                 {audioContent.length > 0 &&
                       <TabsTrigger value="audio">
                     <Headphones className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">{t('exercise_view.tabs.audio')}</span>
+                    <span className="inline">{t('exercise_view.tabs.audio')}</span>
                   </TabsTrigger>
                       }
                 <TabsTrigger value="benefits" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Star className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{t('exercise_view.tabs.benefits')}</span>
+                  <span className="inline">{t('exercise_view.tabs.benefits')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="tips" className="bg-teal-300 text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Lightbulb className="text-gray-950 lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">{t('exercise_view.tabs.tips')}</span>
+                  <span className="inline">{t('exercise_view.tabs.tips')}</span>
                 </TabsTrigger>
               </TabsList>
 

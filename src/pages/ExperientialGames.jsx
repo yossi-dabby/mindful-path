@@ -227,7 +227,7 @@ export default function ExperientialGames() {
                   aria-label={t('mind_games.premium.clear_search_aria')}
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
-                </button>
+                <span className="mobile-action-label md:hidden">{t('mind_games.premium.clear_search_aria')}</span></button>
               )}
             </div>
           </div>

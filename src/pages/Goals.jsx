@@ -222,7 +222,7 @@ export default function Goals() {
                 style={{ borderRadius: '24px' }}>
 
             <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">{t('goals.view_calendar')}</span>
+            <span className="inline">{t('goals.view_calendar')}</span>
           </Button>
           <Button
                 onClick={() => setShowTimeline(!showTimeline)}
@@ -232,7 +232,7 @@ export default function Goals() {
                 style={{ borderRadius: '24px' }}>
 
             <Clock className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">{t('goals.view_timeline')}</span>
+            <span className="inline">{t('goals.view_timeline')}</span>
           </Button>
           <Button
                 onClick={() => setShowKanban(!showKanban)}
@@ -242,7 +242,7 @@ export default function Goals() {
                 style={{ borderRadius: '24px' }}>
 
             <LayoutGrid className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">{t('goals.view_kanban')}</span>
+            <span className="inline">{t('goals.view_kanban')}</span>
           </Button>
           <Button
                 onClick={() => setShowTemplates(true)}
@@ -252,7 +252,7 @@ export default function Goals() {
                 style={{ borderRadius: '24px' }}>
 
             <Target className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">{t('goals.view_templates')}</span>
+            <span className="inline">{t('goals.view_templates')}</span>
           </Button>
           <Button
                 onClick={() => setShowAiSuggestions(true)}
@@ -263,7 +263,7 @@ export default function Goals() {
                 style={{ borderRadius: '24px' }}>
 
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">{t('goals.ai_suggestions')}</span>
+            <span className="inline">{t('goals.ai_suggestions')}</span>
           </Button>
           <Button
                 onClick={() => navigate('/Chat?intent=goal_work')} className="bg-teal-600 text-white px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"

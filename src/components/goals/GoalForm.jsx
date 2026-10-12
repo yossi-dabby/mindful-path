@@ -477,7 +477,7 @@ ${t('goals.form.ai_prompt_request')}`,
                           onClick={() => removeMilestone(index)}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
                           aria-label={t('goals.form.remove_milestone', { number: index + 1 })}
-                        >
+                         mobileLabel={t('goals.form.remove_milestone', { number: index + 1 })}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

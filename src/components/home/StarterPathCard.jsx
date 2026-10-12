@@ -89,7 +89,7 @@ export default function StarterPathCard() {
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
                 aria-label={t('starter_path.card_aria_watch_video')}
-              >
+               mobileLabel={t('starter_path.card_aria_watch_video')}>
                 <Sparkles className="w-6 h-6" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
             </div>
@@ -214,7 +214,7 @@ export default function StarterPathCard() {
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
                 aria-label={t('starter_path.card_aria_watch_video')}
-              >
+               mobileLabel={t('starter_path.card_aria_watch_video')}>
                 <Sparkles className="w-5 h-5" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
             </div>

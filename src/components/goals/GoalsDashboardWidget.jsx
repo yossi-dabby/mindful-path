@@ -101,7 +101,7 @@ export default function GoalsDashboardWidget() {
             title="Guided introduction video">
 
             <User className="text-teal-600 lucide lucide-user w-5 h-5" strokeWidth={2} />
-          </button>
+          <span className="mobile-action-label md:hidden">Guided introduction video</span></button>
         </CardTitle>
         <p className="text-teal-600 mt-0.5 text-xs">{t('goals_dashboard_widget.all_stages')}</p>
       </CardHeader>

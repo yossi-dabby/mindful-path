@@ -5644,7 +5644,7 @@ export default function Chat() {
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
                       <span className="truncate max-w-[160px]">{attachedFile.name}</span>
-                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ml-auto text-teal-500 hover:text-teal-700 flex-shrink-0">✕</button>
+                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ml-auto text-teal-500 hover:text-teal-700 flex-shrink-0">✕<span className="mobile-action-label md:hidden">{t('chat.attachments.remove_button_aria')}</span></button>
                     </div>
                   )}
                   {messages.filter((message) => message.role === 'user').length === 0 && !inputMessage.trim() && (
@@ -5697,7 +5697,7 @@ export default function Chat() {
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                       aria-label={t('chat.attachments.attach_button_aria')}
-                      className="text-teal-600 h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-teal-100">
+                      className="text-teal-600 h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-teal-100" mobileLabel={t('chat.attachments.attach_button_aria')}>
                       <Paperclip className="w-5 h-5" />
                     </Button>
                     {audioDraftStatus === 'idle' &&

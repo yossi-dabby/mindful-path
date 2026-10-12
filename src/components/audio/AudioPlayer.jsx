@@ -120,7 +120,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
           size="icon"
           className="rounded-full bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
           aria-label={isPlaying ? "Pause" : "Play"}
-        >
+         mobileLabel={isPlaying ? "Pause" : "Play"}>
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
         </Button>
         <div className="flex-1">
@@ -166,11 +166,11 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               onClick={() => setIsFavorite(!isFavorite)}
               className={cn(isFavorite && "text-red-500")}
               aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
+             mobileLabel={isFavorite ? "Remove from favorites" : "Add to favorites"}>
               <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
             </Button>
             {audioContent.download_enabled && (
-              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label="Download audio">
+              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label="Download audio" mobileLabel="Download audio">
                 <Download className="w-5 h-5" />
               </Button>
             )}
@@ -201,7 +201,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               onClick={toggleMute}
               className="text-gray-600"
               aria-label={isMuted ? "Unmute" : "Mute"}
-            >
+             mobileLabel={isMuted ? "Unmute" : "Mute"}>
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </Button>
             <Slider
@@ -228,7 +228,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="lg"
               className="rounded-full w-14 h-14 bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 shadow-lg"
               aria-label={isPlaying ? "Pause" : "Play"}
-            >
+             mobileLabel={isPlaying ? "Pause" : "Play"}>
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
             </Button>
             <Button
@@ -237,7 +237,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               onClick={() => skip(10)}
               className="rounded-full"
               aria-label="Skip forward 10 seconds"
-            >
+             mobileLabel="Skip forward 10 seconds">
               <SkipForward className="w-4 h-4" />
             </Button>
           </div>

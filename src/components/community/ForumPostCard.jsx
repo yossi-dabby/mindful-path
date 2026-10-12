@@ -49,7 +49,7 @@ function ForumPostCard({ post, onUpvote, onModerate, isUpvoting, isReacted }) {
                 disabled={isUpvoting}
                 aria-pressed={Boolean(isReacted)}
                 aria-label={t(isReacted ? 'community_ui.card.remove_upvote' : 'community_ui.card.upvote')}
-              >
+               mobileLabel={t(isReacted ? 'community_ui.card.remove_upvote' : 'community_ui.card.upvote')}>
                 {isUpvoting ? <Loader2 className="me-1 h-4 w-4 animate-spin" /> : <ThumbsUp className={`me-1 h-4 w-4 ${isReacted ? 'fill-current' : ''}`} />}
                 {post.upvotes || 0}
               </Button>

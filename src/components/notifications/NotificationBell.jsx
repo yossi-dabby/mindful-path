@@ -59,7 +59,7 @@ function NotificationItem({ notification, onMarkRead, onDelete, dateLocale, dele
             aria-label={deleteLabel}>
 
             <X className="w-3.5 h-3.5" />
-          </button>
+          <span className="mobile-action-label md:hidden">{deleteLabel}</span></button>
         </div>
         <p dir="auto" className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
         <div className="flex items-center gap-2 mt-1">

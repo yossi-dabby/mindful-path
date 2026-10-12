@@ -133,7 +133,7 @@ export default function Coach() {
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl('CoachingAnalytics')}>
-              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label={t('coach.analytics_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label={t('coach.analytics_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0" mobileLabel={t('coach.analytics_aria')}>
                 <BarChart3 className="w-5 h-5" />
               </Button>
             </Link>
@@ -141,7 +141,7 @@ export default function Coach() {
               onClick={handleStartSession}
               size="icon" className="bg-teal-600 text-primary-foreground font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 w-9 h-9 shadow-[var(--shadow-sm)]"
 
-              aria-label={t('coach.new_session_aria')}>
+              aria-label={t('coach.new_session_aria')} mobileLabel={t('coach.new_session_aria')}>
 
               <Target className="w-5 h-5" />
             </Button>

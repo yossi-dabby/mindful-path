@@ -84,13 +84,13 @@ export default function ForumPostForm({ onClose, groupId }) {
             {formData.tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="max-w-full gap-1">
                 <span className="truncate">{tag}</span>
-                <button type="button" aria-label={t('community_ui.post.remove_tag', { tag })} onClick={() => setFormData((current) => ({ ...current, tags: current.tags.filter((item) => item !== tag) }))} className="min-h-6 min-w-6 rounded-full">×</button>
+                <button type="button" aria-label={t('community_ui.post.remove_tag', { tag })} onClick={() => setFormData((current) => ({ ...current, tags: current.tags.filter((item) => item !== tag) }))} className="min-h-6 min-w-6 rounded-full">×<span className="mobile-action-label md:hidden">{t('community_ui.post.remove_tag', { tag })}</span></button>
               </Badge>
             ))}
           </div>
           <div className="flex gap-2">
             <Input id="community-post-tag" value={newTag} maxLength={30} disabled={formData.tags.length >= 5} onChange={(e) => setNewTag(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} placeholder={t('community_ui.post.tag_placeholder')} className="min-h-[44px] rounded-xl bg-background" />
-            <Button type="button" onClick={addTag} variant="outline" size="icon" className="min-h-[44px] min-w-[44px]" aria-label={t('community_ui.post.add_tag')} disabled={!newTag.trim() || formData.tags.length >= 5}><Plus className="h-4 w-4" /></Button>
+            <Button type="button" onClick={addTag} variant="outline" size="icon" className="min-h-[44px] min-w-[44px]" aria-label={t('community_ui.post.add_tag')} disabled={!newTag.trim() || formData.tags.length >= 5} mobileLabel={t('community_ui.post.add_tag')}><Plus className="h-4 w-4" /></Button>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{t('community_ui.post.tags_limit')}</p>
         </div>

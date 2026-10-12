@@ -164,7 +164,7 @@ export default function AdvancedAnalytics() {
           {isPremium && (
             <Button variant="outline" className="gap-2 self-start md:self-auto ml-12 md:ml-0">
               <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('advanced_analytics.export_data')}</span>
+              <span className="inline">{t('advanced_analytics.export_data')}</span>
             </Button>
           )}
         </div>
@@ -173,19 +173,19 @@ export default function AdvancedAnalytics() {
           <TabsList className="bg-white border shadow-sm w-full flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="mood" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Activity className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">{t('advanced_analytics.tab_mood')}</span>
+              <span className="inline">{t('advanced_analytics.tab_mood')}</span>
             </TabsTrigger>
             <TabsTrigger value="patterns" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Brain className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">{t('advanced_analytics.tab_patterns')}</span>
+              <span className="inline">{t('advanced_analytics.tab_patterns')}</span>
             </TabsTrigger>
             <TabsTrigger value="progress" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Target className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">{t('advanced_analytics.tab_exercise')}</span>
+              <span className="inline">{t('advanced_analytics.tab_exercise')}</span>
             </TabsTrigger>
             <TabsTrigger value="predictions" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <TrendingUp className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">{t('advanced_analytics.tab_ai')}</span>
+              <span className="inline">{t('advanced_analytics.tab_ai')}</span>
             </TabsTrigger>
           </TabsList>
 

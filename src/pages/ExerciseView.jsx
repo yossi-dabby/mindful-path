@@ -127,7 +127,7 @@ export default function ExerciseViewPage() {
               <Heart
                 className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
               />
-            </button>
+            <span className="mobile-action-label md:hidden">{exercise.favorite ? "Remove from favorites" : "Add to favorites"}</span></button>
           </div>
         </div>
       </div>

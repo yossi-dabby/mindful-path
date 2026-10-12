@@ -218,7 +218,7 @@ export default function ReminderSettings({ goal, onClose }) {
                             }
                           }}
                           aria-label="Delete reminder"
-                        >
+                         mobileLabel="Delete reminder">
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       </div>

@@ -357,7 +357,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           aria-label={t('breathing_tool.controls.close')}
         >
           <X className="w-4 h-4" />
-          <span className="hidden sm:inline">{t('breathing_tool.controls.close')}</span>
+          <span className="inline">{t('breathing_tool.controls.close')}</span>
         </button>
 
         <h2 className="text-base md:text-lg font-semibold" style={{ color: theme.textPrimary }}>
@@ -372,7 +372,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
             aria-label={soundEnabled ? t('breathing_tool.controls.sound_off') : t('breathing_tool.controls.sound_on')}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
+          <span className="mobile-action-label md:hidden">{soundEnabled ? t('breathing_tool.controls.sound_off') : t('breathing_tool.controls.sound_on')}</span></button>
           <button
             onClick={() => setShowSettings(s => !s)}
             className="p-2 rounded-full transition-colors"
@@ -383,7 +383,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
             aria-label={t('breathing_tool.controls.settings')}
           >
             <Settings className="w-4 h-4" />
-          </button>
+          <span className="mobile-action-label md:hidden">{t('breathing_tool.controls.settings')}</span></button>
         </div>
       </div>
 
@@ -398,7 +398,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           aria-label={t('breathing_tool.controls.prev_exercise')}
         >
           <ChevronLeft className="w-4 h-4" />
-        </button>
+        <span className="mobile-action-label md:hidden">{t('breathing_tool.controls.prev_exercise')}</span></button>
 
         {/* Scrollable pills */}
         <div
@@ -436,7 +436,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           aria-label={t('breathing_tool.controls.next_exercise')}
         >
           <ChevronRight className="w-4 h-4" />
-        </button>
+        <span className="mobile-action-label md:hidden">{t('breathing_tool.controls.next_exercise')}</span></button>
       </div>
 
       {/* ── Main Area ───────────────────────────────────────────────────────── */}
@@ -604,7 +604,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
               aria-label={t('breathing_tool.controls.reset')}
             >
               <RotateCcw className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('breathing_tool.controls.reset')}</span>
+              <span className="inline">{t('breathing_tool.controls.reset')}</span>
             </button>
           </div>
 

@@ -298,7 +298,7 @@ export default function Home() {
                       size="icon"
                       variant="ghost"
                       className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
-                      aria-label={t('home.aria.view_goal_details')}>
+                      aria-label={t('home.aria.view_goal_details')} mobileLabel={t('home.aria.view_goal_details')}>
 
                     <Target className="w-4 h-4" />
                   </Button>
@@ -315,7 +315,7 @@ export default function Home() {
                   variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 p-0 text-teal-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
 
                   title={t('home.aria.watch_help_video')}
-                  aria-label={t('home.aria.watch_goals_help_video')}>
+                  aria-label={t('home.aria.watch_goals_help_video')} mobileLabel={t('home.aria.watch_goals_help_video')}>
 
               <CirclePlay className="h-6 w-6" strokeWidth={2.2} />
             </Button>
@@ -328,7 +328,7 @@ export default function Home() {
                       size="icon"
                       variant="ghost"
                       className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
-                      aria-label={t('home.aria.view_journal_entry')}>
+                      aria-label={t('home.aria.view_journal_entry')} mobileLabel={t('home.aria.view_journal_entry')}>
 
                     <BookOpen className="text-teal-600 lucide lucide-book-open w-4 h-4" />
                   </Button>
@@ -345,7 +345,7 @@ export default function Home() {
                   variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 p-0 text-teal-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
 
                   title={t('home.aria.watch_help_video')}
-                  aria-label={t('home.aria.watch_journal_help_video')}>
+                  aria-label={t('home.aria.watch_journal_help_video')} mobileLabel={t('home.aria.watch_journal_help_video')}>
 
               <CirclePlay className="h-6 w-6" strokeWidth={2.2} />
             </Button>

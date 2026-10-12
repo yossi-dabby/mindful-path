@@ -83,7 +83,7 @@ export default function GameCard({ game, onClick, onInfo, index = 0, featured = 
             data-testid={`mindgame-info-${game.slug}`}
           >
             <Info className="h-5 w-5" aria-hidden="true" />
-          </button>
+          <span className="mobile-action-label md:hidden">{t('mind_games.premium.info_aria', { title })}</span></button>
         )}
       </Card>
     </motion.article>

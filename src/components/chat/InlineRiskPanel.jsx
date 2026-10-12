@@ -283,7 +283,7 @@ export default function InlineRiskPanel({ onDismiss }) {
                     style={{ color: '#991B1B' }}
                   >
                     {s.changeCountry}
-                  </button>
+                  <span className="mobile-action-label md:hidden">{s.changeCountry}</span></button>
                 </div>
 
                 <div

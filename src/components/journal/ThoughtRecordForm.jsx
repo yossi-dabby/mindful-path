@@ -869,7 +869,7 @@ Provide:
                         aria-label={t('journal_ui.form.remove_tag_aria', { tag })}
                       >
                         <X className="w-3 h-3" />
-                      </button>
+                      <span className="mobile-action-label md:hidden">{t('journal_ui.form.remove_tag_aria', { tag })}</span></button>
                     </Badge>
                   ))}
                 </div>
@@ -887,7 +887,7 @@ Provide:
                     className="rounded-xl"
                     inputMode="text"
                   />
-                  <Button onClick={addTag} variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t('journal_ui.form.add_tag_aria')}>
+                  <Button onClick={addTag} variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t('journal_ui.form.add_tag_aria')} mobileLabel={t('journal_ui.form.add_tag_aria')}>
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -952,7 +952,7 @@ Provide:
                             aria-label={t('journal_ui.common.delete_aria', { item: `${t('journal_ui.form.images')} ${i + 1}` })}
                           >
                             <Trash2 className="w-3 h-3" />
-                          </button>
+                          <span className="mobile-action-label md:hidden">{t('journal_ui.common.delete_aria', { item: `${t('journal_ui.form.images')} ${i + 1}` })}</span></button>
                         </div>
                       ))}
                     </div>

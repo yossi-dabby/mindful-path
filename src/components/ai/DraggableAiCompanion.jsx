@@ -594,7 +594,7 @@ export default function DraggableAiCompanion() {
           }}
           size="lg" className="bg-teal-600 text-primary-foreground px-8 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 w-16 h-16 border border-border/60 shadow-[var(--shadow-lg)] hover:bg-primary/94"
 
-          aria-label="Open AI Companion chat">
+          aria-label="Open AI Companion chat" mobileLabel="Open AI Companion chat">
 
           <MessageCircle className="w-7 h-7" />
         </Button>
@@ -681,7 +681,7 @@ export default function DraggableAiCompanion() {
                 size="icon"
                 onClick={() => setIsMinimized(true)}
                 className="text-white hover:bg-white/20"
-                aria-label="Minimize AI Companion">
+                aria-label="Minimize AI Companion" mobileLabel="Minimize AI Companion">
 
               <MinusCircle className="w-4 h-4" />
             </Button>
@@ -838,7 +838,7 @@ export default function DraggableAiCompanion() {
                 onClick={sendMessage}
                 disabled={!message.trim() || isLoading || !isConsentResolved || showConsentBanner} className="bg-teal-500 text-teal-800 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-primary/94"
 
-                aria-label="Send message">
+                aria-label="Send message" mobileLabel="Send message">
 
               <Send className="w-4 h-4" />
             </Button>

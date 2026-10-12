@@ -84,7 +84,7 @@ export default function MobileMenu() {
         aria-controls="premium-mobile-menu"
       >
         <Menu className="h-6 w-6" />
-      </button>
+      <span className="mobile-action-label md:hidden">{t('mobile_menu.open_aria')}</span></button>
 
       <Drawer open={open} onOpenChange={setOpen} direction={isRtl ? 'right' : 'left'} shouldScaleBackground={false}>
         <DrawerContent

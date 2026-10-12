@@ -291,7 +291,7 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
                         });
                       }}>
                         <X className="w-3 h-3" aria-hidden="true" />
-                      </button>
+                      <span className="mobile-action-label md:hidden">{`Remove ${obs}`}</span></button>
                     </Badge>
                   ))}
                 </div>

@@ -168,7 +168,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                 data-testid="starter-path-video-button"
               >
                 <CirclePlay className="h-6 w-6" />
-              </button>
+              <span className="mobile-action-label md:hidden">{t('starter_path.premium.watch_intro')}</span></button>
             </div>
 
             <div className="flex min-w-0 items-center gap-2">
@@ -192,7 +192,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                 <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                   <ChevronDown className="h-5 w-5" />
                 </motion.span>
-              </button>
+              <span className="mobile-action-label md:hidden">{expanded ? t('starter_path.premium.collapse_aria') : t('starter_path.premium.expand_aria')}</span></button>
             </div>
           </div>
 
