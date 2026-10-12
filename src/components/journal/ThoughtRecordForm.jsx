@@ -640,7 +640,7 @@ Provide:
                         ['clean']
                       ]
                     }}
-                    className="h-24"
+                    className="journal-rich-text"
                   />
                 </div>
               </div>
@@ -661,7 +661,7 @@ Provide:
                         ['clean']
                       ]
                     }}
-                    className="h-24"
+                    className="journal-rich-text"
                   />
                 </div>
               </div>
