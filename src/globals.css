@@ -825,3 +825,25 @@ html[data-native-platform="ios"][data-native-keyboard="open"] {
   [data-ui="button"].mobile-labeled-button > svg { flex-shrink: 0; }
   [role="tab"] { gap: 4px; min-width: 0; }
 }
+
+@media (max-width: 767px) {
+html:lang(en) .journal-rich-text { --format-bold: "Bold"; --format-italic: "Italic"; --format-underline: "Underline"; --format-strike: "Strike"; --format-quote: "Quote"; --format-bullets: "Bullets"; --format-numbers: "Numbers"; --format-clean: "Clear"; --format-link: "Link"; }
+html:lang(he) .journal-rich-text { --format-bold: "מודגש"; --format-italic: "נטוי"; --format-underline: "קו תחתון"; --format-strike: "קו חוצה"; --format-quote: "ציטוט"; --format-bullets: "תבליטים"; --format-numbers: "מספור"; --format-clean: "ניקוי"; --format-link: "קישור"; }
+html:lang(es) .journal-rich-text { --format-bold: "Negrita"; --format-italic: "Cursiva"; --format-underline: "Subrayar"; --format-strike: "Tachar"; --format-quote: "Cita"; --format-bullets: "Viñetas"; --format-numbers: "Numerar"; --format-clean: "Limpiar"; --format-link: "Enlace"; }
+html:lang(fr) .journal-rich-text { --format-bold: "Gras"; --format-italic: "Italique"; --format-underline: "Souligner"; --format-strike: "Barrer"; --format-quote: "Citation"; --format-bullets: "Puces"; --format-numbers: "Numéros"; --format-clean: "Effacer"; --format-link: "Lien"; }
+html:lang(de) .journal-rich-text { --format-bold: "Fett"; --format-italic: "Kursiv"; --format-underline: "Unterstrich"; --format-strike: "Durchstreichen"; --format-quote: "Zitat"; --format-bullets: "Liste"; --format-numbers: "Nummern"; --format-clean: "Löschen"; --format-link: "Link"; }
+html:lang(it) .journal-rich-text { --format-bold: "Grassetto"; --format-italic: "Corsivo"; --format-underline: "Sottolinea"; --format-strike: "Barrato"; --format-quote: "Citazione"; --format-bullets: "Elenco"; --format-numbers: "Numeri"; --format-clean: "Pulisci"; --format-link: "Link"; }
+html:lang(pt) .journal-rich-text { --format-bold: "Negrito"; --format-italic: "Itálico"; --format-underline: "Sublinhar"; --format-strike: "Riscar"; --format-quote: "Citação"; --format-bullets: "Lista"; --format-numbers: "Números"; --format-clean: "Limpar"; --format-link: "Link"; }
+.journal-rich-text .ql-toolbar button.ql-bold::after { content: var(--format-bold); }
+.journal-rich-text .ql-toolbar button.ql-italic::after { content: var(--format-italic); }
+.journal-rich-text .ql-toolbar button.ql-underline::after { content: var(--format-underline); }
+.journal-rich-text .ql-toolbar button.ql-strike::after { content: var(--format-strike); }
+.journal-rich-text .ql-toolbar button.ql-blockquote::after { content: var(--format-quote); }
+.journal-rich-text .ql-toolbar button.ql-list[value="bullet"]::after { content: var(--format-bullets); }
+.journal-rich-text .ql-toolbar button.ql-list[value="ordered"]::after { content: var(--format-numbers); }
+.journal-rich-text .ql-toolbar button.ql-clean::after { content: var(--format-clean); }
+.journal-rich-text .ql-toolbar button.ql-link::after { content: var(--format-link); }
+.journal-rich-text .ql-toolbar button { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: auto !important; min-width: 44px; height: auto !important; min-height: 52px; padding: 6px !important; }
+.journal-rich-text .ql-toolbar button::after { font-family: inherit; font-size: 10px; line-height: 1.2; max-width: 76px; white-space: normal; overflow-wrap: anywhere; }
+.journal-rich-text .ql-toolbar button svg { flex-shrink: 0; }
+}
