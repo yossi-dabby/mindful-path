@@ -52,8 +52,7 @@ const Button = React.forwardRef(({ className, variant, size, asChild = false, on
       ref={ref}
       onClick={handleClick}
       {...props}>
-      {children}
-      {mobileLabel && !asChild && <span className="mobile-action-label md:hidden">{mobileLabel}</span>}
+      {asChild ? children : <>{children}{mobileLabel && <span className="mobile-action-label md:hidden">{mobileLabel}</span>}</>}
     </Comp>)
   );
 })
