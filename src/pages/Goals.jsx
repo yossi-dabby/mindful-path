@@ -1,3 +1,4 @@
+import MoreActions from '@/components/ui/MoreActions';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -214,6 +215,7 @@ export default function Goals() {
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <MoreActions>
           <Button
                 onClick={() => setShowCalendar(!showCalendar)}
                 variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
@@ -244,6 +246,7 @@ export default function Goals() {
             <LayoutGrid className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
             <span className="inline">{t('goals.view_kanban')}</span>
           </Button>
+          </MoreActions>
           <Button
                 onClick={() => setShowTemplates(true)}
                 variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"

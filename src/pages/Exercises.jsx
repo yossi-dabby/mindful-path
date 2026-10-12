@@ -301,7 +301,7 @@ export default function Exercises() {
           <div className="flex gap-2 flex-wrap sm:flex-nowrap items-start">
             <Button
                   onClick={() => setShowCoaching(true)}
-                  variant="outline" className="bg-teal-50 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 hidden md:flex">
+                  variant="outline" className="bg-teal-50 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 flex">
 
 
               <Sparkles className="w-4 h-4" />
@@ -317,7 +317,7 @@ export default function Exercises() {
 
 
             <Star className="text-teal-600 mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
-            <span className="text-teal-600 hidden md:inline">{t('exercises.favorites')}</span>
+            <span className="text-teal-600 inline">{t('exercises.favorites')}</span>
             {showFavoritesOnly && <span className="text-teal-600 md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
             {showFavoritesOnly && <span className="text-teal-600 opacity-100 hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
           </button>

@@ -794,3 +794,27 @@ html[data-native-platform="ios"][data-native-keyboard="open"] {
     border-radius: 1.5rem;
   }
 }
+/* Mobile action captions: captions remain visible, wrap, and keep touch targets. */
+@media (max-width: 767px) {
+  [data-ui="button"], button:has(> .mobile-action-label), [role="tab"] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+    min-height: 44px;
+    height: auto;
+    max-width: 100%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .mobile-labeled-button, button:has(> .mobile-action-label) {
+    width: auto !important;
+    min-width: 44px;
+    flex-direction: column;
+    gap: 4px;
+    padding-inline: 8px;
+    border-radius: var(--radius-control);
+  }
+  .mobile-action-label { display: block; max-width: 96px; font-size: 11px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
+  [role="tablist"] { height: auto; flex-wrap: wrap; }
+  button > span.inline { white-space: normal; }
+}

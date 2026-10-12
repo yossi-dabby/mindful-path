@@ -293,7 +293,7 @@ export default function Coach() {
         {safeSessions.length > 0 &&
         <Button
           onClick={handleStartSession}
-          size="lg" className="fixed end-4 z-30 inline-flex h-14 w-14 min-h-[56px] min-w-[56px] items-center justify-center rounded-full border border-white/60 bg-teal-600 p-0 text-white shadow-[var(--shadow-xl)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 md:hidden"
+          mobileLabel={t('coach.new_session_aria')} size="lg" className="fixed end-4 z-30 inline-flex h-14 w-14 min-h-[56px] min-w-[56px] items-center justify-center rounded-full border border-white/60 bg-teal-600 p-0 text-white shadow-[var(--shadow-xl)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 md:hidden"
 
           style={{
             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
