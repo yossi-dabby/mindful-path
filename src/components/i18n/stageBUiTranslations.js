@@ -107,7 +107,7 @@ const rows = [
   ['daily_path.action.title','One useful action','פעולה מועילה אחת','Una acción útil','Une action utile','Eine hilfreiche Handlung','Un’azione utile','Uma ação útil'],
   ['daily_path.action.description','Choose one short exercise for today.','בחרו תרגיל קצר אחד להיום.','Elige un ejercicio breve para hoy.','Choisissez un exercice court pour aujourd’hui.','Wählen Sie eine kurze Übung für heute.','Scegli un breve esercizio per oggi.','Escolha um exercício curto para hoje.'],
   ['daily_path.open','Open','פתיחה','Abrir','Ouvrir','Öffnen','Apri','Abrir'],
-  ['stage_b.nav.coach','Coach','מאמן','Guía','Coach','Coach','Coach','Coach'],
+  ['stage_b.nav.coach','Chat','צ׳אט','Chat','Chat','Chat','Chat','Chat'],
   ['stage_b.nav.path','My Path','המסלול שלי','Mi camino','Mon parcours','Mein Weg','Il mio percorso','O meu caminho'],
   ['stage_b.nav.tools','Tools','כלים','Herramientas','Outils','Werkzeuge','Strumenti','Ferramentas'],
   ['my_path.title','My Path','המסלול שלי','Mi camino','Mon parcours','Mein Weg','Il mio percorso','O meu caminho'],
