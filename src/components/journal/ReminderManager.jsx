@@ -125,10 +125,10 @@ export default function ReminderManager({ onClose }) {
                             <Switch checked={Boolean(reminder.active)} onCheckedChange={(active) => toggleActiveMutation.mutate({ id: reminder.id, active })}
                               aria-label={t('journal_ui.reminders.active_aria', { title: reminder.title })} />
                             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => setEditingReminder(reminder)}
-                              aria-label={t('journal_ui.common.edit_aria', { item: t('journal_ui.reminders.item') })} mobileLabel={t('journal_ui.common.edit_aria', { item: t('journal_ui.reminders.item') })}><Edit className="h-4 w-4" /></Button>
+                              aria-label={t('journal_ui.common.edit_aria', { item: t('journal_ui.reminders.item') })} mobileLabelKey="edit"><Edit className="h-4 w-4" /></Button>
                             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
                               if (window.confirm(t('journal_ui.reminders.delete_confirm'))) deleteReminderMutation.mutate(reminder.id);
-                            }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.reminders.item') })} mobileLabel={t('journal_ui.common.delete_aria', { item: t('journal_ui.reminders.item') })}><Trash2 className="h-4 w-4" /></Button>
+                            }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.reminders.item') })} mobileLabelKey="delete"><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </div>
                       </CardContent>

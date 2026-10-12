@@ -70,12 +70,12 @@ function ThoughtRecordCard({ entry, onEdit }) {
           </div>
           <div className="flex shrink-0 justify-end gap-1">
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportThoughtRecordPdf(entry)}
-              aria-label={t('journal_ui.common.export_pdf')} mobileLabel={t('journal_ui.common.export_pdf')}><Download className="h-4 w-4 text-teal-700" /></Button>
+              aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-teal-700" /></Button>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => onEdit(entry)}
-              aria-label={t('journal_ui.common.edit_aria', { item: itemLabel })} mobileLabel={t('journal_ui.common.edit_aria', { item: itemLabel })}><Edit className="h-4 w-4 text-blue-700" /></Button>
+              aria-label={t('journal_ui.common.edit_aria', { item: itemLabel })} mobileLabelKey="edit"><Edit className="h-4 w-4 text-blue-700" /></Button>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
               if (window.confirm(t('journal_ui.cards.delete_entry_confirm'))) deleteMutation.mutate(entry.id);
-            }} disabled={deleteMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })} mobileLabel={t('journal_ui.common.delete_aria', { item: itemLabel })}>
+            }} disabled={deleteMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })} mobileLabelKey="delete">
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>

@@ -330,7 +330,7 @@ export default function CoachingChat({ session, onBack }) {
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading || !isConsentResolved || showConsentBanner}
                 aria-label={t('coach.chat.send_aria')}
-                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]" mobileLabel={t('coach.chat.send_aria')}>
+                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]" mobileLabelKey="send">
 
 
                 <Send className="w-5 h-5" />

@@ -233,7 +233,7 @@ export default function AiCompanion() {
               onClick={() => setIsMinimized(true)}
               className="text-white hover:bg-white/20"
               aria-label="Minimize AI Companion"
-             mobileLabel="Minimize AI Companion">
+             mobileLabelKey="minimize">
               <MinusCircle className="w-4 h-4" />
             </Button>
             <Button

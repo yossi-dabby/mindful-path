@@ -318,7 +318,7 @@ Safety and language requirements:
             aria-label={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}
             title={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}
             data-testid="recommendations-refresh"
-           mobileLabel={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}>
+           mobileLabelKey="refresh">
             <RefreshCw className={aiQuery.isFetching ? 'h-5 w-5 animate-spin' : 'h-5 w-5'} />
           </Button>
         </div>

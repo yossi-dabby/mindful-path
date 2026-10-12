@@ -887,7 +887,7 @@ Provide:
                     className="rounded-xl"
                     inputMode="text"
                   />
-                  <Button onClick={addTag} variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t('journal_ui.form.add_tag_aria')} mobileLabel={t('journal_ui.form.add_tag_aria')}>
+                  <Button onClick={addTag} variant="outline" size="icon" className="min-h-11 min-w-11" aria-label={t('journal_ui.form.add_tag_aria')} mobileLabelKey="add">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>

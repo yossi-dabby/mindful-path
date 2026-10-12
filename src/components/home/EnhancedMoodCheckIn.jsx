@@ -138,7 +138,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                   }}
                   className="h-8 w-8 min-h-[44px] min-w-[44px]"
                   aria-label="Edit check-in"
-                 mobileLabel="Edit check-in">
+                 mobileLabelKey="edit">
                   <Edit2 className="w-4 h-4" />
                 </Button>
                 <Button
@@ -150,7 +150,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                   }}
                   className="h-8 w-8 min-h-[44px] min-w-[44px]"
                   aria-label="Delete check-in"
-                 mobileLabel="Delete check-in">
+                 mobileLabelKey="delete">
                   <Trash2 className="w-4 h-4" />
                 </Button>
                 {isCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

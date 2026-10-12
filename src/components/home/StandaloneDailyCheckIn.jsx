@@ -343,7 +343,7 @@ export default function StandaloneDailyCheckIn() {
                     handleEdit();
                   }}
                   className="h-9 w-9"
-                  aria-label={t('daily_check_in.aria_edit')} mobileLabel={t('daily_check_in.aria_edit')}>
+                  aria-label={t('daily_check_in.aria_edit')} mobileLabelKey="edit">
 
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -355,7 +355,7 @@ export default function StandaloneDailyCheckIn() {
                     handleDelete();
                   }}
                   className="h-9 w-9"
-                  aria-label={t('daily_check_in.aria_delete')} mobileLabel={t('daily_check_in.aria_delete')}>
+                  aria-label={t('daily_check_in.aria_delete')} mobileLabelKey="delete">
 
                   <Trash2 className="text-[hsl(var(--destructive))] lucide lucide-trash2 w-4 h-4" />
                 </Button>

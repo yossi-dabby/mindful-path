@@ -5697,7 +5697,7 @@ export default function Chat() {
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                       aria-label={t('chat.attachments.attach_button_aria')}
-                      className="text-teal-600 h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-teal-100" mobileLabel={t('chat.attachments.attach_button_aria')}>
+                      className="text-teal-600 h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-teal-100" mobileLabelKey="attach">
                       <Paperclip className="w-5 h-5" />
                     </Button>
                     {audioDraftStatus === 'idle' &&

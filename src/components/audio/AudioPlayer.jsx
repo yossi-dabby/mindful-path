@@ -170,7 +170,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
             </Button>
             {audioContent.download_enabled && (
-              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label="Download audio" mobileLabel="Download audio">
+              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label="Download audio" mobileLabelKey="download">
                 <Download className="w-5 h-5" />
               </Button>
             )}

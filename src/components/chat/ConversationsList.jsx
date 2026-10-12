@@ -163,7 +163,7 @@ export default function ConversationsList({
               size="icon"
               className="bg-teal-700 text-white font-medium tracking-[0.005em] leading-none rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0"
               aria-label={t('chat.conversations_list.new_conversation_aria')}
-             mobileLabel={t('chat.conversations_list.new_conversation_aria')}>
+             mobileLabelKey="add">
               <Plus className="w-5 h-5" />
             </Button>
             <Button
@@ -243,7 +243,7 @@ export default function ConversationsList({
                         aria-label={t('chat.conversations_list.rename_placeholder')}
                         className="flex-1 min-w-0 min-h-[44px] rounded-xl border border-teal-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
                       />
-                      <Button type="submit" size="icon" disabled={!nameDraft.trim() || isPreferenceSaving} aria-label={t('chat.conversations_list.save_name')} mobileLabel={t('chat.conversations_list.save_name')}>
+                      <Button type="submit" size="icon" disabled={!nameDraft.trim() || isPreferenceSaving} aria-label={t('chat.conversations_list.save_name')} mobileLabelKey="save">
                         <Check className="w-4 h-4" />
                       </Button>
                       <Button type="button" size="icon" variant="ghost" onClick={() => setEditingId(null)} aria-label={t('common.cancel')}>
