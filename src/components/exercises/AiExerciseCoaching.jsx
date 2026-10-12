@@ -155,7 +155,7 @@ Format as JSON:
         className="w-full max-w-4xl flex flex-col"
         style={{ maxHeight: 'calc(100dvh - 2rem)' }}
       >
-        <Card className="border-0 shadow-2xl flex flex-col overflow-hidden">
+        <Card className="min-h-0 max-h-full border-0 shadow-2xl flex flex-col overflow-hidden">
           <CardHeader className="border-b flex-shrink-0" style={{
             background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.9) 0%, rgba(180, 220, 210, 0.8) 100%)'
           }}>
