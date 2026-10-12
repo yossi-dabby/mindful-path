@@ -1,3 +1,4 @@
+import MoreActions from '@/components/ui/MoreActions';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -68,7 +69,7 @@ function ThoughtRecordCard({ entry, onEdit }) {
               <p className="line-clamp-2 break-words font-semibold text-slate-800" dir="auto">{stripHtml(entry.situation)}</p>
             )}
           </div>
-          <div className="flex shrink-0 justify-end gap-1">
+          <div className="flex shrink-0 justify-end gap-1"><MoreActions>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportThoughtRecordPdf(entry)}
               aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-teal-700" /></Button>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => onEdit(entry)}
@@ -78,7 +79,7 @@ function ThoughtRecordCard({ entry, onEdit }) {
             }} disabled={deleteMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })} mobileLabelKey="delete">
               <Trash2 className="h-4 w-4" />
             </Button>
-          </div>
+          </MoreActions></div>
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">

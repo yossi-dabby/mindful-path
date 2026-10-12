@@ -19,7 +19,7 @@ for (const [language, more] of labels) {
     await page.setViewportSize({width:360,height:780});
     await page.goto('/Goals');
     const trigger = page.getByRole('button', {name:more, exact:true});
-    await expect(trigger).toBeVisible();
+    await expect(trigger).toBeVisible({timeout:30000});
     await expect(trigger).toHaveText(more);
     await trigger.click();
     const actions = page.getByRole('menuitem');

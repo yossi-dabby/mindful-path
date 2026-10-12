@@ -1,3 +1,4 @@
+import MoreActions from '@/components/ui/MoreActions';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -52,7 +53,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
             <span>{t('journal_ui.cards.summary_subtitle')}</span>
           </CardDescription>
         </div>
-        <div className="flex shrink-0 justify-end gap-1">
+        <div className="flex shrink-0 justify-end gap-1"><MoreActions>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportSessionSummaryPdf(summary)}
             aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-teal-700" /></Button>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
@@ -60,7 +61,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
           }} disabled={deleteSummaryMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })} mobileLabelKey="delete">
             <Trash2 className="h-4 w-4" />
           </Button>
-        </div>
+        </MoreActions></div>
       </CardHeader>
       <CardContent className="space-y-5 p-4 text-sm text-slate-700 sm:p-6">
         <div dir="auto" className="prose prose-sm max-w-none break-words">
