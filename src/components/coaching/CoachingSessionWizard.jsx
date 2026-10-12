@@ -187,18 +187,18 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
   };
 
   return createPortal((
-    <div data-testid="coach-wizard" className="flex w-full flex-col bg-background" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div data-testid="coach-wizard" className="flex w-full flex-col bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),transparent_34%),linear-gradient(155deg,#e6f6f1_0%,#d4eee7_52%,#c3e5dc_100%)] text-slate-900" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <div className="bg-card border-b border-border/70 shadow-sm flex-shrink-0" style={{ zIndex: 10 }}>
-        <div className="max-w-2xl mx-auto p-4 w-full">
+      <div className="border-b border-white/70 bg-white/70 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0" style={{ zIndex: 10 }}>
+        <div className="max-w-3xl mx-auto px-4 py-3 sm:px-6 sm:py-4 w-full">
           <div className="flex min-w-0 items-center justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)] flex items-center justify-center">
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="break-words text-base font-semibold leading-tight text-foreground sm:text-xl">{t('coach.wizard.title')}</h1>
-                <p className="text-sm text-muted-foreground">{t('coach.wizard.step', { step })}</p>
+                <h1 className="break-words text-lg font-bold leading-tight tracking-tight text-teal-950 sm:text-xl">{t('coach.wizard.title')}</h1>
+                <p className="text-sm font-semibold text-teal-700">{t('coach.wizard.step', { step })}</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('coach.wizard.back_aria') : t('coach.wizard.close_aria')} className="shrink-0 text-slate-950 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
@@ -209,17 +209,22 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
               }
             </Button>
           </div>
+          <div className="mt-3 flex items-center gap-2" aria-hidden="true">
+            {[1, 2, 3].map((item) => (
+              <span key={item} className={`h-1.5 flex-1 rounded-full transition-colors ${item <= step ? 'bg-teal-600' : 'bg-teal-900/10'}`} />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Content - Scrollable */}
       <div ref={contentScrollRef} className="flex-1 overflow-y-auto" style={{ minHeight: 0, overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch' }}>
-        <div className="mx-auto w-full max-w-2xl p-4 pb-8 pt-5 sm:pt-6 md:p-6">
+        <div className="mx-auto w-full max-w-3xl px-4 py-5 pb-8 sm:px-6 sm:py-7">
           {/* Step 1: Focus Area */}
           {step === 1 &&
-          <div className="space-y-6">
+          <div className="space-y-6 rounded-[28px] border border-white/75 bg-white/70 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
               <div>
-                <h2 className="mb-2 text-xl font-bold text-foreground">{t('coach.wizard.focus_title')}</h2>
+                <h2 className="mb-2 text-xl font-bold tracking-tight text-teal-950 sm:text-2xl">{t('coach.wizard.focus_title')}</h2>
                 <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.focus_description')}</p>
               </div>
 
@@ -239,10 +244,10 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 type="button"
                 aria-pressed={formData.focus_area === area.value}
                 className={cn(
-                  'min-h-[88px] p-4 rounded-xl border-2 text-start transition-all hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                  'min-h-[100px] p-4 rounded-[20px] border text-start transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2',
                   formData.focus_area === area.value ?
-                  'border-primary bg-primary/8 shadow-md' :
-                  'border-border hover:border-border/80'
+                  'border-teal-600 bg-teal-50 shadow-[0_12px_28px_rgba(42,103,91,0.14)] ring-1 ring-teal-600' :
+                  'border-teal-900/15 bg-white/80 shadow-sm hover:border-teal-500/50'
                 )}>
 
                     <div className="flex items-start gap-3">
@@ -260,9 +265,9 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
 
           {/* Step 2: Challenge & Outcome */}
           {step === 2 &&
-          <div className="space-y-6">
+          <div className="space-y-6 rounded-[28px] border border-white/75 bg-white/70 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
               <div>
-                <h2 className="mb-2 text-xl font-bold text-foreground">{t('coach.wizard.details_title')}</h2>
+                <h2 className="mb-2 text-xl font-bold tracking-tight text-teal-950 sm:text-2xl">{t('coach.wizard.details_title')}</h2>
                 <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.details_description')}</p>
               </div>
 
@@ -274,7 +279,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 value={formData.current_challenge}
                 onChange={(e) => setFormData({ ...formData, current_challenge: e.target.value })}
                 placeholder={t('coach.wizard.challenge_placeholder')}
-                className="min-h-32 rounded-xl text-base" />
+                className="min-h-32 rounded-2xl border-teal-900/15 bg-white/90 text-base text-slate-800 shadow-sm placeholder:text-slate-400 focus-visible:border-teal-500 focus-visible:ring-teal-500/25" />
 
               </div>
 
@@ -286,7 +291,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 value={formData.desired_outcome}
                 onChange={(e) => setFormData({ ...formData, desired_outcome: e.target.value })}
                 placeholder={t('coach.wizard.outcome_placeholder')}
-                className="min-h-32 rounded-xl text-base" />
+                className="min-h-32 rounded-2xl border-teal-900/15 bg-white/90 text-base text-slate-800 shadow-sm placeholder:text-slate-400 focus-visible:border-teal-500 focus-visible:ring-teal-500/25" />
 
               </div>
 
@@ -306,7 +311,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                     'w-full p-3 rounded-xl border-2 cursor-pointer text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                     formData.related_goals.includes(goal.id) ?
                     'border-primary bg-primary/8' :
-                    'border-border hover:border-border/80'
+                    'border-teal-900/15 bg-white/80 shadow-sm hover:border-teal-500/50'
                   )}>
 
                         <div className="flex items-center justify-between gap-3">
@@ -330,9 +335,9 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
 
           {/* Step 3: Title & Confirm */}
           {step === 3 &&
-          <div className="space-y-6">
+          <div className="space-y-6 rounded-[28px] border border-white/75 bg-white/70 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
               <div>
-                <h2 className="mb-2 text-xl font-bold text-foreground">{t('coach.wizard.almost_title')}</h2>
+                <h2 className="mb-2 text-xl font-bold tracking-tight text-teal-950 sm:text-2xl">{t('coach.wizard.almost_title')}</h2>
                 <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.almost_description')}</p>
               </div>
 
@@ -344,11 +349,11 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder={t('coach.wizard.session_title_placeholder')}
-                className="min-h-[48px] rounded-xl text-base" />
+                className="min-h-[48px] rounded-2xl border-teal-900/15 bg-white/90 text-base text-slate-800 shadow-sm placeholder:text-slate-400 focus-visible:border-teal-500 focus-visible:ring-teal-500/25" />
 
               </div>
 
-              <Card className="border-2 border-primary/20 bg-primary/5">
+              <Card className="rounded-[24px] border border-teal-900/15 bg-teal-50/80 shadow-sm">
                 <CardContent className="p-4 space-y-3">
                   <h3 className="font-semibold text-foreground">{t('coach.wizard.overview')}</h3>
                   <div className="space-y-2 text-sm">
@@ -368,7 +373,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 </CardContent>
               </Card>
 
-              <div className="p-4 bg-secondary/50 border border-border/70 rounded-xl">
+              <div className="p-5 bg-white/80 border border-teal-900/10 rounded-[24px] shadow-sm">
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div>
@@ -384,15 +389,15 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
       </div>
 
       {/* Navigation - Sticky at bottom of fixed container */}
-      <div className="bg-card border-t border-border/70 shadow-lg flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
-        <div className="max-w-2xl mx-auto p-4">
+      <div className="border-t border-white/75 bg-white/80 shadow-[0_-10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
+        <div className="max-w-3xl mx-auto px-4 py-3 sm:px-6">
           <div className="flex gap-3">
             {step > 1 &&
             <Button
               variant="outline"
               onClick={() => setStep(step - 1)}
               disabled={createSessionMutation.isPending}
-              className="flex-1">
+              className="min-h-12 flex-1 rounded-2xl border-teal-900/15 bg-white/80 text-teal-800 hover:bg-white">
 
                 <ChevronLeft className="h-4 w-4 rtl:scale-x-[-1]" />
                 {t('coach.wizard.back')}
@@ -403,7 +408,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
               data-testid="coach-wizard-next"
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.2)] hover:from-teal-700 hover:to-emerald-800">
 
                 {t('coach.wizard.next')}
                 <ChevronRight className="h-4 w-4 rtl:scale-x-[-1]" />
@@ -412,7 +417,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
             <Button
               onClick={handleSubmit}
               disabled={!canProceed() || createSessionMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.2)] hover:from-teal-700 hover:to-emerald-800">
 
                 {createSessionMutation.isPending ?
               <>
