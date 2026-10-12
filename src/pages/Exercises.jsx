@@ -443,6 +443,7 @@ export default function Exercises() {
         {/* AI Exercise Coaching */}
         {showCoaching &&
           <AiExerciseCoaching
+            exercises={exercises}
             onClose={() => setShowCoaching(false)}
             onSelectExercise={(exercise) => setSelectedExercise(exercise)} />
 
