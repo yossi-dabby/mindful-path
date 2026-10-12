@@ -5277,7 +5277,7 @@ export default function Chat() {
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
                                                 `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
                                                 (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
-      <div className="bg-teal-50/55 rounded-2xl flex relative backdrop-blur-[2px]"
+      <div data-testid="chat-page-shell" className="rounded-2xl flex relative"
 
       data-testid="chat-root"
       data-page-ready={isPageReady}
@@ -5390,14 +5390,14 @@ export default function Chat() {
           }
 
         {/* Messages Area */}
-        <div className="bg-teal-400 text-slate-50 my-1 px-1 py-1 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
+        <div className="text-foreground my-1 px-1 py-1 flex-1 min-h-0 overflow-hidden flex flex-col">
           {!currentConversationId ?
             <div
               data-testid="chat-empty-state-scroll"
               className="h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4"
               style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Welcome Section - Separate container */}
-              <div data-testid="chat-empty-welcome-shell" className="p-1.5 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6 bg-gradient-to-b from-white/35 to-teal-50/45">
+              <div data-testid="chat-empty-welcome-shell" className="p-1.5 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6">
                 <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-2 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
                   <div data-testid="chat-welcome-icon" className="mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
                     <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
@@ -5418,19 +5418,15 @@ export default function Chat() {
                 </Card>
               </div>
 
-              {/* Insight Cards Section - Separate container with border */}
-              <div className="bg-teal-100 p-4 md:p-6 border-t border-border/70">
-                <div className="max-w-2xl mx-auto">
+              {/* Suggestions own their spacing, so no empty strip remains. */}
                   <ErrorBoundary>
-                    <ProactiveCheckIn onSendMessage={async (prompt) => {
+                    <ProactiveCheckIn className="mx-auto max-w-2xl p-4 md:p-6" onSendMessage={async (prompt) => {
                       await startNewConversation();
                       setTimeout(() => {
                         setInputMessage(prompt);
                       }, 500);
                     }} />
                   </ErrorBoundary>
-                </div>
-              </div>
             </div> :
 
             <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="my-1 flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
@@ -5443,13 +5439,9 @@ export default function Chat() {
 
               {/* Insight Cards - Show if no flow active */}
               {messages.length === 0 && !showTherapyFlow &&
-              <div className="bg-teal-50 p-4 md:p-6 border-b border-border/70">
-                  <div className="max-w-3xl mx-auto">
                     <ErrorBoundary>
-                      <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+                      <ProactiveCheckIn className="mx-auto max-w-3xl p-4 md:p-6" onSendMessage={(prompt) => setInputMessage(prompt)} />
                     </ErrorBoundary>
-                  </div>
-                </div>
               }
 
               {/* Active Chat Messages */}
@@ -5568,7 +5560,7 @@ export default function Chat() {
 
               {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && summaryPromptConversationId === currentConversationId && !isLoading &&
-              <div data-testid="summary-prompt-card" className="bg-teal-50 p-4 md:p-6 border-t border-border/70">
+              <div data-testid="summary-prompt-card" className="p-4 md:p-6">
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
