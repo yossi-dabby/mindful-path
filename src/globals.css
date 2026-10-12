@@ -439,7 +439,7 @@ label {
 
 /* Responsive rich-text toolbar: fixed icon size and touch-friendly controls. */
 .ql-toolbar.ql-snow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 8px; }
-.ql-toolbar.ql-snow .ql-formats { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 2px; margin: 0; }
+.ql-toolbar.ql-snow .ql-formats { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 2px; margin: 0 !important; }
 .ql-toolbar.ql-snow .ql-formats button {
   display: inline-flex; align-items: center; justify-content: center; float: none;
   width: 32px; height: 32px; min-width: 32px; min-height: 32px;
