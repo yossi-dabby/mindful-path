@@ -284,7 +284,7 @@ export default function ConversationsList({
                           aria-label={t('chat.conversations_list.actions_aria', { name: getConversationName(conversation) })}
                         >
                           <MoreHorizontal className="w-5 h-5 text-teal-700" />
-                        <span className="mobile-action-label md:hidden">{t('chat.conversations_list.actions_aria', { name: getConversationName(conversation) })}</span></button>
+                        <span className="mobile-action-label md:hidden">{t('mobile_actions.more')}</span></button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onSelect={() => beginRename(conversation)}>

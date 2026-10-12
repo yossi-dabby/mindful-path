@@ -818,3 +818,10 @@ html[data-native-platform="ios"][data-native-keyboard="open"] {
   [role="tablist"] { height: auto; flex-wrap: wrap; }
   button > span.inline { white-space: normal; }
 }
+
+@media (max-width: 767px) {
+  button:has(> .mobile-action-label) { min-height: 44px !important; height: auto !important; }
+  [data-app-chrome] .mobile-action-label { max-width: 64px; font-size: 10px; }
+  [data-ui="button"].mobile-labeled-button > svg { flex-shrink: 0; }
+  [role="tab"] { gap: 4px; min-width: 0; }
+}

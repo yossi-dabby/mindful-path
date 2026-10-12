@@ -298,7 +298,7 @@ export default function NotificationBell() {
         aria-expanded={open}
         aria-haspopup="true">
 
-        <Bell className="text-teal-600 lucide lucide-bell w-5 h-5" />
+        <Bell className="text-teal-600 lucide lucide-bell w-5 h-5" /><span className="mobile-action-label md:hidden">{t('mobile_actions.notifications')}</span>
         {unreadCount > 0 &&
         <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-500">
             {unreadCount > 99 ? '99+' : unreadCount}

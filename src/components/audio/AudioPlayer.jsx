@@ -219,7 +219,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => skip(-10)}
               className="rounded-full"
-              aria-label="Skip back 10 seconds"
+              aria-label="Skip back 10 seconds" mobileLabelKey="back10"
             >
               <SkipBack className="w-4 h-4" />
             </Button>
