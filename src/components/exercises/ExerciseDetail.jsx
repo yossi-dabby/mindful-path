@@ -276,7 +276,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
 
                   {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  <span className="hidden sm:inline">{isExportingPdf ? pdfText.downloading : pdfText.download}</span>
+                  <span className="inline">{isExportingPdf ? pdfText.downloading : pdfText.download}</span>
                 </Button>
                 <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('exercise_view.close')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
                   <X className="w-5 h-5" />

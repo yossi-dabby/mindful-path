@@ -5779,7 +5779,7 @@ export default function Chat() {
                       className="ms-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-teal-200 bg-white/95 p-0 text-xs font-semibold text-teal-800 shadow-[var(--shadow-sm)] hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:h-auto sm:w-auto sm:min-h-10 sm:gap-2 sm:rounded-full sm:px-3 sm:py-2"
                     >
                       <LifeBuoy className="h-4 w-4" aria-hidden="true" />
-                      <span className="hidden sm:inline">{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
+                      <span className="inline">{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
                     </Link>
                   </div>
                 </div>
