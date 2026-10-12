@@ -35,7 +35,7 @@ const buttonVariants = cva(
   }
 )
 
-const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, mobileLabel, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
 
   const handleClick = (e) => {
@@ -47,10 +47,14 @@ const Button = React.forwardRef(({ className, variant, size, asChild = false, on
 
   return (
     (<Comp
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, className }), mobileLabel && !asChild && "mobile-labeled-button")}
+      data-ui="button"
       ref={ref}
       onClick={handleClick}
-      {...props} />)
+      {...props}>
+      {children}
+      {mobileLabel && !asChild && <span className="mobile-action-label md:hidden">{mobileLabel}</span>}
+    </Comp>)
   );
 })
 Button.displayName = "Button"
