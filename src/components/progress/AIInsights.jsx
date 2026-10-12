@@ -196,7 +196,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
               variant="outline"
               size="sm"
               disabled={isGenerating}
-            >
+             mobileLabelKey="refresh">
               <RefreshCw className="w-4 h-4 mr-1" />
               Refresh
             </Button>

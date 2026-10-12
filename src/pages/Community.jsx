@@ -23,7 +23,7 @@ function LoadingCard({ label }) {
 }
 
 function ErrorCard({ text, retry, retryLabel }) {
-  return <Card className="surface-secondary"><CardContent className="flex min-h-36 flex-col items-center justify-center gap-3 p-6 text-center"><AlertCircle className="h-8 w-8 text-red-600" /><p role="alert" className="text-foreground">{text}</p><Button type="button" variant="outline" className="min-h-[44px]" onClick={retry}><RefreshCw className="me-2 h-4 w-4" />{retryLabel}</Button></CardContent></Card>;
+  return <Card className="surface-secondary"><CardContent className="flex min-h-36 flex-col items-center justify-center gap-3 p-6 text-center"><AlertCircle className="h-8 w-8 text-red-600" /><p role="alert" className="text-foreground">{text}</p><Button type="button" variant="outline" className="min-h-[44px]" onClick={retry} mobileLabelKey="refresh"><RefreshCw className="me-2 h-4 w-4" />{retryLabel}</Button></CardContent></Card>;
 }
 
 export default function Community() {
@@ -168,7 +168,7 @@ export default function Community() {
                 <TabsTrigger value="groups" className={tabClass}>{t('community.tabs.groups')}</TabsTrigger>
                 <TabsTrigger value="progress" className={tabClass}>{t('community.tabs.progress')}</TabsTrigger>
               </TabsList>
-              <Button type="button" onClick={tabAction.action} className="min-h-[44px] w-full bg-teal-700 shadow-[var(--shadow-sm)] sm:w-auto"><Plus className="me-2 h-4 w-4" />{tabAction.label}</Button>
+              <Button type="button" onClick={tabAction.action} className="min-h-[44px] w-full bg-teal-700 shadow-[var(--shadow-sm)] sm:w-auto" mobileLabelKey="add"><Plus className="me-2 h-4 w-4" />{tabAction.label}</Button>
             </div>
             {activeTab === 'forum' && (
               <div className="relative">

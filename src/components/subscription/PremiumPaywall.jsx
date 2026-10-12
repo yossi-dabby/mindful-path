@@ -178,7 +178,7 @@ export default function PremiumPaywall({ onClose, onSuccess }) {
                     disabled={isBusy || !user}
                     className="min-h-[48px] w-full rounded-2xl border-teal-200 text-teal-800"
                     data-testid="premium-restore-button"
-                  >
+                   mobileLabelKey="refresh">
                     <RefreshCw className="me-2 h-4 w-4" />
                     {copy.restore}
                   </Button>

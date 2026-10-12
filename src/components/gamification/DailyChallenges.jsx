@@ -149,7 +149,7 @@ export default function DailyChallenges() {
                       onClick={() => completeMutation.mutate(challenge)}
                       disabled={completeMutation.isPending}
                       className="border-purple-300 hover:bg-purple-50"
-                    >
+                     mobileLabelKey="save">
                       <Circle className="w-4 h-4" />
                     </Button>
                   )}

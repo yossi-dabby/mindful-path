@@ -232,7 +232,7 @@ export default function ReminderSettings({ goal, onClose }) {
                   variant="outline"
                   onClick={() => setShowAddForm(true)}
                   className="w-full"
-                >
+                 mobileLabelKey="add">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Reminder
                 </Button>

@@ -125,7 +125,7 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
             onClick={loadSnapshot}
             disabled={loading}
             className="gap-1.5 text-xs h-7 px-2 flex-shrink-0"
-          >
+           mobileLabelKey="refresh">
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             {loading ? 'Loading…' : 'Refresh'}
           </Button>

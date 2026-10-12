@@ -172,7 +172,7 @@ export default function JourneyCard({
               disabled={isManaging}
               className="min-h-11 flex-1 rounded-xl text-red-700 hover:bg-red-50"
               data-testid={'journey-remove-' + journey.id}
-            >
+             mobileLabelKey="delete">
               <Trash2 className="h-4 w-4" />
               {copy.journey.remove}
             </Button>

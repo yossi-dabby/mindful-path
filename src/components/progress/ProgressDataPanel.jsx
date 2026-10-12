@@ -161,7 +161,7 @@ export default function ProgressDataPanel({ moodEntries, journalEntries, goals, 
           </div>
 
           {outcomes.length > 0 && (
-            <Button type="button" variant="outline" onClick={deleteOutcomes} className="min-h-11 gap-2 border-destructive/30 text-destructive">
+            <Button type="button" variant="outline" onClick={deleteOutcomes} className="min-h-11 gap-2 border-destructive/30 text-destructive" mobileLabelKey="delete">
               <Trash2 className="h-4 w-4" aria-hidden="true" />{copy.deleteHistory}
             </Button>
           )}

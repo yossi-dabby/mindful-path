@@ -157,7 +157,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                       backgroundColor: '#26A69A',
                       color: 'white'
                     }}
-                  >
+                   mobileLabelKey="add">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Playlist
                   </Button>

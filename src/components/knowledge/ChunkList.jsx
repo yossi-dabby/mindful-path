@@ -89,7 +89,7 @@ export default function ChunkList({ onEdit, onNew }) {
         />
         <Input placeholder="Min score" type="number" className="w-24" value={filters.priority_min} onChange={e => setFilters(f => ({ ...f, priority_min: e.target.value }))} />
         <Input placeholder="Max score" type="number" className="w-24" value={filters.priority_max} onChange={e => setFilters(f => ({ ...f, priority_max: e.target.value }))} />
-        <Button onClick={onNew} className="ml-auto gap-2"><Plus className="w-4 h-4" /> New Chunk</Button>
+        <Button onClick={onNew} className="ml-auto gap-2" mobileLabelKey="add"><Plus className="w-4 h-4" /> New Chunk</Button>
       </div>
 
       <p className="text-xs text-muted-foreground">{filtered.length} of {chunks.length} chunks</p>
@@ -126,7 +126,7 @@ export default function ChunkList({ onEdit, onNew }) {
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
                   <Button size="icon" variant="ghost" onClick={() => onEdit(chunk)}><Pencil className="w-4 h-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => setPendingDelete(chunk)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => setPendingDelete(chunk)} mobileLabelKey="delete"><Trash2 className="w-4 h-4 text-destructive" /></Button>
                 </div>
               </CardContent>
             </Card>

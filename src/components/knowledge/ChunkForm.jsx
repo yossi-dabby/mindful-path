@@ -134,7 +134,7 @@ export default function ChunkForm({ chunk, onSave, onCancel }) {
               placeholder="Add tags (comma-separated)"
               onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
             />
-            <Button variant="outline" onClick={addTag} type="button"><Plus className="w-4 h-4" /></Button>
+            <Button variant="outline" onClick={addTag} type="button" mobileLabelKey="add"><Plus className="w-4 h-4" /></Button>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {form.tags.map(tag => (

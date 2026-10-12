@@ -209,7 +209,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             variant="outline"
             size="sm"
             className="text-purple-600 border-purple-300 hover:bg-purple-50"
-          >
+           mobileLabelKey="refresh">
             <RefreshCw className="w-4 h-4 mr-2" />
             Try Again
           </Button>
@@ -234,7 +234,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             variant="outline"
             size="sm"
             className="text-purple-600 border-purple-300 hover:bg-purple-50"
-          >
+           mobileLabelKey="refresh">
             <RefreshCw className="w-4 h-4 mr-2" />
             Generate Feed
           </Button>
@@ -298,7 +298,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           variant="ghost"
           size="sm"
           className="text-gray-500 hover:text-purple-600"
-        >
+         mobileLabelKey="refresh">
           <RefreshCw className="w-4 h-4" />
         </Button>
       </div>

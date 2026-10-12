@@ -134,7 +134,7 @@ export default function AdminFeatureFlags() {
 
           {/* Actions */}
           <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="outline" size="sm" onClick={fetchFlags} className="gap-2">
+            <Button variant="outline" size="sm" onClick={fetchFlags} className="gap-2" mobileLabelKey="refresh">
               <RefreshCw className="w-4 h-4" /> Refresh
             </Button>
             {!inSync && (

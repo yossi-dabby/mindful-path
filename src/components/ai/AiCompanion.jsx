@@ -155,7 +155,7 @@ export default function AiCompanion() {
           onClick={() => setIsOpen(true)}
           size="lg"
           className="rounded-full w-16 h-16 shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-        >
+         mobileLabelKey="chat">
           <MessageCircle className="w-7 h-7" />
         </Button>
         <motion.div
@@ -363,7 +363,7 @@ export default function AiCompanion() {
               onClick={sendMessage}
               disabled={!message.trim() || isLoading}
               className="bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-            >
+             mobileLabelKey="send">
               <Send className="w-4 h-4" />
             </Button>
           </div>

@@ -132,7 +132,7 @@ export default function TrainingSimulator({ scenario, onReset }) {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSend();
               }}
             />
-            <Button onClick={handleSend} disabled={loading || !input.trim()} className="gap-1 self-end">
+            <Button onClick={handleSend} disabled={loading || !input.trim()} className="gap-1 self-end" mobileLabelKey="send">
               <Send className="w-4 h-4" />
             </Button>
           </div>

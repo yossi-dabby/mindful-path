@@ -53,7 +53,7 @@ function RecommendationState({ icon: Icon, title, description, actionLabel, onAc
             type="button"
             onClick={onAction}
             className="mt-5 min-h-12 rounded-full bg-teal-700 px-6 text-white hover:bg-teal-800"
-          >
+           mobileLabelKey="refresh">
             <RefreshCw className="me-2 h-4 w-4" />
             {actionLabel}
           </Button>

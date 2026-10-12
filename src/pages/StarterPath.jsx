@@ -406,7 +406,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
               <RotateCcw className="me-2 h-4 w-4" />
               {copy.starter.restart}
             </Button>
-            <Button type="button" variant="outline" onClick={handleRemovePath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-red-200 bg-white/75 text-red-700 hover:bg-red-50">
+            <Button type="button" variant="outline" onClick={handleRemovePath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-red-200 bg-white/75 text-red-700 hover:bg-red-50" mobileLabelKey="delete">
               <Trash2 className="me-2 h-4 w-4" />
               {copy.starter.remove}
             </Button>

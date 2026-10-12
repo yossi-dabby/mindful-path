@@ -228,7 +228,7 @@ Make each step concrete and actionable, not vague.`,
               <Button
                 onClick={() => onApplySteps(breakdown)}
                 className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
-              >
+               mobileLabelKey="add">
                 <Plus className="w-4 h-4 mr-2" />
                 Apply These Steps to Goal
               </Button>
