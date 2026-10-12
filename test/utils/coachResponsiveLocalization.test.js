@@ -92,7 +92,7 @@ describe('Coach production UX safeguards', () => {
     expect(wizard).toContain('createPortal((');
     expect(wizard).toContain('contentScrollRef.current.scrollTop = 0');
     expect(wizard).toContain("WebkitOverflowScrolling: 'touch'");
-    expect(wizard).toContain('break-words text-base font-semibold leading-tight');
+    expect(wizard).toMatch(/<h1 className="[^"]*break-words[^"]*leading-tight[^"]*"/);
     expect(chat).toContain('overflow-x-auto');
     expect(chat).toContain("env(safe-area-inset-bottom, 0px)");
   });
