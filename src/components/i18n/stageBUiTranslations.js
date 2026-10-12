@@ -1,6 +1,22 @@
 const languages = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 const rows = [
+  ["ai_practice.title","AI practice plans","תוכניות תרגול AI","Planes de práctica con IA","Plans de pratique IA","KI-Übungspläne","Piani di pratica IA","Planos de prática com IA"],
+  ["ai_practice.close","Close","סגירה","Cerrar","Fermer","Schließen","Chiudi","Fechar"],
+  ["ai_practice.intro","Your personalized practice plan","תוכנית התרגול האישית שלכם","Tu plan de práctica personalizado","Votre plan de pratique personnalisé","Ihr persönlicher Übungsplan","Il tuo piano di pratica personale","Seu plano de prática personalizado"],
+  ["ai_practice.description","Create a seven-day plan based on your mood and practice history.","צרו תוכנית לשבעה ימים בהתאם למצב הרוח ולהיסטוריית התרגול שלכם.","Crea un plan de siete días según tu estado de ánimo y tu historial de práctica.","Créez un plan de sept jours selon votre humeur et votre historique de pratique.","Erstellen Sie einen Sieben-Tage-Plan anhand Ihrer Stimmung und bisherigen Übungen.","Crea un piano di sette giorni basato sul tuo umore e sulla pratica precedente.","Crie um plano de sete dias com base no seu humor e histórico de prática."],
+  ["ai_practice.generate","Generate my plan","יצירת התוכנית שלי","Crear mi plan","Créer mon plan","Meinen Plan erstellen","Crea il mio piano","Criar meu plano"],
+  ["ai_practice.generating","Creating your practice plan…","מכינים את תוכנית התרגול שלכם…","Creando tu plan de práctica…","Création de votre plan de pratique…","Ihr Übungsplan wird erstellt…","Creazione del piano di pratica…","Criando seu plano de prática…"],
+  ["ai_practice.overview","Plan overview","סקירת התוכנית","Resumen del plan","Aperçu du plan","Planübersicht","Panoramica del piano","Visão geral do plano"],
+  ["ai_practice.outcomes","Possible benefits","תועלות אפשריות","Posibles beneficios","Bénéfices possibles","Mögliche Vorteile","Possibili benefici","Possíveis benefícios"],
+  ["ai_practice.schedule","Seven-day practice schedule","תוכנית תרגול לשבעה ימים","Programa de práctica de siete días","Programme de pratique sur sept jours","Übungsplan für sieben Tage","Programma di pratica di sette giorni","Programa de prática de sete dias"],
+  ["ai_practice.day","Day {{day}}","יום {{day}}","Día {{day}}","Jour {{day}}","Tag {{day}}","Giorno {{day}}","Dia {{day}}"],
+  ["ai_practice.minutes","{{count}} minutes","{{count}} דקות","{{count}} minutos","{{count}} minutes","{{count}} Minuten","{{count}} minuti","{{count}} minutos"],
+  ["ai_practice.start","Start","התחלה","Empezar","Commencer","Starten","Inizia","Começar"],
+  ["ai_practice.reason","Why this exercise","מדוע התרגיל הזה","Por qué este ejercicio","Pourquoi cet exercice","Warum diese Übung","Perché questo esercizio","Por que este exercício"],
+  ["ai_practice.focus","What to focus on","במה להתמקד","En qué centrarse","Sur quoi se concentrer","Worauf Sie achten können","Su cosa concentrarsi","Em que focar"],
+  ["ai_practice.progression","Gradual progression","התקדמות הדרגתית","Progresión gradual","Progression graduelle","Schrittweise Steigerung","Progressione graduale","Progressão gradual"],
+  ["ai_practice.error","The plan could not be created. Please try again.","לא ניתן היה ליצור את התוכנית. נסו שוב.","No se pudo crear el plan. Inténtalo de nuevo.","Le plan n’a pas pu être créé. Réessayez.","Der Plan konnte nicht erstellt werden. Bitte erneut versuchen.","Non è stato possibile creare il piano. Riprova.","Não foi possível criar o plano. Tente novamente."],
   ['auth.language_label','Language','שפה','Idioma','Langue','Sprache','Lingua','Idioma'],
   ['auth.login.title','Welcome back','שמחים שחזרתם','Te damos la bienvenida de nuevo','Ravi de vous revoir','Willkommen zurück','Bentornato','Bem-vindo de volta'],
   ['auth.login.subtitle','Continue your path from where you left off','המשיכו בדרך מהמקום שבו עצרתם','Continúa tu camino desde donde lo dejaste','Reprenez votre parcours là où vous l’avez laissé','Setzen Sie Ihren Weg dort fort, wo Sie aufgehört haben','Continua il tuo percorso da dove lo avevi lasciato','Continue o seu caminho de onde parou'],
