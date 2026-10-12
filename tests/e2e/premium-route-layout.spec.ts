@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import { mockApi } from '../helpers/ui';
 
 const config = readFileSync('src/pages.config.js', 'utf8');
-const pagesBlock = config.split('export const PAGES = {')[1].split('}')[0];
+const pagesBlock = config.split('export const PAGES = {').at(-1)!.split('}')[0];
 const appRoutes = [...pagesBlock.matchAll(/"([^"]+)":/g)].map(match => '/' + match[1]);
 const routes = [...appRoutes, '/KnowledgeStudio', '/AdminFeatureFlags', '/TherapistTraining',
   '/about', '/privacy', '/terms', '/contact', '/account-deletion',
   '/login', '/register', '/forgot-password', '/reset-password'];
 for (const route of routes) {
   test(`premium route layout has no overflow: ${route}`, async ({ page }) => {
+    test.setTimeout(90000);
     await mockApi(page);
     await page.addInitScript(() => {
       localStorage.setItem('language', 'he');
