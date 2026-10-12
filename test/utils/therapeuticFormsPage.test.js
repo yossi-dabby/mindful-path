@@ -51,13 +51,21 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(pageSource).toContain('forms-library-teal');
   });
 
-  it('forms library page keeps teal-scoped styling contracts', () => {
+  it('forms library keeps teal card styling without painting the outer page shells', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
     const collectionCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsCollectionCard.jsx'), 'utf8');
     const moduleCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsModuleCard.jsx'), 'utf8');
     const worksheetCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsWorksheetCard.jsx'), 'utf8');
     const breadcrumbSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsBreadcrumb.jsx'), 'utf8');
-    expect(pageSource).toContain('bg-teal-100/40');
+    // Both the library and the unavailable-content shell reveal the shared garden.
+    const pageShellClasses = [...pageSource.matchAll(/className="([^"]*\bforms-library-teal\b[^"]*)"/g)]
+      .map((match) => match[1]);
+    expect(pageShellClasses).toHaveLength(2);
+    for (const classes of pageShellClasses) {
+      expect(classes).toContain('min-h-dvh');
+      expect(classes).toContain('safe-bottom');
+      expect(classes).not.toMatch(/(?:^|\s)(?:[\w-]+:)*bg-/);
+    }
     expect(collectionCardSource).toContain('border-teal-300');
     expect(moduleCardSource).toContain('border-teal-400');
     expect(worksheetCardSource).toContain('border-teal-300');
