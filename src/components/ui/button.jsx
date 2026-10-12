@@ -36,12 +36,20 @@ const buttonVariants = cva(
   }
 )
 
+function hasActionText(children) {
+  return React.Children.toArray(children).some(child => {
+    if (typeof child === 'string') return /[^\s\d.,:;/()-]/u.test(child);
+    return React.isValidElement(child) && hasActionText(child.props.children);
+  });
+}
+
 const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, mobileLabel, mobileLabelKey, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
   const { t } = useTranslation()
   const legacyKeys = { Play: 'play', Pause: 'pause', Mute: 'mute', Unmute: 'unmute', 'Mute audio': 'mute', 'Unmute audio': 'unmute', 'Add to favorites': 'favorite', 'Remove from favorites': 'remove', 'Collapse goal details': 'details', 'Expand goal details': 'details', 'Skip forward 10 seconds': 'forward10' }
   const captionKey = mobileLabelKey || legacyKeys[mobileLabel]
   const caption = captionKey ? t(`mobile_actions.${captionKey}`) : mobileLabel
+  const showCaption = caption && !hasActionText(children)
 
   const handleClick = (e) => {
     // Trigger haptic feedback on base button interactions (not on asChild which
@@ -52,12 +60,12 @@ const Button = React.forwardRef(({ className, variant, size, asChild = false, on
 
   return (
     (<Comp
-      className={cn(buttonVariants({ variant, size, className }), caption && !asChild && "mobile-labeled-button")}
+      className={cn(buttonVariants({ variant, size, className }), showCaption && !asChild && "mobile-labeled-button")}
       data-ui="button"
       ref={ref}
       onClick={handleClick}
       {...props}>
-      {asChild ? children : <>{children}{caption && <span className="mobile-action-label md:hidden">{caption}</span>}</>}
+      {asChild ? children : <>{children}{showCaption && <span className="mobile-action-label md:hidden">{caption}</span>}</>}
     </Comp>)
   );
 })
