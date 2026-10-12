@@ -192,7 +192,7 @@ export default function ThoughtCoachWizard({ onClose }) {
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-700 flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -241,7 +241,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
                         formData.thought_type === thought.type
-                          ? 'border-purple-400 bg-purple-50 shadow-md'
+                          ? 'border-teal-400 bg-teal-50 shadow-md'
                           : 'border-gray-200 hover:border-gray-300'
                       )}
                     >
@@ -273,7 +273,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
 
               {selectedThought && (
-                <Card className="border-2 border-purple-200 bg-purple-50">
+                <Card className="border-2 border-teal-200 bg-teal-50">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div 
@@ -330,7 +330,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                       className={cn(
                         'cursor-pointer capitalize transition-all',
                         formData.emotions.includes(emotion)
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-teal-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       )}
                     >
@@ -369,7 +369,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
 
               {selectedThought && (
-                <Card className="border-2 border-purple-200 bg-purple-50">
+                <Card className="border-2 border-teal-200 bg-teal-50">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div 
@@ -407,8 +407,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                 </div>
               </div>
 
-              <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl">
-                <p className="text-sm text-purple-800 text-center">
+              <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl">
+                <p className="text-sm text-teal-800 text-center">
                   <PremiumIcon name="idea" size="sm" bare className="me-1 inline" /> Noticing and examining a thought is already an important CBT skill.
                 </p>
               </div>
@@ -440,7 +440,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
 
               {selectedThought && (
-                <Card className="border-2 border-purple-200 bg-purple-50">
+                <Card className="border-2 border-teal-200 bg-teal-50">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <div 
@@ -527,7 +527,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 onClick={() => setStep(step + 1)}
                 disabled={!canProceed()}
                 data-testid="thoughtcoach-next"
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
               >
                 {t('thought_coach.next_button')}
                 <ChevronRight className="w-4 h-4 ml-2" />
@@ -538,7 +538,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 onClick={handleSubmit}
                 disabled={!canProceed() || createJournalMutation.isPending}
                 data-testid="thoughtcoach-save"
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
               >
                 {createJournalMutation.isPending ? (
                   <>
