@@ -4,6 +4,8 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+        // Existing premium surfaces use opacity values beyond Tailwind's default steps.
+        opacity: Object.fromEntries(Array.from({ length: 99 }, (_, index) => [String(index + 1), String((index + 1) / 100)])),
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
