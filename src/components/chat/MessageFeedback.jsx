@@ -1,3 +1,4 @@
+import MobileActionLabel from '@/components/ui/MobileActionLabel';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -60,7 +61,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         aria-label={t('chat.feedback.helpful')}>
 
         <ThumbsUp className="w-3.5 h-3.5" />
-      </button>
+      <MobileActionLabel action="favorite" /></button>
       <button
         onClick={() => handleFeedback('not_helpful')}
         disabled={feedback !== null}
@@ -74,7 +75,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         aria-label={t('chat.feedback.not_helpful')}>
 
         <ThumbsDown className="w-3.5 h-3.5" />
-      </button>
+      <MobileActionLabel action="remove" /></button>
       {feedback &&
       <span className="text-slate-50 ml-2 text-xs">{t('chat.feedback.thanks')}</span>
       }

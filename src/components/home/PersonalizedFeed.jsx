@@ -1,3 +1,4 @@
+import MobileActionLabel from '@/components/ui/MobileActionLabel';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -244,7 +245,7 @@ export default function PersonalizedFeed() {
                           <ThumbsUp className="w-4 h-4 icon-default" style={{ 
                             color: getRating('audio', audio.id) === true ? 'rgb(var(--success))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
-                        </button>
+                        <MobileActionLabel action="favorite" /></button>
                         <button
                           onClick={() => handleRate('audio', audio.id, false)}
                           className="p-2 transition-calm hover:opacity-70"
@@ -256,7 +257,7 @@ export default function PersonalizedFeed() {
                           <ThumbsDown className="w-4 h-4 icon-default" style={{ 
                             color: getRating('audio', audio.id) === false ? 'rgb(var(--danger))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
-                        </button>
+                        <MobileActionLabel action="remove" /></button>
                       </div>
                     </div>
                   </div>
@@ -337,7 +338,7 @@ export default function PersonalizedFeed() {
                           <ThumbsUp className="w-4 h-4 icon-default" style={{ 
                             color: getRating('exercise', exercise.id) === true ? 'rgb(var(--success))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
-                        </button>
+                        <MobileActionLabel action="favorite" /></button>
                         <button
                           onClick={() => handleRate('exercise', exercise.id, false)}
                           className="p-2 transition-calm hover:opacity-70"
@@ -349,7 +350,7 @@ export default function PersonalizedFeed() {
                           <ThumbsDown className="w-4 h-4 icon-default" style={{ 
                             color: getRating('exercise', exercise.id) === false ? 'rgb(var(--danger))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
-                        </button>
+                        <MobileActionLabel action="remove" /></button>
                       </div>
                     </div>
                   </div>
