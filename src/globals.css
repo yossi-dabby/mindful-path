@@ -457,6 +457,42 @@ label {
   .ql-toolbar.ql-snow .ql-formats button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 13px; }
 }
 
+
+/* Shared premium shells for product overlays, independent of their parent page. */
+.premium-overlay {
+  position: fixed;
+  inset: 0;
+  isolation: isolate;
+  overflow-x: hidden;
+  background: hsl(var(--overlay) / 0.32) !important;
+  backdrop-filter: blur(8px);
+  padding-top: max(1rem, env(safe-area-inset-top, 0px)) !important;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px)) !important;
+}
+.premium-overlay > [data-ui="card"],
+.premium-overlay > div > [data-ui="card"] {
+  border-radius: 28px;
+  border: 1px solid hsl(var(--border) / 0.7);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-lg);
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+.premium-overlay [data-ui="card-header"] {
+  background: linear-gradient(135deg, hsl(var(--surface-tint) / 0.94), hsl(var(--card)));
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+}
+.premium-overlay [data-ui="card-title"] {
+  color: hsl(var(--foreground));
+  line-height: 1.35;
+}
+.premium-overlay [data-ui="card-content"] { min-width: 0; }
+@media (max-width: 640px) {
+  .premium-overlay { padding-inline: 0.75rem; }
+  .premium-overlay > [data-ui="card"],
+  .premium-overlay > div > [data-ui="card"] { border-radius: 24px; }
+}
+
 /* Calm Oasis rich text editor styling */
 .ql-toolbar.ql-snow {
   border: 1px solid hsl(var(--border) / 0.86) !important;
