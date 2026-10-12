@@ -462,7 +462,7 @@ Provide:
                         ['clean']
                       ]
                     }}
-                    className="h-32"
+                    className="journal-rich-text"
                     theme="snow"
                   />
                 </div>
@@ -484,7 +484,7 @@ Provide:
                         ['clean']
                       ]
                     }}
-                    className="h-32"
+                    className="journal-rich-text"
                     theme="snow"
                   />
                 </div>
@@ -695,7 +695,7 @@ Provide:
                         ['clean']
                       ]
                     }}
-                    className="h-32"
+                    className="journal-rich-text"
                   />
                 </div>
               </div>
