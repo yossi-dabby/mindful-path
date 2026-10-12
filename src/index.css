@@ -149,17 +149,6 @@
   background-image: none !important;
 }
 
-/* Home predates the shared canvas and ships decorative full-viewport layers.
-   Suppress only those legacy canvas layers; its cards and accent glows remain. */
-[data-app-page-name="Home"] [data-pull-to-refresh] > div:last-child > div > .absolute.inset-0,
-[data-app-page-name="Home"] [data-pull-to-refresh] > div:last-child > div > .absolute.inset-x-0.top-0 {
-  display: none;
-}
-
-[data-app-page-name="Home"] .page-container {
-  background-color: rgb(240 253 250 / 0.35) !important;
-  backdrop-filter: blur(2px);
-}
 
 .dark .app-global-background {
   background-color: #0c1f22;

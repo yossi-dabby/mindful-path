@@ -245,13 +245,7 @@ export default function Home() {
   return (
     <PullToRefresh queryKeys={['recentGoals', 'recentJournals', 'todayFlow', 'todayMood', 'todayExercise']}>
       <div className="relative w-full min-h-[100dvh] overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(215,235,228,0.92)_0%,rgba(228,241,235,0.94)_18%,rgba(238,245,240,0.96)_42%,rgba(245,243,237,0.98)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(73,147,130,0.28),transparent_30%),radial-gradient(circle_at_85%_12%,rgba(236,183,120,0.18),transparent_26%),radial-gradient(circle_at_50%_36%,rgba(111,184,165,0.14),transparent_38%)]" />
-        <div className="bg-teal-50 absolute inset-x-0 top-0 h-[420px]" />
-        <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-primary/16 blur-3xl" />
-        <div className="absolute top-10 right-[-3rem] h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
-        <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-        <div className="bg-emerald-50 mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
+        <div className="mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
         {/* Header */}
         <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] botanical-home-hero mb-6 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px] mt-6">
           <div className="flex items-start justify-between gap-4">

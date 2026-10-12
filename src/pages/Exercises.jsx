@@ -279,7 +279,7 @@ export default function Exercises() {
   return (
     <PullToRefresh queryKeys={['exercises']}>
       <div className="min-h-dvh w-full bg-transparent">
-        <div className="bg-teal-50/35 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full backdrop-blur-[2px]">
+        <div className="mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full">
       {/* Header */}
       <div className="mb-10 mt-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-2">
@@ -393,7 +393,7 @@ export default function Exercises() {
       {/* Exercises Grid */}
       {filteredExercises.length === 0 ?
           <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
-          <CardContent className="bg-teal-300 p-12 text-center">
+          <CardContent className="p-12 text-center">
             <div className="bg-teal-600 text-slate-50 mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
               <Sparkles className="w-10 h-10" />
             </div>

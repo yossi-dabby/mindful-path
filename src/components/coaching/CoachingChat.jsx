@@ -243,7 +243,7 @@ export default function CoachingChat({ session, onBack }) {
       <div className="flex min-h-0 flex-1">
         {/* Chat Area */}
         <div className="flex-1 min-h-0 flex flex-col">
-          <div ref={scrollContainerRef} data-testid="coach-chat-messages" className="bg-teal-50 p-4 flex-1 min-h-0 overflow-y-auto" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+          <div ref={scrollContainerRef} data-testid="coach-chat-messages" className="p-4 flex-1 min-h-0 overflow-y-auto" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
             <div className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner &&

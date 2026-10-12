@@ -53,7 +53,7 @@ export default function Progress() {
 
   return (
     <PullToRefresh queryKeys={queryKeys}>
-      <main className="mx-auto min-h-[100dvh] w-full max-w-7xl bg-background/45 p-3 pb-28 sm:p-5 sm:pb-28 lg:p-8 lg:pb-24 backdrop-blur-[2px]" data-testid="progress-page">
+      <main className="mx-auto min-h-[100dvh] w-full max-w-7xl p-3 pb-28 sm:p-5 sm:pb-28 lg:p-8 lg:pb-24" data-testid="progress-page">
         <header className="mb-5 mt-2 sm:mb-7">
           <div className="flex items-start gap-3">
             <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="min-h-11 min-w-11 shrink-0 rounded-full" aria-label={t('common.go_back_aria')}>

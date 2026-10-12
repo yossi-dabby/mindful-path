@@ -290,7 +290,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
           <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('starter_path.loading')}</p>
@@ -301,7 +301,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
   if (step === 'complete') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -362,7 +362,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
   }
 
   return (
-    <div data-testid="starter-path-page" className="min-h-dvh p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div data-testid="starter-path-page" className="min-h-dvh p-4">
       {showPersonalization &&
       <PersonalizationSetup onComplete={handlePersonalizationComplete} />
       }
