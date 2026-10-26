@@ -28,7 +28,8 @@ export default function Sidebar({ currentPageName }) {
 
   return (
     <nav
-      aria-label={t('shell.sidebar_navigation')} className={`bg-teal-100 ${isCompactChat ? 'py-3' : 'py-6'} rounded-2xl ${visibilityClass} fixed start-0 top-0 bottom-0 flex-col border-e border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
+      data-app-chrome
+      aria-label={t('shell.sidebar_navigation')} className={`garden-sidebar ${isCompactChat ? 'py-3' : 'py-6'} ${visibilityClass} fixed start-0 top-0 bottom-0 flex-col border-e border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[var(--shadow-md)]`}
 
       style={{
         zIndex: 35,
@@ -36,14 +37,14 @@ export default function Sidebar({ currentPageName }) {
       }}>
 
       {/* Logo */}
-      <div className={`bg-teal-100 ${isCompactChat ? 'mb-4 px-4' : 'mb-8 px-6'}`}>
-        <div className="bg-teal-100 text-teal-600 flex items-center gap-3">
+      <div className={isCompactChat ? 'mb-4 px-4' : 'mb-6 px-6'}>
+        <div className="flex items-center gap-3">
           <GrowingShieldMark size={42} />
           <div className="flex-1 min-w-0 pb-1">
             <h1 className="min-w-0">
               <AppWordmark name={t('global.app_name')} />
             </h1>
-            <p className="mt-2 truncate text-xs text-teal-700/80">{t('global.app_tagline')}</p>
+            <p className="mb-0 mt-2 truncate text-xs text-sidebar-foreground/90">{t('global.app_tagline')}</p>
           </div>
           <div className="shrink-0">
             <NotificationBell />
@@ -52,7 +53,7 @@ export default function Sidebar({ currentPageName }) {
       </div>
 
       {/* Main Navigation */}
-      <div className={`bg-teal-50 text-teal-600 ${isCompactChat ? 'px-2' : 'px-3'} flex-1 overflow-y-auto`} style={{ overscrollBehavior: 'none' }}>
+      <div className={`${isCompactChat ? 'px-2' : 'px-3'} flex-1 overflow-y-auto`} style={{ overscrollBehavior: 'none' }}>
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -61,7 +62,12 @@ export default function Sidebar({ currentPageName }) {
               <Link
                 key={item.path}
                 to={createPageUrl(item.path)}
-                aria-current={isActive ? 'page' : undefined} className={`bg-teal-50 text-foreground ${isCompactChat ? 'px-3 py-2.5 gap-2' : 'px-4 py-3 gap-3'} rounded-2xl flex items-center transition-calm group border border-border/70 shadow-[var(--shadow-sm)]`}>
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                  'garden-nav-link rounded-2xl flex items-center border transition-calm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+                  isCompactChat ? 'px-3 py-2.5 gap-2' : 'px-4 py-3 gap-3',
+                  isActive ? 'bg-sidebar-accent border-sidebar-border text-sidebar-accent-foreground' : 'bg-transparent border-transparent text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'
+                )}>
 
 
 
@@ -69,15 +75,15 @@ export default function Sidebar({ currentPageName }) {
 
 
 
-                <Icon aria-hidden="true" className={`${isCompactChat ? 'w-4 h-4' : 'w-5 h-5'} text-teal-600 lucide lucide-house icon-default scale-110`} strokeWidth={2} />
-                <div className="flex-1">
-                  <p className={`bg-teal-50 text-teal-600 font-semibold ${isCompactChat ? 'text-sm leading-4' : 'leading-5'}`}>{item.name}</p>
+                <Icon aria-hidden="true" className={`${isCompactChat ? 'w-4 h-4' : 'w-5 h-5'} shrink-0 text-sidebar-primary`} strokeWidth={isActive ? 2.4 : 1.8} />
+                <div className="min-w-0 flex-1">
+                  <p className={`mb-0 text-inherit font-semibold ${isCompactChat ? 'text-sm leading-4' : 'leading-5'}`}>{item.name}</p>
                   {item.description &&
-                  <p className={`text-teal-600 mt-0.5 ${isCompactChat ? 'text-[10px] leading-3.5' : 'text-xs leading-4'}`}>{item.description}</p>
+                  <p className={`mb-0 mt-1 text-sidebar-foreground/90 ${isCompactChat ? 'text-[10px] leading-4' : 'text-xs leading-4'}`}>{item.description}</p>
                   }
                 </div>
                 {isActive &&
-                <div className="bg-primary text-teal-600 rounded-full w-1 h-6 shadow-[var(--shadow-sm)]" />
+                <div aria-hidden="true" className="shrink-0 rounded-full w-1 h-6 bg-sidebar-primary" />
                 }
               </Link>);
 
@@ -96,14 +102,14 @@ export default function Sidebar({ currentPageName }) {
                   to={createPageUrl(item.path)}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-control)] border transition-calm",
+                    "garden-nav-link flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-control)] border transition-calm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
                     isActive ?
-                    "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]" :
-                    "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+                    "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground" :
+                    "border-transparent text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
                   )}>
 
-                  <Icon aria-hidden="true" className="text-teal-600 lucide lucide-users w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
-                  <span className="text-teal-600 text-sm">{item.name}</span>
+                  <Icon aria-hidden="true" className="text-sidebar-primary w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-sm">{item.name}</span>
                 </Link>);
 
             })}

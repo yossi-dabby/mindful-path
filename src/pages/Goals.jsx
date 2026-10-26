@@ -199,7 +199,7 @@ export default function Goals() {
       <PullToRefresh queryKeys={['allGoals', 'recentGoals']}>
         <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100dvh' }}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
+      <div className="garden-responsive-heading flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
           <Button
                 variant="ghost"

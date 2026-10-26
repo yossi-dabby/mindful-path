@@ -133,7 +133,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="surface-secondary rounded-[var(--radius-card)] p-4 sm:p-5 border-border/80">
+        className="surface-primary rounded-[var(--radius-card)] p-4 sm:p-5 border-border/80">
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -180,9 +180,9 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
       </motion.div>
 
       {/* Key Metrics Grid */}
-      <div className="text-teal-600 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="bg-teal-100 p-4 text-center rounded-2xl sm:p-6">
+      <div className="garden-metric-grid text-teal-600 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="rounded-[var(--radius-card)] border-border/80">
+          <CardContent className="bg-card p-4 text-center rounded-2xl sm:p-6">
             <div className="flex items-center justify-center mb-2">
               {metrics.moodTrend === 'improving' ?
               <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" /> :
@@ -198,7 +198,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
           </CardContent>
         </Card>
 
-        <Card className="bg-red-50 text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
+        <Card className="bg-card text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] border-border/80">
           <CardContent className="p-4 text-center rounded-2xl sm:p-6">
             <Dumbbell className="text-red-600 mb-2 mx-auto lucide lucide-dumbbell w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-red-600 text-2xl font-bold sm:text-3xl">{metrics.totalExercises}</p>
@@ -207,7 +207,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
           </CardContent>
         </Card>
 
-        <Card className="bg-lime-50 text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
+        <Card className="bg-card text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] border-border/80">
           <CardContent className="p-4 text-center rounded-2xl sm:p-6">
             <BookOpen className="text-lime-600 mb-2 mx-auto lucide lucide-book-open w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-lime-600 text-2xl font-bold sm:text-3xl">{metrics.journalCount}</p>
@@ -215,8 +215,8 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
           </CardContent>
         </Card>
 
-        <Card className="bg-teal-100 text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
-          <CardContent className="bg-teal-100 p-4 text-center rounded sm:p-6">
+        <Card className="bg-card text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] border-border/80">
+          <CardContent className="bg-card p-4 text-center rounded sm:p-6">
             <Target className="text-teal-600 mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
             <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.goals_achieved')}</p>
@@ -235,7 +235,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={moodTrendData} className="bg-teal-50 recharts-surface">
+            <LineChart data={moodTrendData} className="recharts-surface">
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis
                 dataKey="date"
@@ -268,7 +268,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={exerciseFrequencyData} className="bg-teal-50 recharts-surface">
+              <BarChart data={exerciseFrequencyData} className="recharts-surface">
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 10 }} />
@@ -281,13 +281,13 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
 
         {/* Journal Consistency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-          <CardHeader className="bg-orange-50 p-6 flex flex-col space-y-1.5">
+          <CardHeader className="bg-card p-6 flex flex-col space-y-1.5">
             <CardTitle className="text-amber-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
               <BookOpen className="text-amber-600 lucide lucide-book-open w-5 h-5" />
               {t('progress.dashboard.charts.journal_consistency')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-orange-50 pt-0 p-6">
+          <CardContent className="bg-card pt-0 p-6">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={journalConsistencyData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />

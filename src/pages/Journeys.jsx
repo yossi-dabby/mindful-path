@@ -255,7 +255,7 @@ export default function JourneysPage() {
                   </span>
                   <div className="botanical-title-row"><h1 className="min-w-0 break-words text-3xl font-bold leading-tight tracking-tight text-teal-950 sm:text-4xl">
                     {t('journeys.page_title')}
-                  </h1><BotanicalAccent variant="landscape" className="botanical-title-art" /></div>
+                  </h1><BotanicalAccent variant="route" className="botanical-title-art" /></div>
                 </div>
                 <p className="max-w-3xl break-words text-sm leading-7 text-slate-600 sm:text-base">
                   {t('journeys.premium.hero_description')}

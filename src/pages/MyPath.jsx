@@ -18,7 +18,7 @@ export default function MyPath() {
   ];
 
   return <main className="page-container mx-auto min-h-[100dvh] max-w-5xl px-4 pb-28 pt-6" dir={isRtl ? 'rtl' : 'ltr'}>
-    <header className="botanical-hero rounded-[32px] border border-white/80 bg-white/85 p-6 shadow-[0_24px_64px_rgba(36,105,92,0.14)] backdrop-blur-xl">
+    <header className="botanical-hero rounded-[32px] border border-border/60 bg-card/95 p-6 shadow-[var(--shadow-md)]">
       <BotanicalAccent variant="leaves" className="botanical-hero-art" />
       <div className="botanical-hero-copy">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">{t('daily_path.eyebrow')}</p>
@@ -36,8 +36,5 @@ export default function MyPath() {
         </Card>
       </Link>)}
     </section>
-    <div className="botanical-quiet-footer" aria-hidden="true">
-      <BotanicalAccent variant="landscape" /><BotanicalAccent variant="leaves" />
-    </div>
   </main>;
 }

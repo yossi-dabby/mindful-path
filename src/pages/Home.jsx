@@ -247,20 +247,18 @@ export default function Home() {
       <div className="relative w-full min-h-[100dvh] overflow-hidden">
         <div className="mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
         {/* Header */}
-        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] botanical-home-hero mb-6 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px] mt-6">
-          <div className="flex items-start justify-between gap-4">
+        <div className="botanical-home-hero mb-5 rounded-[32px] border border-border/60 bg-card/95 p-6 shadow-[var(--shadow-md)] md:p-8">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="botanical-title-row"><h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
+              <h1 className="text-foreground mb-3 text-2xl font-semibold md:text-3xl">
                 {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-              </h1><BotanicalAccent variant="leaves" className="botanical-home-hero-art" /></div>
-              <div className="bg-[linear-gradient(180deg,rgba(214,239,231,0.96)_0%,rgba(242,235,223,0.92)_100%)] text-teal-600 px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-2 border border-[rgba(110,169,154,0.34)] shadow-[0_10px_24px_rgba(68,108,96,0.12)]">
+              </h1>
+              <div className="bg-secondary/70 text-secondary-foreground px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-2 border border-border/60">
                 <Sparkles className="w-3.5 h-3.5" />
                 {t('home.oasis_label')}
               </div>
             </div>
-            <div className="hidden md:flex h-14 w-14 items-center justify-center rounded-[20px] bg-[linear-gradient(180deg,rgba(43,154,133,0.98)_0%,rgba(34,128,111,0.98)_100%)] text-primary-foreground shadow-[0_18px_36px_rgba(38,134,116,0.32)]">
-              <Sparkles className="w-6 h-6" />
-            </div>
+            <BotanicalAccent variant="leaves" className="botanical-home-hero-art" />
           </div>
         </div>
 

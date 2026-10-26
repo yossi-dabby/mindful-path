@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   EXERCISE_LEGACY_TITLE_IDS,
@@ -113,20 +113,14 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
     ]);
   });
 
-  it('uses the shared lightweight artwork only on intended exercise surfaces', () => {
-    const globals = readFileSync('src/globals.css', 'utf8');
+  it('shares exercise surface hooks across recommendations, quick start and library', () => {
     const quickStart = readFileSync('src/components/exercises/QuickStartPanel.jsx', 'utf8');
     const library = readFileSync('src/components/exercises/ExerciseLibrary.jsx', 'utf8');
     const recommendations = readFileSync('src/components/exercises/AiExerciseRecommendations.jsx', 'utf8');
 
-    expect(existsSync('public/assets/mindful-card-background.webp')).toBe(true);
-    expect(globals).toContain("url('/assets/mindful-card-background.webp')");
-    expect(globals).toContain('linear-gradient(hsl(var(--card) / 0.70)');
-    expect(globals).toContain('linear-gradient(hsl(var(--card) / 0.78)');
     expect(quickStart).toContain('exercise-card-art--subtle');
     expect(quickStart).toContain('exercise-card-art p-3');
     expect(library).toContain('exercise-card-art p-4');
     expect(recommendations).toContain('exercise-card-art--subtle');
-    expect(recommendations).toContain('bg-teal-300/80');
   });
 });

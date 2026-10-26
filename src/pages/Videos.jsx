@@ -46,7 +46,7 @@ export default function Videos() {
       <div className="min-h-dvh bg-transparent safe-bottom">
         <div className="page-container max-w-7xl">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
+        <div className="garden-responsive-heading flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 mt-6">
           <div>
             <div className="botanical-title-row"><h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl">
               {t('videos.title')}

@@ -63,11 +63,11 @@ label {
     --chart-3: 37 82% 61%;
     --chart-4: 152 24% 62%;
     --chart-5: 198 18% 56%;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 195 19% 20%;
+    --sidebar-background: 48 30% 96%;
+    --sidebar-foreground: 164 18% 27%;
     --sidebar-primary: 168 34% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 156 18% 94%;
+    --sidebar-accent: 145 22% 89%;
     --sidebar-accent-foreground: 170 27% 27%;
     --sidebar-border: 160 16% 86%;
     --sidebar-ring: 168 34% 42%;
@@ -650,26 +650,12 @@ textarea:focus-visible,
   color: hsl(var(--foreground));
 }
 
-/* Shared, accessible artwork for exercise surfaces. The translucent gradient
-   preserves text contrast while allowing the supplied mint artwork to show. */
-.exercise-card-art {
-  background-color: hsl(var(--card));
-  background-image:
-    linear-gradient(hsl(var(--card) / 0.70), hsl(var(--surface-tint) / 0.76)),
-    url('/assets/mindful-card-background.webp');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
+/* Exercise surfaces use the same quiet card material as the garden hubs.
+   Keep catalog images inside their explicit thumbnail elements. */
+.exercise-card-art,
 .exercise-card-art--subtle {
   background-color: hsl(var(--card));
-  background-image:
-    linear-gradient(hsl(var(--card) / 0.78), hsl(var(--surface-tint) / 0.82)),
-    url('/assets/mindful-card-background.webp');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-image: none;
 }
 
 /* Stage 13 accessibility foundation */

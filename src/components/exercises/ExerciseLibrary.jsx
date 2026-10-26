@@ -62,7 +62,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
 
               <CardContent className="exercise-card-art p-4 md:p-5 rounded-3xl">
                 <div className="mr-8 mb-3 flex items-start justify-between">
-                  <div className="bg-teal-400 text-sky-700 opacity-90 rounded-xl w-9 h-9 border border-sky-200 flex items-center justify-center group-hover:scale-110 transition-transform mx-5">
+                  <div className="bg-secondary text-primary rounded-xl w-9 h-9 border border-border/60 flex items-center justify-center group-hover:scale-110 transition-transform mx-5">
                     <Icon className="text-teal-800 lucide lucide-trending-up lucide-anchor w-5 h-5" />
                   </div>
                   {exercise.completed_count > 0 &&
