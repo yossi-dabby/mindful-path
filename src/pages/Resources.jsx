@@ -255,7 +255,7 @@ export default function Resources() {
     <PullToRefresh queryKeys={['resources', 'savedResources']}>
       <main className="mx-auto min-h-dvh w-full max-w-7xl box-border bg-transparent px-4 py-5 safe-bottom sm:px-6 md:px-8 md:py-8">
         <header className="mb-7 rounded-[var(--radius-card)] border border-primary/15 bg-card/90 p-5 shadow-[var(--shadow-md)] backdrop-blur-sm sm:p-7">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="garden-responsive-heading flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0">
               <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />

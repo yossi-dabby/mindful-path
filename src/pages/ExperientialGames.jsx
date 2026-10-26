@@ -174,7 +174,7 @@ export default function ExperientialGames() {
             <ArrowLeft className="h-5 w-5 rtl:rotate-180" aria-hidden="true" />
           </Button>
 
-          <div className="relative grid items-end gap-6 md:grid-cols-[1fr_auto]">
+          <div className="relative grid items-end gap-6 xl:grid-cols-[1fr_auto]">
             <div className="min-w-0">
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-teal-700">
                 {t('mind_games.premium.eyebrow')}

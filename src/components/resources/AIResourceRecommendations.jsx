@@ -118,7 +118,7 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
   if (!recommendations && !isGenerating && !error) {
     return (
       <Card className="mb-8 overflow-hidden border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 shadow-[var(--shadow-md)]">
-        <CardContent className="grid gap-5 p-5 sm:p-6 md:grid-cols-[auto,1fr,auto] md:items-center">
+        <CardContent data-testid="resource-ai-guide" className="grid gap-5 p-5 sm:p-6 xl:grid-cols-[auto,1fr,auto] xl:items-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Sparkles className="h-7 w-7" aria-hidden="true" />
           </div>
@@ -137,7 +137,7 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
           <Button
             type="button"
             onClick={generateRecommendations}
-            className="min-h-11 w-full rounded-xl md:w-auto"
+            className="min-h-11 w-full rounded-xl xl:w-auto"
             disabled={resources.length === 0}
           >
             <Sparkles className="h-4 w-4" aria-hidden="true" />

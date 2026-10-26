@@ -66,7 +66,7 @@ export default function Progress() {
         {isLoading ? <div className="flex min-h-[320px] items-center justify-center gap-2 text-muted-foreground" aria-live="polite"><Loader2 className="h-5 w-5 animate-spin" />{t('progress_ui.common.loading')}</div> :
         isError ? <div className="rounded-2xl border border-destructive/30 bg-card p-6 text-center shadow-sm"><AlertCircle className="mx-auto mb-3 h-9 w-9 text-destructive" /><p className="mb-4 text-foreground">{t('progress_ui.common.load_error')}</p><Button variant="outline" onClick={retryAll}>{t('progress_ui.common.retry')}</Button></div> :
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-5 grid h-auto w-full grid-cols-2 gap-1 rounded-2xl bg-secondary/70 p-1 min-[480px]:grid-cols-3 sm:grid-cols-6" aria-label={t('progress.page_title')}>
+          <TabsList className="garden-progress-tabs mb-5 grid h-auto w-full grid-cols-2 gap-1 rounded-2xl bg-secondary/70 p-1 min-[480px]:grid-cols-3 sm:grid-cols-6" aria-label={t('progress.page_title')}>
             <TabsTrigger value="overview" className={tabClass}><LayoutDashboard className="h-4 w-4 shrink-0" />{t('progress.tabs.overview')}</TabsTrigger>
             <TabsTrigger value="achievements" className={tabClass}><Trophy className="h-4 w-4 shrink-0" />{t('progress.tabs.achievements')}</TabsTrigger>
             <TabsTrigger value="mood" className={tabClass}><TrendingUp className="h-4 w-4 shrink-0" />{t('progress.tabs.mood')}</TabsTrigger>

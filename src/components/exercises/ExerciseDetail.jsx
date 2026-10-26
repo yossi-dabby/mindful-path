@@ -244,7 +244,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <span className="mobile-action-label md:hidden">{exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}</span></button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className="bg-teal-200 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
+                  <Badge variant="outline" className="bg-secondary text-primary px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                     {t(`exercises.difficulty.${String(exercise.difficulty || 'beginner').toLowerCase()}`)}
                   </Badge>
                   {String(exercise.difficulty || '').toLowerCase() === 'advanced' && <PremiumBadge />}
@@ -284,7 +284,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </div>
             </div>
           </CardHeader>
-          <CardContent className="bg-teal-300 p-4 md:p-6">
+          <CardContent className="bg-card p-4 md:p-6">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
               {/* Left Column: Main Content */}
               <div className="flex flex-col space-y-4">
@@ -308,7 +308,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <Star className="w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.benefits')}</span>
                 </TabsTrigger>
-                <TabsTrigger value="tips" className="bg-teal-300 text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
+                <TabsTrigger value="tips" className="bg-secondary/60 text-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Lightbulb className="text-gray-950 lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.tips')}</span>
                 </TabsTrigger>
@@ -415,7 +415,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }} className="bg-teal-200 p-4 rounded-xl flex gap-4 from-green-50 to-blue-50 border border-green-200">
+                            transition={{ delay: i * 0.1 }} className="bg-secondary/60 p-4 rounded-xl flex gap-4 border border-border/60">
 
 
                           <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold flex-shrink-0">

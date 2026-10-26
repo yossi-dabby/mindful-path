@@ -292,13 +292,13 @@ export default function NotificationBell() {
     <>
       <button
         ref={buttonRef}
-        onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-3xl relative w-10 h-10 shrink-0 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground"
+        onClick={() => setOpen((o) => !o)} className="bg-secondary/70 text-primary rounded-3xl relative w-10 h-10 shrink-0 flex items-center justify-center border border-border/60 transition-colors hover:bg-secondary hover:text-foreground"
 
         aria-label={t('settings.notifications.panel.bell_aria')}
         aria-expanded={open}
         aria-haspopup="true">
 
-        <Bell className="text-teal-600 lucide lucide-bell w-5 h-5" /><span className="mobile-action-label md:hidden">{t('mobile_actions.notifications')}</span>
+        <Bell className="text-primary lucide lucide-bell w-5 h-5" /><span className="mobile-action-label md:hidden">{t('mobile_actions.notifications')}</span>
         {unreadCount > 0 &&
         <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-500">
             {unreadCount > 99 ? '99+' : unreadCount}

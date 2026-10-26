@@ -109,7 +109,7 @@ export default function Coach() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
 
-        <div className="flex items-center justify-between">
+        <div className="garden-responsive-heading flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -156,7 +156,7 @@ export default function Coach() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
 
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="garden-responsive-heading max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"

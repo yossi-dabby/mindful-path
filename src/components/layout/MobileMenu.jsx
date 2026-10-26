@@ -51,23 +51,23 @@ export default function MobileMenu() {
         className={cn(
           'group flex min-h-[56px] min-w-0 items-center gap-3 rounded-2xl border px-3.5 py-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
           active
-            ? 'border-teal-300/80 bg-white text-teal-900 shadow-[0_10px_30px_rgba(15,118,110,0.14)]'
-            : 'border-transparent text-slate-700 hover:border-white/80 hover:bg-white/70'
+            ? 'border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+            : 'border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-sidebar-accent/60'
         )}
       >
         <span className={cn(
           'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors',
-          active ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white' : 'bg-white/80 text-teal-700'
+          active ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'bg-secondary/70 text-sidebar-primary'
         )}>
           <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold">{item.name}</span>
           {!compact && item.description && (
-            <span className="mt-0.5 block truncate text-xs text-slate-500">{item.description}</span>
+            <span className="mt-0.5 block truncate text-xs text-muted-foreground">{item.description}</span>
           )}
         </span>
-        {active && <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />}
+        {active && <span className="h-2 w-2 shrink-0 rounded-full bg-sidebar-primary" aria-hidden="true" />}
       </Link>
     );
   };
@@ -78,7 +78,7 @@ export default function MobileMenu() {
         type="button"
         onClick={() => setOpen(true)}
         data-testid="mobile-menu-button"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-teal-200/80 bg-white/75 text-teal-700 shadow-sm transition-all hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-primary shadow-sm transition-all hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
         aria-label={t('mobile_menu.open_aria')}
         aria-expanded={open}
         aria-controls="premium-mobile-menu"
@@ -90,7 +90,7 @@ export default function MobileMenu() {
         <DrawerContent
           id="premium-mobile-menu"
           data-testid="mobile-drawer"
-          className="m-0 flex max-h-none flex-col overflow-hidden border-teal-200/70 bg-transparent p-0 shadow-2xl"
+          className="m-0 flex max-h-none flex-col overflow-hidden border-sidebar-border bg-sidebar text-sidebar-foreground p-0 shadow-2xl"
           style={{
             top: 0,
             bottom: 0,
@@ -102,24 +102,20 @@ export default function MobileMenu() {
             paddingBottom: 'env(safe-area-inset-bottom, 0px)'
           }}
         >
-          <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(236,253,245,0.98),rgba(240,253,250,0.96)_48%,rgba(255,255,255,0.98))]" aria-hidden="true" />
-          <div className="absolute -top-16 end-[-72px] h-56 w-56 rounded-full bg-teal-200/45 blur-2xl" aria-hidden="true" />
-          <div className="absolute -bottom-20 start-[-80px] h-60 w-60 rounded-full bg-emerald-100/70 blur-2xl" aria-hidden="true" />
-
-          <div className="relative flex items-start justify-between gap-4 border-b border-teal-200/60 px-5 pb-5 pt-[calc(env(safe-area-inset-top,0px)+20px)]">
+          <div className="relative flex items-start justify-between gap-4 border-b border-sidebar-border px-5 pb-5 pt-[calc(env(safe-area-inset-top,0px)+20px)]">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/20">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sidebar-accent text-sidebar-primary">
                 <Sparkles className="h-6 w-6" />
               </div>
               <div className="min-w-0">
-                <DrawerTitle className="truncate text-xl font-bold text-teal-900">{t('global.app_name')}</DrawerTitle>
-                <p className="mt-1 text-xs leading-5 text-teal-800/70">{t('mobile_menu.subtitle')}</p>
+                <DrawerTitle className="truncate text-xl font-bold text-sidebar-foreground">{t('global.app_name')}</DrawerTitle>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{t('mobile_menu.subtitle')}</p>
               </div>
             </div>
             <DrawerClose asChild>
               <button
                 type="button"
-                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/80 text-slate-600 shadow-sm transition-colors hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-colors hover:text-sidebar-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                 aria-label={t('mobile_menu.close_aria')}
               >
                 <X className="h-5 w-5" />
@@ -133,7 +129,7 @@ export default function MobileMenu() {
             data-app-chrome
           >
             <section aria-labelledby="mobile-menu-main-title">
-              <h2 id="mobile-menu-main-title" className="px-2 text-xs font-bold uppercase tracking-[0.14em] text-teal-800/60">
+              <h2 id="mobile-menu-main-title" className="px-2 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
                 {t('mobile_menu.main_section')}
               </h2>
               <div className="mt-2 space-y-1.5">
@@ -141,8 +137,8 @@ export default function MobileMenu() {
               </div>
             </section>
 
-            <section className="mt-6 border-t border-teal-200/60 pt-5" aria-labelledby="mobile-menu-more-title">
-              <h2 id="mobile-menu-more-title" className="px-2 text-xs font-bold uppercase tracking-[0.14em] text-teal-800/60">
+            <section className="mt-6 border-t border-sidebar-border pt-5" aria-labelledby="mobile-menu-more-title">
+              <h2 id="mobile-menu-more-title" className="px-2 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
                 {t('mobile_menu.more_section')}
               </h2>
               <div className="mt-2 space-y-1.5">
@@ -151,12 +147,12 @@ export default function MobileMenu() {
             </section>
           </nav>
 
-          <div className="relative border-t border-teal-200/60 p-4">
-            <div className="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-start shadow-sm">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-700">
+          <div className="relative border-t border-sidebar-border p-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-card p-3 text-start shadow-sm">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-sidebar-primary">
                 <ShieldCheck className="h-5 w-5" />
               </span>
-              <p className="text-xs leading-5 text-slate-600">{t('mobile_menu.footer_note')}</p>
+              <p className="text-xs leading-5 text-muted-foreground">{t('mobile_menu.footer_note')}</p>
             </div>
           </div>
         </DrawerContent>

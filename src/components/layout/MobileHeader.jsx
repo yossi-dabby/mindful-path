@@ -51,7 +51,9 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
       'PersonalizedFeed': t('personalized_feed.nav_title'),
       'ThoughtCoach': t('thought_coach.title'),
       'ExerciseView': t('exercise_view.nav_title'),
-      'GoalCoach': t('goal_coach_wizard.title')
+      'GoalCoach': t('goal_coach_wizard.title'),
+      'MyPath': t('my_path.title'),
+      'Tools': t('tools_hub.title')
     };
     return titles[currentPageName] || t('global.app_name');
   };

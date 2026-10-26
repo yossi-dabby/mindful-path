@@ -44,8 +44,8 @@ export default function GameCard({ game, onClick, onInfo, index = 0, featured = 
           aria-label={t('mind_games.premium.open_game_aria', { title })}
           data-testid={game.testId}
         >
-          <CardContent className="flex h-full flex-col p-5 pe-16">
-            <div className="mb-4 flex items-center gap-3">
+          <CardContent className="flex h-full flex-col p-5">
+            <div className="mb-4 flex flex-wrap items-center gap-3 pe-12">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(13,148,136,0.22)]">
                 <Icon className="h-6 w-6" aria-hidden="true" />
               </div>

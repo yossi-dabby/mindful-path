@@ -2,7 +2,6 @@ import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React from 'react';
 import { Check, ChevronRight, Circle, HeartPulse, MessageCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getStage11Copy } from '../i18n/stage11UiCopy.js';
 
@@ -37,14 +36,13 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
   ];
 
   return (
-    <Card className="overflow-hidden rounded-[34px] border border-white/80 bg-white/88 shadow-[0_24px_64px_rgba(36,105,92,0.16)] backdrop-blur-xl" data-testid="daily-path">
-      <div className="h-1.5 bg-gradient-to-r from-amber-300 via-teal-400 to-emerald-500" />
-      <div className="p-5 sm:p-7">
+    <section className="botanical-daily-path" data-testid="daily-path">
+      <div className="botanical-section-heading">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">{t('daily_path.eyebrow')}</p>
         <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{t('daily_path.title')}</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">{t('daily_path.description')}</p>
-
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
+      </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
           {steps.map(({ key, Icon, complete, onClick, disabled, modeLabel }) => (
             <button
               type="button"
@@ -68,7 +66,6 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
             </button>
           ))}
         </div>
-      </div>
-    </Card>
+    </section>
   );
 }

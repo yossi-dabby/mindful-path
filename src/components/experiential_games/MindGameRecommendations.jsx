@@ -42,7 +42,7 @@ export default function MindGameRecommendations({ onGameSelect, onGameInfo }) {
       </p>
 
       {isPending && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3" aria-label={t('mind_games.premium.recommendations_loading')}>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3" aria-label={t('mind_games.premium.recommendations_loading')}>
           {[0, 1, 2].map((item) => <div key={item} className="h-[196px] animate-pulse rounded-[24px] bg-white/70" />)}
         </div>
       )}
@@ -65,7 +65,7 @@ export default function MindGameRecommendations({ onGameSelect, onGameInfo }) {
       )}
 
       {!isPending && !isError && (
-        <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {recommendedGames.map((game, index) => (
             <GameCard
               key={game.id}

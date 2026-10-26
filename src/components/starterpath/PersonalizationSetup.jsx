@@ -53,19 +53,19 @@ export default function PersonalizationSetup({ onComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{
-      background: 'linear-gradient(165deg, rgba(212, 237, 232, 0.95) 0%, rgba(189, 224, 217, 0.95) 100%)',
-      backdropFilter: 'blur(12px)'
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-6" style={{
+      background: 'hsl(var(--overlay) / 0.34)',
+      backdropFilter: 'blur(8px)'
     }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl"
+        className="my-auto w-full max-w-2xl shrink-0"
       >
         <Card className="border-0" style={{
           borderRadius: '32px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
-          boxShadow: '0 16px 48px rgba(38, 166, 154, 0.2)'
+          background: 'hsl(var(--card))',
+          boxShadow: 'var(--shadow-lg)'
         }}>
           <CardContent className="p-6 sm:p-8">
             {/* Progress Indicator */}
