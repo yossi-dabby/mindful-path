@@ -16,7 +16,7 @@ The screenshots showed a saturated mint sidebar beside a watercolor garden, almo
 
 ## Review boundaries
 
-This is a frontend-only revision against `main` at `180a7a2348a4fb0a2190695404489b0923ade83d`. No entities, agents, backend functions, authentication configuration, payments or Android version metadata were changed. No site publication, main-branch merge or store upload is part of this branch.
+This revision changes frontend styling and its CI validation environment, against `main` at `180a7a2348a4fb0a2190695404489b0923ade83d`. No entities, agents, backend functions, authentication configuration, payments or Android version metadata were changed. No site publication, main-branch merge or store upload is part of this branch.
 
 Browser checks use mocked APIs. They verify layouts and interactions with representative data, not live authenticated records or native Android/iOS rendering. Route-width checks cover registered routes and public/account routes; screenshot review covers the main user-facing screens in desktop, tablet and phone layouts, including Hebrew examples. This does not establish visual coverage of every possible account/data state.
 
@@ -40,3 +40,11 @@ Browser checks use mocked APIs. They verify layouts and interactions with repres
 
 
 Additional tablet corrections: [Resources](garden-consistency/resources-tablet.webp), [Progress](garden-consistency/progress-tablet.webp), [Games](garden-consistency/games-tablet.webp). [Exercises on mobile (Hebrew)](garden-consistency/exercises-mobile-he.webp).
+
+## Follow-up CI and navigation contrast verification
+
+Pinned the Playwright workflow to Ubuntu 24.04 after `ubuntu-latest` selected Ubuntu 26.04, which the installed Playwright 1.58.2 could not prepare. The subsequent GitHub run completed browser installation and passed the critical smoke checks; desktop and mobile each passed 322 cases, with one stale contrast-test selector failing in each.
+
+The contrast test now measures visible navigation text, including active/inactive labels and descriptions, over composited ancestor backgrounds at 390/768/1440 on Settings and Tools. The 4.5:1 threshold is unchanged. This reproduced a 4.16:1 active mobile label before the correction. Navigation text now uses darker palette tokens, and both desktop and mobile contrast checks pass. Representative screenshots were refreshed after the text-color correction.
+
+Local follow-up: 38 of 40 accessibility/garden cases passed in the combined run. Two timed-out cases passed in an isolated serial rerun without changing their assertions or the application. The new contrast assertion passed in both browser projects. See PR #1029 checks for the latest full GitHub run.

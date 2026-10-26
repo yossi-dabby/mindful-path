@@ -128,16 +128,34 @@ test.describe('Stage 13 accessibility and bidirectional layout', () => {
     }
   });
 
-  test('meets normal-text contrast for the teal navigation color', async ({ page }) => {
+  test('meets normal-text contrast for visible navigation labels', async ({ page }) => {
     await prepare(page);
-    const colors = await page.locator('nav .text-teal-600').first().evaluate((element) => {
-      const parse = (value: string) => (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-      return {
-        foreground: parse(getComputedStyle(element).color),
-        background: parse(getComputedStyle(element).backgroundColor),
-      };
-    });
-    expect(contrastRatio(colors.foreground, colors.background)).toBeGreaterThanOrEqual(4.5);
+    for (const route of ['/Settings', '/Tools']) {
+      await page.goto(BASE_URL + route);
+      for (const viewport of [{ width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1440, height: 900 }]) {
+        await page.setViewportSize(viewport);
+        // Follow the visible navigation and its text, regardless of palette
+        // utility names. Cover both active and inactive labels/descriptions.
+        const labels = page.locator('nav a:visible p, nav a:visible > span');
+        await expect(labels.first()).toBeVisible();
+        await expect.poll(async () => {
+          const colors = await labels.evaluateAll(elements => elements.map(element => {
+            const parse = (value: string) => (value.match(/[\d.]+/g) || []).map(Number);
+            let background = [255, 255, 255];
+            const ancestors: Element[] = [];
+            for (let node: Element | null = element; node; node = node.parentElement) ancestors.unshift(node);
+            for (const node of ancestors) {
+              const [r, g, b, alpha = 1] = parse(getComputedStyle(node).backgroundColor);
+              background = [r, g, b].map((channel, index) => channel * alpha + background[index] * (1 - alpha));
+            }
+            const [r, g, b, alpha = 1] = parse(getComputedStyle(element).color);
+            const foreground = [r, g, b].map((channel, index) => channel * alpha + background[index] * (1 - alpha));
+            return { foreground, background };
+          }));
+          return Math.min(...colors.map(({ foreground, background }) => contrastRatio(foreground, background)));
+        }, { message: `navigation contrast at ${route}, ${viewport.width}px` }).toBeGreaterThanOrEqual(4.5);
+      }
+    }
   });
 
   test('respects reduced-motion preference', async ({ page }) => {

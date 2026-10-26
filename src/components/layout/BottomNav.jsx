@@ -80,7 +80,7 @@ export default function BottomNav({ currentPageName }) {
                 className={cn('w-5 h-5', isActive ? 'text-[hsl(var(--sidebar-primary))]' : 'text-muted-foreground')}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              <span className={cn('text-xs font-medium leading-none', isActive ? 'text-primary' : 'text-muted-foreground')}>{item.name}</span>
+              <span className={cn('text-xs font-medium leading-none', isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground')}>{item.name}</span>
             </Link>);
 
         })}

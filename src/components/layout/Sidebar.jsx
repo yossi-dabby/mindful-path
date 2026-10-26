@@ -44,7 +44,7 @@ export default function Sidebar({ currentPageName }) {
             <h1 className="min-w-0">
               <AppWordmark name={t('global.app_name')} />
             </h1>
-            <p className="mb-0 mt-2 truncate text-xs text-muted-foreground">{t('global.app_tagline')}</p>
+            <p className="mb-0 mt-2 truncate text-xs text-sidebar-foreground/90">{t('global.app_tagline')}</p>
           </div>
           <div className="shrink-0">
             <NotificationBell />
@@ -79,7 +79,7 @@ export default function Sidebar({ currentPageName }) {
                 <div className="min-w-0 flex-1">
                   <p className={`mb-0 text-inherit font-semibold ${isCompactChat ? 'text-sm leading-4' : 'leading-5'}`}>{item.name}</p>
                   {item.description &&
-                  <p className={`mb-0 mt-1 text-muted-foreground ${isCompactChat ? 'text-[10px] leading-4' : 'text-xs leading-4'}`}>{item.description}</p>
+                  <p className={`mb-0 mt-1 text-sidebar-foreground/90 ${isCompactChat ? 'text-[10px] leading-4' : 'text-xs leading-4'}`}>{item.description}</p>
                   }
                 </div>
                 {isActive &&
@@ -105,7 +105,7 @@ export default function Sidebar({ currentPageName }) {
                     "garden-nav-link flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-control)] border transition-calm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
                     isActive ?
                     "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground" :
-                    "border-transparent text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+                    "border-transparent text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
                   )}>
 
                   <Icon aria-hidden="true" className="text-sidebar-primary w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
