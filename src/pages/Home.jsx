@@ -98,7 +98,7 @@ export default function Home() {
   const savedEntryId = latestJournalEntry ? latestJournalEntry.id : null;
 
   // Get today's flow
-  const { data: todayFlow, isError: flowError, refetch: refetchFlow } = useQuery({
+  const { data: todayFlow, isLoading: flowLoading, isError: flowError, refetch: refetchFlow } = useQuery({
     queryKey: ['todayFlow'],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
@@ -110,7 +110,7 @@ export default function Home() {
   });
 
   // Get today's exercise
-  const { data: todayExercise, isError: exerciseError, refetch: refetchExercise } = useQuery({
+  const { data: todayExercise, isLoading: exerciseLoading, isError: exerciseError, refetch: refetchExercise } = useQuery({
     queryKey: ['todayExercise', todayFlow?.exercise_id],
     queryFn: async () => {
       if (!todayFlow?.exercise_id) return null;
@@ -299,6 +299,7 @@ export default function Home() {
             checkInComplete={Boolean(todayMood || todayFlow?.check_in_completed)}
             exerciseComplete={Boolean(todayFlow?.exercise_completed)}
             hasRecommendedExercise={Boolean(todayExercise)}
+            isRecommendationLoading={flowLoading || exerciseLoading}
             onCheckIn={handleStartCheckIn}
             onCoach={() => navigate(createPageUrl('Coach'))}
             onExercise={() => todayExercise ? handleStartExercise() : navigate('/Exercises')}

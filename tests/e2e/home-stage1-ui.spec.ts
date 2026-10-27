@@ -3,8 +3,12 @@ import { mockApi } from '../helpers/ui';
 
 const sizes = [{ width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1440, height: 900 }];
 
-async function prepare(page: Page, { language = 'en', theme = 'light', viewport = sizes[0], breathing = false, onboarding = false, notifications = false, loadError = false, longName = false, audio = false } = {}) {
-  const state = { failSave: false, failFavorite: false, loadError, exerciseWrites: [] as any[], reflectionWrites: [] as any[] };
+async function prepare(page: Page, { language = 'en', theme = 'light', viewport = sizes[0], breathing = false, onboarding = false, notifications = false, loadError = false, longName = false, audio = false, deferFlow = false, deferExercise = false } = {}) {
+  let releaseFlow = () => {};
+  let releaseExercise = () => {};
+  const flowReady = new Promise<void>(resolve => { releaseFlow = resolve; });
+  const exerciseReady = new Promise<void>(resolve => { releaseExercise = resolve; });
+  const state = { releaseFlow: () => releaseFlow(), releaseExercise: () => releaseExercise(), exerciseRequested: false, failSave: false, failFavorite: false, loadError, exerciseWrites: [] as any[], reflectionWrites: [] as any[] };
   const exercise = { id: 'home-practice-sample', title: language === 'he' ? 'תרגיל דוגמה לבדיקת ממשק בלבד' : 'A sample exercise for interface review', category: breathing ? 'breathing' : 'grounding', difficulty: 'beginner', duration_minutes: 5, duration_options: breathing ? [1, 3, 5] : [], completed_count: 2, total_time_practiced: 0, instructions: 'Sample practice instructions.', favorite: false };
   await page.setViewportSize(viewport);
   await mockApi(page);
@@ -24,7 +28,10 @@ async function prepare(page: Page, { language = 'en', theme = 'light', viewport 
     if (entity === 'User' && req.method() === 'GET') return route.fulfill({ json: { id: 'sample-user', email: 'sample@example.invalid', full_name: longName ? 'Alexandertheodoremaximilianchristopheralexander' : 'Sample Person', onboarding_completed: !onboarding, preferences: { language } } });
     if (state.loadError && req.method() === 'GET' && ['MoodEntry', 'Goal', 'ThoughtJournal', 'DailyFlow'].includes(entity || '')) return route.fulfill({ status: 503, json: { message: 'Sample unavailable' } });
     if (entity === 'DailyFlow') {
-      if (req.method() === 'GET') return route.fulfill({ json: [{ id: 'sample-flow', date: new Date().toISOString().slice(0, 10), check_in_completed: true, exercise_id: exercise.id }] });
+      if (req.method() === 'GET') {
+        if (deferFlow) await flowReady;
+        return route.fulfill({ json: [{ id: 'sample-flow', date: new Date().toISOString().slice(0, 10), check_in_completed: true, exercise_id: exercise.id }] });
+      }
       const data = req.postDataJSON();
       if (data.reflection_completed) {
         state.reflectionWrites.push(data);
@@ -39,6 +46,8 @@ async function prepare(page: Page, { language = 'en', theme = 'light', viewport 
         Object.assign(exercise, req.postDataJSON());
         return route.fulfill({ json: exercise });
       }
+      state.exerciseRequested = true;
+      if (deferExercise) await exerciseReady;
       return route.fulfill({ json: [exercise] });
     }
     if (entity === 'AudioContent') return route.fulfill({ json: audio ? [{ id: 'sample-audio', title: 'Sample audio', description: 'Sample only', type: 'guided', duration_minutes: 5, background_music: true, audio_url: '/sample-audio.mp3' }] : [] });
@@ -241,4 +250,25 @@ test('Home route announcements preserve keyboard focus in notifications', async 
   await expect(link).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/Goals$/);
+});
+
+test('Home waits for both recommendation requests before opening the useful action', async ({ page }) => {
+  const state = await prepare(page, { deferFlow: true, deferExercise: true });
+  const action = page.getByTestId('daily-path-action');
+  await expect(action).toBeDisabled();
+  await expect(action).toHaveAttribute('aria-busy', 'true');
+  await expect(page.getByTestId('daily-path-checkin')).toBeEnabled();
+  await expect(page.getByTestId('daily-path-coach')).toBeEnabled();
+
+  state.releaseFlow();
+  await expect.poll(() => state.exerciseRequested).toBe(true);
+  await expect(action).toBeDisabled();
+  await expect(action).toHaveAttribute('aria-busy', 'true');
+
+  state.releaseExercise();
+  await expect(action).toBeEnabled();
+  await expect(action).not.toHaveAttribute('aria-busy', 'true');
+  await action.click();
+  await expect(page.getByRole('dialog', { name: 'A sample exercise for interface review', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/Home$/);
 });

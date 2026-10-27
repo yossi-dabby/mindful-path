@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { getStage11Copy } from '../i18n/stage11UiCopy.js';
 
-export default function DailyPath({ checkInComplete, exerciseComplete, hasRecommendedExercise, onCheckIn, onCoach, onExercise }) {
+export default function DailyPath({ checkInComplete, exerciseComplete, hasRecommendedExercise, isRecommendationLoading = false, onCheckIn, onCoach, onExercise }) {
   const { t, i18n } = useTranslation();
   const copy = getStage11Copy(i18n.resolvedLanguage || i18n.language);
   const isRtl = i18n.dir() === 'rtl';
@@ -31,7 +31,8 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
       Icon: Sparkles,
       complete: exerciseComplete,
       onClick: onExercise,
-      disabled: !hasRecommendedExercise && exerciseComplete,
+      busy: isRecommendationLoading,
+      disabled: isRecommendationLoading || (!hasRecommendedExercise && exerciseComplete),
     },
   ];
 
@@ -43,12 +44,13 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('daily_path.description')}</p>
       </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {steps.map(({ key, Icon, complete, onClick, disabled, modeLabel }) => (
+          {steps.map(({ key, Icon, complete, onClick, disabled, busy, modeLabel }) => (
             <button
               type="button"
               key={key}
               onClick={onClick}
               disabled={disabled}
+              aria-busy={busy || undefined}
               data-testid={`daily-path-${key}`}
               className="botanical-daily-card group flex min-h-[132px] flex-col rounded-[24px] border border-border bg-gradient-to-br from-white to-teal-50/70 p-4 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-border hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
             >
@@ -60,7 +62,7 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
               {modeLabel && <span className={cn('mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-bold', key === 'checkin' ? 'bg-amber-100 text-amber-800' : 'bg-violet-100 text-violet-800')}>{modeLabel}</span>}
               <span className="mt-1 flex-1 text-xs leading-5 text-muted-foreground">{t(`daily_path.${key}.description`)}</span>
               <span className="mt-3 inline-flex items-center text-xs font-bold text-primary">
-                {t('daily_path.open')}
+                {t(busy ? 'common.loading' : 'daily_path.open')}
                 <Arrow className="ms-1 h-3.5 w-3.5" />
               </span>
             </button>
