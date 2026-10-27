@@ -65,16 +65,28 @@ test.describe('Premium seven-day starter path', () => {
     const example = page.getByTestId('starter-path-example');
     await expect(example).toBeVisible();
     await expect(example).toContainText('דוגמה:');
-    await expect(example).toHaveClass(/bg-teal-50\/90/);
-    await expect(example.locator('p')).toHaveClass(/text-teal-950/);
+    await expect(example).toHaveClass(/bg-secondary\/70/);
 
     const colors = await example.evaluate((element) => {
       const text = element.querySelector('p');
-      const containerStyle = getComputedStyle(element);
-      const textStyle = text ? getComputedStyle(text) : null;
-      return { background: containerStyle.backgroundColor, color: textStyle?.color || '' };
+      if (!text) throw new Error('Exercise example text is missing');
+      const rgb = (value: string) => value.match(/[\d.]+/g)!.map(Number);
+      const foreground = rgb(getComputedStyle(text).color);
+      let background = [255, 255, 255];
+      const ancestors: Element[] = [];
+      for (let parent: Element | null = text; parent; parent = parent.parentElement) ancestors.unshift(parent);
+      for (const parent of ancestors) {
+        const color = rgb(getComputedStyle(parent).backgroundColor);
+        const alpha = color[3] ?? 1;
+        background = background.map((value, i) => color[i] * alpha + value * (1 - alpha));
+      }
+      const luminance = (color: number[]) => color.slice(0, 3).map(value => value / 255)
+        .map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
+        .reduce((sum, value, i) => sum + value * [.2126, .7152, .0722][i], 0);
+      const a = luminance(foreground), b = luminance(background);
+      return { contrast: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) };
     });
-    expect(colors.background).not.toBe(colors.color);
+    expect(colors.contrast).toBeGreaterThanOrEqual(4.5);
   });
 
   test('is RTL in Hebrew and remains within mobile, tablet and desktop widths', async ({ page }) => {
