@@ -22,5 +22,6 @@ export function renderChatFixture(kind='message') {
   save:<ThoughtWorkSaveHandler conversationId="synthetic-only" conversationMessages={[]} onCancel={noop} onSaveComplete={noop}/>,
   sidebar:<div style={{height:'calc(100dvh - 32px)',maxWidth:320}}><ConversationsList conversations={[{id:'synthetic-only',metadata:{name:'One small step for today'},created_date:'2026-10-27T08:00:00Z'},{id:'synthetic-two',metadata:{name:'Another sample session'},created_date:'2026-10-26T08:00:00Z'}]} currentConversationId="synthetic-only" onSelectConversation={noop} onNewConversation={noop} onDeleteConversation={noop} onClose={noop}/></div>
  }[kind];
- previousRoot=createRoot(host);previousRoot.render(<BrowserRouter><QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}>{content}</QueryClientProvider></BrowserRouter>);
+ // Portals must appear above this test overlay, just as they do above the app.
+ previousRoot=createRoot(host);previousRoot.render(<BrowserRouter><QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}><style>{'[data-radix-popper-content-wrapper] { z-index: 210 !important; }'}</style>{content}</QueryClientProvider></BrowserRouter>);
 }

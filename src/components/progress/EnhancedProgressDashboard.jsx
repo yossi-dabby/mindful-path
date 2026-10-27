@@ -180,7 +180,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
       </motion.div>
 
       {/* Key Metrics Grid */}
-      <div className="garden-metric-grid text-teal-600 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="garden-metric-grid text-primary rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="rounded-[var(--radius-card)] border-border/80">
           <CardContent className="bg-card p-4 text-center rounded-2xl sm:p-6">
             <div className="flex items-center justify-center mb-2">
@@ -189,12 +189,12 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
               metrics.moodTrend === 'declining' ?
               <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" /> :
 
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               }
             </div>
-            <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.avgMood}</p>
-            <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.avg_mood')}</p>
-            <Badge className="bg-secondary/86 text-teal-600 mt-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60" variant="secondary">{t(`progress.dashboard.trend_${metrics.moodTrend}`)}</Badge>
+            <p className="text-primary text-2xl font-bold sm:text-3xl">{metrics.avgMood}</p>
+            <p className="text-primary mt-1 text-xs sm:text-sm">{t('progress.dashboard.avg_mood')}</p>
+            <Badge className="bg-secondary/86 text-primary mt-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60" variant="secondary">{t(`progress.dashboard.trend_${metrics.moodTrend}`)}</Badge>
           </CardContent>
         </Card>
 
@@ -217,10 +217,10 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
 
         <Card className="bg-card text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] border-border/80">
           <CardContent className="bg-card p-4 text-center rounded sm:p-6">
-            <Target className="text-teal-600 mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
-            <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
-            <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.goals_achieved')}</p>
-            <p className="text-teal-600 mt-1 text-xs">{metrics.activeGoals} {t('progress.dashboard.active')}</p>
+            <Target className="text-primary mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
+            <p className="text-primary text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
+            <p className="text-primary mt-1 text-xs sm:text-sm">{t('progress.dashboard.goals_achieved')}</p>
+            <p className="text-primary mt-1 text-xs">{metrics.activeGoals} {t('progress.dashboard.active')}</p>
           </CardContent>
         </Card>
       </div>
@@ -228,8 +228,8 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
       {/* Mood Trend Chart */}
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardHeader>
-          <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
-            <TrendingUp className="text-teal-600 lucide lucide-trending-up w-5 h-5" />
+          <CardTitle className="text-primary text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+            <TrendingUp className="text-primary lucide lucide-trending-up w-5 h-5" />
             {t('progress.dashboard.charts.mood_trends')}
           </CardTitle>
         </CardHeader>
@@ -261,8 +261,8 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
         {/* Exercise Frequency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
-              <Dumbbell className="text-teal-600 lucide lucide-dumbbell w-5 h-5" />
+            <CardTitle className="text-primary text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+              <Dumbbell className="text-primary lucide lucide-dumbbell w-5 h-5" />
               {t('progress.dashboard.charts.exercise_by_category')}
             </CardTitle>
           </CardHeader>
@@ -309,8 +309,8 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
       {goalProgressData.length > 0 &&
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
-              <Target className="text-teal-600 lucide lucide-target w-5 h-5" />
+            <CardTitle className="text-primary text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+              <Target className="text-primary lucide lucide-target w-5 h-5" />
               {t('progress.dashboard.charts.goal_progress')}
             </CardTitle>
           </CardHeader>

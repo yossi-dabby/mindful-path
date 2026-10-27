@@ -50,7 +50,7 @@ export default function ExerciseTracker({ exercises = [] }) {
           ].map(([value, label, color, background]) => (
             <div key={label} className={`min-w-0 rounded-xl p-3 sm:p-4 text-center ${background}`}>
               <p className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</p>
-              <p className="mt-1 text-xs sm:text-sm text-slate-700 break-words">{label}</p>
+              <p className="mt-1 text-xs sm:text-sm text-muted-foreground break-words">{label}</p>
             </div>
           ))}
         </div>

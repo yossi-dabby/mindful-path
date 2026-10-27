@@ -26,22 +26,22 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
           <AuthLanguageSwitcher />
         </div>
 
-        <section className="overflow-hidden rounded-[30px] border border-white/80 bg-card/95 shadow-[0_28px_80px_rgba(36,105,92,0.18)] backdrop-blur-xl">
+        <section className="overflow-hidden rounded-[30px] border border-border/70 bg-card/95 shadow-[0_28px_80px_rgba(36,105,92,0.18)] backdrop-blur-xl">
           <div className="px-6 pb-4 pt-7 text-center sm:px-8">
-            <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-teal-700/20">
+            <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-teal-700/20">
               <Icon className="h-6 w-6" aria-hidden="true" />
             </div>
-            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            {subtitle && <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-600">{subtitle}</p>}
+            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+            {subtitle && <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">{subtitle}</p>}
           </div>
 
           <div className="px-6 pb-6 sm:px-8 sm:pb-8">{children}</div>
         </section>
 
-        {footer && <p className="mt-4 text-center text-sm text-slate-600">{footer}</p>}
+        {footer && <p className="mt-4 text-center text-sm text-muted-foreground">{footer}</p>}
 
-        <div className="mt-4 flex items-center justify-center gap-2 text-center text-xs leading-5 text-slate-500">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-teal-700" aria-hidden="true" />
+        <div className="mt-4 flex items-center justify-center gap-2 text-center text-xs leading-5 text-muted-foreground">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
           <span>{t("onboarding.welcome.privacy_note")}</span>
         </div>
       </div>

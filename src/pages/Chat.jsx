@@ -5564,8 +5564,8 @@ export default function Chat() {
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
-                        <div className="bg-primary text-primary rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="text-slate-50 lucide lucide-sparkles w-5 h-5" />
+                        <div className="bg-secondary text-primary rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="text-primary lucide lucide-sparkles w-5 h-5" />
                         </div>
                         <div className="flex-1">
                           <p className="text-primary mb-1 text-sm font-medium">

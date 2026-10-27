@@ -29,17 +29,17 @@ export default function SocialAuthButtons() {
     <div className="space-y-3">
       <Button
         type="button"
-        className="h-12 w-full rounded-2xl bg-teal-700 text-sm font-semibold text-white shadow-lg shadow-teal-700/20 hover:bg-teal-800"
+        className="h-12 w-full rounded-2xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-teal-700/20 hover:bg-primary"
         onClick={handle("google")}
       >
-        <GoogleIcon className="me-2 h-5 w-5 rounded-full bg-white p-0.5" />
+        <GoogleIcon className="me-2 h-5 w-5 rounded-full bg-[hsl(var(--card)/0.97)] p-0.5" />
         {t("auth.social.continue_with", { provider: "Google" })}
       </Button>
 
       <button
         type="button"
         onClick={() => setShowAlternatives((value) => !value)}
-        className="mx-auto flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-teal-800"
+        className="mx-auto flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-muted-foreground hover:bg-slate-50 hover:text-primary"
         aria-expanded={showAlternatives}
       >
         {t("auth.social.other_options")}

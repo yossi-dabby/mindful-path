@@ -54,10 +54,10 @@ export default function BadgeDisplay({ compact = false }) {
       <Card className="rounded-[26px] border hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden" style={{ borderColor: 'rgba(118, 170, 156, 0.3)', background: 'linear-gradient(180deg, rgba(246,252,248,0.98) 0%, rgba(235,245,240,0.96) 100%)', boxShadow: '0 22px 50px rgba(68, 108, 96, 0.13), 0 8px 18px rgba(68, 108, 96, 0.07)' }}>
         <CardContent className="bg-emerald-50 p-5 text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[18px] bg-primary/12 text-primary shadow-[var(--shadow-sm)]">
-            <Award className="text-teal-600 mx-auto lucide lucide-award w-8 h-8" strokeWidth={2} />
+            <Award className="text-primary mx-auto lucide lucide-award w-8 h-8" strokeWidth={2} />
           </div>
-          <p className="text-teal-600 mb-1 text-2xl font-bold">{earnedBadges.length}</p>
-          <p className="text-teal-600 text-xs">{t('gamification.badges.badges')}</p>
+          <p className="text-primary mb-1 text-2xl font-bold">{earnedBadges.length}</p>
+          <p className="text-primary text-xs">{t('gamification.badges.badges')}</p>
           {inProgressBadges.length > 0 &&
           <p className="text-xs mt-1 text-muted-foreground">{t('gamification.badges.in_progress_count', { count: inProgressBadges.length })}</p>
           }

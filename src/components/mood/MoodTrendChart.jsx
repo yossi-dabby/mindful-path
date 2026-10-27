@@ -81,8 +81,8 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
     <Card className="overflow-hidden bg-card/90 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-xl border border-border/75 shadow-[var(--shadow-md)]" data-testid="mood-trend-chart">
       <CardHeader className="bg-secondary/35 p-4 sm:p-6 flex flex-col space-y-1.5 border-b border-border/60">
         <div className="flex flex-col gap-3 text-primary sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
-            <Activity className="text-teal-600 lucide lucide-activity w-5 h-5" />
+          <CardTitle className="text-primary font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
+            <Activity className="text-primary lucide lucide-activity w-5 h-5" />
             {t('mood_tracker.mood_trends')}
           </CardTitle>
           <BottomSheetSelect
@@ -99,17 +99,17 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         {stats &&
         <div className="grid grid-cols-1 gap-2 mb-6 sm:grid-cols-3 sm:gap-4">
             <div className="bg-card/75 text-primary p-4 rounded-[var(--radius-control)] border border-border/60">
-              <p className="text-teal-600 mb-1 text-xs font-medium">{t('mood_tracker.analytics.average_mood')}</p>
-              <p className="text-teal-600 text-2xl font-bold">{stats.avgMood.toFixed(1)}/5</p>
+              <p className="text-primary mb-1 text-xs font-medium">{t('mood_tracker.analytics.average_mood')}</p>
+              <p className="text-primary text-2xl font-bold">{stats.avgMood.toFixed(1)}/5</p>
             </div>
             <div className="bg-card/75 text-primary p-4 rounded-[var(--radius-control)] border border-border/60">
-              <p className="text-teal-600 mb-1 text-xs font-semibold">{t('mood_tracker.analytics.average_stress')}</p>
-              <p className="text-teal-600 text-xl font-semibold">
+              <p className="text-primary mb-1 text-xs font-semibold">{t('mood_tracker.analytics.average_stress')}</p>
+              <p className="text-primary text-xl font-semibold">
                 {stats.avgStress != null ? `${stats.avgStress.toFixed(1)}/10` : t('mood_tracker.analytics.no_data_yet')}
               </p>
             </div>
             <div className="bg-card/75 p-4 rounded-[var(--radius-control)] border border-border/60">
-              <p className="text-teal-600 mb-1 text-sm font-semibold">{t('mood_tracker.analytics.trend')}</p>
+              <p className="text-primary mb-1 text-sm font-semibold">{t('mood_tracker.analytics.trend')}</p>
               <div className="flex items-center justify-center gap-1">
                 {stats.trend > 0.5 ?
               <>
@@ -122,7 +122,7 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
                     <span className="text-lg font-bold text-blue-700">{t('mood_tracker.analytics.shift')}</span>
                   </> :
 
-              <span className="text-teal-600 text-lg font-bold">{t('mood_tracker.analytics.steady')}</span>
+              <span className="text-primary text-lg font-bold">{t('mood_tracker.analytics.steady')}</span>
               }
               </div>
             </div>
@@ -135,7 +135,7 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
           <h3 className="text-sm font-semibold text-foreground mb-3">{t('mood_tracker.analytics.mood_stress_levels')}</h3>
           <div className="overflow-x-auto pb-2" tabIndex={0}><div className="min-w-[620px] h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} className="bg-teal-50 recharts-surface">
+            <LineChart data={chartData} className="bg-secondary/70 recharts-surface">
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="date"

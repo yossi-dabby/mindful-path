@@ -57,22 +57,22 @@ export default function JournalTracker({ journalEntries }) {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 bg-purple-50 rounded-xl">
             <p className="text-3xl font-bold text-purple-600">{totalEntries}</p>
-            <p className="text-sm text-gray-600 mt-1">Total Entries</p>
+            <p className="text-sm text-muted-foreground mt-1">Total Entries</p>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-xl">
             <p className="text-3xl font-bold text-blue-600">{entriesThisWeek}</p>
-            <p className="text-sm text-gray-600 mt-1">This Week</p>
+            <p className="text-sm text-muted-foreground mt-1">This Week</p>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-xl">
             <div className="flex items-center justify-center gap-1">
               <TrendingDown className="w-5 h-5 text-green-600" />
               <p className="text-3xl font-bold text-green-600">-{avgIntensityChange.toFixed(1)}</p>
             </div>
-            <p className="text-sm text-gray-600 mt-1">Avg Relief</p>
+            <p className="text-sm text-muted-foreground mt-1">Avg Relief</p>
           </div>
         </div>
 
-        <h4 className="font-semibold text-gray-800 mb-3">14-Day Activity</h4>
+        <h4 className="font-semibold text-foreground mb-3">14-Day Activity</h4>
         <ResponsiveContainer width="100%" height={150}>
           <LineChart data={entriesPerDay}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -91,14 +91,14 @@ export default function JournalTracker({ journalEntries }) {
 
         {topDistortionsList.length > 0 && (
           <div className="mt-4">
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-600" />
               Common Thinking Patterns
             </h4>
             <div className="space-y-2">
               {topDistortionsList.map(([distortion, count]) => (
                 <div key={distortion} className="flex items-center justify-between p-2 bg-purple-50 rounded-lg">
-                  <span className="text-sm text-gray-700">{distortion}</span>
+                  <span className="text-sm text-muted-foreground">{distortion}</span>
                   <Badge className="bg-purple-600">{count}x</Badge>
                 </div>
               ))}
@@ -107,7 +107,7 @@ export default function JournalTracker({ journalEntries }) {
         )}
 
         {totalEntries === 0 && (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p>Start journaling to see insights</p>
           </div>

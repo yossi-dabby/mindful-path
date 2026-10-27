@@ -48,7 +48,7 @@ export default function InsightsPanel({ moodEntries = [], journalEntries = [] })
 
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] overflow-hidden" data-testid="progress-insights">
-      <CardHeader className="bg-teal-50/70 dark:bg-teal-950/20 p-4 sm:p-6">
+      <CardHeader className="bg-secondary/70 dark:bg-teal-950/20 p-4 sm:p-6">
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Lightbulb className="h-5 w-5 text-amber-600" />
           {t('progress_ui.insights.title')}
@@ -56,9 +56,9 @@ export default function InsightsPanel({ moodEntries = [], journalEntries = [] })
       </CardHeader>
       <CardContent className="p-4 sm:p-6 space-y-5">
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-teal-50 p-3">
-            <p className="text-sm font-medium text-teal-800">{t('progress_ui.insights.average_mood')}</p>
-            <p className="mt-1 text-3xl font-bold text-teal-700">{avgMood || '—'}<span className="text-sm font-normal"> / 5</span></p>
+          <div className="rounded-xl bg-secondary/70 p-3">
+            <p className="text-sm font-medium text-primary">{t('progress_ui.insights.average_mood')}</p>
+            <p className="mt-1 text-3xl font-bold text-primary">{avgMood || '—'}<span className="text-sm font-normal"> / 5</span></p>
           </div>
           <div className="rounded-xl bg-amber-50 p-3">
             <p className="text-sm font-medium text-amber-900">{t('progress_ui.insights.checkin_streak')}</p>
@@ -67,9 +67,9 @@ export default function InsightsPanel({ moodEntries = [], journalEntries = [] })
         </div>
         {commonEmotions.length > 0 && <section><h3 className="mb-2 text-sm font-semibold text-foreground">{t('progress_ui.insights.common_emotions')}</h3><div className="flex flex-wrap gap-2">{commonEmotions.map((emotion) => <Badge key={emotion} variant="secondary">{taxonomyLabel('emotions', emotion)}</Badge>)}</div></section>}
         {topDistortions.length > 0 && <section><h3 className="mb-2 text-sm font-semibold text-foreground">{t('progress_ui.insights.patterns')}</h3><div className="space-y-2">{topDistortions.map(([distortion, count]) => <div key={distortion} className="rounded-xl border border-border/60 bg-secondary/35 p-3"><p className="text-sm font-medium text-foreground">{taxonomyLabel('distortions', distortion)}</p><p className="mt-1 text-xs text-primary">{t('progress_ui.insights.identified', { count })}</p></div>)}</div></section>}
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
-          <p className="mb-1 text-sm font-semibold text-teal-900">{t('progress_ui.insights.keep_going')}</p>
-          <p className="text-sm text-teal-900">{t(safeJournals.length > 5 ? 'progress_ui.insights.encouragement_many' : 'progress_ui.insights.encouragement_few')}</p>
+        <div className="rounded-xl border border-border bg-secondary/70 p-4">
+          <p className="mb-1 text-sm font-semibold text-primary">{t('progress_ui.insights.keep_going')}</p>
+          <p className="text-sm text-primary">{t(safeJournals.length > 5 ? 'progress_ui.insights.encouragement_many' : 'progress_ui.insights.encouragement_few')}</p>
         </div>
       </CardContent>
     </Card>
