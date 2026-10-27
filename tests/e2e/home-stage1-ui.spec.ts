@@ -162,6 +162,10 @@ for (const language of ['en', 'he']) for (const width of [360, 390]) {
       await expect(tab).toBeInViewport({ ratio: 0.99 });
       expect(await tab.evaluate(el => el.scrollWidth <= el.clientWidth + 2)).toBe(true);
     }
+    const support = page.getByTestId('persistent-human-support');
+    await expect(support).toHaveCSS('position', 'static');
+    await support.scrollIntoViewIfNeeded();
+    await expect(support).toBeInViewport({ ratio: 0.99 });
     expect(await page.locator('#app-scroll-container').evaluate(el => parseFloat(getComputedStyle(el).paddingTop) >= document.querySelector('[data-mobile-header]')!.getBoundingClientRect().height)).toBe(true);
   });
 }

@@ -257,10 +257,10 @@ export default function Layout({ children, currentPageName }) {
           </div>
         }
 
-      
+
       {/* Sidebar - Desktop only */}
       <Sidebar currentPageName={currentPageName} />
-      
+
       {/* Main Content - Single scroll container with page transitions */}
       <AppContent currentPageName={currentPageName}>
         <AnimatePresence mode="wait" initial={false}>
@@ -277,12 +277,10 @@ export default function Layout({ children, currentPageName }) {
               className="app-page-transition w-full min-h-full"
               data-app-page-transition
               data-app-page-name={currentPageName}>
-              
+
             {children}
           </motion.div>
         </AnimatePresence>
-      </AppContent>
-      
         {currentPageName !== 'Chat' && <Link
           to="/contact"
           data-testid="persistent-human-support"
@@ -292,6 +290,9 @@ export default function Layout({ children, currentPageName }) {
           <LifeBuoy className="h-5 w-5 shrink-0" aria-hidden="true" />
           <span>{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
         </Link>}
+      </AppContent>
+
+
 
         {/* Bottom Navigation - Mobile only */}
         <BottomNav currentPageName={currentPageName} />

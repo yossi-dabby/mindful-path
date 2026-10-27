@@ -864,3 +864,13 @@ html:lang(pt) .journal-rich-text { --format-bold: "Negrito"; --format-italic: "I
   .exercise-detail-tabs [role="tab"] { flex-direction: column; gap: 4px; padding-inline: 4px; }
   .exercise-detail-tabs [role="tab"] span { overflow-wrap: normal; }
 }
+@media (max-width: 767px) {
+  /* Enlarged support text belongs in the scroll flow, clear of page actions. */
+  html[data-expanded-mobile-chrome] [data-testid="persistent-human-support"] {
+    position: static;
+    display: flex;
+    justify-content: center;
+    max-width: calc(100% - 32px);
+    margin: 16px;
+  }
+}
