@@ -92,13 +92,22 @@ for (const language of ['en', 'he']) test(`Interactive breathing contains focus 
     }
   }
   await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0); await expect(trigger).toBeFocused();
-  await trigger.press('Enter'); await expect(dialog).toHaveCount(1); await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
+  for (const key of ['Enter', 'Space', 'Enter']) {
+    await trigger.press(key);
+    await expect(dialog).toHaveCount(1);
+    // A mounted dialog can precede Radix's focus/listener effect. Wait for the
+    // real keyboard target before sending Escape, as on the initial opening.
+    await expect.poll(() => dialog.evaluate(e => e.contains(document.activeElement))).toBe(true);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  }
 });
 
 test('Library completion failure remains visible and successful retry persists progress', async ({ page }) => {
   const state = await prepare(page);
   await page.getByTestId('daily-path-action').click();
-  await page.getByRole('heading', { name: '5-4-3-2-1 Sensory Grounding', exact: true }).click();
+  await page.getByRole('heading', { name: '5-4-3-2-1 Sensory Grounding', exact: true, level: 3 }).click();
   const dialog = page.getByRole('dialog');
   state.failProgress = true;
   await dialog.locator('button[aria-pressed]').click(); await expect(dialog.getByRole('alert')).toBeVisible();
@@ -108,7 +117,9 @@ test('Library completion failure remains visible and successful retry persists p
   state.failProgress = false;
   await dialog.getByRole('button', { name:'Mark as Complete', exact:true }).click();
   await expect(dialog).toContainText('Exercise Completed!'); await expect(dialog).toHaveCount(0);
-  await page.reload(); await page.getByRole('heading', { name:'5-4-3-2-1 Sensory Grounding', exact:true }).click();
+  // A completed practice also appears in Quick Start (h4). Reopen the library
+  // card (h3), keeping the locator strict instead of selecting an arbitrary copy.
+  await page.reload(); await page.getByRole('heading', { name:'5-4-3-2-1 Sensory Grounding', exact:true, level:3 }).click();
   expect(state.db.UserExerciseProgress[0].completed_count).toBe(1);
   await expect(page.getByRole('dialog')).toContainText('1');
   expect(state.writes.some(w => w.entity === 'Exercise')).toBe(false);
