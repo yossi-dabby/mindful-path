@@ -53,7 +53,9 @@ async function prepare(page: Page, { language = 'en', theme = 'light', viewport 
 async function assertFocusContained(page: Page) {
   const dialog = page.getByRole('dialog');
   await expect(dialog).toHaveAttribute('aria-modal', 'true');
-  expect(await dialog.evaluate(el => el.contains(document.activeElement))).toBe(true);
+  // Radix restores focus in a deferred unmount callback. Visibility can return
+  // before that callback runs; wait for focus, then check every Tab immediately.
+  await expect.poll(() => dialog.evaluate(el => el.contains(document.activeElement))).toBe(true);
   for (let i = 0; i < 16; i++) {
     await page.keyboard.press('Tab');
     expect(await dialog.evaluate(el => el.contains(document.activeElement))).toBe(true);
@@ -115,7 +117,8 @@ for (const language of ['en', 'he']) for (const theme of ['light', 'dark']) {
     await prepare(page, { language, theme, breathing: true });
     await page.getByTestId('daily-path-action').click();
     await page.getByRole('tab').nth(1).click();
-    await page.locator('.premium-overlay .grid.grid-cols-2 button').first().click();
+    const durationButton = page.locator('.premium-overlay .grid.grid-cols-2 button').first();
+    await durationButton.click();
     const dialog = page.getByRole('dialog');
     const close = dialog.getByRole('button', { name: language === 'he' ? 'סגירת תרגיל הנשימה' : 'Close breathing exercise', exact: true });
     await expect(close).toBeInViewport({ ratio: 1 });
@@ -128,6 +131,7 @@ for (const language of ['en', 'he']) for (const theme of ['light', 'dark']) {
     await dialog.getByRole('button', { name: language === 'he' ? 'השהה' : 'Pause', exact: true }).click();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('tab').first()).toBeVisible();
+    await expect(durationButton).toBeFocused();
     await assertFocusContained(page);
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();

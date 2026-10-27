@@ -27,6 +27,11 @@ const { defaultBrowserType: _pixel5DefaultBrowserType, ...pixel5Device } = devic
 
 // ── Shared API mock helper ────────────────────────────────────────────────────
 async function mockApis(page: import('@playwright/test').Page) {
+  // Optional external fonts must not trigger the startup resource-error screen
+  // in isolated browser tests; use the same fallback fonts as the shared mock.
+  await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
+    contentType: 'text/css', body: ''
+  }));
   await page.route('**/api/apps/**', async (route) => {
     const url = route.request().url();
     if (url.includes('/public-settings/')) {
@@ -86,8 +91,7 @@ async function mockApis(page: import('@playwright/test').Page) {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function gotoHome(page: import('@playwright/test').Page) {
   await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
-  // Wait until the page is interactive (at least one button rendered)
-  await page.waitForFunction(() => !!document.querySelector('button'), { timeout: 15000 });
+  await expect(page.getByTestId('daily-path')).toBeVisible({ timeout: 15000 });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -117,13 +121,37 @@ test.describe('Bottom Tabs (mobile)', () => {
     expect(paddingBottom).toMatch(/env\(safe-area-inset-bottom/);
   });
 
-  test('bottom nav height accounts for safe-area-inset-bottom', async ({ page }) => {
-    const height = await page.evaluate(() => {
-      const nav = document.querySelector('nav[aria-label="Main navigation"]');
-      return nav ? (nav as HTMLElement).style.height : null;
-    });
-    expect(height).toBeTruthy();
-    expect(height).toMatch(/env\(safe-area-inset-bottom/);
+  test('bottom nav preserves safe-area clearance and grows with enlarged text', async ({ page }) => {
+    const nav = page.locator('[data-mobile-bottom-nav]');
+    await expect(nav).toBeVisible();
+    // The bar has a safe-area-aware minimum, allowing enlarged labels to grow.
+    expect(await nav.evaluate(el => (el as HTMLElement).style.minHeight)).toMatch(/env\(safe-area-inset-bottom/);
+
+    const checkClearance = async () => {
+      await expect.poll(() => nav.evaluate(el => {
+        const height = el.getBoundingClientRect().height;
+        const content = document.getElementById('app-scroll-container')!;
+        return Math.abs(parseFloat(getComputedStyle(content).paddingBottom) - height);
+      })).toBeLessThan(1);
+      const bounds = await nav.evaluate(el => {
+        const rect = el.getBoundingClientRect();
+        const inset = parseFloat(getComputedStyle(el).paddingBottom);
+        return {
+          height: rect.height,
+          inset,
+          lowestLink: Math.max(...Array.from(el.querySelectorAll('a')).map(link => link.getBoundingClientRect().bottom)),
+          bottom: rect.bottom
+        };
+      });
+      expect(bounds.height).toBeGreaterThanOrEqual(80 + bounds.inset);
+      expect(bounds.lowestLink).toBeLessThanOrEqual(bounds.bottom - bounds.inset + 1);
+      return bounds.height;
+    };
+
+    const initialHeight = await checkClearance();
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    await expect.poll(() => nav.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThan(initialHeight);
+    await checkClearance();
   });
 
   test('Home tab link is present', async ({ page }) => {
