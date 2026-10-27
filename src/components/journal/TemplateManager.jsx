@@ -67,12 +67,12 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
   return (
     <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-template-title" aria-describedby="journal-template-description">
-      <Card className="my-0 flex max-h-[100dvh] w-full max-w-4xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/95 shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
-        <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/70 p-4 sm:p-6">
+      <Card className="my-0 flex max-h-[100dvh] w-full max-w-4xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+        <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle id="journal-template-title" className="text-xl font-bold text-teal-950 sm:text-2xl">{t('journal_ui.templates.title')}</CardTitle>
-              <p id="journal-template-description" className="mt-1 text-sm text-slate-600">{t('journal_ui.templates.description')}</p>
+              <CardTitle id="journal-template-title" className="text-xl font-bold text-primary sm:text-2xl">{t('journal_ui.templates.title')}</CardTitle>
+              <p id="journal-template-description" className="mt-1 text-sm text-muted-foreground">{t('journal_ui.templates.description')}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="min-h-11 min-w-11 rounded-full" aria-label={t('journal_ui.common.close_aria')}>
               <X className="h-5 w-5" />
@@ -82,12 +82,12 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
         <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
           {!showCreateForm && !editingTemplate ? (
             <div className="space-y-6">
-              <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-teal-700 text-white hover:bg-teal-800">
+              <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-primary text-primary-foreground hover:bg-primary">
                 <Plus className="h-4 w-4" />{t('journal_ui.templates.create')}
               </Button>
 
               <section>
-                <h3 className="mb-3 text-sm font-bold text-teal-950">{t('journal_ui.templates.defaults')}</h3>
+                <h3 className="mb-3 text-sm font-bold text-foreground">{t('journal_ui.templates.defaults')}</h3>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {defaultTemplates.map((template) => {
                     const localizedTemplate = localizeBuiltInTemplate({ ...template, is_default: true }, t);
@@ -107,7 +107,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
 
               {templates.length > 0 && (
                 <section>
-                  <h3 className="mb-3 text-sm font-bold text-teal-950">{t('journal_ui.templates.custom')}</h3>
+                  <h3 className="mb-3 text-sm font-bold text-foreground">{t('journal_ui.templates.custom')}</h3>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {templates.map((template) => {
                       const displayTemplate = localizeJournalTemplate(template, t);
@@ -145,11 +145,11 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
 function TemplateCard({ template, displayName, displayDescription, onSelect, onEdit, onDelete, editLabel, t }) {
   const Icon = templateIcons[template.entry_type] || FileText;
   return (
-    <Card className="group border-teal-100 bg-white/90 shadow-sm transition hover:border-teal-300 hover:shadow-md">
+    <Card className="group border-border bg-[hsl(var(--card)/0.97)] shadow-sm transition hover:border-border hover:shadow-md">
       <CardContent className="p-4">
         <div className="mb-3 flex items-start justify-between gap-2">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-100">
-            <Icon className="h-5 w-5 text-teal-800" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/70">
+            <Icon className="h-5 w-5 text-primary" />
           </div>
           <div className="flex gap-1">
             {onEdit && <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={onEdit}
@@ -159,9 +159,9 @@ function TemplateCard({ template, displayName, displayDescription, onSelect, onE
             }} aria-label={t('journal_ui.common.delete_aria', { item: t('journal_ui.templates.item') })} mobileLabelKey="delete"><Trash2 className="h-4 w-4" /></Button>}
           </div>
         </div>
-        <h3 className="font-bold text-teal-950">{displayName}</h3>
-        <p className="mt-1 min-h-10 text-sm leading-relaxed text-slate-600">{displayDescription}</p>
-        <Button onClick={() => onSelect(template)} className="mt-4 min-h-11 w-full rounded-xl bg-teal-700 text-white hover:bg-teal-800">
+        <h3 className="font-bold text-foreground">{displayName}</h3>
+        <p className="mt-1 min-h-10 text-sm leading-relaxed text-muted-foreground">{displayDescription}</p>
+        <Button onClick={() => onSelect(template)} className="mt-4 min-h-11 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary">
           {t('journal_ui.templates.use')}
         </Button>
       </CardContent>
@@ -195,14 +195,14 @@ function TemplateForm({ template, language, onClose, onSuccess, t }) {
       : t('journal_ui.templates.create_title');
   return (
     <form className="space-y-6" onSubmit={(event) => { event.preventDefault(); saveMutation.mutate(formData); }}>
-      <h3 className="text-lg font-bold text-teal-950">{formTitle}</h3>
+      <h3 className="text-lg font-bold text-foreground">{formTitle}</h3>
       <div>
-        <label htmlFor="journal-template-name" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.templates.name')}</label>
+        <label htmlFor="journal-template-name" className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.templates.name')}</label>
         <Input id="journal-template-name" value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })}
           placeholder={t('journal_ui.templates.name_placeholder')} className="h-12 rounded-xl" autoFocus />
       </div>
       <div>
-        <label htmlFor="journal-template-description-field" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.templates.form_description')}</label>
+        <label htmlFor="journal-template-description-field" className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.templates.form_description')}</label>
         <Textarea id="journal-template-description-field" value={formData.description}
           onChange={(event) => setFormData({ ...formData, description: event.target.value })}
           placeholder={t('journal_ui.templates.description_placeholder')} className="min-h-28 rounded-xl" />
@@ -211,7 +211,7 @@ function TemplateForm({ template, language, onClose, onSuccess, t }) {
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button type="button" onClick={onClose} variant="outline" className="min-h-12 flex-1 rounded-xl">{t('journal_ui.common.cancel')}</Button>
         <Button type="submit" disabled={!formData.name.trim() || saveMutation.isPending}
-          className="min-h-12 flex-1 rounded-xl bg-teal-700 text-white hover:bg-teal-800">
+          className="min-h-12 flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary">
           {saveMutation.isPending
             ? t('journal_ui.common.saving')
             : isCustomizingDefault

@@ -146,7 +146,7 @@ export default function GoalKanbanBoard({ goal }) {
   if (!goal.milestones || goal.milestones.length === 0) {
     return (
       <Card className="border-0 shadow-md">
-        <CardContent className="p-8 text-center text-gray-500">
+        <CardContent className="p-8 text-center text-muted-foreground">
           No tasks to display. Add milestones to your goal to use the Kanban board.
         </CardContent>
       </Card>
@@ -157,7 +157,7 @@ export default function GoalKanbanBoard({ goal }) {
     <Card className="border-0 shadow-md">
       <CardHeader>
         <CardTitle className="text-lg">Task Board</CardTitle>
-        <p className="text-sm text-gray-500">Drag tasks between columns to update their status</p>
+        <p className="text-sm text-muted-foreground">Drag tasks between columns to update their status</p>
       </CardHeader>
       <CardContent>
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -206,7 +206,7 @@ export default function GoalKanbanBoard({ goal }) {
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     className={cn(
-                                      'bg-white rounded-lg p-3 shadow-sm border transition-all',
+                                      'bg-[hsl(var(--card)/0.97)] rounded-lg p-3 shadow-sm border transition-all',
                                       snapshot.isDragging && 'shadow-lg rotate-2',
                                       isOverdue && 'border-red-300'
                                     )}
@@ -230,7 +230,7 @@ export default function GoalKanbanBoard({ goal }) {
                                           {milestone.title}
                                         </p>
                                         {milestone.description && (
-                                          <p className="text-xs text-gray-500 mt-1">
+                                          <p className="text-xs text-muted-foreground mt-1">
                                             {milestone.description}
                                           </p>
                                         )}
@@ -241,7 +241,7 @@ export default function GoalKanbanBoard({ goal }) {
                                             return (
                                               <div className={cn(
                                                 'flex items-center gap-1 mt-2 text-xs',
-                                                isOverdue ? 'text-red-600' : 'text-gray-500'
+                                                isOverdue ? 'text-red-600' : 'text-muted-foreground'
                                               )}>
                                                 <Calendar className="w-3 h-3" />
                                                 {format(date, 'MMM d')}

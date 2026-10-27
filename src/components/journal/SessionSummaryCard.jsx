@@ -40,11 +40,11 @@ export default function SessionSummaryCard({ summary, onDelete }) {
   });
 
   return (
-    <Card data-testid="session-summary-card" className="overflow-hidden border border-white/70 bg-white/88 shadow-md backdrop-blur-xl">
-      <CardHeader className="flex flex-col gap-3 border-b border-teal-100/70 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+    <Card data-testid="session-summary-card" className="overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md backdrop-blur-xl">
+      <CardHeader className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
         <div className="min-w-0">
-          <CardTitle className="flex items-center gap-2 text-lg font-bold text-teal-950">
-            <BookOpen className="h-5 w-5 shrink-0 text-teal-700" />{t('journal_ui.cards.summary_title')}
+          <CardTitle className="flex items-center gap-2 text-lg font-bold text-primary">
+            <BookOpen className="h-5 w-5 shrink-0 text-primary" />{t('journal_ui.cards.summary_title')}
           </CardTitle>
           <CardDescription className="mt-1 flex items-center gap-1 text-xs">
             <Calendar className="h-3 w-3 shrink-0" />
@@ -55,7 +55,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
         </div>
         <div className="flex shrink-0 justify-end gap-1"><MoreActions>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportSessionSummaryPdf(summary)}
-            aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-teal-700" /></Button>
+            aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-primary" /></Button>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
             if (window.confirm(t('journal_ui.cards.delete_summary_confirm'))) deleteSummaryMutation.mutate(summary.id);
           }} disabled={deleteSummaryMutation.isPending} aria-label={t('journal_ui.common.delete_aria', { item: itemLabel })} mobileLabelKey="delete">
@@ -63,7 +63,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
           </Button>
         </MoreActions></div>
       </CardHeader>
-      <CardContent className="space-y-5 p-4 text-sm text-slate-700 sm:p-6">
+      <CardContent className="space-y-5 p-4 text-sm text-muted-foreground sm:p-6">
         <div dir="auto" className="prose prose-sm max-w-none break-words">
           <ReactMarkdown>{summary.summary_content || ''}</ReactMarkdown>
         </div>
@@ -71,7 +71,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
         <SummaryList icon={ClipboardList} title={t('journal_ui.cards.advice')} items={summary.actionable_advice} tone="blue" />
         {summary.recommended_resources?.length > 0 && (
           <section>
-            <h3 className="mb-2 flex items-center gap-2 text-base font-bold text-teal-950">
+            <h3 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
               <BookOpen className="h-4 w-4 text-emerald-700" />{t('journal_ui.cards.resources')}
             </h3>
             <ul className="list-inside list-disc space-y-1">
@@ -93,7 +93,7 @@ function SummaryList({ icon: Icon, title, items, tone }) {
   const toneClass = tone === 'amber' ? 'text-amber-700' : 'text-blue-700';
   return (
     <section>
-      <h3 className="mb-2 flex items-center gap-2 text-base font-bold text-teal-950">
+      <h3 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
         <Icon className={`h-4 w-4 ${toneClass}`} />{title}
       </h3>
       <ul className="list-inside list-disc space-y-1">

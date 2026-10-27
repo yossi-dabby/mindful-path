@@ -102,10 +102,10 @@ Keep it warm, personal, and actionable.`,
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground flex items-center gap-2">
                     Goal Check-in: {motivation.goal.title}
                   </h3>
-                  <p className="text-xs text-gray-500">AI-powered motivation boost</p>
+                  <p className="text-xs text-muted-foreground">AI-powered motivation boost</p>
                 </div>
               </div>
               <Button
@@ -120,22 +120,22 @@ Keep it warm, personal, and actionable.`,
 
             <div className="space-y-4">
               {/* Motivational Message */}
-              <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
+              <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-purple-200">
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-gray-700">{motivation.motivational_message}</p>
+                  <p className="text-muted-foreground">{motivation.motivational_message}</p>
                 </div>
               </div>
 
               {/* Progress Questions */}
-              <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+              <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-blue-200">
+                <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-blue-600" />
                   Progress Reflection
                 </h4>
                 <ul className="space-y-2">
                   {motivation.progress_questions?.map((question, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                       <span className="text-blue-600 mt-0.5">•</span>
                       <span>{question}</span>
                     </li>
@@ -145,16 +145,16 @@ Keep it warm, personal, and actionable.`,
 
               {/* Next Action */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-200">
-                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <Target className="w-4 h-4 text-green-600" />
                   Today's Action
                 </h4>
-                <p className="text-sm text-gray-700">{motivation.next_action}</p>
+                <p className="text-sm text-muted-foreground">{motivation.next_action}</p>
               </div>
 
               {/* Encouragement */}
               <div className="text-center pt-2 border-t">
-                <p className="text-sm italic text-gray-600">"{motivation.encouragement}"</p>
+                <p className="text-sm italic text-muted-foreground">"{motivation.encouragement}"</p>
               </div>
             </div>
 

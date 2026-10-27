@@ -211,15 +211,15 @@ export default function Goals() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           </Button>
           <div>
-            <div className="botanical-title-row"><h1 className="mb-1 text-2xl font-medium md:text-3xl lg:text-4xl md:mb-2" style={{ color: '#1A3A34' }}>{t('goals.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            <p className="text-slate-950 text-sm font-medium text-right md:text-base" style={{ color: '#5A7A72' }}>{t('goals.subtitle')}</p>
+            <div className="botanical-title-row"><h1 className="mb-1 text-2xl font-medium md:text-3xl lg:text-4xl md:mb-2" style={{ color: 'hsl(var(--foreground))' }}>{t('goals.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+            <p className="text-foreground text-sm font-medium text-right md:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>{t('goals.subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <MoreActions>
           <Button
                 onClick={() => setShowCalendar(!showCalendar)}
-                variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                variant="outline" className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{ borderRadius: '24px' }}>
@@ -229,7 +229,7 @@ export default function Goals() {
           </Button>
           <Button
                 onClick={() => setShowTimeline(!showTimeline)}
-                variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                variant="outline" className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{ borderRadius: '24px' }}>
@@ -239,7 +239,7 @@ export default function Goals() {
           </Button>
           <Button
                 onClick={() => setShowKanban(!showKanban)}
-                variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                variant="outline" className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{ borderRadius: '24px' }}>
@@ -250,7 +250,7 @@ export default function Goals() {
           </MoreActions>
           <Button
                 onClick={() => setShowTemplates(true)}
-                variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                variant="outline" className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{ borderRadius: '24px' }}>
@@ -261,7 +261,7 @@ export default function Goals() {
           <Button
                 onClick={() => setShowAiSuggestions(true)}
                 aria-label={t('goals.ai_suggestions')}
-                variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                variant="outline" className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{ borderRadius: '24px' }}>
@@ -270,13 +270,13 @@ export default function Goals() {
             <span className="inline">{t('goals.ai_suggestions')}</span>
           </Button>
           <Button
-                onClick={() => navigate('/Chat?intent=goal_work')} className="bg-teal-600 text-white px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                onClick={() => navigate('/Chat?intent=goal_work')} className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{
                   borderRadius: '24px',
-                  backgroundColor: '#26A69A',
-                  boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+                  backgroundColor: 'hsl(var(--primary))',
+                  boxShadow: 'var(--shadow-md)'
                 }}>
 
             <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
@@ -299,15 +299,15 @@ export default function Goals() {
               }}>
               <Target className="w-10 h-10 text-red-500" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-gray-800">{t('goals.error_title')}</h2>
-            <p className="mb-6 text-gray-600">{t('goals.error_description')}</p>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">{t('goals.error_title')}</h2>
+            <p className="mb-6 text-muted-foreground">{t('goals.error_description')}</p>
             <Button
                 onClick={() => refetch()}
                 className="text-white px-8 py-6"
                 style={{
                   borderRadius: '24px',
-                  backgroundColor: '#26A69A',
-                  boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                  backgroundColor: 'hsl(var(--primary))',
+                  boxShadow: 'var(--shadow-md)'
                 }}>
 
               {t('goals.retry')}
@@ -316,23 +316,23 @@ export default function Goals() {
         </Card> :
           isLoading ?
           <div className="text-center py-12">
-          <p className="text-gray-500">{t('goals.loading')}</p>
+          <p className="text-muted-foreground">{t('goals.loading')}</p>
         </div> :
           goals.length === 0 ?
           <Card className="border-0" style={{
             borderRadius: '32px',
-            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-            boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+            background: 'hsl(var(--card) / 0.97)',
+            boxShadow: 'var(--shadow-md)'
           }}>
           <CardContent className="p-12 text-center">
             <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
                 borderRadius: '50%',
-                background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)'
+                background: 'hsl(var(--card) / 0.97)'
               }}>
-              <Target className="w-10 h-10" style={{ color: '#26A69A' }} />
+              <Target className="w-10 h-10" style={{ color: 'hsl(var(--primary))' }} />
             </div>
-            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('goals.first_goal_title')}</h2>
-            <p className="mb-6 max-w-md mx-auto" style={{ color: '#5A7A72' }}>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>{t('goals.first_goal_title')}</h2>
+            <p className="mb-6 max-w-md mx-auto" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('goals.first_goal_description')}
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
@@ -341,8 +341,8 @@ export default function Goals() {
                   className="text-white px-8 py-6 text-lg w-full"
                   style={{
                     borderRadius: '32px',
-                    background: 'linear-gradient(145deg, #26A69A, #38B2AC)',
-                    boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
+                    background: 'hsl(var(--primary))',
+                    boxShadow: 'var(--shadow-md)'
                   }}>
 
                 <Target className="w-5 h-5 mr-2" />
@@ -392,19 +392,19 @@ export default function Goals() {
               {activeGoals.length > 0 ?
               activeGoals.map((goal) =>
               <div key={goal.id} className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{goal.title}</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{goal.title}</h3>
                     <GoalKanbanBoard goal={goal} />
                   </div>
               ) :
 
               <Card className="border-0" style={{
                 borderRadius: '24px',
-                background: 'rgba(255, 255, 255, 0.95)',
-                boxShadow: '0 8px 32px rgba(38, 166, 154, 0.12)'
+                background: 'hsl(var(--card) / 0.97)',
+                boxShadow: 'var(--shadow-md)'
               }}>
                   <CardContent className="p-8 text-center">
                     <LayoutGrid className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p className="text-gray-600">{t('goals.no_active_kanban')}</p>
+                    <p className="text-muted-foreground">{t('goals.no_active_kanban')}</p>
                   </CardContent>
                 </Card>
               }
@@ -415,13 +415,13 @@ export default function Goals() {
           {activeGoals.length > 0 &&
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">{t('goals.active_goals')}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{t('goals.active_goals')}</h2>
                 {activeGoals.length > 0 &&
                 <Button
                   onClick={() => setShowAiSuggestions(true)}
                 aria-label={t('goals.ai_suggestions')}
                   variant="outline"
-                  size="sm" className="bg-teal-500 text-slate-50 px-3 text-base font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 gap-2">
+                  size="sm" className="bg-primary text-primary-foreground px-3 text-base font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 gap-2">
 
 
                     <Sparkles className="w-4 h-4" />
@@ -437,7 +437,7 @@ export default function Goals() {
                      <Button
                       onClick={() => setShowBreakdown(goal)}
                       variant="outline"
-                      size="sm" className="bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 gap-2 w-full md:w-auto">
+                      size="sm" className="bg-primary text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 gap-2 w-full md:w-auto">
 
 
                        <Lightbulb className="w-4 h-4" />
@@ -448,7 +448,7 @@ export default function Goals() {
                       variant="outline"
                       size="sm" className="bg-[hsl(var(--card)/0.88)] text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 gap-2 w-full md:w-auto"
 
-                      style={{ borderColor: '#26A69A', color: '#26A69A' }}>
+                      style={{ borderColor: 'hsl(var(--primary))', color: 'hsl(var(--primary))' }}>
 
                        <Sparkles className="w-4 h-4" />
                        {t('goals.coach_button')}
@@ -463,7 +463,7 @@ export default function Goals() {
           {/* Completed Goals */}
           {completedGoals.length > 0 &&
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('goals.completed_goals')}</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-4">{t('goals.completed_goals')}</h2>
               <div className="space-y-4">
                 {completedGoals.map((goal) =>
                 <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} isDeleting={deleteGoalMutation.isPending} />

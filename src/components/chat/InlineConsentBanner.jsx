@@ -91,7 +91,7 @@ export default function InlineConsentBanner({ onAccept }) {
       aria-labelledby="consent-banner-title"
       dir={copy.direction}
       lang={copy.language}
-      className="mb-4 overflow-hidden rounded-[22px] border border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-teal-50/60 shadow-[0_12px_32px_rgba(120,53,15,0.10)]"
+      className="mb-4 overflow-hidden rounded-[22px] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)]"
     >
       <div className="p-4 sm:p-5">
         <div className="flex items-start gap-3">
@@ -99,31 +99,31 @@ export default function InlineConsentBanner({ onAccept }) {
             <ShieldCheck className="h-5 w-5" aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 id="consent-banner-title" className="text-base font-bold text-slate-900">
+            <h2 id="consent-banner-title" className="text-base font-bold text-foreground">
               {consent.title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-700">{consent.description}</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{consent.description}</p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {items.map(({ icon: Icon, title, body }) => (
-                <div key={title} className="rounded-2xl border border-white bg-white/80 p-3">
+                <div key={title} className="rounded-2xl border border-border/70 bg-[hsl(var(--card)/0.97)] p-3">
                   <div className="flex items-start gap-2">
-                    <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-teal-700" aria-hidden="true" />
+                    <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" aria-hidden="true" />
                     <div>
-                      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">{body}</p>
+                      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <p className="mt-4 text-xs leading-5 text-slate-600">{consent.acknowledgement}</p>
+            <p className="mt-4 text-xs leading-5 text-muted-foreground">{consent.acknowledgement}</p>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-xs">
-              <Link className="min-h-11 py-3 font-semibold text-teal-800 underline underline-offset-4" to="/terms">
+              <Link className="min-h-11 py-3 font-semibold text-primary underline underline-offset-4" to="/terms">
                 {copy.common.terms}
               </Link>
-              <Link className="min-h-11 py-3 font-semibold text-teal-800 underline underline-offset-4" to="/privacy">
+              <Link className="min-h-11 py-3 font-semibold text-primary underline underline-offset-4" to="/privacy">
                 {copy.common.privacy}
               </Link>
             </div>
@@ -135,7 +135,7 @@ export default function InlineConsentBanner({ onAccept }) {
               onClick={handleAccept}
               disabled={isSaving || !currentUserId}
               data-testid="consent-accept"
-              className="mt-3 min-h-12 w-full rounded-2xl bg-teal-700 font-semibold text-white shadow-lg shadow-teal-700/20 hover:bg-teal-800 sm:w-auto"
+              className="mt-3 min-h-12 w-full rounded-2xl bg-primary font-semibold text-primary-foreground shadow-[var(--shadow-md)] hover:bg-primary sm:w-auto"
             >
               {isSaving && <Loader2 className="me-2 h-4 w-4 animate-spin" aria-hidden="true" />}
               {isSaving ? t('consent.saving') : consent.accept}

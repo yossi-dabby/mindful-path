@@ -41,15 +41,15 @@ export default function LanguageSelector() {
   };
 
   return (
-    <Card className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl">
-      <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+    <Card className="settings-surface overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl">
+      <CardHeader className="border-b border-border p-5 sm:p-6">
         <CardTitle className="flex items-center gap-2">
-          <Languages className="w-5 h-5 text-gray-600" />
+          <Languages className="w-5 h-5 text-muted-foreground" />
           {t('settings.language.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-5 sm:p-6">
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-muted-foreground mb-4">
           {t('settings.language.description')}
         </p>
         
@@ -84,14 +84,14 @@ export default function LanguageSelector() {
                       )}>
                         {lang.native}
                       </h3>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {t(`settings.language.${lang.code}`)}
                       </p>
                     </div>
                   </div>
                   {isSelected && (
                     <motion.div 
-                      className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center flex-shrink-0 ms-1"
+                      className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 ms-1"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}
@@ -106,8 +106,8 @@ export default function LanguageSelector() {
         </div>
         
         {/* Current Language Display */}
-        <div className="mt-4 p-3 rounded-2xl bg-teal-50 border border-teal-200">
-          <p className="text-xs text-teal-800">
+        <div className="mt-4 p-3 rounded-2xl bg-secondary/70 border border-border">
+          <p className="text-xs text-primary">
             <strong>{t('settings.language.current')}:</strong>{' '}
             {languages.find(l => l.code === currentLang)?.native || 'English'}
           </p>

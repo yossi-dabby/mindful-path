@@ -25,7 +25,7 @@ export default function LinkedJournalEntries({ goalId }) {
   if (isLoading) {
     return (
       <Card className="border-0 shadow-md">
-        <CardContent className="p-6 text-center text-gray-500">
+        <CardContent className="p-6 text-center text-muted-foreground">
           Loading related entries...
         </CardContent>
       </Card>
@@ -42,7 +42,7 @@ export default function LinkedJournalEntries({ goalId }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-8">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No journal entries linked to this goal yet.
           </p>
           <p className="text-xs text-gray-400 mt-1">
@@ -72,7 +72,7 @@ export default function LinkedJournalEntries({ goalId }) {
               className="p-3 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 transition-all"
             >
               <div className="flex items-start justify-between mb-2">
-                <p className="text-xs text-gray-500 flex items-center gap-1">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   {(() => {
                     try {
@@ -86,7 +86,7 @@ export default function LinkedJournalEntries({ goalId }) {
                 {entry.outcome_emotion_intensity && (
                   <div className={cn(
                     'px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1',
-                    improvement ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                    improvement ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-muted-foreground'
                   )}>
                     {improvement && <TrendingDown className="w-3 h-3" />}
                     {entry.emotion_intensity} → {entry.outcome_emotion_intensity}
@@ -94,7 +94,7 @@ export default function LinkedJournalEntries({ goalId }) {
                 )}
               </div>
               
-              <p className="text-sm text-gray-800 line-clamp-2 mb-2">
+              <p className="text-sm text-foreground line-clamp-2 mb-2">
                 {stripHtml(entry.situation)}
               </p>
               
@@ -105,7 +105,7 @@ export default function LinkedJournalEntries({ goalId }) {
                   </Badge>
                 ))}
                 {entry.emotions?.length > 3 && (
-                  <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                  <Badge variant="secondary" className="text-xs bg-gray-100 text-muted-foreground">
                     +{entry.emotions.length - 3}
                   </Badge>
                 )}

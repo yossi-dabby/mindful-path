@@ -103,7 +103,7 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
         className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4" role="status">
         <div className="flex items-center gap-3">
           <Loader2 className="h-5 w-5 shrink-0 animate-spin text-amber-700" />
-          <p className="text-sm font-medium text-slate-700">{t('journal_ui.ai.distortion_loading')}</p>
+          <p className="text-sm font-medium text-muted-foreground">{t('journal_ui.ai.distortion_loading')}</p>
         </div>
       </motion.div>
     );
@@ -123,12 +123,12 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
   return (
     <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       className="space-y-4" aria-labelledby="distortion-analysis-title">
-      <Card className="border-amber-200 bg-white/90">
+      <Card className="border-amber-200 bg-[hsl(var(--card)/0.97)]">
         <CardContent className="p-4 sm:p-5">
-          <h4 id="distortion-analysis-title" className="mb-2 flex items-center gap-2 text-base font-bold text-slate-900">
+          <h4 id="distortion-analysis-title" className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
             <AlertCircle className="h-5 w-5 text-amber-700" />{t('journal_ui.ai.distortion_title')}
           </h4>
-          <p className="text-sm leading-relaxed text-slate-700">{analysis.overall_assessment}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{analysis.overall_assessment}</p>
           {analysis.distortions_found.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {analysis.distortions_found.map((item) => (
@@ -144,17 +144,17 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
       </Card>
 
       {analysis.distortions_found.map((item) => (
-        <Card key={item.id} className="border-slate-200 bg-white/90">
+        <Card key={item.id} className="border-slate-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
-            <h5 className="text-base font-bold text-slate-900">{item.title}</h5>
+            <h5 className="text-base font-bold text-foreground">{item.title}</h5>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl border-s-4 border-amber-500 bg-amber-50 p-3">
                 <p className="mb-1 text-xs font-bold uppercase tracking-wide text-amber-900">{t('journal_ui.ai.how_appears')}</p>
-                <p className="text-sm leading-relaxed text-slate-700">{item.evidence}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{item.evidence}</p>
               </div>
               <div className="rounded-xl border-s-4 border-emerald-500 bg-emerald-50 p-3">
                 <p className="mb-1 text-xs font-bold uppercase tracking-wide text-emerald-900">{t('journal_ui.ai.challenge')}</p>
-                <p className="text-sm leading-relaxed text-slate-700">{item.challenge}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{item.challenge}</p>
               </div>
             </div>
           </CardContent>
@@ -164,10 +164,10 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
       {analysis.suggested_reframe && (
         <Card className="border-emerald-200 bg-emerald-50/90">
           <CardContent className="p-4 sm:p-5">
-            <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-slate-900">
+            <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
               <Lightbulb className="h-5 w-5 text-emerald-700" />{t('journal_ui.ai.balanced_perspective')}
             </h4>
-            <p className="text-sm leading-relaxed text-slate-700">{analysis.suggested_reframe}</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">{analysis.suggested_reframe}</p>
           </CardContent>
         </Card>
       )}
@@ -177,7 +177,7 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
           <BookOpen className="h-5 w-5" />{t('journal_ui.ai.apply')}
         </Button>
       )}
-      <p className="text-xs leading-relaxed text-slate-500">{t('journal_ui.trends.professional_note')}</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{t('journal_ui.trends.professional_note')}</p>
     </motion.section>
   );
 }

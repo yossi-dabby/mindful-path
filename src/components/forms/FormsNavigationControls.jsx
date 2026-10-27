@@ -21,7 +21,7 @@ export default function FormsNavigationControls({
         variant="outline"
         disabled={!canGoBack}
         onClick={onBack}
-        className="border-teal-300 text-teal-600 hover:bg-teal-100 disabled:text-muted-foreground"
+        className="border-border text-primary hover:bg-secondary/70 disabled:text-muted-foreground"
         data-testid="forms-nav-back"
       >
         <BackIcon className="w-4 h-4" />
@@ -34,7 +34,7 @@ export default function FormsNavigationControls({
           size="sm"
           variant="outline"
           onClick={onForward}
-          className="border-teal-300 text-teal-600 hover:bg-teal-100"
+          className="border-border text-primary hover:bg-secondary/70"
           data-testid="forms-nav-forward"
         >
           {lang === 'he' ? 'הבא' : 'Next'}

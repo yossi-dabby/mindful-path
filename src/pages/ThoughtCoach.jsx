@@ -80,16 +80,16 @@ export default function ThoughtCoachPage() {
     <div>
       <div className="flex gap-3">
         {step > 1 && (
-          <Button type="button" variant="outline" onClick={() => setStep((current) => current - 1)} disabled={createJournalMutation.isPending} className="min-h-12 flex-1 rounded-2xl border-teal-900/15 bg-white/80 text-teal-800 hover:bg-white" data-testid="thoughtcoach-back">
+          <Button type="button" variant="outline" onClick={() => setStep((current) => current - 1)} disabled={createJournalMutation.isPending} className="min-h-12 flex-1 rounded-2xl border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-[hsl(var(--card)/0.97)]" data-testid="thoughtcoach-back">
             <ChevronLeft className="me-2 h-4 w-4 rtl:rotate-180" aria-hidden="true" />{t('thought_coach.back_button')}
           </Button>
         )}
         {step < 4 ? (
-          <Button type="button" onClick={() => canProceed && setStep((current) => current + 1)} disabled={!canProceed} className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90" data-testid="thoughtcoach-next">
+          <Button type="button" onClick={() => canProceed && setStep((current) => current + 1)} disabled={!canProceed} className="min-h-12 flex-1 rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90" data-testid="thoughtcoach-next">
             {t('thought_coach.next_button')}<ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" aria-hidden="true" />
           </Button>
         ) : (
-          <Button type="button" onClick={() => !createJournalMutation.isPending && createJournalMutation.mutate(formData)} disabled={!canProceed || createJournalMutation.isPending} className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90" data-testid="thoughtcoach-save">
+          <Button type="button" onClick={() => !createJournalMutation.isPending && createJournalMutation.mutate(formData)} disabled={!canProceed || createJournalMutation.isPending} className="min-h-12 flex-1 rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90" data-testid="thoughtcoach-save">
             {createJournalMutation.isPending ? <Sparkles className="me-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Brain className="me-2 h-4 w-4" aria-hidden="true" />}
             {createJournalMutation.isPending ? t('thought_coach.saving_button') : t('thought_coach.save_button')}
           </Button>
@@ -117,10 +117,10 @@ export default function ThoughtCoachPage() {
               const Icon = thought.icon;
               const selected = formData.thought_type === thought.type;
               return (
-                <button key={thought.type} type="button" onClick={() => setFormData((current) => ({ ...current, thought_type: thought.type }))} aria-pressed={selected} data-testid={`thoughtcoach-category-${thought.type.replaceAll('_', '-')}`} className={cn('group min-h-[108px] rounded-2xl border p-4 text-start shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2', selected ? 'border-teal-600 bg-teal-50 shadow-md' : 'border-teal-900/10 bg-white/80 hover:-translate-y-0.5 hover:border-teal-500/40 hover:bg-white hover:shadow-md')}>
+                <button key={thought.type} type="button" onClick={() => setFormData((current) => ({ ...current, thought_type: thought.type }))} aria-pressed={selected} data-testid={`thoughtcoach-category-${thought.type.replaceAll('_', '-')}`} className={cn('group min-h-[108px] rounded-2xl border p-4 text-start shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', selected ? 'border-border bg-secondary/70 shadow-md' : 'border-border bg-[hsl(var(--card)/0.97)] hover:-translate-y-0.5 hover:border-border hover:bg-[hsl(var(--card)/0.97)] hover:shadow-md')}>
                   <span className="flex items-start gap-3">
                     <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${thought.tone} text-white shadow-sm`}><Icon className="h-6 w-6" aria-hidden="true" /></span>
-                    <span className="min-w-0"><span className="block font-bold leading-5 text-teal-950">{thought.label}</span><span className="mt-1 block text-xs leading-5 text-slate-600">{thought.description}</span></span>
+                    <span className="min-w-0"><span className="block font-bold leading-5 text-primary">{thought.label}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{thought.description}</span></span>
                   </span>
                 </button>
               );
@@ -133,30 +133,30 @@ export default function ThoughtCoachPage() {
         <div data-testid="thoughtcoach-step-2">
           <PremiumStepHeading title={t('thought_coach.step_details_title')} subtitle={t('thought_coach.step_details_subtitle')} />
           {selectedThought && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl border border-teal-600/20 bg-teal-50/80 p-4">
+            <div className="mb-5 flex items-center gap-3 rounded-2xl border border-border bg-secondary/70 p-4">
               <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${selectedThought.tone} text-white`}><SelectedIcon className="h-5 w-5" aria-hidden="true" /></span>
-              <div className="min-w-0"><p className="font-bold text-teal-950">{selectedThought.label}</p><p className="text-xs leading-5 text-slate-600">{selectedThought.description}</p></div>
+              <div className="min-w-0"><p className="font-bold text-primary">{selectedThought.label}</p><p className="text-xs leading-5 text-muted-foreground">{selectedThought.description}</p></div>
             </div>
           )}
           <div className="space-y-5">
-            <label className="block text-sm font-semibold text-teal-950">{t('thought_coach.step_details_situation_label')} <span className="text-rose-600" aria-hidden="true">*</span>
+            <label className="block text-sm font-semibold text-primary">{t('thought_coach.step_details_situation_label')} <span className="text-rose-600" aria-hidden="true">*</span>
               <Textarea value={formData.situation} onChange={(event) => setFormData((current) => ({ ...current, situation: event.target.value }))} placeholder={t('thought_coach.step_details_situation_placeholder')} className={`${premiumInputClass} mt-2 min-h-28 resize-y`} data-testid="thoughtcoach-situation-input" required />
             </label>
-            <label className="block text-sm font-semibold text-teal-950">{t('thought_coach.step_details_thoughts_label')} <span className="text-rose-600" aria-hidden="true">*</span>
+            <label className="block text-sm font-semibold text-primary">{t('thought_coach.step_details_thoughts_label')} <span className="text-rose-600" aria-hidden="true">*</span>
               <Textarea value={formData.automatic_thoughts} onChange={(event) => setFormData((current) => ({ ...current, automatic_thoughts: event.target.value }))} placeholder={t('thought_coach.step_details_thoughts_placeholder')} className={`${premiumInputClass} mt-2 min-h-28 resize-y`} data-testid="thoughtcoach-thoughts-input" required />
             </label>
             <fieldset>
-              <legend className="text-sm font-semibold text-teal-950">{t('thought_coach.step_details_emotions_label')} <span className="text-rose-600" aria-hidden="true">*</span></legend>
+              <legend className="text-sm font-semibold text-primary">{t('thought_coach.step_details_emotions_label')} <span className="text-rose-600" aria-hidden="true">*</span></legend>
               <div className="mt-3 flex flex-wrap gap-2" data-testid="thoughtcoach-emotions-picker">
                 {emotionKeys.map((emotion) => {
                   const selected = formData.emotions.includes(emotion);
-                  return <button key={emotion} type="button" onClick={() => toggleEmotion(emotion)} aria-pressed={selected} data-testid={`thoughtcoach-emotion-${emotion}`} className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600', selected ? 'border-teal-700 bg-teal-700 text-white shadow-sm' : 'border-teal-900/15 bg-white/80 text-teal-800 hover:bg-white')}>{t(`thought_coach.emotion_options.${emotion}`)}</button>;
+                  return <button key={emotion} type="button" onClick={() => toggleEmotion(emotion)} aria-pressed={selected} data-testid={`thoughtcoach-emotion-${emotion}`} className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selected ? 'border-border bg-primary text-white shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-[hsl(var(--card)/0.97)]')}>{t(`thought_coach.emotion_options.${emotion}`)}</button>;
                 })}
               </div>
             </fieldset>
-            <label className="block text-sm font-semibold text-teal-950">{t('thought_coach.step_intensity_label', { value: formData.emotion_intensity })}
+            <label className="block text-sm font-semibold text-primary">{t('thought_coach.step_intensity_label', { value: formData.emotion_intensity })}
               <input type="range" min="1" max="10" value={formData.emotion_intensity} onChange={(event) => setFormData((current) => ({ ...current, emotion_intensity: Number(event.target.value) }))} className="mt-4 h-2 w-full cursor-pointer accent-teal-600" data-testid="thoughtcoach-intensity" />
-              <span className="mt-2 flex justify-between text-xs font-medium text-slate-500"><span>{t('thought_coach.step_intensity_mild')}</span><span>{t('thought_coach.step_intensity_intense')}</span></span>
+              <span className="mt-2 flex justify-between text-xs font-medium text-muted-foreground"><span>{t('thought_coach.step_intensity_mild')}</span><span>{t('thought_coach.step_intensity_intense')}</span></span>
             </label>
           </div>
         </div>
@@ -167,10 +167,10 @@ export default function ThoughtCoachPage() {
           <PremiumStepHeading title={t('thought_coach.step_analysis_title')} subtitle={t('thought_coach.step_analysis_subtitle')} />
           <div className="space-y-5">
             <div className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-4"><p className="font-bold text-sky-950">{t('thought_coach.reflect_questions_label')}</p><ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-6 text-sky-900"><li>{t('thought_coach.reflect_q1')}</li><li>{t('thought_coach.reflect_q2')}</li><li>{t('thought_coach.reflect_q3')}</li></ul></div>
-            <p className="rounded-2xl border border-teal-200 bg-teal-50/80 p-4 text-center text-sm font-medium leading-6 text-teal-900">{t('thought_coach.step_analysis_cbt_note')}</p>
-            <label className="block text-sm font-semibold text-teal-950">{t('thought_coach.step_analysis_balanced_label')}
+            <p className="rounded-2xl border border-border bg-secondary/70 p-4 text-center text-sm font-medium leading-6 text-primary">{t('thought_coach.step_analysis_cbt_note')}</p>
+            <label className="block text-sm font-semibold text-primary">{t('thought_coach.step_analysis_balanced_label')}
               <Textarea value={formData.balanced_thought} onChange={(event) => setFormData((current) => ({ ...current, balanced_thought: event.target.value }))} placeholder={t('thought_coach.step_analysis_balanced_placeholder')} className={`${premiumInputClass} mt-2 min-h-32 resize-y`} data-testid="thoughtcoach-balanced-input" />
-              <span className="mt-2 block text-xs font-normal leading-5 text-slate-500">{t('thought_coach.step_analysis_balanced_optional')}</span>
+              <span className="mt-2 block text-xs font-normal leading-5 text-muted-foreground">{t('thought_coach.step_analysis_balanced_optional')}</span>
             </label>
           </div>
         </div>
@@ -180,13 +180,13 @@ export default function ThoughtCoachPage() {
         <div data-testid="thoughtcoach-step-4">
           <PremiumStepHeading title={t('thought_coach.step_review_title')} subtitle={t('thought_coach.step_review_subtitle')} />
           <div className="space-y-4">
-            <div className="rounded-2xl border border-teal-900/10 bg-white/80 p-4 shadow-sm">
+            <div className="rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-4 shadow-sm">
               <div className="space-y-4 text-sm leading-6">
-                <div><p className="font-bold text-teal-800">{t('thought_coach.field_situation')}</p><p className="mt-1 break-words text-slate-700">{formData.situation}</p></div>
-                <div><p className="font-bold text-teal-800">{t('thought_coach.field_thoughts')}</p><p className="mt-1 break-words text-slate-700">{formData.automatic_thoughts}</p></div>
-                <div><p className="font-bold text-teal-800">{t('thought_coach.field_emotions')}</p><div className="mt-2 flex flex-wrap gap-2">{formData.emotions.map((emotion) => <span key={emotion} className="rounded-full bg-teal-100 px-3 py-1 text-xs font-semibold text-teal-800">{t(`thought_coach.emotion_options.${emotion}`)}</span>)}</div></div>
-                <div><p className="font-bold text-teal-800">{t('thought_coach.field_intensity')}</p><p className="mt-1 text-slate-700">{formData.emotion_intensity}/10</p></div>
-                {formData.balanced_thought.trim() && <div><p className="font-bold text-teal-800">{t('thought_coach.field_balanced')}</p><p className="mt-1 break-words text-slate-700">{formData.balanced_thought}</p></div>}
+                <div><p className="font-bold text-primary">{t('thought_coach.field_situation')}</p><p className="mt-1 break-words text-muted-foreground">{formData.situation}</p></div>
+                <div><p className="font-bold text-primary">{t('thought_coach.field_thoughts')}</p><p className="mt-1 break-words text-muted-foreground">{formData.automatic_thoughts}</p></div>
+                <div><p className="font-bold text-primary">{t('thought_coach.field_emotions')}</p><div className="mt-2 flex flex-wrap gap-2">{formData.emotions.map((emotion) => <span key={emotion} className="rounded-full bg-secondary/70 px-3 py-1 text-xs font-semibold text-primary">{t(`thought_coach.emotion_options.${emotion}`)}</span>)}</div></div>
+                <div><p className="font-bold text-primary">{t('thought_coach.field_intensity')}</p><p className="mt-1 text-muted-foreground">{formData.emotion_intensity}/10</p></div>
+                {formData.balanced_thought.trim() && <div><p className="font-bold text-primary">{t('thought_coach.field_balanced')}</p><p className="mt-1 break-words text-muted-foreground">{formData.balanced_thought}</p></div>}
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4"><Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" /><div><p className="font-bold text-emerald-950">{t('thought_coach.what_next_label')}</p><p className="mt-1 text-sm leading-6 text-emerald-800">{t('thought_coach.what_next_text')}</p></div></div>

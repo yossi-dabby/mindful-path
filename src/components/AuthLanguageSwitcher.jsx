@@ -30,7 +30,7 @@ export default function AuthLanguageSwitcher() {
         <Button
           type="button"
           variant="ghost"
-          className="min-h-11 rounded-full border border-white/70 bg-white/75 px-3 text-teal-800 shadow-sm backdrop-blur"
+          className="min-h-11 rounded-full border border-border/70 bg-[hsl(var(--card)/0.97)] px-3 text-primary shadow-sm backdrop-blur"
           aria-label={t('auth.language_label')}
         >
           <Languages className="me-2 h-4 w-4" aria-hidden="true" />

@@ -13,7 +13,7 @@ const focusAreaColors = {
   behavior_change: 'bg-orange-100 text-orange-700',
   relationship: 'bg-pink-100 text-pink-700',
   self_esteem: 'bg-yellow-100 text-yellow-700',
-  general: 'bg-gray-100 text-gray-700'
+  general: 'bg-gray-100 text-muted-foreground'
 };
 
 export default function CoachingSessionList({ sessions, onSelectSession, onDeleteSession }) {
@@ -26,10 +26,10 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
   };
   if (sessions.length === 0) {
     return (
-      <Card className="rounded-[var(--radius-card)] border border-white/75 bg-white/85 text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-xl">
+      <Card className="rounded-[var(--radius-card)] border border-border/70 bg-[hsl(var(--card)/0.97)] text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-xl">
         <CardContent className="p-8 text-center md:p-12">
-          <Target className="mx-auto mb-3 h-12 w-12 text-teal-600" aria-hidden="true" />
-          <p className="font-medium text-teal-700">{t('coach.session.none')}</p>
+          <Target className="mx-auto mb-3 h-12 w-12 text-primary" aria-hidden="true" />
+          <p className="font-medium text-primary">{t('coach.session.none')}</p>
         </CardContent>
       </Card>);
 
@@ -48,11 +48,11 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}>
 
-            <Card className="group rounded-[var(--radius-card)] border border-white/75 bg-white/88 text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)]">
+            <Card className="group rounded-[var(--radius-card)] border border-border/70 bg-[hsl(var(--card)/0.97)] text-card-foreground shadow-[var(--shadow-md)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)]">
 
 
               <CardContent
-                className="cursor-pointer p-4 outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 sm:p-6"
+                className="cursor-pointer p-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-6"
                 role="button"
                 tabIndex={0}
                 aria-label={t('coach.session.open_aria', { title: session.title })}
@@ -66,31 +66,31 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-teal-100 shadow-[var(--shadow-sm)] sm:h-12 sm:w-12">
-                      <Target className="text-teal-600 lucide lucide-target w-6 h-6" />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-secondary/70 shadow-[var(--shadow-sm)] sm:h-12 sm:w-12">
+                      <Target className="text-primary lucide lucide-target w-6 h-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-teal-600 mb-1 font-semibold group-hover:text-primary transition-colors">
+                      <h3 className="text-foreground mb-1 font-semibold group-hover:text-foreground transition-colors">
                         {session.title}
                       </h3>
-                      <Badge variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
+                      <Badge variant="secondary" className="bg-secondary/86 text-primary px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
                         {t(`coach.focus.${session.focus_area}.label`, { defaultValue: session.focus_area?.replace(/_/g, ' ') })}
                       </Badge>
                     </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-teal-600 transition-colors group-hover:text-primary rtl:scale-x-[-1]" aria-hidden="true" />
+                  <ChevronRight className="h-5 w-5 shrink-0 text-primary transition-colors group-hover:text-primary rtl:scale-x-[-1]" aria-hidden="true" />
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="text-teal-600 lucide lucide-calendar w-4 h-4" />
-                    <span className="font-medium text-teal-700">{t('coach.session.started', { date: formatDate(session.created_date) })}</span>
+                    <Calendar className="text-primary lucide lucide-calendar w-4 h-4" />
+                    <span className="font-medium text-primary">{t('coach.session.started', { date: formatDate(session.created_date) })}</span>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="font-medium text-teal-700">{t('coach.session.stage')}:</span>
-                      <span className="font-medium text-teal-700">{t(`coach.stage.${session.stage || 'discovery'}`)}</span>
+                      <span className="font-medium text-primary">{t('coach.session.stage')}:</span>
+                      <span className="font-medium text-primary">{t(`coach.stage.${session.stage || 'discovery'}`)}</span>
                     </div>
                   </div>
 

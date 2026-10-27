@@ -78,15 +78,15 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
   ];
   
   return (
-    <Card className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl">
-      <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+    <Card className="settings-surface overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl">
+      <CardHeader className="border-b border-border p-5 sm:p-6">
         <CardTitle className="flex items-center gap-2">
           <Palette className="w-5 h-5" />
           {t('settings.theme.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-5 sm:p-6">
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-muted-foreground mb-4">
           {t('settings.theme.description')}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -109,12 +109,12 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
               <div className={cn('h-20 rounded-lg mb-3', theme.preview)} />
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-800">{theme.name}</h3>
-                  <p className="text-xs text-gray-500">{theme.description}</p>
+                  <h3 className="font-semibold text-foreground">{theme.name}</h3>
+                  <p className="text-xs text-muted-foreground">{theme.description}</p>
                 </div>
                 {currentTheme === theme.id && (
                   <motion.div 
-                    className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center flex-shrink-0"
+                    className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300 }}

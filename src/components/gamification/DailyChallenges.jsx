@@ -83,7 +83,7 @@ export default function DailyChallenges() {
         {challenges.length === 0 ? (
           <div className="text-center py-8">
             <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">New challenges coming soon!</p>
+            <p className="text-muted-foreground">New challenges coming soon!</p>
           </div>
         ) : (
           challenges.map((challenge, i) => (
@@ -102,19 +102,19 @@ export default function DailyChallenges() {
                     <PremiumIcon name={challengeIcons[challenge.challenge_type] || 'sparkle'} size="sm" className="shrink-0" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-gray-800">{challenge.title}</p>
+                        <p className="font-semibold text-foreground">{challenge.title}</p>
                         <Badge className={difficultyColors[challenge.difficulty]} variant="secondary">
                           {challenge.difficulty}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{challenge.description}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{challenge.description}</p>
                       
                       {/* Progress Bar */}
                       {challenge.target_value > 1 && (
                         <div className="mb-2">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-xs text-gray-500">Progress</p>
-                            <p className="text-xs font-semibold text-gray-700">
+                            <p className="text-xs text-muted-foreground">Progress</p>
+                            <p className="text-xs font-semibold text-muted-foreground">
                               {challenge.current_progress}/{challenge.target_value}
                             </p>
                           </div>
@@ -130,7 +130,7 @@ export default function DailyChallenges() {
                         </div>
                       )}
 
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Sparkles className="w-3 h-3 text-yellow-500" />
                         <span>{challenge.points} points</span>
                       </div>

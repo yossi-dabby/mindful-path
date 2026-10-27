@@ -52,6 +52,12 @@ export async function takeDebugScreenshot(page: Page, name: string) {
  * Important: covers public-settings and analytics which otherwise 404 and can block UI flow.
  */
 export async function mockApi(page: Page) {
+  // Isolated UI tests use fallback fonts; optional font requests must not
+  // trigger the startup fallback when external network access is blocked.
+  await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
+    status: 200, contentType: 'text/css', body: '',
+  }));
+
   const mockConversationId = 'test-conversation-123';
   const mockUserId = 'test-user-123';
   const mockUserEmail = 'test@example.com';

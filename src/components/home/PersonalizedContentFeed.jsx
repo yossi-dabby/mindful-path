@@ -189,7 +189,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       <Card className="border-0 shadow-lg">
         <CardContent className="p-8 text-center">
           <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-gray-600">Curating your personalized content...</p>
+          <p className="text-sm text-muted-foreground">Curating your personalized content...</p>
         </CardContent>
       </Card>
     );
@@ -202,8 +202,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
             <Sparkles className="w-6 h-6 text-red-600" />
           </div>
-          <h3 className="font-semibold text-gray-800 mb-2">Unable to Generate Feed</h3>
-          <p className="text-sm text-gray-600 mb-4">{error}</p>
+          <h3 className="font-semibold text-foreground mb-2">Unable to Generate Feed</h3>
+          <p className="text-sm text-muted-foreground mb-4">{error}</p>
           <Button
             onClick={generateFeed}
             variant="outline"
@@ -225,8 +225,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <Sparkles className="w-6 h-6 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-800 mb-2">No Personalized Feed Yet</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <h3 className="font-semibold text-foreground mb-2">No Personalized Feed Yet</h3>
+          <p className="text-sm text-muted-foreground mb-4">
             Complete more journal entries and mood check-ins to get personalized recommendations
           </p>
           <Button
@@ -297,7 +297,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           onClick={generateFeed}
           variant="ghost"
           size="sm"
-          className="text-gray-500 hover:text-purple-600"
+          className="text-muted-foreground hover:text-purple-600"
          mobileLabelKey="refresh">
           <RefreshCw className="w-4 h-4" />
         </Button>
@@ -316,8 +316,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                   <TrendingUp className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-1">Today's Focus</h3>
-                  <p className="text-sm text-gray-700">{feed.daily_focus}</p>
+                  <h3 className="font-semibold text-foreground mb-1">Today's Focus</h3>
+                  <p className="text-sm text-muted-foreground">{feed.daily_focus}</p>
                 </div>
               </div>
             </CardContent>
@@ -335,8 +335,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           <Card className="border border-border/70 bg-card">
             <CardContent className="p-4">
               <Quote className="w-6 h-6 text-blue-400 mb-2" />
-              <p className="text-gray-700 italic mb-2">"{feed.inspirational_quote.text}"</p>
-              <p className="text-sm text-gray-500">— {feed.inspirational_quote.author}</p>
+              <p className="text-muted-foreground italic mb-2">"{feed.inspirational_quote.text}"</p>
+              <p className="text-sm text-muted-foreground">— {feed.inspirational_quote.author}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -351,7 +351,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
         >
           <Card className="border-0 shadow-md">
             <CardContent className="p-4">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Dumbbell className="w-5 h-5 text-green-600" />
                 Recommended for You
               </h3>
@@ -362,13 +362,13 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                     <div key={i} className="bg-green-50 p-3 rounded-lg border border-green-200">
                       <div className="flex items-start justify-between mb-1">
                         <div>
-                          <p className="font-medium text-sm text-gray-800">{rec.title}</p>
+                          <p className="font-medium text-sm text-foreground">{rec.title}</p>
                           <Badge variant="outline" className="text-xs mt-1 capitalize">
                             {(rec.category || '').replace(/_/g, ' ')}
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-600 mt-2">{rec.reason}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{rec.reason}</p>
                       {exercise && (
                         <Link to={createPageUrl('Exercises')}>
                           <Button variant="ghost" size="sm" className="mt-2 text-green-700 hover:text-green-800 p-0 h-auto">
@@ -399,7 +399,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
         >
           <Card className="border-0 shadow-md">
             <CardContent className="p-4">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-indigo-600" />
                 Articles & Resources
               </h3>
@@ -410,13 +410,13 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                     <div key={i} className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
                       <div className="flex items-start justify-between mb-1">
                         <div>
-                          <p className="font-medium text-sm text-gray-800">{rec.topic}</p>
+                          <p className="font-medium text-sm text-foreground">{rec.topic}</p>
                           <Badge variant="outline" className="text-xs mt-1 capitalize">
                             {rec.category}
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-600 mt-2">{rec.reason}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{rec.reason}</p>
                       {resource && (
                         <a href={resource.url} target="_blank" rel="noopener noreferrer">
                           <Button variant="ghost" size="sm" className="mt-2 text-indigo-700 hover:text-indigo-800 p-0 h-auto">
@@ -447,29 +447,29 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
         >
           <Card className="border-0 shadow-md">
             <CardContent className="p-4">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <Users className="w-5 h-5 text-teal-600" />
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
                 Community Highlights
               </h3>
               <div className="space-y-3">
                 {safeArray(feed.community_highlights).map((highlight, i) => (
-                  <div key={i} className="bg-teal-50 p-3 rounded-lg border border-teal-200">
-                    <p className="font-medium text-sm text-gray-800 mb-1">{highlight.topic}</p>
-                    <p className="text-xs text-gray-600">{highlight.description}</p>
+                  <div key={i} className="bg-secondary/70 p-3 rounded-lg border border-border">
+                    <p className="font-medium text-sm text-foreground mb-1">{highlight.topic}</p>
+                    <p className="text-xs text-muted-foreground">{highlight.description}</p>
                   </div>
                 ))}
               </div>
               {highlightedPosts.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs font-medium text-gray-600 mb-2">Popular Posts:</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Popular Posts:</p>
                   <div className="space-y-2">
                     {highlightedPosts.map((post) => (
                       <Link key={post.id} to={createPageUrl('Community')}>
-                        <div className="bg-white p-2 rounded border hover:border-teal-300 transition-colors">
-                          <p className="text-xs text-gray-700 line-clamp-2">{post.title}</p>
+                        <div className="bg-[hsl(var(--card)/0.97)] p-2 rounded border hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground line-clamp-2">{post.title}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="text-xs">{post.category}</Badge>
-                            <span className="text-xs text-gray-500">↑ {post.upvotes}</span>
+                            <span className="text-xs text-muted-foreground">↑ {post.upvotes}</span>
                           </div>
                         </div>
                       </Link>

@@ -40,8 +40,8 @@ export default function StatsOverview({ moodEntries, journalEntries, goals, conv
               <div className={`w-12 h-12 rounded-2xl ${stat.color} flex items-center justify-center mb-3 transition-transform hover:scale-110`}>
                 <Icon className="w-6 h-6" />
               </div>
-              <p className="text-3xl font-bold text-gray-800 mb-1">{stat.value}</p>
-              <p className="text-sm text-gray-500">{stat.label}</p>
+              <p className="text-3xl font-bold text-foreground mb-1">{stat.value}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
             </CardContent>
           </Card>
         );

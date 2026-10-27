@@ -51,10 +51,10 @@ export default function ModerationTools({ post, onClose }) {
 
         {!action ? (
           <section>
-            <h2 className="mb-3 flex items-center gap-2 font-semibold text-foreground"><Shield className="h-5 w-5 text-teal-700" />{t('community_ui.moderation.select')}</h2>
+            <h2 className="mb-3 flex items-center gap-2 font-semibold text-foreground"><Shield className="h-5 w-5 text-primary" />{t('community_ui.moderation.select')}</h2>
             <div className="space-y-3">
               {actions.map(({ id, icon: Icon, color }) => (
-                <button type="button" key={id} onClick={() => setAction(id)} className="flex min-h-[64px] w-full items-start gap-3 rounded-xl border border-border/80 bg-background p-4 text-start transition hover:border-teal-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                <button type="button" key={id} onClick={() => setAction(id)} className="flex min-h-[64px] w-full items-start gap-3 rounded-xl border border-border/80 bg-background p-4 text-start transition hover:border-border hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Icon className={`mt-0.5 h-6 w-6 shrink-0 ${color}`} />
                   <span>
                     <span className="block font-semibold text-foreground">{t(`community_ui.moderation.${id}`)}</span>
@@ -77,7 +77,7 @@ export default function ModerationTools({ post, onClose }) {
             {mutation.isError && <p role="alert" className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-800"><AlertCircle className="h-4 w-4" />{t('community_ui.moderation.error')}</p>}
             <div className="flex flex-col-reverse gap-3 sm:flex-row">
               <Button type="button" variant="outline" className="min-h-[44px] flex-1" onClick={() => setAction(null)}>{t('community_ui.common.cancel')}</Button>
-              <Button type="button" className={`min-h-[44px] flex-1 ${action === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-teal-700'}`} onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+              <Button type="button" className={`min-h-[44px] flex-1 ${action === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary'}`} onClick={() => mutation.mutate()} disabled={mutation.isPending}>
                 {t(mutation.isPending ? 'community_ui.moderation.processing' : 'community_ui.moderation.confirm')}
               </Button>
             </div>

@@ -105,13 +105,13 @@ export default function PremiumPaywall({ onClose, onSuccess }) {
       aria-labelledby="premium-dialog-title"
       data-testid="premium-paywall"
     >
-      <Card className="relative my-auto w-full max-w-xl overflow-hidden border border-white/80 bg-white/95 shadow-2xl">
+      <Card className="relative my-auto w-full max-w-xl overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl">
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-amber-100 via-teal-50 to-emerald-100" aria-hidden="true" />
         <CardContent className="relative p-6 pt-8 sm:p-10">
           <button
             type="button"
             onClick={onClose}
-            className="absolute end-4 top-4 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white bg-white/85 text-slate-600 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className="absolute end-4 top-4 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--card)/0.97)] text-muted-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={copy.close}
           >
             <X className="h-5 w-5" />
@@ -121,18 +121,18 @@ export default function PremiumPaywall({ onClose, onSuccess }) {
             <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/25">
               <Crown className="h-10 w-10" />
             </div>
-            <h2 id="premium-dialog-title" className="text-2xl font-bold text-slate-900 sm:text-3xl">
+            <h2 id="premium-dialog-title" className="text-2xl font-bold text-foreground sm:text-3xl">
               {copy.modalTitle}
             </h2>
-            <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-slate-600 sm:text-base">
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
               {copy.modalBody}
             </p>
 
             <div className="mx-auto mt-6 max-w-sm rounded-3xl border border-amber-200 bg-amber-50/80 p-5">
-              <div className="text-3xl font-black text-slate-900" data-testid="premium-monthly-price">
+              <div className="text-3xl font-black text-foreground" data-testid="premium-monthly-price">
                 {displayPrice}
               </div>
-              <div className="mt-1 text-sm font-semibold text-slate-600">{copy.perMonth}</div>
+              <div className="mt-1 text-sm font-semibold text-muted-foreground">{copy.perMonth}</div>
             </div>
 
             {message && (
@@ -176,7 +176,7 @@ export default function PremiumPaywall({ onClose, onSuccess }) {
                     variant="outline"
                     onClick={handleRestore}
                     disabled={isBusy || !user}
-                    className="min-h-[48px] w-full rounded-2xl border-teal-200 text-teal-800"
+                    className="min-h-[48px] w-full rounded-2xl border-border text-primary"
                     data-testid="premium-restore-button"
                    mobileLabelKey="refresh">
                     <RefreshCw className="me-2 h-4 w-4" />
@@ -186,8 +186,8 @@ export default function PremiumPaywall({ onClose, onSuccess }) {
               </div>
             )}
 
-            <p className="mx-auto mt-5 max-w-md text-xs leading-5 text-slate-500">{copy.terms}</p>
-            <Button type="button" onClick={onClose} variant="ghost" className="mt-4 min-h-[44px] w-full rounded-2xl text-slate-600">
+            <p className="mx-auto mt-5 max-w-md text-xs leading-5 text-muted-foreground">{copy.terms}</p>
+            <Button type="button" onClick={onClose} variant="ghost" className="mt-4 min-h-[44px] w-full rounded-2xl text-muted-foreground">
               {copy.close}
             </Button>
           </div>

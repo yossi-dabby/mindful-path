@@ -5,7 +5,7 @@ import { Crown, Lock } from 'lucide-react';
 export default function PremiumBadge({ locked = false, compact = false }) {
   if (locked) {
     return (
-      <Badge className="bg-gray-100 text-gray-700 border-gray-300 gap-1">
+      <Badge className="bg-gray-100 text-muted-foreground border-gray-300 gap-1">
         <Lock className="w-3 h-3" />
         {!compact && 'Premium'}
       </Badge>

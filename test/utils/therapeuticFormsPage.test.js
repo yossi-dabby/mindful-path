@@ -51,7 +51,7 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(pageSource).toContain('forms-library-teal');
   });
 
-  it('forms library keeps teal card styling without painting the outer page shells', () => {
+  it('forms library keeps shared card styling without painting the outer page shells', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
     const collectionCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsCollectionCard.jsx'), 'utf8');
     const moduleCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsModuleCard.jsx'), 'utf8');
@@ -66,10 +66,10 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
       expect(classes).toContain('safe-bottom');
       expect(classes).not.toMatch(/(?:^|\s)(?:[\w-]+:)*bg-/);
     }
-    expect(collectionCardSource).toContain('border-teal-300');
-    expect(moduleCardSource).toContain('border-teal-400');
-    expect(worksheetCardSource).toContain('border-teal-300');
-    expect(breadcrumbSource).toContain('text-teal-600');
+    expect(collectionCardSource).toContain('border-border');
+    expect(moduleCardSource).toContain('border-border');
+    expect(worksheetCardSource).toContain('border-border');
+    expect(breadcrumbSource).toContain('text-primary');
   });
 
   it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('collection-level data is smaller than worksheet-level data', () => {

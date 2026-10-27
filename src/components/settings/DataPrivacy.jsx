@@ -86,11 +86,11 @@ export default function DataPrivacy({ user }) {
     >
       <Card
         data-testid="data-privacy-card"
-        className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl"
+        className="settings-surface overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl"
       >
-        <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+        <CardHeader className="border-b border-border p-5 sm:p-6">
           <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-gray-600" />
+            <Shield className="w-5 h-5 text-muted-foreground" />
             {t('settings.data_privacy.title')}
           </CardTitle>
         </CardHeader>
@@ -119,10 +119,10 @@ export default function DataPrivacy({ user }) {
 
           {/* Data Retention */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">
               {t('settings.data_privacy.retention_label')}
             </label>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {t('settings.data_privacy.retention_description')}
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -135,10 +135,10 @@ export default function DataPrivacy({ user }) {
                 className="w-full sm:w-52"
               />
               {updateRetentionMutation.isPending && (
-                <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
               )}
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               {t('settings.data_privacy.current_setting', { 
                 value: retentionDays === 999999 
                   ? t('settings.data_privacy.current_setting_indefinite') 
@@ -149,8 +149,8 @@ export default function DataPrivacy({ user }) {
 
           {/* Export Data */}
           <div className="border-t pt-6">
-            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('settings.data_privacy.export_title')}</label>
-            <p className="text-sm text-gray-600 mb-4">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">{t('settings.data_privacy.export_title')}</label>
+            <p className="text-sm text-muted-foreground mb-4">
               {t('settings.data_privacy.export_description')}
             </p>
             <Button
@@ -171,8 +171,8 @@ export default function DataPrivacy({ user }) {
 
           {/* Delete Data */}
           <div className="border-t pt-6">
-            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('settings.data_privacy.delete_title')}</label>
-            <p className="text-sm text-gray-600 mb-4">
+            <label className="text-sm font-medium text-muted-foreground mb-3 block">{t('settings.data_privacy.delete_title')}</label>
+            <p className="text-sm text-muted-foreground mb-4">
               {t('settings.data_privacy.delete_description')}
             </p>
             <Button

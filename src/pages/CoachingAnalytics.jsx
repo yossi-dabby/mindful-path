@@ -52,7 +52,7 @@ export default function CoachingAnalytics() {
   if (isLoading) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
-        <p className="text-slate-600" role="status" aria-live="polite">{t('coaching_analytics.loading')}</p>
+        <p className="text-muted-foreground" role="status" aria-live="polite">{t('coaching_analytics.loading')}</p>
       </div>
     );
   }
@@ -123,8 +123,8 @@ export default function CoachingAnalytics() {
               {t('coaching_analytics.back_to_coaching')}
             </Button>
           </Link>
-          <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-          <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
+          <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+          <p className="text-muted-foreground">{t('coaching_analytics.subtitle')}</p>
         </header>
 
         <Card className="border border-border/70 bg-card/95 shadow-lg">
@@ -152,8 +152,8 @@ export default function CoachingAnalytics() {
             {t('coaching_analytics.back_to_coaching')}
           </Button>
         </Link>
-        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-        <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+        <p className="text-muted-foreground">{t('coaching_analytics.subtitle')}</p>
       </header>
 
       {/* Stats Overview */}
@@ -162,8 +162,8 @@ export default function CoachingAnalytics() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.total_sessions')}</p>
-                <p className="text-3xl font-bold text-gray-800">{sessions.length}</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('coaching_analytics.total_sessions')}</p>
+                <p className="text-3xl font-bold text-foreground">{sessions.length}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                 <Users className="w-6 h-6 text-purple-600" />
@@ -176,7 +176,7 @@ export default function CoachingAnalytics() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.active_sessions')}</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('coaching_analytics.active_sessions')}</p>
                 <p className="text-3xl font-bold text-blue-600">{activeSessions.length}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -190,7 +190,7 @@ export default function CoachingAnalytics() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.completion_rate')}</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('coaching_analytics.completion_rate')}</p>
                 <p className="text-3xl font-bold text-green-600">{completionRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -204,14 +204,14 @@ export default function CoachingAnalytics() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.action_completion')}</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('coaching_analytics.action_completion')}</p>
                 <p className="text-3xl font-bold text-orange-600">{actionCompletionRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-orange-600" />
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               {t('coaching_analytics.actions_completed', { completed: completedActions, total: totalActions })}
             </p>
           </CardContent>
@@ -247,7 +247,7 @@ export default function CoachingAnalytics() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-center text-gray-500 py-12">{t('coaching_analytics.no_data')}</p>
+              <p className="text-center text-muted-foreground py-12">{t('coaching_analytics.no_data')}</p>
             )}
           </CardContent>
         </Card>
@@ -269,7 +269,7 @@ export default function CoachingAnalytics() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-center text-gray-500 py-12">{t('coaching_analytics.no_data')}</p>
+              <p className="text-center text-muted-foreground py-12">{t('coaching_analytics.no_data')}</p>
             )}
           </CardContent>
         </Card>
@@ -290,7 +290,7 @@ export default function CoachingAnalytics() {
                          style={{ backgroundColor: COLORS[index % COLORS.length] }}>
                       {index + 1}
                     </div>
-                    <span className="text-gray-700 font-medium">{item.name}</span>
+                    <span className="text-muted-foreground font-medium">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="hidden h-2 w-24 rounded-full bg-gray-200 sm:block lg:w-32">
@@ -302,7 +302,7 @@ export default function CoachingAnalytics() {
                         }}
                       />
                     </div>
-                    <span className="min-w-fit text-end text-sm font-semibold text-gray-600 sm:w-20">
+                    <span className="min-w-fit text-end text-sm font-semibold text-muted-foreground sm:w-20">
                       {item.value} {item.value === 1 ? t('coaching_analytics.session_singular') : t('coaching_analytics.session_plural')}
                     </span>
                   </div>
@@ -310,7 +310,7 @@ export default function CoachingAnalytics() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500 py-8">{t('coaching_analytics.no_data')}</p>
+            <p className="text-center text-muted-foreground py-8">{t('coaching_analytics.no_data')}</p>
           )}
         </CardContent>
       </Card>

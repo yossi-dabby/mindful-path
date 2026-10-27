@@ -50,8 +50,8 @@ export default function ProfileSpecificDisclaimer({ messageCount }) {
       }}
     >
       <div className="p-3 flex items-start gap-2">
-        <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#6B7280' }} />
-        <p className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
+        <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'hsl(var(--muted-foreground))' }} />
+        <p className="text-xs leading-relaxed" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t(`chat.disclaimer.${safetyProfile}`)}
         </p>
       </div>

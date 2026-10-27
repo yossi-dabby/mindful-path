@@ -433,9 +433,9 @@ export default function StandaloneDailyCheckIn() {
                   background: 'linear-gradient(180deg, rgba(49, 158, 136, 0.22) 0%, rgba(49, 158, 136, 0.34) 100%)',
                   boxShadow: '0 14px 28px rgba(38, 134, 116, 0.2)'
                 }}>
-                <Heart className="text-teal-600 lucide lucide-heart w-6 h-6" />
+                <Heart className="text-primary lucide lucide-heart w-6 h-6" />
               </div>
-              <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">{t('daily_check_in.title')}</CardTitle>
+              <CardTitle className="text-primary text-xl font-semibold tracking-[-0.012em]">{t('daily_check_in.title')}</CardTitle>
             </div>
             <motion.button
                 animate={{
@@ -489,7 +489,7 @@ export default function StandaloneDailyCheckIn() {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4">
 
-              <h3 className="text-teal-600 text-base font-semibold">
+              <h3 className="text-foreground text-base font-semibold">
                 {t('daily_check_in.step1_question')}
               </h3>
               <div className="grid grid-cols-5 items-stretch gap-1 sm:gap-2 md:gap-3">
@@ -518,7 +518,7 @@ export default function StandaloneDailyCheckIn() {
                       selected={formData.mood === mood.value}
                       className="mb-1 h-11 w-11 sm:mb-2 sm:h-14 sm:w-14 md:h-16 md:w-16"
                     />
-                    <div className="flex min-h-10 items-start justify-center text-teal-600 font-medium text-center leading-tight rounded sm:text-xs">
+                    <div className="flex min-h-10 items-start justify-center text-primary font-medium text-center leading-tight rounded sm:text-xs">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>
@@ -534,7 +534,7 @@ export default function StandaloneDailyCheckIn() {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4">
 
-              <h3 className="text-teal-600 text-base font-semibold">
+              <h3 className="text-foreground text-base font-semibold">
                 {t('daily_check_in.step2_question')}
               </h3>
               
@@ -542,7 +542,7 @@ export default function StandaloneDailyCheckIn() {
                 const colors = categoryColors[category];
                 return (
                   <div key={category}>
-                    <p className="text-teal-600 mb-2 text-sm font-medium capitalize">
+                    <p className="text-primary mb-2 text-sm font-medium capitalize">
                       {t(`daily_check_in.category_${category}`)}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -563,7 +563,7 @@ export default function StandaloneDailyCheckIn() {
                               "px-3 py-1.5 text-xs font-medium rounded-full transition-all border-2 cursor-pointer",
                               isSelected ?
                               cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]") :
-                              "bg-teal-50 text-foreground/85 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
+                              "bg-secondary/70 text-foreground/85 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
                             )}
                             aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                             aria-pressed={isSelected}>
@@ -591,11 +591,11 @@ export default function StandaloneDailyCheckIn() {
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-950 text-base font-medium">{t('daily_check_in.intensity_low')}</span>
+                  <span className="text-foreground text-base font-medium">{t('daily_check_in.intensity_low')}</span>
                   <span className="text-3xl font-bold text-primary">
                     {formData.intensity}
                   </span>
-                  <span className="text-slate-950 text-base font-medium">{t('daily_check_in.intensity_high')}</span>
+                  <span className="text-foreground text-base font-medium">{t('daily_check_in.intensity_high')}</span>
                 </div>
                 <input
                   type="range"
@@ -611,7 +611,7 @@ export default function StandaloneDailyCheckIn() {
                   aria-label="Emotion intensity level"
                   aria-valuetext={`${formData.intensity} out of 100`} />
 
-                <div className="text-gray-950 text-xs rounded-[20px] flex justify-between">
+                <div className="text-foreground text-xs rounded-[20px] flex justify-between">
                   <span className="text-lg font-medium">1</span>
                   <span className="text-lg font-medium">25</span>
                   <span className="text-lg font-medium">50</span>
@@ -623,11 +623,11 @@ export default function StandaloneDailyCheckIn() {
             }
 
           {/* Navigation */}
-          <div className="bg-teal-500 text-teal-800 mt-6 rounded-2xl flex gap-3">
+          <div className="bg-transparent text-foreground mt-6 rounded-2xl flex gap-3">
             {step > 1 &&
               <Button
                 onClick={handleReturn}
-                variant="outline" className="bg-teal-600 text-slate-50 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1"
+                variant="outline" className="bg-primary text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1"
 
                 style={{ borderRadius: '16px' }}>
 
@@ -637,7 +637,7 @@ export default function StandaloneDailyCheckIn() {
               }
             <Button
                 onClick={handleContinue}
-                disabled={step === 1 && !formData.mood} className="bg-teal-600 text-gray-950 px-4 py-2 text-lg font-semibold tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 shadow-[var(--shadow-lg)]"
+                disabled={step === 1 && !formData.mood} className="bg-primary text-foreground px-4 py-2 text-lg font-semibold tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 shadow-[var(--shadow-lg)]"
 
                 style={{
                   borderRadius: '16px'
@@ -674,7 +674,7 @@ export default function StandaloneDailyCheckIn() {
 
               <button
                 onClick={() => setActiveVideo(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-[hsl(var(--card)/0.97)] transition-colors"
                 style={{
                   borderRadius: '50%',
                   backgroundColor: 'rgba(0,0,0,0.5)',

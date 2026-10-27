@@ -119,7 +119,7 @@ export default function QuickActions() {
           >
               <CardContent className="rounded-[20px] p-5">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-control)] bg-teal-500 text-accent-foreground shadow-[var(--shadow-sm)]">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-control)] bg-primary text-accent-foreground shadow-[var(--shadow-sm)]">
                     <Sparkles className="h-7 w-7 text-slate-50" strokeWidth={2.5} />
                   </div>
                   <button
@@ -128,23 +128,23 @@ export default function QuickActions() {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowRecommendedVideo(true);
-                  }} className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-control)] border-0 bg-green-100 text-emerald-50 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  }} className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-control)] border-0 bg-green-100 text-emerald-50 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 
                   aria-label={t('quick_actions.aria.guided_intro_video')}
                   title={t('quick_actions.aria.guided_intro_video')}>
 
-                    <CirclePlay className="h-6 w-6 text-teal-600" strokeWidth={2.2} />
+                    <CirclePlay className="h-6 w-6 text-primary" strokeWidth={2.2} />
                   <span className="mobile-action-label md:hidden">{t('quick_actions.aria.guided_intro_video')}</span></button>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowRecommendations(true)}
-                  className="min-h-12 w-full rounded-xl text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  className="min-h-12 w-full rounded-xl text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   aria-label={t('recommendations.premium.open_aria')}
                   data-testid="recommended-action"
                 >
-                  <h3 className="mb-1 break-words text-sm font-semibold text-teal-600">{t('quick_actions.recommended.title')}</h3>
-                  <p className="line-clamp-2 break-words text-xs leading-5 text-teal-700">{t('quick_actions.recommended.description')}</p>
+                  <h3 className="mb-1 break-words text-sm font-semibold text-foreground">{t('quick_actions.recommended.title')}</h3>
+                  <p className="line-clamp-2 break-words text-xs leading-5 text-primary">{t('quick_actions.recommended.description')}</p>
                 </button>
               </CardContent>
             </Card>
@@ -164,7 +164,7 @@ export default function QuickActions() {
                   <CardContent className="relative rounded-2xl p-5">
                     <Link
                       to={destination}
-                      className="absolute inset-0 z-0 rounded-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600"
+                      className="absolute inset-0 z-0 rounded-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                       aria-label={action.title}
                       data-testid={action.testIds ? action.testIds[0] : undefined}
                     >
@@ -186,7 +186,7 @@ export default function QuickActions() {
                           e.stopPropagation();
                           setActiveVideo(action.videoUrl);
                         }}
-                        className="pointer-events-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border-0 outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                        className="pointer-events-auto flex h-14 w-14 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border-0 outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         style={{ backgroundColor: action.bgColor }}
                         aria-label={t('quick_actions.aria.guided_intro_video')}
                         title={t('quick_actions.aria.guided_intro_video')}>
@@ -196,11 +196,11 @@ export default function QuickActions() {
                       }
                     </div>
                     <div className="pointer-events-none relative z-10">
-                      <h3 className="mb-1 break-words text-sm font-semibold text-teal-700">{action.title}</h3>
-                      <p className="line-clamp-2 break-words text-xs leading-5 text-teal-700">{action.description}</p>
+                      <h3 className="mb-1 break-words text-sm font-semibold text-foreground">{action.title}</h3>
+                      <p className="line-clamp-2 break-words text-xs leading-5 text-primary">{action.description}</p>
                       {action.premiumMindGames && (
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-teal-800/10 pt-3 text-[11px] font-semibold text-teal-800">
-                          <span className="rounded-full bg-white/75 px-2.5 py-1 shadow-sm">
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-[11px] font-semibold text-primary">
+                          <span className="rounded-full bg-[hsl(var(--card)/0.97)] px-2.5 py-1 shadow-sm">
                             {t('mind_games.premium.games_count', { count: gamesCatalog.length })}
                           </span>
                           <span className="inline-flex items-center gap-1">
@@ -211,7 +211,7 @@ export default function QuickActions() {
                       )}
                       {action.premiumJourneys && (
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-violet-800/10 pt-3 text-[11px] font-semibold text-violet-800">
-                          <span className="rounded-full bg-white/75 px-2.5 py-1 shadow-sm">
+                          <span className="rounded-full bg-[hsl(var(--card)/0.97)] px-2.5 py-1 shadow-sm">
                             {t('journeys.premium.card_badge')}
                           </span>
                           <span className="inline-flex items-center gap-1">
@@ -253,7 +253,7 @@ export default function QuickActions() {
 
               <button
               onClick={() => setActiveVideo(null)}
-              className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-[hsl(var(--card)/0.97)] transition-colors"
               style={{
                 borderRadius: '50%',
                 backgroundColor: 'rgba(0,0,0,0.5)',
@@ -306,8 +306,8 @@ export default function QuickActions() {
           data-testid="recommendations-dialog"
         >
           <DialogHeader className="pe-10 text-start">
-            <DialogTitle className="flex items-center gap-2 text-xl text-teal-950 sm:text-2xl">
-              <Sparkles className="h-5 w-5 shrink-0 text-teal-600" />
+            <DialogTitle className="flex items-center gap-2 text-xl text-primary sm:text-2xl">
+              <Sparkles className="h-5 w-5 shrink-0 text-primary" />
               {t('quick_actions.personalized_recommendations')}
             </DialogTitle>
             <DialogDescription>{t('recommendations.premium.modal_description')}</DialogDescription>

@@ -153,8 +153,8 @@ Be warm, encouraging, and specific. Reference actual data points.`;
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-purple-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">AI-Powered Insights</h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+          <h3 className="text-xl font-semibold text-foreground mb-2">AI-Powered Insights</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Get personalized analysis of your mood trends, journal patterns, and predictive insights to help you stay ahead of challenges.
           </p>
           <Button
@@ -174,8 +174,8 @@ Be warm, encouraging, and specific. Reference actual data points.`;
       <Card className="border-0 shadow-lg">
         <CardContent className="p-12 text-center">
           <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Analyzing Your Data...</h3>
-          <p className="text-sm text-gray-600">This may take a few moments</p>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Analyzing Your Data...</h3>
+          <p className="text-sm text-muted-foreground">This may take a few moments</p>
         </CardContent>
       </Card>
     );
@@ -213,10 +213,10 @@ Be warm, encouraging, and specific. Reference actual data points.`;
           
           {insights.mood_trend.key_observations.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Key Observations:</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-2">Key Observations:</h4>
               <ul className="space-y-1">
                 {insights.mood_trend.key_observations.map((obs, i) => (
-                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                     <span className="text-purple-600 mt-1">•</span>
                     <span>{obs}</span>
                   </li>
@@ -240,12 +240,12 @@ Be warm, encouraging, and specific. Reference actual data points.`;
             {insights.predictions.map((pred, i) => (
               <div key={i} className="p-4 rounded-lg bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <p className="font-semibold text-gray-800">{pred.pattern}</p>
+                  <p className="font-semibold text-foreground">{pred.pattern}</p>
                   <Badge className={likelihoodColors[pred.likelihood]}>
                     {pred.likelihood} likelihood
                   </Badge>
                 </div>
-                <p className="text-sm text-gray-700">{pred.recommendation}</p>
+                <p className="text-sm text-muted-foreground">{pred.recommendation}</p>
               </div>
             ))}
           </CardContent>
@@ -263,7 +263,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
         <CardContent className="space-y-4">
           {insights.journal_insights.common_distortions?.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Common Thinking Patterns:</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-2">Common Thinking Patterns:</h4>
               <div className="flex flex-wrap gap-2">
                 {insights.journal_insights.common_distortions.map((dist, i) => (
                   <Badge key={i} variant="outline" className="bg-yellow-50">
@@ -276,10 +276,10 @@ Be warm, encouraging, and specific. Reference actual data points.`;
           
           {insights.journal_insights.recurring_themes?.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Recurring Themes:</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-2">Recurring Themes:</h4>
               <ul className="space-y-1">
                 {insights.journal_insights.recurring_themes.map((theme, i) => (
-                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                     <span className="text-yellow-600 mt-1">•</span>
                     <span>{theme}</span>
                   </li>
@@ -312,11 +312,11 @@ Be warm, encouraging, and specific. Reference actual data points.`;
         <CardContent className="space-y-3">
           {insights.proactive_strategies.map((strategy, i) => (
             <div key={i} className="p-4 rounded-lg bg-blue-50 border border-blue-200">
-              <h4 className="font-semibold text-gray-800 mb-1">{strategy.strategy}</h4>
-              <p className="text-sm text-gray-600 mb-2">
+              <h4 className="font-semibold text-foreground mb-1">{strategy.strategy}</h4>
+              <p className="text-sm text-muted-foreground mb-2">
                 <span className="font-medium">When to use:</span> {strategy.when_to_use}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 <span className="font-medium">Why it helps:</span> {strategy.why_it_helps}
               </p>
             </div>
@@ -336,7 +336,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
           <CardContent>
             <ul className="space-y-2">
               {insights.warning_signs.map((warning, i) => (
-                <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                   <AlertTriangle className="mt-1 h-4 w-4 shrink-0 text-orange-600" aria-hidden="true" />
                   <span>{warning}</span>
                 </li>

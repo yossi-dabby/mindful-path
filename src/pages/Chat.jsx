@@ -5277,7 +5277,7 @@ export default function Chat() {
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
                                                 `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
                                                 (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
-      <div className="rounded-2xl flex relative"
+      <div className="garden-chat rounded-2xl flex relative"
 
       data-testid="chat-root"
       data-page-ready={isPageReady}
@@ -5307,7 +5307,7 @@ export default function Chat() {
       <div className={`
         ${showSidebar ? 'block' : 'hidden'} ${desktopSidebarCollapsed ? 'xl:hidden' : 'xl:block'}
         fixed xl:relative inset-y-0 start-0 xl:inset-auto w-[min(20rem,calc(100vw-1rem))]
-        border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.96)] backdrop-blur-2xl shadow-[var(--shadow-lg)] xl:shadow-none z-40
+        border-e border-border/70 bg-[hsl(var(--sidebar-background)/0.96)] backdrop-blur-2xl shadow-[var(--shadow-lg)] xl:shadow-none z-40
       `}>
         <ErrorBoundary>
           <ConversationsList
@@ -5328,12 +5328,12 @@ export default function Chat() {
       {/* Main Chat Area */}
       <div className="rounded-2xl flex-1 flex flex-col min-h-0 min-w-0">
         {/* Header */}
-        <div className="bg-white/80 min-h-12 px-2 py-1 rounded-2xl sm:min-h-14 sm:px-4 sm:py-2 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-teal-100/80 backdrop-blur-xl shadow-[var(--shadow-sm)]">
+        <div className="bg-[hsl(var(--card)/0.97)] min-h-12 px-2 py-1 rounded-2xl sm:min-h-14 sm:px-4 sm:py-2 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-border backdrop-blur-xl shadow-[var(--shadow-sm)]">
           <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate('/')}
-              aria-label={t('chat.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+              aria-label={t('chat.go_back_aria')} className="text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
             <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
           </Button>
@@ -5341,7 +5341,7 @@ export default function Chat() {
               variant="ghost"
               size="icon"
               onClick={() => setShowSidebar(!showSidebar)}
-              mobileLabelKey="menu" aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="xl:hidden text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0" mobileLabelKey="menu">
+              mobileLabelKey="menu" aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="xl:hidden text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0" mobileLabelKey="menu">
 
             <Menu className="w-5 h-5" />
           </Button>
@@ -5351,24 +5351,24 @@ export default function Chat() {
               onClick={() => setDesktopSidebarCollapsed((collapsed) => !collapsed)}
               aria-label={desktopSidebarCollapsed ? t('chat.open_sidebar_aria') : t('chat.close_sidebar_aria')}
               aria-expanded={!desktopSidebarCollapsed}
-              className="hidden xl:inline-flex h-10 w-10 rounded-[var(--radius-control)] text-teal-700 hover:bg-teal-100 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
+              className="hidden xl:inline-flex h-10 w-10 rounded-[var(--radius-control)] text-primary hover:bg-secondary/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
 
             {desktopSidebarCollapsed
               ? <PanelLeftOpen className="h-5 w-5 rtl:scale-x-[-1]" />
               : <PanelLeftClose className="h-5 w-5 rtl:scale-x-[-1]" />}
           </Button>
           <div className="hidden md:flex flex-1 min-w-0 items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center border border-teal-200/80 shadow-[var(--shadow-sm)]">
+            <div className="w-10 h-10 rounded-xl bg-secondary/70 text-primary flex items-center justify-center border border-border shadow-[var(--shadow-sm)]">
               <Sparkles className="w-5 h-5" aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-teal-700 text-lg font-semibold truncate">{t('chat.title')}</h1>
-              <p className="text-slate-600 text-xs truncate">{t('chat.subtitle')}</p>
+              <h1 className="text-foreground text-lg font-semibold truncate">{t('chat.title')}</h1>
+              <p className="text-muted-foreground text-xs truncate">{t('chat.subtitle')}</p>
             </div>
             {isS2DebugEnabled() && (
               <span
                 data-testid="s2-v8-debug-badge"
-                className="mt-1 inline-flex rounded-full border border-teal-300 bg-teal-100 px-2 py-0.5 text-[10px] font-medium text-teal-700"
+                className="mt-1 inline-flex rounded-full border border-border bg-secondary/70 px-2 py-0.5 text-[10px] font-medium text-primary"
               >
                 {`v8 ${s2DebugBadgeBuildSha || 'dev'} • ${s2DebugActiveStage}${s2DebugLatestTraceSource ? ` • src:${s2DebugLatestTraceSource}` : ''}`}
               </span>
@@ -5390,7 +5390,7 @@ export default function Chat() {
           }
 
         {/* Messages Area */}
-        <div className="text-foreground my-1 px-1 py-1 flex-1 min-h-0 overflow-hidden flex flex-col">
+        <div className="garden-chat-content text-foreground my-1 px-1 py-1 flex-1 min-h-0 overflow-hidden flex flex-col">
           {!currentConversationId ?
             <div
               data-testid="chat-empty-state-scroll"
@@ -5398,19 +5398,19 @@ export default function Chat() {
               style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Welcome Section - Separate container */}
               <div data-testid="chat-empty-welcome-shell" className="p-1.5 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6">
-                <Card data-testid="chat-welcome" className="bg-white/90 text-teal-700 p-2 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-white/90 shadow-[var(--shadow-lg)]">
-                  <div data-testid="chat-welcome-icon" className="mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-[var(--shadow-md)] ring-4 ring-teal-100/80">
+                <Card data-testid="chat-welcome" className="bg-[hsl(var(--card)/0.97)] text-primary p-2 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-border/70 shadow-[var(--shadow-lg)]">
+                  <div data-testid="chat-welcome-icon" className="mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14 flex items-center justify-center bg-primary text-primary-foreground shadow-[var(--shadow-md)] ring-4 ring-ring">
                     <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
-                  <BotanicalAccent variant="landscape" className="botanical-chat-art" /><h2 data-testid="chat-welcome-title" className="text-teal-700 mb-1 sm:mb-3 text-base leading-5 sm:text-2xl sm:leading-normal font-semibold tracking-tight">
+                  <BotanicalAccent variant="leaves" className="botanical-chat-art" /><h2 data-testid="chat-welcome-title" className="text-foreground mb-1 sm:mb-3 text-base leading-5 sm:text-2xl sm:leading-normal font-semibold tracking-tight">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p data-testid="chat-welcome-copy" className="text-slate-600 mb-2 sm:mb-5 text-xs leading-4 sm:text-sm sm:leading-relaxed">
+                  <p data-testid="chat-welcome-copy" className="text-muted-foreground mb-2 sm:mb-5 text-xs leading-4 sm:text-sm sm:leading-relaxed">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
                     data-testid="chat-start-first-session"
-                    onClick={startNewConversation} className="bg-teal-600 text-white px-5 min-h-[44px] text-sm font-semibold tracking-[0.005em] rounded-xl inline-flex items-center justify-center gap-2 whitespace-normal border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 shadow-[var(--shadow-md)] hover:bg-teal-700 hover:shadow-[var(--shadow-lg)] active:bg-teal-800 w-full sm:w-auto">
+                    onClick={startNewConversation} className="bg-primary text-primary-foreground px-5 min-h-[44px] text-sm font-semibold tracking-[0.005em] rounded-xl inline-flex items-center justify-center gap-2 whitespace-normal border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 shadow-[var(--shadow-md)] hover:bg-primary hover:shadow-[var(--shadow-lg)] active:bg-primary w-full sm:w-auto">
 
 
                     {t('chat.welcome.start_session', 'Start Your First Session')}
@@ -5564,27 +5564,27 @@ export default function Chat() {
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
-                        <div className="bg-teal-600 text-primary rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="text-slate-50 lucide lucide-sparkles w-5 h-5" />
+                        <div className="bg-secondary text-primary rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="text-primary lucide lucide-sparkles w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-teal-600 mb-1 text-sm font-medium">
+                          <p className="text-primary mb-1 text-sm font-medium">
                             {t('chat.summary_prompt.title')}
                           </p>
-                          <p className="text-teal-600 mb-3 text-xs">
+                          <p className="text-primary mb-3 text-xs">
                             {t('chat.summary_prompt.description')}
                           </p>
                           <div className="flex gap-2">
                             <Button
                             onClick={requestSummary}
-                            size="sm" className="bg-teal-600 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0">
+                            size="sm" className="bg-primary text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0">
 
                               {t('chat.summary_prompt.yes')}
                             </Button>
                             <Button
                             onClick={() => setShowSummaryPrompt(false)}
                             size="sm"
-                            variant="outline" className="bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
+                            variant="outline" className="bg-card text-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
 
                               {t('chat.summary_prompt.not_now')}
                             </Button>
@@ -5607,10 +5607,10 @@ export default function Chat() {
           }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="bg-teal-50 text-teal-600 rounded-2xl px-2 py-1 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+        <div data-testid="chat-composer" className="bg-[hsl(var(--card)/0.97)] text-foreground rounded-2xl px-2 py-1 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
-          <div className="text-teal-600 mx-auto max-w-5xl flex min-w-0">
+          <div className="text-primary mx-auto max-w-5xl flex min-w-0">
             {variantProfileBlocked ?
               <div className="flex-1 flex flex-col gap-3">
                 <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
@@ -5618,7 +5618,7 @@ export default function Chat() {
                 </div>
                 <Button
                   onClick={startNewConversation}
-                  className="bg-teal-600 text-primary-foreground font-medium rounded-[var(--radius-card)] border border-transparent transition-all duration-200 shadow-[var(--shadow-md)] hover:bg-primary/92 min-h-[44px] md:min-h-0 h-[48px] w-full">
+                  className="bg-primary text-primary-foreground font-medium rounded-[var(--radius-card)] border border-transparent transition-all duration-200 shadow-[var(--shadow-md)] hover:bg-primary/92 min-h-[44px] md:min-h-0 h-[48px] w-full">
                   {t('chat.variant_blocked.start_new', 'Start a new conversation')}
                 </Button>
               </div> :
@@ -5634,23 +5634,23 @@ export default function Chat() {
                 />
                 <div className="flex flex-col flex-1 gap-1 min-w-0">
                   {attachedFile && (
-                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-secondary/70 border border-border text-xs text-primary">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
                       <span className="truncate max-w-[160px]">{attachedFile.name}</span>
-                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ml-auto text-teal-500 hover:text-teal-700 flex-shrink-0">✕<span className="mobile-action-label md:hidden">{t('chat.attachments.remove_button_aria')}</span></button>
+                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ml-auto text-primary hover:text-primary flex-shrink-0">✕<span className="mobile-action-label md:hidden">{t('chat.attachments.remove_button_aria')}</span></button>
                     </div>
                   )}
                   {messages.filter((message) => message.role === 'user').length === 0 && !inputMessage.trim() && (
-                    <div className="mb-1 flex min-w-0 items-center gap-2 rounded-2xl border border-teal-100 bg-white/75 p-1.5 sm:block sm:p-2.5" data-testid="chat-intent-chooser">
-                      <p className="mb-0 w-[7.25rem] shrink-0 text-[10px] font-semibold leading-4 text-slate-600 sm:mb-2 sm:w-auto sm:text-xs">{t('chat_stage.intent_label')}</p>
-                      <div data-testid="chat-intent-options" className="flex min-w-0 flex-1 flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible sm:pb-0">
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_listen', t('chat_stage.intent.unload_prompt'))}>
+                    <div className="mb-1 flex min-w-0 flex-col items-stretch gap-2 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-1.5 sm:block sm:p-2.5" data-testid="chat-intent-chooser">
+                      <p className="mb-0 shrink-0 text-[10px] font-semibold leading-4 text-muted-foreground sm:mb-2 sm:w-auto sm:text-xs">{t('chat_stage.intent_label')}</p>
+                      <div data-testid="chat-intent-options" className="grid min-w-0 grid-cols-3 gap-2">
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 h-auto min-w-0 whitespace-normal rounded-xl border-border text-primary px-2 py-2 text-xs leading-4 sm:text-sm" onClick={() => handleChatIntentChoice('chat_intent_listen', t('chat_stage.intent.unload_prompt'))}>
                           {t('chat_stage.intent.unload')}
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-teal-200 text-teal-800" onClick={() => handleChatIntentChoice('chat_intent_practical', t('chat_stage.intent.practical_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 h-auto min-w-0 whitespace-normal rounded-xl border-border text-primary px-2 py-2 text-xs leading-4 sm:text-sm" onClick={() => handleChatIntentChoice('chat_intent_practical', t('chat_stage.intent.practical_prompt'))}>
                           {t('chat_stage.intent.practical')}
                         </Button>
-                        <Button type="button" variant="outline" size="sm" className="min-h-10 shrink-0 rounded-xl border-violet-200 bg-violet-50/70 text-violet-800 hover:bg-violet-100" onClick={() => handleChatIntentChoice('chat_intent_guided', t('chat_stage.intent.guided_prompt'))}>
+                        <Button type="button" variant="outline" size="sm" className="min-h-10 h-auto min-w-0 whitespace-normal rounded-xl border-border text-primary px-2 py-2 text-xs leading-4 sm:text-sm" onClick={() => handleChatIntentChoice('chat_intent_guided', t('chat_stage.intent.guided_prompt'))}>
                           <Sparkles className="me-1 h-4 w-4" />
                           {t('chat_stage.intent.guided')}
                         </Button>
@@ -5658,7 +5658,7 @@ export default function Chat() {
                     </div>
                   )}
                   {isLoading && (
-                    <p className="px-1 text-xs leading-5 text-teal-700">{t('chat_stage.queue_hint')}</p>
+                    <p className="px-1 text-xs leading-5 text-primary">{t('chat_stage.queue_hint')}</p>
                   )}
                   <div data-testid="chat-composer-row" className="flex min-w-0 items-end gap-2">
                     <Textarea
@@ -5678,7 +5678,7 @@ export default function Chat() {
                     <Button
                       onClick={handleSendMessage}
                       disabled={(!inputMessage.trim() && !attachedFile) || isConversationInitializing || isUploadingFile || isTranscribingAudio || !isConsentResolved || showConsentBanner}
-                      mobileLabelKey="send" aria-label={t('mobile_actions.send')} data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-[48px] min-h-[48px] w-[48px] flex-shrink-0 p-0 sm:h-[44px] sm:min-h-[44px] sm:w-[44px]">
+                      mobileLabelKey="send" aria-label={t('mobile_actions.send')} data-testid="therapist-chat-send" className="bg-primary text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-[48px] min-h-[48px] w-[48px] flex-shrink-0 p-0 sm:h-[44px] sm:min-h-[44px] sm:w-[44px]">
                       {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     </Button>
                   </div>
@@ -5690,7 +5690,7 @@ export default function Chat() {
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                       aria-label={t('chat.attachments.attach_button_aria')}
-                      className="text-teal-600 h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-teal-100" mobileLabelKey="attach">
+                      className="text-primary h-[44px] w-[44px] min-h-[44px] min-w-[44px] hover:bg-secondary/70" mobileLabelKey="attach">
                       <Paperclip className="w-5 h-5" />
                     </Button>
                     {audioDraftStatus === 'idle' &&
@@ -5701,7 +5701,7 @@ export default function Chat() {
                           onClick={handleStartRecording}
                           disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                           aria-label={t('chat.voice.record_aria')}
-                          className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
+                          className="text-primary hover:bg-secondary/70 min-h-[44px] min-w-[44px] px-3">
                         <Mic className="w-4 h-4 mr-1" />
                         {t('chat.voice.record')}
                       </Button>
@@ -5726,7 +5726,7 @@ export default function Chat() {
                     }
                     {audioDraftStatus === 'recorded' && audioDraftUrl &&
                       <>
-                        <span className="inline-flex items-center gap-1 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2 py-1 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs text-primary bg-secondary/70 border border-border px-2 py-1 rounded-full">
                           {t('chat.voice.ready')}
                         </span>
                         <audio ref={audioDraftPlayerRef} src={audioDraftUrl} className="hidden" />
@@ -5737,7 +5737,7 @@ export default function Chat() {
                           onClick={handlePlayRecording}
                           disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                           aria-label={t('chat.voice.play_aria')}
-                          className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
+                          className="text-primary hover:bg-secondary/70 min-h-[44px] min-w-[44px] px-3">
                           <Play className="w-4 h-4 mr-1" />
                           {t('chat.voice.play')}
                         </Button>
@@ -5748,7 +5748,7 @@ export default function Chat() {
                           onClick={handleTranscribeRecording}
                           disabled={isLoading || isConversationInitializing || isUploadingFile || isTranscribingAudio}
                           aria-label={t('chat.voice.transcribe_aria')}
-                          className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
+                          className="text-primary hover:bg-secondary/70 min-h-[44px] min-w-[44px] px-3">
                           {isTranscribingAudio ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
                           {isTranscribingAudio ? t('chat.voice.transcribing') : t('chat.voice.transcribe')}
                         </Button>
@@ -5769,10 +5769,10 @@ export default function Chat() {
                       to="/contact"
                       data-testid="chat-human-support"
                       aria-label={getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}
-                      className="ms-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-teal-200 bg-white/95 p-0 text-xs font-semibold text-teal-800 shadow-[var(--shadow-sm)] hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:h-auto sm:w-auto sm:min-h-10 sm:gap-2 sm:rounded-full sm:px-3 sm:py-2"
+                      className="ms-auto inline-flex min-h-11 max-w-full shrink-0 gap-2 px-3 py-2 items-center justify-center rounded-full border border-border bg-[hsl(var(--card)/0.97)] text-xs font-semibold text-primary shadow-[var(--shadow-sm)] hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-auto sm:w-auto sm:min-h-10 sm:gap-2 sm:rounded-full sm:px-3 sm:py-2"
                     >
                       <LifeBuoy className="h-4 w-4" aria-hidden="true" />
-                      <span className="inline">{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
+                      <span className="whitespace-normal">{getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}</span>
                     </Link>
                   </div>
                 </div>

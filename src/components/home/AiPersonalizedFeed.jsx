@@ -41,18 +41,18 @@ const TYPE_ICONS = {
 
 function RecommendationState({ icon: Icon, title, description, actionLabel, onAction, busy = false, testId }) {
   return (
-    <Card className="border border-teal-800/10 bg-white/80 shadow-sm" data-testid={testId}>
+    <Card className="border border-border bg-[hsl(var(--card)/0.97)] shadow-sm" data-testid={testId}>
       <CardContent className="flex min-h-[230px] flex-col items-center justify-center px-5 py-9 text-center">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-700/10 text-teal-700">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon className={busy ? 'h-7 w-7 animate-spin' : 'h-7 w-7'} />
         </div>
-        <h3 className="text-lg font-bold text-teal-950">{title}</h3>
-        <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">{description}</p>
+        <h3 className="text-lg font-bold text-foreground">{title}</h3>
+        <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
         {onAction && (
           <Button
             type="button"
             onClick={onAction}
-            className="mt-5 min-h-12 rounded-full bg-teal-700 px-6 text-white hover:bg-teal-800"
+            className="mt-5 min-h-12 rounded-full bg-primary px-6 text-primary-foreground hover:bg-primary"
            mobileLabelKey="refresh">
             <RefreshCw className="me-2 h-4 w-4" />
             {actionLabel}
@@ -292,18 +292,18 @@ Safety and language requirements:
   }
 
   return (
-    <Card className="overflow-hidden border border-teal-800/10 bg-white/80 shadow-[0_20px_50px_rgba(36,100,88,0.12)]" data-testid="recommendations-feed">
-      <CardHeader className="border-b border-teal-900/10 bg-gradient-to-br from-white via-emerald-50/75 to-teal-50/80 p-5 sm:p-6">
+    <Card className="overflow-hidden border border-border bg-[hsl(var(--card)/0.97)] shadow-[0_20px_50px_rgba(36,100,88,0.12)]" data-testid="recommendations-feed">
+      <CardHeader className="border-b border-border bg-gradient-to-br from-white via-emerald-50/75 to-teal-50/80 p-5 sm:p-6">
         <div className="flex min-w-0 items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3 text-start">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-900/15">
               <Sparkles className="h-6 w-6" />
             </div>
             <div className="min-w-0">
-              <CardTitle className="break-words text-lg text-teal-950 sm:text-xl">
+              <CardTitle className="break-words text-lg text-primary sm:text-xl">
                 {t('quick_actions.recommended.title')}
               </CardTitle>
-              <p className="mt-1 text-xs leading-5 text-slate-600 sm:text-sm">
+              <p className="mt-1 text-xs leading-5 text-muted-foreground sm:text-sm">
                 {t('recommendations.premium.feed_subtitle')}
               </p>
             </div>
@@ -314,7 +314,7 @@ Safety and language requirements:
             size="icon"
             onClick={() => aiQuery.refetch()}
             disabled={aiQuery.isFetching}
-            className="h-12 w-12 shrink-0 rounded-2xl border-teal-800/15 bg-white/80 text-teal-700 hover:bg-white"
+            className="h-12 w-12 shrink-0 rounded-2xl border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-[hsl(var(--card)/0.97)]"
             aria-label={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}
             title={aiQuery.isFetching ? t('recommendations.premium.refreshing') : t('recommendations.premium.refresh_aria')}
             data-testid="recommendations-refresh"
@@ -331,7 +331,7 @@ Safety and language requirements:
                 <p className="text-xs font-bold uppercase tracking-wide text-violet-700">
                   {t('recommendations.premium.insights_label')}
                 </p>
-                <p className="mt-1 break-words text-sm leading-6 text-slate-700">{normalized.insights}</p>
+                <p className="mt-1 break-words text-sm leading-6 text-muted-foreground">{normalized.insights}</p>
               </div>
             </div>
           </div>
@@ -349,17 +349,17 @@ Safety and language requirements:
               type="button"
               key={recommendation.key}
               onClick={() => navigate(createPageUrl(destination.page, destination.query))}
-              className="group w-full rounded-2xl border border-teal-900/10 bg-white/85 p-4 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-teal-600/25 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+              className="group w-full rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-4 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-border hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label={t('recommendations.premium.open_item', { type: typeLabel, title: recommendation.title })}
               data-testid="recommendation-item"
             >
               <div className="flex min-w-0 items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-700/10 text-teal-700">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="border-teal-700/15 bg-teal-50 text-[11px] text-teal-800">
+                    <Badge variant="outline" className="border-border bg-secondary/70 text-[11px] text-primary">
                       {typeLabel}
                     </Badge>
                     {recommendation.priority === 'high' && (
@@ -368,22 +368,22 @@ Safety and language requirements:
                       </Badge>
                     )}
                   </div>
-                  <h4 className="mt-2 break-words text-base font-bold leading-snug text-teal-950">
+                  <h4 className="mt-2 break-words text-base font-bold leading-snug text-foreground">
                     {recommendation.title}
                   </h4>
                   {recommendation.description && (
-                    <p className="mt-1 break-words text-sm leading-6 text-slate-600">{recommendation.description}</p>
+                    <p className="mt-1 break-words text-sm leading-6 text-muted-foreground">{recommendation.description}</p>
                   )}
                   {recommendation.reason && (
                     <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                      <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                         {t('recommendations.premium.why_now')}
                       </p>
-                      <p className="mt-1 break-words text-xs leading-5 text-slate-700">{recommendation.reason}</p>
+                      <p className="mt-1 break-words text-xs leading-5 text-muted-foreground">{recommendation.reason}</p>
                     </div>
                   )}
                 </div>
-                <ArrowRight className="mt-3 h-5 w-5 shrink-0 text-teal-600 transition group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+                <ArrowRight className="mt-3 h-5 w-5 shrink-0 text-primary transition group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
               </div>
             </button>
           );

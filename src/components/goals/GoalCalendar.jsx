@@ -103,7 +103,7 @@ export default function GoalCalendar({ goals }) {
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 gap-2 mb-2">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className="text-center text-xs font-semibold text-gray-500 py-2">
+            <div key={day} className="text-center text-xs font-semibold text-muted-foreground py-2">
               {day}
             </div>
           ))}
@@ -132,7 +132,7 @@ export default function GoalCalendar({ goals }) {
                   'hover:shadow-md'
                 )}
               >
-                <div className="text-xs font-medium text-gray-700 mb-1">
+                <div className="text-xs font-medium text-muted-foreground mb-1">
                   {format(day, 'd')}
                 </div>
                 
@@ -152,7 +152,7 @@ export default function GoalCalendar({ goals }) {
                     </div>
                   ))}
                   {events.length > 2 && (
-                    <div className="text-[9px] text-gray-500 px-1">
+                    <div className="text-[9px] text-muted-foreground px-1">
                       +{events.length - 2} more
                     </div>
                   )}
@@ -164,22 +164,22 @@ export default function GoalCalendar({ goals }) {
 
         {/* Legend */}
         <div className="mt-6 pt-4 border-t">
-          <p className="text-xs font-semibold text-gray-700 mb-2">Legend:</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-2">Legend:</p>
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-1 text-xs">
-              <Target className="w-3 h-3 text-gray-600" />
-              <span className="text-gray-600">Goal Deadline</span>
+              <Target className="w-3 h-3 text-muted-foreground" />
+              <span className="text-muted-foreground">Goal Deadline</span>
             </div>
             <div className="flex items-center gap-1 text-xs">
-              <Flag className="w-3 h-3 text-gray-600" />
-              <span className="text-gray-600">Milestone</span>
+              <Flag className="w-3 h-3 text-muted-foreground" />
+              <span className="text-muted-foreground">Milestone</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
             {Object.entries(categoryColors).map(([category, color]) => (
               <div key={category} className="flex items-center gap-1 text-xs">
                 <div className={cn('w-3 h-3 rounded', color)} />
-                <span className="text-gray-600 capitalize">{category}</span>
+                <span className="text-muted-foreground capitalize">{category}</span>
               </div>
             ))}
           </div>

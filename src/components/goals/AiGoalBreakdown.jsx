@@ -100,7 +100,7 @@ Make each step concrete and actionable, not vague.`,
         <Card className="w-full max-w-2xl border-0 shadow-2xl">
           <CardContent className="p-12 text-center">
             <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Breaking down your goal into actionable steps...</p>
+            <p className="text-muted-foreground">Breaking down your goal into actionable steps...</p>
           </CardContent>
         </Card>
       </PremiumOverlay>
@@ -121,8 +121,8 @@ Make each step concrete and actionable, not vague.`,
         <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{goal.title}</h2>
-              <p className="text-sm text-gray-600">AI-Generated Action Plan</p>
+              <h2 className="text-2xl font-bold text-foreground">{goal.title}</h2>
+              <p className="text-sm text-muted-foreground">AI-Generated Action Plan</p>
             </div>
             <Button onClick={onClose} variant="ghost">
               Close
@@ -132,13 +132,13 @@ Make each step concrete and actionable, not vague.`,
           <div className="space-y-6">
             {/* Quick Wins */}
             <div className="bg-gradient-to-br from-green-50 to-white p-4 rounded-xl border-2 border-green-200">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 Quick Wins (Start Here!)
               </h3>
               <ul className="space-y-2">
                 {safeArray(breakdown.quick_wins).map((win, i) => (
-                  <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <span>{win}</span>
                   </li>
@@ -148,7 +148,7 @@ Make each step concrete and actionable, not vague.`,
 
             {/* Action Plan */}
             <div>
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Target className="w-5 h-5 text-blue-600" />
                 Detailed Action Plan
               </h3>
@@ -156,19 +156,19 @@ Make each step concrete and actionable, not vague.`,
                 {safeArray(breakdown.action_plan).map((action, i) => {
                   const act = typeof action === 'object' ? action : { step: safeText(action), description: '', estimated_time: '' };
                   return (
-                  <div key={i} className="bg-white p-4 rounded-lg border-2 border-blue-100">
+                  <div key={i} className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-blue-100">
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-gray-800 flex items-center gap-2">
+                      <h4 className="font-medium text-foreground flex items-center gap-2">
                         <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
                           {i + 1}
                         </span>
                         {safeText(act.step, `Step ${i + 1}`)}
                       </h4>
                       {act.estimated_time && (
-                        <span className="text-xs text-gray-500">{safeText(act.estimated_time)}</span>
+                        <span className="text-xs text-muted-foreground">{safeText(act.estimated_time)}</span>
                       )}
                     </div>
-                    {act.description && <p className="text-sm text-gray-600 ml-8">{safeText(act.description)}</p>}
+                    {act.description && <p className="text-sm text-muted-foreground ml-8">{safeText(act.description)}</p>}
                   </div>
                 );
                 })}
@@ -177,14 +177,14 @@ Make each step concrete and actionable, not vague.`,
 
             {/* Milestones */}
             <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Key Milestones</h3>
+              <h3 className="font-semibold text-foreground mb-3">Key Milestones</h3>
               <div className="space-y-2">
                 {safeArray(breakdown.milestones).map((milestone, i) => {
                   const m = typeof milestone === 'object' ? milestone : { title: safeText(milestone), description: '' };
                   return (
                   <div key={i} className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                    <p className="font-medium text-gray-800 text-sm">{safeText(m.title, `Milestone ${i + 1}`)}</p>
-                    {m.description && <p className="text-xs text-gray-600 mt-1">{safeText(m.description)}</p>}
+                    <p className="font-medium text-foreground text-sm">{safeText(m.title, `Milestone ${i + 1}`)}</p>
+                    {m.description && <p className="text-xs text-muted-foreground mt-1">{safeText(m.description)}</p>}
                   </div>
                 );
                 })}
@@ -193,15 +193,15 @@ Make each step concrete and actionable, not vague.`,
 
             {/* Potential Obstacles */}
             <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Prepare for Challenges</h3>
+              <h3 className="font-semibold text-foreground mb-3">Prepare for Challenges</h3>
               <div className="space-y-2">
                 {safeArray(breakdown.potential_obstacles).map((item, i) => {
                   const obs = typeof item === 'object' ? item : { obstacle: safeText(item), solution: '' };
                   return (
                   <div key={i} className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                    <p className="flex items-start gap-2 font-medium text-gray-800 text-sm"><PremiumIcon name="alert" size="sm" bare className="mt-0.5 shrink-0" /><span>{safeText(obs.obstacle, `Obstacle ${i + 1}`)}</span></p>
+                    <p className="flex items-start gap-2 font-medium text-foreground text-sm"><PremiumIcon name="alert" size="sm" bare className="mt-0.5 shrink-0" /><span>{safeText(obs.obstacle, `Obstacle ${i + 1}`)}</span></p>
                     {obs.solution && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         <span className="font-semibold">Solution:</span> {safeText(obs.solution)}
                       </p>
                     )}
@@ -213,10 +213,10 @@ Make each step concrete and actionable, not vague.`,
 
             {/* Success Metrics */}
             <div className="bg-card p-4 rounded-xl border-2 border-indigo-200">
-              <h3 className="font-semibold text-gray-800 mb-3">Measuring Success</h3>
+              <h3 className="font-semibold text-foreground mb-3">Measuring Success</h3>
               <ul className="space-y-1">
                 {safeArray(breakdown.success_metrics).map((metric, i) => (
-                  <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                     <PremiumIcon name="chart" size="sm" bare className="mt-0.5 shrink-0 text-indigo-600" />
                     <span>{metric}</span>
                   </li>

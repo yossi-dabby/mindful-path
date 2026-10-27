@@ -167,7 +167,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
               >
                 <CardContent className="p-4 space-y-3">
                   <div>
-                    <p className="text-xs font-medium text-gray-500 mb-2">Emotions:</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Emotions:</p>
                     <div className="flex flex-wrap gap-1">
                       {formData.emotions.map((emotion) => {
                         const category = Object.keys(emotionCategories).find(cat => 
@@ -184,7 +184,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                   </div>
                   
                   <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">Intensity:</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Intensity:</p>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
@@ -255,7 +255,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-6"
               >
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold text-foreground">
                   How are you feeling overall?
                 </h3>
                 <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
@@ -267,11 +267,11 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                         "min-h-[44px] p-2 sm:p-4 rounded-2xl border-2 transition-all hover:scale-105",
                         formData.mood === mood.value
                           ? "border-green-500 bg-green-50 shadow-lg"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          : "border-gray-200 bg-[hsl(var(--card)/0.97)] hover:border-gray-300"
                       )}
                     >
                       <PremiumMoodIcon mood={mood.value} size="md" selected={formData.mood === mood.value} className="mb-1 sm:mb-2" />
-                      <div className="text-[10px] sm:text-xs font-medium text-gray-700 leading-tight">{mood.label}</div>
+                      <div className="text-[10px] sm:text-xs font-medium text-muted-foreground leading-tight">{mood.label}</div>
                     </button>
                   ))}
                 </div>
@@ -285,7 +285,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-6"
               >
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold text-foreground">
                   What emotions are you experiencing?
                 </h3>
                 
@@ -293,7 +293,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                   const colors = categoryColors[category];
                   return (
                     <div key={category}>
-                      <p className="text-sm font-medium text-gray-600 mb-2 capitalize">
+                      <p className="text-sm font-medium text-muted-foreground mb-2 capitalize">
                         {category} Emotions
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -306,7 +306,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                               "min-h-[44px] px-4 py-2 rounded-full text-sm font-medium transition-all border-2 cursor-pointer",
                               formData.emotions.includes(emotion)
                                 ? cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]")
-                                : "border-gray-300 text-gray-700 hover:border-gray-400"
+                                : "border-gray-300 text-muted-foreground hover:border-gray-400"
                             )}
                           >
                             {emotion}
@@ -326,16 +326,16 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-6"
               >
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold text-foreground">
                   How intense are your emotions?
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Low</span>
+                    <span className="text-sm text-muted-foreground">Low</span>
                     <span className="text-3xl font-bold" style={{ color: '#26A69A' }}>
                       {formData.intensity}
                     </span>
-                    <span className="text-sm text-gray-600">High</span>
+                    <span className="text-sm text-muted-foreground">High</span>
                   </div>
                   <input
                     type="range"
@@ -348,7 +348,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                       background: `linear-gradient(to right, #26A69A 0%, #26A69A ${formData.intensity}%, #E5E7EB ${formData.intensity}%, #E5E7EB 100%)`
                     }}
                   />
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span>1</span>
                     <span>25</span>
                     <span>50</span>

@@ -24,8 +24,8 @@ const LockedCard = ({ title, description, height = "auto", onUnlock }) => {
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-800 mb-2 text-base md:text-lg">{title}</h3>
-          <p className="text-sm text-gray-600 mb-4">{description}</p>
+          <h3 className="font-semibold text-foreground mb-2 text-base md:text-lg">{title}</h3>
+          <p className="text-sm text-muted-foreground mb-4">{description}</p>
           <Button
             onClick={onUnlock}
             className="min-h-11 h-auto max-w-full whitespace-normal bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -155,10 +155,10 @@ export default function AdvancedAnalytics() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div className="botanical-title-row"><h1 className="text-2xl md:text-4xl font-semibold text-gray-800">{t('advanced_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+              <div className="botanical-title-row"><h1 className="text-2xl md:text-4xl font-semibold text-foreground">{t('advanced_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <PremiumBadge locked={!isPremium} compact />
             </div>
-            <p className="text-sm md:text-base text-gray-500 ml-12 md:ml-0">
+            <p className="text-sm md:text-base text-muted-foreground ml-12 md:ml-0">
               {t('advanced_analytics.subtitle')}
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function AdvancedAnalytics() {
         </div>
 
         <Tabs defaultValue="mood" className="space-y-4 md:space-y-6">
-          <TabsList className="bg-white border shadow-sm w-full flex-wrap h-auto gap-1 p-1">
+          <TabsList className="bg-[hsl(var(--card)/0.97)] border shadow-sm w-full flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="mood" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Activity className="w-3 h-3 md:w-4 md:h-4" />
               <span className="inline">{t('advanced_analytics.tab_mood')}</span>
@@ -212,7 +212,7 @@ export default function AdvancedAnalytics() {
                   <div className="min-h-[300px] flex items-center justify-center">
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_mood')}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{t('advanced_analytics.unlock_mood')}</p>
                       <Button onClick={handleUnlockClick} className="bg-primary hover:bg-primary/90">
                         <Crown className="w-4 h-4 mr-2" />
                         {t('advanced_analytics.go_premium')}
@@ -228,7 +228,7 @@ export default function AdvancedAnalytics() {
                 <>
                   <Card className="border-0 shadow-lg rounded-2xl">
                     <CardContent className="p-4 md:p-6">
-                      <p className="text-xs md:text-sm text-gray-600 mb-1">{t('advanced_analytics.label_avg_mood')}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mb-1">{t('advanced_analytics.label_avg_mood')}</p>
                       <p className="text-3xl md:text-4xl font-bold text-orange-600">
                         {(moodTrends.reduce((acc, m) => acc + m.mood, 0) / moodTrends.length || 0).toFixed(1)}
                       </p>
@@ -237,16 +237,16 @@ export default function AdvancedAnalytics() {
                   </Card>
                   <Card className="border-0 shadow-lg rounded-2xl">
                     <CardContent className="p-4 md:p-6">
-                      <p className="text-xs md:text-sm text-gray-600 mb-1">{t('advanced_analytics.label_best_day')}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mb-1">{t('advanced_analytics.label_best_day')}</p>
                       <p className="text-3xl md:text-4xl font-bold text-green-600">{t('advanced_analytics.best_day_label')}</p>
-                      <p className="text-xs text-gray-500 mt-1">{t('advanced_analytics.highest_avg_mood')}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t('advanced_analytics.highest_avg_mood')}</p>
                     </CardContent>
                   </Card>
                   <Card className="border-0 shadow-lg rounded-2xl">
                     <CardContent className="p-4 md:p-6">
-                      <p className="text-xs md:text-sm text-gray-600 mb-1">{t('advanced_analytics.label_consistency')}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mb-1">{t('advanced_analytics.label_consistency')}</p>
                       <p className="text-3xl md:text-4xl font-bold text-blue-600">87%</p>
-                      <p className="text-xs text-gray-500 mt-1">{t('advanced_analytics.mood_variance')}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{t('advanced_analytics.mood_variance')}</p>
                     </CardContent>
                   </Card>
                 </>
@@ -291,7 +291,7 @@ export default function AdvancedAnalytics() {
                     <div className="min-h-[300px] flex items-center justify-center">
                       <div className="text-center max-w-xs px-4">
                         <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                        <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_patterns')}</p>
+                        <p className="text-sm text-muted-foreground mb-4">{t('advanced_analytics.unlock_patterns')}</p>
                         <Button onClick={handleUnlockClick} className="bg-primary hover:bg-primary/90">
                           <Crown className="w-4 h-4 mr-2" />
                           {t('advanced_analytics.go_premium')}
@@ -311,7 +311,7 @@ export default function AdvancedAnalytics() {
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-xs md:text-sm text-gray-600">{t('advanced_analytics.before_cbt')}</span>
+                          <span className="text-xs md:text-sm text-muted-foreground">{t('advanced_analytics.before_cbt')}</span>
                           <span className="text-xs md:text-sm font-semibold">7.2/10</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -320,7 +320,7 @@ export default function AdvancedAnalytics() {
                       </div>
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-xs md:text-sm text-gray-600">{t('advanced_analytics.after_cbt')}</span>
+                          <span className="text-xs md:text-sm text-muted-foreground">{t('advanced_analytics.after_cbt')}</span>
                           <span className="text-xs md:text-sm font-semibold">4.1/10</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -365,7 +365,7 @@ export default function AdvancedAnalytics() {
                   <div className="min-h-[300px] flex items-center justify-center">
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_exercise')}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{t('advanced_analytics.unlock_exercise')}</p>
                       <Button onClick={handleUnlockClick} className="bg-primary hover:bg-primary/90">
                         <Crown className="w-4 h-4 mr-2" />
                         {t('advanced_analytics.go_premium')}
@@ -388,8 +388,8 @@ export default function AdvancedAnalytics() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="bg-purple-50 p-4 md:p-6 rounded-xl border border-purple-200">
-                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">{t('advanced_analytics.mood_forecast_title')}</h4>
-                    <p className="text-xs md:text-sm text-gray-700 mb-4">
+                    <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">{t('advanced_analytics.mood_forecast_title')}</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground mb-4">
                       {t('advanced_analytics.mood_forecast_text')}
                     </p>
                     <div className="flex gap-1 md:gap-2">
@@ -397,7 +397,7 @@ export default function AdvancedAnalytics() {
                         const levels = [3, 4, 3, 3, 4, 4, 3];
                         return (
                           <div key={day} className="flex-1 text-center">
-                            <div className="text-[10px] md:text-xs text-gray-600 mb-1">{day}</div>
+                            <div className="text-[10px] md:text-xs text-muted-foreground mb-1">{day}</div>
                             <div className={`h-12 md:h-16 rounded-lg ${levels[i] >= 4 ? 'bg-green-200' : 'bg-yellow-200'}`} />
                           </div>
                         );
@@ -406,17 +406,17 @@ export default function AdvancedAnalytics() {
                   </div>
 
                   <div className="bg-blue-50 p-4 md:p-6 rounded-xl border border-blue-200">
-                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">{t('advanced_analytics.recommended_actions_title')}</h4>
+                    <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">{t('advanced_analytics.recommended_actions_title')}</h4>
                     <ul className="space-y-2">
-                      <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                      <li className="flex items-start gap-2 text-xs md:text-sm text-muted-foreground">
                         <span className="text-blue-600">•</span>
                         {t('advanced_analytics.action_1')}
                       </li>
-                      <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                      <li className="flex items-start gap-2 text-xs md:text-sm text-muted-foreground">
                         <span className="text-blue-600">•</span>
                         {t('advanced_analytics.action_2')}
                       </li>
-                      <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                      <li className="flex items-start gap-2 text-xs md:text-sm text-muted-foreground">
                         <span className="text-blue-600">•</span>
                         {t('advanced_analytics.action_3')}
                       </li>

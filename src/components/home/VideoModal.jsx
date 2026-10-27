@@ -14,7 +14,7 @@ export default function VideoModal({ videoUrl, onClose }) {
       }}
     >
       <div 
-        className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden my-8"
+        className="relative w-full max-w-4xl bg-[hsl(var(--card)/0.97)] rounded-3xl shadow-2xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
         style={{ maxHeight: 'calc(90vh - 120px)' }}
       >
@@ -23,7 +23,7 @@ export default function VideoModal({ videoUrl, onClose }) {
           onClick={onClose}
           size="icon"
           variant="ghost"
-          className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white rounded-full shadow-lg"
+          className="absolute top-4 right-4 z-10 bg-[hsl(var(--card)/0.97)] hover:bg-[hsl(var(--card)/0.97)] rounded-full shadow-lg"
           aria-label="Close video"
         >
           <X className="w-5 h-5" />

@@ -39,16 +39,16 @@ describe('Chat responsive layout contract', () => {
     expect(chat).toContain('flex min-w-0 items-end gap-2');
   });
 
-  it('keeps the mobile intent choices in one horizontally scrollable row', () => {
+  it('keeps all three intent choices visible in a responsive grid', () => {
     expect(chat).toContain('data-testid="chat-intent-options"');
-    expect(chat).toContain('flex-nowrap gap-2 overflow-x-auto');
-    expect(chat).toContain('shrink-0 rounded-xl');
+    expect(chat).toContain('grid min-w-0 grid-cols-3 gap-2');
+    expect(chat).toContain('min-w-0 whitespace-normal rounded-xl');
   });
 
   it('keeps support inline with the recording actions instead of floating over chat', () => {
     expect(chat).toContain('data-testid="chat-actions-row"');
     expect(chat).toContain('data-testid="chat-human-support"');
-    expect(chat).toContain('ms-auto inline-flex h-11 w-11');
+    expect(chat).toContain('ms-auto inline-flex min-h-11 max-w-full');
     expect(chat).toContain('data-testid="chat-disclaimer"');
     expect(layout).toContain("currentPageName !== 'Chat'");
   });

@@ -120,8 +120,8 @@ export default function OnboardingTour({ onComplete, onSkip }) {
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-800">{step.title}</h3>
-                      <p className="text-xs text-gray-500">
+                      <h3 className="font-semibold text-foreground">{step.title}</h3>
+                      <p className="text-xs text-muted-foreground">
                         Step {currentStep + 1} of {tourSteps.length}
                       </p>
                     </div>
@@ -130,7 +130,7 @@ export default function OnboardingTour({ onComplete, onSkip }) {
                     variant="ghost"
                     size="icon"
                     onClick={handleSkip}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-muted-foreground"
                     aria-label="Skip tour"
                   >
                     <X className="w-4 h-4" />
@@ -138,7 +138,7 @@ export default function OnboardingTour({ onComplete, onSkip }) {
                 </div>
 
                 {/* Content */}
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-muted-foreground mb-6 leading-relaxed">
                   {step.description}
                 </p>
 
@@ -182,7 +182,7 @@ export default function OnboardingTour({ onComplete, onSkip }) {
                 {currentStep === 0 && (
                   <button
                     onClick={handleSkip}
-                    className="w-full text-center text-sm text-gray-500 hover:text-gray-700 mt-3"
+                    className="w-full text-center text-sm text-muted-foreground hover:text-muted-foreground mt-3"
                   >
                     Skip tour
                   </button>

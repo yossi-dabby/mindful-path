@@ -41,7 +41,7 @@ export default function CommunityDialogShell({ title, closeLabel, onClose, child
       >
         <CardHeader className="sticky top-0 z-10 border-b border-border/70 bg-[hsl(var(--card)/0.98)] px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-3">
-            <CardTitle id={titleId} className="text-xl font-semibold text-teal-800 sm:text-2xl">
+            <CardTitle id={titleId} className="text-xl font-semibold text-primary sm:text-2xl">
               {title}
             </CardTitle>
             <Button type="button" variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]" onClick={onClose} aria-label={closeLabel}>

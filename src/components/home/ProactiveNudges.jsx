@@ -78,7 +78,7 @@ export default function ProactiveNudges() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <h4 className="font-semibold text-gray-800 text-sm">{nudge.title}</h4>
+                        <h4 className="font-semibold text-foreground text-sm">{nudge.title}</h4>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -89,7 +89,7 @@ export default function ProactiveNudges() {
                           <X className="w-3 h-3" />
                         </Button>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">{nudge.message}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{nudge.message}</p>
                       
                       {nudge.suggested_action && (
                         <p className="text-xs text-amber-700 mb-3 flex items-start gap-1">

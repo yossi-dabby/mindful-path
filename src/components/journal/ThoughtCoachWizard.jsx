@@ -73,7 +73,7 @@ const thoughtTypes = [
     label: 'Overthinking / Uncertainty',
     description: 'Can\'t stop analyzing, stuck in loops, confused',
     icon: Cloud,
-    color: '#718096',
+    color: 'hsl(var(--muted-foreground))',
     bgColor: 'rgba(113, 128, 150, 0.15)'
   },
   {
@@ -81,7 +81,7 @@ const thoughtTypes = [
     label: 'Hopelessness',
     description: 'Feeling like nothing will get better',
     icon: HeartCrack,
-    color: '#2D3748',
+    color: 'hsl(var(--foreground))',
     bgColor: 'rgba(45, 55, 72, 0.15)'
   },
   {
@@ -89,8 +89,8 @@ const thoughtTypes = [
     label: 'Other / Free Thought',
     description: 'Something else, or just want to journal freely',
     icon: HelpCircle,
-    color: '#26A69A',
-    bgColor: 'rgba(38, 166, 154, 0.15)'
+    color: 'hsl(var(--primary))',
+    bgColor: 'hsl(var(--secondary))'
   }
 ];
 
@@ -187,18 +187,18 @@ export default function ThoughtCoachWizard({ onClose }) {
   const selectedThought = thoughtTypes.find(t => t.type === formData.thought_type);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),transparent_34%),linear-gradient(155deg,#e6f6f1_0%,#d4eee7_52%,#c3e5dc_100%)] w-full overflow-x-hidden" style={{ zIndex: 70 }}>
+    <div className="garden-flow-shell fixed inset-0 flex flex-col w-full overflow-x-hidden" style={{ zIndex: 70 }}>
       {/* Header - Sticky on mobile */}
-      <div className="bg-white border-b shadow-sm sticky top-0 flex-shrink-0 overflow-x-hidden" style={{ zIndex: 10 }}>
+      <div className="bg-[hsl(var(--card)/0.97)] border-b shadow-sm sticky top-0 flex-shrink-0 overflow-x-hidden" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-700 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="botanical-title-row"><h1 className="text-xl font-semibold text-gray-800">{t('thought_coach.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-                <p className="text-sm text-gray-500">{t('thought_coach.step_label', { step })}</p>
+                <div className="botanical-title-row"><h1 className="text-xl font-semibold text-foreground">{t('thought_coach.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+                <p className="text-sm text-muted-foreground">{t('thought_coach.step_label', { step })}</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('thought_coach.go_back_step_aria') : t('thought_coach.close_aria')}>
@@ -219,8 +219,8 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 1 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-1">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_thought_type_title')}</h3>
-                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_thought_type_subtitle')}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('thought_coach.step_thought_type_title')}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{t('thought_coach.step_thought_type_subtitle')}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -242,7 +242,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
                         formData.thought_type === thought.type
-                          ? 'border-teal-400 bg-teal-50 shadow-md'
+                          ? 'border-border bg-secondary/70 shadow-md'
                           : 'border-gray-200 hover:border-gray-300'
                       )}
                     >
@@ -254,8 +254,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                           <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${thought.type}.label`)}</h4>
-                          <p className="text-xs text-gray-600 mt-1">{t(`thought_coach.thought_types.${thought.type}.description`)}</p>
+                          <h4 className="font-semibold text-foreground">{t(`thought_coach.thought_types.${thought.type}.label`)}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{t(`thought_coach.thought_types.${thought.type}.description`)}</p>
                         </div>
                       </div>
                     </button>
@@ -269,12 +269,12 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 2 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-2">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_details_title')}</h3>
-                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_details_subtitle')}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('thought_coach.step_details_title')}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{t('thought_coach.step_details_subtitle')}</p>
               </div>
 
               {selectedThought && (
-                <Card className="border-2 border-teal-200 bg-teal-50">
+                <Card className="border-2 border-border bg-secondary/70">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div 
@@ -284,8 +284,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
-                        <p className="text-xs text-gray-600">{t(`thought_coach.thought_types.${selectedThought.type}.description`)}</p>
+                        <p className="font-semibold text-foreground">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
+                        <p className="text-xs text-muted-foreground">{t(`thought_coach.thought_types.${selectedThought.type}.description`)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -293,7 +293,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               )}
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
                   What situation triggered this thought? <span className="text-red-500">*</span>
                 </label>
                 <Textarea
@@ -306,7 +306,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
                   What are the automatic thoughts going through your mind? <span className="text-red-500">*</span>
                 </label>
                 <Textarea
@@ -319,7 +319,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-3 block">
+                <label className="text-sm font-medium text-muted-foreground mb-3 block">
                   What emotions are you feeling? (Select all that apply) <span className="text-red-500">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2" data-testid="thoughtcoach-emotions-picker">
@@ -331,8 +331,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                       className={cn(
                         'cursor-pointer capitalize transition-all',
                         formData.emotions.includes(emotion)
-                          ? 'bg-teal-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-muted-foreground hover:bg-gray-200'
                       )}
                     >
                       {t(`thought_coach.emotion_options.${emotion}`)}
@@ -342,7 +342,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
                   How intense are these emotions? ({formData.emotion_intensity}/10)
                 </label>
                 <input
@@ -353,7 +353,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                   onChange={(e) => setFormData(prev => ({ ...prev, emotion_intensity: parseInt(e.target.value) }))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>{t('thought_coach.step_intensity_mild')}</span>
                   <span>{t('thought_coach.step_intensity_intense')}</span>
                 </div>
@@ -365,12 +365,12 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 3 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-3">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_analysis_title')}</h3>
-                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_analysis_subtitle')}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('thought_coach.step_analysis_title')}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{t('thought_coach.step_analysis_subtitle')}</p>
               </div>
 
               {selectedThought && (
-                <Card className="border-2 border-teal-200 bg-teal-50">
+                <Card className="border-2 border-border bg-secondary/70">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div 
@@ -380,8 +380,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
-                        <p className="text-xs text-gray-600 mt-1 italic">"{formData.automatic_thoughts}"</p>
+                        <p className="font-semibold text-foreground">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
+                        <p className="text-xs text-muted-foreground mt-1 italic">"{formData.automatic_thoughts}"</p>
                       </div>
                     </div>
                   </CardContent>
@@ -408,14 +408,14 @@ export default function ThoughtCoachWizard({ onClose }) {
                 </div>
               </div>
 
-              <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl">
-                <p className="text-sm text-teal-800 text-center">
+              <div className="p-3 bg-secondary/70 border border-border rounded-xl">
+                <p className="text-sm text-primary text-center">
                   <PremiumIcon name="idea" size="sm" bare className="me-1 inline" /> Noticing and examining a thought is already an important CBT skill.
                 </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
                   Balanced / Helpful Thought (Optional)
                 </label>
                 <Textarea
@@ -425,7 +425,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-balanced-input"
                 />
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                   This is optional - you can always add it later in your journal.
                 </p>
               </div>
@@ -436,12 +436,12 @@ export default function ThoughtCoachWizard({ onClose }) {
           {step === 4 && (
             <div className="space-y-6" data-testid="thoughtcoach-step-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_review_title')}</h3>
-                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_review_subtitle')}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('thought_coach.step_review_title')}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{t('thought_coach.step_review_subtitle')}</p>
               </div>
 
               {selectedThought && (
-                <Card className="border-2 border-teal-200 bg-teal-50">
+                <Card className="border-2 border-border bg-secondary/70">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <div 
@@ -451,20 +451,20 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
+                        <p className="font-semibold text-foreground">{t(`thought_coach.thought_types.${selectedThought.type}.label`)}</p>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm">
                       <div>
-                        <span className="text-gray-600 font-medium">{t('thought_coach.field_situation')}</span>
-                        <p className="text-gray-800 mt-1">{formData.situation}</p>
+                        <span className="text-muted-foreground font-medium">{t('thought_coach.field_situation')}</span>
+                        <p className="text-foreground mt-1">{formData.situation}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">{t('thought_coach.field_thoughts')}</span>
-                        <p className="text-gray-800 mt-1">{formData.automatic_thoughts}</p>
+                        <span className="text-muted-foreground font-medium">{t('thought_coach.field_thoughts')}</span>
+                        <p className="text-foreground mt-1">{formData.automatic_thoughts}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">{t('thought_coach.field_emotions')}</span>
+                        <span className="text-muted-foreground font-medium">{t('thought_coach.field_emotions')}</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {formData.emotions.map((emotion) => (
                             <Badge key={emotion} variant="secondary" className="text-xs capitalize">
@@ -474,13 +474,13 @@ export default function ThoughtCoachWizard({ onClose }) {
                         </div>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">{t('thought_coach.field_intensity')}</span>
-                        <span className="text-gray-800 ml-2">{formData.emotion_intensity}/10</span>
+                        <span className="text-muted-foreground font-medium">{t('thought_coach.field_intensity')}</span>
+                        <span className="text-foreground ml-2">{formData.emotion_intensity}/10</span>
                       </div>
                       {formData.balanced_thought && formData.balanced_thought.trim() && (
                         <div>
-                          <span className="text-gray-600 font-medium">{t('thought_coach.field_balanced')}</span>
-                          <p className="text-gray-800 mt-1">{formData.balanced_thought}</p>
+                          <span className="text-muted-foreground font-medium">{t('thought_coach.field_balanced')}</span>
+                          <p className="text-foreground mt-1">{formData.balanced_thought}</p>
                         </div>
                       )}
                     </div>
@@ -506,7 +506,7 @@ export default function ThoughtCoachWizard({ onClose }) {
       </div>
 
       {/* Navigation - Fixed at bottom above mobile nav */}
-      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 flex-shrink-0" style={{ marginBottom: 'calc(80px + env(safe-area-inset-bottom, 0))', zIndex: 10 }}>
+      <div className="bg-[hsl(var(--card)/0.97)] border-t shadow-lg fixed bottom-0 left-0 right-0 flex-shrink-0" style={{ marginBottom: 'calc(80px + env(safe-area-inset-bottom, 0))', zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full overflow-x-hidden">
           <div className="flex gap-3">
             {step > 1 && (

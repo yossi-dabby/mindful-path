@@ -319,7 +319,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   return (
     <div className={cn('flex gap-2 sm:gap-3 py-2 px-1 sm:px-2', isUser ? 'justify-end' : 'justify-start')} dir={dir}>
       {!isUser &&
-      <div className="bg-teal-100 text-teal-700 border border-teal-200 rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.ai_label')}>
+      <div className="bg-secondary/70 text-primary border border-border rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.ai_label')}>
           <Sparkles className="w-4 h-4" aria-hidden="true" />
         </div>
       }
@@ -346,8 +346,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
         <div className={cn(
           'px-4 sm:px-5 py-3 rounded-2xl shadow-[var(--shadow-sm)] min-w-0',
           isUser
-            ? 'bg-teal-600 text-white rounded-ee-md'
-            : 'bg-white/95 text-slate-800 border border-teal-100/90 rounded-es-md backdrop-blur-sm'
+            ? 'bg-primary text-primary-foreground rounded-ee-md'
+            : 'bg-[hsl(var(--card)/0.97)] text-foreground border border-border rounded-es-md backdrop-blur-sm'
         )}>
 
 
@@ -387,7 +387,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
             }
                 {content ?
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere !text-white" dir="auto">{content}</p> :
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere !text-primary-foreground" dir="auto">{content}</p> :
             null}
                 {/* Collapsible full PDF text — stored in metadata.pdf_extracted_text at send time */}
                 {isPdfAttachment && pdfFullText &&
@@ -461,7 +461,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
              }
                 {content ?
             <ReactMarkdown
-            className="prose prose-sm prose-slate max-w-none break-words [overflow-wrap:anywhere] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            className="prose prose-sm dark:prose-invert max-w-none break-words [overflow-wrap:anywhere] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             dir="auto"
             components={{
               code: ({ inline, className, children }) => {
@@ -582,7 +582,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
                   </div>
       {isUser &&
-      <div className="bg-teal-600 text-white rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.you_label')}>
+      <div className="bg-primary text-primary-foreground rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.you_label')}>
           <UserRound className="w-4 h-4" aria-hidden="true" />
         </div>
       }

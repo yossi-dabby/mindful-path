@@ -652,17 +652,17 @@ function TherapeuticFormsLibrary() {
   return (
     <div className="forms-library-teal mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom" dir={isRtl ? 'rtl' : 'ltr'} data-testid="therapeutic-forms-page">
       <div className="mb-8 mt-4">
-        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
-          <ClipboardList className="w-8 h-8 text-teal-600" />
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
+          <ClipboardList className="w-8 h-8 text-primary" />
           {t('therapeutic_forms.page_title')}
         </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="text-foreground">{t('therapeutic_forms.page_subtitle')}</p>
       </div>
 
-      <div className="mb-6 rounded-lg border border-teal-300 bg-white p-4 text-sm text-foreground" data-testid="ai-forms-callout">
+      <div className="mb-6 rounded-lg border border-border bg-[hsl(var(--card)/0.97)] p-4 text-sm text-foreground" data-testid="ai-forms-callout">
         <p>
           {calloutText}{' '}
-          <Link className="underline underline-offset-2 text-teal-600 hover:text-teal-500" to="/Chat">
+          <Link className="underline underline-offset-2 text-primary hover:text-primary" to="/Chat">
             {uiLabels.chat}
           </Link>
         </p>
@@ -680,8 +680,8 @@ function TherapeuticFormsLibrary() {
 
       <FormsViewModeToggle viewMode={viewMode} onChange={setViewMode} isRtl={isRtl} lang={lang} />
 
-      <div className="mb-6 rounded-[var(--radius-card)] border border-teal-200 bg-white p-4">
-        <p className="text-sm font-medium mb-2 text-teal-600">{t('therapeutic_forms.filter_audience')}</p>
+      <div className="mb-6 rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)] p-4">
+        <p className="text-sm font-medium mb-2 text-primary">{t('therapeutic_forms.filter_audience')}</p>
         <div className="flex flex-wrap gap-2" data-testid="audience-filter">
           {audienceButtons.map((option) => (
             <Button
@@ -689,7 +689,7 @@ function TherapeuticFormsLibrary() {
               type="button"
               size="sm"
               variant={selectedAudience === option.value ? 'default' : 'outline'}
-              className={selectedAudience === option.value ? 'bg-teal-600 hover:bg-teal-500 text-white border-teal-600' : 'border-teal-300 text-teal-600 hover:bg-teal-100'}
+              className={selectedAudience === option.value ? 'bg-primary hover:bg-primary text-white border-border' : 'border-border text-primary hover:bg-secondary/70'}
               onClick={() => {
                 setSelectedAudience(option.value);
                 setSelectedCollectionId(null);
@@ -708,7 +708,7 @@ function TherapeuticFormsLibrary() {
         collectionCards.length === 0 ? (
           <div
             data-testid="empty-state"
-            className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border border-teal-200 bg-white shadow-[var(--shadow-md)]"
+            className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)]"
           >
             <ClipboardList className="w-16 h-16 mx-auto mb-4 text-teal-300" />
             <p className="mb-2 text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
@@ -732,7 +732,7 @@ function TherapeuticFormsLibrary() {
         )
       ) : !selectedModule ? (
         modules.length === 0 ? (
-          <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-teal-200 bg-white">
+          <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)]">
             <p className="text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
             <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
           </div>
@@ -773,7 +773,7 @@ function TherapeuticFormsLibrary() {
           ) : null}
 
           {selectedModule.worksheetEntries.length === 0 ? (
-            <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-teal-200 bg-white">
+            <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)]">
               <p className="text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
               <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
             </div>
@@ -817,8 +817,8 @@ function TherapeuticFormsUnavailable() {
       data-testid="therapeutic-forms-page"
     >
       <div className="mb-8 mt-4">
-        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
-          <ClipboardList className="w-8 h-8 text-teal-600" aria-hidden="true" />
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
+          <ClipboardList className="w-8 h-8 text-primary" aria-hidden="true" />
           {t('therapeutic_forms.page_title')}
         </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="text-foreground">{t('therapeutic_forms.page_subtitle')}</p>
@@ -836,27 +836,27 @@ function TherapeuticFormsUnavailable() {
         <p className="mt-3 text-sm text-amber-900">{copy.metadata}</p>
       </section>
 
-      <section className="rounded-[var(--radius-card)] border border-teal-200 bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold text-teal-700">{copy.catalog}</h2>
+      <section className="rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)] p-5">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">{copy.catalog}</h2>
         <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" data-testid="forms-audience-architecture">
           {AUDIENCE_ORDER.map((audience) => (
-            <div key={audience} className="rounded-lg border border-teal-200 bg-teal-50 p-4">
-              <p className="font-medium text-teal-800">{t(`therapeutic_forms.audience.${audience}`)}</p>
+            <div key={audience} className="rounded-lg border border-border bg-secondary/70 p-4">
+              <p className="font-medium text-primary">{t(`therapeutic_forms.audience.${audience}`)}</p>
             </div>
           ))}
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" data-testid="forms-collection-architecture">
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <p className="font-medium text-slate-800">{uiLabels.core}</p>
+            <p className="font-medium text-foreground">{uiLabels.core}</p>
           </div>
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <p className="font-medium text-slate-800">{uiLabels.specialized}</p>
+            <p className="font-medium text-foreground">{uiLabels.specialized}</p>
           </div>
         </div>
       </section>
 
-      <div className="mt-6 rounded-lg border border-teal-300 bg-white p-4 text-sm text-foreground">
-        <Link className="underline underline-offset-2 text-teal-700 hover:text-teal-600" to="/Chat">
+      <div className="mt-6 rounded-lg border border-border bg-[hsl(var(--card)/0.97)] p-4 text-sm text-foreground">
+        <Link className="underline underline-offset-2 text-primary hover:text-primary" to="/Chat">
           {uiLabels.chat}
         </Link>
       </div>

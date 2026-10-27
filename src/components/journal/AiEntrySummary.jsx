@@ -91,12 +91,12 @@ export default function AiEntrySummary({ entry, onSummaryGenerated }) {
   if (!summary) return null;
 
   return (
-    <section className="mb-3 rounded-2xl border border-violet-200 bg-white/90 p-4" aria-label={t('journal_ui.ai.analysis_title')}>
+    <section className="mb-3 rounded-2xl border border-violet-200 bg-[hsl(var(--card)/0.97)] p-4" aria-label={t('journal_ui.ai.analysis_title')}>
       <div className="flex items-start gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100">
           <Sparkles className="h-4 w-4 text-violet-700" />
         </div>
-        <p className="min-w-0 flex-1 text-sm leading-relaxed text-slate-700">{summary}</p>
+        <p className="min-w-0 flex-1 text-sm leading-relaxed text-muted-foreground">{summary}</p>
       </div>
       <Button variant="ghost" onClick={generateSummary} className="mt-2 min-h-11 text-violet-700 hover:bg-violet-50">
         <RefreshCw className="h-4 w-4" />{t('journal_ui.ai.regenerate')}

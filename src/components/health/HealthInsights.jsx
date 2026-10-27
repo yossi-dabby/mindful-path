@@ -153,8 +153,8 @@ Be specific with data points and focus on actionable insights.`,
       <Card className="border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-white">
         <CardContent className="p-6 text-center">
           <Activity className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
-          <p className="text-gray-700 mb-2">Track health data to unlock holistic insights</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-muted-foreground mb-2">Track health data to unlock holistic insights</p>
+          <p className="text-sm text-muted-foreground">
             Log your sleep, activity, and health metrics to see how they correlate with your mental well-being
           </p>
         </CardContent>
@@ -167,8 +167,8 @@ Be specific with data points and focus on actionable insights.`,
       <Card className="border-2 border-purple-200 bg-card">
         <CardContent className="p-6 text-center">
           <Sparkles className="w-12 h-12 text-purple-600 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-800 mb-2">AI-Powered Holistic Analysis</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <h3 className="font-semibold text-foreground mb-2">AI-Powered Holistic Analysis</h3>
+          <p className="text-sm text-muted-foreground mb-4">
             Discover how your physical health impacts your mental well-being
           </p>
           <Button
@@ -188,7 +188,7 @@ Be specific with data points and focus on actionable insights.`,
       <Card className="border-2 border-purple-200">
         <CardContent className="p-8 text-center">
           <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
-          <p className="text-gray-600">Analyzing your health and mental well-being patterns...</p>
+          <p className="text-muted-foreground">Analyzing your health and mental well-being patterns...</p>
         </CardContent>
       </Card>
     );
@@ -206,8 +206,8 @@ Be specific with data points and focus on actionable insights.`,
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-800 mb-1">Holistic Health Score</h3>
-                <p className="text-sm text-gray-600">{insights.overall_health_score.summary}</p>
+                <h3 className="font-semibold text-foreground mb-1">Holistic Health Score</h3>
+                <p className="text-sm text-muted-foreground">{insights.overall_health_score.summary}</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-indigo-600">
@@ -222,18 +222,18 @@ Be specific with data points and focus on actionable insights.`,
       {/* Sleep-Mood Correlation */}
       <Card className="border-2 border-purple-200 bg-card">
         <CardContent className="p-4">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+          <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-600" />
             Sleep-Mood Correlation
           </h4>
           <div className="space-y-2 text-sm">
-            <div className="bg-white p-3 rounded-lg">
-              <p className="text-gray-500 text-xs mb-1">Correlation Strength</p>
-              <p className="font-medium text-gray-800">{insights.sleep_mood_correlation.correlation_strength}</p>
+            <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg">
+              <p className="text-muted-foreground text-xs mb-1">Correlation Strength</p>
+              <p className="font-medium text-foreground">{insights.sleep_mood_correlation.correlation_strength}</p>
             </div>
-            <div className="bg-white p-3 rounded-lg">
-              <p className="text-gray-700">{insights.sleep_mood_correlation.key_finding}</p>
-              <p className="text-gray-500 text-xs mt-2">{insights.sleep_mood_correlation.data_points}</p>
+            <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg">
+              <p className="text-muted-foreground">{insights.sleep_mood_correlation.key_finding}</p>
+              <p className="text-muted-foreground text-xs mt-2">{insights.sleep_mood_correlation.data_points}</p>
             </div>
           </div>
         </CardContent>
@@ -242,18 +242,18 @@ Be specific with data points and focus on actionable insights.`,
       {/* Activity-Energy Connection */}
       <Card className="border-2 border-green-200 bg-card">
         <CardContent className="p-4">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+          <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Activity className="w-5 h-5 text-green-600" />
             Activity-Energy Connection
           </h4>
           <div className="space-y-2 text-sm">
-            <div className="bg-white p-3 rounded-lg">
-              <p className="text-gray-500 text-xs mb-1">Correlation Strength</p>
-              <p className="font-medium text-gray-800">{insights.activity_energy_connection.correlation_strength}</p>
+            <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg">
+              <p className="text-muted-foreground text-xs mb-1">Correlation Strength</p>
+              <p className="font-medium text-foreground">{insights.activity_energy_connection.correlation_strength}</p>
             </div>
-            <div className="bg-white p-3 rounded-lg">
-              <p className="text-gray-700">{insights.activity_energy_connection.key_finding}</p>
-              <p className="mt-2 flex items-start gap-1.5 text-xs text-gray-500"><Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span>{insights.activity_energy_connection.optimal_activity_level}</span></p>
+            <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg">
+              <p className="text-muted-foreground">{insights.activity_energy_connection.key_finding}</p>
+              <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground"><Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span>{insights.activity_energy_connection.optimal_activity_level}</span></p>
             </div>
           </div>
         </CardContent>
@@ -263,18 +263,18 @@ Be specific with data points and focus on actionable insights.`,
       {insights.patterns?.length > 0 && (
         <Card className="border-2 border-blue-200 bg-card">
           <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-600" />
               Key Patterns Identified
             </h4>
             <div className="space-y-2">
               {insights.patterns.map((p, i) => (
-                <div key={i} className="bg-white p-3 rounded-lg">
+                <div key={i} className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg">
                   <div className="flex items-start justify-between mb-1">
-                    <p className="font-medium text-gray-800 text-sm">{p.pattern}</p>
-                    <span className="text-xs text-gray-500">{p.frequency}</span>
+                    <p className="font-medium text-foreground text-sm">{p.pattern}</p>
+                    <span className="text-xs text-muted-foreground">{p.frequency}</span>
                   </div>
-                  <p className="text-xs text-gray-600">{p.impact}</p>
+                  <p className="text-xs text-muted-foreground">{p.impact}</p>
                 </div>
               ))}
             </div>
@@ -286,20 +286,20 @@ Be specific with data points and focus on actionable insights.`,
       {insights.recommendations?.length > 0 && (
         <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white">
           <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <Heart className="w-5 h-5 text-orange-600" />
               Personalized Recommendations
             </h4>
             <div className="space-y-2">
               {insights.recommendations.map((rec, i) => (
-                <div key={i} className="bg-white p-3 rounded-lg border-l-4 border-orange-400">
+                <div key={i} className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg border-l-4 border-orange-400">
                   <div className="flex items-start justify-between mb-1">
-                    <p className="font-medium text-gray-800 text-sm">{rec.title}</p>
+                    <p className="font-medium text-foreground text-sm">{rec.title}</p>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
                       {rec.priority}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">{rec.description}</p>
+                  <p className="text-sm text-muted-foreground">{rec.description}</p>
                 </div>
               ))}
             </div>
@@ -311,10 +311,10 @@ Be specific with data points and focus on actionable insights.`,
       {insights.warning_signs?.length > 0 && (
         <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
           <CardContent className="p-4">
-            <h4 className="flex items-center gap-2 font-semibold text-gray-800 mb-3"><AlertTriangle className="h-4 w-4 text-red-600" aria-hidden="true" /> Areas Needing Attention</h4>
+            <h4 className="flex items-center gap-2 font-semibold text-foreground mb-3"><AlertTriangle className="h-4 w-4 text-red-600" aria-hidden="true" /> Areas Needing Attention</h4>
             <ul className="space-y-2">
               {insights.warning_signs.map((sign, i) => (
-                <li key={i} className="text-sm text-gray-700 flex items-start gap-2 bg-white p-2 rounded">
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-2 bg-[hsl(var(--card)/0.97)] p-2 rounded">
                   <span className="text-red-600">•</span>
                   <span>{sign}</span>
                 </li>

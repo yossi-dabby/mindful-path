@@ -46,12 +46,12 @@ export default function StreakWidget({ compact = false }) {
       <Card className="rounded-[26px] border hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden" style={{ borderColor: 'rgba(118, 170, 156, 0.3)', background: 'linear-gradient(180deg, rgba(255,248,238,0.98) 0%, rgba(239,247,242,0.96) 100%)', boxShadow: '0 22px 50px rgba(68, 108, 96, 0.13), 0 8px 18px rgba(68, 108, 96, 0.07)' }}>
         <CardContent className="p-5 text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[18px] bg-accent/18 text-accent shadow-[var(--shadow-sm)]">
-            <Flame className="text-teal-600 lucide lucide-flame w-8 h-8" strokeWidth={2} />
+            <Flame className="text-primary lucide lucide-flame w-8 h-8" strokeWidth={2} />
           </div>
-          <p className="text-teal-600 mb-1 text-2xl font-bold">
+          <p className="text-primary mb-1 text-2xl font-bold">
             {currentStreak}
           </p>
-          <p className="text-teal-600 text-xs">{t('gamification.streak.day_streak')}</p>
+          <p className="text-primary text-xs">{t('gamification.streak.day_streak')}</p>
         </CardContent>
       </Card>);
 
@@ -72,8 +72,8 @@ export default function StreakWidget({ compact = false }) {
                 <Flame className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-800">{t('gamification.streak.daily_title')}</h3>
-                <p className="text-xs text-gray-600">{t('gamification.streak.momentum')}</p>
+                <h3 className="font-semibold text-foreground">{t('gamification.streak.daily_title')}</h3>
+                <p className="text-xs text-muted-foreground">{t('gamification.streak.momentum')}</p>
               </div>
             </div>
             {currentStreak >= 7 &&
@@ -85,25 +85,25 @@ export default function StreakWidget({ compact = false }) {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4">
+            <div className="bg-[hsl(var(--card)/0.97)] backdrop-blur-sm rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Flame className="w-4 h-4 text-orange-600" />
-                <p className="text-xs text-gray-600">{t('gamification.streak.current')}</p>
+                <p className="text-xs text-muted-foreground">{t('gamification.streak.current')}</p>
               </div>
               <p className="text-3xl font-bold text-orange-600">
                 {currentStreak}
-                <span className="text-sm text-gray-500 ml-1">{t('gamification.streak.days')}</span>
+                <span className="text-sm text-muted-foreground ml-1">{t('gamification.streak.days')}</span>
               </p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4">
+            <div className="bg-[hsl(var(--card)/0.97)] backdrop-blur-sm rounded-xl p-4">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="w-4 h-4 text-purple-600" />
-                <p className="text-xs text-gray-600">{t('gamification.streak.best')}</p>
+                <p className="text-xs text-muted-foreground">{t('gamification.streak.best')}</p>
               </div>
               <p className="text-3xl font-bold text-purple-600">
                 {longestStreak}
-                <span className="text-sm text-gray-500 ml-1">{t('gamification.streak.days')}</span>
+                <span className="text-sm text-muted-foreground ml-1">{t('gamification.streak.days')}</span>
               </p>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function StreakWidget({ compact = false }) {
               })}
             </div>
             <div className="flex justify-between mt-2">
-              <p className="text-xs text-gray-500">{t('gamification.streak.seven_days')}</p>
+              <p className="text-xs text-muted-foreground">{t('gamification.streak.seven_days')}</p>
               {currentStreak >= 7 &&
               <p className="text-xs text-orange-600 font-semibold">{t('gamification.streak.week_complete')}</p>
               }
@@ -136,20 +136,20 @@ export default function StreakWidget({ compact = false }) {
 
           {/* Individual Activity Streaks */}
           <div className="mt-4 pt-4 border-t border-orange-200 grid grid-cols-3 gap-2">
-            <div className="text-center p-2 rounded-lg bg-white/50">
+            <div className="text-center p-2 rounded-lg bg-[hsl(var(--card)/0.97)]">
               <Heart className="w-4 h-4 mx-auto mb-1 text-pink-500" />
-              <p className="text-sm font-bold text-gray-800">{moodStreak?.current_streak || 0}</p>
-              <p className="text-xs text-gray-500">{t('gamification.streak.check_ins')}</p>
+              <p className="text-sm font-bold text-foreground">{moodStreak?.current_streak || 0}</p>
+              <p className="text-xs text-muted-foreground">{t('gamification.streak.check_ins')}</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-white/50">
+            <div className="text-center p-2 rounded-lg bg-[hsl(var(--card)/0.97)]">
               <BookOpen className="w-4 h-4 mx-auto mb-1 text-purple-500" />
-              <p className="text-sm font-bold text-gray-800">{journalStreak?.current_streak || 0}</p>
-              <p className="text-xs text-gray-500">{t('gamification.streak.journals')}</p>
+              <p className="text-sm font-bold text-foreground">{journalStreak?.current_streak || 0}</p>
+              <p className="text-xs text-muted-foreground">{t('gamification.streak.journals')}</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-white/50">
+            <div className="text-center p-2 rounded-lg bg-[hsl(var(--card)/0.97)]">
               <Dumbbell className="w-4 h-4 mx-auto mb-1 text-blue-500" />
-              <p className="text-sm font-bold text-gray-800">{exerciseStreak?.current_streak || 0}</p>
-              <p className="text-xs text-gray-500">{t('gamification.streak.exercises')}</p>
+              <p className="text-sm font-bold text-foreground">{exerciseStreak?.current_streak || 0}</p>
+              <p className="text-xs text-muted-foreground">{t('gamification.streak.exercises')}</p>
             </div>
           </div>
         </CardContent>

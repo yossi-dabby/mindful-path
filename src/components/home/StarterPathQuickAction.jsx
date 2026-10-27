@@ -146,7 +146,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
       data-testid="starter-path-quick-action"
     >
       <Card
-        className="overflow-hidden rounded-[24px] border border-teal-700/15 bg-card/95 shadow-[0_22px_55px_rgba(36,100,88,0.16)] backdrop-blur-xl transition-shadow hover:shadow-[0_28px_65px_rgba(36,100,88,0.2)]"
+        className="overflow-hidden rounded-[24px] border border-border bg-card/95 shadow-[0_22px_55px_rgba(36,100,88,0.16)] backdrop-blur-xl transition-shadow hover:shadow-[0_28px_65px_rgba(36,100,88,0.2)]"
         style={{
           background: expanded
             ? 'linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(226,247,240,0.98) 54%, rgba(217,241,236,0.98) 100%)'
@@ -162,7 +162,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
               <button
                 type="button"
                 onClick={onWatchVideo}
-                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 text-teal-700 transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 sm:h-14 sm:w-14"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] text-primary transition hover:-translate-y-0.5 hover:bg-[hsl(var(--card)/0.97)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:h-14 sm:w-14"
                 aria-label={t('starter_path.premium.watch_intro')}
                 title={t('starter_path.premium.watch_intro')}
                 data-testid="starter-path-video-button"
@@ -173,7 +173,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
 
             <div className="flex min-w-0 items-center gap-2">
               {isStarted && (
-                <Badge className="max-w-[9rem] truncate border border-teal-700/10 bg-white/75 px-2.5 py-1 text-xs font-bold text-teal-800 hover:bg-white/75">
+                <Badge className="max-w-[9rem] truncate border border-border bg-[hsl(var(--card)/0.97)] px-2.5 py-1 text-xs font-bold text-primary hover:bg-[hsl(var(--card)/0.97)]">
                   {isCompleted
                     ? t('starter_path.premium.completed_status')
                     : t('starter_path.card_day_badge', { day: currentDay })}
@@ -182,7 +182,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
               <button
                 type="button"
                 onClick={() => setExpanded((value) => !value)}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 text-teal-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] text-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[hsl(var(--card)/0.97)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-expanded={expanded}
                 aria-controls="starter-path-premium-panel"
                 aria-label={expanded ? t('starter_path.premium.collapse_aria') : t('starter_path.premium.expand_aria')}
@@ -197,15 +197,15 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
           </div>
 
           <div className="mt-4 min-w-0 text-start">
-            <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-teal-700/10 bg-white/65 px-2.5 py-1 text-[11px] font-semibold text-teal-700">
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-[hsl(var(--card)/0.97)] px-2.5 py-1 text-[11px] font-semibold text-primary">
               <Sparkles className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{t('starter_path.premium.badge')}</span>
             </span>
-            <h3 className="mt-2 break-words text-base font-bold leading-snug text-teal-900 sm:text-lg">
+            <h3 className="mt-2 break-words text-base font-bold leading-snug text-foreground sm:text-lg">
               {t('starter_path.card_title')}
             </h3>
             {!expanded && (
-              <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-slate-600">
+              <p className="mt-1 line-clamp-2 break-words text-xs leading-relaxed text-muted-foreground">
                 {t(descriptionKey)}
               </p>
             )}
@@ -224,27 +224,27 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                 className="overflow-hidden"
                 data-testid="starter-path-panel"
               >
-                <div className="mt-5 border-t border-teal-800/10 pt-5">
+                <div className="mt-5 border-t border-border pt-5">
                   <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(250px,0.65fr)]">
                     <div className="min-w-0">
-                      <h3 className="text-xl font-bold text-teal-950 sm:text-2xl">
+                      <h3 className="text-xl font-bold text-foreground sm:text-2xl">
                         {isCompleted
                           ? t('starter_path.premium.heading_completed')
                           : isStarted
                             ? t('starter_path.premium.heading_continue', { day: currentDay })
                             : t('starter_path.premium.heading_new')}
                       </h3>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
                         {t(descriptionKey)}
                       </p>
 
                       {isStarted && (
-                        <div className="mt-5 rounded-2xl border border-teal-800/10 bg-white/65 p-4" data-testid="starter-path-progress">
+                        <div className="mt-5 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-4" data-testid="starter-path-progress">
                           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-sm font-semibold text-teal-950">
+                            <span className="text-sm font-semibold text-primary">
                               {t('starter_path.premium.progress_label', { completed: completedDays })}
                             </span>
-                            <span className="text-xs font-medium text-slate-500">
+                            <span className="text-xs font-medium text-muted-foreground">
                               {Math.round(progressPercent)}%
                             </span>
                           </div>
@@ -275,8 +275,8 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                                     className={[
                                       'mx-auto flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition sm:h-9 sm:w-9',
                                       completed ? 'border-emerald-500 bg-emerald-500 text-white' : '',
-                                      current ? 'border-teal-600 bg-white text-teal-800 ring-4 ring-teal-500/15' : '',
-                                      !completed && !current ? 'border-teal-900/10 bg-white/55 text-slate-400' : ''
+                                      current ? 'border-border bg-[hsl(var(--card)/0.97)] text-primary ring-4 ring-ring' : '',
+                                      !completed && !current ? 'border-border bg-[hsl(var(--card)/0.97)] text-slate-400' : ''
                                     ].join(' ')}
                                     aria-label={t('starter_path.premium.day_label', { day })}
                                     aria-current={current ? 'step' : undefined}
@@ -291,14 +291,14 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                       )}
                     </div>
 
-                    <aside className="rounded-2xl border border-teal-800/10 bg-white/70 p-4 shadow-sm">
+                    <aside className="rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-4 shadow-sm">
                       <div className="flex items-start gap-3">
-                        <div className="rounded-xl bg-teal-700/10 p-2.5 text-teal-800">
+                        <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
                           <ShieldCheck className="h-5 w-5" />
                         </div>
                         <div>
-                          <p className="font-semibold text-teal-950">{t('starter_path.premium.protected_title')}</p>
-                          <p className="mt-1 text-xs leading-5 text-slate-600">{t('starter_path.premium.protected_note')}</p>
+                          <p className="font-semibold text-primary">{t('starter_path.premium.protected_title')}</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{t('starter_path.premium.protected_note')}</p>
                         </div>
                       </div>
                     </aside>
@@ -325,7 +325,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                   <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                     {isStarted ? (
                       <>
-                        <Button asChild className="h-12 min-h-12 flex-1 rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800">
+                        <Button asChild className="h-12 min-h-12 flex-1 rounded-full bg-primary px-6 text-base text-primary-foreground shadow-lg shadow-teal-900/15 hover:bg-primary">
                           <Link
                             to={createPageUrl('StarterPath')}
                             style={{ minHeight: '48px' }}
@@ -342,7 +342,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                             setFeedback(null);
                             setResetOpen(true);
                           }}
-                          className="h-12 min-h-12 rounded-full border-teal-800/20 bg-white/70 px-5 text-teal-900 hover:bg-white"
+                          className="h-12 min-h-12 rounded-full border-border bg-[hsl(var(--card)/0.97)] px-5 text-primary hover:bg-[hsl(var(--card)/0.97)]"
                           aria-label={t('starter_path.premium.reset_aria')}
                           data-testid="starter-path-reset-button"
                         >
@@ -355,7 +355,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                         type="button"
                         onClick={() => startPathMutation.mutate()}
                         disabled={startPathMutation.isPending}
-                        className="h-12 min-h-12 w-full rounded-full bg-teal-700 px-6 text-base text-white shadow-lg shadow-teal-900/15 hover:bg-teal-800"
+                        className="h-12 min-h-12 w-full rounded-full bg-primary px-6 text-base text-primary-foreground shadow-lg shadow-teal-900/15 hover:bg-primary"
                         data-testid="starter-path-start-button"
                       >
                         {startPathMutation.isPending && <RefreshCw className="me-2 h-4 w-4 animate-spin" />}
@@ -376,8 +376,8 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
             <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
               <RefreshCw className="h-6 w-6" />
             </div>
-            <AlertDialogTitle className="text-xl text-slate-950">{t('starter_path.premium.reset_title')}</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm leading-6 text-slate-600">
+            <AlertDialogTitle className="text-xl text-foreground">{t('starter_path.premium.reset_title')}</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm leading-6 text-muted-foreground">
               {t('starter_path.premium.reset_description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -391,7 +391,7 @@ export default function StarterPathQuickAction({ onWatchVideo }) {
                 resetPathMutation.mutate();
               }}
               disabled={resetPathMutation.isPending}
-              className="min-h-11 rounded-full bg-teal-700 text-white hover:bg-teal-800"
+              className="min-h-11 rounded-full bg-primary text-primary-foreground hover:bg-primary"
               data-testid="starter-path-reset-confirm"
             >
               {resetPathMutation.isPending && <RefreshCw className="me-2 h-4 w-4 animate-spin" />}

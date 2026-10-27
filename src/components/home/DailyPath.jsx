@@ -38,9 +38,9 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
   return (
     <section className="botanical-daily-path" data-testid="daily-path">
       <div className="botanical-section-heading">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">{t('daily_path.eyebrow')}</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{t('daily_path.title')}</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{t('daily_path.description')}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">{t('daily_path.eyebrow')}</p>
+        <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground">{t('daily_path.title')}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('daily_path.description')}</p>
       </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {steps.map(({ key, Icon, complete, onClick, disabled, modeLabel }) => (
@@ -50,16 +50,16 @@ export default function DailyPath({ checkInComplete, exerciseComplete, hasRecomm
               onClick={onClick}
               disabled={disabled}
               data-testid={`daily-path-${key}`}
-              className="botanical-daily-card group flex min-h-[132px] flex-col rounded-[24px] border border-teal-100 bg-gradient-to-br from-white to-teal-50/70 p-4 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:opacity-60"
+              className="botanical-daily-card group flex min-h-[132px] flex-col rounded-[24px] border border-border bg-gradient-to-br from-white to-teal-50/70 p-4 text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-border hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
             >
               <BotanicalAccent variant={key === 'checkin' ? 'progress' : key === 'coach' ? 'leaves' : 'sprout'} className="botanical-daily-art" /><div className="botanical-daily-status flex w-full items-center justify-between gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-100 text-teal-700"><Icon className="h-5 w-5" /></span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary/70 text-primary"><Icon className="h-5 w-5" /></span>
                 {complete ? <Check className="h-5 w-5 text-emerald-600" /> : <Circle className="h-4 w-4 text-teal-300" />}
               </div>
-              <span className="mt-3 text-sm font-bold text-slate-900">{t(`daily_path.${key}.title`)}</span>
+              <span className="mt-3 text-sm font-bold text-foreground">{t(`daily_path.${key}.title`)}</span>
               {modeLabel && <span className={cn('mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-bold', key === 'checkin' ? 'bg-amber-100 text-amber-800' : 'bg-violet-100 text-violet-800')}>{modeLabel}</span>}
-              <span className="mt-1 flex-1 text-xs leading-5 text-slate-500">{t(`daily_path.${key}.description`)}</span>
-              <span className="mt-3 inline-flex items-center text-xs font-bold text-teal-700">
+              <span className="mt-1 flex-1 text-xs leading-5 text-muted-foreground">{t(`daily_path.${key}.description`)}</span>
+              <span className="mt-3 inline-flex items-center text-xs font-bold text-primary">
                 {t('daily_path.open')}
                 <Arrow className="ms-1 h-3.5 w-3.5" />
               </span>

@@ -79,18 +79,18 @@ export default function DeleteAccountFlow({ userRole }) {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-muted-foreground">
                     {t('settings.account.delete_confirm_description')}
                   </p>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-900">
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">
                       {t('settings.account.delete_confirm_label')}
                     </label>
                     <Input
                       value={confirmationText}
                       onChange={(e) => setConfirmationText(e.target.value)}
                       placeholder={t('settings.account.delete_confirm_placeholder')}
-                      className="rounded-xl bg-white"
+                      className="rounded-xl bg-[hsl(var(--card)/0.97)]"
                       autoCapitalize="characters"
                       autoComplete="off"
                       data-testid="delete-account-input"

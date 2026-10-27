@@ -173,3 +173,7 @@
 .dark .garden-public-background,.dark .garden-flow-shell {
   background-image:linear-gradient(hsl(var(--background)/.90),hsl(var(--background)/.84)),url('/art/botanical/garden-path-v2.webp');
 }
+
+/* Keep reading surfaces quiet while the shared garden stays between sections. */
+.garden-chat-content { border-radius:24px; background:hsl(var(--card)/.94); }
+.garden-chat [data-testid="chat-welcome"] { box-shadow:var(--shadow-md); }

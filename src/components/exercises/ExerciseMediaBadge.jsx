@@ -7,7 +7,7 @@ const mediaConfig = {
   audio: { icon: Headphones, translationKey: 'exercises.detail.tabs.audio', color: 'bg-purple-100 text-purple-700' },
   video: { icon: Play, translationKey: 'exercises.detail.video_label', color: 'bg-red-100 text-red-700' },
   visualization: { icon: Eye, translationKey: 'exercises.detail.guided_visualization', color: 'bg-blue-100 text-blue-700' },
-  text: { icon: FileText, translationKey: 'exercises.detail.tabs.overview', color: 'bg-gray-100 text-gray-700' }
+  text: { icon: FileText, translationKey: 'exercises.detail.tabs.overview', color: 'bg-gray-100 text-muted-foreground' }
 };
 
 export default function ExerciseMediaBadge({ mediaType, size = 'sm' }) {

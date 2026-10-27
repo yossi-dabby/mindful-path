@@ -31,7 +31,7 @@ describe('Premium brand and icon refresh contract', () => {
     expect(quickActions).toContain('CirclePlay');
     expect(quickActions).not.toContain('<User');
     expect(home.match(/<CirclePlay className="h-6 w-6" strokeWidth=\{2\.2\} \/>/g)).toHaveLength(2);
-    expect(home.match(/rounded-2xl border border-teal-700\/10 bg-white\/75/g)).toHaveLength(2);
+    expect(home.match(/rounded-2xl border border-border bg-\[hsl\(var\(--card\)\/0\.97\)\]/g)).toHaveLength(2);
     expect(home).not.toContain('<Sparkles className="w-4 h-4 text-accent"');
   });
 

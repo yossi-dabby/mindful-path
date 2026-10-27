@@ -163,11 +163,11 @@ Be specific, encouraging, and reference their actual data.`,
       {/* Quick Alerts */}
       {(daysSinceJournal > 5 || daysSinceMood > 3 || staleGoals.length > 0) &&
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
-          <CardContent className="bg-teal-100 p-4">
+          <CardContent className="bg-secondary/70 p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="mb-2 font-semibold text-teal-800">{t('coach.insights.activity_title')}</h3>
+                <h3 className="mb-2 font-semibold text-foreground">{t('coach.insights.activity_title')}</h3>
                 <ul className="space-y-1 text-sm text-foreground/85">
                   {daysSinceJournal > 5 &&
                 <li>• {t('coach.insights.journal_days', { count: daysSinceJournal })}</li>
@@ -188,12 +188,12 @@ Be specific, encouraging, and reference their actual data.`,
       {/* Generate Insights */}
       {!insights && !isGenerating &&
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-          <CardContent className="bg-teal-100 p-6 text-center">
-            <Brain className="text-teal-600 mb-3 mx-auto lucide lucide-brain w-12 h-12" />
-            <h3 className="mb-2 text-lg font-bold text-teal-800">{t('coach.insights.title')}</h3>
-            <p className="mx-auto mb-4 max-w-xl text-sm leading-6 text-slate-600">{t('coach.insights.description')}</p>
+          <CardContent className="bg-secondary/70 p-6 text-center">
+            <Brain className="text-primary mb-3 mx-auto lucide lucide-brain w-12 h-12" />
+            <h3 className="mb-2 text-lg font-bold text-foreground">{t('coach.insights.title')}</h3>
+            <p className="mx-auto mb-4 max-w-xl text-sm leading-6 text-muted-foreground">{t('coach.insights.description')}</p>
             <Button
-            onClick={generateInsights} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
+            onClick={generateInsights} className="bg-primary text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
 
               <Sparkles className="w-4 h-4 mr-2" />
               {t('coach.insights.generate')}
@@ -212,7 +212,7 @@ Be specific, encouraging, and reference their actual data.`,
       }
 
       {generationError && !isGenerating && (
-        <Card className="border border-red-200 bg-white/90 shadow-sm">
+        <Card className="border border-red-200 bg-[hsl(var(--card)/0.97)] shadow-sm">
           <CardContent className="flex flex-col items-center gap-3 p-5 text-center">
             <AlertCircle className="h-6 w-6 text-red-500" />
             <p className="text-sm text-red-700" role="alert">{t('coach.insights.error')}</p>
@@ -258,15 +258,15 @@ Be specific, encouraging, and reference their actual data.`,
                   {safeArray(insights.recurring_patterns).filter((p) => p && (p.pattern || typeof p === 'string')).map((pattern, i) =>
               <div key={i} className="bg-secondary/45 p-3 rounded-[var(--radius-control)] border border-border/60">
                       <div className="flex items-start justify-between mb-1">
-                        <p className="font-medium text-gray-800 text-sm">
+                        <p className="font-medium text-foreground text-sm">
                           {typeof pattern === 'string' ? pattern : pattern.pattern}
                         </p>
                         {typeof pattern === 'object' && pattern.frequency &&
-                  <span className="text-xs text-gray-500">{pattern.frequency}</span>
+                  <span className="text-xs text-muted-foreground">{pattern.frequency}</span>
                   }
                       </div>
                       {typeof pattern === 'object' && pattern.impact &&
-                <p className="text-xs text-gray-600">{pattern.impact}</p>
+                <p className="text-xs text-muted-foreground">{pattern.impact}</p>
                 }
                     </div>
               )}
@@ -286,17 +286,17 @@ Be specific, encouraging, and reference their actual data.`,
                 <div className="space-y-3">
                   {safeArray(insights.cbt_recommendations).filter((r) => r && (r.exercise_category || typeof r === 'string')).map((rec, i) =>
               <div key={i} className="bg-secondary/45 p-3 rounded-[var(--radius-control)] border border-border/60">
-                      <p className="font-medium text-gray-800 text-sm capitalize mb-1">
+                      <p className="font-medium text-foreground text-sm capitalize mb-1">
                         {typeof rec === 'string' ? rec : (rec.exercise_category || '').replace(/_/g, ' ')}
                       </p>
                       {typeof rec === 'object' && rec.reason &&
-                <p className="text-xs text-gray-600 mb-2">{rec.reason}</p>
+                <p className="text-xs text-muted-foreground mb-2">{rec.reason}</p>
                 }
                       {typeof rec === 'object' && rec.expected_benefit &&
                 <p className="flex items-start gap-1.5 text-xs text-primary italic"><PremiumIcon name="idea" size="sm" bare className="mt-0.5 shrink-0" /><span>{rec.expected_benefit}</span></p>
                 }
                       {matchedExercises[i] &&
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                           {t('coach.insights.try')}: <span className="font-medium">{matchedExercises[i].title}</span>
                         </p>
                 }
@@ -318,11 +318,11 @@ Be specific, encouraging, and reference their actual data.`,
                 <div className="space-y-3">
                   {safeArray(insights.goal_insights).filter((g) => g && (g.goal_title || typeof g === 'string')).map((insight, i) =>
               <div key={i} className="bg-secondary/45 p-3 rounded-[var(--radius-control)] border border-border/60">
-                      <p className="font-medium text-gray-800 text-sm mb-1">
+                      <p className="font-medium text-foreground text-sm mb-1">
                         {typeof insight === 'string' ? insight : insight.goal_title}
                       </p>
                       {typeof insight === 'object' && insight.connection &&
-                <p className="text-xs text-gray-600 mb-2">{insight.connection}</p>
+                <p className="text-xs text-muted-foreground mb-2">{insight.connection}</p>
                 }
                       {typeof insight === 'object' && insight.suggestion &&
                 <p className="text-xs text-primary">→ {insight.suggestion}</p>

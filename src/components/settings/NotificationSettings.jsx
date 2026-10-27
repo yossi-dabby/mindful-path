@@ -20,14 +20,14 @@ function PrefRow({ pref, checked, onChange, disabled, alwaysOnLabel }) {
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold leading-5 text-slate-800">{pref.label}</p>
+            <p className="text-sm font-semibold leading-5 text-foreground">{pref.label}</p>
             {pref.alwaysOn && (
-              <Badge className="border-0 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+              <Badge className="border-0 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 {alwaysOnLabel}
               </Badge>
             )}
           </div>
-          <p className="mt-1 text-xs leading-5 text-slate-500">{pref.description}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{pref.description}</p>
         </div>
       </div>
       <Switch
@@ -161,16 +161,16 @@ export default function NotificationSettings({ notifications, emailNotifications
         return (
           <Card
             key={group.id}
-            className="settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl"
+            className="settings-surface overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl"
           >
-            <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+            <CardHeader className="border-b border-border p-5 sm:p-6">
               <CardTitle className="flex items-start gap-3 text-base sm:text-lg">
                 <span className={'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ' + group.iconClass}>
                   <GroupIcon className="h-5 w-5" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block font-bold text-slate-800">{group.title}</span>
-                  <span className="mt-1 block text-xs font-normal leading-5 text-slate-500">{group.description}</span>
+                  <span className="block font-bold text-foreground">{group.title}</span>
+                  <span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground">{group.description}</span>
                 </span>
               </CardTitle>
             </CardHeader>

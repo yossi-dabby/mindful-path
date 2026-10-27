@@ -35,29 +35,29 @@ export function PremiumCoachShell({
 
   return createPortal((
     <div
-      className="garden-flow-shell fixed inset-0 z-[70] flex h-dvh w-full flex-col overflow-hidden bg-background text-slate-900"
+      className="garden-flow-shell fixed inset-0 z-[70] flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground"
       data-testid={testId}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div className="pointer-events-none absolute start-0 top-20 h-56 w-56 rounded-full bg-teal-300/20 blur-3xl" />
       <div className="pointer-events-none absolute bottom-20 end-0 h-56 w-56 rounded-full bg-violet-300/15 blur-3xl" />
 
-      <header className="relative z-10 shrink-0 border-b border-white/70 bg-card/95 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl">
+      <header className="relative z-10 shrink-0 border-b border-border/70 bg-card/95 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl">
         <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)]">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_24px_rgba(13,148,136,0.24)]">
               <Icon className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="botanical-title-row"><h1 className="truncate text-lg font-bold tracking-tight text-teal-950 sm:text-xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-              <p className="mt-0.5 text-xs font-semibold text-teal-700 sm:text-sm">{stepLabel}</p>
+              <div className="botanical-title-row"><h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+              <p className="mt-0.5 text-xs font-semibold text-primary sm:text-sm">{stepLabel}</p>
             </div>
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={step > 1 ? onBack : onClose}
-              className="h-12 w-12 shrink-0 rounded-2xl border border-teal-900/10 bg-card/95 text-teal-800 shadow-sm hover:bg-white focus-visible:ring-2 focus-visible:ring-teal-600"
+              className="h-12 w-12 shrink-0 rounded-2xl border border-border bg-card/95 text-primary shadow-sm hover:bg-[hsl(var(--card)/0.97)] focus-visible:ring-2 focus-visible:ring-ring"
               aria-label={step > 1 ? backAriaLabel : closeAriaLabel}
               data-testid="coach-header-action"
             >
@@ -69,7 +69,7 @@ export function PremiumCoachShell({
             {[1, 2, 3, 4].map((item) => (
               <span
                 key={item}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${item <= step ? 'bg-teal-600' : 'bg-teal-900/10'}`}
+                className={`h-1.5 flex-1 rounded-full transition-colors ${item <= step ? 'bg-primary' : 'bg-teal-900/10'}`}
               />
             ))}
           </div>
@@ -84,7 +84,7 @@ export function PremiumCoachShell({
         </div>
       </main>
 
-      <footer className="relative z-10 shrink-0 border-t border-white/75 bg-card/95 shadow-[0_-10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <footer className="relative z-10 shrink-0 border-t border-border/70 bg-card/95 shadow-[0_-10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6">{footer}</div>
       </footer>
     </div>
@@ -94,10 +94,10 @@ export function PremiumCoachShell({
 export function PremiumStepHeading({ title, subtitle }) {
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-bold leading-tight tracking-tight text-teal-950 sm:text-2xl">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">{subtitle}</p>
+      <h2 className="text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">{subtitle}</p>
     </div>
   );
 }
 
-export const premiumInputClass = 'min-h-12 rounded-2xl border-teal-900/15 bg-white/90 text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus-visible:border-teal-500 focus-visible:ring-2 focus-visible:ring-teal-500/25';
+export const premiumInputClass = 'min-h-12 rounded-2xl border-border bg-[hsl(var(--card)/0.97)] text-foreground shadow-sm outline-none placeholder:text-slate-400 focus-visible:border-border focus-visible:ring-2 focus-visible:ring-ring';

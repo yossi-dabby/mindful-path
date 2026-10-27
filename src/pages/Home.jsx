@@ -275,7 +275,7 @@ export default function Home() {
         </div>
 
           {/* Secondary Content - Progress Context */}
-        <div className="hidden bg-teal-50 text-emerald-200 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="hidden bg-secondary/70 text-emerald-200 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -297,15 +297,15 @@ export default function Home() {
                   </Button>
                 </Link>
                   }
-              <p className="text-teal-600 text-2xl font-bold">{recentGoals.length}</p>
+              <p className="text-primary text-2xl font-bold">{recentGoals.length}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-teal-600 text-xs">{t('home.active_goals')}</p>
+              <p className="text-primary text-xs">{t('home.active_goals')}</p>
             </div>
             <Button
                   onClick={() => setShowGoalsVideo(true)}
                   size="icon"
-                  variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 p-0 text-teal-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-0 text-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[hsl(var(--card)/0.97)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 
                   title={t('home.aria.watch_help_video')}
                   aria-label={t('home.aria.watch_goals_help_video')} mobileLabelKey="video">
@@ -314,7 +314,7 @@ export default function Home() {
             </Button>
           </div>
           <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.3)] bg-[linear-gradient(180deg,rgba(252,248,241,0.98)_0%,rgba(232,246,241,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
-            <div className="text-teal-600 mb-1 flex items-center justify-center gap-2">
+            <div className="text-primary mb-1 flex items-center justify-center gap-2">
               {savedEntryId &&
                   <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
                   <Button
@@ -323,19 +323,19 @@ export default function Home() {
                       className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
                       aria-label={t('home.aria.view_journal_entry')} mobileLabelKey="details">
 
-                    <BookOpen className="text-teal-600 lucide lucide-book-open w-4 h-4" />
+                    <BookOpen className="text-primary lucide lucide-book-open w-4 h-4" />
                   </Button>
                 </Link>
                   }
-              <p className="text-teal-600 text-2xl font-bold">{journalCount}</p>
+              <p className="text-primary text-2xl font-bold">{journalCount}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-teal-600 text-xs">{t('home.journal_entries')}</p>
+              <p className="text-primary text-xs">{t('home.journal_entries')}</p>
             </div>
             <Button
                   onClick={() => setShowJournalVideo(true)}
                   size="icon"
-                  variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-teal-700/10 bg-white/75 p-0 text-teal-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+                  variant="ghost" className="mt-2 mx-auto flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-0 text-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-[hsl(var(--card)/0.97)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 
                   title={t('home.aria.watch_help_video')}
                   aria-label={t('home.aria.watch_journal_help_video')} mobileLabelKey="video">
@@ -386,7 +386,7 @@ export default function Home() {
         </div>
 
         {/* Supporting Actions */}
-        <div className="hidden bg-teal-50 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
+        <div className="hidden bg-secondary/70 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
 

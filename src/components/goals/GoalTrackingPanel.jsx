@@ -135,15 +135,15 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-purple-600">{Math.round(goal.progress || 0)}%</p>
-              <p className="text-sm text-gray-600">Overall Progress</p>
+              <p className="text-sm text-muted-foreground">Overall Progress</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-600">{avgEffort.toFixed(1)}/10</p>
-              <p className="text-sm text-gray-600">Avg Effort (7d)</p>
+              <p className="text-sm text-muted-foreground">Avg Effort (7d)</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">{avgMood.toFixed(1)}/10</p>
-              <p className="text-sm text-gray-600">Avg Mood (7d)</p>
+              <p className="text-sm text-muted-foreground">Avg Mood (7d)</p>
             </div>
           </div>
         </CardContent>
@@ -163,7 +163,7 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
               key={i}
               className={cn(
                 "flex items-center justify-between p-3 rounded-lg border",
-                milestone.completed ? "bg-green-50 border-green-200" : "bg-white"
+                milestone.completed ? "bg-green-50 border-green-200" : "bg-[hsl(var(--card)/0.97)]"
               )}
             >
               <div className="flex items-center gap-3">
@@ -176,12 +176,12 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
                 <div>
                   <p className={cn(
                     "font-medium",
-                    milestone.completed && "line-through text-gray-500"
+                    milestone.completed && "line-through text-muted-foreground"
                   )}>
                     {milestone.title}
                   </p>
                   {milestone.completed && milestone.completed_date && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       Completed {format(new Date(milestone.completed_date), 'MMM d, yyyy')}
                     </p>
                   )}
@@ -304,7 +304,7 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
           ) : (
             <div className="space-y-2">
               {recentCheckIns.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">
+                <p className="text-sm text-muted-foreground text-center py-4">
                   No check-ins yet. Start tracking your progress!
                 </p>
               ) : (
@@ -318,7 +318,7 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
                       </div>
                     </div>
                     {checkIn.progress_notes && (
-                      <p className="text-sm text-gray-600">{checkIn.progress_notes}</p>
+                      <p className="text-sm text-muted-foreground">{checkIn.progress_notes}</p>
                     )}
                   </div>
                 ))

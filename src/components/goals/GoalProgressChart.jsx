@@ -96,8 +96,8 @@ export default function GoalProgressChart({ goal }) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-sm font-medium text-gray-800">{data.date}</p>
+        <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg shadow-lg border border-gray-200">
+          <p className="text-sm font-medium text-foreground">{data.date}</p>
           <p className="text-sm text-blue-600 font-semibold">
             {payload[0].value.toFixed(1)}% complete
           </p>
@@ -119,9 +119,9 @@ export default function GoalProgressChart({ goal }) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="text-lg">Progress Over Time</span>
-          <div className="flex items-center gap-2 text-sm font-normal text-gray-600">
+          <div className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
             <TrendingUp className={`w-4 h-4 ${velocity > 0 ? 'text-green-600' : 'text-gray-400'}`} />
-            <span className={velocity > 0 ? 'text-green-600' : 'text-gray-600'}>
+            <span className={velocity > 0 ? 'text-green-600' : 'text-muted-foreground'}>
               {velocity > 0 ? '+' : ''}{velocity.toFixed(1)}% per week
             </span>
           </div>

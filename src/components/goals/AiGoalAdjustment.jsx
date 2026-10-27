@@ -218,7 +218,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
               </div>
               <div>
                 <CardTitle>AI Goal Adjustment</CardTitle>
-                <p className="text-sm text-gray-600">Based on {journalEntries.length} journal entries</p>
+                <p className="text-sm text-muted-foreground">Based on {journalEntries.length} journal entries</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">✕</Button>
@@ -230,7 +230,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
             <div className="text-center py-8">
               <Sparkles className="w-12 h-12 text-purple-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Get AI-Powered Suggestions</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Analyze your journal entries and mood data to get personalized recommendations for adjusting this goal.
               </p>
               <Button
@@ -247,7 +247,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           {isGenerating && (
             <div className="text-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
-              <p className="text-gray-600">Analyzing your journal data...</p>
+              <p className="text-muted-foreground">Analyzing your journal data...</p>
             </div>
           )}
 
@@ -266,7 +266,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                   <Brain className="w-4 h-4 text-purple-600" />
                   Overall Assessment
                 </h3>
-                <p className="text-sm text-gray-700">{suggestions.overall_assessment}</p>
+                <p className="text-sm text-muted-foreground">{suggestions.overall_assessment}</p>
               </div>
 
               {/* Milestone Adjustments */}
@@ -275,7 +275,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-semibold mb-1">Milestone Adjustments</h3>
-                      <p className="text-sm text-gray-600">{suggestions.milestone_adjustments.recommendation}</p>
+                      <p className="text-sm text-muted-foreground">{suggestions.milestone_adjustments.recommendation}</p>
                     </div>
                     <Button size="sm" onClick={applyMilestones}>Apply</Button>
                   </div>
@@ -285,7 +285,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                         <div key={i} className="bg-gray-50 p-3 rounded-lg">
                           <p className="font-medium text-sm">{milestone.title}</p>
                           {milestone.description && (
-                            <p className="text-xs text-gray-600 mt-1">{milestone.description}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{milestone.description}</p>
                           )}
                         </div>
                       ))}
@@ -300,7 +300,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h3 className="font-semibold mb-1">Timeline Adjustment</h3>
-                      <p className="text-sm text-gray-600 mb-2">{suggestions.timeline_adjustment.recommendation}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{suggestions.timeline_adjustment.recommendation}</p>
                       {suggestions.timeline_adjustment.suggested_date && (() => {
                         try {
                           const date = new Date(suggestions.timeline_adjustment.suggested_date);
@@ -314,7 +314,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                           return null;
                         }
                       })()}
-                      <p className="text-xs text-gray-500 mt-2">{suggestions.timeline_adjustment.reasoning}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{suggestions.timeline_adjustment.reasoning}</p>
                     </div>
                     <Button size="sm" onClick={applyTimeline}>Apply</Button>
                   </div>
@@ -325,14 +325,14 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
               {suggestions.obstacle_strategies && (
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Obstacle Management</h3>
-                  <p className="text-sm text-gray-600 mb-3">{suggestions.obstacle_strategies.recommendation}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{suggestions.obstacle_strategies.recommendation}</p>
                   {suggestions.obstacle_strategies.new_coping_skills?.length > 0 && (
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-gray-600 mb-2">Suggested Coping Skills:</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-2">Suggested Coping Skills:</p>
                       {suggestions.obstacle_strategies.new_coping_skills.map((skill, i) => (
                         <div key={i} className="flex items-start gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
-                          <p className="text-sm text-gray-700">{skill}</p>
+                          <p className="text-sm text-muted-foreground">{skill}</p>
                         </div>
                       ))}
                     </div>
@@ -346,13 +346,13 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h3 className="font-semibold mb-1">New Strategies</h3>
-                      <p className="text-sm text-gray-600 mb-3">{suggestions.new_strategies.recommendation}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{suggestions.new_strategies.recommendation}</p>
                       {suggestions.new_strategies.strategies?.length > 0 && (
                         <div className="space-y-2">
                           {suggestions.new_strategies.strategies.map((strategy, i) => (
                             <div key={i} className="flex items-start gap-2">
                               <TrendingUp className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              <p className="text-sm text-gray-700">{strategy}</p>
+                              <p className="text-sm text-muted-foreground">{strategy}</p>
                             </div>
                           ))}
                         </div>

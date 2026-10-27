@@ -132,7 +132,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
           {step === 1 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">
                   How are you feeling overall?
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -144,11 +144,11 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                         "p-4 rounded-2xl border-2 transition-all hover:scale-105",
                         formData.mood === mood.value
                           ? "border-green-500 bg-green-50 shadow-md"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          : "border-gray-200 bg-[hsl(var(--card)/0.97)] hover:border-gray-300"
                       )}
                     >
                       <PremiumMoodIcon mood={mood.value} size="md" selected={formData.mood === mood.value} className="mb-2" />
-                      <div className="text-sm font-medium text-gray-700">{mood.label}</div>
+                      <div className="text-sm font-medium text-muted-foreground">{mood.label}</div>
                     </button>
                   ))}
                 </div>
@@ -166,7 +166,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">
                   What emotions are you experiencing?
                 </h3>
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -189,7 +189,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
                   Intensity (1-10)
                 </label>
                 <div className="flex items-center gap-4">
@@ -228,12 +228,12 @@ export default function MoodCheckIn({ onClose, onComplete }) {
           {step === 3 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                <h3 className="text-lg font-semibold mb-3 text-foreground">
                   Energy & Sleep
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
                       Energy Level
                     </label>
                     <div className="grid grid-cols-5 gap-1 sm:gap-2">
@@ -255,7 +255,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
                       Sleep Quality (last night)
                     </label>
                     <div className="grid grid-cols-4 gap-1 sm:gap-2">
@@ -277,7 +277,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
                       Stress Level (1-10)
                     </label>
                     <div className="flex items-center gap-4">
@@ -318,7 +318,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
           {step === 4 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                <h3 className="text-lg font-semibold mb-3 text-foreground">
                   What triggered your mood?
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -341,7 +341,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                <h3 className="text-lg font-semibold mb-3 text-foreground">
                   Activities today
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -384,7 +384,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
           {step === 5 && (
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-muted-foreground mb-2 block">
                   Additional notes (optional)
                 </label>
                 <Textarea
