@@ -33,50 +33,35 @@ const PRIORITY_DOT = {
 function NotificationItem({ notification, onMarkRead, onDelete, dateLocale, deleteLabel }) {
   const Icon = TYPE_ICON[notification.type] || Info;
   const isUnread = !notification.is_read;
-
-  const handleClick = () => {
-    if (isUnread) onMarkRead(notification.id);
-    if (notification.action_url) window.location.href = notification.action_url;
-  };
+  const Action = notification.action_url ? 'a' : 'button';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 10 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -10 }}
-      className={`flex gap-3 p-3 rounded-[var(--radius-control)] cursor-pointer transition-colors border ${isUnread ? 'bg-secondary/70 border-border/70' : 'bg-card border-transparent hover:bg-secondary/60'}`}
-      onClick={handleClick}>
-
-      <div className="flex-shrink-0 w-9 h-9 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center">
-        <Icon className="w-4 h-4 text-primary" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <p dir="auto" className={`text-sm font-medium leading-tight ${isUnread ? 'text-foreground' : 'text-foreground/80'}`}>{notification.title}</p>
-          <button
-            onClick={(e) => {e.stopPropagation();onDelete(notification.id);}}
-            className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
-            aria-label={deleteLabel}>
-
-            <X className="w-3.5 h-3.5" />
-          <span className="mobile-action-label md:hidden">{deleteLabel}</span></button>
-        </div>
-        <p dir="auto" className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-muted-foreground/80">
-            {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true, locale: dateLocale })}
+    <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+      className={`flex min-w-0 items-start gap-1 rounded-[var(--radius-control)] border p-2 ${isUnread ? 'bg-secondary/70 border-border/70' : 'bg-card border-transparent'}`}>
+      <Action
+        {...(notification.action_url ? { href: notification.action_url } : { type: 'button' })}
+        onClick={() => { if (isUnread) onMarkRead(notification.id); }}
+        className="flex min-w-0 flex-1 items-start gap-3 rounded-lg p-1 text-start text-foreground transition-colors hover:bg-secondary/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-secondary"><Icon className="h-4 w-4 text-primary" /></span>
+        <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+          <span dir="auto" className="block text-sm font-medium leading-snug text-foreground">{notification.title}</span>
+          <span dir="auto" className="mt-0.5 block text-xs leading-relaxed text-foreground">{notification.message}</span>
+          <span className="mt-1 flex flex-wrap items-center gap-2 text-xs leading-relaxed text-foreground">
+            <span>{formatDistanceToNow(new Date(notification.created_date), { addSuffix: true, locale: dateLocale })}</span>
+            {isUnread && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />}
+            {(notification.priority === 'high' || notification.priority === 'critical') && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[notification.priority]}`} />}
+            {notification.action_url && <ExternalLink className="h-3 w-3 shrink-0 text-primary" />}
           </span>
-          {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
-          {(notification.priority === 'high' || notification.priority === 'critical') &&
-          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_DOT[notification.priority]}`} />
-          }
-          {notification.action_url &&
-          <ExternalLink className="w-3 h-3 text-gray-400" />
-          }
-        </div>
-      </div>
-    </motion.div>);
-
+        </span>
+      </Action>
+      <button type="button" onClick={() => onDelete(notification.id)}
+        className="flex min-h-[44px] min-w-[44px] shrink-0 flex-col items-center justify-center rounded-lg p-1 text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={deleteLabel}>
+        <X className="h-4 w-4" />
+        <span className="mobile-action-label md:hidden">{deleteLabel}</span>
+      </button>
+    </motion.div>
+  );
 }
 
 // Dropdown panel width in px — must match the w-80/w-96 values used in the panel.
@@ -91,7 +76,7 @@ function useDropdownPosition(buttonRef, open) {
     if (typeof window === 'undefined' || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const vw = window.innerWidth;
-    const panelWidth = vw >= 768 ? PANEL_WIDTH_DESKTOP : PANEL_WIDTH_MOBILE;
+    const panelWidth = Math.min(vw - 16, vw >= 768 ? PANEL_WIDTH_DESKTOP : PANEL_WIDTH_MOBILE);
 
     // Prefer aligning the panel's right edge with the button's right edge.
     // If that would clip the left side, align left edges instead.
@@ -99,8 +84,8 @@ function useDropdownPosition(buttonRef, open) {
     if (left < 8) left = Math.min(rect.left, vw - panelWidth - 8);
     left = Math.max(8, left);
 
-    const top = rect.bottom + PANEL_GAP;
-    setPos({ top, left, width: panelWidth });
+    const top = Math.min(rect.bottom + PANEL_GAP, window.innerHeight - 56);
+    setPos({ top, left, width: panelWidth, maxHeight: Math.max(48, window.innerHeight - top - 8) });
   }, [buttonRef]);
 
   useEffect(() => {
@@ -230,14 +215,14 @@ export default function NotificationBell() {
         top: pos.top,
         left: pos.left,
         width: pos.width,
-        maxHeight: '480px',
+        maxHeight: Math.min(480, pos.maxHeight),
         zIndex: 9999
       }}
-      className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden"
+      className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden flex flex-col"
       dir={appLocale === 'he' ? 'rtl' : 'ltr'}>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/70 bg-secondary/55">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-border/70 bg-secondary/55">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-primary" />
               <span className="font-semibold text-foreground text-sm">{t('settings.notifications.title')}</span>
@@ -257,7 +242,7 @@ export default function NotificationBell() {
           </div>
 
           {/* List */}
-          <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
+          <div className="min-h-0 overflow-y-auto overscroll-contain">
             {safeNotifications.length === 0 ?
         <div className="flex flex-col items-center justify-center py-12 text-center px-6">
                 <div className="w-12 h-12 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center mb-3">
@@ -298,7 +283,7 @@ export default function NotificationBell() {
         aria-expanded={open}
         aria-haspopup="true">
 
-        <Bell className="text-primary lucide lucide-bell w-5 h-5" /><span className="mobile-action-label md:hidden">{t('mobile_actions.notifications')}</span>
+        <Bell className="text-primary lucide lucide-bell h-[20px] w-[20px]" /><span className="mobile-action-label md:hidden">{t('mobile_actions.notifications')}</span>
         {unreadCount > 0 &&
         <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-500">
             {unreadCount > 99 ? '99+' : unreadCount}

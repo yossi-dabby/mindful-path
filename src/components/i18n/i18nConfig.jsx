@@ -14,6 +14,7 @@ import { applySettingsUiTranslations } from './settingsUiTranslations';
 import { applyStarterPathUiTranslations } from './starterPathUiTranslations';
 import { applyRecommendationsUiTranslations } from './recommendationsUiTranslations';
 import { applyMindGamesPremiumTranslations } from './mindGamesPremiumTranslations';
+import { applyHomePracticeUiTranslations } from './homePracticeUiTranslations';
 import { applyStageBUiTranslations } from './stageBUiTranslations';
 import {
   applyAppLocaleSideEffects,
@@ -36,6 +37,7 @@ applySettingsUiTranslations(translations);
 applyStarterPathUiTranslations(translations);
 applyRecommendationsUiTranslations(translations);
 applyStageBUiTranslations(translations);
+applyHomePracticeUiTranslations(translations);
 
 /**
  * Convert a dot-notation key into a human-readable fallback label.

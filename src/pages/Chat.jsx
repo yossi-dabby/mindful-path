@@ -5282,7 +5282,7 @@ export default function Chat() {
       data-testid="chat-root"
       data-page-ready={isPageReady}
       style={{
-        height: `calc(100dvh - ${MOBILE_HEADER_HEIGHT}px - ${BOTTOM_NAV_HEIGHT}px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))`
+        height: `calc(100dvh - var(--mobile-header-height, calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px))) - var(--mobile-bottom-nav-height, calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))))`
       }}>
 
         {/* On desktop (≥1024px) there is no fixed mobile header or bottom nav,

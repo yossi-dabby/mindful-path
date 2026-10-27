@@ -21,10 +21,19 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { mockApi } from '../helpers/ui';
+
+test.beforeEach(async ({ page }) => {
+  await mockApi(page);
+});
 
 const TEST_APP_INIT = () => {
   (window as any).__TEST_APP_ID__ = 'test-app-id';
   (window as any).__DISABLE_ANALYTICS__ = true;
+  localStorage.setItem('language', 'en');
+  localStorage.setItem('i18nextLng', 'en');
+  localStorage.setItem('age_verified', 'true');
+  localStorage.setItem('chat_consent_accepted', 'true');
 };
 
 const TEST_APP_INIT_V2 = () => {
@@ -46,7 +55,7 @@ test.describe('ChatOrchestratorV2 — flag off (Phase 0 legacy path)', () => {
 
     await page.addInitScript(TEST_APP_INIT);
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await expect(page.getByTestId('daily-path')).toBeVisible({ timeout: 20000 });
 
     // No V2Orchestrator errors should appear when flag is off.
     const v2Errors = consoleErrors.filter((e) => e.includes('V2Orchestrator'));
@@ -54,17 +63,14 @@ test.describe('ChatOrchestratorV2 — flag off (Phase 0 legacy path)', () => {
   });
 
   test('chat input is present and app renders without crashing (flag off)', async ({ page }) => {
-    await page.addInitScript(TEST_APP_INIT);
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-
-    // App should render — check for known top-level landmark elements.
-    const body = page.locator('body');
-    await expect(body).toBeVisible();
-
-    // No JS crashes.
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
+    await page.addInitScript(TEST_APP_INIT);
+    await page.goto('/Chat');
+    await expect(page.getByTestId('chat-root')).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('textarea')).toBeVisible();
+
+    // No JS crashes.
     expect(errors).toHaveLength(0);
   });
 });

@@ -36,6 +36,7 @@ export default function AccessibilityManager() {
   const [announcement, setAnnouncement] = React.useState('');
 
   React.useEffect(() => {
+    const routeStartFocus = document.activeElement;
     let observer = null;
     let announcementFrame = null;
     let settleTimeoutId = null;
@@ -60,8 +61,13 @@ export default function AccessibilityManager() {
           activeElement.closest('[role="dialog"]'));
       const isAlreadyInsideMain =
         activeElement instanceof HTMLElement && main.contains(activeElement);
+      // A delayed heading/route announcement must not override a later user
+      // focus choice, including controls in portals outside the main landmark.
+      const hasNewFocus =
+        activeElement instanceof HTMLElement &&
+        activeElement !== document.body && activeElement !== routeStartFocus;
 
-      if (!isEditing && !isAlreadyInsideMain) {
+      if (!isEditing && !isAlreadyInsideMain && !hasNewFocus) {
         main.focus({ preventScroll: true });
       }
 

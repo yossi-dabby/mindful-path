@@ -36,6 +36,7 @@ test.describe('Stage B daily path', () => {
     await expect(dailyPath).not.toContainText(/Today’s path|Talk with your coach|One useful action/);
 
     const action = page.getByTestId('daily-path-action');
+    await expect(action).toBeEnabled();
     await action.focus();
     await expect(action).toBeFocused();
     await page.keyboard.press('Enter');

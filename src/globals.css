@@ -276,14 +276,14 @@ label {
     letter-spacing: 0;
   }
   
-  /* Links with warm accent */
+  /* Link text uses the readable foreground palette in every theme. */
   a {
     transition: color var(--dur-med) var(--ease-calm);
     color: hsl(var(--primary));
   }
   
   a:hover {
-    color: hsl(var(--accent));
+    color: hsl(var(--foreground));
   }
 }
 
@@ -832,4 +832,45 @@ html:lang(pt) .journal-rich-text { --format-bold: "Negrito"; --format-italic: "I
 .journal-rich-text .ql-toolbar button { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: auto !important; min-width: 44px; height: auto !important; min-height: 52px; padding: 6px !important; }
 .journal-rich-text .ql-toolbar button::after { font-family: inherit; font-size: 10px; line-height: 1.2; max-width: 76px; white-space: normal; overflow-wrap: anywhere; }
 .journal-rich-text .ql-toolbar button svg { flex-shrink: 0; }
+}
+
+/* Media practice is always a dark canvas, independent of the page theme. */
+.breathing-practice :is(h2, p, span, button, svg) { color: #fff; }
+.breathing-practice button { background-color: rgb(0 0 0 / 0.85); }
+@media (max-width: 767px) {
+  [data-mobile-header] .mobile-action-label { font-size: 0.625rem; }
+  [data-mobile-header] button svg { flex-shrink: 0; width: 20px; height: 20px; }
+  [data-mobile-header] button { max-width: 64px; }
+}
+.breathing-practice { background: #000 !important; }
+
+/* Reflow the brand to a separate row when enlarged text needs more room. */
+[data-mobile-header], .botanical-home-hero { container-type: inline-size; }
+@container (max-width: 22rem) {
+  [data-mobile-header] > div { grid-template-columns: 36px minmax(0, 1fr); }
+  [data-mobile-header] > div > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  [data-mobile-header] > div > :last-child { grid-column: 2; grid-row: 1; }
+}
+@container (max-width: 14rem) {
+  .botanical-home-hero .botanical-home-hero-art { display: none; }
+}
+@media (max-width: 767px) {
+  [data-mobile-bottom-nav] { overflow-x: auto; scroll-behavior: auto; }
+  [data-mobile-bottom-nav] > div { display: flex; width: max-content; min-width: 100%; }
+  [data-mobile-bottom-nav] a { flex: 1; min-width: max-content; }
+  [data-mobile-bottom-nav] a > span { white-space: nowrap; overflow-wrap: normal; }
+}
+@media (max-width: 640px) {
+  .exercise-detail-tabs [role="tab"] { flex-direction: column; gap: 4px; padding-inline: 4px; }
+  .exercise-detail-tabs [role="tab"] span { overflow-wrap: normal; }
+}
+@media (max-width: 767px) {
+  /* Enlarged support text belongs in the scroll flow, clear of page actions. */
+  html[data-expanded-mobile-chrome] [data-testid="persistent-human-support"] {
+    position: static;
+    display: flex;
+    justify-content: center;
+    max-width: calc(100% - 32px);
+    margin: 16px;
+  }
 }

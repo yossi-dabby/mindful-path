@@ -1,4 +1,5 @@
 import React from 'react';
+import { useChromeSize } from './useChromeSize';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
@@ -12,6 +13,7 @@ import { AppWordmark, GrowingShieldMark } from '@/components/brand/AppBrand';
 export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
 
 export default function MobileHeader({ currentPageName: currentPageNameProp }) {
+  const headerRef = useChromeSize('--mobile-header-height');
   const navigate = useNavigate();
   const location = useLocation();
   const tabNav = useTabNavigation();
@@ -75,16 +77,18 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
   return (
     <header
+      ref={headerRef}
+      data-mobile-header
       data-app-chrome
       className={`${visibilityClass} fixed top-0 left-0 right-0 border-b border-border/70 bg-[hsl(var(--sidebar-background)/0.88)] backdrop-blur-2xl z-40`}
       style={{
-        height: 'calc(60px + env(safe-area-inset-top, 0px))',
+        minHeight: 'calc(60px + env(safe-area-inset-top, 0px))',
         paddingTop: 'env(safe-area-inset-top, 0px)'
       }}>
 
-      <div className="px-4 flex items-center justify-between h-full">
+      <div className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-2 px-2 py-2">
         {/* Start: Back button on child routes, logo on root */}
-        <div className="w-12">
+        <div className="min-w-0">
           {isSubRoute ?
           <Button
             variant="ghost"
@@ -96,14 +100,14 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
               <ChevronLeft className="text-primary lucide lucide-chevron-left w-6 h-6 rtl:scale-x-[-1]" />
             </Button> :
 
-          <div className="mx-2">
+          <div className="flex items-center">
             <GrowingShieldMark size={36} />
           </div>
           }
         </div>
 
         {/* Center: Page title */}
-        <div className="min-w-0 flex-1 overflow-visible text-center text-primary font-semibold">
+        <div className="min-w-0 flex-1 [overflow-wrap:anywhere] overflow-visible text-center text-primary font-semibold">
           {currentPageName === 'Home'
             ? <AppWordmark name={getPageTitle()} compact className="max-w-full" />
             : getPageTitle()}

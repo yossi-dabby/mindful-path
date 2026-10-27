@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, X, Volume2, VolumeX } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 
 export default function BreathingVisual({ exercise, duration, onClose, onComplete }) {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [phase, setPhase] = useState('inhale');
   const [timeRemaining, setTimeRemaining] = useState(duration * 60);
@@ -54,10 +57,10 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
 
   const getPhaseText = () => {
     switch (phase) {
-      case 'inhale': return 'Breathe In';
-      case 'hold1': return 'Hold';
-      case 'exhale': return 'Breathe Out';
-      case 'hold2': return 'Hold';
+      case 'inhale': return t('breathing_tool.phases.inhale');
+      case 'hold1': return t('breathing_tool.phases.hold');
+      case 'exhale': return t('breathing_tool.phases.exhale');
+      case 'hold2': return t('breathing_tool.phases.hold');
       default: return '';
     }
   };
@@ -78,7 +81,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
     setIsPlaying(!isPlaying);
     if (audioRef.current) {
       if (!isPlaying) {
-        audioRef.current.play();
+        audioRef.current.play().catch(() => {});
       } else {
         audioRef.current.pause();
       }
@@ -111,23 +114,12 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
     }
   };
 
-  // Handle Escape key to close
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+    <PremiumDialog onClose={onClose} label={exercise.title || t('breathing_tool.title')} className="breathing-practice fixed inset-0 overflow-y-auto bg-black text-white">
       {/* Background Video */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover"
         src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/14657405_1920_1080_30fps.mp4?alt=media&token=953136b7-37e5-4f9e-9940-1fa3807d9819"
         autoPlay
         loop
@@ -136,7 +128,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
       />
 
       {/* Dark Overlay for Readability */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="fixed inset-0 bg-black/70" />
 
       {/* Ambient Audio */}
       <audio ref={audioRef} loop preload="auto">
@@ -144,7 +136,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
       </audio>
 
       {/* Controls - Top Bar */}
-      <div className="absolute top-4 md:top-6 left-0 right-0 flex items-center justify-between px-4 md:px-8 z-50 pointer-events-none">
+      <div className="sticky top-0 flex items-center justify-between gap-4 bg-black/80 px-4 py-3 md:px-8 z-50">
         <div className="flex items-center gap-2 md:gap-4 bg-black/30 backdrop-blur-xl rounded-full px-3 md:px-4 py-2 pointer-events-auto">
           <Button
             variant="ghost"
@@ -155,8 +147,8 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
               toggleMute();
             }}
             className="text-white/80 hover:text-white hover:bg-white/10 rounded-full h-8 w-8 md:h-10 md:w-10"
-            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-           mobileLabel={isMuted ? "Unmute audio" : "Mute audio"}>
+            aria-label={t(isMuted ? 'mobile_actions.unmute' : 'mobile_actions.mute')}
+           mobileLabelKey={isMuted ? 'unmute' : 'mute'}>
             {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
           </Button>
           <Slider
@@ -166,8 +158,8 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             step={1}
             className="w-16 md:w-24"
             disabled={isMuted}
-            aria-label="Volume control"
-            aria-valuetext={`Volume ${volume} percent`}
+            aria-label={t('home_practice.volume')}
+            aria-valuetext={t('home_practice.volume_value', { volume })}
           />
         </div>
         <Button
@@ -179,16 +171,16 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             onClose();
           }}
           className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl rounded-full h-8 w-8 md:h-10 md:w-10 pointer-events-auto"
-          aria-label="Close breathing exercise"
+          aria-label={t('home_practice.close_breathing')}
         >
           <X className="w-5 h-5 md:w-6 md:h-6" />
         </Button>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-white px-4">
+      <div className="relative z-10 flex min-h-[calc(100dvh-5rem)] flex-col items-center justify-center text-white px-4 py-16">
         {/* Breathing Circle */}
-        <div className="relative mb-16">
+        <div className="relative z-10 mb-16">
           {/* Outer Ripple Effects */}
           {[...Array(3)].map((_, i) => (
             <motion.div
@@ -216,7 +208,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             }}
             className="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3))',
+              background: 'rgba(0, 0, 0, 0.85)',
               backdropFilter: 'blur(20px)',
               boxShadow: '0 0 80px rgba(139, 92, 246, 0.5), inset 0 0 80px rgba(236, 72, 153, 0.3)'
             }}
@@ -226,7 +218,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
                 key={phase}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-base md:text-xl font-light mb-1 tracking-wide"
+                className="relative z-10 text-base md:text-xl font-medium mb-1 tracking-wide"
               >
                 {getPhaseText()}
               </motion.p>
@@ -251,7 +243,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute inset-0 rounded-full blur-3xl"
+            className="pointer-events-none absolute -z-10 inset-0 rounded-full blur-3xl"
             style={{
               background: 'radial-gradient(circle, rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.4))'
             }}
@@ -263,7 +255,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-2xl md:text-3xl font-light mb-12 text-white/90 tracking-wide"
+          className="max-w-full text-center [overflow-wrap:anywhere] text-2xl md:text-3xl font-medium mb-8 tracking-wide"
         >
           {exercise.title}
         </motion.h2>
@@ -273,7 +265,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex gap-4"
+          className="flex flex-wrap justify-center gap-4"
         >
           <Button
             onClick={handlePlayPause}
@@ -283,12 +275,12 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             {isPlaying ? (
               <>
                 <Pause className="w-6 h-6 mr-3" />
-                Pause
+                {t('breathing_tool.controls.pause')}
               </>
             ) : (
               <>
                 <Play className="w-6 h-6 mr-3" />
-                Start
+                {t('breathing_tool.controls.start')}
               </>
             )}
           </Button>
@@ -298,7 +290,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             className="bg-white/10 hover:bg-white/20 backdrop-blur-xl border-2 border-white/30 text-white px-10 py-7 rounded-2xl text-lg font-medium shadow-2xl"
           >
             <RotateCcw className="w-6 h-6 mr-3" />
-            Reset
+            {t('breathing_tool.controls.reset')}
           </Button>
         </motion.div>
 
@@ -318,12 +310,12 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
               animate={{ width: `${((duration * 60 - timeRemaining) / (duration * 60)) * 100}%` }}
             />
           </div>
-          <div className="flex justify-between mt-2 text-sm text-white/60">
-            <span>{formatTime((duration * 60) - timeRemaining)} elapsed</span>
-            <span>{formatTime(timeRemaining)} remaining</span>
+          <div className="flex justify-between mt-2 text-sm text-white">
+            <span>{t('home_practice.elapsed', { time: formatTime((duration * 60) - timeRemaining) })}</span>
+            <span>{t('home_practice.remaining', { time: formatTime(timeRemaining) })}</span>
           </div>
         </motion.div>
       </div>
-    </div>
+    </PremiumDialog>
   );
 }

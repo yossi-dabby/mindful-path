@@ -1,6 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ import PremiumBadge from '../subscription/PremiumBadge';
 import ExerciseMediaBadge from './ExerciseMediaBadge';
 import { exportExercisePdf } from './exportExercisePdfUtils';
 
-export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite }) {
+export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite, favoritePending = false, favoriteError = false }) {
   const { t, i18n } = useTranslation();
   const [completed, setCompleted] = useState(false);
   const [showBreathingVisual, setShowBreathingVisual] = useState(false);
@@ -198,26 +197,17 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
     }
   };
 
-  if (showBreathingVisual && exercise.category === 'breathing') {
-    return (
-      <BreathingVisual
-        exercise={exercise}
-        duration={selectedDuration}
-        onClose={() => setShowBreathingVisual(false)}
-        onComplete={handleBreathingComplete} />);
-
-
-  }
-
-  return createPortal(
-    <PremiumOverlay
+  return (
+    <PremiumDialog
+      onClose={onClose}
+      label={exercise.title || t('exercise_view.untitled')}
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}>
 
-      <div className="min-h-full flex items-start justify-center p-4 pt-6 pb-24 md:items-center md:p-6">
+      <div style={{ display: showBreathingVisual ? 'none' : undefined }} className="min-h-full flex items-start justify-center p-4 pt-6 pb-24 md:items-center md:p-6">
       <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -226,18 +216,19 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
         <Card className="overflow-hidden rounded-[28px] border border-border/70 shadow-2xl">
           <CardHeader className="bg-secondary/60 p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-primary text-2xl font-semibold tracking-[-0.012em]">{exercise.title || t('exercise_view.untitled')}</CardTitle>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0 flex-1 basis-full sm:basis-0">
+                <div className="flex items-start gap-3 mb-2">
+                  <CardTitle className="min-w-0 flex-1 [overflow-wrap:anywhere] text-primary text-2xl font-semibold tracking-[-0.012em]">{exercise.title || t('exercise_view.untitled')}</CardTitle>
                   <button
                       type="button"
                       aria-pressed={!!exercise.favorite}
                       aria-label={exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}
                       title={exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}
+                      disabled={!onToggleFavorite || favoritePending}
                       onClick={() => onToggleFavorite?.(exercise)}
                       data-favorite={exercise.favorite ? 'true' : 'false'}
-                      className={`mx-2 min-h-[44px] min-w-[44px] px-3 py-2 rounded-full border flex items-center justify-center shadow-[var(--shadow-sm)] transition-all duration-200 ${exercise.favorite ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-200' : 'bg-card/95 border-border/70 hover:bg-rose-50'}`}>
+                      className={`shrink-0 min-h-[44px] min-w-[44px] px-3 py-2 rounded-full border flex items-center justify-center shadow-[var(--shadow-sm)] transition-all duration-200 ${exercise.favorite ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-200' : 'bg-card/95 border-border/70 hover:bg-rose-50'}`}>
 
 
                     <Heart className={`w-5 h-5 transition-transform duration-200 ${exercise.favorite ? 'fill-red-500 text-red-500 scale-110' : 'fill-none text-muted-foreground'}`} />
@@ -268,7 +259,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     }
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2 ms-auto">
                 <Button
                     variant="outline"
                     onClick={handleDownloadPdf}
@@ -285,11 +276,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
             </div>
           </CardHeader>
           <CardContent className="bg-card p-4 md:p-6">
+            {favoriteError && <p role="alert" className="mb-4 rounded-xl border border-border bg-secondary p-3 text-foreground">{t('home_practice.favorite_error')}</p>}
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
               {/* Left Column: Main Content */}
               <div className="flex flex-col space-y-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-              <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+              <TabsList className={`exercise-detail-tabs grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview" className="text-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <BookOpen className="w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.overview')}</span>
@@ -529,11 +521,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t('exercise_view.your_progress')}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
+                        <p className="text-2xl font-bold text-primary">{exercise.completed_count || 0}</p>
                         <p className="text-foreground text-xs">{t('exercise_view.times_completed')}</p>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
+                        <p className="text-2xl font-bold text-primary">{exercise.total_time_practiced || 0}</p>
                         <p className="text-foreground text-xs">{t('exercise_view.minutes_practiced')}</p>
                       </div>
                     </div>
@@ -580,11 +572,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t('exercise_view.your_progress')}</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
+                      <p className="text-2xl font-bold text-primary">{exercise.completed_count || 0}</p>
                       <p className="text-xs text-muted-foreground">{t('exercise_view.times_completed')}</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
+                      <p className="text-2xl font-bold text-primary">{exercise.total_time_practiced || 0}</p>
                       <p className="text-xs text-muted-foreground">{t('exercise_view.minutes_practiced')}</p>
                     </div>
                   </div>
@@ -627,8 +619,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         </Card>
       </motion.div>
       </div>
-    </PremiumOverlay>,
-    document.body
+      {showBreathingVisual && exercise.category === 'breathing' && (
+        <BreathingVisual exercise={exercise} duration={selectedDuration}
+          onClose={() => setShowBreathingVisual(false)} onComplete={handleBreathingComplete} />
+      )}
+    </PremiumDialog>
   );
 
 }
