@@ -43,15 +43,15 @@ export default function TherapyEntryOptions({ onSelectOption }) {
   return (
     <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
       borderRadius: '28px',
-      background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+      background: 'hsl(var(--card) / 0.97)',
       backdropFilter: 'blur(16px)',
-      boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05)'
+      boxShadow: 'var(--shadow-md)'
     }}>
       <div className="mb-6">
-        <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('chat.entry.welcome')}
         </p>
-        <h3 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>
+        <h3 className="text-xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
           {t('chat.entry.question')}
         </h3>
       </div>
@@ -73,18 +73,18 @@ export default function TherapyEntryOptions({ onSelectOption }) {
                 style={{
                   borderRadius: '20px',
                   border: '1px solid rgba(38, 166, 154, 0.15)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                  backgroundColor: 'hsl(var(--card) / 0.97)',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--card) / 0.97)';
                   e.currentTarget.style.borderColor = option.color + '40';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = `0 6px 20px ${option.color}20`;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-                  e.currentTarget.style.borderColor = 'rgba(38, 166, 154, 0.15)';
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--card) / 0.97)';
+                  e.currentTarget.style.borderColor = 'hsl(var(--secondary))';
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
@@ -99,7 +99,7 @@ export default function TherapyEntryOptions({ onSelectOption }) {
                   >
                     <Icon className="w-5 h-5" style={{ color: option.color }} strokeWidth={2} />
                   </div>
-                  <span className="text-sm font-medium flex-1" style={{ color: '#1A3A34' }}>
+                  <span className="text-sm font-medium flex-1" style={{ color: 'hsl(var(--foreground))' }}>
                     {t(option.labelKey)}
                   </span>
                 </div>

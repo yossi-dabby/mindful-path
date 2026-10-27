@@ -17,7 +17,7 @@ function ForumPostCard({ post, onUpvote, onModerate, isUpvoting, isReacted }) {
     <Card data-testid={`forum-post-${post.id}`} className="overflow-hidden border border-border/80 bg-[hsl(var(--card)/0.94)] shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)]">
       <CardContent className="p-4 sm:p-5">
         <article className="flex min-w-0 items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-600 shadow-[var(--shadow-sm)]" aria-hidden="true">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary shadow-[var(--shadow-sm)]" aria-hidden="true">
             <User className="h-5 w-5 text-white" />
           </div>
           <div className="min-w-0 flex-1">
@@ -27,7 +27,7 @@ function ForumPostCard({ post, onUpvote, onModerate, isUpvoting, isReacted }) {
             </div>
             <p className={`mb-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground ${expanded ? '' : 'line-clamp-3'}`}>{post.content}</p>
             {(post.content?.length || 0) > 180 && (
-              <Button type="button" variant="ghost" size="sm" className="mb-2 min-h-[44px] px-2 text-teal-700" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
+              <Button type="button" variant="ghost" size="sm" className="mb-2 min-h-[44px] px-2 text-primary" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
                 {expanded ? <ChevronUp className="me-1 h-4 w-4" /> : <ChevronDown className="me-1 h-4 w-4" />}
                 {t(expanded ? 'community_ui.card.show_less' : 'community_ui.card.show_more')}
               </Button>

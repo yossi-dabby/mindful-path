@@ -16,7 +16,7 @@ function GroupCard({ group, isMember, onJoin, isJoining }) {
           {group.image_url ? (
             <img src={group.image_url} alt="" loading="lazy" className="h-20 w-full rounded-xl object-cover sm:h-16 sm:w-16" />
           ) : (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-teal-600 shadow-[var(--shadow-sm)]" aria-hidden="true">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-primary shadow-[var(--shadow-sm)]" aria-hidden="true">
               <Users className="h-8 w-8 text-white" />
             </div>
           )}
@@ -51,7 +51,7 @@ function GroupCard({ group, isMember, onJoin, isJoining }) {
                 {isMember ? (
                   <Badge className="flex min-h-[44px] items-center bg-emerald-100 px-3 text-emerald-800">{t('community_ui.card.joined')}</Badge>
                 ) : (
-                  <Button type="button" size="sm" className="min-h-[44px] bg-teal-700" onClick={() => onJoin(group)} disabled={isJoining || group.is_private}>
+                  <Button type="button" size="sm" className="min-h-[44px] bg-primary" onClick={() => onJoin(group)} disabled={isJoining || group.is_private}>
                     {isJoining && <Loader2 className="me-1 h-4 w-4 animate-spin" />}
                     {t(isJoining ? 'community_ui.card.joining' : group.is_private ? 'community_ui.card.private' : 'community_ui.card.join')}
                   </Button>

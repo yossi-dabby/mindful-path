@@ -12,7 +12,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
       {exercises.map((exercise, index) => {
         const Icon = categoryIcons[exercise.category] || Play;
-        const colorClass = categoryColors[exercise.category] || 'bg-gray-100 text-gray-700';
+        const colorClass = categoryColors[exercise.category] || 'bg-gray-100 text-muted-foreground';
 
         return (
           <motion.div
@@ -53,7 +53,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                   {exercise.video_url &&
                 <div className="absolute inset-0 bg-[hsl(var(--overlay)/0.12)] flex items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-card/90 flex items-center justify-center">
-                        <Play className="w-6 h-6 text-gray-800 ml-1" />
+                        <Play className="w-6 h-6 text-foreground ml-1" />
                       </div>
                     </div>
                 }
@@ -63,7 +63,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
               <CardContent className="exercise-card-art p-4 md:p-5 rounded-3xl">
                 <div className="mr-8 mb-3 flex items-start justify-between">
                   <div className="bg-secondary text-primary rounded-xl w-9 h-9 border border-border/60 flex items-center justify-center group-hover:scale-110 transition-transform mx-5">
-                    <Icon className="text-teal-800 lucide lucide-trending-up lucide-anchor w-5 h-5" />
+                    <Icon className="text-primary lucide lucide-trending-up lucide-anchor w-5 h-5" />
                   </div>
                   {exercise.completed_count > 0 &&
                   <Badge variant="secondary" className="bg-green-100 text-green-700 mx-auto my-1 px-2 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
@@ -73,7 +73,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                 </div>
 
                 <div className="mb-2">
-                  <h3 className="font-semibold text-foreground text-lg leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">
+                  <h3 className="font-semibold text-foreground text-lg leading-snug group-hover:text-foreground transition-colors line-clamp-2 break-words">
                     {exercise.title || t('exercises.detail.untitled_exercise')}
                   </h3>
                 </div>
@@ -91,7 +91,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                 {exercise.tags?.length > 0 &&
                 <div className="flex flex-wrap gap-1 mb-3">
                     {exercise.tags.filter((tag) => tag && typeof tag === 'string').slice(0, 2).map((tag, i) =>
-                  <Badge key={i} variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-xs font-medium tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
+                  <Badge key={i} variant="outline" className="bg-secondary/70 text-muted-foreground px-2 py-0.5 text-xs font-medium tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                         {tag}
                       </Badge>
                   )}
@@ -106,7 +106,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                     t('exercises.library.flexible')}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
+                    <Badge variant="outline" className="bg-secondary/70 text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                       {t(`exercises.difficulty.${String(exercise.difficulty || 'beginner').toLowerCase()}`)}
                     </Badge>
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-card/85">
@@ -118,7 +118,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                 {/* Progress Bar */}
                 {exercise.completed_count > 0 &&
                 <div className="mt-2.5">
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                       <span>{t('journeys.card.progress')}</span>
                       <span>{exercise.total_time_practiced || 0} {t('common.minutes_short')}</span>
                     </div>

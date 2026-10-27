@@ -29,8 +29,8 @@ const numberOrNull = (value) => Number.isFinite(Number(value)) ? Number(value) :
 function CustomTooltip({ active, payload, label, t }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-teal-100 bg-white p-3 text-sm shadow-lg">
-      <p className="mb-1 font-semibold text-slate-700">{label}</p>
+    <div className="rounded-xl border border-border bg-[hsl(var(--card)/0.97)] p-3 text-sm shadow-lg">
+      <p className="mb-1 font-semibold text-muted-foreground">{label}</p>
       {payload.map((item) => (
         <p key={item.dataKey} style={{ color: item.color }} className="flex items-center gap-1">
           <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
@@ -148,7 +148,7 @@ export default function JournalDashboard() {
 
   return (
     <main data-testid="journal-dashboard" className="mx-auto min-h-[100dvh] w-full max-w-6xl px-3 pb-32 pt-4 sm:px-5 md:px-8 md:pb-20">
-      <header className="mb-6 rounded-[28px] border border-white/65 bg-white/80 p-4 shadow-[0_18px_55px_rgba(20,92,82,0.12)] backdrop-blur-xl sm:p-6">
+      <header className="mb-6 rounded-[28px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-4 shadow-[0_18px_55px_rgba(20,92,82,0.12)] backdrop-blur-xl sm:p-6">
         <div className="flex items-start gap-3">
           <Link to={createPageUrl('Journal')} aria-label={t('journal_ui.dashboard.back')}>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full">
@@ -156,24 +156,24 @@ export default function JournalDashboard() {
             </Button>
           </Link>
           <div>
-            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-teal-900 sm:text-3xl">{t('journal_ui.dashboard.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            <p className="mt-1 text-sm font-medium text-teal-800/70 sm:text-base">{t('journal_ui.dashboard.subtitle')}</p>
+            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{t('journal_ui.dashboard.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+            <p className="mt-1 text-sm font-medium text-primary sm:text-base">{t('journal_ui.dashboard.subtitle')}</p>
           </div>
         </div>
       </header>
 
-      <div role="group" aria-label={t('journal_ui.dashboard.range_aria')} className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/60 bg-white/65 p-2 backdrop-blur-lg sm:flex sm:w-fit">
+      <div role="group" aria-label={t('journal_ui.dashboard.range_aria')} className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-border/70 bg-[hsl(var(--card)/0.97)] p-2 backdrop-blur-lg sm:flex sm:w-fit">
         {RANGE_OPTIONS.map((option) => (
           <Button key={option.key} variant={range === option.days ? 'default' : 'ghost'} size="sm"
             onClick={() => setRange(option.days)} aria-pressed={range === option.days}
-            className={`min-h-11 rounded-xl px-4 ${range === option.days ? 'bg-teal-700 text-white hover:bg-teal-800' : 'text-teal-900 hover:bg-white/80'}`}>
+            className={`min-h-11 rounded-xl px-4 ${range === option.days ? 'bg-primary text-white hover:bg-primary' : 'text-primary hover:bg-[hsl(var(--card)/0.97)]'}`}>
             {t(`journal_ui.dashboard.range_${option.key}`)}
           </Button>
         ))}
       </div>
 
       {hasError ? (
-        <Card className="border-red-200 bg-white/88">
+        <Card className="border-red-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-8 text-center">
             <p className="font-medium text-red-800">{t('journal_ui.dashboard.load_error')}</p>
             <Button onClick={() => { userQuery.refetch(); journalsQuery.refetch(); }} className="mt-4 min-h-11 rounded-2xl">
@@ -183,17 +183,17 @@ export default function JournalDashboard() {
         </Card>
       ) : isLoading ? (
         <div className="py-20 text-center" role="status">
-          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-teal-100 border-t-teal-700" />
-          <p className="mt-3 text-slate-600">{t('journal_ui.dashboard.loading')}</p>
+          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-border border-t-teal-700" />
+          <p className="mt-3 text-muted-foreground">{t('journal_ui.dashboard.loading')}</p>
         </div>
       ) : filteredJournals.length === 0 ? (
-        <Card className="border-white/70 bg-white/84 shadow-md">
+        <Card className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md">
           <CardContent className="p-8 text-center sm:p-12">
-            <BookOpen className="mx-auto mb-4 h-12 w-12 text-teal-700" />
-            <h2 className="text-xl font-bold text-teal-900">{t('journal_ui.dashboard.empty_title')}</h2>
-            <p className="mx-auto mt-2 max-w-md text-slate-600">{t('journal_ui.dashboard.empty_description')}</p>
+            <BookOpen className="mx-auto mb-4 h-12 w-12 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">{t('journal_ui.dashboard.empty_title')}</h2>
+            <p className="mx-auto mt-2 max-w-md text-muted-foreground">{t('journal_ui.dashboard.empty_description')}</p>
             <Link to={createPageUrl('Journal')}>
-              <Button className="mt-5 min-h-11 rounded-2xl bg-teal-700 text-white hover:bg-teal-800">{t('journal_ui.dashboard.go_journal')}</Button>
+              <Button className="mt-5 min-h-11 rounded-2xl bg-primary text-primary-foreground hover:bg-primary">{t('journal_ui.dashboard.go_journal')}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -206,24 +206,24 @@ export default function JournalDashboard() {
               { label: t('journal_ui.dashboard.avg_reduction'), value: stats.avgReduction !== null ? `${stats.avgReduction > 0 ? '-' : '+'}${Math.abs(stats.avgReduction)}` : '—', icon: TrendIcon, color: trendColor },
               { label: t('journal_ui.dashboard.reframed'), value: stats.reframed, icon: Target, color: '#d97706' }
             ].map(({ label, value, icon: Icon, color }) => (
-              <Card key={label} className="border-white/70 bg-white/84 shadow-sm backdrop-blur-xl">
+              <Card key={label} className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm backdrop-blur-xl">
                 <CardContent className="flex min-h-32 flex-col gap-1 p-4">
                   <Icon className="mb-1 h-5 w-5" style={{ color }} />
                   <p className="text-2xl font-bold" style={{ color }}>{value}</p>
-                  <p className="text-xs font-medium text-slate-600">{label}</p>
+                  <p className="text-xs font-medium text-muted-foreground">{label}</p>
                 </CardContent>
               </Card>
             ))}
           </section>
 
           {intensityTrend.length > 1 && (
-            <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
+            <Card className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm backdrop-blur-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-start gap-2 text-base font-bold text-teal-950">
-                  <BarChart2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
+                <CardTitle className="flex items-start gap-2 text-base font-bold text-primary">
+                  <BarChart2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                   {t('journal_ui.dashboard.intensity_title')}
                 </CardTitle>
-                <p className="text-xs text-slate-600">{t('journal_ui.dashboard.intensity_description')}</p>
+                <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.intensity_description')}</p>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto pb-2">
@@ -247,13 +247,13 @@ export default function JournalDashboard() {
           )}
 
           {dailyAverage.length > 1 && (
-            <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
+            <Card className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm backdrop-blur-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base font-bold text-teal-950">
-                  <TrendingDown className="h-5 w-5 text-teal-700" />
+                <CardTitle className="flex items-center gap-2 text-base font-bold text-primary">
+                  <TrendingDown className="h-5 w-5 text-primary" />
                   {t('journal_ui.dashboard.daily_title')}
                 </CardTitle>
-                <p className="text-xs text-slate-600">{t('journal_ui.dashboard.daily_description')}</p>
+                <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.daily_description')}</p>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto pb-2">
@@ -277,12 +277,12 @@ export default function JournalDashboard() {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {distortionFreq.length > 0 && (
-              <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
+              <Card className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm backdrop-blur-xl">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base font-bold text-teal-950">
+                  <CardTitle className="flex items-center gap-2 text-base font-bold text-primary">
                     <Brain className="h-5 w-5 text-purple-700" />{t('journal_ui.dashboard.patterns_title')}
                   </CardTitle>
-                  <p className="text-xs text-slate-600">{t('journal_ui.dashboard.patterns_description')}</p>
+                  <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.patterns_description')}</p>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto pb-2">
@@ -304,17 +304,17 @@ export default function JournalDashboard() {
             )}
 
             {emotionFreq.length > 0 && (
-              <Card className="border-white/70 bg-white/88 shadow-sm backdrop-blur-xl">
+              <Card className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm backdrop-blur-xl">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base font-bold text-teal-950">
+                  <CardTitle className="flex items-center gap-2 text-base font-bold text-primary">
                     <Target className="h-5 w-5 text-amber-600" />{t('journal_ui.dashboard.emotions_title')}
                   </CardTitle>
-                  <p className="text-xs text-slate-600">{t('journal_ui.dashboard.emotions_description')}</p>
+                  <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.emotions_description')}</p>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2 pt-2">
                     {emotionFreq.map(([emotion, count], index) => (
-                      <Badge key={emotion} className="rounded-full border border-teal-200 px-3 py-1.5 text-sm text-teal-950"
+                      <Badge key={emotion} className="rounded-full border border-border px-3 py-1.5 text-sm text-primary"
                         style={{ backgroundColor: `rgba(20,184,166,${0.10 + (index / Math.max(emotionFreq.length, 1)) * 0.24})` }}>
                         {t(`journal_ui.taxonomy.emotions.${normalizeTaxonomyKey(emotion)}`, {
                           defaultValue: t(`mood_tracker.taxonomy.emotions.${normalizeTaxonomyKey(emotion)}`, { defaultValue: emotion })

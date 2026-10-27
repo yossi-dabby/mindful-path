@@ -139,17 +139,17 @@ export default function Journal() {
   return (
     <PullToRefresh queryKeys={['thoughtJournals', 'sessionSummaries', 'journalTemplates']}>
       <main data-testid="journal-page" className="mx-auto min-h-[100dvh] w-full max-w-6xl px-3 pb-32 pt-4 sm:px-5 md:px-8 md:pb-24">
-        <header className="mb-6 rounded-[28px] border border-white/65 bg-white/78 p-4 shadow-[0_18px_55px_rgba(20,92,82,0.12)] backdrop-blur-xl sm:p-6">
+        <header className="mb-6 rounded-[28px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-4 shadow-[0_18px_55px_rgba(20,92,82,0.12)] backdrop-blur-xl sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 items-start gap-3">
               <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="min-h-11 min-w-11 shrink-0 rounded-full" aria-label={t('journal.go_back_aria')}>
                 <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
               </Button>
               <div className="min-w-0">
-                <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-teal-800 sm:text-3xl lg:text-4xl">
+                <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
                   {focusedEntryId ? t('journal.title_entry') : focusedSummaryId ? t('journal.title_summary') : t('journal.title_default')}
                 </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-                <p className="mt-1 max-w-2xl text-sm font-medium text-teal-700/80 sm:text-base">
+                <p className="mt-1 max-w-2xl text-sm font-medium text-primary sm:text-base">
                   {focusedEntryId ? t('journal.subtitle_entry') : focusedSummaryId ? t('journal.subtitle_summary') : t('journal.subtitle_default')}
                 </p>
                 {(focusedEntryId || focusedSummaryId) && (
@@ -161,7 +161,7 @@ export default function Journal() {
             </div>
 
             <div className="w-full lg:w-auto">
-              <Button onClick={() => navigate('/Chat?intent=thought_work')} className={`${actionClass} w-full bg-teal-600 text-white hover:bg-teal-700 lg:w-auto`}>
+              <Button onClick={() => navigate('/Chat?intent=thought_work')} className={`${actionClass} w-full bg-primary text-white hover:bg-primary lg:w-auto`}>
                 <Plus className="h-4 w-4" />
                 {t('journal.new_entry')}
               </Button>
@@ -183,7 +183,7 @@ export default function Journal() {
                   {t('journal.reminders')}
                 </Button>
               </div>
-              <Button onClick={() => setShowTemplateManager(true)} variant="ghost" className="mt-2 min-h-11 w-full rounded-2xl text-teal-800 lg:w-auto lg:float-end">
+              <Button onClick={() => setShowTemplateManager(true)} variant="ghost" className="mt-2 min-h-11 w-full rounded-2xl text-primary lg:w-auto lg:float-end">
                 <Settings className="h-4 w-4" />
                 {t('journal.templates')}
               </Button>
@@ -191,11 +191,11 @@ export default function Journal() {
           </div>
         </header>
 
-        <section aria-label={t('journal.search_placeholder')} className="mb-6 rounded-[24px] border border-white/60 bg-white/72 p-3 shadow-sm backdrop-blur-lg sm:p-4">
+        <section aria-label={t('journal.search_placeholder')} className="mb-6 rounded-[24px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-3 shadow-sm backdrop-blur-lg sm:p-4">
           <div className="relative">
-            <Search className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-teal-700" />
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
             <Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder={t('journal.search_placeholder')} className="h-12 w-full rounded-2xl border-teal-100 bg-white/85 ps-11 text-base shadow-none" />
+              placeholder={t('journal.search_placeholder')} className="h-12 w-full rounded-2xl border-border bg-[hsl(var(--card)/0.97)] ps-11 text-base shadow-none" />
           </div>
           <div className="mt-4">
             <JournalFilters allTags={allTags} selectedTags={selectedTags} onTagsChange={setSelectedTags}
@@ -204,7 +204,7 @@ export default function Journal() {
         </section>
 
         {hasError ? (
-          <Card className="border-red-200 bg-white/88 shadow-md">
+          <Card className="border-red-200 bg-[hsl(var(--card)/0.97)] shadow-md">
             <CardContent className="p-8 text-center">
               <p className="font-medium text-red-800">{t('journal_ui.main.load_error')}</p>
               <Button className="mt-4 min-h-11 rounded-2xl" onClick={() => {
@@ -219,19 +219,19 @@ export default function Journal() {
           </Card>
         ) : isLoading ? (
           <div className="py-14 text-center" role="status">
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-teal-100 border-t-teal-600" />
-            <p className="mt-3 text-sm font-medium text-teal-800">{t('journal.loading')}</p>
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-border border-t-teal-600" />
+            <p className="mt-3 text-sm font-medium text-primary">{t('journal.loading')}</p>
           </div>
         ) : entries.length === 0 ? (
-          <Card className="overflow-hidden border border-white/70 bg-white/82 shadow-lg backdrop-blur-xl">
+          <Card className="overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-lg backdrop-blur-xl">
             <CardContent className="p-7 text-center sm:p-12">
-              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-teal-100 text-teal-700 shadow-sm">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary/70 text-primary shadow-sm">
                 <BookOpen className="h-10 w-10" />
               </div>
-              <h2 className="text-2xl font-bold text-teal-800">{t('journal.first_entry_title')}</h2>
-              <p className="mx-auto mt-2 max-w-md text-teal-800/75">{t('journal.first_entry_description')}</p>
+              <h2 className="text-2xl font-bold text-foreground">{t('journal.first_entry_title')}</h2>
+              <p className="mx-auto mt-2 max-w-md text-primary">{t('journal.first_entry_description')}</p>
               <div className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
-                <Button onClick={() => navigate('/Chat?intent=thought_work')} className="min-h-12 flex-1 rounded-2xl bg-teal-600 text-white hover:bg-teal-700">
+                <Button onClick={() => navigate('/Chat?intent=thought_work')} className="min-h-12 flex-1 rounded-2xl bg-primary text-primary-foreground hover:bg-primary">
                   {t('journal.create_entry')}
                 </Button>
                 <Button onClick={() => setShowTemplateManager(true)} variant="outline" className="min-h-12 flex-1 rounded-2xl">
@@ -241,7 +241,7 @@ export default function Journal() {
             </CardContent>
           </Card>
         ) : filteredEntries.length === 0 ? (
-          <Card className="border-white/70 bg-white/82 shadow-md">
+          <Card className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md">
             <CardContent className="p-8 text-center">
               <p className="mx-auto max-w-md text-muted-foreground">{t('journal.no_entries_match')}</p>
               <div className="mx-auto mt-4 flex max-w-md flex-col gap-2 sm:flex-row sm:justify-center">

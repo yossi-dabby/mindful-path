@@ -55,23 +55,23 @@ function ThoughtRecordCard({ entry, onEdit }) {
   const improvement = intensityChange > 0;
 
   return (
-    <Card data-testid="journal-entry-card" className="w-full overflow-hidden border border-white/70 bg-white/86 shadow-md backdrop-blur-xl transition-shadow hover:shadow-lg">
+    <Card data-testid="journal-entry-card" className="w-full overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md backdrop-blur-xl transition-shadow hover:shadow-lg">
       <CardContent className="overflow-x-hidden p-4 sm:p-5 md:p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <time className="mb-1 block text-sm text-slate-500" dateTime={entry.created_date}>{formattedDate}</time>
+            <time className="mb-1 block text-sm text-muted-foreground" dateTime={entry.created_date}>{formattedDate}</time>
             {!expanded && hasSummary ? (
               <AiEntrySummary entry={entry} onSummaryGenerated={() => {
                 setHasSummary(true);
                 queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
               }} />
             ) : (
-              <p className="line-clamp-2 break-words font-semibold text-slate-800" dir="auto">{stripHtml(entry.situation)}</p>
+              <p className="line-clamp-2 break-words font-semibold text-foreground" dir="auto">{stripHtml(entry.situation)}</p>
             )}
           </div>
           <div className="flex shrink-0 justify-end gap-1"><MoreActions>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportThoughtRecordPdf(entry)}
-              aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-teal-700" /></Button>
+              aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-primary" /></Button>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => onEdit(entry)}
               aria-label={t('journal_ui.common.edit_aria', { item: itemLabel })} mobileLabelKey="edit"><Edit className="h-4 w-4 text-blue-700" /></Button>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
@@ -86,7 +86,7 @@ function ThoughtRecordCard({ entry, onEdit }) {
           {(entry.emotions || []).slice(0, 3).map((emotion) => (
             <Badge key={emotion} variant="secondary" className="rounded-full bg-purple-100 text-purple-800">{localizeEmotion(emotion)}</Badge>
           ))}
-          {(entry.emotions || []).length > 3 && <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-600">
+          {(entry.emotions || []).length > 3 && <Badge variant="secondary" className="rounded-full bg-slate-100 text-muted-foreground">
             {t('journal_ui.cards.more', { count: entry.emotions.length - 3 })}
           </Badge>}
           {(entry.tags || []).map((tag) => <Badge key={tag} variant="outline" className="rounded-full border-blue-200 bg-blue-50 text-blue-800">
@@ -97,7 +97,7 @@ function ThoughtRecordCard({ entry, onEdit }) {
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {hasOutcome && (
             <div className={cn('flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold',
-              improvement ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700')}>
+              improvement ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-muted-foreground')}>
               {improvement && <TrendingDown className="h-4 w-4" />}
               {t('journal_ui.cards.intensity', { before: beforeIntensity, after: afterIntensity })}
               {improvement && <span>(-{intensityChange})</span>}
@@ -113,7 +113,7 @@ function ThoughtRecordCard({ entry, onEdit }) {
 
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button variant="ghost" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}
-            className="min-h-11 flex-1 rounded-xl text-teal-800 hover:bg-teal-50">
+            className="min-h-11 flex-1 rounded-xl text-primary hover:bg-secondary/70">
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             {expanded ? t('journal_ui.cards.show_less') : t('journal_ui.cards.show_full')}
           </Button>
@@ -124,11 +124,11 @@ function ThoughtRecordCard({ entry, onEdit }) {
         </div>
 
         {expanded && (
-          <div className="mt-4 space-y-4 border-t border-teal-100 pt-4">
+          <div className="mt-4 space-y-4 border-t border-border pt-4">
             <RichSection title={t('journal_ui.cards.automatic_thoughts')} html={entry.automatic_thoughts} />
             {(entry.cognitive_distortions || []).length > 0 && (
               <section>
-                <h3 className="mb-2 text-sm font-bold text-slate-800">{t('journal_ui.cards.thinking_patterns')}</h3>
+                <h3 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.cards.thinking_patterns')}</h3>
                 <div className="flex flex-wrap gap-2">{entry.cognitive_distortions.map((distortion) =>
                   <Badge key={distortion} variant="outline" className="rounded-full text-xs">{localizeDistortion(distortion)}</Badge>)}</div>
               </section>
@@ -153,9 +153,9 @@ function ThoughtRecordCard({ entry, onEdit }) {
 
             {(entry.images || []).length > 0 && (
               <section>
-                <h3 className="mb-2 text-sm font-bold text-slate-800">{t('journal_ui.cards.attached_images')}</h3>
+                <h3 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.cards.attached_images')}</h3>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{entry.images.map((url, index) => (
-                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <img src={url} alt={t('journal_ui.cards.images', { count: index + 1 })} className="h-28 w-full rounded-xl object-cover" />
                   </a>
                 ))}</div>
@@ -163,14 +163,14 @@ function ThoughtRecordCard({ entry, onEdit }) {
             )}
             {(entry.audio_notes || []).length > 0 && (
               <section>
-                <h3 className="mb-2 text-sm font-bold text-slate-800">{t('journal_ui.cards.audio_notes')}</h3>
+                <h3 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.cards.audio_notes')}</h3>
                 <div className="space-y-2">{entry.audio_notes.map((url) => <audio key={url} src={url} controls className="h-11 w-full" />)}</div>
               </section>
             )}
           </div>
         )}
 
-        {showAiSuggestions && <div className="mt-4 border-t border-teal-100 pt-4">
+        {showAiSuggestions && <div className="mt-4 border-t border-border pt-4">
           <AiJournalSuggestions entry={entry} onClose={() => setShowAiSuggestions(false)} />
         </div>}
       </CardContent>
@@ -181,8 +181,8 @@ function ThoughtRecordCard({ entry, onEdit }) {
 function RichSection({ title, html, className = '' }) {
   return (
     <section className={className}>
-      <h3 className="mb-1 text-sm font-bold text-slate-800">{title}</h3>
-      <div dir="auto" className="prose prose-sm max-w-none break-words text-slate-600" dangerouslySetInnerHTML={{ __html: html }} />
+      <h3 className="mb-1 text-sm font-bold text-foreground">{title}</h3>
+      <div dir="auto" className="prose prose-sm max-w-none break-words text-muted-foreground" dangerouslySetInnerHTML={{ __html: html }} />
     </section>
   );
 }

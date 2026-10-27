@@ -119,10 +119,10 @@ export default function ConversationsList({
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="relative h-full min-h-0 overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-b from-white via-emerald-50/80 to-amber-50/55 shadow-[0_22px_60px_rgba(32,92,82,0.16)] flex flex-col">
-        <div className="h-1.5 flex-shrink-0 bg-gradient-to-r from-amber-300 via-teal-400 to-violet-400" />
+      <div className="relative h-full min-h-0 overflow-hidden rounded-[28px] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)] flex flex-col">
+        <div className="h-1.5 flex-shrink-0 bg-primary/25" />
         {/* Header */}
-        <div className="bg-white/72 p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-teal-900/8 backdrop-blur-xl">
+        <div className="bg-[hsl(var(--card)/0.97)] p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border backdrop-blur-xl">
           {selected.size > 0 ? (
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <input
@@ -130,10 +130,10 @@ export default function ConversationsList({
                 checked={allSelected}
                 ref={el => { if (el) el.indeterminate = someSelected; }}
                 onChange={toggleAll}
-                className="w-4 h-4 flex-shrink-0 accent-teal-600 cursor-pointer"
+                className="w-4 h-4 flex-shrink-0 accent-primary cursor-pointer"
                 aria-label={t('chat.conversations_list.select_all')}
               />
-              <span className="text-teal-600 text-sm font-medium truncate">{t('chat.conversations_list.selected_count', { count: selected.size })}</span>
+              <span className="text-primary text-sm font-medium truncate">{t('chat.conversations_list.selected_count', { count: selected.size })}</span>
               <button
                 onClick={() => setShowBulkConfirm(true)}
                 className="ms-auto flex items-center gap-1 px-2 py-1 rounded-[var(--radius-nested)] bg-destructive/10 text-red-600 text-xs font-medium flex-shrink-0 min-h-[36px] min-w-[44px]"
@@ -150,18 +150,18 @@ export default function ConversationsList({
                   type="checkbox"
                   checked={false}
                   onChange={toggleAll}
-                  className="w-4 h-4 flex-shrink-0 accent-teal-600 cursor-pointer"
+                  className="w-4 h-4 flex-shrink-0 accent-primary cursor-pointer"
                   aria-label={t('chat.conversations_list.select_all')}
                 />
               )}
-              <h2 className="text-teal-950 text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
+              <h2 className="text-foreground text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
             </div>
           )}
           <div className="flex gap-2 flex-shrink-0 ms-2">
             <Button
               onClick={onNewConversation}
               size="icon"
-              className="bg-teal-700 text-white font-medium tracking-[0.005em] leading-none rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0"
+              className="bg-primary text-primary-foreground font-medium tracking-[0.005em] leading-none rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0"
               aria-label={t('chat.conversations_list.new_conversation_aria')}
              mobileLabelKey="add">
               <Plus className="w-5 h-5" />
@@ -181,13 +181,13 @@ export default function ConversationsList({
         {safeConversations.length > 0 && (
           <div className="px-3 pb-2 flex-shrink-0">
             <label className="relative block">
-              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-teal-600" aria-hidden="true" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" aria-hidden="true" />
               <input
                 type="search"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder={t('chat.conversations_list.search_placeholder')}
-                className="w-full min-h-[44px] rounded-2xl border border-teal-900/10 bg-white/90 ps-9 pe-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400"
+                className="w-full min-h-[44px] rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] ps-9 pe-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </label>
           </div>
@@ -196,15 +196,15 @@ export default function ConversationsList({
         {/* Conversations List */}
         <div className="bg-transparent p-2.5 flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
           {safeConversations.length === 0 ? (
-            <div className="border border-dashed border-teal-300 bg-white/75 px-4 py-8 text-center rounded-3xl shadow-sm">
-              <MessageCircle className="text-teal-600 mb-3 mx-auto lucide lucide-message-circle w-12 h-12" />
-              <p className="text-teal-600 text-sm font-medium">{t('chat.conversations_list.empty_title')}</p>
-              <p className="text-teal-600 mt-1 text-xs font-medium">{t('chat.conversations_list.empty_message')}</p>
+            <div className="border border-dashed border-border bg-[hsl(var(--card)/0.97)] px-4 py-8 text-center rounded-3xl shadow-sm">
+              <MessageCircle className="text-primary mb-3 mx-auto lucide lucide-message-circle w-12 h-12" />
+              <p className="text-primary text-sm font-medium">{t('chat.conversations_list.empty_title')}</p>
+              <p className="text-primary mt-1 text-xs font-medium">{t('chat.conversations_list.empty_message')}</p>
             </div>
           ) : visibleConversations.length === 0 ? (
-            <div className="bg-white/65 px-4 py-8 text-center rounded-2xl">
-              <Search className="text-teal-600 mb-3 mx-auto w-9 h-9" />
-              <p className="text-slate-700 text-sm font-medium">{t('chat.conversations_list.no_search_results')}</p>
+            <div className="bg-[hsl(var(--card)/0.97)] px-4 py-8 text-center rounded-2xl">
+              <Search className="text-primary mb-3 mx-auto w-9 h-9" />
+              <p className="text-muted-foreground text-sm font-medium">{t('chat.conversations_list.no_search_results')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -214,8 +214,8 @@ export default function ConversationsList({
                   className={cn(
                     'group relative overflow-hidden transition-all rounded-2xl border',
                     currentConversationId === conversation.id
-                      ? 'border-teal-300 bg-gradient-to-r from-teal-50 via-white to-amber-50 shadow-[0_10px_28px_rgba(38,166,154,0.14)] ring-1 ring-white'
-                      : 'border-white/90 bg-white/72 shadow-sm hover:-translate-y-0.5 hover:border-teal-200 hover:bg-white hover:shadow-md'
+                      ? 'border-border bg-secondary shadow-[var(--shadow-sm)] ring-1 ring-border'
+                      : 'border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm hover:-translate-y-0.5 hover:border-border hover:bg-[hsl(var(--card)/0.97)] hover:shadow-md'
                   )}
                 >
                   {/* Checkbox — left side */}
@@ -225,7 +225,7 @@ export default function ConversationsList({
                       checked={selected.has(conversation.id)}
                       onChange={(e) => toggleOne(conversation.id, e)}
                       onClick={(e) => e.stopPropagation()}
-                      className="w-4 h-4 accent-teal-600 cursor-pointer"
+                      className="w-4 h-4 accent-primary cursor-pointer"
                       aria-label={t('chat.conversations_list.select_session', { name: conversation.metadata?.name || conversation.id })}
                     />
                   </div>
@@ -241,7 +241,7 @@ export default function ConversationsList({
                         onChange={(event) => setNameDraft(event.target.value)}
                         maxLength={80}
                         aria-label={t('chat.conversations_list.rename_placeholder')}
-                        className="flex-1 min-w-0 min-h-[44px] rounded-xl border border-teal-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        className="flex-1 min-w-0 min-h-[44px] rounded-xl border border-border bg-[hsl(var(--card)/0.97)] px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                       <Button type="submit" size="icon" disabled={!nameDraft.trim() || isPreferenceSaving} aria-label={t('chat.conversations_list.save_name')} mobileLabelKey="save">
                         <Check className="w-4 h-4" />
@@ -255,7 +255,7 @@ export default function ConversationsList({
                     onClick={() => onSelectConversation(conversation.id)}
                     className="bg-transparent text-start p-3 ps-8 pe-14 w-full flex items-start gap-3 min-w-0"
                   >
-                    <div className={cn('rounded-[18px] w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 shadow-sm', index % 3 === 0 ? 'bg-teal-600 text-white' : index % 3 === 1 ? 'bg-violet-100 text-violet-700' : 'bg-amber-100 text-amber-700')}>
+                    <div className={cn('rounded-[18px] w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 shadow-sm', currentConversationId === conversation.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-primary')}>
                       <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -280,10 +280,10 @@ export default function ConversationsList({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
-                          className="absolute end-2 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center hover:bg-white hover:shadow-sm"
+                          className="absolute end-2 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--card)/0.97)] hover:shadow-sm"
                           aria-label={t('chat.conversations_list.actions_aria', { name: getConversationName(conversation) })}
                         >
-                          <MoreHorizontal className="w-5 h-5 text-teal-700" />
+                          <MoreHorizontal className="w-5 h-5 text-primary" />
                         <span className="mobile-action-label md:hidden">{t('mobile_actions.more')}</span></button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">

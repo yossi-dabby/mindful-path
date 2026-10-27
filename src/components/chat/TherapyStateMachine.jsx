@@ -150,15 +150,15 @@ export default function TherapyStateMachine({ onComplete }) {
     return (
       <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <div className="mb-6">
-          <p className="text-sm mb-3" style={{ color: '#5A7A72' }}>
+          <p className="text-sm mb-3" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {t('chat.entry.welcome')}
           </p>
-          <h3 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>
+          <h3 className="text-xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
             {t('chat.entry.question')}
           </h3>
         </div>
@@ -183,7 +183,7 @@ export default function TherapyStateMachine({ onComplete }) {
                   style={{
                     borderRadius: '18px',
                     border: '1px solid rgba(38, 166, 154, 0.15)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)'
+                    backgroundColor: 'hsl(var(--card) / 0.97)'
                   }}
                 >
                   <div className="flex items-center gap-3 w-full">
@@ -193,7 +193,7 @@ export default function TherapyStateMachine({ onComplete }) {
                     }}>
                       <PremiumIcon name={icons[id - 1]} size="sm" />
                     </div>
-                    <span className="text-sm font-medium flex-1" style={{ color: '#1A3A34' }}>
+                    <span className="text-sm font-medium flex-1" style={{ color: 'hsl(var(--foreground))' }}>
                       {labels[id - 1]}
                     </span>
                   </div>
@@ -211,11 +211,11 @@ export default function TherapyStateMachine({ onComplete }) {
     return (
       <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+        boxShadow: 'var(--shadow-md)'
       }}>
-        <p className="mb-4 leading-relaxed" style={{ color: '#1A3A34' }}>
+        <p className="mb-4 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
           {t(`chat.flow.prompt_${selectedOption}`)}
         </p>
         <textarea
@@ -225,8 +225,8 @@ export default function TherapyStateMachine({ onComplete }) {
           className="w-full p-4 rounded-xl resize-none min-h-[120px] mb-4"
           style={{
             border: '1px solid rgba(38, 166, 154, 0.2)',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            color: '#1A3A34'
+            backgroundColor: 'hsl(var(--card) / 0.97)',
+            color: 'hsl(var(--foreground))'
           }}
         />
         <Button
@@ -235,8 +235,8 @@ export default function TherapyStateMachine({ onComplete }) {
           className="w-full text-white"
           style={{
             borderRadius: '18px',
-            backgroundColor: '#26A69A',
-            boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
+            backgroundColor: 'hsl(var(--primary))',
+            boxShadow: 'var(--shadow-md)',
             opacity: !userInput.trim() ? 0.5 : 1
           }}
         >
@@ -251,14 +251,14 @@ export default function TherapyStateMachine({ onComplete }) {
     return (
       <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+        boxShadow: 'var(--shadow-md)'
       }}>
-        <p className="mb-4 leading-relaxed" style={{ color: '#1A3A34' }}>
+        <p className="mb-4 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
           {t('chat.flow.reflection', { text: userInput })}
         </p>
-        <p className="mb-6 text-sm" style={{ color: '#5A7A72' }}>
+        <p className="mb-6 text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('chat.flow.confirm')}
         </p>
         <div className="flex gap-3">
@@ -267,8 +267,8 @@ export default function TherapyStateMachine({ onComplete }) {
             className="flex-1 text-white"
             style={{
               borderRadius: '18px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+              backgroundColor: 'hsl(var(--primary))',
+              boxShadow: 'var(--shadow-md)'
             }}
           >
             {t('chat.flow.yes')}
@@ -279,7 +279,7 @@ export default function TherapyStateMachine({ onComplete }) {
             className="flex-1"
             style={{
               borderRadius: '18px',
-              borderColor: 'rgba(38, 166, 154, 0.3)'
+              borderColor: 'hsl(var(--border))'
             }}
           >
             {t('chat.flow.no')}
@@ -295,12 +295,12 @@ export default function TherapyStateMachine({ onComplete }) {
       return (
         <Card className="p-8 border-0 max-w-2xl mx-auto text-center" style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          background: 'hsl(var(--card) / 0.97)',
           backdropFilter: 'blur(16px)',
-          boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+          boxShadow: 'var(--shadow-md)'
         }}>
-          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: '#26A69A' }} />
-          <p style={{ color: '#5A7A72' }}>{t('chat.flow.creating')}</p>
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+          <p style={{ color: 'hsl(var(--muted-foreground))' }}>{t('chat.flow.creating')}</p>
         </Card>
       );
     }
@@ -310,14 +310,14 @@ export default function TherapyStateMachine({ onComplete }) {
       return (
         <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          background: 'hsl(var(--card) / 0.97)',
           backdropFilter: 'blur(16px)',
-          boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+          boxShadow: 'var(--shadow-md)'
         }}>
-          <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
+          <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
             {t('chat.flow.alternatives_title')}
           </h3>
-          <p className="text-sm mb-6" style={{ color: '#5A7A72' }}>
+          <p className="text-sm mb-6" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {t('chat.flow.alternatives_help')}
           </p>
 
@@ -331,19 +331,19 @@ export default function TherapyStateMachine({ onComplete }) {
                 variant="outline"
                 style={{
                   borderRadius: '18px',
-                  borderColor: 'rgba(38, 166, 154, 0.3)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)'
+                  borderColor: 'hsl(var(--border))',
+                  backgroundColor: 'hsl(var(--card) / 0.97)'
                 }}
               >
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                    backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                    backgroundColor: 'hsl(var(--secondary))'
                   }}>
-                    <span className="text-sm font-medium" style={{ color: '#26A69A' }}>
+                    <span className="text-sm font-medium" style={{ color: 'hsl(var(--primary))' }}>
                       {String.fromCharCode(65 + index)}
                     </span>
                   </div>
-                  <span className="flex-1" style={{ color: '#1A3A34', lineHeight: '1.5' }}>
+                  <span className="flex-1" style={{ color: 'hsl(var(--foreground))', lineHeight: '1.5' }}>
                     {alt}
                   </span>
                 </div>
@@ -359,21 +359,21 @@ export default function TherapyStateMachine({ onComplete }) {
       return (
         <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          background: 'hsl(var(--card) / 0.97)',
           backdropFilter: 'blur(16px)',
-          boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+          boxShadow: 'var(--shadow-md)'
         }}>
-          <h3 className="text-lg font-semibold mb-4" style={{ color: '#1A3A34' }}>
+          <h3 className="text-lg font-semibold mb-4" style={{ color: 'hsl(var(--foreground))' }}>
             {t('chat.flow.grounding_title')}
           </h3>
           <div className="space-y-4 mb-6">
-            <p style={{ color: '#1A3A34' }}>
+            <p style={{ color: 'hsl(var(--foreground))' }}>
               <strong>1.</strong> {t('chat.flow.grounding_1')}
             </p>
-            <p style={{ color: '#1A3A34' }}>
+            <p style={{ color: 'hsl(var(--foreground))' }}>
               <strong>2.</strong> {t('chat.flow.grounding_2')}
             </p>
-            <p style={{ color: '#1A3A34' }}>
+            <p style={{ color: 'hsl(var(--foreground))' }}>
               <strong>3.</strong> {t('chat.flow.grounding_3')}
             </p>
           </div>
@@ -401,8 +401,8 @@ export default function TherapyStateMachine({ onComplete }) {
               className="flex-1 text-white"
               style={{
                 borderRadius: '18px',
-                backgroundColor: '#26A69A',
-                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                backgroundColor: 'hsl(var(--primary))',
+                boxShadow: 'var(--shadow-md)'
               }}
             >
               {t('chat.flow.calming_exercise')}
@@ -417,19 +417,19 @@ export default function TherapyStateMachine({ onComplete }) {
       return (
         <Card className="p-8 border-0 max-w-2xl mx-auto text-center" style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          background: 'hsl(var(--card) / 0.97)',
           backdropFilter: 'blur(16px)',
-          boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+          boxShadow: 'var(--shadow-md)'
         }}>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{
             backgroundColor: 'rgba(129, 199, 132, 0.2)'
           }}>
             <CheckCircle2 className="w-8 h-8" style={{ color: '#81C784' }} />
           </div>
-          <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
+          <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
             {t('chat.flow.goal_created')}
           </h3>
-          <p className="mb-6" style={{ color: '#5A7A72' }}>
+          <p className="mb-6" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {t('chat.flow.goal_saved')}
           </p>
           <div className="flex gap-3">
@@ -446,8 +446,8 @@ export default function TherapyStateMachine({ onComplete }) {
               className="flex-1 text-white"
               style={{
                 borderRadius: '18px',
-                backgroundColor: '#26A69A',
-                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                backgroundColor: 'hsl(var(--primary))',
+                boxShadow: 'var(--shadow-md)'
               }}
             >
               {t('chat.flow.go_goals')}
@@ -463,9 +463,9 @@ export default function TherapyStateMachine({ onComplete }) {
     return (
       <Card className="p-8 border-0 max-w-2xl mx-auto text-center" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 12px 32px rgba(38, 166, 154, 0.12)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <motion.div
           initial={{ scale: 0 }}
@@ -478,10 +478,10 @@ export default function TherapyStateMachine({ onComplete }) {
             <CheckCircle2 className="w-8 h-8" style={{ color: '#81C784' }} />
           </div>
         </motion.div>
-        <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
           {t('chat.flow.entry_saved')}
         </h3>
-        <p className="mb-6" style={{ color: '#5A7A72' }}>
+        <p className="mb-6" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('chat.flow.journal_saved')}
         </p>
         <div className="flex gap-3">
@@ -489,7 +489,7 @@ export default function TherapyStateMachine({ onComplete }) {
             onClick={handleDoAnother}
             variant="outline"
             className="flex-1"
-            style={{ borderRadius: '18px', borderColor: 'rgba(38, 166, 154, 0.3)' }}
+            style={{ borderRadius: '18px', borderColor: 'hsl(var(--border))' }}
           >
             {t('chat.flow.another')}
           </Button>
@@ -498,8 +498,8 @@ export default function TherapyStateMachine({ onComplete }) {
             className="flex-1 text-white"
             style={{
               borderRadius: '18px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+              backgroundColor: 'hsl(var(--primary))',
+              boxShadow: 'var(--shadow-md)'
             }}
           >
             {t('chat.flow.go_journal')}

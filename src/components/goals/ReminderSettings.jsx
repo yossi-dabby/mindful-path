@@ -160,14 +160,14 @@ export default function ReminderSettings({ goal, onClose }) {
             </CardTitle>
             <Button variant="ghost" aria-label="Close" onClick={onClose}>✕</Button>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Set up reminders for "{goal.title}"
           </p>
         </CardHeader>
         
         <CardContent className="space-y-4">
           {isLoading ? (
-            <p className="text-sm text-gray-500">Loading reminders...</p>
+            <p className="text-sm text-muted-foreground">Loading reminders...</p>
           ) : (
             <>
               {reminders.length > 0 && (
@@ -182,11 +182,11 @@ export default function ReminderSettings({ goal, onClose }) {
                           <Badge variant="outline" className="text-xs">
                             {getReminderTypeLabel(reminder.reminder_type)}
                           </Badge>
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
                             {getMethodIcon(reminder.notification_method)}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-muted-foreground">
                           {reminder.reminder_type === 'goal_deadline' && 
                             `${reminder.days_before} days before deadline`}
                           {reminder.reminder_type === 'milestone_deadline' && 

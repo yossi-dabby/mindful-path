@@ -35,14 +35,14 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  breathing: 'bg-teal-100 text-teal-700 border border-teal-200',
+  breathing: 'bg-secondary/70 text-primary border border-border',
   grounding: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
   cognitive_restructuring: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
   behavioral_activation: 'bg-amber-100 text-amber-700 border border-amber-200',
   mindfulness: 'bg-sky-100 text-sky-700 border border-sky-200',
   exposure: 'bg-rose-100 text-rose-700 border border-rose-200',
   sleep: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
-  relationships: 'bg-teal-100 text-teal-700 border border-teal-200',
+  relationships: 'bg-secondary/70 text-primary border border-border',
   stress_management: 'bg-orange-100 text-orange-700 border border-orange-200'
 };
 
@@ -289,27 +289,27 @@ export default function Exercises() {
                   size="icon"
                   onClick={() => navigate('/')}
                   style={{ borderRadius: '50%' }}
-                  aria-label={t('exercises.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0">
+                  aria-label={t('exercises.go_back_aria')} className="text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0">
 
 
               <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </Button>
             <div className="min-w-0">
-              <div className="botanical-title-row"><h1 className="text-teal-600 text-2xl font-semibold md:text-3xl lg:text-4xl whitespace-nowrap">{t('exercises.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+              <div className="botanical-title-row"><h1 className="text-foreground text-2xl font-semibold md:text-3xl lg:text-4xl whitespace-nowrap">{t('exercises.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap sm:flex-nowrap items-start">
             <Button
                   onClick={() => setShowCoaching(true)}
-                  variant="outline" className="bg-teal-50 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 flex">
+                  variant="outline" className="bg-secondary/70 text-primary px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 flex">
 
 
               <Sparkles className="w-4 h-4" />
               <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
             </Button>
             <button
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="bg-teal-100 text-teal-600 px-3 py-2 text-sm rounded-[var(--radius-card)] md:px-4 md:py-2 transition-all md:text-base whitespace-nowrap border shadow-[var(--shadow-sm)] border-border/70 hover:text-foreground">
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="bg-secondary/70 text-primary px-3 py-2 text-sm rounded-[var(--radius-card)] md:px-4 md:py-2 transition-all md:text-base whitespace-nowrap border shadow-[var(--shadow-sm)] border-border/70 hover:text-foreground">
 
 
 
@@ -317,24 +317,24 @@ export default function Exercises() {
 
 
 
-            <Star className="text-teal-600 mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
-            <span className="text-teal-600 inline">{t('exercises.favorites')}</span>
-            {showFavoritesOnly && <span className="text-teal-600 md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
-            {showFavoritesOnly && <span className="text-teal-600 opacity-100 hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
+            <Star className="text-primary mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
+            <span className="text-primary inline">{t('exercises.favorites')}</span>
+            {showFavoritesOnly && <span className="text-primary md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
+            {showFavoritesOnly && <span className="text-primary opacity-100 hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
           </button>
           </div>
         </div>
-        <p className="text-teal-600 ml-0 text-sm md:text-base md:ml-12 hidden md:block">{t('exercises.page_subtitle_full')}</p>
+        <p className="text-primary ml-0 text-sm md:text-base md:ml-12 hidden md:block">{t('exercises.page_subtitle_full')}</p>
       </div>
 
       {/* Search Bar */}
       <div className="mb-5">
         <div className="relative">
-          <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
+          <Search className="text-primary lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
           <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('exercises.search_placeholder')} className="bg-teal-50 text-foreground px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
+                placeholder={t('exercises.search_placeholder')} className="bg-secondary/70 text-foreground px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
 
                 style={{ borderRadius: '28px' }} />
 
@@ -355,7 +355,7 @@ export default function Exercises() {
             {categories.map((cat) =>
                 <TabsTrigger
                   key={cat.value}
-                  value={cat.value} className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] whitespace-nowrap">
+                  value={cat.value} className="text-primary px-3 py-1 text-sm font-medium tracking-[0.003em] rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] whitespace-nowrap">
 
 
                 {cat.label}
@@ -365,10 +365,10 @@ export default function Exercises() {
         </Tabs>
         </div>
         <div aria-hidden="true" className="pointer-events-none absolute inset-y-1 left-0 z-10 flex w-7 items-center justify-start bg-gradient-to-r from-teal-100 via-teal-100/90 to-transparent lg:hidden">
-          <ChevronLeft className="h-4 w-4 text-teal-700" />
+          <ChevronLeft className="h-4 w-4 text-primary" />
         </div>
         <div aria-hidden="true" className="pointer-events-none absolute inset-y-1 right-0 z-10 flex w-7 items-center justify-end bg-gradient-to-l from-teal-100 via-teal-100/90 to-transparent lg:hidden">
-          <ChevronRight className="h-4 w-4 text-teal-700" />
+          <ChevronRight className="h-4 w-4 text-primary" />
         </div>
       </div>
 
@@ -394,13 +394,13 @@ export default function Exercises() {
       {filteredExercises.length === 0 ?
           <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
           <CardContent className="p-12 text-center">
-            <div className="bg-teal-600 text-slate-50 mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
+            <div className="bg-primary text-primary-foreground mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
               <Sparkles className="w-10 h-10" />
             </div>
-            <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
+            <h2 className="text-foreground mb-2 text-2xl font-semibold">
               {showFavoritesOnly ? t('exercises.empty_state.favorites_title') : t('exercises.empty_state.no_results_title')}
             </h2>
-            <p className="text-teal-800 text-lg font-medium">
+            <p className="text-primary text-lg font-medium">
               {showFavoritesOnly ?
                 t('exercises.empty_state.favorites_message') :
                 searchQuery ?

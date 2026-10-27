@@ -15,7 +15,7 @@ const INTEREST_AREAS = [
   { id: 'sleep_improvement', label: 'Sleep Improvement', color: 'bg-indigo-100 text-indigo-700' },
   { id: 'relationship_building', label: 'Relationship Building', color: 'bg-rose-100 text-rose-700' },
   { id: 'self_esteem', label: 'Self-Esteem', color: 'bg-amber-100 text-amber-700' },
-  { id: 'habit_formation', label: 'Habit Formation', color: 'bg-teal-100 text-teal-700' },
+  { id: 'habit_formation', label: 'Habit Formation', color: 'bg-secondary/70 text-primary' },
   { id: 'cognitive_restructuring', label: 'Cognitive Restructuring', color: 'bg-cyan-100 text-cyan-700' }
 ];
 
@@ -72,8 +72,8 @@ export default function FeedPreferences({ onPreferencesChange }) {
           className="w-full flex items-center justify-between"
         >
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-800">Content Preferences</h3>
+            <Settings className="w-5 h-5 text-muted-foreground" />
+            <h3 className="font-semibold text-foreground">Content Preferences</h3>
             <Badge variant="secondary" className="text-xs">
               {selectedInterests.length} selected
             </Badge>
@@ -98,7 +98,7 @@ export default function FeedPreferences({ onPreferencesChange }) {
               className="overflow-hidden"
             >
               <div className="mt-4 pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Select areas of interest to personalize your feed content:
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -112,7 +112,7 @@ export default function FeedPreferences({ onPreferencesChange }) {
                           px-3 py-2 rounded-lg text-sm font-medium transition-all
                           ${isSelected 
                             ? interest.color + ' ring-2 ring-offset-1 ring-current' 
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            : 'bg-gray-100 text-muted-foreground hover:bg-gray-200'
                           }
                         `}
                       >

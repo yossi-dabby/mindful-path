@@ -29,14 +29,14 @@ export default function FormsCollectionCard({
   return (
     <article
       data-testid={`collection-card-${collection.collectionId}`}
-      className={`rounded-[var(--radius-card)] border border-teal-300 bg-white shadow-[var(--shadow-md)] hover:border-teal-400 hover:bg-teal-50/40 transition-colors flex flex-col ${cardModeClasses[viewMode] || cardModeClasses.medium}`}
+      className={`rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)] hover:border-border hover:bg-secondary/70 transition-colors flex flex-col ${cardModeClasses[viewMode] || cardModeClasses.medium}`}
     >
       <div className={viewMode === 'list' ? 'flex-1' : ''}>
-        <h3 className={`${titleClasses[viewMode] || titleClasses.medium} font-semibold text-teal-600 leading-snug`}>{collection.title}</h3>
+        <h3 className={`${titleClasses[viewMode] || titleClasses.medium} font-semibold text-primary leading-snug`}>{collection.title}</h3>
         <div className="mt-2 flex flex-wrap gap-2 text-xs">
-          <span className="px-2.5 py-0.5 rounded-full bg-teal-200 border border-teal-300 text-teal-600">{audienceLabel}</span>
-          <span className="px-2.5 py-0.5 rounded-full bg-teal-100 border border-teal-200 text-teal-600">{languageLabel}</span>
-          <span className="px-2.5 py-0.5 rounded-full bg-teal-200 border border-teal-300 text-teal-600">{collectionTypeLabel}</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-teal-200 border border-border text-primary">{audienceLabel}</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-secondary/70 border border-border text-primary">{languageLabel}</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-teal-200 border border-border text-primary">{collectionTypeLabel}</span>
         </div>
         <p className="mt-2 text-sm text-foreground">
           {collection.moduleCount} • {collection.worksheetCount}
@@ -45,7 +45,7 @@ export default function FormsCollectionCard({
       <Button
         type="button"
         onClick={onBrowse}
-        className={`mt-auto bg-teal-600 hover:bg-teal-500 text-white ${viewMode === 'list' ? 'md:mt-0 md:ms-auto' : ''}`}
+        className={`mt-auto bg-primary hover:bg-primary text-white ${viewMode === 'list' ? 'md:mt-0 md:ms-auto' : ''}`}
         data-testid={`browse-collection-${collection.collectionId}`}
       >
         {browseLabel}

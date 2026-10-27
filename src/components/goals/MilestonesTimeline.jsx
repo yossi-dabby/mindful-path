@@ -155,7 +155,7 @@ export default function MilestonesTimeline() {
     },
     future: {
       color: 'bg-gray-400',
-      textColor: 'text-gray-700',
+      textColor: 'text-muted-foreground',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200',
       icon: Calendar,
@@ -163,7 +163,7 @@ export default function MilestonesTimeline() {
     },
     'no-date': {
       color: 'bg-slate-400',
-      textColor: 'text-slate-700',
+      textColor: 'text-muted-foreground',
       bgColor: 'bg-slate-50',
       borderColor: 'border-slate-200',
       icon: Clock,
@@ -223,8 +223,8 @@ export default function MilestonesTimeline() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
           <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-            <div className="text-xs text-gray-500">Total</div>
+            <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+            <div className="text-xs text-muted-foreground">Total</div>
           </div>
           <div className="p-3 bg-red-50 rounded-lg border border-red-200">
             <div className="text-2xl font-bold text-red-700">{stats.overdue}</div>
@@ -245,7 +245,7 @@ export default function MilestonesTimeline() {
 
       <CardContent>
         {filteredMilestones.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-muted-foreground">
             <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>No milestones found with the selected filters</p>
           </div>
@@ -267,7 +267,7 @@ export default function MilestonesTimeline() {
                   <div key={`${milestone.goalId}-${milestone.milestoneIndex}`} className="relative flex gap-4">
                     {/* Timeline dot */}
                     <div className={cn(
-                      "relative z-10 flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-md",
+                      "relative z-10 flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center border-4 border-border/70 shadow-md",
                       config.color
                     )}>
                       <Icon className="w-5 h-5 text-white" />
@@ -303,7 +303,7 @@ export default function MilestonesTimeline() {
                         <div className="flex flex-col items-end gap-1">
                           {milestone.due_date ? (
                             <>
-                              <div className="text-sm font-medium text-gray-700">
+                              <div className="text-sm font-medium text-muted-foreground">
                                 {format(dueDate, 'MMM d, yyyy')}
                               </div>
                               {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 && (
@@ -318,7 +318,7 @@ export default function MilestonesTimeline() {
                               )}
                             </>
                           ) : (
-                            <div className="text-sm text-slate-500 italic">
+                            <div className="text-sm text-muted-foreground italic">
                               No due date
                             </div>
                           )}
@@ -326,7 +326,7 @@ export default function MilestonesTimeline() {
                       </div>
 
                       {milestone.description && (
-                        <p className="text-sm text-gray-600 mt-2">
+                        <p className="text-sm text-muted-foreground mt-2">
                           {safeText(milestone.description)}
                         </p>
                       )}

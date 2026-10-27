@@ -83,8 +83,8 @@ describe('Exercises UX polish — quick start, favorites, AI controls, and artwo
     expect(source).toContain('onClick={() => setIsExpanded(false)}');
     expect(source).toContain("t('exercises.recommendations.close_aria')");
     expect(source).toContain("t('exercises.recommendations.show_aria')");
-    expect(source).toContain('order-1 bg-teal-600');
-    expect(source).toContain('order-2 bg-teal-50');
+    expect(source).toContain('order-1 bg-primary');
+    expect(source).toContain('order-2 bg-secondary/70');
     expect(source).toContain("exercise.category !== 'breathing'");
     expect(source).toContain('exercise.localization_available !== false');
     expect(source).toContain('setRecommendations(null)');

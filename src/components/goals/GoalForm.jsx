@@ -238,7 +238,7 @@ ${t('goals.form.ai_prompt_request')}`,
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>{goal ? t('goals.form.edit_title') : t('goals.form.create_title')}</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">{t('goals.form.subtitle')}</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('goals.form.subtitle')}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('goals.form.close_aria')}>
               <X className="w-5 h-5" />
@@ -256,7 +256,7 @@ ${t('goals.form.ai_prompt_request')}`,
             <TabsContent value="basic" className="overflow-y-auto flex-1">
               <div className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.goal_title')}</label>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('goals.form.goal_title')}</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -266,7 +266,7 @@ ${t('goals.form.ai_prompt_request')}`,
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.description')}</label>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('goals.form.description')}</label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -277,7 +277,7 @@ ${t('goals.form.ai_prompt_request')}`,
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.category')}</label>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('goals.form.category')}</label>
                     <BottomSheetSelect
                       value={formData.category}
                       onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -288,7 +288,7 @@ ${t('goals.form.ai_prompt_request')}`,
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.target_date')}</label>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('goals.form.target_date')}</label>
                     <DatePickerMobile
                       value={formData.target_date}
                       onChange={(date) => setFormData({ ...formData, target_date: date })}
@@ -299,7 +299,7 @@ ${t('goals.form.ai_prompt_request')}`,
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('goals.form.motivation')}</label>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('goals.form.motivation')}</label>
                   <Textarea
                     value={formData.motivation || ''}
                     onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
@@ -310,7 +310,7 @@ ${t('goals.form.ai_prompt_request')}`,
 
                 {goal && (
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">
                       {t('goals.form.progress')}: {formData.progress}%
                     </label>
                     <input
@@ -346,17 +346,17 @@ ${t('goals.form.ai_prompt_request')}`,
             <TabsContent value="smart" className="overflow-y-auto flex-1">
               <div className="space-y-6">
                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <Target className="w-5 h-5 text-blue-600" />
                     {t('goals.form.framework_title')}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {t('goals.form.framework_description')}
                   </p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  <label className="text-sm font-semibold text-muted-foreground mb-2 block">
                     {t('goals.form.specific_label')}
                   </label>
                   <Textarea
@@ -371,7 +371,7 @@ ${t('goals.form.ai_prompt_request')}`,
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  <label className="text-sm font-semibold text-muted-foreground mb-2 block">
                     {t('goals.form.measurable_label')}
                   </label>
                   <Textarea
@@ -386,7 +386,7 @@ ${t('goals.form.ai_prompt_request')}`,
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  <label className="text-sm font-semibold text-muted-foreground mb-2 block">
                     {t('goals.form.achievable_label')}
                   </label>
                   <Textarea
@@ -401,7 +401,7 @@ ${t('goals.form.ai_prompt_request')}`,
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  <label className="text-sm font-semibold text-muted-foreground mb-2 block">
                     {t('goals.form.relevant_label')}
                   </label>
                   <Textarea
@@ -416,7 +416,7 @@ ${t('goals.form.ai_prompt_request')}`,
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  <label className="text-sm font-semibold text-muted-foreground mb-2 block">
                     {t('goals.form.time_bound_label')}
                   </label>
                   <Textarea
@@ -436,17 +436,17 @@ ${t('goals.form.ai_prompt_request')}`,
               <div className="space-y-6">
 
                 <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-4">
-                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     {t('goals.form.breakdown_title')}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {t('goals.form.breakdown_description')}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-medium text-gray-700">{t('goals.form.action_steps')}</label>
+                  <label className="text-sm font-medium text-muted-foreground">{t('goals.form.action_steps')}</label>
                   <Button variant="outline" size="sm" onClick={addMilestone} className="rounded-lg">
                     <Plus className="w-4 h-4 mr-1" />
                     {t('goals.form.add_step')}
@@ -455,12 +455,12 @@ ${t('goals.form.ai_prompt_request')}`,
 
                 <div className="space-y-3">
                   {formData.milestones.length === 0 && (
-                    <div className="text-center py-8 text-gray-500 text-sm">
+                    <div className="text-center py-8 text-muted-foreground text-sm">
                       {t('goals.form.no_steps')}
                     </div>
                   )}
                   {formData.milestones.map((milestone, index) => (
-                    <div key={index} className="p-4 border-2 rounded-xl bg-white hover:border-blue-300 transition-colors">
+                    <div key={index} className="p-4 border-2 rounded-xl bg-[hsl(var(--card)/0.97)] hover:border-blue-300 transition-colors">
                       <div className="flex gap-2 mb-3">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-sm flex-shrink-0">
                           {index + 1}

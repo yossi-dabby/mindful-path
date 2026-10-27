@@ -84,7 +84,7 @@ export default function ExerciseViewPage() {
   if (exerciseId && isLoading) {
     return (
       <div className="page-container flex min-h-[60dvh] items-center justify-center">
-        <p className="text-gray-500">Loading exercise...</p>
+        <p className="text-muted-foreground">Loading exercise...</p>
       </div>
     );
   }
@@ -121,7 +121,7 @@ export default function ExerciseViewPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1">
-              <div className="botanical-title-row"><h1 className="text-xl font-semibold text-gray-800">{exercise.title || t('exercise_view.untitled')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+              <div className="botanical-title-row"><h1 className="text-xl font-semibold text-foreground">{exercise.title || t('exercise_view.untitled')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             </div>
             <button
               onClick={() => toggleFavoriteMutation.mutate()}
@@ -196,10 +196,10 @@ export default function ExerciseViewPage() {
               <TabsContent value="overview" className="space-y-4" style={{ maxHeight: '50vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">About This Exercise</h3>
-                    <p className="text-gray-600 leading-relaxed">{exercise.description || ''}</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">About This Exercise</h3>
+                    <p className="text-muted-foreground leading-relaxed">{exercise.description || ''}</p>
                     {exercise.detailed_description && (
-                      <p className="text-gray-600 leading-relaxed mt-3">{exercise.detailed_description}</p>
+                      <p className="text-muted-foreground leading-relaxed mt-3">{exercise.detailed_description}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -209,9 +209,9 @@ export default function ExerciseViewPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center gap-2 mb-3">
                         <Eye className="w-5 h-5 text-indigo-600" />
-                        <h3 className="text-lg font-semibold text-gray-800">Guided Visualization</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Guided Visualization</h3>
                       </div>
-                      <p className="text-gray-700 leading-relaxed italic">
+                      <p className="text-muted-foreground leading-relaxed italic">
                         "{exercise.visualization_script}"
                       </p>
                     </CardContent>
@@ -221,7 +221,7 @@ export default function ExerciseViewPage() {
                 {exercise.video_url && (
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Video Demonstration</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Video Demonstration</h3>
                       <div className="aspect-video rounded-xl overflow-hidden bg-gray-900">
                         <iframe
                           src={exercise.video_url}
@@ -239,7 +239,7 @@ export default function ExerciseViewPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center gap-2 mb-3">
                         <Headphones className="w-5 h-5 text-purple-600" />
-                        <h3 className="text-lg font-semibold text-gray-800">Audio Guide</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Audio Guide</h3>
                       </div>
                       <audio 
                         controls 
@@ -255,7 +255,7 @@ export default function ExerciseViewPage() {
                 {exercise.tags?.length > 0 && (
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">Helps With</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Helps With</h3>
                       <div className="flex flex-wrap gap-2">
                         {exercise.tags.filter(tag => tag && typeof tag === 'string').map((tag, i) => (
                           <Badge key={i} variant="secondary" className="capitalize">
@@ -273,8 +273,8 @@ export default function ExerciseViewPage() {
                 <TabsContent value="audio" className="space-y-4" style={{ maxHeight: '50vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Guided Audio</h3>
-                      <p className="text-gray-600 mb-4">
+                      <h3 className="text-lg font-semibold text-foreground mb-4">Guided Audio</h3>
+                      <p className="text-muted-foreground mb-4">
                         Follow along with professionally narrated audio guidance for this exercise.
                       </p>
                       {audioContent.map((audio) => (
@@ -294,7 +294,7 @@ export default function ExerciseViewPage() {
               <TabsContent value="instructions" className="space-y-4" style={{ maxHeight: '50vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {exercise.detailed_steps?.length > 0 ? (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Step-by-Step Guide</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Step-by-Step Guide</h3>
                     {exercise.detailed_steps.map((step, i) => (
                       <motion.div
                         key={i}
@@ -308,11 +308,11 @@ export default function ExerciseViewPage() {
                         </div>
                         <div className="flex-1">
                           {step.title && (
-                            <h4 className="font-semibold text-gray-800 mb-1">{step.title}</h4>
+                            <h4 className="font-semibold text-foreground mb-1">{step.title}</h4>
                           )}
-                          <p className="text-gray-700">{step.description || ''}</p>
+                          <p className="text-muted-foreground">{step.description || ''}</p>
                           {step.duration_seconds && (
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-muted-foreground mt-1">
                               Duration: {step.duration_seconds} seconds
                             </p>
                           )}
@@ -323,8 +323,8 @@ export default function ExerciseViewPage() {
                 ) : (
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Instructions</h3>
-                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      <h3 className="text-lg font-semibold text-foreground mb-3">Instructions</h3>
+                      <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                         {exercise.instructions || ''}
                       </p>
                     </CardContent>
@@ -333,7 +333,7 @@ export default function ExerciseViewPage() {
 
                 {exercise.category === 'breathing' && exercise.duration_options?.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Choose Duration</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">Choose Duration</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {exercise.duration_options.map((duration) => (
                         <Button
@@ -353,7 +353,7 @@ export default function ExerciseViewPage() {
               <TabsContent value="benefits" className="space-y-4" style={{ maxHeight: '50vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Key Benefits</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4">Key Benefits</h3>
                     {exercise.benefits?.length > 0 ? (
                       <div className="space-y-3">
                         {exercise.benefits.filter(benefit => benefit && typeof benefit === 'string').map((benefit, i) => (
@@ -365,12 +365,12 @@ export default function ExerciseViewPage() {
                             className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200"
                           >
                             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-gray-700">{benefit}</p>
+                            <p className="text-muted-foreground">{benefit}</p>
                           </motion.div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         This exercise helps improve mental well-being, reduce stress, and enhance emotional regulation.
                       </p>
                     )}
@@ -382,7 +382,7 @@ export default function ExerciseViewPage() {
               <TabsContent value="tips" className="space-y-4" style={{ maxHeight: '50vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Helpful Tips</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4">Helpful Tips</h3>
                     {exercise.tips?.length > 0 ? (
                       <div className="space-y-3">
                         {exercise.tips.filter(tip => tip && typeof tip === 'string').map((tip, i) => (
@@ -394,12 +394,12 @@ export default function ExerciseViewPage() {
                             className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-200"
                           >
                             <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-gray-700">{tip}</p>
+                            <p className="text-muted-foreground">{tip}</p>
                           </motion.div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         Practice regularly for best results. Find a quiet space, start slowly, and be patient with yourself.
                       </p>
                     )}
@@ -436,15 +436,15 @@ export default function ExerciseViewPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                    <p className="text-xs text-gray-600">Times Completed</p>
+                    <p className="text-xs text-muted-foreground">Times Completed</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                    <p className="text-xs text-gray-600">Minutes Practiced</p>
+                    <p className="text-xs text-muted-foreground">Minutes Practiced</p>
                   </div>
                 </div>
                 {exercise.last_completed && (
-                  <p className="text-xs text-gray-500 mt-3">
+                  <p className="text-xs text-muted-foreground mt-3">
                     Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
                       weekday: 'short',
                       year: 'numeric',

@@ -403,11 +403,11 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={handleRestartPath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-teal-700/20 bg-white/75 text-teal-900">
+            <Button type="button" variant="outline" onClick={handleRestartPath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-border bg-[hsl(var(--card)/0.97)] text-primary">
               <RotateCcw className="me-2 h-4 w-4" />
               {copy.starter.restart}
             </Button>
-            <Button type="button" variant="outline" onClick={handleRemovePath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-red-200 bg-white/75 text-red-700 hover:bg-red-50" mobileLabelKey="delete">
+            <Button type="button" variant="outline" onClick={handleRemovePath} disabled={managePathMutation.isPending} className="min-h-11 rounded-xl border-red-200 bg-[hsl(var(--card)/0.97)] text-red-700 hover:bg-red-50" mobileLabelKey="delete">
               <Trash2 className="me-2 h-4 w-4" />
               {copy.starter.remove}
             </Button>
@@ -485,8 +485,8 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                   </h3>
 
                   {generatedContent?.example &&
-                    <div data-testid="starter-path-example" className="mb-4 rounded-2xl border border-teal-200 bg-teal-50/90 p-4 shadow-sm">
-                      <p className="text-sm leading-6 text-teal-950">
+                    <div data-testid="starter-path-example" className="mb-4 rounded-2xl border border-border bg-secondary/70 p-4 shadow-sm">
+                      <p className="text-sm leading-6 text-primary">
                         {generatedContent.example}
                       </p>
                     </div>

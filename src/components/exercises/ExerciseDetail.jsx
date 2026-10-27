@@ -229,7 +229,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-teal-600 text-2xl font-semibold tracking-[-0.012em]">{exercise.title || t('exercise_view.untitled')}</CardTitle>
+                  <CardTitle className="text-primary text-2xl font-semibold tracking-[-0.012em]">{exercise.title || t('exercise_view.untitled')}</CardTitle>
                   <button
                       type="button"
                       aria-pressed={!!exercise.favorite}
@@ -250,7 +250,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   {String(exercise.difficulty || '').toLowerCase() === 'advanced' && <PremiumBadge />}
                   <ExerciseMediaBadge mediaType={exercise.media_type} size="md" />
                   {exercise.duration_options?.length > 0 ?
-                    <Badge variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60 flex items-center gap-1">
+                    <Badge variant="secondary" className="bg-secondary/86 text-primary px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {exercise.duration_options.join(', ')} {t('exercises.detail.duration_options_suffix')}
                     </Badge> :
@@ -278,7 +278,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   <span className="inline">{isExportingPdf ? pdfText.downloading : pdfText.download}</span>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('exercise_view.close')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('exercise_view.close')} className="text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
                   <X className="w-5 h-5" />
                 </Button>
               </div>
@@ -290,11 +290,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <div className="flex flex-col space-y-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
               <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
-                <TabsTrigger value="overview" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
+                <TabsTrigger value="overview" className="text-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <BookOpen className="w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.overview')}</span>
                 </TabsTrigger>
-                <TabsTrigger value="instructions" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
+                <TabsTrigger value="instructions" className="text-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Play className="w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.practice')}</span>
                 </TabsTrigger>
@@ -304,12 +304,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     <span className="inline">{t('exercise_view.tabs.audio')}</span>
                   </TabsTrigger>
                       }
-                <TabsTrigger value="benefits" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
+                <TabsTrigger value="benefits" className="text-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Star className="w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.benefits')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="tips" className="bg-secondary/60 text-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
-                  <Lightbulb className="text-gray-950 lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
+                  <Lightbulb className="text-foreground lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
                   <span className="inline">{t('exercise_view.tabs.tips')}</span>
                 </TabsTrigger>
               </TabsList>
@@ -317,10 +317,10 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               {/* Overview Tab */}
               <TabsContent value="overview" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('exercise_view.about')}</h3>
-                  <p className="text-gray-600 leading-relaxed">{exercise.description || ''}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{t('exercise_view.about')}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{exercise.description || ''}</p>
                   {exercise.detailed_description &&
-                        <p className="text-gray-600 leading-relaxed mt-3">{exercise.detailed_description}</p>
+                        <p className="text-muted-foreground leading-relaxed mt-3">{exercise.detailed_description}</p>
                         }
                 </div>
 
@@ -329,9 +329,9 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       <div className="bg-card rounded-xl p-4 border border-indigo-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Eye className="w-5 h-5 text-indigo-600" />
-                      <h3 className="text-lg font-semibold text-gray-800">{t('exercise_view.guided_visualization')}</h3>
+                      <h3 className="text-lg font-semibold text-foreground">{t('exercise_view.guided_visualization')}</h3>
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic">
+                    <p className="text-muted-foreground leading-relaxed italic">
                       "{exercise.visualization_script}"
                     </p>
                   </div>
@@ -340,7 +340,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 {/* Video Preview */}
                 {exercise.video_url &&
                       <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{t('exercise_view.video_demo')}</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{t('exercise_view.video_demo')}</h3>
                     <div className="aspect-video rounded-xl overflow-hidden bg-gray-900">
                       <iframe
                             src={exercise.video_url}
@@ -357,7 +357,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       <div className="bg-card rounded-xl p-4 border border-purple-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Headphones className="w-5 h-5 text-purple-600" />
-                      <h3 className="text-lg font-semibold text-gray-800">{t('exercise_view.audio_guide')}</h3>
+                      <h3 className="text-lg font-semibold text-foreground">{t('exercise_view.audio_guide')}</h3>
                     </div>
                     <audio
                           controls
@@ -372,7 +372,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 {/* Tags */}
                 {exercise.tags?.length > 0 &&
                       <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">{t('exercise_view.helps_with')}</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">{t('exercise_view.helps_with')}</h3>
                     <div className="flex flex-wrap gap-2">
                       {exercise.tags.filter((tag) => tag && typeof tag === 'string').map((tag, i) =>
                           <Badge key={i} variant="secondary" className="capitalize">
@@ -388,8 +388,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               {audioContent.length > 0 &&
                     <TabsContent value="audio" className="space-y-4 max-h-[50vh] overflow-y-auto">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('exercise_view.guided_audio')}</h3>
-                    <p className="text-gray-600 mb-4">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">{t('exercise_view.guided_audio')}</h3>
+                    <p className="text-muted-foreground mb-4">
                       {t('exercise_view.guided_audio_description')}
                     </p>
                     {audioContent.map((audio) =>
@@ -408,7 +408,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <TabsContent value="instructions" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 {instructionSteps.length > 0 ?
                       <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('exercise_view.step_guide')}</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-4">{t('exercise_view.step_guide')}</h3>
                     <div className="space-y-4">
                       {instructionSteps.map((step, i) =>
                           <motion.div
@@ -423,11 +423,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                           </div>
                           <div className="flex-1">
                             {step.title &&
-                              <h4 className="font-semibold text-gray-800 mb-1">{step.title}</h4>
+                              <h4 className="font-semibold text-foreground mb-1">{step.title}</h4>
                               }
-                            <p className="text-gray-700">{step.description || ''}</p>
+                            <p className="text-muted-foreground">{step.description || ''}</p>
                             {step.duration_seconds &&
-                              <p className="text-sm text-gray-500 mt-1">
+                              <p className="text-sm text-muted-foreground mt-1">
                                 {t('exercise_view.step_duration', { seconds: step.duration_seconds })}
                               </p>
                               }
@@ -438,9 +438,9 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   </div> :
 
                       <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{t('exercise_view.instructions')}</h3>
-                    <div className="bg-secondary/60 text-teal-600 p-4 rounded-xl border border-gray-200">
-                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{t('exercise_view.instructions')}</h3>
+                    <div className="bg-secondary/60 text-primary p-4 rounded-xl border border-gray-200">
+                      <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
                         {instructionText || t('exercise_view.instructions_soon')}
                       </p>
                     </div>
@@ -450,7 +450,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 {/* Duration Options for Breathing Exercises */}
                 {exercise.category === 'breathing' && exercise.duration_options?.length > 0 &&
                       <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{t('exercise_view.choose_duration')}</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{t('exercise_view.choose_duration')}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {exercise.duration_options.map((duration) =>
                           <Button
@@ -469,7 +469,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               {/* Benefits Tab */}
               <TabsContent value="benefits" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('exercise_view.key_benefits')}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('exercise_view.key_benefits')}</h3>
                   {exercise.benefits?.length > 0 ?
                         <div className="space-y-3">
                       {exercise.benefits.filter((benefit) => benefit && typeof benefit === 'string').map((benefit, i) =>
@@ -481,12 +481,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
 
                           <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          <p className="text-gray-700">{benefit}</p>
+                          <p className="text-muted-foreground">{benefit}</p>
                         </motion.div>
                           )}
                     </div> :
 
-                        <p className="text-gray-600">
+                        <p className="text-muted-foreground">
                       {t('exercise_view.benefits_fallback')}
                     </p>
                         }
@@ -496,7 +496,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               {/* Tips Tab */}
               <TabsContent value="tips" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('exercise_view.helpful_tips')}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('exercise_view.helpful_tips')}</h3>
                   {exercise.tips?.length > 0 ?
                         <div className="space-y-3">
                       {exercise.tips.filter((tip) => tip && typeof tip === 'string').map((tip, i) =>
@@ -508,13 +508,13 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
 
                           <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                          <p className="text-gray-700">{tip}</p>
+                          <p className="text-muted-foreground">{tip}</p>
                         </motion.div>
                           )}
                     </div> :
 
                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         {t('exercise_view.tips_fallback')}
                       </p>
                     </div>
@@ -526,19 +526,19 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 {/* Mobile: Progress Stats */}
                 <div className="lg:hidden">
                   <div className="bg-secondary/60 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('exercise_view.your_progress')}</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t('exercise_view.your_progress')}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                        <p className="text-gray-950 text-xs">{t('exercise_view.times_completed')}</p>
+                        <p className="text-foreground text-xs">{t('exercise_view.times_completed')}</p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                        <p className="text-gray-950 text-xs">{t('exercise_view.minutes_practiced')}</p>
+                        <p className="text-foreground text-xs">{t('exercise_view.minutes_practiced')}</p>
                       </div>
                     </div>
                     {exercise.last_completed &&
-                      <p className="text-xs text-gray-500 mt-3">
+                      <p className="text-xs text-muted-foreground mt-3">
                         {t('exercise_view.last_practiced', { date: new Date(exercise.last_completed).toLocaleDateString(i18n.resolvedLanguage || i18n.language, {
                           weekday: 'short',
                           year: 'numeric',
@@ -577,19 +577,19 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <div className="hidden lg:flex lg:flex-col gap-4 self-start">
                 {/* Completion Stats */}
                 <div className="bg-secondary/60 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('exercise_view.your_progress')}</h3>
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-3">{t('exercise_view.your_progress')}</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                      <p className="text-xs text-gray-600">{t('exercise_view.times_completed')}</p>
+                      <p className="text-xs text-muted-foreground">{t('exercise_view.times_completed')}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                      <p className="text-xs text-gray-600">{t('exercise_view.minutes_practiced')}</p>
+                      <p className="text-xs text-muted-foreground">{t('exercise_view.minutes_practiced')}</p>
                     </div>
                   </div>
                   {exercise.last_completed &&
-                    <p className="text-xs text-gray-500 mt-3">
+                    <p className="text-xs text-muted-foreground mt-3">
                       {t('exercise_view.last_practiced', { date: new Date(exercise.last_completed).toLocaleDateString(i18n.resolvedLanguage || i18n.language, {
                         weekday: 'short',
                         year: 'numeric',

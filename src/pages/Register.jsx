@@ -75,13 +75,13 @@ export default function Register() {
             </InputOTPGroup>
           </InputOTP>
         </div>
-        <Button className="h-12 w-full rounded-2xl bg-teal-700 font-semibold hover:bg-teal-800" onClick={handleVerify} disabled={loading || otpCode.length < 6}>
+        <Button className="h-12 w-full rounded-2xl bg-primary font-semibold hover:bg-primary" onClick={handleVerify} disabled={loading || otpCode.length < 6}>
           {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
           {loading ? t("auth.otp.verifying") : t("auth.otp.verify")}
         </Button>
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           {t("auth.otp.no_code")}{" "}
-          <button type="button" onClick={handleResend} className="font-semibold text-teal-700 hover:underline">{t("auth.otp.resend")}</button>
+          <button type="button" onClick={handleResend} className="font-semibold text-primary hover:underline">{t("auth.otp.resend")}</button>
         </p>
       </AuthLayout>
     );
@@ -97,7 +97,7 @@ export default function Register() {
       footer={
         <>
           {t("auth.register.has_account")}{" "}
-          <Link to={loginTo} className="font-semibold text-teal-800 hover:underline">{t("auth.register.login")}</Link>
+          <Link to={loginTo} className="font-semibold text-primary hover:underline">{t("auth.register.login")}</Link>
         </>
       }
     >
@@ -105,7 +105,7 @@ export default function Register() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
-        <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-3 text-slate-400">{t("auth.or")}</span></div>
+        <div className="relative flex justify-center text-xs uppercase"><span className="bg-[hsl(var(--card)/0.97)] px-3 text-slate-400">{t("auth.or")}</span></div>
       </div>
 
       {error && <div role="alert" className="mb-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
@@ -114,16 +114,16 @@ export default function Register() {
         <Field icon={Mail} id="register-email" label={t("auth.login.email")} type="email" autoComplete="email" value={email} onChange={setEmail} placeholder="you@example.com" autoFocus />
         <Field icon={Lock} id="register-password" label={t("auth.login.password")} type="password" autoComplete="new-password" value={password} onChange={setPassword} placeholder="••••••••" />
         <Field icon={Lock} id="register-confirm" label={t("auth.register.confirm_password")} type="password" autoComplete="new-password" value={confirmPassword} onChange={setConfirmPassword} placeholder="••••••••" />
-        <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-teal-200 font-semibold text-teal-800" disabled={loading}>
+        <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-border font-semibold text-primary" disabled={loading}>
           {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
           {loading ? t("auth.register.loading") : t("auth.register.submit")}
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-        <Link to="/privacy" className="font-semibold text-teal-800 underline underline-offset-4">{t("settings.data_privacy.privacy_policy")}</Link>
+      <p className="mt-5 text-center text-xs leading-5 text-muted-foreground">
+        <Link to="/privacy" className="font-semibold text-primary underline underline-offset-4">{t("settings.data_privacy.privacy_policy")}</Link>
         <span aria-hidden="true"> · </span>
-        <Link to="/terms" className="font-semibold text-teal-800 underline underline-offset-4">{t("settings.data_privacy.terms_of_service")}</Link>
+        <Link to="/terms" className="font-semibold text-primary underline underline-offset-4">{t("settings.data_privacy.terms_of_service")}</Link>
       </p>
     </AuthLayout>
   );

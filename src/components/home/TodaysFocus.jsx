@@ -300,7 +300,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
             >
               <button
                 onClick={() => setShowVideoModal(false)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-[hsl(var(--card)/0.97)] transition-colors"
                 style={{
                   borderRadius: '50%',
                   backgroundColor: 'rgba(0,0,0,0.5)',

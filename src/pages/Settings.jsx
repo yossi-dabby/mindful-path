@@ -57,7 +57,7 @@ const DEFAULT_EMAIL_NOTIFICATIONS = {
   exerciseReminders: false
 };
 
-const cardClassName = 'settings-surface overflow-hidden border border-white/80 bg-white/80 shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl';
+const cardClassName = 'settings-surface overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[0_16px_50px_rgba(15,118,110,0.10)] backdrop-blur-xl';
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
@@ -260,17 +260,17 @@ export default function Settings() {
     return (
       <div className="min-h-dvh px-4 py-8 sm:px-6" data-testid="settings-loading">
         <div className="mx-auto max-w-6xl">
-          <div className="animate-pulse rounded-[32px] border border-white/70 bg-white/70 p-6 shadow-xl sm:p-8">
-            <div className="h-4 w-36 rounded-full bg-teal-100" />
+          <div className="animate-pulse rounded-[32px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-6 shadow-xl sm:p-8">
+            <div className="h-4 w-36 rounded-full bg-secondary/70" />
             <div className="mt-5 h-9 w-72 max-w-full rounded-xl bg-slate-200/80" />
             <div className="mt-3 h-4 w-full max-w-xl rounded-full bg-slate-100" />
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="h-14 rounded-2xl bg-teal-50" />
-              <div className="h-14 rounded-2xl bg-teal-50" />
-              <div className="h-14 rounded-2xl bg-teal-50" />
+              <div className="h-14 rounded-2xl bg-secondary/70" />
+              <div className="h-14 rounded-2xl bg-secondary/70" />
+              <div className="h-14 rounded-2xl bg-secondary/70" />
             </div>
           </div>
-          <p className="mt-4 text-center text-sm font-medium text-slate-500">{t('settings_ui.loading_profile')}</p>
+          <p className="mt-4 text-center text-sm font-medium text-muted-foreground">{t('settings_ui.loading_profile')}</p>
         </div>
       </div>
     );
@@ -280,19 +280,17 @@ export default function Settings() {
     <div className="settings-page min-h-dvh bg-transparent px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <motion.header
-          className="relative overflow-hidden rounded-[30px] border border-white/80 bg-white/78 p-5 shadow-[0_24px_80px_rgba(15,118,110,0.14)] backdrop-blur-xl sm:p-8"
+          className="relative overflow-hidden rounded-[30px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-5 shadow-[0_24px_80px_rgba(15,118,110,0.14)] backdrop-blur-xl sm:p-8"
           initial={reduceMotion ? false : { opacity: 0, y: -14 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           data-testid="settings-hero"
         >
-          <div className="absolute -end-16 -top-20 h-64 w-64 rounded-full bg-teal-200/45 blur-3xl" aria-hidden="true" />
-          <div className="absolute -bottom-20 start-10 h-52 w-52 rounded-full bg-amber-100/60 blur-3xl" aria-hidden="true" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-3xl">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50/90 px-3 py-1.5 text-xs font-bold text-teal-800">
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/70 px-3 py-1.5 text-xs font-bold text-primary">
                   <Sparkles className="h-3.5 w-3.5" />
                   {t('settings_ui.eyebrow')}
                 </span>
@@ -301,28 +299,28 @@ export default function Settings() {
                   {t('settings_ui.protected')}
                 </span>
               </div>
-              <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+              <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
                 {t('settings_ui.hero_title')}
               </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-slate-600 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-muted-foreground sm:text-base">
                 {t('settings_ui.hero_subtitle')}
               </p>
             </div>
 
-            <div className="flex min-w-0 items-center gap-3 rounded-3xl border border-white bg-white/80 p-3 shadow-lg shadow-teal-900/5 sm:min-w-[280px]">
+            <div className="flex min-w-0 items-center gap-3 rounded-3xl border border-border/70 bg-[hsl(var(--card)/0.97)] p-3 shadow-lg shadow-teal-900/5 sm:min-w-[280px]">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 text-lg font-bold text-white shadow-lg shadow-teal-500/20">
                 {initials}
               </div>
               <div className="min-w-0">
-                <p className="truncate font-bold text-slate-900">{fullName || user.email}</p>
-                <p className="mt-1 truncate text-xs text-slate-500">{user.email}</p>
+                <p className="truncate font-bold text-foreground">{fullName || user.email}</p>
+                <p className="mt-1 truncate text-xs text-muted-foreground">{user.email}</p>
               </div>
             </div>
           </div>
         </motion.header>
 
         <nav
-          className="sticky top-[calc(60px+env(safe-area-inset-top,0px))] z-20 -mx-3 mt-4 border-y border-white/60 bg-teal-50/80 px-3 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:mt-5 sm:rounded-3xl sm:border sm:bg-white/70 sm:px-4"
+          className="sticky top-[calc(60px+env(safe-area-inset-top,0px))] z-20 -mx-3 mt-4 border-y border-border/70 bg-secondary/70 px-3 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:mt-5 sm:rounded-3xl sm:border sm:bg-[hsl(var(--card)/0.97)] sm:px-4"
           aria-label={t('settings_ui.quick_navigation')}
           data-testid="settings-quick-nav"
         >
@@ -335,7 +333,7 @@ export default function Settings() {
                   type="button"
                   key={section.id}
                   onClick={() => scrollToSection(section.id)}
-                  className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border border-teal-200/80 bg-white px-4 py-2 text-sm font-semibold text-teal-800 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border border-border bg-[hsl(var(--card)/0.97)] px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Icon className="h-4 w-4" />
                   {section.label}
@@ -355,12 +353,12 @@ export default function Settings() {
         <div className="mt-5 space-y-5 sm:mt-7 sm:space-y-6">
           <motion.section id="settings-profile" className="scroll-mt-36 sm:scroll-mt-8" {...sectionMotion}>
             <Card className={cardClassName}>
-              <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+              <CardHeader className="border-b border-border p-5 sm:p-6">
                 <CardTitle className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary/70 text-primary">
                     <User className="h-5 w-5" />
                   </span>
-                  <span className="text-lg font-bold text-slate-800">{t('settings.profile.title')}</span>
+                  <span className="text-lg font-bold text-foreground">{t('settings.profile.title')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6">
@@ -372,22 +370,22 @@ export default function Settings() {
                   }}
                 >
                   <div>
-                    <label htmlFor="settings-full-name" className="mb-2 block text-sm font-semibold text-slate-700">{t('settings.profile.full_name')}</label>
+                    <label htmlFor="settings-full-name" className="mb-2 block text-sm font-semibold text-muted-foreground">{t('settings.profile.full_name')}</label>
                     <Input
                       id="settings-full-name"
                       value={fullName}
                       onChange={(event) => setFullName(event.target.value)}
                       placeholder={t('settings.profile.name_placeholder')}
-                      className="min-h-[48px] rounded-2xl border-slate-200 bg-white"
+                      className="min-h-[48px] rounded-2xl border-slate-200 bg-[hsl(var(--card)/0.97)]"
                     />
                   </div>
                   <div>
-                    <label htmlFor="settings-email" className="mb-2 block text-sm font-semibold text-slate-700">{t('settings.profile.email')}</label>
+                    <label htmlFor="settings-email" className="mb-2 block text-sm font-semibold text-muted-foreground">{t('settings.profile.email')}</label>
                     <Input id="settings-email" value={user.email} disabled className="min-h-[48px] rounded-2xl bg-slate-50" />
-                    <p className="mt-1.5 text-xs text-slate-500">{t('settings.profile.email_readonly')}</p>
+                    <p className="mt-1.5 text-xs text-muted-foreground">{t('settings.profile.email_readonly')}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-700">{t('settings.profile.role')}</span>
+                    <span className="text-sm font-semibold text-muted-foreground">{t('settings.profile.role')}</span>
                     <Badge className={user.role === 'admin' ? 'border-0 bg-violet-100 text-violet-800' : 'border-0 bg-sky-100 text-sky-800'}>
                       {user.role === 'admin' ? <Shield className="me-1 h-3 w-3" /> : <User className="me-1 h-3 w-3" />}
                       {user.role === 'admin' ? t('settings.profile.role_admin') : t('settings.profile.role_user')}
@@ -403,7 +401,7 @@ export default function Settings() {
                     <Button
                       type="submit"
                       disabled={updateProfileMutation.isPending || !fullName.trim() || fullName.trim() === (user.full_name || '')}
-                      className="min-h-[48px] rounded-full bg-teal-600 px-6 text-white shadow-md hover:bg-teal-700"
+                      className="min-h-[48px] rounded-full bg-primary px-6 text-primary-foreground shadow-md hover:bg-primary"
                     >
                       {updateProfileMutation.isPending ? t('settings.profile.saving') : t('settings.profile.save_changes')}
                     </Button>
@@ -420,16 +418,16 @@ export default function Settings() {
           <motion.section id="settings-appearance" className="scroll-mt-36 space-y-5 sm:scroll-mt-8" {...sectionMotion}>
             <ThemeSelector currentTheme={currentTheme} onThemeChange={handleThemeChange} />
             <Card className={cardClassName}>
-              <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+              <CardHeader className="border-b border-border p-5 sm:p-6">
                 <CardTitle className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
                     <LayoutIcon className="h-5 w-5" />
                   </span>
-                  <span className="text-lg font-bold text-slate-800">{t('settings.dashboard_layout.title')}</span>
+                  <span className="text-lg font-bold text-foreground">{t('settings.dashboard_layout.title')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6">
-                <p className="mb-4 text-sm leading-6 text-slate-600">{t('settings.dashboard_layout.description')}</p>
+                <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('settings.dashboard_layout.description')}</p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {[
                     { value: 'default', title: t('settings.dashboard_layout.default_title'), description: t('settings.dashboard_layout.default_description') },
@@ -442,14 +440,14 @@ export default function Settings() {
                         key={layout.value}
                         onClick={() => handleDashboardLayoutChange(layout.value)}
                         aria-pressed={selected}
-                        className={'min-h-[92px] rounded-2xl border-2 p-4 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ' + (selected ? 'border-teal-500 bg-teal-50 shadow-md' : 'border-slate-200 bg-white hover:border-teal-200')}
+                        className={'min-h-[92px] rounded-2xl border-2 p-4 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ' + (selected ? 'border-border bg-secondary/70 shadow-md' : 'border-slate-200 bg-[hsl(var(--card)/0.97)] hover:border-border')}
                       >
                         <span className="flex items-start justify-between gap-3">
                           <span>
-                            <span className="block font-bold text-slate-800">{layout.title}</span>
-                            <span className="mt-1 block text-xs leading-5 text-slate-500">{layout.description}</span>
+                            <span className="block font-bold text-foreground">{layout.title}</span>
+                            <span className="mt-1 block text-xs leading-5 text-muted-foreground">{layout.description}</span>
                           </span>
-                          {selected && <CheckCircle2 className="h-5 w-5 shrink-0 text-teal-600" />}
+                          {selected && <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />}
                         </span>
                       </button>
                     );
@@ -469,15 +467,15 @@ export default function Settings() {
                     </span>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-lg font-bold text-slate-900">{t('settings.subscription.title')}</h2>
+                        <h2 className="text-lg font-bold text-foreground">{t('settings.subscription.title')}</h2>
                         <Badge className={hasPremium ? 'border-0 bg-emerald-100 text-emerald-800' : 'border-0 bg-amber-100 text-amber-900'}>
                           {hasPremium ? t('settings.subscription.active') : subscriptionCopy.pending}
                         </Badge>
                       </div>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                         {hasPremium ? t('settings.subscription.premium_benefits') : subscriptionCopy.description}
                       </p>
-                      <ul className="mt-3 grid gap-1 text-sm text-slate-600 sm:grid-cols-3">
+                      <ul className="mt-3 grid gap-1 text-sm text-muted-foreground sm:grid-cols-3">
                         <li>{t('settings.subscription.feature_sessions')}</li>
                         <li>{t('settings.subscription.feature_exercises')}</li>
                         <li>{t('settings.subscription.feature_mood')}</li>
@@ -514,21 +512,21 @@ export default function Settings() {
 
           <motion.section id="settings-account" className="scroll-mt-36 sm:scroll-mt-8" {...sectionMotion}>
             <Card className={cardClassName}>
-              <CardHeader className="border-b border-teal-100/80 p-5 sm:p-6">
+              <CardHeader className="border-b border-border p-5 sm:p-6">
                 <CardTitle className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-muted-foreground">
                     <Settings2 className="h-5 w-5" />
                   </span>
-                  <span className="text-lg font-bold text-slate-800">{t('settings.account.title')}</span>
+                  <span className="text-lg font-bold text-foreground">{t('settings.account.title')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.8fr)]">
-                <div className="rounded-2xl border border-slate-200 bg-white/80 p-4">
+                <div className="rounded-2xl border border-slate-200 bg-[hsl(var(--card)/0.97)] p-4">
                   <Button
                     type="button"
                     onClick={performLogout}
                     variant="outline"
-                    className="min-h-[48px] w-full rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50"
+                    className="min-h-[48px] w-full rounded-xl border-slate-300 text-muted-foreground hover:bg-slate-50"
                   >
                     <LogOut className="me-2 h-4 w-4" />
                     {t('settings.account.logout')}
@@ -544,15 +542,15 @@ export default function Settings() {
           </motion.section>
         </div>
 
-        <footer className="mt-8 rounded-3xl border border-white/70 bg-white/55 p-5 text-center backdrop-blur-lg">
-          <p className="text-sm text-slate-600">
+        <footer className="mt-8 rounded-3xl border border-border/70 bg-[hsl(var(--card)/0.97)] p-5 text-center backdrop-blur-lg">
+          <p className="text-sm text-muted-foreground">
             {t('settings.footer.need_help')}{' '}
-            <Link to={createPageUrl('Contact')} className="inline-flex min-h-11 items-center gap-1 px-1 font-bold text-teal-700 hover:text-teal-800">
+            <Link to={createPageUrl('Contact')} className="inline-flex min-h-11 items-center gap-1 px-1 font-bold text-primary hover:text-primary">
               {t('settings.footer.contact_support')}
               <ChevronRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </p>
-          <p className="mt-2 text-xs text-slate-600">{t('global.app_name')}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{t('global.app_name')}</p>
         </footer>
       </div>
 

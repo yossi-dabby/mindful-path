@@ -172,7 +172,7 @@ export default function AiJournalSuggestions({ entry, onClose }) {
         className="mb-4 rounded-2xl border border-violet-200 bg-violet-50/90 p-5" role="status">
         <div className="flex items-center gap-3">
           <Loader2 className="h-5 w-5 shrink-0 animate-spin text-violet-700" />
-          <p className="text-sm font-medium text-slate-700">{t('journal_ui.ai.analysis_loading')}</p>
+          <p className="text-sm font-medium text-muted-foreground">{t('journal_ui.ai.analysis_loading')}</p>
         </div>
       </motion.div>
     );
@@ -203,14 +203,14 @@ export default function AiJournalSuggestions({ entry, onClose }) {
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
           <Sparkles className="h-5 w-5 text-violet-700" />
         </div>
-        <h3 id="journal-ai-reflections-title" className="text-xl font-bold text-slate-950">
+        <h3 id="journal-ai-reflections-title" className="text-xl font-bold text-foreground">
           {t('journal_ui.ai.analysis_title')}
         </h3>
       </div>
 
-      <Card className="border-indigo-200 bg-white/90">
+      <Card className="border-indigo-200 bg-[hsl(var(--card)/0.97)]">
         <CardContent className="p-4 sm:p-5">
-          <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+          <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
             <BarChart3 className="h-5 w-5 text-indigo-700" />{t('journal_ui.ai.entry_analysis')}
           </h4>
           <dl className="grid gap-3 sm:grid-cols-3">
@@ -221,27 +221,27 @@ export default function AiJournalSuggestions({ entry, onClose }) {
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl bg-indigo-50 p-3">
                 <dt className="text-xs font-bold uppercase tracking-wide text-indigo-900">{label}</dt>
-                <dd className="mt-1 text-sm text-slate-800">{value}</dd>
+                <dd className="mt-1 text-sm text-foreground">{value}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-4 border-t border-indigo-100 pt-4 text-sm leading-relaxed text-slate-700">
+          <p className="mt-4 border-t border-indigo-100 pt-4 text-sm leading-relaxed text-muted-foreground">
             {suggestions.entry_overview.summary}
           </p>
         </CardContent>
       </Card>
 
       {suggestions.recurring_themes.length > 0 && (
-        <Card className="border-sky-200 bg-white/90">
+        <Card className="border-sky-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
-            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
               <TrendingUp className="h-5 w-5 text-sky-700" />{t('journal_ui.ai.recurring_themes')}
             </h4>
             <div className="grid gap-3 sm:grid-cols-2">
               {suggestions.recurring_themes.map((theme, index) => (
                 <article key={index} className="rounded-xl border border-sky-100 bg-sky-50/70 p-3">
-                  <h5 className="font-bold text-slate-900">{theme.title}</h5>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-700">{theme.description}</p>
+                  <h5 className="font-bold text-foreground">{theme.title}</h5>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{theme.description}</p>
                 </article>
               ))}
             </div>
@@ -250,14 +250,14 @@ export default function AiJournalSuggestions({ entry, onClose }) {
       )}
 
       {suggestions.reflection_questions.length > 0 && (
-        <Card className="border-violet-200 bg-white/90">
+        <Card className="border-violet-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
-            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
               <Lightbulb className="h-5 w-5 text-violet-700" />{t('journal_ui.ai.reflection_questions')}
             </h4>
             <ol className="space-y-2">
               {suggestions.reflection_questions.map((question, index) => (
-                <li key={index} className="flex gap-3 rounded-xl bg-violet-50 p-3 text-sm leading-relaxed text-slate-700">
+                <li key={index} className="flex gap-3 rounded-xl bg-violet-50 p-3 text-sm leading-relaxed text-muted-foreground">
                   <span className="font-bold text-violet-700">{index + 1}.</span><span>{question}</span>
                 </li>
               ))}
@@ -267,16 +267,16 @@ export default function AiJournalSuggestions({ entry, onClose }) {
       )}
 
       {recommendations.length > 0 && (
-        <Card className="border-emerald-200 bg-white/90">
+        <Card className="border-emerald-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
-            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
               <Dumbbell className="h-5 w-5 text-emerald-700" />{t('journal_ui.ai.exercise_recommendations')}
             </h4>
             <div className="space-y-3">
               {recommendations.map((item, index) => (
                 <article key={index} className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3">
-                  <Badge variant="outline" className="border-emerald-300 bg-white text-emerald-900">{item.title}</Badge>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-700">{item.reason}</p>
+                  <Badge variant="outline" className="border-emerald-300 bg-[hsl(var(--card)/0.97)] text-emerald-900">{item.title}</Badge>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.reason}</p>
                 </article>
               ))}
               {hasMatchingExercise && (
@@ -290,29 +290,29 @@ export default function AiJournalSuggestions({ entry, onClose }) {
       )}
 
       {suggestions.progress_insights && (
-        <Card className="border-teal-200 bg-white/90">
+        <Card className="border-border bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
-            <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-slate-900">
-              <MessageSquare className="h-5 w-5 text-teal-700" />{t('journal_ui.ai.progress_insights')}
+            <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
+              <MessageSquare className="h-5 w-5 text-primary" />{t('journal_ui.ai.progress_insights')}
             </h4>
-            <p className="text-sm leading-relaxed text-slate-700">{suggestions.progress_insights}</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">{suggestions.progress_insights}</p>
           </CardContent>
         </Card>
       )}
 
       {suggestions.goal_alignment?.related_goal && (
-        <Card className="border-orange-200 bg-white/90">
+        <Card className="border-orange-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
-            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
+            <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
               <Target className="h-5 w-5 text-orange-700" />
               {t('journal_ui.ai.goal_connection', { goal: suggestions.goal_alignment.related_goal })}
             </h4>
             <h5 className="text-xs font-bold uppercase tracking-wide text-orange-900">{t('journal_ui.ai.how_related')}</h5>
-            <p className="mt-1 text-sm leading-relaxed text-slate-700">{suggestions.goal_alignment.connection}</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{suggestions.goal_alignment.connection}</p>
             {suggestions.goal_alignment.suggested_action && (
               <>
                 <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-orange-900">{t('journal_ui.ai.suggested_action')}</h5>
-                <p className="mt-1 text-sm font-medium text-slate-800">{suggestions.goal_alignment.suggested_action}</p>
+                <p className="mt-1 text-sm font-medium text-foreground">{suggestions.goal_alignment.suggested_action}</p>
               </>
             )}
             <Button asChild variant="outline" className="mt-4 min-h-11 w-full">
@@ -322,7 +322,7 @@ export default function AiJournalSuggestions({ entry, onClose }) {
         </Card>
       )}
 
-      <p className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
+      <p className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-muted-foreground">
         {t('journal_ui.trends.professional_note')}
       </p>
       <Button variant="outline" onClick={onClose} className="min-h-12 w-full">{t('journal_ui.ai.close_suggestions')}</Button>

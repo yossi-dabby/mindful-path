@@ -71,14 +71,14 @@ export default function ReminderManager({ onClose }) {
   return (
     <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-reminders-title" aria-describedby="journal-reminders-description">
-      <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/95 shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
-        <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/70 p-4 sm:p-6">
+      <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+        <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle id="journal-reminders-title" className="flex items-center gap-2 text-xl font-bold text-teal-950 sm:text-2xl">
-                <Bell className="h-5 w-5 text-teal-700" />{t('journal_ui.reminders.title')}
+              <CardTitle id="journal-reminders-title" className="flex items-center gap-2 text-xl font-bold text-primary sm:text-2xl">
+                <Bell className="h-5 w-5 text-primary" />{t('journal_ui.reminders.title')}
               </CardTitle>
-              <p id="journal-reminders-description" className="mt-1 text-sm text-slate-600">{t('journal_ui.reminders.description')}</p>
+              <p id="journal-reminders-description" className="mt-1 text-sm text-muted-foreground">{t('journal_ui.reminders.description')}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="min-h-11 min-w-11 rounded-full" aria-label={t('journal_ui.common.close_aria')}>
               <X className="h-5 w-5" />
@@ -88,38 +88,38 @@ export default function ReminderManager({ onClose }) {
         <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
           {!showCreateForm && !editingReminder ? (
             <div className="space-y-4">
-              <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-teal-700 text-white hover:bg-teal-800">
+              <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-primary text-primary-foreground hover:bg-primary">
                 <Plus className="h-4 w-4" />{t('journal_ui.reminders.create')}
               </Button>
               {isLoading ? (
                 <div className="py-10 text-center" role="status">
-                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-teal-100 border-t-teal-700" />
-                  <p className="mt-3 text-sm text-slate-600">{t('journal_ui.reminders.loading')}</p>
+                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-border border-t-teal-700" />
+                  <p className="mt-3 text-sm text-muted-foreground">{t('journal_ui.reminders.loading')}</p>
                 </div>
               ) : reminders.length === 0 ? (
                 <div className="py-12 text-center">
                   <Bell className="mx-auto mb-3 h-12 w-12 text-teal-200" />
-                  <p className="font-semibold text-teal-950">{t('journal_ui.reminders.empty')}</p>
-                  <p className="mt-1 text-sm text-slate-500">{t('journal_ui.reminders.empty_description')}</p>
+                  <p className="font-semibold text-primary">{t('journal_ui.reminders.empty')}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('journal_ui.reminders.empty_description')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {reminders.map((reminder) => (
-                    <Card key={reminder.id} className="border-teal-100 bg-white/90 shadow-sm">
+                    <Card key={reminder.id} className="border-border bg-[hsl(var(--card)/0.97)] shadow-sm">
                       <CardContent className="p-4">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="break-words font-bold text-teal-950">{reminder.title}</h3>
+                              <h3 className="break-words font-bold text-foreground">{reminder.title}</h3>
                               <Badge variant="outline" className="rounded-full text-xs">
                                 {reminder.entry_type === 'any' ? t('journal_ui.reminders.any') : t(`journal.filters.entry_types.${reminder.entry_type}`, { defaultValue: reminder.entry_type })}
                               </Badge>
                             </div>
-                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
+                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{reminder.time}</span>
                               <span>{t(`journal_ui.reminders.${reminder.frequency}`, { defaultValue: reminder.frequency })}</span>
                             </div>
-                            {reminder.message && <p className="mt-2 break-words text-sm text-slate-600" dir="auto">{reminder.message}</p>}
+                            {reminder.message && <p className="mt-2 break-words text-sm text-muted-foreground" dir="auto">{reminder.message}</p>}
                           </div>
                           <div className="flex items-center justify-end gap-1">
                             <Switch checked={Boolean(reminder.active)} onCheckedChange={(active) => toggleActiveMutation.mutate({ id: reminder.id, active })}
@@ -169,36 +169,36 @@ function ReminderForm({ reminder, onClose, onSuccess, t }) {
   return (
     <form className="space-y-5" onSubmit={(event) => { event.preventDefault(); saveMutation.mutate(formData); }}>
       <div>
-        <label htmlFor="journal-reminder-title" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.title_label')}</label>
+        <label htmlFor="journal-reminder-title" className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.title_label')}</label>
         <Input id="journal-reminder-title" value={formData.title} onChange={(event) => setFormData({ ...formData, title: event.target.value })}
           placeholder={t('journal_ui.reminders.title_placeholder')} className="h-12 rounded-xl" autoFocus />
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.type')}</label>
+          <label className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.type')}</label>
           <BottomSheetSelect value={formData.entry_type} onValueChange={(entry_type) => setFormData({ ...formData, entry_type })}
             options={typeOptions} title={t('journal_ui.reminders.type')} />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.frequency')}</label>
+          <label className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.frequency')}</label>
           <BottomSheetSelect value={formData.frequency} onValueChange={(frequency) => setFormData({ ...formData, frequency })}
             options={frequencyOptions} title={t('journal_ui.reminders.frequency')} />
         </div>
       </div>
       <div>
-        <label htmlFor="journal-reminder-time" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.time')}</label>
+        <label htmlFor="journal-reminder-time" className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.time')}</label>
         <Input id="journal-reminder-time" type="time" value={formData.time} onChange={(event) => setFormData({ ...formData, time: event.target.value })}
           className="h-12 rounded-xl" />
       </div>
       <div>
-        <label htmlFor="journal-reminder-message" className="mb-2 block text-sm font-semibold text-teal-950">{t('journal_ui.reminders.message')}</label>
+        <label htmlFor="journal-reminder-message" className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.message')}</label>
         <Input id="journal-reminder-message" value={formData.message} onChange={(event) => setFormData({ ...formData, message: event.target.value })}
           placeholder={t('journal_ui.reminders.message_placeholder')} className="h-12 rounded-xl" />
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button type="button" onClick={onClose} variant="outline" className="min-h-12 flex-1 rounded-xl">{t('journal_ui.common.cancel')}</Button>
         <Button type="submit" disabled={!formData.title.trim() || !formData.time || saveMutation.isPending}
-          className="min-h-12 flex-1 rounded-xl bg-teal-700 text-white hover:bg-teal-800">
+          className="min-h-12 flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary">
           {saveMutation.isPending ? t('journal_ui.common.saving') : reminder ? t('journal_ui.common.update') : t('journal_ui.common.create')}
         </Button>
       </div>

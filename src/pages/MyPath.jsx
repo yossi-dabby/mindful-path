@@ -21,16 +21,16 @@ export default function MyPath() {
     <header className="botanical-hero rounded-[32px] border border-border/60 bg-card/95 p-6 shadow-[var(--shadow-md)]">
       <BotanicalAccent variant="leaves" className="botanical-hero-art" />
       <div className="botanical-hero-copy">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">{t('daily_path.eyebrow')}</p>
-        <h1 className="mt-1 text-3xl font-bold text-slate-900">{t('my_path.title')}</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{t('my_path.subtitle')}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">{t('daily_path.eyebrow')}</p>
+        <h1 className="mt-1 text-3xl font-bold text-foreground">{t('my_path.title')}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('my_path.subtitle')}</p>
       </div>
     </header>
     <section className="botanical-navigation-grid mt-5 grid gap-3 md:grid-cols-3">
       {items.map(({ label, description, path, art }) => <Link key={path} to={createPageUrl(path)} className="group">
-        <Card className="botanical-navigation-card flex flex-col rounded-[26px] border-teal-100 bg-gradient-to-br from-white to-teal-50/60 p-5 shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:border-teal-300 group-hover:shadow-md">
+        <Card className="botanical-navigation-card flex flex-col rounded-[26px] border-border bg-gradient-to-br from-white to-teal-50/60 p-5 shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:border-border group-hover:shadow-md">
           <BotanicalAccent variant={art} className="botanical-card-art" />
-          <span className="mt-4 font-bold text-slate-900">{label}</span>
+          <span className="mt-4 font-bold text-foreground">{label}</span>
           <span className="botanical-card-description">{description}</span>
           <span className="botanical-open">{t('botanical.open')}<Arrow className="h-4 w-4" /></span>
         </Card>

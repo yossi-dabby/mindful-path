@@ -31,16 +31,16 @@ export default function ExperimentMetricsCard({ structuredData, conversationId, 
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 p-3 space-y-3">
+    <div className="mt-3 rounded-xl border border-border bg-secondary/50 p-3 space-y-3">
       <p className="text-sm font-medium">{t('chat.experiment_metrics.title')}</p>
       {structuredData?.emotion_ratings?.anxiety != null && <p className="text-xs">{t('chat.experiment_metrics.anxiety_before')}: {structuredData.emotion_ratings.anxiety}/10</p>}
       <label className="block text-xs">{t('chat.experiment_metrics.anxiety_after')}: {anxietyAfter}/10<input className="w-full" type="range" min="0" max="10" value={anxietyAfter} onChange={(event) => setAnxietyAfter(event.target.value)} /></label>
       <label className="block text-xs">{t('chat.experiment_metrics.belief_after')}: {beliefAfter}/10<input className="w-full" type="range" min="0" max="10" value={beliefAfter} onChange={(event) => setBeliefAfter(event.target.value)} /></label>
-      <textarea className="w-full rounded-md border p-2 text-sm text-foreground" value={observedOutcome} onChange={(event) => setObservedOutcome(event.target.value)} placeholder={t('chat.experiment_metrics.outcome')} />
-      <textarea className="w-full rounded-md border p-2 text-sm text-foreground" value={learning} onChange={(event) => setLearning(event.target.value)} placeholder={t('chat.experiment_metrics.learning')} />
+      <textarea className="w-full rounded-md border border-input bg-card p-2 text-sm text-foreground" value={observedOutcome} onChange={(event) => setObservedOutcome(event.target.value)} placeholder={t('chat.experiment_metrics.outcome')} />
+      <textarea className="w-full rounded-md border border-input bg-card p-2 text-sm text-foreground" value={learning} onChange={(event) => setLearning(event.target.value)} placeholder={t('chat.experiment_metrics.learning')} />
       <button type="button" disabled={!canSave} onClick={save} className="rounded-md bg-primary px-3 py-2 text-xs text-primary-foreground disabled:opacity-50">{status === 'saving' ? t('chat.experiment_metrics.saving') : t('chat.experiment_metrics.save')}</button>
       {status === 'saved' && <p role="status" className="text-xs">{t('chat.experiment_metrics.saved')}</p>}
-      {status === 'failed' && <p role="alert" className="text-xs text-red-200">{t('chat.experiment_metrics.failed')}</p>}
+      {status === 'failed' && <p role="alert" className="text-xs text-destructive">{t('chat.experiment_metrics.failed')}</p>}
     </div>
   );
 }

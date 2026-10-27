@@ -73,7 +73,7 @@ export default function GroupForm({ onClose }) {
         {createMutation.isError && <p role="alert" className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-800"><AlertCircle className="h-4 w-4" />{t('community_ui.group.error')}</p>}
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <Button type="button" variant="outline" onClick={onClose} className="min-h-[44px] flex-1">{t('community_ui.common.cancel')}</Button>
-          <Button type="submit" disabled={!valid || createMutation.isPending} className="min-h-[44px] flex-1 bg-teal-700">{t(createMutation.isPending ? 'community_ui.group.submitting' : 'community_ui.group.submit')}</Button>
+          <Button type="submit" disabled={!valid || createMutation.isPending} className="min-h-[44px] flex-1 bg-primary">{t(createMutation.isPending ? 'community_ui.group.submitting' : 'community_ui.group.submit')}</Button>
         </div>
       </form>
     </CommunityDialogShell>

@@ -14,11 +14,11 @@ export default function FormsViewModeToggle({ viewMode, onChange, isRtl = false,
 
   return (
     <div
-      className="mb-6 rounded-[var(--radius-card)] border border-teal-300 bg-white p-3 md:p-4"
+      className="mb-6 rounded-[var(--radius-card)] border border-border bg-[hsl(var(--card)/0.97)] p-3 md:p-4"
       data-testid="forms-view-mode-toggle"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      <p className="mb-2 text-sm font-semibold text-teal-600">{lang === 'he' ? 'תצוגה' : 'View mode'}</p>
+      <p className="mb-2 text-sm font-semibold text-primary">{lang === 'he' ? 'תצוגה' : 'View mode'}</p>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
           <Button
@@ -26,7 +26,7 @@ export default function FormsViewModeToggle({ viewMode, onChange, isRtl = false,
             type="button"
             size="sm"
             variant={viewMode === option.value ? 'default' : 'outline'}
-            className={viewMode === option.value ? 'bg-teal-600 hover:bg-teal-500 text-white border-teal-600' : 'border-teal-300 text-teal-600 hover:bg-teal-100'}
+            className={viewMode === option.value ? 'bg-primary hover:bg-primary text-white border-border' : 'border-border text-primary hover:bg-secondary/70'}
             onClick={() => onChange(option.value)}
             data-testid={`forms-view-mode-${option.value}`}
           >

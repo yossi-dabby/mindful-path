@@ -67,7 +67,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
   return (
     <Card className="exercise-card-art--subtle text-card-foreground mb-6 rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
       <CardHeader className="pb-2">
-        <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+        <CardTitle className="text-primary text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
           <motion.div
             animate={{ rotate: [0, 15, -15, 0] }}
             transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}>
@@ -75,7 +75,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
             <Zap className="w-5 h-5 text-accent" />
           </motion.div>
           {t('exercises.quick_start.title')}
-          <Badge variant="warning" className="bg-warning/16 text-teal-600 ml-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-transparent">
+          <Badge variant="warning" className="bg-warning/16 text-primary ml-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-transparent">
             {t('exercises.quick_start.subtitle')}
           </Badge>
         </CardTitle>
@@ -116,7 +116,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                       }
                     </div>
                   </div>
-                  <h4 className="text-gray-950 mb-1 text-sm font-medium line-clamp-1">
+                  <h4 className="text-foreground mb-1 text-sm font-medium line-clamp-1">
                     {exercise.title}
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">

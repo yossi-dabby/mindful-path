@@ -94,17 +94,17 @@ export default function ForumPostForm({ onClose, groupId }) {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">{t('community_ui.post.tags_limit')}</p>
         </div>
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-teal-200 bg-teal-50/80 p-4">
+        <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-secondary/70 p-4">
           <div>
-            <label htmlFor="community-post-anonymous" className="font-medium text-teal-900">{t('community_ui.post.anonymous')}</label>
-            <p className="text-sm text-teal-800">{t('community_ui.post.anonymous_help')}</p>
+            <label htmlFor="community-post-anonymous" className="font-medium text-primary">{t('community_ui.post.anonymous')}</label>
+            <p className="text-sm text-primary">{t('community_ui.post.anonymous_help')}</p>
           </div>
           <Switch id="community-post-anonymous" checked={formData.is_anonymous} onCheckedChange={(is_anonymous) => setFormData({ ...formData, is_anonymous })} />
         </div>
         {createMutation.isError && <p role="alert" className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-800"><AlertCircle className="h-4 w-4 shrink-0" />{t('community_ui.post.error')}</p>}
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <Button type="button" variant="outline" onClick={onClose} className="min-h-[44px] flex-1">{t('community_ui.common.cancel')}</Button>
-          <Button type="submit" disabled={!valid || createMutation.isPending} className="min-h-[44px] flex-1 bg-teal-700">
+          <Button type="submit" disabled={!valid || createMutation.isPending} className="min-h-[44px] flex-1 bg-primary">
             {t(createMutation.isPending ? 'community_ui.post.submitting' : 'community_ui.post.submit')}
           </Button>
         </div>

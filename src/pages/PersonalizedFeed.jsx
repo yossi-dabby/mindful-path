@@ -49,9 +49,9 @@ export default function PersonalizedFeed() {
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-6 h-6" style={{ color: 'hsl(var(--primary))' }} />
-              <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold" style={{ color: '#2D3748' }}>{t('personalized_feed.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+              <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{t('personalized_feed.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
             </div>
-            <p className="mt-1" style={{ color: '#718096' }}>{t('personalized_feed.subtitle')}</p>
+            <p className="mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>{t('personalized_feed.subtitle')}</p>
           </div>
         </div>
       </motion.div>

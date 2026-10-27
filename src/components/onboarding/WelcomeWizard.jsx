@@ -110,10 +110,10 @@ export default function WelcomeWizard({ onComplete }) {
   const NextIcon = isRtl ? ArrowLeft : ArrowRight;
 
   const optionClass = (selected) => cn(
-    'group min-h-[76px] rounded-2xl border p-3 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+    'group min-h-[76px] rounded-2xl border p-3 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
     selected
-      ? 'border-teal-500 bg-teal-50 text-teal-950 shadow-[0_10px_26px_rgba(15,118,110,0.13)]'
-      : 'border-slate-200 bg-white/85 text-slate-700 hover:border-teal-200 hover:bg-white'
+      ? 'border-border bg-secondary/70 text-primary shadow-[0_10px_26px_rgba(15,118,110,0.13)]'
+      : 'border-slate-200 bg-[hsl(var(--card)/0.97)] text-muted-foreground hover:border-border hover:bg-[hsl(var(--card)/0.97)]'
   );
 
   return createPortal((
@@ -125,19 +125,19 @@ export default function WelcomeWizard({ onComplete }) {
             <AppWordmark name={t('global.app_name')} />
           </div>
 
-          <Card className="overflow-hidden rounded-[32px] border border-white/80 bg-card/95 shadow-[0_30px_90px_rgba(36,105,92,0.18)] backdrop-blur-xl">
+          <Card className="overflow-hidden rounded-[32px] border border-border/70 bg-card/95 shadow-[0_30px_90px_rgba(36,105,92,0.18)] backdrop-blur-xl">
             <div className="h-1.5 bg-gradient-to-r from-amber-300 via-teal-400 to-emerald-500" />
             <CardContent className="p-5 sm:p-8">
               <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">{t('onboarding.step_label', { step })}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">{t('onboarding.step_label', { step })}</p>
                   <div className="mt-2 flex gap-1.5" dir="ltr">
                     {[1, 2, 3, 4].map((item) => (
-                      <span key={item} className={cn('h-1.5 rounded-full transition-all', item === step ? 'w-10 bg-teal-600' : item < step ? 'w-6 bg-teal-300' : 'w-6 bg-slate-200')} />
+                      <span key={item} className={cn('h-1.5 rounded-full transition-all', item === step ? 'w-10 bg-primary' : item < step ? 'w-6 bg-teal-300' : 'w-6 bg-slate-200')} />
                     ))}
                   </div>
                 </div>
-                <ShieldCheck className="h-6 w-6 text-teal-700" aria-hidden="true" />
+                <ShieldCheck className="h-6 w-6 text-primary" aria-hidden="true" />
               </div>
 
               <AnimatePresence mode="wait">
@@ -165,7 +165,7 @@ export default function WelcomeWizard({ onComplete }) {
                           const selected = formData.onboarding_mood === value;
                           return (
                             <button type="button" key={value} onClick={() => setFormData((previous) => ({ ...previous, onboarding_mood: value }))} className={optionClass(selected)} aria-pressed={selected}>
-                              <Icon className="mb-2 h-6 w-6 text-teal-700" />
+                              <Icon className="mb-2 h-6 w-6 text-primary" />
                               <span className="block text-sm font-semibold">{t(`onboarding.mood.${key}`)}</span>
                             </button>
                           );
@@ -181,7 +181,7 @@ export default function WelcomeWizard({ onComplete }) {
                           const selected = formData.support_style === value;
                           return (
                             <button type="button" key={value} onClick={() => setFormData((previous) => ({ ...previous, support_style: value }))} className={cn(optionClass(selected), 'flex w-full items-center gap-3')} aria-pressed={selected}>
-                              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700"><Icon className="h-5 w-5" /></span>
+                              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary/70 text-primary"><Icon className="h-5 w-5" /></span>
                               <span className="font-semibold">{t(`onboarding.support.${key}`)}</span>
                             </button>
                           );
@@ -192,10 +192,10 @@ export default function WelcomeWizard({ onComplete }) {
 
                   {step === 4 && (
                     <StepHeader title={t('onboarding.first.title')} subtitle={t('onboarding.first.description')}>
-                      <div className="rounded-[26px] border border-teal-200/70 bg-gradient-to-br from-teal-50 to-amber-50 p-5 text-center">
+                      <div className="rounded-[26px] border border-border bg-gradient-to-br from-teal-50 to-amber-50 p-5 text-center">
                         <GrowingShieldMark size={64} className="mx-auto" />
-                        <p className="mt-4 text-sm font-semibold text-teal-900">{t('daily_path.title')}</p>
-                        <p className="mt-1 text-sm leading-6 text-slate-600">{t('daily_path.description')}</p>
+                        <p className="mt-4 text-sm font-semibold text-primary">{t('daily_path.title')}</p>
+                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{t('daily_path.description')}</p>
                       </div>
                     </StepHeader>
                   )}
@@ -215,7 +215,7 @@ export default function WelcomeWizard({ onComplete }) {
                   type="button"
                   onClick={() => step < 4 ? setStep((value) => value + 1) : completeMutation.mutate()}
                   disabled={!canContinue || completeMutation.isPending}
-                  className="min-h-12 flex-1 rounded-2xl bg-teal-700 font-semibold text-white shadow-lg shadow-teal-700/20 hover:bg-teal-800"
+                  className="min-h-12 flex-1 rounded-2xl bg-primary font-semibold text-primary-foreground shadow-lg shadow-teal-700/20 hover:bg-primary"
                 >
                   {step === 4
                     ? (completeMutation.isPending ? t('onboarding.completing') : t('onboarding.first.cta'))
@@ -238,8 +238,8 @@ function StepHeader({ title, subtitle, children }) {
   return (
     <section>
       <div className="mb-5">
-        <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-        {subtitle && <p className="mt-2 text-sm leading-6 text-slate-600">{subtitle}</p>}
+        <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+        {subtitle && <p className="mt-2 text-sm leading-6 text-muted-foreground">{subtitle}</p>}
       </div>
       {children}
     </section>

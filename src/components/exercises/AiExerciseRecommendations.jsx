@@ -278,8 +278,8 @@ Provide recommendations with:
           type="button"
           onClick={() => setIsExpanded(true)}
           aria-label={t('exercises.recommendations.show_aria')}
-          className="w-full min-h-[64px] px-4 py-3 flex items-center justify-between gap-3 text-start rounded-[var(--radius-card)] hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
-          <span className="flex items-center gap-2 text-teal-700 font-semibold">
+          className="w-full min-h-[64px] px-4 py-3 flex items-center justify-between gap-3 text-start rounded-[var(--radius-card)] hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <span className="flex items-center gap-2 text-primary font-semibold">
             <Sparkles className="w-5 h-5" />
             {t('exercises.recommendations.show')}
           </span>
@@ -294,8 +294,8 @@ Provide recommendations with:
       <CardHeader className="bg-secondary/50 p-6 flex flex-col space-y-1.5 border-b border-border/70">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="text-teal-600 lucide lucide-sparkles w-5 h-5" />
-            <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">{t('exercises.recommendations.title')}</CardTitle>
+            <Sparkles className="text-primary lucide lucide-sparkles w-5 h-5" />
+            <CardTitle className="text-primary text-xl font-semibold tracking-[-0.012em]">{t('exercises.recommendations.title')}</CardTitle>
           </div>
           <div className="exercise-recommendation-actions flex w-full xl:w-auto flex-wrap gap-2">
             <Button
@@ -303,7 +303,7 @@ Provide recommendations with:
               aria-expanded={showFilters}
               disabled={generateMutation.isPending}
               size="sm"
-              variant="outline" className="order-2 bg-teal-50 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
+              variant="outline" className="order-2 bg-secondary/70 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
 
 
               <Sparkles className="w-4 h-4 sm:mr-2" />
@@ -312,7 +312,7 @@ Provide recommendations with:
             <Button
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
-              size="sm" className="order-1 bg-teal-600 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
+              size="sm" className="order-1 bg-primary text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
 
 
               {generateMutation.isPending ?
@@ -334,7 +334,7 @@ Provide recommendations with:
               size="sm"
               onClick={() => setIsExpanded(false)}
               aria-label={t('exercises.recommendations.close_aria')}
-              className="order-3 min-h-[44px] px-3 text-teal-800 hover:bg-teal-100">
+              className="order-3 min-h-[44px] px-3 text-primary hover:bg-secondary/70">
               <X className="w-4 h-4" />
               <span className="sm:hidden">{t('exercises.recommendations.close')}</span>
             </Button>
@@ -402,8 +402,8 @@ Provide recommendations with:
 
         {!recommendations && !generateMutation.isPending &&
         <div className="text-center py-8 px-4">
-            <Sparkles className="text-teal-600 mb-3 mx-auto lucide lucide-sparkles w-12 h-12" />
-            <p className="text-teal-600 mb-4 text-sm sm:text-base">{t('exercises.recommendations.intro')}</p>
+            <Sparkles className="text-primary mb-3 mx-auto lucide lucide-sparkles w-12 h-12" />
+            <p className="text-primary mb-4 text-sm sm:text-base">{t('exercises.recommendations.intro')}</p>
           </div>
         }
 
@@ -419,7 +419,7 @@ Provide recommendations with:
 
         {generateMutation.isError &&
         <div className="text-center py-6">
-            <p className="text-gray-600 font-medium">{t('exercises.recommendations.fetch_error')}</p>
+            <p className="text-muted-foreground font-medium">{t('exercises.recommendations.fetch_error')}</p>
           </div>
         }
 
@@ -450,7 +450,7 @@ Provide recommendations with:
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-lg font-bold leading-snug text-teal-800">
+                            <h4 className="text-lg font-bold leading-snug text-foreground">
                               {exercise?.title || rec.exercise_title}
                             </h4>
                             <Badge className={`text-xs ${priorityColors[rec.priority] || priorityColors.medium}`}>
@@ -458,11 +458,11 @@ Provide recommendations with:
                             </Badge>
                           </div>
                           {rec.reason ?
-                        <div className="mb-3 rounded-lg border-s-4 border-teal-500 bg-teal-50/80 px-3 py-2">
-                              <p className="mb-1 text-xs font-bold uppercase tracking-wide text-teal-700">
+                        <div className="mb-3 rounded-lg border-s-4 border-border bg-secondary/70 px-3 py-2">
+                              <p className="mb-1 text-xs font-bold uppercase tracking-wide text-primary">
                                 {t('exercises.recommendations.reason_label')}
                               </p>
-                              <p className="text-sm leading-relaxed text-slate-700">{rec.reason}</p>
+                              <p className="text-sm leading-relaxed text-muted-foreground">{rec.reason}</p>
                             </div> :
                         null}
                           {rec.benefit ?
@@ -473,7 +473,7 @@ Provide recommendations with:
                                   {t('exercises.recommendations.benefit_label')}
                                 </p>
                               </div>
-                              <p className="text-sm leading-relaxed text-slate-700">{rec.benefit}</p>
+                              <p className="text-sm leading-relaxed text-muted-foreground">{rec.benefit}</p>
                             </div> :
                         null}
                           {exercise ?
@@ -536,7 +536,7 @@ Provide recommendations with:
 
         {Array.isArray(recommendations) && recommendations.length === 0 &&
         <div className="text-center py-6">
-            <p className="text-gray-600">{t('exercises.recommendations.none')}</p>
+            <p className="text-muted-foreground">{t('exercises.recommendations.none')}</p>
           </div>
         }
       </CardContent>

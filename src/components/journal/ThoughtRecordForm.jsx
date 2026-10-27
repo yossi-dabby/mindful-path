@@ -392,18 +392,18 @@ Provide:
         aria-labelledby="journal-entry-form-title"
         aria-describedby="journal-entry-form-description"
       >
-        <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/96 shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
-          <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/75 p-4 sm:p-6">
+        <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+          <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <CardTitle id="journal-entry-form-title" className="text-lg font-bold text-teal-950 sm:text-xl">
+                <CardTitle id="journal-entry-form-title" className="text-lg font-bold text-primary sm:text-xl">
                   {selectedTemplate?.name || t('journal_ui.form.title')}
                 </CardTitle>
-                <p id="journal-entry-form-description" className="mt-1 text-sm font-medium text-slate-600">
+                <p id="journal-entry-form-description" className="mt-1 text-sm font-medium text-muted-foreground">
                   {t('journal_ui.form.step', { step, total: 6 })}
                 </p>
                 {selectedTemplate?.description && (
-                  <p className="mt-1 break-words text-sm text-slate-500" dir="auto">{selectedTemplate.description}</p>
+                  <p className="mt-1 break-words text-sm text-muted-foreground" dir="auto">{selectedTemplate.description}</p>
                 )}
               </div>
               <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={onClose} aria-label={t('journal_ui.common.close_aria')}>
@@ -518,8 +518,8 @@ Provide:
                       type="button"
                       key={emotion}
                       aria-pressed={formData.emotions.includes(emotion)}
-                      className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2',
-                        formData.emotions.includes(emotion) ? 'border-teal-700 bg-teal-700 text-white' : 'border-teal-200 bg-white text-teal-950 hover:bg-teal-50')}
+                      className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        formData.emotions.includes(emotion) ? 'border-border bg-primary text-white' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70')}
                       onClick={() => toggleItem('emotions', emotion)}
                     >
                       {t(`journal_ui.taxonomy.emotions.${emotionKey}`)}
@@ -612,10 +612,10 @@ Provide:
                       key={distortion}
                       aria-pressed={formData.cognitive_distortions.includes(distortion)}
                       className={cn(
-                        'min-h-11 rounded-full border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2',
+                        'min-h-11 rounded-full border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                         formData.cognitive_distortions.includes(distortion)
-                          ? 'border-teal-700 bg-teal-700 text-white'
-                          : 'border-teal-200 bg-white text-teal-950 hover:bg-teal-50'
+                          ? 'border-border bg-primary text-white'
+                          : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
                       )}
                       onClick={() => toggleItem('cognitive_distortions', distortion)}
                     >

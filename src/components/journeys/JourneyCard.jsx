@@ -43,7 +43,7 @@ export default function JourneyCard({
 
   return (
     <Card
-      className="group relative h-full overflow-hidden rounded-[26px] border border-white/80 bg-white/72 shadow-[0_20px_48px_rgba(42,103,91,0.12)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_62px_rgba(42,103,91,0.18)]"
+      className="group relative h-full overflow-hidden rounded-[26px] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[0_20px_48px_rgba(42,103,91,0.12)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_62px_rgba(42,103,91,0.18)]"
       data-testid={'journey-card-' + journey.id}
     >
       <div className="pointer-events-none absolute -end-16 -top-16 h-36 w-36 rounded-full bg-violet-200/40 blur-3xl" />
@@ -68,34 +68,34 @@ export default function JourneyCard({
           )}
         </div>
 
-        <h2 className="break-words text-xl font-bold leading-tight tracking-tight text-teal-950">
+        <h2 className="break-words text-xl font-bold leading-tight tracking-tight text-foreground">
           {journey.title}
         </h2>
-        <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-slate-600">
+        <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-muted-foreground">
           {journey.description}
         </p>
 
         <div className="mt-5 grid grid-cols-3 gap-2" aria-label={t('journeys.card.details_aria')}>
-          <div className="min-w-0 rounded-2xl border border-teal-800/8 bg-white/75 px-2 py-3 text-center">
-            <CalendarDays className="mx-auto h-4 w-4 text-teal-700" aria-hidden="true" />
-            <strong className="mt-1 block truncate text-sm text-teal-950">{journey.duration_days || 0}</strong>
-            <span className="block truncate text-[10px] font-medium text-slate-500">{t('journeys.card.days')}</span>
+          <div className="min-w-0 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] px-2 py-3 text-center">
+            <CalendarDays className="mx-auto h-4 w-4 text-primary" aria-hidden="true" />
+            <strong className="mt-1 block truncate text-sm text-primary">{journey.duration_days || 0}</strong>
+            <span className="block truncate text-[10px] font-medium text-muted-foreground">{t('journeys.card.days')}</span>
           </div>
-          <div className="min-w-0 rounded-2xl border border-teal-800/8 bg-white/75 px-2 py-3 text-center">
-            <Footprints className="mx-auto h-4 w-4 text-teal-700" aria-hidden="true" />
-            <strong className="mt-1 block truncate text-sm text-teal-950">{stepCount}</strong>
-            <span className="block truncate text-[10px] font-medium text-slate-500">{t('journeys.card.steps')}</span>
+          <div className="min-w-0 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] px-2 py-3 text-center">
+            <Footprints className="mx-auto h-4 w-4 text-primary" aria-hidden="true" />
+            <strong className="mt-1 block truncate text-sm text-primary">{stepCount}</strong>
+            <span className="block truncate text-[10px] font-medium text-muted-foreground">{t('journeys.card.steps')}</span>
           </div>
-          <div className="min-w-0 rounded-2xl border border-teal-800/8 bg-white/75 px-2 py-3 text-center">
-            <Gauge className="mx-auto h-4 w-4 text-teal-700" aria-hidden="true" />
-            <strong className="mt-1 block truncate text-xs text-teal-950">{difficultyLabel}</strong>
-            <span className="block truncate text-[10px] font-medium text-slate-500">{t('journeys.card.level')}</span>
+          <div className="min-w-0 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] px-2 py-3 text-center">
+            <Gauge className="mx-auto h-4 w-4 text-primary" aria-hidden="true" />
+            <strong className="mt-1 block truncate text-xs text-primary">{difficultyLabel}</strong>
+            <span className="block truncate text-[10px] font-medium text-muted-foreground">{t('journeys.card.level')}</span>
           </div>
         </div>
 
         {isStarted && (
-          <div className="mt-5 rounded-2xl border border-teal-800/10 bg-emerald-50/70 p-3">
-            <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-teal-900">
+          <div className="mt-5 rounded-2xl border border-border bg-emerald-50/70 p-3">
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-primary">
               <span>{t('journeys.card.progress')}</span>
               <span dir="ltr">{completionPercentage}%</span>
             </div>
@@ -121,7 +121,7 @@ export default function JourneyCard({
               type="button"
               onClick={() => onStart(journey)}
               disabled={isStarting || stepCount === 0}
-              className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl bg-teal-700 px-4 text-white shadow-md hover:bg-teal-800"
+              className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl bg-primary px-4 text-primary-foreground shadow-md hover:bg-primary"
               data-testid={'journey-start-' + journey.id}
             >
               {isStarting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Footprints className="h-4 w-4" aria-hidden="true" />}
@@ -133,7 +133,7 @@ export default function JourneyCard({
             <Button
               type="button"
               onClick={() => onContinue(journey, progress)}
-              className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl bg-teal-700 px-4 text-white shadow-md hover:bg-teal-800"
+              className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl bg-primary px-4 text-primary-foreground shadow-md hover:bg-primary"
               data-testid={'journey-continue-' + journey.id}
             >
               {t('journeys.card.continue_journey')}
@@ -145,7 +145,7 @@ export default function JourneyCard({
             type="button"
             onClick={() => onView(journey, progress)}
             variant="outline"
-            className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl border-teal-800/15 bg-white/85 px-4 text-teal-900 hover:bg-white"
+            className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl border-border bg-[hsl(var(--card)/0.97)] px-4 text-primary hover:bg-[hsl(var(--card)/0.97)]"
             data-testid={'journey-view-' + journey.id}
           >
             {t('journeys.card.view_details')}
@@ -153,13 +153,13 @@ export default function JourneyCard({
         </div>
 
         {isStarted && (
-          <div className="mt-2 flex flex-wrap gap-2 border-t border-teal-900/8 pt-3">
+          <div className="mt-2 flex flex-wrap gap-2 border-t border-border pt-3">
             <Button
               type="button"
               variant="ghost"
               onClick={() => onRestart?.(journey, progress)}
               disabled={isManaging}
-              className="min-h-11 h-auto min-w-0 basis-32 flex-1 whitespace-normal py-2 rounded-xl text-teal-800 hover:bg-teal-50"
+              className="min-h-11 h-auto min-w-0 basis-32 flex-1 whitespace-normal py-2 rounded-xl text-primary hover:bg-secondary/70"
               data-testid={'journey-restart-' + journey.id}
             >
               {isManaging ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}

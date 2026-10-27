@@ -17,7 +17,7 @@ export default function InformedConsentModal({ onAccept }) {
           borderRadius: '24px',
           background: 'hsl(var(--card))',
           backdropFilter: 'blur(16px)',
-          boxShadow: '0 20px 60px rgba(38, 166, 154, 0.2)',
+          boxShadow: 'var(--shadow-md)',
           animation: 'slideUp 0.3s ease-out'
         }}
       >
@@ -27,8 +27,8 @@ export default function InformedConsentModal({ onAccept }) {
             className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center mx-auto mb-4"
             style={{
               borderRadius: '18px',
-              background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.15) 100%)',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2)'
+              background: 'hsl(var(--card) / 0.97)',
+              boxShadow: 'var(--shadow-md)'
             }}
           >
             <AlertCircle className="w-6 h-6 md:w-7 md:h-7" style={{ color: 'hsl(var(--primary))' }} />
@@ -59,7 +59,7 @@ export default function InformedConsentModal({ onAccept }) {
             style={{
               borderRadius: '20px',
               backgroundColor: 'hsl(var(--primary))',
-              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.35)',
+              boxShadow: 'var(--shadow-md)',
             }}
           >
             I Understand

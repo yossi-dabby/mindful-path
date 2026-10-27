@@ -8,7 +8,7 @@ describe('Chat visual hierarchy contract', () => {
 
   it('keeps the in-chat heading compact while the mobile shell title is visible', () => {
     expect(chat).toContain('hidden md:flex flex-1 min-w-0 items-center gap-3');
-    expect(chat).toContain('bg-white/80');
+    expect(chat).toContain('bg-[hsl(var(--card)/0.97)]');
   });
 
   it('keeps the welcome state compact and reachable on mobile while centering it on larger screens', () => {
@@ -20,16 +20,16 @@ describe('Chat visual hierarchy contract', () => {
 
   it('visually distinguishes user and assistant messages', () => {
     expect(bubble).toContain("isUser ? 'justify-end' : 'justify-start'");
-    expect(bubble).toContain("'bg-teal-600 text-white rounded-ee-md'");
-    expect(bubble).toContain('overflow-wrap-anywhere !text-white');
-    expect(bubble).toContain("'bg-white/95 text-slate-800 border border-teal-100/90 rounded-es-md backdrop-blur-sm'");
+    expect(bubble).toContain("'bg-primary text-primary-foreground rounded-ee-md'");
+    expect(bubble).toContain('overflow-wrap-anywhere !text-primary-foreground');
+    expect(bubble).toContain("'bg-[hsl(var(--card)/0.97)] text-foreground border border-border rounded-es-md backdrop-blur-sm'");
     expect(bubble).toContain('Sparkles');
     expect(bubble).toContain('UserRound');
   });
 
   it('uses calm, readable suggestion cards instead of purple-heavy chrome', () => {
-    expect(proactive).toContain('bg-white/90');
-    expect(proactive).toContain('text-slate-600 leading-relaxed');
-    expect(proactive).toContain('text-teal-700 font-semibold');
+    expect(proactive).toContain('bg-[hsl(var(--card)/0.97)]');
+    expect(proactive).toContain('text-muted-foreground leading-relaxed');
+    expect(proactive).toContain('text-primary font-semibold');
   });
 });

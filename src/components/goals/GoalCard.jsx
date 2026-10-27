@@ -182,13 +182,13 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-0 mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-teal-700 text-xl font-semibold">
+              <h3 className="text-foreground text-xl font-semibold">
                 {goal.title}
               </h3>
               {isCompleted && <CheckCircle2 className="w-5 h-5 text-green-600" />}
             </div>
             {goal.description &&
-            <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{goal.description}</p>
             }
             <div className="flex items-center gap-2 flex-wrap">
                 {goal.category &&
@@ -251,7 +251,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {/* Progress Bar */}
         <div className="mb-4">
            <div className="flex items-center justify-between mb-2">
-             <span className="text-sm font-medium text-gray-700">{t('goals.card.progress')} {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">{t('goals.card.saving')}</span>}</span>
+             <span className="text-sm font-medium text-muted-foreground">{t('goals.card.progress')} {updateMilestone.isPending && <span className="text-xs text-muted-foreground ml-2">{t('goals.card.saving')}</span>}</span>
              <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
            </div>
            <Progress
@@ -264,9 +264,9 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {localMilestones.length > 0 &&
         <div className="space-y-3">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-gray-700">{t('goals.card.tasks')}</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('goals.card.tasks')}</p>
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 text-sm font-medium">
+                <span className="text-muted-foreground text-sm font-medium">
                   {localMilestones.filter((m) => m.completed).length}/{localMilestones.length}
                 </span>
                 <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -319,7 +319,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 }
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-teal-500 text-slate-50 mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
+                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-primary text-primary-foreground mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
 
                   id={`milestone-${goal.id}-${index}`} />
 
@@ -332,13 +332,13 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                       'text-sm font-medium block',
                       milestone.completed ?
                       'line-through text-gray-400' :
-                      'text-gray-700'
+                      'text-muted-foreground'
                     )}>
 
                     {safeText(milestone.title, t('goals.card.step_default', { number: index + 1 }))}
                   </span>
                   {milestone.description &&
-                  <p className="text-xs text-gray-500 mt-0.5">{safeText(milestone.description)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{safeText(milestone.description)}</p>
                   }
                   {milestone.due_date && (() => {
                     try {
@@ -388,10 +388,10 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           <div className="mt-3 p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
                 {goal.obstacles.identified_obstacles?.length > 0 &&
             <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">{t('goals.card.identified_obstacles')}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{t('goals.card.identified_obstacles')}</p>
                     <ul className="space-y-1">
                       {goal.obstacles.identified_obstacles.map((obstacle, i) =>
-                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                           <span className="text-amber-600 mt-1">•</span>
                           <span>{obstacle}</span>
                         </li>
@@ -401,10 +401,10 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             }
                 {goal.obstacles.cognitive_distortions?.length > 0 &&
             <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">{t('goals.card.thinking_patterns')}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{t('goals.card.thinking_patterns')}</p>
                     <div className="flex flex-wrap gap-1">
                       {goal.obstacles.cognitive_distortions.map((dist, i) =>
-                <Badge key={i} variant="outline" className="text-xs bg-white">
+                <Badge key={i} variant="outline" className="text-xs bg-[hsl(var(--card)/0.97)]">
                           {dist}
                         </Badge>
                 )}
@@ -413,7 +413,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             }
                 {goal.obstacles.balanced_thoughts?.length > 0 &&
             <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">{t('goals.card.balanced_thoughts')}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{t('goals.card.balanced_thoughts')}</p>
                     <ul className="space-y-1">
                       {goal.obstacles.balanced_thoughts.slice(0, 3).map((thought, i) =>
                 <li key={i} className="text-sm text-green-700 flex items-start gap-2">
@@ -433,7 +433,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="flex flex-wrap gap-2 mt-4">
           <Button
             variant="outline"
-            onClick={() => setShowChart(!showChart)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+            onClick={() => setShowChart(!showChart)} className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
 
             size="sm">
 
@@ -451,7 +451,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowJournalEntries(!showJournalEntries)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+            onClick={() => setShowJournalEntries(!showJournalEntries)} className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
 
             size="sm">
 
@@ -460,7 +460,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowAiAdjustment(true)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-[var(--shadow-sm)] hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5 border-purple-300 hover:bg-purple-50"
+            onClick={() => setShowAiAdjustment(true)} className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-[var(--shadow-sm)] hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5 border-border hover:bg-primary/90"
 
             size="sm">
 
@@ -469,7 +469,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowReminders(true)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+            onClick={() => setShowReminders(true)} className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
 
             size="sm">
 

@@ -15,14 +15,14 @@ export default function JournalFilters({ allTags = [], selectedTags, onTagsChang
   return (
     <div className="space-y-3">
       <div>
-        <p className="mb-2 text-sm font-semibold text-teal-900">{t('journal.filters.type_label')}</p>
+        <p className="mb-2 text-sm font-semibold text-primary">{t('journal.filters.type_label')}</p>
         <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap" role="group" aria-label={t('journal.filters.type_label')}>
           {ENTRY_TYPE_VALUES.map((value) => {
             const isSelected = selectedType === value;
             return (
               <button key={value} type="button" onClick={() => onTypeChange(value)} aria-pressed={isSelected}
-                className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 ${
-                  isSelected ? 'border-teal-700 bg-teal-700 text-white shadow-sm' : 'border-teal-200 bg-white/80 text-teal-900 hover:bg-teal-50'
+                className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                  isSelected ? 'border-border bg-primary text-white shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
                 }`}>
                 {t(`journal.filters.entry_types.${value}`)}
               </button>
@@ -33,14 +33,14 @@ export default function JournalFilters({ allTags = [], selectedTags, onTagsChang
 
       {allTags.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-semibold text-teal-900">{t('journal.filters.tags_label')}</p>
+          <p className="mb-2 text-sm font-semibold text-primary">{t('journal.filters.tags_label')}</p>
           <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap" role="group" aria-label={t('journal.filters.tags_label')}>
             {allTags.map((tag) => {
               const isSelected = selectedTags.includes(tag);
               return (
                 <button key={tag} type="button" onClick={() => toggleTag(tag)} aria-pressed={isSelected}
-                  className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 ${
-                    isSelected ? 'border-teal-700 bg-teal-700 text-white shadow-sm' : 'border-teal-200 bg-white/80 text-teal-900 hover:bg-teal-50'
+                  className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                    isSelected ? 'border-border bg-primary text-white shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
                   }`}>
                   <span dir="auto">{tag}</span>
                 </button>
@@ -52,7 +52,7 @@ export default function JournalFilters({ allTags = [], selectedTags, onTagsChang
 
       {hasActiveFilters && (
         <Button variant="ghost" size="sm" onClick={() => { onTagsChange([]); onTypeChange('all'); }}
-          className="min-h-11 rounded-xl text-slate-600 hover:text-slate-900">
+          className="min-h-11 rounded-xl text-muted-foreground hover:text-foreground">
           <X className="h-4 w-4" />{t('journal.clear_filters')}
         </Button>
       )}

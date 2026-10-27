@@ -49,7 +49,7 @@ export default function MobileMenu() {
         onClick={() => setOpen(false)}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'group flex min-h-[56px] min-w-0 items-center gap-3 rounded-2xl border px-3.5 py-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+          'group flex min-h-[56px] min-w-0 items-center gap-3 rounded-2xl border px-3.5 py-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           active
             ? 'border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
             : 'border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-sidebar-accent/60'
@@ -78,7 +78,7 @@ export default function MobileMenu() {
         type="button"
         onClick={() => setOpen(true)}
         data-testid="mobile-menu-button"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-primary shadow-sm transition-all hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-primary shadow-sm transition-all hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={t('mobile_menu.open_aria')}
         aria-expanded={open}
         aria-controls="premium-mobile-menu"
@@ -115,7 +115,7 @@ export default function MobileMenu() {
             <DrawerClose asChild>
               <button
                 type="button"
-                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-colors hover:text-sidebar-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-colors hover:text-sidebar-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={t('mobile_menu.close_aria')}
               >
                 <X className="h-5 w-5" />

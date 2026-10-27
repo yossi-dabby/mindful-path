@@ -92,12 +92,12 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
     return (
       <Card className="p-8 border-0 max-w-2xl mx-auto text-center" style={{
         borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+        boxShadow: 'var(--shadow-md)'
       }}>
-        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: '#26A69A' }} />
-        <p style={{ color: '#5A7A72' }}>Creating your journal entry...</p>
+        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+        <p style={{ color: 'hsl(var(--muted-foreground))' }}>Creating your journal entry...</p>
       </Card>
     );
   }
@@ -106,9 +106,9 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
     return (
       <Card className="p-8 border-0 max-w-2xl mx-auto text-center" style={{
         borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+        boxShadow: 'var(--shadow-md)'
       }}>
         <motion.div
           initial={{ scale: 0 }}
@@ -121,10 +121,10 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
             <CheckCircle2 className="w-8 h-8" style={{ color: '#81C784' }} />
           </div>
         </motion.div>
-        <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
           Journal entry saved
         </h3>
-        <p style={{ color: '#5A7A72' }}>
+        <p style={{ color: 'hsl(var(--muted-foreground))' }}>
           Your thought has been recorded in your journal.
         </p>
       </Card>
@@ -135,11 +135,11 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
     return (
       <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
         borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(16px)',
-        boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+        boxShadow: 'var(--shadow-md)'
       }}>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#1A3A34' }}>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: 'hsl(var(--foreground))' }}>
           What would feel more believable to you?
         </h3>
         <div className="space-y-3">
@@ -149,7 +149,7 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
             variant="outline"
             style={{
               borderRadius: '16px',
-              borderColor: 'rgba(38, 166, 154, 0.3)'
+              borderColor: 'hsl(var(--border))'
             }}
           >
             More gentle
@@ -160,7 +160,7 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
             variant="outline"
             style={{
               borderRadius: '16px',
-              borderColor: 'rgba(38, 166, 154, 0.3)'
+              borderColor: 'hsl(var(--border))'
             }}
           >
             More realistic
@@ -171,7 +171,7 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
             variant="outline"
             style={{
               borderRadius: '16px',
-              borderColor: 'rgba(38, 166, 154, 0.3)'
+              borderColor: 'hsl(var(--border))'
             }}
           >
             More confident
@@ -184,15 +184,15 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
   return (
     <Card className="p-6 border-0 max-w-2xl mx-auto" style={{
       borderRadius: '28px',
-      background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+      background: 'hsl(var(--card) / 0.97)',
       backdropFilter: 'blur(16px)',
-      boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+      boxShadow: 'var(--shadow-md)'
     }}>
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
           Alternative perspectives
         </h3>
-        <p className="text-sm" style={{ color: '#5A7A72' }}>
+        <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Which of these feels most helpful to you?
         </p>
       </div>
@@ -211,19 +211,19 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
               variant="outline"
               style={{
                 borderRadius: '16px',
-                borderColor: 'rgba(38, 166, 154, 0.3)',
-                backgroundColor: 'rgba(255, 255, 255, 0.7)'
+                borderColor: 'hsl(var(--border))',
+                backgroundColor: 'hsl(var(--card) / 0.97)'
               }}
             >
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{
-                  backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                  backgroundColor: 'hsl(var(--secondary))'
                 }}>
-                  <span className="text-sm font-medium" style={{ color: '#26A69A' }}>
+                  <span className="text-sm font-medium" style={{ color: 'hsl(var(--primary))' }}>
                     {String.fromCharCode(65 + index)}
                   </span>
                 </div>
-                <span className="flex-1" style={{ color: '#1A3A34', lineHeight: '1.5' }}>
+                <span className="flex-1" style={{ color: 'hsl(var(--foreground))', lineHeight: '1.5' }}>
                   {alternative}
                 </span>
               </div>
@@ -237,7 +237,7 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
           className="w-full mt-2"
           style={{
             borderRadius: '16px',
-            color: '#5A7A72'
+            color: 'hsl(var(--muted-foreground))'
           }}
         >
           None of these

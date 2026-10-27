@@ -42,7 +42,7 @@ export default function Login() {
       footer={
         <>
           {t("auth.login.no_account")}{" "}
-          <Link to={registerTo} className="font-semibold text-teal-800 hover:underline">
+          <Link to={registerTo} className="font-semibold text-primary hover:underline">
             {t("auth.login.signup")}
           </Link>
         </>
@@ -53,7 +53,7 @@ export default function Login() {
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-3 text-slate-400">{t("auth.or")}</span>
+          <span className="bg-[hsl(var(--card)/0.97)] px-3 text-slate-400">{t("auth.or")}</span>
         </div>
       </div>
 
@@ -70,23 +70,23 @@ export default function Login() {
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="password">{t("auth.login.password")}</Label>
-            <Link to={forgotTo} className="text-xs font-semibold text-teal-700 hover:underline">{t("auth.login.forgot")}</Link>
+            <Link to={forgotTo} className="text-xs font-semibold text-primary hover:underline">{t("auth.login.forgot")}</Link>
           </div>
           <div className="relative">
             <Lock className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
             <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} className="h-12 rounded-2xl ps-10" required />
           </div>
         </div>
-        <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-teal-200 font-semibold text-teal-800" disabled={loading}>
+        <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-border font-semibold text-primary" disabled={loading}>
           {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
           {loading ? t("auth.login.loading") : t("auth.login.submit")}
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-xs leading-5 text-slate-500">
-        <Link to="/privacy" className="font-semibold text-teal-800 underline underline-offset-4">{t("settings.data_privacy.privacy_policy")}</Link>
+      <p className="mt-5 text-center text-xs leading-5 text-muted-foreground">
+        <Link to="/privacy" className="font-semibold text-primary underline underline-offset-4">{t("settings.data_privacy.privacy_policy")}</Link>
         <span aria-hidden="true"> · </span>
-        <Link to="/terms" className="font-semibold text-teal-800 underline underline-offset-4">{t("settings.data_privacy.terms_of_service")}</Link>
+        <Link to="/terms" className="font-semibold text-primary underline underline-offset-4">{t("settings.data_privacy.terms_of_service")}</Link>
       </p>
     </AuthLayout>
   );

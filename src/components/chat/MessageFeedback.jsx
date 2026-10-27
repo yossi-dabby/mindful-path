@@ -46,12 +46,12 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
   };
 
   return (
-    <div className="flex items-center gap-1 mt-2">
-      <span className="text-slate-50 mr-2 text-xs">{t('chat.feedback.prompt')}</span>
+    <div className="flex flex-wrap items-center gap-1 mt-2">
+      <span className="text-foreground mr-2 text-xs">{t('chat.feedback.prompt')}</span>
       <button
         onClick={() => handleFeedback('helpful')}
         disabled={feedback !== null}
-        data-testid="feedback-helpful" className="text-slate-50 p-1 rounded-md transition-colors hover:text-green-600 hover:bg-green-50"
+        data-testid="feedback-helpful" className="text-foreground min-h-11 min-w-11 p-2 rounded-xl transition-colors hover:text-green-600 hover:bg-green-50"
 
 
 
@@ -65,7 +65,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
       <button
         onClick={() => handleFeedback('not_helpful')}
         disabled={feedback !== null}
-        data-testid="feedback-not-helpful" className="text-slate-50 p-1 rounded-md transition-colors hover:text-red-600 hover:bg-red-50"
+        data-testid="feedback-not-helpful" className="text-foreground min-h-11 min-w-11 p-2 rounded-xl transition-colors hover:text-red-600 hover:bg-red-50"
 
 
 
@@ -77,7 +77,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         <ThumbsDown className="w-3.5 h-3.5" />
       <MobileActionLabel action="remove" /></button>
       {feedback &&
-      <span className="text-slate-50 ml-2 text-xs">{t('chat.feedback.thanks')}</span>
+      <span className="text-foreground ml-2 text-xs">{t('chat.feedback.thanks')}</span>
       }
     </div>);
 

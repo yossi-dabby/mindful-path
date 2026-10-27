@@ -114,8 +114,8 @@ export default function ProactiveCheckIn({ onSendMessage, className = '' }) {
       'mood_trend': 'text-orange-600 bg-orange-100',
       'exercise_follow_up': 'text-purple-600 bg-purple-100',
       'journal_insight': 'text-green-600 bg-green-100',
-      'general': 'text-gray-600 bg-gray-100'
-    }[reminder.reminder_type] || 'text-gray-600 bg-gray-100';
+      'general': 'text-muted-foreground bg-gray-100'
+    }[reminder.reminder_type] || 'text-muted-foreground bg-gray-100';
 
     suggestions.push({
       id: `ai-${reminder.id}`,
@@ -216,8 +216,8 @@ export default function ProactiveCheckIn({ onSendMessage, className = '' }) {
 
   return (
     <div data-testid="proactive-check-in" className={`mb-4 px-1 sm:px-2 space-y-3 ${className}`}>
-      <div className="mb-3 flex items-center gap-2 text-teal-700">
-        <span className="w-8 h-8 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center">
+      <div className="mb-3 flex items-center gap-2 text-primary">
+        <span className="w-8 h-8 rounded-xl bg-secondary/70 border border-border flex items-center justify-center">
           <Sparkles className="w-4 h-4" />
         </span>
         <h3 className="text-sm font-semibold tracking-wide">{t('chat.proactive.title')}</h3>
@@ -227,7 +227,7 @@ export default function ProactiveCheckIn({ onSendMessage, className = '' }) {
         const Icon = suggestion.icon;
         return (
           <Card
-            key={suggestion.id} className="bg-white/90 text-card-foreground rounded-2xl shadow-[var(--shadow-sm)] backdrop-blur-xl border border-teal-100 hover:border-teal-300 hover:shadow-[var(--shadow-md)] transition-all cursor-pointer"
+            key={suggestion.id} className="bg-[hsl(var(--card)/0.97)] text-card-foreground rounded-2xl shadow-[var(--shadow-sm)] backdrop-blur-xl border border-border hover:border-border hover:shadow-[var(--shadow-md)] transition-all cursor-pointer"
 
             onClick={() => handleClick(suggestion)}>
 
@@ -239,7 +239,7 @@ export default function ProactiveCheckIn({ onSendMessage, className = '' }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-semibold text-slate-800 text-sm">{suggestion.title}</h4>
+                      <h4 className="font-semibold text-foreground text-sm">{suggestion.title}</h4>
                       {suggestion.type === 'ai_reminder' &&
                       <Badge variant="secondary" className="text-xs">
                           {t('chat.proactive.ai_suggested')}
@@ -256,14 +256,14 @@ export default function ProactiveCheckIn({ onSendMessage, className = '' }) {
                         <X className="w-3 h-3" />
                       </Button>
                   </div>
-                  <p className="text-sm text-slate-600 leading-relaxed mb-2">{suggestion.message}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-2">{suggestion.message}</p>
                   {suggestion.reminder?.context?.insight &&
-                  <p className="flex items-start gap-1.5 text-xs text-gray-600 italic mb-2 bg-white/50 p-2 rounded">
+                  <p className="flex items-start gap-1.5 text-xs text-muted-foreground italic mb-2 bg-[hsl(var(--card)/0.97)] p-2 rounded">
                       <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       <span>{suggestion.reminder.context.insight}</span>
                     </p>
                   }
-                  <div className="flex items-center gap-2 text-xs text-teal-700 font-semibold">
+                  <div className="flex items-center gap-2 text-xs text-primary font-semibold">
                     <span>{t('chat.proactive.discuss')}</span>
                     <ChevronRight className="w-3 h-3" />
                   </div>

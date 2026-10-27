@@ -109,8 +109,8 @@ describe('Stage B usability contracts', () => {
 
   it('keeps the seven-day example readable with calm high-contrast styling', () => {
     const source = read('src/pages/StarterPath.jsx');
-    expect(source).toContain('border-teal-200 bg-teal-50/90');
-    expect(source).toContain('text-teal-950');
+    expect(source).toContain('border-border bg-secondary/70');
+    expect(source).toContain('text-primary');
     expect(source).not.toContain('text-[hsl(var(--background))] bg-[hsl(var(--background))]');
   });
 

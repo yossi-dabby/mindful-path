@@ -27,12 +27,12 @@ import { getStage11Copy } from '../components/i18n/stage11UiCopy.js';
 
 function JourneyEmptyState({ icon: Icon, title, description }) {
   return (
-    <div className="rounded-[28px] border border-dashed border-teal-800/20 bg-white/60 px-5 py-12 text-center shadow-sm">
-      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+    <div className="rounded-[28px] border border-dashed border-border bg-[hsl(var(--card)/0.97)] px-5 py-12 text-center shadow-sm">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary/70 text-primary">
         <Icon className="h-7 w-7" aria-hidden="true" />
       </span>
-      <h3 className="mt-4 text-lg font-bold text-teal-950">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">{description}</p>
+      <h3 className="mt-4 text-lg font-bold text-foreground">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -224,20 +224,18 @@ export default function JourneysPage() {
   return (
     <PullToRefresh queryKeys={['journeys', 'journey_progress']}>
       <div
-        className="min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.96),transparent_35%),linear-gradient(155deg,#dff4ee_0%,#cce9e1_48%,#b9ddd4_100%)]"
+        className="min-h-dvh overflow-x-hidden bg-transparent"
         data-testid="journeys-page"
       >
         <main className="mx-auto w-full max-w-6xl px-4 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] pt-4 sm:px-6 sm:pt-6">
-          <section className="relative mb-6 overflow-hidden rounded-[30px] border border-white/75 bg-white/65 p-5 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-8">
-            <div className="pointer-events-none absolute -end-20 -top-24 h-64 w-64 rounded-full bg-teal-300/25 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -start-20 h-56 w-56 rounded-full bg-violet-300/20 blur-3xl" />
+          <section className="relative mb-6 overflow-hidden rounded-[30px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-5 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-8">
 
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={() => navigate('/')}
-              className="relative mb-5 h-12 w-12 rounded-2xl border border-teal-900/10 bg-white/85 text-teal-800 shadow-sm hover:bg-white"
+              className="relative mb-5 h-12 w-12 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] text-primary shadow-sm hover:bg-[hsl(var(--card)/0.97)]"
               aria-label={t('journeys.premium.back_aria')}
               data-testid="journeys-back"
             >
@@ -246,18 +244,18 @@ export default function JourneysPage() {
 
             <div className="relative grid items-end gap-6 lg:grid-cols-[1fr_auto]">
               <div className="min-w-0">
-                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-teal-700">
+                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
                   {t('journeys.premium.eyebrow')}
                 </p>
                 <div className="mb-3 flex min-w-0 items-center gap-3">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)]">
                     <Compass className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <div className="botanical-title-row"><h1 className="min-w-0 break-words text-3xl font-bold leading-tight tracking-tight text-teal-950 sm:text-4xl">
+                  <div className="botanical-title-row"><h1 className="min-w-0 break-words text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
                     {t('journeys.page_title')}
                   </h1><BotanicalAccent variant="route" className="botanical-title-art" /></div>
                 </div>
-                <p className="max-w-3xl break-words text-sm leading-7 text-slate-600 sm:text-base">
+                <p className="max-w-3xl break-words text-sm leading-7 text-muted-foreground sm:text-base">
                   {t('journeys.premium.hero_description')}
                 </p>
               </div>
@@ -269,9 +267,9 @@ export default function JourneysPage() {
                     [groupedJourneys.inProgress.length, t('journeys.premium.stat_active')],
                     [groupedJourneys.completed.length, t('journeys.premium.stat_completed')],
                   ].map(([value, label]) => (
-                    <div key={label} className="min-w-[78px] rounded-2xl border border-teal-800/10 bg-white/80 px-3 py-3 text-center shadow-sm">
-                      <strong className="block text-xl font-bold text-teal-900">{value}</strong>
-                      <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-slate-600">{label}</span>
+                    <div key={label} className="min-w-[78px] rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] px-3 py-3 text-center shadow-sm">
+                      <strong className="block text-xl font-bold text-primary">{value}</strong>
+                      <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-muted-foreground">{label}</span>
                     </div>
                   ))}
                 </div>
@@ -287,23 +285,23 @@ export default function JourneysPage() {
           )}
 
           {isLoading ? (
-            <div className="flex min-h-[280px] flex-col items-center justify-center rounded-[28px] border border-white/75 bg-white/60 text-teal-800 shadow-sm" data-testid="journeys-loading">
+            <div className="flex min-h-[280px] flex-col items-center justify-center rounded-[28px] border border-border/70 bg-[hsl(var(--card)/0.97)] text-primary shadow-sm" data-testid="journeys-loading">
               <Loader2 className="mb-4 h-8 w-8 animate-spin" aria-hidden="true" />
               <p className="text-sm font-semibold">{t('journeys.premium.loading')}</p>
             </div>
           ) : hasLoadError ? (
-            <div className="rounded-[28px] border border-rose-200/80 bg-white/70 px-5 py-12 text-center shadow-sm" role="alert" data-testid="journeys-error">
+            <div className="rounded-[28px] border border-rose-200/80 bg-[hsl(var(--card)/0.97)] px-5 py-12 text-center shadow-sm" role="alert" data-testid="journeys-error">
               <AlertCircle className="mx-auto h-10 w-10 text-rose-500" aria-hidden="true" />
-              <h2 className="mt-4 text-xl font-bold text-teal-950">{t('journeys.premium.load_error_title')}</h2>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">{t('journeys.premium.load_error_description')}</p>
-              <Button onClick={refreshJourneys} className="mt-5 min-h-12 rounded-2xl bg-teal-700 px-6 text-white hover:bg-teal-800">
+              <h2 className="mt-4 text-xl font-bold text-foreground">{t('journeys.premium.load_error_title')}</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t('journeys.premium.load_error_description')}</p>
+              <Button onClick={refreshJourneys} className="mt-5 min-h-12 rounded-2xl bg-primary px-6 text-primary-foreground hover:bg-primary">
                 {t('journeys.premium.retry')}
               </Button>
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" data-testid="journeys-tabs">
               <TabsList
-                className="mb-6 grid h-auto w-full grid-cols-3 gap-1 rounded-2xl border-white/70 bg-white/60 p-1.5 shadow-sm"
+                className="mb-6 grid h-auto w-full grid-cols-3 gap-1 rounded-2xl border-border/70 bg-[hsl(var(--card)/0.97)] p-1.5 shadow-sm"
                 aria-label={t('journeys.premium.tabs_aria')}
               >
                 <TabsTrigger value="available" className="min-h-12 min-w-0 rounded-xl px-2 text-xs sm:text-sm" data-testid="journeys-tab-available">
@@ -374,7 +372,7 @@ export default function JourneysPage() {
             </Tabs>
           )}
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-teal-800/80">
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-primary">
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             <span>{t('journeys.premium.gentle_pace')}</span>
           </div>
@@ -382,7 +380,7 @@ export default function JourneysPage() {
           <Dialog open={showDetail} onOpenChange={setShowDetail}>
             <DialogContent
               closeLabel={t('journeys.detail.close_aria')}
-              className="max-h-[calc(100dvh-0.5rem)] w-full max-w-4xl overflow-hidden border-white/80 bg-gradient-to-b from-white to-emerald-50 p-0 sm:max-h-[calc(100vh-2rem)] sm:w-[calc(100%-2rem)] sm:rounded-[30px]"
+              className="max-h-[calc(100dvh-0.5rem)] w-full max-w-4xl overflow-hidden border-border/70 bg-[hsl(var(--card)/0.97)] p-0 sm:max-h-[calc(100vh-2rem)] sm:w-[calc(100%-2rem)] sm:rounded-[30px]"
               data-testid="journey-detail-dialog"
             >
               {selectedJourney && (

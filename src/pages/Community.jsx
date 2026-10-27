@@ -137,19 +137,19 @@ export default function Community() {
     progress: { label: t('community.buttons.share_progress'), action: () => setShowProgressForm(true) }
   }[activeTab];
 
-  const tabClass = "min-h-[44px] min-w-0 whitespace-normal px-2 text-center text-sm leading-tight text-teal-800 data-[state=active]:bg-white data-[state=active]:text-teal-800 data-[state=active]:shadow-sm sm:px-4";
+  const tabClass = "min-h-[44px] min-w-0 whitespace-normal px-2 text-center text-sm leading-tight text-primary data-[state=active]:bg-[hsl(var(--card)/0.97)] data-[state=active]:text-primary data-[state=active]:shadow-sm sm:px-4";
 
   return (
     <PullToRefresh queryKeys={['forumPosts','communityGroups','groupMemberships','sharedProgress','communityReactions']}>
       <div data-testid="community-page" className="mx-auto min-h-[100dvh] max-w-7xl bg-transparent p-3 pb-36 sm:p-5 md:p-8 md:pb-8">
         <header className="mb-6 mt-2 sm:mb-8 sm:mt-4">
-          <div className="botanical-title-row"><h1 className="mb-2 break-words text-2xl font-semibold leading-tight text-teal-700 sm:text-3xl md:text-4xl">{t('community.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-          <p className="max-w-3xl break-words font-medium leading-relaxed text-teal-800">{t('community.page_subtitle')}</p>
+          <div className="botanical-title-row"><h1 className="mb-2 break-words text-2xl font-semibold leading-tight text-foreground sm:text-3xl md:text-4xl">{t('community.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+          <p className="max-w-3xl break-words font-medium leading-relaxed text-primary">{t('community.page_subtitle')}</p>
         </header>
 
         <section aria-label={t('community.page_title')} className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           {[
-            [MessageSquare, forumPosts.length, t('community.stats.forum_posts'), 'text-teal-700'],
+            [MessageSquare, forumPosts.length, t('community.stats.forum_posts'), 'text-primary'],
             [Users, visibleGroups.length, t('community.stats.active_groups'), 'text-emerald-700'],
             [TrendingUp, sharedProgress.length, t('community.stats.success_stories'), 'text-green-700']
           ].map(([Icon, count, label, color]) => (
@@ -164,16 +164,16 @@ export default function Community() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="surface-secondary mb-6 space-y-4 rounded-[var(--radius-card)] border border-border/70 bg-[hsl(var(--card)/0.9)] p-3 shadow-[var(--shadow-sm)] sm:p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <TabsList className="grid h-auto w-full grid-cols-3 bg-teal-50/80 p-1 lg:w-auto">
+              <TabsList className="grid h-auto w-full grid-cols-3 bg-secondary/70 p-1 lg:w-auto">
                 <TabsTrigger value="forum" className={tabClass}>{t('community.tabs.forum')}</TabsTrigger>
                 <TabsTrigger value="groups" className={tabClass}>{t('community.tabs.groups')}</TabsTrigger>
                 <TabsTrigger value="progress" className={tabClass}>{t('community.tabs.progress')}</TabsTrigger>
               </TabsList>
-              <Button type="button" onClick={tabAction.action} className="min-h-[44px] w-full bg-teal-700 shadow-[var(--shadow-sm)] sm:w-auto" mobileLabelKey="add"><Plus className="me-2 h-4 w-4" />{tabAction.label}</Button>
+              <Button type="button" onClick={tabAction.action} className="min-h-[44px] w-full bg-primary shadow-[var(--shadow-sm)] sm:w-auto" mobileLabelKey="add"><Plus className="me-2 h-4 w-4" />{tabAction.label}</Button>
             </div>
             {activeTab === 'forum' && (
               <div className="relative">
-                <Search className="absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-teal-700" aria-hidden="true" />
+                <Search className="absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" aria-hidden="true" />
                 <Input aria-label={t('community_ui.page.search_label')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('community.search_placeholder')} className="min-h-[44px] rounded-full bg-background ps-10 pe-11" />
                 {searchQuery && <button type="button" onClick={() => setSearchQuery('')} aria-label={t('community_ui.page.clear_search')} className="absolute end-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center"><X className="h-4 w-4" /><span className="mobile-action-label md:hidden">{t('community_ui.page.clear_search')}</span></button>}
               </div>
@@ -184,7 +184,7 @@ export default function Community() {
             {postsQuery.isLoading ? <LoadingCard label={t('community.loading.posts')} /> :
              postsQuery.isError ? <ErrorCard text={t('community_ui.page.load_error')} retry={postsQuery.refetch} retryLabel={t('community_ui.common.retry')} /> :
              filteredPosts.length === 0 ? (
-              <Card className="surface-secondary"><CardContent className="p-8 text-center sm:p-12"><MessageSquare className="mx-auto mb-3 h-14 w-14 text-teal-600" /><h2 className="mb-2 text-xl font-semibold text-teal-800">{t('community.empty_state.no_posts_title')}</h2><p className="mx-auto mb-4 max-w-sm text-teal-800">{t('community.empty_state.no_posts_message')}</p><Button type="button" onClick={() => setShowPostForm(true)} className="min-h-[44px] bg-teal-700" data-testid="create-first-post-btn">{t('community.empty_state.create_first_post')}</Button></CardContent></Card>
+              <Card className="surface-secondary"><CardContent className="p-8 text-center sm:p-12"><MessageSquare className="mx-auto mb-3 h-14 w-14 text-primary" /><h2 className="mb-2 text-xl font-semibold text-foreground">{t('community.empty_state.no_posts_title')}</h2><p className="mx-auto mb-4 max-w-sm text-primary">{t('community.empty_state.no_posts_message')}</p><Button type="button" onClick={() => setShowPostForm(true)} className="min-h-[44px] bg-primary" data-testid="create-first-post-btn">{t('community.empty_state.create_first_post')}</Button></CardContent></Card>
              ) : (
               <div className="space-y-3">{filteredPosts.map((post) => {
                 const key = `forum_post:${post.id}`;
@@ -197,10 +197,10 @@ export default function Community() {
             {groupsQuery.isLoading || membershipsQuery.isLoading ? <LoadingCard label={t('community.loading.groups')} /> :
              groupsQuery.isError || membershipsQuery.isError ? <ErrorCard text={t('community_ui.page.load_error')} retry={retryAll} retryLabel={t('community_ui.common.retry')} /> : (
               <>
-                {visibleGroups.some((group) => myGroupIds.has(group.id)) && <section className="space-y-3"><h2 className="text-lg font-semibold text-teal-800">{t('community.your_groups')}</h2>{visibleGroups.filter((group) => myGroupIds.has(group.id)).map((group) => <GroupCard key={group.id} group={group} isMember onJoin={() => {}} />)}</section>}
+                {visibleGroups.some((group) => myGroupIds.has(group.id)) && <section className="space-y-3"><h2 className="text-lg font-semibold text-foreground">{t('community.your_groups')}</h2>{visibleGroups.filter((group) => myGroupIds.has(group.id)).map((group) => <GroupCard key={group.id} group={group} isMember onJoin={() => {}} />)}</section>}
                 <section className="space-y-3">
-                  <h2 className="text-lg font-semibold text-teal-800">{t('community.discover_groups')}</h2>
-                  {visibleGroups.filter((group) => !myGroupIds.has(group.id)).length === 0 ? <Card className="surface-secondary"><CardContent className="p-8 text-center sm:p-12"><Users className="mx-auto mb-3 h-14 w-14 text-teal-600" /><h3 className="mb-2 text-xl font-semibold text-teal-800">{t('community.empty_state.no_groups_title')}</h3><p className="mx-auto mb-4 max-w-sm text-teal-800">{t('community.empty_state.no_groups_message')}</p><Button type="button" onClick={() => setShowGroupForm(true)} className="min-h-[44px] bg-teal-700" data-testid="create-first-group-btn">{t('community.empty_state.create_first_group')}</Button></CardContent></Card> :
+                  <h2 className="text-lg font-semibold text-foreground">{t('community.discover_groups')}</h2>
+                  {visibleGroups.filter((group) => !myGroupIds.has(group.id)).length === 0 ? <Card className="surface-secondary"><CardContent className="p-8 text-center sm:p-12"><Users className="mx-auto mb-3 h-14 w-14 text-primary" /><h3 className="mb-2 text-xl font-semibold text-foreground">{t('community.empty_state.no_groups_title')}</h3><p className="mx-auto mb-4 max-w-sm text-primary">{t('community.empty_state.no_groups_message')}</p><Button type="button" onClick={() => setShowGroupForm(true)} className="min-h-[44px] bg-primary" data-testid="create-first-group-btn">{t('community.empty_state.create_first_group')}</Button></CardContent></Card> :
                    visibleGroups.filter((group) => !myGroupIds.has(group.id)).map((group) => <GroupCard key={group.id} group={group} isMember={false} onJoin={(item) => joinMutation.mutate(item)} isJoining={pendingGroup === group.id} />)}
                 </section>
               </>
@@ -210,7 +210,7 @@ export default function Community() {
           <TabsContent value="progress" className="mt-0">
             {progressQuery.isLoading ? <LoadingCard label={t('community_ui.common.loading')} /> :
              progressQuery.isError ? <ErrorCard text={t('community_ui.page.load_error')} retry={progressQuery.refetch} retryLabel={t('community_ui.common.retry')} /> :
-             sharedProgress.length === 0 ? <Card className="surface-secondary"><CardContent className="p-8 text-center sm:p-12"><TrendingUp className="mx-auto mb-3 h-14 w-14 text-teal-700" /><h2 className="mb-2 text-xl font-semibold text-teal-800">{t('community.empty_state.no_stories_title')}</h2><p className="mx-auto mb-4 max-w-sm text-teal-800">{t('community.empty_state.no_stories_message')}</p><Button type="button" onClick={() => setShowProgressForm(true)} className="min-h-[44px] bg-teal-700" data-testid="share-story-btn">{t('community.empty_state.share_your_story')}</Button></CardContent></Card> :
+             sharedProgress.length === 0 ? <Card className="surface-secondary"><CardContent className="p-8 text-center sm:p-12"><TrendingUp className="mx-auto mb-3 h-14 w-14 text-primary" /><h2 className="mb-2 text-xl font-semibold text-foreground">{t('community.empty_state.no_stories_title')}</h2><p className="mx-auto mb-4 max-w-sm text-primary">{t('community.empty_state.no_stories_message')}</p><Button type="button" onClick={() => setShowProgressForm(true)} className="min-h-[44px] bg-primary" data-testid="share-story-btn">{t('community.empty_state.share_your_story')}</Button></CardContent></Card> :
              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{sharedProgress.map((progress) => {
                const key = `shared_progress:${progress.id}`;
                const author = progress.is_anonymous ? t('community_ui.card.anonymous') : (progress.author_display_name || t('community_ui.card.anonymous'));

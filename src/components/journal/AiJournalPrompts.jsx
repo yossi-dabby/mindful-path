@@ -107,16 +107,16 @@ The prompts should support emotional processing, cognitive flexibility, self-ref
       role="dialog" aria-modal="true" aria-labelledby="ai-journal-prompts-title" aria-describedby="ai-journal-prompts-description">
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
         className="my-0 w-full max-w-2xl sm:my-8">
-        <Card className="flex max-h-[100dvh] flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-white/70 bg-white/95 shadow-2xl sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
-          <CardHeader className="shrink-0 border-b border-teal-100 bg-teal-50/70 p-4 sm:p-6">
+        <Card className="flex max-h-[100dvh] flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+          <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-700 shadow-sm">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary shadow-sm">
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle id="ai-journal-prompts-title" className="text-xl font-bold text-teal-950 sm:text-2xl">{t('journal_ui.prompts.title')}</CardTitle>
-                  <p id="ai-journal-prompts-description" className="mt-1 text-sm leading-relaxed text-slate-600">{t('journal_ui.prompts.description')}</p>
+                  <CardTitle id="ai-journal-prompts-title" className="text-xl font-bold text-primary sm:text-2xl">{t('journal_ui.prompts.title')}</CardTitle>
+                  <p id="ai-journal-prompts-description" className="mt-1 text-sm leading-relaxed text-muted-foreground">{t('journal_ui.prompts.description')}</p>
                 </div>
               </div>
               <Button variant="ghost" size="icon" onClick={onClose} className="min-h-11 min-w-11 rounded-full" aria-label={t('journal_ui.common.close_aria')}>
@@ -133,7 +133,7 @@ The prompts should support emotional processing, cognitive flexibility, self-ref
                     <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />{t('journal_ui.prompts.error')}
                   </div>
                 )}
-                <Button onClick={generatePrompts} className="min-h-12 rounded-2xl bg-teal-700 px-7 text-white hover:bg-teal-800">
+                <Button onClick={generatePrompts} className="min-h-12 rounded-2xl bg-primary px-7 text-primary-foreground hover:bg-primary">
                   <Sparkles className="h-5 w-5" />{error ? t('journal_ui.common.retry') : t('journal_ui.prompts.generate')}
                 </Button>
               </div>
@@ -141,8 +141,8 @@ The prompts should support emotional processing, cognitive flexibility, self-ref
 
             {isLoading && (
               <div className="py-12 text-center" role="status">
-                <Loader2 className="mx-auto mb-3 h-9 w-9 animate-spin text-teal-700" />
-                <p className="text-sm font-medium text-slate-600">{t('journal_ui.prompts.loading')}</p>
+                <Loader2 className="mx-auto mb-3 h-9 w-9 animate-spin text-primary" />
+                <p className="text-sm font-medium text-muted-foreground">{t('journal_ui.prompts.loading')}</p>
               </div>
             )}
 
@@ -152,12 +152,12 @@ The prompts should support emotional processing, cognitive flexibility, self-ref
                   <motion.button key={`${prompt.title}-${index}`} type="button" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }} onClick={() => onSelectPrompt(prompt.prompt)}
                     aria-label={t('journal_ui.prompts.select_aria', { title: prompt.title })}
-                    className="w-full rounded-2xl border border-teal-100 bg-white p-4 text-start shadow-sm transition hover:border-teal-300 hover:bg-teal-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
+                    className="w-full rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-4 text-start shadow-sm transition hover:border-border hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <h3 className="text-base font-bold leading-snug text-teal-950">{prompt.title}</h3>
-                      {prompt.focus && <Badge variant="outline" className="w-fit shrink-0 rounded-full border-teal-200 bg-teal-50 text-xs text-teal-800">{prompt.focus}</Badge>}
+                      <h3 className="text-base font-bold leading-snug text-foreground">{prompt.title}</h3>
+                      {prompt.focus && <Badge variant="outline" className="w-fit shrink-0 rounded-full border-border bg-secondary/70 text-xs text-primary">{prompt.focus}</Badge>}
                     </div>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{prompt.prompt}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{prompt.prompt}</p>
                   </motion.button>
                 ))}
 

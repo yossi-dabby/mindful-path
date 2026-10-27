@@ -48,16 +48,16 @@ export default function Videos() {
         {/* Header */}
         <div className="garden-responsive-heading flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 mt-6">
           <div>
-            <div className="botanical-title-row"><h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl">
+            <div className="botanical-title-row"><h1 className="text-foreground mb-1 text-2xl font-semibold md:text-3xl">
               {t('videos.title')}
             </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            <p className="text-teal-600 text-sm">
+            <p className="text-primary text-sm">
               {t('videos.subtitle')}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap md:flex-nowrap">
             <Link to={createPageUrl('Playlists')}>
-              <Button className="bg-teal-600 text-primary-foreground px-6 py-5 text-sm font-medium tracking-[0.005em] rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto">
+              <Button className="bg-primary text-primary-foreground px-6 py-5 text-sm font-medium tracking-[0.005em] rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto">
 
                   
                 <List className="w-4 h-4 mr-1" />
@@ -66,7 +66,7 @@ export default function Videos() {
             </Link>
             <Button
                 variant="outline"
-                onClick={() => setShowCreatePlaylist(true)} className="bg-teal-600 text-slate-50 px-5 py-5 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto"
+                onClick={() => setShowCreatePlaylist(true)} className="bg-primary text-primary-foreground px-5 py-5 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto"
 
                 style={{ borderRadius: '9999px' }}>
                 
@@ -115,7 +115,7 @@ export default function Videos() {
                       
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/40 transition-colors flex items-center justify-center">
                           <div
-                          className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-white/20 backdrop-blur-sm"
+                          className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-[hsl(var(--card)/0.97)] backdrop-blur-sm"
                           style={{
                             borderRadius: 'var(--r-lg)'
                           }}>
@@ -162,11 +162,11 @@ export default function Videos() {
 
                     {/* Video Info */}
                     <div className="p-3 flex flex-col" style={{ minHeight: '120px' }}>
-                      <h3 className="text-teal-600 mb-1.5 text-sm font-semibold leading-tight line-clamp-2" style={{ minHeight: '2.5rem' }}>
+                      <h3 className="text-foreground mb-1.5 text-sm font-semibold leading-tight line-clamp-2" style={{ minHeight: '2.5rem' }}>
                         {video.title}
                       </h3>
                       {video.category &&
-                    <span className="bg-secondary text-teal-700 mb-2 px-2 py-0.5 text-xs font-medium rounded-full border border-border/60 w-fit">
+                    <span className="bg-secondary text-primary mb-2 px-2 py-0.5 text-xs font-medium rounded-full border border-border/60 w-fit">
                           {video.category}
                         </span>
                     }

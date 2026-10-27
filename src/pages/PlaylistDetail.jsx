@@ -240,7 +240,7 @@ export default function PlaylistDetail() {
                           }}
                           disabled={removeMutation.isPending}
                           aria-busy={removeMutation.isPending}
-                          className="absolute top-2 right-2 bg-white/90 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait disabled:opacity-60"
+                          className="absolute top-2 right-2 bg-[hsl(var(--card)/0.97)] hover:bg-[hsl(var(--card)/0.97)] opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait disabled:opacity-60"
                           aria-label={t('playlist_detail.remove_video_aria')}
                          mobileLabel={t('playlist_detail.remove_video_aria')}>
                           <X className="w-4 h-4 text-red-500" />

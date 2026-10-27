@@ -109,8 +109,8 @@ export default function Playlists() {
               }}>
                 <List className="w-10 h-10 text-red-500" />
               </div>
-              <h2 className="text-2xl font-semibold mb-2 text-gray-800">{t('playlists.error_title')}</h2>
-              <p className="mb-6 text-gray-600">{t('playlists.error_description')}</p>
+              <h2 className="text-2xl font-semibold mb-2 text-foreground">{t('playlists.error_title')}</h2>
+              <p className="mb-6 text-muted-foreground">{t('playlists.error_description')}</p>
               <div className="flex justify-center">
                 <Button
                   onClick={() => refetch()}

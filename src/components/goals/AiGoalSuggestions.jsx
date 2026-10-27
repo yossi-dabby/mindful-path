@@ -141,8 +141,8 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">{copy.goals.introTitle}</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-2">{copy.goals.introTitle}</h2>
+            <p className="text-muted-foreground mb-6">
               {copy.goals.introText}
             </p>
             <div className="flex gap-3 justify-center">
@@ -175,8 +175,8 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
       >
         <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
           <CardContent className="p-12 text-center">
-            <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">{copy.goals.loading}</p>
+            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">{copy.goals.loading}</p>
           </CardContent>
         </Card>
       </PremiumOverlay>
@@ -196,8 +196,8 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
         <CardContent className="p-4 md:p-6 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-teal-600" />
-              <h2 className="text-2xl font-bold text-gray-800">{copy.goals.resultsTitle}</h2>
+              <Sparkles className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">{copy.goals.resultsTitle}</h2>
             </div>
             <Button onClick={onClose} variant="ghost">
               {copy.goals.close}
@@ -216,60 +216,60 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-1">{goal.title}</h3>
+                        <h3 className="text-xl font-semibold text-foreground mb-1">{goal.title}</h3>
                         <Badge variant="outline" className="capitalize">
                           {t(`goals.categories.${goal.category}`, { defaultValue: goal.category })}
                         </Badge>
                       </div>
-                      <Target className="w-6 h-6 text-teal-600" />
+                      <Target className="w-6 h-6 text-primary" />
                     </div>
 
-                    <p className="text-gray-700 mb-4">{goal.description}</p>
+                    <p className="text-muted-foreground mb-4">{goal.description}</p>
 
                     {/* Why Suggested */}
-                    <div className="bg-teal-50 p-3 rounded-lg mb-4">
-                      <p className="text-sm text-gray-700">
-                        <span className="font-semibold text-teal-700">{copy.goals.why}: </span>
+                    <div className="bg-secondary/70 p-3 rounded-lg mb-4">
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold text-primary">{copy.goals.why}: </span>
                         {goal.why_suggested}
                       </p>
                     </div>
 
                     {/* SMART Breakdown */}
                     {goal.smart_breakdown && (
-                      <div className="bg-white p-4 rounded-lg border mb-4">
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border mb-4">
+                        <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           {copy.goals.smart}
                         </h4>
                         <div className="space-y-2 text-sm">
                           {goal.smart_breakdown.specific && (
                             <div>
-                              <span className="font-semibold text-gray-700">{copy.goals.specific}:</span>
-                              <p className="text-gray-600">{goal.smart_breakdown.specific}</p>
+                              <span className="font-semibold text-muted-foreground">{copy.goals.specific}:</span>
+                              <p className="text-muted-foreground">{goal.smart_breakdown.specific}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.measurable && (
                             <div>
-                              <span className="font-semibold text-gray-700">{copy.goals.measurable}:</span>
-                              <p className="text-gray-600">{goal.smart_breakdown.measurable}</p>
+                              <span className="font-semibold text-muted-foreground">{copy.goals.measurable}:</span>
+                              <p className="text-muted-foreground">{goal.smart_breakdown.measurable}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.achievable && (
                             <div>
-                              <span className="font-semibold text-gray-700">{copy.goals.achievable}:</span>
-                              <p className="text-gray-600">{goal.smart_breakdown.achievable}</p>
+                              <span className="font-semibold text-muted-foreground">{copy.goals.achievable}:</span>
+                              <p className="text-muted-foreground">{goal.smart_breakdown.achievable}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.relevant && (
                             <div>
-                              <span className="font-semibold text-gray-700">{copy.goals.relevant}:</span>
-                              <p className="text-gray-600">{goal.smart_breakdown.relevant}</p>
+                              <span className="font-semibold text-muted-foreground">{copy.goals.relevant}:</span>
+                              <p className="text-muted-foreground">{goal.smart_breakdown.relevant}</p>
                             </div>
                           )}
                           {goal.smart_breakdown.time_bound && (
                             <div>
-                              <span className="font-semibold text-gray-700">{copy.goals.timeBound}:</span>
-                              <p className="text-gray-600">{goal.smart_breakdown.time_bound}</p>
+                              <span className="font-semibold text-muted-foreground">{copy.goals.timeBound}:</span>
+                              <p className="text-muted-foreground">{goal.smart_breakdown.time_bound}</p>
                             </div>
                           )}
                         </div>
@@ -278,14 +278,14 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
 
                     {/* Initial Milestones */}
                     {safeArray(goal.milestones).length > 0 && (
-                      <div className="bg-white p-4 rounded-lg border mb-4">
-                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                      <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border mb-4">
+                        <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-orange-600" />
                           {copy.goals.firstSteps}
                         </h4>
                         <ul className="space-y-1">
                           {safeArray(goal.milestones).map((milestone, i) => (
-                            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                            <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                               <span className="text-orange-600 mt-0.5">•</span>
                               <span>{typeof milestone === 'string' ? milestone : milestone.title || milestone.description || copy.goals.step}</span>
                             </li>

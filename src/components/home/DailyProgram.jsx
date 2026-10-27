@@ -49,14 +49,14 @@ export default function DailyProgram() {
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="bg-white rounded-xl p-5 hover:shadow-lg transition-all">
+            <div className="bg-[hsl(var(--card)/0.97)] rounded-xl p-5 hover:shadow-lg transition-all">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <Badge className="bg-orange-100 text-orange-700 mb-2">Morning</Badge>
-                  <h3 className="font-semibold text-gray-800 text-lg mb-1">
+                  <h3 className="font-semibold text-foreground text-lg mb-1">
                     {dailyExercise.title}
                   </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2">
                     {dailyExercise.description}
                   </p>
                 </div>
@@ -64,7 +64,7 @@ export default function DailyProgram() {
               </div>
               
               <div className="flex items-center gap-4 mb-3">
-                <div className="flex items-center gap-1 text-xs text-gray-600">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="w-3 h-3" />
                   <span>{dailyExercise.duration_options?.[0] || 5} min</span>
                 </div>
@@ -91,14 +91,14 @@ export default function DailyProgram() {
             transition={{ delay: 0.1 }}
             whileHover={{ scale: 1.02 }}
           >
-            <div className="bg-white rounded-xl p-5 hover:shadow-lg transition-all">
+            <div className="bg-[hsl(var(--card)/0.97)] rounded-xl p-5 hover:shadow-lg transition-all">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <Badge className="bg-indigo-100 text-indigo-700 mb-2">Evening</Badge>
-                  <h3 className="font-semibold text-gray-800 text-lg mb-1">
+                  <h3 className="font-semibold text-foreground text-lg mb-1">
                     {dailyAudio.title}
                   </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2">
                     {dailyAudio.description}
                   </p>
                 </div>
@@ -106,7 +106,7 @@ export default function DailyProgram() {
               </div>
               
               <div className="flex items-center gap-4 mb-3">
-                <div className="flex items-center gap-1 text-xs text-gray-600">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Headphones className="w-3 h-3" />
                   <span>{dailyAudio.duration_minutes} min</span>
                 </div>
@@ -135,8 +135,8 @@ export default function DailyProgram() {
           <div className="flex items-start gap-3">
             <PremiumIcon name="idea" size="sm" className="shrink-0" />
             <div>
-              <h4 className="font-semibold text-gray-800 mb-1">Tip of the Day</h4>
-              <p className="text-sm text-gray-700">
+              <h4 className="font-semibold text-foreground mb-1">Tip of the Day</h4>
+              <p className="text-sm text-muted-foreground">
                 Take three deep breaths before responding to stress. This simple pause can help you respond thoughtfully rather than react impulsively.
               </p>
             </div>

@@ -88,11 +88,11 @@ export default function ThoughtWorkSaveHandler({
     return (
       <Card className="p-4 border-0" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 24px rgba(38, 166, 154, 0.15)'
+        boxShadow: 'var(--shadow-md)'
       }}>
-        <p className="text-sm mb-4" style={{ color: '#1A3A34' }}>
+        <p className="text-sm mb-4" style={{ color: 'hsl(var(--foreground))' }}>
           Save this thought record with your homework plan to your Journal?
         </p>
         <div className="flex gap-2">
@@ -101,8 +101,8 @@ export default function ThoughtWorkSaveHandler({
             className="text-white"
             style={{
               borderRadius: '16px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+              backgroundColor: 'hsl(var(--primary))',
+              boxShadow: 'var(--shadow-md)'
             }}
           >
             Save to Journal
@@ -112,7 +112,7 @@ export default function ThoughtWorkSaveHandler({
             variant="outline"
             style={{
               borderRadius: '16px',
-              borderColor: 'rgba(38, 166, 154, 0.3)'
+              borderColor: 'hsl(var(--border))'
             }}
           >
             Cancel
@@ -126,12 +126,12 @@ export default function ThoughtWorkSaveHandler({
     return (
       <Card className="p-4 border-0" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(12px)'
       }}>
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#26A69A' }} />
-          <p className="text-sm" style={{ color: '#5A7A72' }}>
+          <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+          <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
             Analyzing conversation and extracting homework...
           </p>
         </div>
@@ -143,12 +143,12 @@ export default function ThoughtWorkSaveHandler({
     return (
       <Card className="p-4 border-0" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(12px)'
       }}>
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#26A69A' }} />
-          <p className="text-sm" style={{ color: '#5A7A72' }}>
+          <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+          <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
             Saving to your Journal...
           </p>
         </div>
@@ -160,12 +160,12 @@ export default function ThoughtWorkSaveHandler({
     return (
       <Card className="p-4 border-0" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(12px)'
       }}>
         <div className="flex items-center gap-3">
-          <CheckCircle className="w-5 h-5" style={{ color: '#26A69A' }} />
-          <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+          <CheckCircle className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
+          <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
             ✓ Saved to your Thought Journal with homework plan.
           </p>
         </div>
@@ -177,12 +177,12 @@ export default function ThoughtWorkSaveHandler({
     return (
       <Card className="p-4 border-0" style={{
         borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+        background: 'hsl(var(--card) / 0.97)',
         backdropFilter: 'blur(12px)'
       }}>
         <div className="flex items-start gap-3 mb-3">
           <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: '#E57373' }} />
-          <p className="text-sm" style={{ color: '#1A3A34' }}>
+          <p className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>
             {errorMessage}
           </p>
         </div>
@@ -192,7 +192,7 @@ export default function ThoughtWorkSaveHandler({
             size="sm"
             style={{
               borderRadius: '16px',
-              backgroundColor: '#26A69A'
+              backgroundColor: 'hsl(var(--primary))'
             }}
           >
             Try Again
@@ -203,7 +203,7 @@ export default function ThoughtWorkSaveHandler({
             variant="outline"
             style={{
               borderRadius: '16px',
-              borderColor: 'rgba(38, 166, 154, 0.3)'
+              borderColor: 'hsl(var(--border))'
             }}
           >
             Cancel

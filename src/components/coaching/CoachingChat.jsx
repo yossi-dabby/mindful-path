@@ -207,22 +207,22 @@ export default function CoachingChat({ session, onBack }) {
   return (
     <div data-testid="coach-chat" className="flex flex-col bg-transparent" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <header className="flex-shrink-0 border-b border-border/70 bg-teal-50/95 p-3 backdrop-blur-xl sm:p-4">
+      <header className="flex-shrink-0 border-b border-border/70 bg-secondary/70 p-3 backdrop-blur-xl sm:p-4">
         <div className="max-w-4xl mx-auto">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <Button variant="ghost" onClick={onBack} className="text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 min-h-[44px] md:min-h-0 gap-2">
+            <Button variant="ghost" onClick={onBack} className="text-primary px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 min-h-[44px] md:min-h-0 gap-2">
               <ChevronLeft className="w-4 h-4 rtl:scale-x-[-1]" />
               <span className="inline">{t('coach.chat.back')}</span>
             </Button>
-            <Badge variant="outline" className="bg-[hsl(var(--card)/0.82)] text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 gap-2">
+            <Badge variant="outline" className="bg-[hsl(var(--card)/0.82)] text-primary px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 gap-2">
               <Target className="w-3 h-3" />
               {t(`coach.stage.${currentSession.stage || 'discovery'}`)}
             </Badge>
           </div>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className="mb-1 line-clamp-2 text-lg font-bold text-teal-800 sm:text-xl">{currentSession.title}</h1>
-              <p className="line-clamp-2 text-sm leading-5 text-slate-600">{currentSession.current_challenge}</p>
+              <h1 className="mb-1 line-clamp-2 text-lg font-bold text-foreground sm:text-xl">{currentSession.title}</h1>
+              <p className="line-clamp-2 text-sm leading-5 text-muted-foreground">{currentSession.current_challenge}</p>
             </div>
             {totalActions > 0 &&
             <Button
@@ -284,16 +284,16 @@ export default function CoachingChat({ session, onBack }) {
 
           {/* Quick Prompts */}
           {quickPrompts[currentSession.stage] &&
-          <div className="border-t border-border/70 bg-teal-50/95 px-3 py-2 sm:px-4 sm:py-3">
+          <div className="border-t border-border/70 bg-secondary/70 px-3 py-2 sm:px-4 sm:py-3">
               <div className="mx-auto max-w-4xl">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700 sm:text-sm">{t('coach.chat.quick_prompts')}</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary sm:text-sm">{t('coach.chat.quick_prompts')}</p>
                 <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
                   {quickPrompts[currentSession.stage].map((prompt, i) =>
                 <Button
                   key={i}
                   variant="outline"
                   size="sm"
-                  onClick={() => setInputMessage(prompt)} className="inline-flex min-h-[44px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-teal-200 bg-white/90 px-3 text-xs font-medium text-teal-800 shadow-sm transition hover:bg-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600">
+                  onClick={() => setInputMessage(prompt)} className="inline-flex min-h-[44px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-border bg-[hsl(var(--card)/0.97)] px-3 text-xs font-medium text-primary shadow-sm transition hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 
 
                       {prompt}
@@ -305,8 +305,8 @@ export default function CoachingChat({ session, onBack }) {
           }
 
           {/* Input Area */}
-          <div className="flex-shrink-0 border-t border-border/70 bg-teal-50/95 p-3 sm:p-4" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="mx-auto flex max-w-4xl items-end gap-2 text-teal-600 sm:gap-3">
+          <div className="flex-shrink-0 border-t border-border/70 bg-secondary/70 p-3 sm:p-4" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+            <div className="mx-auto flex max-w-4xl items-end gap-2 text-primary sm:gap-3">
               <Textarea
                 data-testid="coach-chat-input"
                 value={inputMessage}
@@ -318,7 +318,7 @@ export default function CoachingChat({ session, onBack }) {
                   }
                 }}
                 placeholder={t('coach.chat.placeholder')}
-                className="min-h-[52px] max-h-[160px] flex-1 resize-none rounded-[var(--radius-card)] bg-white text-base"
+                className="min-h-[52px] max-h-[160px] flex-1 resize-none rounded-[var(--radius-card)] bg-[hsl(var(--card)/0.97)] text-base"
                 enterKeyHint="send"
                 autoCapitalize="sentences"
                 autoComplete="off"
@@ -330,7 +330,7 @@ export default function CoachingChat({ session, onBack }) {
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading || !isConsentResolved || showConsentBanner}
                 aria-label={t('coach.chat.send_aria')}
-                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-teal-600 p-0 text-white shadow-[var(--shadow-md)] transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]" mobileLabelKey="send">
+                className="inline-flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-primary p-0 text-primary-foreground shadow-[var(--shadow-md)] transition hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-45 sm:h-[60px] sm:w-[60px]" mobileLabelKey="send">
 
 
                 <Send className="w-5 h-5" />

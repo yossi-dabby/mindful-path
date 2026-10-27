@@ -87,18 +87,18 @@ export default function TherapyFlowHandler({
           >
             <Card className="p-6 border-0" style={{
               borderRadius: '24px',
-              background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+              background: 'hsl(var(--card) / 0.97)',
               backdropFilter: 'blur(12px)',
-              boxShadow: '0 8px 24px rgba(38, 166, 154, 0.15)'
+              boxShadow: 'var(--shadow-md)'
             }}>
               <div className="flex gap-3 mb-4">
                 <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                  backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                  backgroundColor: 'hsl(var(--secondary))'
                 }}>
-                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: '#26A69A' }} />
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: 'hsl(var(--primary))' }} />
                 </div>
                 <div className="flex-1">
-                  <p style={{ color: '#1A3A34', lineHeight: '1.6' }}>
+                  <p style={{ color: 'hsl(var(--foreground))', lineHeight: '1.6' }}>
                     {FLOW_STEPS[flowKey].step1}
                   </p>
                 </div>
@@ -110,8 +110,8 @@ export default function TherapyFlowHandler({
                   className="w-full p-4 rounded-xl resize-none min-h-[100px]"
                   style={{
                     border: '1px solid rgba(38, 166, 154, 0.2)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    color: '#1A3A34'
+                    backgroundColor: 'hsl(var(--card) / 0.97)',
+                    color: 'hsl(var(--foreground))'
                   }}
                   onChange={(e) => setUserResponse(e.target.value)}
                 />
@@ -121,8 +121,8 @@ export default function TherapyFlowHandler({
                   className="w-full text-white"
                   style={{
                     borderRadius: '16px',
-                    backgroundColor: '#26A69A',
-                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                    backgroundColor: 'hsl(var(--primary))',
+                    boxShadow: 'var(--shadow-md)'
                   }}
                 >
                   {isLoading ? (
@@ -149,18 +149,18 @@ export default function TherapyFlowHandler({
           >
             <Card className="p-6 border-0" style={{
               borderRadius: '24px',
-              background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+              background: 'hsl(var(--card) / 0.97)',
               backdropFilter: 'blur(12px)',
-              boxShadow: '0 8px 24px rgba(38, 166, 154, 0.15)'
+              boxShadow: 'var(--shadow-md)'
             }}>
               <div className="flex gap-3 mb-4">
                 <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                  backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                  backgroundColor: 'hsl(var(--secondary))'
                 }}>
-                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: '#26A69A' }} />
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: 'hsl(var(--primary))' }} />
                 </div>
                 <div className="flex-1">
-                  <p style={{ color: '#1A3A34', lineHeight: '1.6' }}>
+                  <p style={{ color: 'hsl(var(--foreground))', lineHeight: '1.6' }}>
                     {botMessage}
                   </p>
                 </div>
@@ -173,8 +173,8 @@ export default function TherapyFlowHandler({
                   className="flex-1 text-white"
                   style={{
                     borderRadius: '16px',
-                    backgroundColor: '#26A69A',
-                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                    backgroundColor: 'hsl(var(--primary))',
+                    boxShadow: 'var(--shadow-md)'
                   }}
                 >
                   {isLoading ? (
@@ -193,7 +193,7 @@ export default function TherapyFlowHandler({
                   className="flex-1"
                   style={{
                     borderRadius: '16px',
-                    borderColor: 'rgba(38, 166, 154, 0.3)'
+                    borderColor: 'hsl(var(--border))'
                   }}
                 >
                   Not quite

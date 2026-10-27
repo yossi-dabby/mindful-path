@@ -52,7 +52,7 @@ export default function EnhancedGoalCard({ goal, onUpdate, onEdit }) {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Progress</span>
+                <span className="text-muted-foreground">Progress</span>
                 <span className="font-semibold">{Math.round(goal.progress || 0)}%</span>
               </div>
               <Progress value={goal.progress || 0} className="h-2" />
@@ -78,7 +78,7 @@ export default function EnhancedGoalCard({ goal, onUpdate, onEdit }) {
                 <Brain className="w-4 h-4" />
                 Original Problem
               </h4>
-              <p className="text-sm text-gray-700">{goal.problem_definition.situation}</p>
+              <p className="text-sm text-muted-foreground">{goal.problem_definition.situation}</p>
               {goal.problem_definition.emotions?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
                   {goal.problem_definition.emotions.map((emotion, i) => (
@@ -100,7 +100,7 @@ export default function EnhancedGoalCard({ goal, onUpdate, onEdit }) {
               </h4>
               {goal.obstacles.cognitive_distortions?.length > 0 && (
                 <div className="mb-2">
-                  <p className="text-xs font-medium text-gray-600 mb-1">Distortions Identified:</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Distortions Identified:</p>
                   <div className="flex flex-wrap gap-1">
                     {goal.obstacles.cognitive_distortions.map((dist, i) => (
                       <Badge key={i} variant="outline" className="text-xs">
@@ -112,8 +112,8 @@ export default function EnhancedGoalCard({ goal, onUpdate, onEdit }) {
               )}
               {goal.obstacles.balanced_thoughts?.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-gray-600 mb-1">Balanced Thoughts:</p>
-                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Balanced Thoughts:</p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                     {goal.obstacles.balanced_thoughts.slice(0, 2).map((thought, i) => (
                       <li key={i}>{thought}</li>
                     ))}
@@ -146,8 +146,8 @@ export default function EnhancedGoalCard({ goal, onUpdate, onEdit }) {
               </h4>
               <div className="grid grid-cols-3 gap-2 text-center">
                 {recentCheckIns.slice().reverse().map((checkIn, i) => (
-                  <div key={i} className="bg-white p-2 rounded">
-                    <p className="text-xs text-gray-600">{format(new Date(checkIn.date), 'MMM d')}</p>
+                  <div key={i} className="bg-[hsl(var(--card)/0.97)] p-2 rounded">
+                    <p className="text-xs text-muted-foreground">{format(new Date(checkIn.date), 'MMM d')}</p>
                     <div className="flex flex-col gap-1 mt-1">
                       <p className="text-xs">Effort: <strong>{checkIn.effort_rating}/10</strong></p>
                       <p className="text-xs">Mood: <strong>{checkIn.mood_rating}/10</strong></p>
