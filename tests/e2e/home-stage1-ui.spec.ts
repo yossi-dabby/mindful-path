@@ -223,3 +223,22 @@ for (const viewport of [sizes[0], sizes[1]]) test(`Home linked audio controls ar
   await expect(dialog).not.toContainText(/Includes calming background music|Add to favorites|Skip forward/);
   await assertNoClipping(page, '[role="tabpanel"][data-state="active"] button');
 });
+
+test('Home route announcements preserve keyboard focus in notifications', async ({ page }) => {
+  await prepare(page, { viewport: { width: 844, height: 390 }, notifications: true });
+  const announcer = page.locator('[data-a11y-route-announcer]');
+  await expect(announcer).not.toBeEmpty();
+  await page.locator('button[aria-haspopup="true"]:visible').first().click();
+  const link = page.locator('[style*="9999"]').getByRole('link').first();
+  await link.focus();
+  await expect(link).toBeFocused();
+
+  // A profile/heading update can settle after the user opens a portal. The
+  // new announcement must not move their focus away from the chosen action.
+  const updatedHeading = 'A refreshed home heading';
+  await page.locator('.botanical-home-hero h1').evaluate((el, value) => { el.textContent = value; }, updatedHeading);
+  await expect(announcer).toHaveText(updatedHeading);
+  await expect(link).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/Goals$/);
+});
