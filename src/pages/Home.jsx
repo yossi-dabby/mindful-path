@@ -1,5 +1,5 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, BookOpen, Target, CirclePlay } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import MoodCheckIn from '../components/home/MoodCheckIn';
+import HomeDailyCheckIn from '../components/home/HomeDailyCheckIn';
+import { loadRecommendedExercise } from '@/lib/homeDailyCheckIn';
+import { localizeExercise } from '@/components/exercises/exerciseLocalization';
 import QuickActions from '../components/home/QuickActions';
 import WelcomeWizard from '../components/onboarding/WelcomeWizard';
 import StreakWidget from '../components/gamification/StreakWidget';
@@ -32,6 +34,7 @@ export default function Home() {
   const [showGoalsVideo, setShowGoalsVideo] = useState(false);
   const [showJournalVideo, setShowJournalVideo] = useState(false);
   const queryClient = useQueryClient();
+  const savedCompletion = useRef(null);
 
   useEffect(() => {
     // Use sessionStorage cache from Layout.js if available
@@ -110,15 +113,16 @@ export default function Home() {
   });
 
   // Get today's exercise
-  const { data: todayExercise, isLoading: exerciseLoading, isError: exerciseError, refetch: refetchExercise } = useQuery({
+  const { data: todayExerciseData, isLoading: exerciseLoading, isError: exerciseError, refetch: refetchExercise } = useQuery({
     queryKey: ['todayExercise', todayFlow?.exercise_id],
     queryFn: async () => {
       if (!todayFlow?.exercise_id) return null;
-      const exercises = await base44.entities.Exercise.filter({ id: todayFlow.exercise_id });
-      return exercises[0] || null;
+      return loadRecommendedExercise(base44, todayFlow.exercise_id);
     },
     enabled: !!todayFlow?.exercise_id
   });
+
+  const todayExercise = todayExerciseData ? localizeExercise(todayExerciseData, i18n.resolvedLanguage || i18n.language) : null;
 
   useEffect(() => {
     if (!showExercise || !todayExercise) return;
@@ -127,70 +131,6 @@ export default function Home() {
       locale: i18n.language || 'en',
     });
   }, [i18n.language, showExercise, todayExercise]);
-
-  // Cache all exercises with longer stale time for assignment logic
-  const { data: allExercises } = useQuery({
-    queryKey: ['allExercises'],
-    queryFn: () => base44.entities.Exercise.list(),
-    initialData: [],
-    staleTime: 1000 * 60 * 30 // 30 minutes - exercises don't change often
-  });
-
-  // Auto-assign exercise when check-in is completed
-  const assignExerciseMutation = useMutation({
-    mutationFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-
-      // Get or create today's flow (prevent duplicates)
-      let flow = todayFlow;
-      if (!flow) {
-        // Check if flow already exists before creating
-        const existingFlows = await base44.entities.DailyFlow.filter({ date: today });
-        if (existingFlows.length > 0) {
-          flow = existingFlows[0];
-        } else {
-          const newFlow = await base44.entities.DailyFlow.create({
-            date: today,
-            check_in_completed: true,
-            check_in_time: new Date().toISOString()
-          });
-          flow = newFlow;
-        }
-      }
-
-      // Select exercise based on recent mood data
-      const recentMoods = await base44.entities.MoodEntry.list('-created_date', 7);
-
-      // Use cached exercises from query instead of fetching again
-      const exercises = allExercises.length > 0 ? allExercises : await base44.entities.Exercise.list();
-
-      // Simple scoring logic
-      const anxietyCount = recentMoods.filter((m) =>
-      m.emotions?.some((e) => e.toLowerCase().includes('anxi'))
-      ).length;
-      const lowMoodCount = recentMoods.filter((m) =>
-      ['low', 'very_low'].includes(m.mood)
-      ).length;
-
-      let targetCategory = 'mindfulness';
-      if (anxietyCount > 2) targetCategory = 'breathing';
-      if (lowMoodCount > 3) targetCategory = 'behavioral_activation';
-
-      const matchingExercises = exercises.filter((e) => e.category === targetCategory);
-      const selectedExercise = matchingExercises[Math.floor(Math.random() * matchingExercises.length)] ||
-      exercises[0];
-
-      await base44.entities.DailyFlow.update(flow.id, {
-        exercise_id: selectedExercise.id
-      });
-
-      return selectedExercise;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
-      queryClient.invalidateQueries({ queryKey: ['todayExercise'] });
-    }
-  });
 
   const favoriteMutation = useMutation({
     mutationFn: (exercise) => base44.entities.Exercise.update(exercise.id, { favorite: !exercise.favorite }),
@@ -213,18 +153,11 @@ export default function Home() {
   const handleStartCheckIn = () => {
     beginTimeToFirstValue({
       entryPoint: 'home_daily_checkin',
-      valueType: 'assistant_response',
+      valueType: 'checkin_saved',
       locale: i18n.language || 'en',
-      baselineAssistantCount: 0,
       restart: true,
     });
-    // Route to AI with daily_checkin intent instead of showing form
-    navigate('/Chat?intent=daily_checkin');
-  };
-
-  const handleCheckInComplete = () => {
-    setShowMoodCheckIn(false);
-    assignExerciseMutation.mutate();
+    setShowMoodCheckIn(true);
   };
 
   const handleStartExercise = () => {
@@ -237,7 +170,19 @@ export default function Home() {
     setShowExercise(true);
   };
 
-  const handleExerciseComplete = async () => {
+  const handleExerciseComplete = async (duration) => {
+    const completionKey = `${todayFlow?.id}:${todayExercise?.id}`;
+    if (todayExercise && !todayFlow?.exercise_completed && savedCompletion.current !== completionKey) {
+      await base44.entities.Exercise.update(todayExercise.id, {
+        completed_count: (todayExercise.completed_count || 0) + 1,
+        last_completed: new Date().toISOString(),
+        total_time_practiced: (todayExercise.total_time_practiced || 0) + (duration || 0),
+      });
+      // Keep a successful progress write across a failed flow update/retry in
+      // this dialog so clicking retry does not count the same practice twice.
+      savedCompletion.current = completionKey;
+      queryClient.invalidateQueries({ queryKey: ['todayExercise'] });
+    }
     if (todayFlow) {
       await base44.entities.DailyFlow.update(todayFlow.id, {
         exercise_completed: true,
@@ -424,7 +369,7 @@ export default function Home() {
 
       {/* Mood Check-in Modal */}
       {showMoodCheckIn &&
-          <MoodCheckIn onClose={handleCheckInComplete} />
+          <HomeDailyCheckIn initialMood={todayMood} onClose={() => setShowMoodCheckIn(false)} />
           }
 
       {/* Exercise Modal */}

@@ -39,6 +39,14 @@ async function prepare(page: Page, { language = 'en', theme = 'light', viewport 
       }
       return route.fulfill({ json: { id: 'sample-flow', ...data } });
     }
+    if (entity === 'UserExerciseProgress') {
+      if (req.method() === 'GET') return route.fulfill({ json: [{ id: 'sample-progress', exercise_id: exercise.id, favorite: exercise.favorite, completed_count: exercise.completed_count, total_time_practiced: exercise.total_time_practiced }] });
+      const data = req.postDataJSON();
+      state.exerciseWrites.push(data);
+      if ('favorite' in data && state.failFavorite) return route.fulfill({ status: 503, json: { message: 'Sample favorite failed' } });
+      Object.assign(exercise, data);
+      return route.fulfill({ json: { id: 'sample-progress', exercise_id: exercise.id, ...data } });
+    }
     if (entity === 'Exercise') {
       if (req.method() !== 'GET') {
         state.exerciseWrites.push(req.postDataJSON());
@@ -90,7 +98,7 @@ for (const language of ['en', 'he']) for (const theme of ['light', 'dark']) for 
     const favorite = dialog.locator('button[aria-pressed]');
     await favorite.click();
     await expect(favorite).toHaveAttribute('aria-pressed', 'true');
-    expect(state.exerciseWrites).toEqual([{ favorite: true }]);
+    await expect.poll(() => state.exerciseWrites).toEqual([{ favorite: true }]);
     state.failFavorite = true;
     await favorite.click();
     await expect(dialog.getByRole('alert')).toBeVisible();

@@ -1,5 +1,18 @@
 const languages = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 const rows = [
+  ['completion_error', 'Your practice could not be saved. Please try again.', 'לא הצלחנו לשמור את השלמת התרגול. נסו שוב.', 'No se pudo guardar la práctica. Inténtalo de nuevo.', 'Votre pratique n’a pas pu être enregistrée. Réessayez.', 'Ihre Übung konnte nicht gespeichert werden. Bitte erneut versuchen.', 'Impossibile salvare la pratica. Riprova.', 'Não foi possível salvar a prática. Tente novamente.'],
+  ['checkin_title', 'Daily check-in', 'בדיקה יומית', 'Registro diario', 'Bilan quotidien', 'Täglicher Check-in', 'Check-in quotidiano', 'Registro diário'],
+  ['checkin_mood', 'How are you feeling right now?', 'איך אתם מרגישים עכשיו?', '¿Cómo te sientes ahora?', 'Comment vous sentez-vous maintenant ?', 'Wie fühlen Sie sich gerade?', 'Come ti senti adesso?', 'Como você se sente agora?'],
+  ['checkin_energy', 'Energy level', 'רמת אנרגיה', 'Nivel de energía', 'Niveau d’énergie', 'Energieniveau', 'Livello di energia', 'Nível de energia'],
+  ['checkin_stress', 'Stress level', 'רמת מתח', 'Nivel de estrés', 'Niveau de stress', 'Stressniveau', 'Livello di stress', 'Nível de estresse'],
+  ['checkin_notes', 'Notes (optional)', 'הערות (לא חובה)', 'Notas (opcional)', 'Notes (facultatif)', 'Notizen (optional)', 'Note (facoltative)', 'Notas (opcional)'],
+  ['checkin_save', 'Save check-in', 'שמירת הבדיקה', 'Guardar registro', 'Enregistrer le bilan', 'Check-in speichern', 'Salva check-in', 'Salvar registro'],
+  ['checkin_error', 'We could not finish saving your daily check-in. Your answers are still here; please try again.', 'לא הצלחנו להשלים את שמירת הבדיקה היומית. התשובות נשארו כאן; נסו שוב.', 'No se pudo completar el registro. Tus respuestas siguen aquí; inténtalo de nuevo.', 'Le bilan n’a pas pu être entièrement enregistré. Vos réponses sont toujours là ; réessayez.', 'Der Check-in konnte nicht vollständig gespeichert werden. Ihre Antworten sind noch da; bitte erneut versuchen.', 'Impossibile completare il salvataggio. Le risposte sono ancora qui; riprova.', 'Não foi possível concluir o registro. Suas respostas continuam aqui; tente novamente.'],
+  ['energy_very_low', 'Very low', 'נמוכה מאוד', 'Muy baja', 'Très faible', 'Sehr niedrig', 'Molto bassa', 'Muito baixa'],
+  ['energy_low', 'Low', 'נמוכה', 'Baja', 'Faible', 'Niedrig', 'Bassa', 'Baixa'],
+  ['energy_moderate', 'Moderate', 'בינונית', 'Moderada', 'Modérée', 'Mittel', 'Moderata', 'Moderada'],
+  ['energy_high', 'High', 'גבוהה', 'Alta', 'Élevée', 'Hoch', 'Alta', 'Alta'],
+  ['energy_very_high', 'Very high', 'גבוהה מאוד', 'Muy alta', 'Très élevée', 'Sehr hoch', 'Molto alta', 'Muito alta'],
   ['reflection_title', 'Daily Reflection', 'התבוננות יומית', 'Reflexión diaria', 'Réflexion quotidienne', 'Tägliche Reflexion', 'Riflessione quotidiana', 'Reflexão diária'],
   ['insight_title', "Today's Key Insight", 'התובנה המרכזית להיום', 'La idea clave de hoy', 'L’idée clé du jour', 'Die heutige Erkenntnis', 'La riflessione chiave di oggi', 'A principal reflexão de hoje'],
   ['choose', 'Choose one focus for the rest of your day:', 'בחרו נושא אחד להתמקד בו בהמשך היום:', 'Elige un enfoque para el resto del día:', 'Choisissez un objectif pour le reste de la journée :', 'Wählen Sie einen Schwerpunkt für den restlichen Tag:', 'Scegli un obiettivo per il resto della giornata:', 'Escolha um foco para o resto do dia:'],

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import {
@@ -20,7 +20,7 @@ const THEMES = {
     circleGradient: 'linear-gradient(135deg, #a8edda 0%, #40c9a2 100%)',
     circleShadow: 'rgba(64, 201, 162, 0.55)',
     bgGradient: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)',
-    ringColor: '#26A69A',
+    ringColor: '#0f766e',
     textPrimary: '#1A3A34',
     textSecondary: '#3D5A52',
     cardBg: 'rgba(255,255,255,0.18)',
@@ -30,7 +30,7 @@ const THEMES = {
     circleGradient: 'linear-gradient(135deg, #c7d2fe 0%, #6366f1 100%)',
     circleShadow: 'rgba(99, 102, 241, 0.55)',
     bgGradient: 'linear-gradient(165deg, #EDE9FE 0%, #DDD6FE 30%, #C4B5FD 60%, #A78BFA 100%)',
-    ringColor: '#6366f1',
+    ringColor: '#4f46e5',
     textPrimary: '#1e1b4b',
     textSecondary: '#4338ca',
     cardBg: 'rgba(255,255,255,0.18)',
@@ -40,7 +40,7 @@ const THEMES = {
     circleGradient: 'linear-gradient(135deg, #fecda5 0%, #f97316 100%)',
     circleShadow: 'rgba(249, 115, 22, 0.55)',
     bgGradient: 'linear-gradient(165deg, #FFF7ED 0%, #FFEDD5 30%, #FED7AA 60%, #FDBA74 100%)',
-    ringColor: '#f97316',
+    ringColor: '#c2410c',
     textPrimary: '#431407',
     textSecondary: '#9a3412',
     cardBg: 'rgba(255,255,255,0.18)',
@@ -287,13 +287,6 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  // ─── Escape key ───────────────────────────────────────────────────────────
-  useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
-
   // ─── Scroll active pill into view on exercise change ──────────────────────
   useEffect(() => {
     const pill = pillRefs.current[exerciseIdx];
@@ -337,17 +330,13 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       : t('breathing_tool.calm_ladder.stage_3')
     : null;
 
-  // NOTE: Rendered via createPortal so that 'fixed inset-0' is positioned relative
-  // to the viewport, not to any ancestor element that has a CSS transform (e.g. the
-  // Layout page-transition motion.div). This mirrors the pattern in ExerciseDetail.jsx.
-  return createPortal(
-    <div
-      className="fixed inset-0 z-50 flex flex-col"
-      style={{ background: theme.bgGradient }}
-      role="dialog"
-      aria-modal="true"
-      aria-label={t('breathing_tool.title')}
+  return (
+    <PremiumDialog
+      onClose={onClose}
+      label={t('breathing_tool.title')}
+      className="fixed inset-0 flex flex-col"
     >
+      <div className="absolute inset-0 flex flex-col" style={{ background: theme.bgGradient }} data-testid="interactive-breathing-surface">
       {/* ── Top Bar ─────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 flex-shrink-0">
         <button
@@ -516,7 +505,9 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="block text-3xl md:text-4xl font-bold text-white"
+                    className="block text-3xl md:text-4xl font-bold"
+                    style={{ color: theme.textPrimary }}
+                    data-testid="breathing-countdown"
                   >
                     {display.isComplete ? '✓' : display.phaseTimeLeft}
                   </motion.span>
@@ -746,7 +737,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>,
-    document.body
+      </div>
+    </PremiumDialog>
   );
 }
