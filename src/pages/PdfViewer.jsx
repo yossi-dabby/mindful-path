@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { FileWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
@@ -131,7 +131,7 @@ export default function PdfViewer() {
           {t('chat.generated_file.type_label', 'PDF')}
         </div>
         <div className="flex items-center gap-2">
-          {hasError &&
+          {hasError && requestedFile &&
           <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>
@@ -170,7 +170,10 @@ export default function PdfViewer() {
         }
 
         {!isLoading && !resolvedFileUrl &&
-        <div className="flex flex-col items-center gap-3 pt-16">
+        <div className="garden-surface mx-auto mt-12 flex w-[calc(100%_-_2rem)] max-w-xl flex-col items-center gap-3 p-6 text-center" role="status">
+            <FileWarning className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
+            <h1 className="text-lg font-semibold">{t('pdf_ui.unavailable')}</h1>
+            <p className="text-sm text-muted-foreground">{t(requestedFile ? 'pdf_ui.load_error' : 'pdf_ui.no_file')}</p>
             <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>

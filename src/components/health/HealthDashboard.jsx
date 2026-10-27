@@ -50,12 +50,12 @@ export default function HealthDashboard() {
   return (
     <PullToRefresh queryKeys={['healthMetrics']}>
       <div className="space-y-6" data-testid="progress-health">
-        <p className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">{t('progress_ui.health.notice')}</p>
+        <p className="rounded-xl border border-blue-200 bg-secondary/45 p-3 text-xs text-blue-900">{t('progress_ui.health.notice')}</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
-            [t('progress_ui.health.avg_sleep'), avgSleep ? `${avgSleep.toFixed(1)} h` : '—', Moon, 'bg-blue-50', 'text-blue-700'],
-            [t('progress_ui.health.avg_steps'), avgSteps ? Math.round(avgSteps).toLocaleString(locale) : '—', Activity, 'bg-emerald-50', 'text-emerald-700'],
-            [t('progress_ui.health.avg_heart'), avgHeartRate ? `${Math.round(avgHeartRate)} bpm` : '—', Heart, 'bg-rose-50', 'text-rose-700']
+            [t('progress_ui.health.avg_sleep'), avgSleep ? `${avgSleep.toFixed(1)} h` : '—', Moon, 'bg-secondary/45', 'text-blue-700'],
+            [t('progress_ui.health.avg_steps'), avgSteps ? Math.round(avgSteps).toLocaleString(locale) : '—', Activity, 'bg-secondary/45', 'text-emerald-700'],
+            [t('progress_ui.health.avg_heart'), avgHeartRate ? `${Math.round(avgHeartRate)} bpm` : '—', Heart, 'bg-secondary/45', 'text-rose-700']
           ].map(([label, value, Icon, background, color]) => <Card key={label} className="border-border/70"><CardContent className={`p-4 ${background}`}><div className="flex items-center justify-between gap-3"><div className="min-w-0"><p className="mb-1 text-xs sm:text-sm text-slate-700 break-words">{label}</p><p className="text-2xl font-bold text-slate-900">{value}</p></div><Icon className={`h-8 w-8 shrink-0 ${color}`} /></div></CardContent></Card>)}
         </div>
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]"><CardContent className="p-4 sm:p-6"><div className="mb-4 flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between gap-3"><h3 className="font-semibold text-foreground">{t('progress_ui.health.trends')}</h3><Button onClick={() => setShowForm(true)} className="min-h-11 w-full min-[420px]:w-auto" size="sm"><Plus className="h-4 w-4" />{t('progress_ui.health.log')}</Button></div><div className="h-[270px] w-full min-w-0" role="img" aria-label={t('progress_ui.health.trends')}><ResponsiveContainer width="100%" height="100%"><LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}><XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" /><YAxis tick={{ fontSize: 10 }} /><Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }} /><Legend wrapperStyle={{ fontSize: 11 }} /><Line type="monotone" dataKey="sleep" stroke="#2563eb" name={t('progress_ui.health.sleep_hours')} strokeWidth={2} dot={false} /><Line type="monotone" dataKey="steps" stroke="#059669" name={t('progress_ui.health.steps_thousands')} strokeWidth={2} dot={false} /><Line type="monotone" dataKey="heartRate" stroke="#e11d48" name={t('progress_ui.health.heart_rate')} strokeWidth={2} dot={false} /></LineChart></ResponsiveContainer></div></CardContent></Card>

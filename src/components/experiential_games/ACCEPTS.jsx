@@ -17,10 +17,10 @@ export default function ACCEPTS({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.accepts.prompt')}
         </p>
 
@@ -35,13 +35,13 @@ export default function ACCEPTS({ onClose }) {
                 backgroundColor: selectedSkill?.letter === item.letter
                   ? 'rgba(38, 166, 154, 0.15)'
                   : 'rgba(38, 166, 154, 0.05)',
-                border: `1px solid ${selectedSkill?.letter === item.letter ? '#26A69A' : 'rgba(38, 166, 154, 0.2)'}`
+                border: `1px solid ${selectedSkill?.letter === item.letter ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.2)'}`
               }}
             >
-              <p className="text-sm font-semibold mb-1" style={{ color: '#26A69A' }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: 'hsl(var(--primary))' }}>
                 {item.letter}: {item.name}
               </p>
-              <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+              <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {item.description}
               </p>
             </button>
@@ -57,7 +57,7 @@ export default function ACCEPTS({ onClose }) {
             <p className="text-xs font-medium mb-2" style={{ color: '#9F7AEA' }}>
               {t('mind_games.accepts.try_now')}
             </p>
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {selectedSkill.action}
             </p>
           </div>

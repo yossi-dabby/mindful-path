@@ -106,13 +106,13 @@ export default function VideoPlayer() {
     return (
       <div className="min-h-dvh">
         <div className="page-container max-w-4xl">
-          <div className="text-center py-12">
-            <p className="text-lg mb-4" style={{ color: '#2D3748' }}>
+          <div className="garden-surface mt-6 p-8 text-center">
+            <h1 className="text-xl font-semibold mb-4 text-foreground">
               {t('video_player.no_video')}
-            </p>
+            </h1>
             <Button onClick={handleBack} className="px-6 py-5 text-white" style={{ 
               borderRadius: '9999px',
-              backgroundColor: '#26A69A',
+              backgroundColor: 'hsl(var(--primary))',
               boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
             }}>{t('video_player.back_to_library')}</Button>
           </div>
@@ -148,7 +148,7 @@ export default function VideoPlayer() {
           {/* Video Player Card */}
           <Card className="border-0" style={{ 
             borderRadius: '24px',
-            background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+            background: 'hsl(var(--card))',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
           }}>
@@ -178,7 +178,7 @@ export default function VideoPlayer() {
                       className="h-full transition-all duration-300"
                       style={{ 
                         width: `${videoProgress.progress}%`,
-                        backgroundColor: 'rgb(var(--theme-accent))'
+                        backgroundColor: 'hsl(var(--primary))'
                       }}
                     />
                   </div>
@@ -194,7 +194,7 @@ export default function VideoPlayer() {
               className="px-7 py-6 text-white"
               style={{ 
                 borderRadius: '9999px',
-                backgroundColor: '#26A69A',
+                backgroundColor: 'hsl(var(--primary))',
                 boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
               }}
             >

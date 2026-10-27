@@ -40,17 +40,17 @@ export default function WordAssociation({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="mb-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-            <Link className="w-5 h-5" style={{ color: '#26A69A' }} />
+          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'hsl(var(--foreground))' }}>
+            <Link className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
             {t('mind_games.word_association.title')}
           </h3>
         </div>
 
-        <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.word_association.instructions')}
         </p>
 
@@ -61,7 +61,7 @@ export default function WordAssociation({ onClose }) {
               border: '2px solid rgba(38, 166, 154, 0.2)'
             }}>
               <p className="text-sm text-gray-500 mb-2">{t('mind_games.word_association.prompt')}</p>
-              <p className="text-3xl font-bold" style={{ color: '#26A69A' }}>{currentWord}</p>
+              <p className="text-3xl font-bold" style={{ color: 'hsl(var(--primary))' }}>{currentWord}</p>
             </div>
 
             <div className="flex gap-2">
@@ -78,8 +78,8 @@ export default function WordAssociation({ onClose }) {
                 disabled={!userWord.trim()}
                 style={{
                   borderRadius: '12px',
-                  backgroundColor: '#26A69A',
-                  color: 'white'
+                  backgroundColor: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))'
                 }}
               >
                 {t('mind_games.word_association.submit')}
@@ -93,7 +93,7 @@ export default function WordAssociation({ onClose }) {
                   className="w-3 h-3 rounded-full"
                   style={{
                     backgroundColor: idx < chain.length 
-                      ? '#26A69A' 
+                      ? 'hsl(var(--primary))'
                       : 'rgba(38, 166, 154, 0.2)'
                   }}
                 />
@@ -102,14 +102,14 @@ export default function WordAssociation({ onClose }) {
 
             {chain.length > 0 && (
               <div className="space-y-2 mt-4">
-                <p className="text-xs font-medium" style={{ color: '#5A7A72' }}>
+                <p className="text-xs font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   {t('mind_games.word_association.your_chain')}
                 </p>
                 {chain.map((item, idx) => (
-                  <div key={idx} className="text-sm flex items-center gap-2" style={{ color: '#1A3A34' }}>
+                  <div key={idx} className="text-sm flex items-center gap-2" style={{ color: 'hsl(var(--foreground))' }}>
                     <span className="font-medium">{item.starter}</span>
                     <span>→</span>
-                    <span style={{ color: '#26A69A' }}>{item.response}</span>
+                    <span style={{ color: 'hsl(var(--primary))' }}>{item.response}</span>
                   </div>
                 ))}
               </div>
@@ -117,20 +117,20 @@ export default function WordAssociation({ onClose }) {
           </div>
         ) : (
           <div className="text-center py-8 space-y-4">
-            <CheckCircle className="w-12 h-12 mx-auto" style={{ color: '#26A69A' }} />
+            <CheckCircle className="w-12 h-12 mx-auto" style={{ color: 'hsl(var(--primary))' }} />
             <div>
-              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.word_association.complete_title')}
               </h3>
-              <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+              <p className="text-sm mb-4" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {t('mind_games.word_association.complete_message')}
               </p>
               <div className="space-y-1">
                 {chain.map((item, idx) => (
-                  <div key={idx} className="text-sm flex items-center gap-2 justify-center" style={{ color: '#1A3A34' }}>
+                  <div key={idx} className="text-sm flex items-center gap-2 justify-center" style={{ color: 'hsl(var(--foreground))' }}>
                     <span className="font-medium">{item.starter}</span>
                     <span>→</span>
-                    <span style={{ color: '#26A69A' }}>{item.response}</span>
+                    <span style={{ color: 'hsl(var(--primary))' }}>{item.response}</span>
                   </div>
                 ))}
               </div>
@@ -139,8 +139,8 @@ export default function WordAssociation({ onClose }) {
               onClick={reset}
               style={{
                 borderRadius: '12px',
-                backgroundColor: '#26A69A',
-                color: 'white'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.common.try_another')}

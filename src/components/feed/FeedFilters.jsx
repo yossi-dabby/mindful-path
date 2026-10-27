@@ -25,7 +25,7 @@ export default function FeedFilters({
   onClearFilters 
 }) {
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm mb-4 border">
+    <div className="bg-card rounded-[26px] p-4 shadow-sm mb-4 border">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-600" />
@@ -54,9 +54,9 @@ export default function FeedFilters({
                 key={type.id}
                 onClick={() => setContentType(type.id)}
                 className={`
-                  px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                  min-h-11 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
                   ${contentType === type.id
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }
                 `}
@@ -76,9 +76,9 @@ export default function FeedFilters({
                 key={option.id}
                 onClick={() => setSortBy(option.id)}
                 className={`
-                  px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                  min-h-11 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
                   ${sortBy === option.id
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }
                 `}

@@ -40,25 +40,25 @@ export default function ReframePick({ onClose }) {
     <div className="space-y-4">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="mb-4 w-full min-w-0">
-          <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+          <p className="text-xs font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {t('mind_games.reframe_pick.situation')}
           </p>
-          <p className="text-sm mb-3 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+          <p className="text-sm mb-3 break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
             {currentItem.situation}
           </p>
-          <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+          <p className="text-xs font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {t('mind_games.reframe_pick.automatic_thought')}
           </p>
-          <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+          <p className="text-sm italic break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
             "{currentItem.automatic_thought}"
           </p>
         </div>
 
-        <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
           {t('mind_games.reframe_pick.choose')}
         </p>
 
@@ -108,7 +108,7 @@ export default function ReframePick({ onClose }) {
             backgroundColor: 'rgba(38, 166, 154, 0.1)',
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
-            <p className="text-sm" style={{ color: '#1A3A34' }}>
+            <p className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>
               <strong>{t('mind_games.reframe_pick.why_label')}</strong> {currentItem.why}
             </p>
           </div>
@@ -124,8 +124,8 @@ export default function ReframePick({ onClose }) {
             onClick={handleNext}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.common.try_another')}

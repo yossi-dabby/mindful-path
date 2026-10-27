@@ -60,7 +60,7 @@ export default function CoachingAnalytics() {
   if (isError) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-3xl items-center justify-center p-4">
-        <Card className="w-full border border-red-200 bg-white/90 shadow-lg">
+        <Card className="w-full border border-red-200 bg-card/95 shadow-lg">
           <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
             <p className="font-medium text-red-700" role="alert">{t('coach.load_error')}</p>
             <Button variant="outline" onClick={() => refetch()}>{t('coach.retry')}</Button>
@@ -123,13 +123,13 @@ export default function CoachingAnalytics() {
               {t('coaching_analytics.back_to_coaching')}
             </Button>
           </Link>
-          <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+          <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
         </header>
 
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardContent className="p-8 md:p-12 text-center space-y-4">
-            <p className="text-gray-500">{t('coaching_analytics.no_data')}</p>
+            <BotanicalAccent variant="progress" className="mx-auto h-28 w-44" /><p className="font-medium text-muted-foreground">{t('coaching_analytics.no_data')}</p>
             <Link to={createPageUrl('Coach')}>
               <Button variant="outline">
                 <ArrowLeft className="h-4 w-4 rtl:scale-x-[-1]" />
@@ -152,13 +152,13 @@ export default function CoachingAnalytics() {
             {t('coaching_analytics.back_to_coaching')}
           </Button>
         </Link>
-        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+        <div className="botanical-title-row"><h1 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-2">{t('coaching_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
         <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
       </header>
 
       {/* Stats Overview */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 lg:grid-cols-4 lg:gap-6">
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -172,7 +172,7 @@ export default function CoachingAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -186,7 +186,7 @@ export default function CoachingAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -200,7 +200,7 @@ export default function CoachingAnalytics() {
           </CardContent>
         </Card>
 
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -221,7 +221,7 @@ export default function CoachingAnalytics() {
       {/* Charts */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-2 lg:gap-6">
         {/* Focus Areas */}
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardHeader>
             <CardTitle>{t('coaching_analytics.most_common_challenges')}</CardTitle>
           </CardHeader>
@@ -253,7 +253,7 @@ export default function CoachingAnalytics() {
         </Card>
 
         {/* Stage Distribution */}
-        <Card className="border border-white/70 bg-white/90 shadow-lg">
+        <Card className="border border-border/70 bg-card/95 shadow-lg">
           <CardHeader>
             <CardTitle>{t('coaching_analytics.stage_distribution')}</CardTitle>
           </CardHeader>

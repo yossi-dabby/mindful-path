@@ -16,16 +16,16 @@ export default function LegalDocumentPage({ document }) {
     <main
       dir={copy.direction}
       lang={copy.language}
-      className="min-h-screen bg-gradient-to-b from-teal-50/80 via-white to-amber-50/40 px-4 py-8 text-slate-800 sm:px-6 sm:py-12"
+      className="garden-public-background min-h-screen px-4 py-8 text-slate-800 sm:px-6 sm:py-12"
     >
-      <article className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-white/90 bg-white/90 shadow-[0_24px_70px_rgba(15,118,110,0.12)] backdrop-blur-xl">
-        <header className="border-b border-teal-100 bg-gradient-to-br from-teal-50 to-white px-5 py-7 sm:px-9 sm:py-9">
+      <article className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-white/90 bg-card/95 shadow-[0_24px_70px_rgba(15,118,110,0.12)] backdrop-blur-xl">
+        <header className="border-b border-teal-100 bg-secondary/35 px-5 py-7 sm:px-9 sm:py-9">
           <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-medium text-teal-800 hover:bg-teal-100/70 focus:outline-none focus:ring-2 focus:ring-teal-500">
             <BackIcon className="h-4 w-4" aria-hidden="true" />
             {copy.common.back}
           </Link>
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-lg shadow-teal-600/20">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-teal-600/20">
               <ShieldCheck className="h-6 w-6" aria-hidden="true" />
             </span>
             <div>

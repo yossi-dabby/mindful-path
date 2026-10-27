@@ -26,13 +26,13 @@ export default function TIPPSkills({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
+        <p className="text-xs font-medium mb-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.tipp_skills.prompt')}
         </p>
-        <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
           {currentItem?.situation}
         </p>
 
@@ -43,17 +43,17 @@ export default function TIPPSkills({ onClose }) {
               backgroundColor: 'rgba(38, 166, 154, 0.05)',
               border: '1px solid rgba(38, 166, 154, 0.2)'
             }}>
-              <p className="text-sm font-semibold mb-1" style={{ color: '#26A69A' }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: 'hsl(var(--primary))' }}>
                 {skill.letter}: {skill.name}
               </p>
-              <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+              <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {skill.description}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
           {t('mind_games.tipp_skills.pick_action')}
         </p>
 
@@ -85,7 +85,7 @@ export default function TIPPSkills({ onClose }) {
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.tipp_skills.success')}
             </p>
           </div>
@@ -101,8 +101,8 @@ export default function TIPPSkills({ onClose }) {
             onClick={handleNext}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.common.try_another')}

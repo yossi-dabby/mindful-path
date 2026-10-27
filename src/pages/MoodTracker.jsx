@@ -83,7 +83,7 @@ export default function MoodTracker() {
       <main className="min-h-[100dvh] w-full px-3 pb-32 pt-4 backdrop-blur-[2px] sm:px-4 md:px-6 md:pb-24" data-testid="mood-tracker">
         <div className="mx-auto w-full max-w-7xl">
           <motion.header className="mb-5 sm:mb-6" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-border/65 bg-card/78 p-4 shadow-[var(--shadow-sm)] backdrop-blur-xl sm:p-5 md:flex-row md:items-center md:justify-between">
+            <div className="garden-responsive-heading flex flex-col gap-4 rounded-[var(--radius-card)] border border-border/65 bg-card/78 p-4 shadow-[var(--shadow-sm)] backdrop-blur-xl sm:p-5 md:flex-row md:items-center md:justify-between">
               <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                 <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="shrink-0 rounded-full" aria-label={t('common.go_back_aria')}>
                   <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>

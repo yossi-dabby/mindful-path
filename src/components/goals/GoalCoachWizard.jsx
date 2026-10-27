@@ -82,11 +82,11 @@ export default function GoalCoachWizard({ onClose }) {
           </Button>
         )}
         {step < 4 ? (
-          <Button type="button" onClick={() => canProceed && setStep((current) => current + 1)} disabled={!canProceed} data-testid="goalcoach-next" className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:from-teal-700 hover:to-emerald-800">
+          <Button type="button" onClick={() => canProceed && setStep((current) => current + 1)} disabled={!canProceed} data-testid="goalcoach-next" className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90">
             {t('goal_coach_wizard.next_button')}<ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" aria-hidden="true" />
           </Button>
         ) : (
-          <Button type="button" onClick={() => !createGoalMutation.isPending && createGoalMutation.mutate(formData)} disabled={!canProceed || createGoalMutation.isPending} data-testid="goalcoach-save" className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:from-teal-700 hover:to-emerald-800">
+          <Button type="button" onClick={() => !createGoalMutation.isPending && createGoalMutation.mutate(formData)} disabled={!canProceed || createGoalMutation.isPending} data-testid="goalcoach-save" className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90">
             <Target className={`me-2 h-4 w-4 ${createGoalMutation.isPending ? 'animate-spin' : ''}`} aria-hidden="true" />{createGoalMutation.isPending ? t('goal_coach_wizard.saving_button') : t('goal_coach_wizard.save_button')}
           </Button>
         )}
@@ -140,7 +140,7 @@ export default function GoalCoachWizard({ onClose }) {
           <PremiumStepHeading title={t('goal_coach_wizard.step3_title')} subtitle={t('goal_coach_wizard.step3_subtitle')} />
           <div className="space-y-5">
             <div className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-4"><p className="font-bold text-sky-950">{t('goal_coach_wizard.reflect_title')}</p><ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-6 text-sky-900"><li>{t('goal_coach_wizard.reflect_q1')}</li><li>{t('goal_coach_wizard.reflect_q2')}</li><li>{t('goal_coach_wizard.reflect_q3')}</li></ul></div>
-            <fieldset className="rounded-2xl border border-violet-200 bg-violet-50/70 p-4"><legend className="px-1 font-bold text-violet-950">{t('goal_coach_wizard.smart_title')}</legend><div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <fieldset className="rounded-2xl border border-border/70 bg-secondary/40 p-4"><legend className="px-1 font-bold text-violet-950">{t('goal_coach_wizard.smart_title')}</legend><div className="mt-2 grid gap-3 sm:grid-cols-2">
               {['specific', 'measurable', 'achievable', 'relevant', 'time_bound'].map((field) => <Input key={field} value={formData.smart_criteria[field]} onChange={(event) => updateSmart(field, event.target.value)} placeholder={t(`goal_coach_wizard.smart_${field}_placeholder`)} className={premiumInputClass} data-testid={`goalcoach-smart-${field}`} />)}
             </div></fieldset>
             <fieldset className="rounded-2xl border border-teal-900/10 bg-white/70 p-4"><legend className="px-1 font-bold text-teal-950">{t('goal_coach_wizard.milestones_label')}</legend><p className="mb-3 text-sm leading-6 text-slate-600">{t('goal_coach_wizard.milestones_subtitle')}</p><div className="space-y-3">
@@ -163,7 +163,7 @@ export default function GoalCoachWizard({ onClose }) {
               {formData.target_date && <div><p className="font-bold text-teal-800">{t('goal_coach_wizard.review_target_label')}</p><p className="mt-1 text-slate-700">{formatLocalDate(formData.target_date, locale)}</p></div>}
               {formData.milestones.some((milestone) => milestone.title.trim()) && <div><p className="font-bold text-teal-800">{t('goal_coach_wizard.review_milestones_label')}</p><ul className="mt-2 space-y-2">{formData.milestones.filter((milestone) => milestone.title.trim()).map((milestone, index) => <li key={index} className="rounded-xl bg-teal-50 p-3 text-slate-700"><span className="font-semibold">{milestone.title}</span>{milestone.description && <p className="mt-1 text-xs">{milestone.description}</p>}{milestone.due_date && <p className="mt-1 text-xs text-slate-500">{t('goal_coach_wizard.review_due_prefix')} {formatLocalDate(milestone.due_date, locale)}</p>}</li>)}</ul></div>}
               {formData.rewards.some((reward) => reward.trim()) && <div><p className="font-bold text-teal-800">{t('goal_coach_wizard.review_rewards_label')}</p><ul className="mt-1 list-disc ps-5 text-slate-700">{formData.rewards.filter((reward) => reward.trim()).map((reward, index) => <li key={index}>{reward}</li>)}</ul></div>}
-              {Object.values(formData.smart_criteria).some((value) => value.trim()) && <div><p className="font-bold text-teal-800">{t('goal_coach_wizard.review_smart_label')}</p><div className="mt-2 space-y-1 rounded-xl bg-violet-50 p-3 text-slate-700">{Object.entries(formData.smart_criteria).filter(([, value]) => value.trim()).map(([key, value]) => <p key={key}><span className="font-bold uppercase">{key === 'time_bound' ? 'T' : key[0]}:</span> {value}</p>)}</div></div>}
+              {Object.values(formData.smart_criteria).some((value) => value.trim()) && <div><p className="font-bold text-teal-800">{t('goal_coach_wizard.review_smart_label')}</p><div className="mt-2 space-y-1 rounded-xl bg-secondary/40 p-3 text-slate-700">{Object.entries(formData.smart_criteria).filter(([, value]) => value.trim()).map(([key, value]) => <p key={key}><span className="font-bold uppercase">{key === 'time_bound' ? 'T' : key[0]}:</span> {value}</p>)}</div></div>}
             </div></div>
             <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4"><Target className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" /><div><p className="font-bold text-emerald-950">{t('goal_coach_wizard.what_next_title')}</p><p className="mt-1 text-sm leading-6 text-emerald-800">{t('goal_coach_wizard.what_next_text')}</p></div></div>
           </div>

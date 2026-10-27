@@ -94,7 +94,7 @@ Keep it warm, personal, and actionable.`,
         exit={{ opacity: 0, y: -20 }}
         className="mb-6"
       >
-        <Card className="border-2 border-purple-300 bg-gradient-to-br from-purple-50 via-pink-50 to-white shadow-lg">
+        <Card className="border border-border/70 bg-card shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ Keep it warm, personal, and actionable.`,
                   base44.entities.Goal.update(motivation.goal.id, { updated_date: new Date().toISOString() });
                   setShowMotivation(false);
                 }}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="flex-1 bg-primary hover:bg-primary/90"
               >
                 <PremiumIcon name="movement" size="sm" bare className="me-1" /> I'm On It!
               </Button>

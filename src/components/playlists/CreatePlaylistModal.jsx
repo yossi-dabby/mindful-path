@@ -96,8 +96,8 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
               type="submit" 
               disabled={!name.trim() || createMutation.isPending}
               style={{ 
-                backgroundColor: 'rgb(var(--theme-accent))',
-                color: 'rgb(var(--accent-contrast))'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {createMutation.isPending ? 'Creating...' : 'Create Playlist'}

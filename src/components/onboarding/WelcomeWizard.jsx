@@ -1,5 +1,8 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
+import { getHumanSupportCopy } from '@/lib/humanSupportDirectory';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -48,6 +51,25 @@ export default function WelcomeWizard({ onComplete }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir() === 'rtl';
   const [step, setStep] = useState(1);
+  const flowRef = useRef(null);
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    flowRef.current?.focus();
+    const trapFocus = (event) => {
+      if (event.key !== 'Tab') return;
+      const buttons = Array.from(flowRef.current?.querySelectorAll('button:not(:disabled), a[href], input, textarea, select') || []);
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (!first) return;
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === flowRef.current)) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', trapFocus);
+    return () => { document.removeEventListener('keydown', trapFocus); previousFocus?.focus?.(); };
+  }, []);
   const [formData, setFormData] = useState({ focus_areas: [], onboarding_mood: '', support_style: '' });
   const queryClient = useQueryClient();
 
@@ -94,8 +116,8 @@ export default function WelcomeWizard({ onComplete }) {
       : 'border-slate-200 bg-white/85 text-slate-700 hover:border-teal-200 hover:bg-white'
   );
 
-  return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[linear-gradient(145deg,#dff5ef_0%,#fbf8f0_52%,#e4f3ef_100%)]" dir={isRtl ? 'rtl' : 'ltr'}>
+  return createPortal((
+    <div ref={flowRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={t('onboarding.welcome.title')} data-testid="onboarding-flow" className="garden-flow-shell fixed inset-0 z-[120] overflow-y-auto bg-background" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="mx-auto flex min-h-[100dvh] w-full max-w-2xl items-center px-4 py-6 pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
         <div className="w-full">
           <div className="mb-4 flex items-center justify-center gap-3">
@@ -103,7 +125,7 @@ export default function WelcomeWizard({ onComplete }) {
             <AppWordmark name={t('global.app_name')} />
           </div>
 
-          <Card className="overflow-hidden rounded-[32px] border border-white/80 bg-white/88 shadow-[0_30px_90px_rgba(36,105,92,0.18)] backdrop-blur-xl">
+          <Card className="overflow-hidden rounded-[32px] border border-white/80 bg-card/95 shadow-[0_30px_90px_rgba(36,105,92,0.18)] backdrop-blur-xl">
             <div className="h-1.5 bg-gradient-to-r from-amber-300 via-teal-400 to-emerald-500" />
             <CardContent className="p-5 sm:p-8">
               <div className="mb-6 flex items-center justify-between gap-4">
@@ -201,12 +223,15 @@ export default function WelcomeWizard({ onComplete }) {
                   {step < 4 && <NextIcon className="ms-2 h-4 w-4" />}
                 </Button>
               </div>
+              <Link to="/contact" className="mt-2 flex min-h-11 items-center justify-center rounded-xl text-sm font-medium text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                {getHumanSupportCopy(i18n.resolvedLanguage || i18n.language).buttonLabel}
+              </Link>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 function StepHeader({ title, subtitle, children }) {

@@ -290,11 +290,11 @@ export default function ExperientialGames() {
             event.preventDefault();
             handleClose();
           }}
-          className="max-h-[calc(100dvh-1rem)] max-w-2xl overflow-hidden rounded-t-[28px] border-teal-700/15 bg-gradient-to-b from-white to-emerald-50 p-0 sm:max-h-[calc(100vh-3rem)] sm:rounded-[28px]"
+          className="max-h-[calc(100dvh-1rem)] max-w-2xl overflow-hidden rounded-t-[28px] border-border/70 bg-card p-0 sm:max-h-[calc(100vh-3rem)] sm:rounded-[28px]"
           data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
         >
           <div className="flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden sm:max-h-[calc(100vh-3rem)]">
-            <DialogHeader className="shrink-0 border-b border-emerald-100/70 px-6 pb-4 pt-6 pe-16 text-start">
+            <DialogHeader className="shrink-0 border-b border-border/70 bg-secondary/35 px-6 pb-4 pt-6 pe-16 text-start">
               <DialogTitle className="min-w-0 break-words text-xl text-teal-950">
                 {activeGame?.titleKey ? t(activeGame.titleKey) : activeGame?.title}
               </DialogTitle>

@@ -224,8 +224,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
           className="w-full max-w-4xl my-0 md:my-8"
           style={{ maxHeight: 'calc(100vh - 32px)' }}>
 
-        <Card className="border-0 shadow-2xl">
-          <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
+        <Card className="overflow-hidden rounded-[28px] border border-border/70 shadow-2xl">
+          <CardHeader className="bg-secondary/60 p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -237,7 +237,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       title={exercise.favorite ? t('exercise_view.remove_favorite') : t('exercise_view.add_favorite')}
                       onClick={() => onToggleFavorite?.(exercise)}
                       data-favorite={exercise.favorite ? 'true' : 'false'}
-                      className={`mr-2 mb-16 ml-2 min-h-[44px] min-w-[44px] px-3 py-2 rounded-full border flex items-center justify-center shadow-[var(--shadow-sm)] transition-all duration-200 ${exercise.favorite ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-200' : 'bg-card/95 border-border/70 hover:bg-rose-50'}`}>
+                      className={`mx-2 min-h-[44px] min-w-[44px] px-3 py-2 rounded-full border flex items-center justify-center shadow-[var(--shadow-sm)] transition-all duration-200 ${exercise.favorite ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-200' : 'bg-card/95 border-border/70 hover:bg-rose-50'}`}>
 
 
                     <Heart className={`w-5 h-5 transition-transform duration-200 ${exercise.favorite ? 'fill-red-500 text-red-500 scale-110' : 'fill-none text-muted-foreground'}`} />
@@ -272,7 +272,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 <Button
                     variant="outline"
                     onClick={handleDownloadPdf}
-                    disabled={isExportingPdf} className="bg-teal-600 text-gray-950 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0">
+                    disabled={isExportingPdf} className="bg-secondary text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0">
 
 
                   {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
@@ -326,7 +326,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                 {/* Visualization Script */}
                 {exercise.media_type === 'visualization' && exercise.visualization_script &&
-                      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+                      <div className="bg-card rounded-xl p-4 border border-indigo-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Eye className="w-5 h-5 text-indigo-600" />
                       <h3 className="text-lg font-semibold text-gray-800">{t('exercise_view.guided_visualization')}</h3>
@@ -354,7 +354,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                 {/* Audio URL */}
                 {exercise.audio_url &&
-                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                      <div className="bg-card rounded-xl p-4 border border-purple-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Headphones className="w-5 h-5 text-purple-600" />
                       <h3 className="text-lg font-semibold text-gray-800">{t('exercise_view.audio_guide')}</h3>
@@ -439,7 +439,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                       <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">{t('exercise_view.instructions')}</h3>
-                    <div className="bg-teal-100 text-teal-600 p-4 rounded-xl border border-gray-200">
+                    <div className="bg-secondary/60 text-teal-600 p-4 rounded-xl border border-gray-200">
                       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                         {instructionText || t('exercise_view.instructions_soon')}
                       </p>
@@ -456,7 +456,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                           <Button
                             key={duration}
                             onClick={() => handleStartBreathing(duration)}
-                            className="bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 py-6 text-lg font-semibold">
+                            className="bg-primary hover:bg-primary/90 py-6 text-lg font-semibold">
 
                           {t('exercise_view.minutes_short', { count: duration })}
                         </Button>
@@ -477,7 +477,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }} className="bg-teal-100 p-4 rounded-lg flex items-start gap-3 border border-green-200">
+                            transition={{ delay: i * 0.1 }} className="bg-secondary/60 p-4 rounded-lg flex items-start gap-3 border border-green-200">
 
 
                           <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -504,7 +504,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }} className="bg-teal-100 p-4 rounded-lg flex items-start gap-3 border border-blue-200">
+                            transition={{ delay: i * 0.1 }} className="bg-secondary/60 p-4 rounded-lg flex items-start gap-3 border border-blue-200">
 
 
                           <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -525,7 +525,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                 {/* Mobile: Progress Stats */}
                 <div className="lg:hidden">
-                  <div className="bg-teal-100 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
+                  <div className="bg-secondary/60 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
                     <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('exercise_view.your_progress')}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -560,10 +560,10 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       </div> :
 
                     <>
-                        <Button variant="outline" onClick={onClose} className="bg-teal-100 text-gray-950 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1">
+                        <Button variant="outline" onClick={onClose} className="bg-secondary/60 text-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1">
                           {t('exercise_view.close')}
                         </Button>
-                        <Button onClick={handleComplete} className="bg-teal-100 text-gray-950 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 hover:bg-green-700">
+                        <Button onClick={handleComplete} className="bg-secondary/60 text-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
                           {t('exercise_view.mark_complete')}
                         </Button>
@@ -576,7 +576,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               {/* Right Column: Progress & Actions (Desktop) */}
               <div className="hidden lg:flex lg:flex-col gap-4 self-start">
                 {/* Completion Stats */}
-                <div className="bg-teal-100 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
+                <div className="bg-secondary/60 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('exercise_view.your_progress')}</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -610,11 +610,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       </div> :
 
                     <>
-                        <Button onClick={handleComplete} className="bg-teal-500 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full hover:bg-green-700">
+                        <Button onClick={handleComplete} className="bg-primary text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
                           {t('exercise_view.mark_complete')}
                         </Button>
-                        <Button variant="outline" onClick={onClose} className="bg-teal-100 text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full">
+                        <Button variant="outline" onClick={onClose} className="bg-secondary/60 text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full">
                           {t('exercise_view.close')}
                         </Button>
                       </>

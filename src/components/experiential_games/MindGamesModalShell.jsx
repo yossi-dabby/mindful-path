@@ -10,7 +10,7 @@ export default function MindGamesModalShell({ children, title }) {
   return (
     <div className="space-y-4 w-full min-w-0">
       {title && (
-        <h2 className="text-xl font-semibold mb-4 break-words" style={{ color: '#1A3A34' }}>
+        <h2 className="text-xl font-semibold mb-4 break-words" style={{ color: 'hsl(var(--foreground))' }}>
           {title}
         </h2>
       )}

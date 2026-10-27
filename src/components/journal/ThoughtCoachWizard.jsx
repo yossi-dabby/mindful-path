@@ -528,7 +528,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 onClick={() => setStep(step + 1)}
                 disabled={!canProceed()}
                 data-testid="thoughtcoach-next"
-                className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+                className="flex-1 bg-primary hover:bg-primary/90"
               >
                 {t('thought_coach.next_button')}
                 <ChevronRight className="w-4 h-4 ml-2" />
@@ -539,7 +539,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 onClick={handleSubmit}
                 disabled={!canProceed() || createJournalMutation.isPending}
                 data-testid="thoughtcoach-save"
-                className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+                className="flex-1 bg-primary hover:bg-primary/90"
               >
                 {createJournalMutation.isPending ? (
                   <>

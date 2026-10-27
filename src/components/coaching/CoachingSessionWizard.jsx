@@ -188,13 +188,13 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
   };
 
   return createPortal((
-    <div data-testid="coach-wizard" className="flex w-full flex-col bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),transparent_34%),linear-gradient(155deg,#e6f6f1_0%,#d4eee7_52%,#c3e5dc_100%)] text-slate-900" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div data-testid="coach-wizard" className="garden-flow-shell flex w-full flex-col bg-background text-slate-900" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <div className="border-b border-white/70 bg-white/70 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0" style={{ zIndex: 10 }}>
+      <div className="border-b border-white/70 bg-card/95 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0" style={{ zIndex: 10 }}>
         <div className="max-w-3xl mx-auto px-4 py-3 sm:px-6 sm:py-4 w-full">
           <div className="flex min-w-0 items-center justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)] flex items-center justify-center">
+              <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.24)] flex items-center justify-center">
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0 flex-1">
@@ -223,7 +223,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
         <div className="mx-auto w-full max-w-3xl px-4 py-5 pb-8 sm:px-6 sm:py-7">
           {/* Step 1: Focus Area */}
           {step === 1 &&
-          <div className="space-y-6 rounded-[28px] border border-white/75 bg-white/70 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
+          <div className="space-y-6 rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
               <div>
                 <h2 className="mb-2 text-xl font-bold tracking-tight text-teal-950 sm:text-2xl">{t('coach.wizard.focus_title')}</h2>
                 <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.focus_description')}</p>
@@ -248,7 +248,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                   'min-h-[100px] p-4 rounded-[20px] border text-start transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2',
                   formData.focus_area === area.value ?
                   'border-teal-600 bg-teal-50 shadow-[0_12px_28px_rgba(42,103,91,0.14)] ring-1 ring-teal-600' :
-                  'border-teal-900/15 bg-white/80 shadow-sm hover:border-teal-500/50'
+                  'border-teal-900/15 bg-card/95 shadow-sm hover:border-teal-500/50'
                 )}>
 
                     <div className="flex items-start gap-3">
@@ -266,7 +266,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
 
           {/* Step 2: Challenge & Outcome */}
           {step === 2 &&
-          <div className="space-y-6 rounded-[28px] border border-white/75 bg-white/70 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
+          <div className="space-y-6 rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
               <div>
                 <h2 className="mb-2 text-xl font-bold tracking-tight text-teal-950 sm:text-2xl">{t('coach.wizard.details_title')}</h2>
                 <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.details_description')}</p>
@@ -312,7 +312,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                     'w-full p-3 rounded-xl border-2 cursor-pointer text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                     formData.related_goals.includes(goal.id) ?
                     'border-primary bg-primary/8' :
-                    'border-teal-900/15 bg-white/80 shadow-sm hover:border-teal-500/50'
+                    'border-teal-900/15 bg-card/95 shadow-sm hover:border-teal-500/50'
                   )}>
 
                         <div className="flex items-center justify-between gap-3">
@@ -336,7 +336,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
 
           {/* Step 3: Title & Confirm */}
           {step === 3 &&
-          <div className="space-y-6 rounded-[28px] border border-white/75 bg-white/70 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
+          <div className="space-y-6 rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_60px_rgba(42,103,91,0.13)] backdrop-blur-xl sm:p-7">
               <div>
                 <h2 className="mb-2 text-xl font-bold tracking-tight text-teal-950 sm:text-2xl">{t('coach.wizard.almost_title')}</h2>
                 <p className="mb-4 text-sm leading-6 text-muted-foreground">{t('coach.wizard.almost_description')}</p>
@@ -374,7 +374,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
                 </CardContent>
               </Card>
 
-              <div className="p-5 bg-white/80 border border-teal-900/10 rounded-[24px] shadow-sm">
+              <div className="p-5 bg-card/95 border border-teal-900/10 rounded-[24px] shadow-sm">
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div>
@@ -390,7 +390,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
       </div>
 
       {/* Navigation - Sticky at bottom of fixed container */}
-      <div className="border-t border-white/75 bg-white/80 shadow-[0_-10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
+      <div className="border-t border-white/75 bg-card/95 shadow-[0_-10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
         <div className="max-w-3xl mx-auto px-4 py-3 sm:px-6">
           <div className="flex gap-3">
             {step > 1 &&
@@ -398,7 +398,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
               variant="outline"
               onClick={() => setStep(step - 1)}
               disabled={createSessionMutation.isPending}
-              className="min-h-12 flex-1 rounded-2xl border-teal-900/15 bg-white/80 text-teal-800 hover:bg-white">
+              className="min-h-12 flex-1 rounded-2xl border-teal-900/15 bg-card/95 text-teal-800 hover:bg-white">
 
                 <ChevronLeft className="h-4 w-4 rtl:scale-x-[-1]" />
                 {t('coach.wizard.back')}
@@ -409,7 +409,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
               data-testid="coach-wizard-next"
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.2)] hover:from-teal-700 hover:to-emerald-800">
+              className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.2)] hover:bg-primary/90">
 
                 {t('coach.wizard.next')}
                 <ChevronRight className="h-4 w-4 rtl:scale-x-[-1]" />
@@ -418,7 +418,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
             <Button
               onClick={handleSubmit}
               disabled={!canProceed() || createSessionMutation.isPending}
-              className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.2)] hover:from-teal-700 hover:to-emerald-800">
+              className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.2)] hover:bg-primary/90">
 
                 {createSessionMutation.isPending ?
               <>

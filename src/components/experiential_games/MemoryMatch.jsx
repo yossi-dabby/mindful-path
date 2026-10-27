@@ -77,23 +77,23 @@ export default function MemoryMatch({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="mb-4 flex justify-between items-center">
-          <h3 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>
+          <h3 className="text-lg font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
             {t('mind_games.memory_match.title')}
           </h3>
           <Badge variant="outline" style={{
             borderRadius: '8px',
             borderColor: 'rgba(38, 166, 154, 0.3)',
-            color: '#26A69A'
+            color: 'hsl(var(--primary))'
           }}>
             {t('mind_games.memory_match.moves')}: {moves}
           </Badge>
         </div>
 
-        <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.memory_match.instructions')}
         </p>
 
@@ -119,12 +119,12 @@ export default function MemoryMatch({ onClose }) {
           </div>
         ) : (
           <div className="text-center py-8 space-y-4">
-            <Sparkles className="w-12 h-12 mx-auto" style={{ color: '#26A69A' }} />
+            <Sparkles className="w-12 h-12 mx-auto" style={{ color: 'hsl(var(--primary))' }} />
             <div>
-              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.memory_match.complete_title')}
               </h3>
-              <p className="text-sm" style={{ color: '#5A7A72' }}>
+              <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {t('mind_games.memory_match.complete_message', { moves })}
               </p>
             </div>
@@ -132,8 +132,8 @@ export default function MemoryMatch({ onClose }) {
               onClick={initializeGame}
               style={{
                 borderRadius: '12px',
-                backgroundColor: '#26A69A',
-                color: 'white'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.common.try_another')}

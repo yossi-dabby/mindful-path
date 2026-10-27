@@ -56,7 +56,7 @@ export default function KnowledgeStudio() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 pb-32 md:pb-10">
+    <div className="w-full min-w-0 max-w-7xl mx-auto px-4 py-6 pb-32 md:pb-10">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-primary/10 rounded-xl p-2.5">
@@ -69,7 +69,7 @@ export default function KnowledgeStudio() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 h-auto w-full flex-wrap">
           <TabsTrigger value="library">Library</TabsTrigger>
           <TabsTrigger value="editor">{editingChunk ? 'Edit Chunk' : 'New Chunk'}</TabsTrigger>
           <TabsTrigger value="preview">Retrieval Preview</TabsTrigger>

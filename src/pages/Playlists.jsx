@@ -65,7 +65,7 @@ export default function Playlists() {
             variant="ghost"
             onClick={() => navigate(createPageUrl('Videos'))}
             className="mb-4 -ml-2 text-sm"
-            style={{ color: '#26A69A' }}
+            style={{ color: 'hsl(var(--primary))' }}
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             {t('playlists.back_to_videos')}
@@ -85,7 +85,7 @@ export default function Playlists() {
               className="text-white px-6 py-5 w-full md:w-auto"
               style={{ 
                 borderRadius: '9999px',
-                backgroundColor: '#26A69A',
+                backgroundColor: 'hsl(var(--primary))',
                 boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
               }}
             >
@@ -117,7 +117,7 @@ export default function Playlists() {
                   className="text-white px-8 py-6"
                   style={{
                     borderRadius: '24px',
-                    backgroundColor: '#26A69A',
+                    backgroundColor: 'hsl(var(--primary))',
                     boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
                   }}
                 >
@@ -139,7 +139,7 @@ export default function Playlists() {
 
         {/* Empty State */}
         {!isError && !isLoading && playlists.length === 0 && (
-          <div className="py-12">
+          <div className="garden-surface p-6 sm:p-10">
             <div className="mx-auto max-w-2xl text-center">
               <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--theme-muted))' }} />
               <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlists.no_playlists_title')}</p>
@@ -152,8 +152,8 @@ export default function Playlists() {
                 onClick={() => setShowCreateModal(true)}
                 className="w-full sm:w-auto"
                 style={{ 
-                  backgroundColor: 'rgb(var(--theme-accent))',
-                  color: 'rgb(var(--accent-contrast))'
+                  backgroundColor: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))'
                 }}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -181,7 +181,7 @@ export default function Playlists() {
                 >
                   <Card className="border-0 hover:shadow-lg transition-calm group" style={{ 
                     borderRadius: '20px',
-                    background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+                    background: 'hsl(var(--card))',
                     backdropFilter: 'blur(10px)',
                     boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
                   }}>
@@ -195,7 +195,7 @@ export default function Playlists() {
                             {playlist.description}
                           </p>
                         )}
-                        <div className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: '#26A69A' }}>
+                        <div className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: 'hsl(var(--primary))' }}>
                           <List className="w-3.5 h-3.5" />
                           {t('playlists.video_count', { count: playlist.video_count || 0 })}
                         </div>

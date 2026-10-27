@@ -9,7 +9,7 @@ export default function AgeRestrictedMessage() {
         className="max-w-md w-full border-0 shadow-xl"
         style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
+          background: 'hsl(var(--card))',
           backdropFilter: 'blur(16px)',
         }}
       >
@@ -24,11 +24,11 @@ export default function AgeRestrictedMessage() {
             <ShieldAlert className="w-8 h-8" style={{ color: '#6B7280' }} />
           </div>
 
-          <h2 className="text-2xl font-semibold mb-3" style={{ color: '#1A3A34' }}>
+          <h2 className="text-2xl font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
             Age Restricted
           </h2>
 
-          <p className="text-base leading-relaxed mb-6" style={{ color: '#5A7A72' }}>
+          <p className="text-base leading-relaxed mb-6" style={{ color: 'hsl(var(--muted-foreground))' }}>
             Our AI-powered chat features are designed for users 18 and older. You still have access to other wellness tools like mood tracking, journaling, and exercises.
           </p>
 
@@ -36,7 +36,7 @@ export default function AgeRestrictedMessage() {
             href="/"
             className="inline-block px-6 py-3 text-white font-medium rounded-xl"
             style={{
-              backgroundColor: '#26A69A',
+              backgroundColor: 'hsl(var(--primary))',
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
             }}
           >

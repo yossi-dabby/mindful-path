@@ -35,7 +35,7 @@ export default function ExerciseTracker({ exercises = [] }) {
 
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] overflow-hidden" data-testid="progress-exercises">
-      <CardHeader className="bg-emerald-50/70 dark:bg-emerald-950/20 p-4 sm:p-6">
+      <CardHeader className="bg-secondary/45 p-4 sm:p-6">
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Dumbbell className="h-5 w-5 text-emerald-700" />
           {t('progress_ui.exercise.title')}
@@ -44,9 +44,9 @@ export default function ExerciseTracker({ exercises = [] }) {
       <CardContent className="p-4 sm:p-6">
         <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3 mb-6">
           {[
-            [completedExercises.length, t('progress_ui.exercise.tried'), 'text-emerald-700', 'bg-emerald-50'],
-            [totalCompletions, t('progress_ui.exercise.total_sessions'), 'text-blue-700', 'bg-blue-50'],
-            [Object.keys(categoryStats).length, t('progress_ui.exercise.categories'), 'text-violet-700', 'bg-violet-50']
+            [completedExercises.length, t('progress_ui.exercise.tried'), 'text-emerald-700', 'bg-secondary/45'],
+            [totalCompletions, t('progress_ui.exercise.total_sessions'), 'text-blue-700', 'bg-secondary/45'],
+            [Object.keys(categoryStats).length, t('progress_ui.exercise.categories'), 'text-violet-700', 'bg-secondary/45']
           ].map(([value, label, color, background]) => (
             <div key={label} className={`min-w-0 rounded-xl p-3 sm:p-4 text-center ${background}`}>
               <p className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</p>

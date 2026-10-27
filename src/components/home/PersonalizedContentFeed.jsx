@@ -208,7 +208,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             onClick={generateFeed}
             variant="outline"
             size="sm"
-            className="text-purple-600 border-purple-300 hover:bg-purple-50"
+            className="text-primary border-border hover:bg-secondary"
            mobileLabelKey="refresh">
             <RefreshCw className="w-4 h-4 mr-2" />
             Try Again
@@ -233,7 +233,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             onClick={generateFeed}
             variant="outline"
             size="sm"
-            className="text-purple-600 border-purple-300 hover:bg-purple-50"
+            className="text-primary border-border hover:bg-secondary"
            mobileLabelKey="refresh">
             <RefreshCw className="w-4 h-4 mr-2" />
             Generate Feed
@@ -309,7 +309,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+          <Card className="border border-border/70 bg-card">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
@@ -332,7 +332,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+          <Card className="border border-border/70 bg-card">
             <CardContent className="p-4">
               <Quote className="w-6 h-6 text-blue-400 mb-2" />
               <p className="text-gray-700 italic mb-2">"{feed.inspirational_quote.text}"</p>

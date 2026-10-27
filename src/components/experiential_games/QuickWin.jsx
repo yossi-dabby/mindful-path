@@ -48,7 +48,7 @@ export default function QuickWin({ onClose }) {
 
   return (
     <div className="space-y-4 w-full min-w-0">
-      <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+      <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
         {t('mind_games.quick_win.log_prompt')}
       </p>
 
@@ -66,15 +66,15 @@ export default function QuickWin({ onClose }) {
           disabled={!customWin.trim()}
           style={{
             borderRadius: '12px',
-            backgroundColor: '#26A69A',
-            color: 'white'
+            backgroundColor: 'hsl(var(--primary))',
+            color: 'hsl(var(--primary-foreground))'
           }}
         >
           {t('mind_games.quick_win.log_button')}
         </Button>
       </div>
 
-      <p className="text-xs" style={{ color: '#5A7A72' }}>
+      <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
         {t('mind_games.quick_win.preset_prompt')}
       </p>
       <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto overflow-x-hidden min-w-0 pb-1 pr-1">
@@ -105,7 +105,7 @@ export default function QuickWin({ onClose }) {
         }}>
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-green-600" />
-            <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.quick_win.success_message')}
             </p>
           </div>

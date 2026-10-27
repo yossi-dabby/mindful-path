@@ -23,10 +23,10 @@ export default function SelfSoothe({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.self_soothe.prompt')}
         </p>
 
@@ -43,7 +43,7 @@ export default function SelfSoothe({ onClose }) {
                   border: '1px solid rgba(38, 166, 154, 0.2)'
                 }}
               >
-                <p className="text-sm font-semibold" style={{ color: '#26A69A' }}>
+                <p className="text-sm font-semibold" style={{ color: 'hsl(var(--primary))' }}>
                   {item.sense}
                 </p>
               </button>
@@ -54,11 +54,11 @@ export default function SelfSoothe({ onClose }) {
             <button
               onClick={() => setSelectedSense(null)}
               className="text-xs mb-3"
-              style={{ color: '#5A7A72' }}
+              style={{ color: 'hsl(var(--muted-foreground))' }}
             >
               {t('mind_games.self_soothe.back')}
             </button>
-            <p className="text-sm font-semibold mb-3" style={{ color: '#26A69A' }}>
+            <p className="text-sm font-semibold mb-3" style={{ color: 'hsl(var(--primary))' }}>
               {selectedSense.sense}
             </p>
             <div className="space-y-2">
@@ -88,7 +88,7 @@ export default function SelfSoothe({ onClose }) {
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
                 border: '1px solid rgba(34, 197, 94, 0.2)'
               }}>
-                <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+                <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
                   {t('mind_games.self_soothe.success')}
                 </p>
               </div>

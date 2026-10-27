@@ -17,7 +17,7 @@ export default function PlaylistDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const playlistId = urlParams.get('id');
 
-  const { data: playlist } = useQuery({
+  const { data: playlist, isLoading, isError, refetch } = useQuery({
     queryKey: ['playlist', playlistId],
     queryFn: async () => {
       const playlists = await base44.entities.Playlist.filter({ id: playlistId });
@@ -122,7 +122,7 @@ export default function PlaylistDetail() {
       <div className="min-h-dvh bg-warm-gradient safe-bottom">
         <div className="page-container max-w-7xl">
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('playlist_detail.loading')}</p>
+            <Card className="mx-auto max-w-xl"><CardContent className="space-y-4 p-8"><p role="status">{t(playlistId && isLoading ? 'playlist_detail.loading' : 'playlist_detail.not_found')}</p>{isError && <Button variant="outline" onClick={() => refetch()}>{t('playlists.retry')}</Button>}<Button onClick={() => navigate(createPageUrl('Playlists'))}>{t('playlist_detail.back_to_playlists')}</Button></CardContent></Card>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function PlaylistDetail() {
               {playlist.description}
             </p>
           )}
-          <p className="text-sm" style={{ color: 'rgb(var(--theme-accent))' }}>
+          <p className="text-sm" style={{ color: 'hsl(var(--primary))' }}>
             {t('playlist_detail.video_count', { count: videos.length })}
           </p>
         </div>
@@ -167,8 +167,8 @@ export default function PlaylistDetail() {
               onClick={() => navigate(createPageUrl('Videos'))}
               className="mt-4"
               style={{ 
-                backgroundColor: 'rgb(var(--theme-accent))',
-                color: 'rgb(var(--accent-contrast))'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('playlist_detail.browse_videos')}
@@ -204,7 +204,7 @@ export default function PlaylistDetail() {
                             className="w-16 h-16 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
                             style={{ 
                               borderRadius: 'var(--r-xl)',
-                              backgroundColor: 'rgb(var(--theme-accent))'
+                              backgroundColor: 'hsl(var(--primary))'
                             }}
                           >
                             <Play className="w-8 h-8 text-white fill-white" />
@@ -224,7 +224,7 @@ export default function PlaylistDetail() {
                                   className="h-full transition-all duration-300"
                                   style={{ 
                                     width: `${progress.progress}%`,
-                                    backgroundColor: 'rgb(var(--theme-accent))'
+                                    backgroundColor: 'hsl(var(--primary))'
                                   }}
                                 />
                               </div>

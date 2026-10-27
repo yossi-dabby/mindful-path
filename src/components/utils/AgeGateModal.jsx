@@ -40,7 +40,7 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
         className="age-gate-card max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto border-0 shadow-2xl"
         style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
+          background: 'hsl(var(--card))',
           backdropFilter: 'blur(16px)',
           boxShadow: '0 20px 60px rgba(38, 166, 154, 0.2)',
           animation: 'slideUp 0.3s ease-out'
@@ -56,16 +56,16 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2)'
             }}
           >
-            <ShieldCheck className="w-6 h-6 md:w-7 md:h-7" style={{ color: '#26A69A' }} />
+            <ShieldCheck className="w-6 h-6 md:w-7 md:h-7" style={{ color: 'hsl(var(--primary))' }} />
           </div>
 
           {/* Title */}
-          <h2 id="age-gate-title" className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: '#1A3A34' }}>
+          <h2 id="age-gate-title" className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: 'hsl(var(--foreground))' }}>
             {t('age_gate.title')}
           </h2>
 
           {/* Content */}
-          <div className="space-y-3 mb-4 text-sm md:text-base" style={{ color: '#5A7A72' }}>
+          <div className="space-y-3 mb-4 text-sm md:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>
             <p id="age-gate-description" className="leading-relaxed text-center">
               {t('age_gate.message')}
             </p>
@@ -97,7 +97,7 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
               className="w-full py-6 text-base md:text-lg text-white font-medium"
               style={{
                 borderRadius: '20px',
-                backgroundColor: '#26A69A',
+                backgroundColor: 'hsl(var(--primary))',
                 boxShadow: '0 6px 20px rgba(38, 166, 154, 0.35)',
               }}
             >
