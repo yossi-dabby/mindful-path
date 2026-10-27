@@ -54,7 +54,8 @@ function sanitizeProgressUpdate(data) {
 }
 
 export function installExerciseProgressAdapter(base44) {
-  const exerciseEntity = base44?.entities?.Exercise;
+  const originalEntities = base44?.entities;
+  const exerciseEntity = originalEntities?.Exercise;
   const progressEntity = base44?.entities?.UserExerciseProgress;
   if (!exerciseEntity || !progressEntity || exerciseEntity.__userProgressAdapterInstalled) return;
 
@@ -87,6 +88,14 @@ export function installExerciseProgressAdapter(base44) {
       return progressEntity.create({ exercise_id: exerciseId, ...payload });
     };
   }
+
+  // The SDK creates a new handler for every property read. Keep the wrapped
+  // Exercise handler stable while delegating every other entity to the SDK.
+  base44.entities = new Proxy(originalEntities, {
+    get(target, name, receiver) {
+      return name === 'Exercise' ? exerciseEntity : Reflect.get(target, name, receiver);
+    },
+  });
 
   Object.defineProperty(exerciseEntity, '__userProgressAdapterInstalled', {
     value: true,

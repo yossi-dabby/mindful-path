@@ -1,5 +1,5 @@
 import PremiumDialog from '@/components/ui/PremiumDialog';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,15 @@ import { exportExercisePdf } from './exportExercisePdfUtils';
 export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite, favoritePending = false, favoriteError = false }) {
   const { t, i18n } = useTranslation();
   const [completed, setCompleted] = useState(false);
+  const [completionPending, setCompletionPending] = useState(false);
+  const [completionError, setCompletionError] = useState(false);
+  const completionInFlight = useRef(false);
+  const closeTimer = useRef();
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; clearTimeout(closeTimer.current); };
+  }, []);
   const [showBreathingVisual, setShowBreathingVisual] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -146,12 +155,23 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
     initialData: []
   });
 
-  const handleComplete = () => {
-    setCompleted(true);
-    onComplete();
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+  const handleComplete = async () => {
+    if (completionInFlight.current) return;
+    completionInFlight.current = true;
+    setCompletionPending(true);
+    setCompletionError(false);
+    try {
+      await onComplete(selectedDuration || undefined);
+      if (mounted.current) {
+        setCompleted(true);
+        closeTimer.current = setTimeout(onClose, 2000);
+      }
+    } catch (_error) {
+      if (mounted.current) { setShowBreathingVisual(false); setCompletionError(true); }
+    } finally {
+      completionInFlight.current = false;
+      if (mounted.current) setCompletionPending(false);
+    }
   };
 
   const handleStartBreathing = (duration) => {
@@ -215,6 +235,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
           style={{ maxHeight: 'calc(100vh - 32px)' }}>
 
         <Card className="overflow-hidden rounded-[28px] border border-border/70 shadow-2xl">
+          {completionError && <p role="alert" className="m-4 rounded-xl border border-border bg-secondary p-3 text-foreground">{t('home_practice.completion_error')}</p>}
           <CardHeader className="bg-secondary/60 p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1 basis-full sm:basis-0">
@@ -555,9 +576,9 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                         <Button variant="outline" onClick={onClose} className="bg-secondary/60 text-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1">
                           {t('exercise_view.close')}
                         </Button>
-                        <Button onClick={handleComplete} className="bg-secondary/60 text-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 hover:bg-green-700">
+                        <Button onClick={handleComplete} disabled={completionPending} aria-busy={completionPending} className="bg-secondary/60 text-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
-                          {t('exercise_view.mark_complete')}
+                          {completionPending ? t('home_practice.saving') : t('exercise_view.mark_complete')}
                         </Button>
                       </>
                     }
@@ -602,9 +623,9 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       </div> :
 
                     <>
-                        <Button onClick={handleComplete} className="bg-primary text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full hover:bg-green-700">
+                        <Button onClick={handleComplete} disabled={completionPending} aria-busy={completionPending} className="bg-primary text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
-                          {t('exercise_view.mark_complete')}
+                          {completionPending ? t('home_practice.saving') : t('exercise_view.mark_complete')}
                         </Button>
                         <Button variant="outline" onClick={onClose} className="bg-secondary/60 text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full">
                           {t('exercise_view.close')}

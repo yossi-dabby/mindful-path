@@ -59,6 +59,7 @@ export default function Exercises() {
   const queryClient = useQueryClient();
   const tabsListRef = useRef(null);
   const categoryScrollerRef = useRef(null);
+  const breathingTriggerRef = useRef(null);
 
   useEffect(() => {
     const tabsList = tabsListRef.current;
@@ -254,6 +255,9 @@ export default function Exercises() {
   const handleCategoryChange = useCallback((category) => {
     setSelectedCategory(category);
     if (category === 'breathing') {
+      // Radix tabs activate on pointer-down, before the browser's default focus.
+      // Focus the trigger before mounting the dialog so dismissal restores it.
+      breathingTriggerRef.current?.focus({ preventScroll: true });
       setShowFavoritesOnly(false);
       setSearchQuery('');
       setShowBreathingTool(true);
@@ -350,11 +354,22 @@ export default function Exercises() {
               className="overflow-x-auto px-6 lg:px-0"
               style={{ overscrollBehaviorX: 'contain', scrollbarWidth: 'thin' }}>
 
-        <Tabs value={selectedCategory} onValueChange={handleCategoryChange}>
+        {/* Focus restoration must not activate the breathing modal. Keyboard
+            users explicitly activate categories with Enter or Space. */}
+        <Tabs activationMode="manual" value={selectedCategory} onValueChange={handleCategoryChange}>
           <TabsList ref={tabsListRef} className="inline-flex w-max min-w-full">
             {categories.map((cat) =>
                 <TabsTrigger
                   key={cat.value}
+                  ref={cat.value === 'breathing' ? breathingTriggerRef : undefined}
+                  onKeyDown={cat.value === 'breathing' ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      // Prevent the same key from clicking the newly focused
+                      // close button after the dialog opens.
+                      event.preventDefault();
+                      handleCategoryChange('breathing');
+                    }
+                  } : undefined}
                   value={cat.value} className="text-primary px-3 py-1 text-sm font-medium tracking-[0.003em] rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] whitespace-nowrap">
 
 
@@ -427,7 +442,7 @@ export default function Exercises() {
             categoryIcons={categoryIcons}
             categoryColors={categoryColors}
             onSelectExercise={setSelectedExercise}
-            onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)} />
+            onToggleFavorite={(exercise) => { if (!toggleFavoriteMutation.isPending) toggleFavoriteMutation.mutate(exercise); }} />
 
           }
 
@@ -436,8 +451,10 @@ export default function Exercises() {
           <ExerciseDetail
             exercise={selectedExercise}
             onClose={() => setSelectedExercise(null)}
-            onComplete={(duration) => completeMutation.mutate({ exercise: selectedExercise, duration })}
-            onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)} />
+            onComplete={(duration) => completeMutation.mutateAsync({ exercise: selectedExercise, duration })}
+            favoritePending={toggleFavoriteMutation.isPending}
+            favoriteError={toggleFavoriteMutation.isError}
+            onToggleFavorite={(exercise) => { if (!toggleFavoriteMutation.isPending) toggleFavoriteMutation.mutate(exercise); }} />
 
           }
 
