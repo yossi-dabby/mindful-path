@@ -53,8 +53,8 @@ describe('Chat responsive layout contract', () => {
     expect(layout).toContain("currentPageName !== 'Chat'");
   });
 
-  it('uses the ordinary mobile bottom clearance because support is no longer floating', () => {
-    expect(appContent).toContain('paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px');
+  it('uses measured mobile bottom clearance with the standard safe-area fallback', () => {
+    expect(appContent).toContain('paddingBottom: `var(--mobile-bottom-nav-height, calc(${BOTTOM_NAV_HEIGHT}px');
     expect(appContent).not.toContain('BOTTOM_NAV_HEIGHT + 72');
   });
 

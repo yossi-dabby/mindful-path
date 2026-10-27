@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
+import { useChromeSize } from './useChromeSize';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ import { triggerHaptic } from '@/components/utils/hapticFeedback';
 export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 
 export default function BottomNav({ currentPageName }) {
+  const navRef = useChromeSize('--mobile-bottom-nav-height');
   const { t } = useTranslation();
   const navigate = useNavigate();
   const tabNav = useTabNavigation();
@@ -49,17 +51,18 @@ export default function BottomNav({ currentPageName }) {
 
   return (
     <nav
+      ref={navRef}
       aria-label={t('shell.main_navigation')}
       data-app-chrome
       data-mobile-bottom-nav
       className={`${visibilityClass} fixed bottom-0 left-0 right-0 border-t border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]`}
       style={{
         zIndex: 35,
-        height: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+        minHeight: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}>
 
-      <div className="px-1 flex justify-around items-center h-full">
+      <div className="grid grid-cols-5 items-stretch gap-1 px-1 py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.path;
@@ -68,19 +71,20 @@ export default function BottomNav({ currentPageName }) {
               key={item.path}
               to={createPageUrl(item.path)}
               onClick={(e) => handleTabClick(e, item)}
+              onFocus={(e) => e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' })}
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.name}
               className={cn(
-                'px-2 py-2 rounded-2xl flex flex-col items-center justify-center gap-1 transition-calm min-w-[52px] border',
+                'min-w-0 px-1 py-2 rounded-2xl flex flex-col items-center justify-center gap-1 transition-calm border',
                 isActive
                   ? 'bg-[hsl(var(--sidebar-accent))] border-border/40 text-[hsl(var(--sidebar-primary))]'
                   : 'bg-transparent border-transparent text-muted-foreground'
               )}>
               <Icon
-                className={cn('w-5 h-5', isActive ? 'text-[hsl(var(--sidebar-primary))]' : 'text-muted-foreground')}
+                className={cn('w-[20px] h-[20px] shrink-0', isActive ? 'text-[hsl(var(--sidebar-primary))]' : 'text-muted-foreground')}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              <span className={cn('text-xs font-medium leading-none', isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground')}>{item.name}</span>
+              <span className={cn('max-w-full text-center text-xs font-medium leading-snug [overflow-wrap:anywhere]', isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground')}>{item.name}</span>
             </Link>);
 
         })}

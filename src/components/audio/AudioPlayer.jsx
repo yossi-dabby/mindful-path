@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -9,6 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import PremiumBadge from '../subscription/PremiumBadge';
 
 export default function AudioPlayer({ audioContent, onComplete, compact = false }) {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -113,21 +115,21 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
 
   if (compact) {
     return (
-      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
+      <div className="flex items-center gap-3 p-3 bg-secondary rounded-xl border border-border">
         <audio ref={audioRef} src={audioContent.audio_url} preload="metadata" />
         <Button
           onClick={togglePlay}
           size="icon"
           className="rounded-full bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
-          aria-label={isPlaying ? "Pause" : "Play"}
-         mobileLabel={isPlaying ? "Pause" : "Play"}>
+          aria-label={t(isPlaying ? 'mobile_actions.pause' : 'mobile_actions.play')}
+         mobileLabelKey={isPlaying ? 'pause' : 'play'}>
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
         </Button>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-800">{audioContent.title}</p>
-          <p className="text-xs text-gray-500">{audioContent.duration_minutes} min</p>
+          <p className="text-sm font-medium text-foreground">{audioContent.title}</p>
+          <p className="text-xs text-foreground">{t('breathing_tool.controls.duration_value', { min: audioContent.duration_minutes })}</p>
         </div>
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-foreground">
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
       </div>
@@ -135,18 +137,18 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
   }
 
   return (
-    <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 via-white to-blue-50 overflow-hidden">
+    <Card className="border border-border bg-card overflow-hidden">
       <CardContent className="p-6">
         <audio ref={audioRef} src={audioContent.audio_url} preload="metadata" />
-        
+
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
-            <h3 className="font-semibold text-gray-800 text-lg">{audioContent.title}</h3>
-            <p className="text-sm text-gray-600 mt-1">{audioContent.description}</p>
-            <div className="flex gap-2 mt-2">
+            <h3 className="font-semibold text-foreground text-lg [overflow-wrap:anywhere]">{audioContent.title}</h3>
+            <p className="text-sm text-foreground mt-1">{audioContent.description}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
               <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                {audioContent.duration_minutes} min
+                {t('breathing_tool.controls.duration_value', { min: audioContent.duration_minutes })}
               </span>
               <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full capitalize">
                 {audioContent.type.replace('_', ' ')}
@@ -165,12 +167,12 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => setIsFavorite(!isFavorite)}
               className={cn(isFavorite && "text-red-500")}
-              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-             mobileLabel={isFavorite ? "Remove from favorites" : "Add to favorites"}>
+              aria-label={t(isFavorite ? 'exercise_view.remove_favorite' : 'exercise_view.add_favorite')}
+             mobileLabelKey={isFavorite ? 'remove' : 'favorite'}>
               <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
             </Button>
             {audioContent.download_enabled && (
-              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label="Download audio" mobileLabelKey="download">
+              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label={t('home_practice.audio_download')} mobileLabelKey="download">
                 <Download className="w-5 h-5" />
               </Button>
             )}
@@ -185,23 +187,24 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
             step={0.1}
             onValueChange={handleSeek}
             className="cursor-pointer"
+            aria-label={t('home_practice.audio_position')}
           />
-          <div className="flex justify-between text-xs text-gray-600 mt-1">
+          <div className="flex justify-between text-xs text-foreground mt-1">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleMute}
-              className="text-gray-600"
-              aria-label={isMuted ? "Unmute" : "Mute"}
-             mobileLabel={isMuted ? "Unmute" : "Mute"}>
+              className="text-foreground"
+              aria-label={t(isMuted ? 'mobile_actions.unmute' : 'mobile_actions.mute')}
+             mobileLabelKey={isMuted ? 'unmute' : 'mute'}>
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </Button>
             <Slider
@@ -210,6 +213,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               step={0.01}
               onValueChange={handleVolumeChange}
               className="w-24"
+              aria-label={t('home_practice.volume')}
             />
           </div>
 
@@ -219,7 +223,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => skip(-10)}
               className="rounded-full"
-              aria-label="Skip back 10 seconds" mobileLabelKey="back10"
+              aria-label={t('mobile_actions.back10')} mobileLabelKey="back10"
             >
               <SkipBack className="w-4 h-4" />
             </Button>
@@ -227,8 +231,8 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               onClick={togglePlay}
               size="lg"
               className="rounded-full w-14 h-14 bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 shadow-lg"
-              aria-label={isPlaying ? "Pause" : "Play"}
-             mobileLabel={isPlaying ? "Pause" : "Play"}>
+              aria-label={t(isPlaying ? 'mobile_actions.pause' : 'mobile_actions.play')}
+             mobileLabelKey={isPlaying ? 'pause' : 'play'}>
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
             </Button>
             <Button
@@ -236,19 +240,19 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => skip(10)}
               className="rounded-full"
-              aria-label="Skip forward 10 seconds"
-             mobileLabel="Skip forward 10 seconds">
+              aria-label={t('mobile_actions.forward10')}
+             mobileLabelKey="forward10">
               <SkipForward className="w-4 h-4" />
             </Button>
           </div>
 
-          <div className="w-32" /> {/* Spacer for alignment */}
+
         </div>
 
         {/* Background Music Indicator */}
         {audioContent.background_music && (
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-gray-500">
-            <Music2 className="h-3.5 w-3.5" aria-hidden="true" /> Includes calming background music
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-foreground">
+            <Music2 className="h-3.5 w-3.5" aria-hidden="true" /> {t('home_practice.audio_music')}
           </p>
         )}
       </CardContent>

@@ -98,7 +98,7 @@ export default function Home() {
   const savedEntryId = latestJournalEntry ? latestJournalEntry.id : null;
 
   // Get today's flow
-  const { data: todayFlow } = useQuery({
+  const { data: todayFlow, isError: flowError, refetch: refetchFlow } = useQuery({
     queryKey: ['todayFlow'],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
@@ -110,7 +110,7 @@ export default function Home() {
   });
 
   // Get today's exercise
-  const { data: todayExercise } = useQuery({
+  const { data: todayExercise, isError: exerciseError, refetch: refetchExercise } = useQuery({
     queryKey: ['todayExercise', todayFlow?.exercise_id],
     queryFn: async () => {
       if (!todayFlow?.exercise_id) return null;
@@ -192,6 +192,24 @@ export default function Home() {
     }
   });
 
+  const favoriteMutation = useMutation({
+    mutationFn: (exercise) => base44.entities.Exercise.update(exercise.id, { favorite: !exercise.favorite }),
+    onMutate: async (exercise) => {
+      const key = ['todayExercise', exercise.id];
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData(key);
+      queryClient.setQueryData(key, { ...exercise, favorite: !exercise.favorite });
+      return { key, previous };
+    },
+    onError: (_error, _exercise, context) => {
+      if (context) queryClient.setQueryData(context.key, context.previous);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exercises'] });
+      queryClient.invalidateQueries({ queryKey: ['allExercises'] });
+    }
+  });
+
   const handleStartCheckIn = () => {
     beginTimeToFirstValue({
       entryPoint: 'home_daily_checkin',
@@ -250,7 +268,7 @@ export default function Home() {
         <div className="botanical-home-hero mb-5 rounded-[32px] border border-border/60 bg-card/95 p-6 shadow-[var(--shadow-md)] md:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-foreground mb-3 text-2xl font-semibold md:text-3xl">
+              <h1 className="text-foreground mb-3 text-2xl font-semibold md:text-3xl [overflow-wrap:anywhere]">
                 {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
               </h1>
               <div className="bg-secondary/70 text-secondary-foreground px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-2 border border-border/60">
@@ -261,6 +279,19 @@ export default function Home() {
             <BotanicalAccent variant="leaves" className="botanical-home-hero-art" />
           </div>
         </div>
+
+        {(moodError || goalsError || journalsError || flowError || exerciseError) && (
+          <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 text-foreground">
+            <p className="text-sm">{t('home_practice.load_error')}</p>
+            <Button variant="outline" size="sm" onClick={() => {
+              if (moodError) refetchMood();
+              if (goalsError) refetchGoals();
+              if (journalsError) refetchJournals();
+              if (flowError) refetchFlow();
+              if (exerciseError) refetchExercise();
+            }}>{t('common.retry')}</Button>
+          </div>
+        )}
 
         {/* Stage B: one calm daily path with three primary choices */}
         <div className="mb-8">
@@ -400,7 +431,10 @@ export default function Home() {
           <ExerciseDetail
             exercise={todayExercise}
             onClose={() => setShowExercise(false)}
-            onComplete={handleExerciseComplete} />
+            onComplete={handleExerciseComplete}
+            favoritePending={favoriteMutation.isPending}
+            favoriteError={favoriteMutation.isError}
+            onToggleFavorite={(exercise) => { if (!favoriteMutation.isPending) favoriteMutation.mutate(exercise); }} />
 
           }
 

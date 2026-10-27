@@ -1,241 +1,98 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { X, CheckCircle2, Lightbulb, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const SUGGESTED_TAKEAWAYS = [
-  "Notice and challenge one negative thought",
-  "Practice 5 minutes of mindful breathing",
-  "Take one small action toward my goal",
-  "Be kind to myself when I make mistakes",
-  "Share how I'm feeling with someone I trust",
-  "Take a break when I feel overwhelmed",
-  "Celebrate one small win today"
-];
+const TAKEAWAYS = ['thought', 'breathing', 'action', 'kindness', 'share', 'break', 'win'];
+const INSIGHTS = ['breathing', 'grounding', 'cognitive_restructuring', 'behavioral_activation', 'mindfulness'];
 
 export default function DailyReflection({ todayFlow, exercise, onClose }) {
+  const { t } = useTranslation();
   const [selectedTakeaway, setSelectedTakeaway] = useState('');
   const [customTakeaway, setCustomTakeaway] = useState('');
+  const closeTimer = useRef();
   const queryClient = useQueryClient();
+  const insight = t(`home_practice.insights.${!exercise ? 'no_exercise' : INSIGHTS.includes(exercise.category) ? exercise.category : 'general'}`);
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   const completeMutation = useMutation({
     mutationFn: async () => {
-      const takeaway = customTakeaway || selectedTakeaway;
-      const insight = generateInsight(exercise);
-      
       await base44.entities.DailyFlow.update(todayFlow.id, {
         reflection_completed: true,
         reflection_time: new Date().toISOString(),
         key_insight: insight,
-        daily_takeaway: takeaway
+        daily_takeaway: customTakeaway.trim() || t(`home_practice.takeaways.${selectedTakeaway}`)
       });
-
-      return { insight, takeaway };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
-      setTimeout(() => {
-        onClose();
-      }, 2000);
+      closeTimer.current = setTimeout(onClose, 2000);
     }
   });
+  const canSubmit = Boolean(customTakeaway.trim() || selectedTakeaway);
 
-  const generateInsight = (exercise) => {
-    if (!exercise) return "Great work on today's practice!";
-
-    const insights = {
-      breathing: "Controlled breathing activates your body's natural relaxation response, helping you feel calmer and more centered.",
-      grounding: "Grounding techniques bring you back to the present moment, reducing anxiety by shifting focus from worries to immediate sensations.",
-      cognitive_restructuring: "By examining your thoughts objectively, you're learning to separate facts from interpretations and build more balanced perspectives.",
-      behavioral_activation: "Taking action, even when you don't feel like it, creates positive momentum and helps break the cycle of avoidance.",
-      mindfulness: "Mindfulness helps you observe your thoughts and feelings without judgment, creating space between you and your reactions."
-    };
-
-    return insights[exercise.category] || "Consistent practice of CBT techniques builds lasting skills for managing difficult emotions.";
-  };
-
-  const handleComplete = () => {
-    if (!customTakeaway && !selectedTakeaway) return;
-    completeMutation.mutate();
-  };
-
-  if (completeMutation.isSuccess) {
-    return (
-      <PremiumOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <Card className="w-full max-w-lg border-0 shadow-2xl" style={{ 
-            borderRadius: 'var(--r-xl)',
-            backgroundColor: 'rgb(var(--surface))'
-          }}>
-            <CardContent className="p-10 text-center">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 0.8 }}
-                className="inline-flex w-20 h-20 items-center justify-center mb-6"
-                style={{ 
-                  borderRadius: 'var(--r-xl)',
-                  backgroundColor: 'rgb(var(--success) / 0.15)'
-                }}
-              >
-                <CheckCircle2 className="w-10 h-10 icon-default" style={{ color: 'rgb(var(--success))' }} strokeWidth={2} />
-              </motion.div>
-              <h2 className="text-2xl font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
-                You're all done for today!
-              </h2>
-              <p style={{ color: 'rgb(var(--theme-muted))' }}>
-                See you tomorrow for your next daily practice
-              </p>
+  return (
+    <PremiumDialog label={t('home_practice.reflection_title')} onClose={onClose}
+      className="fixed inset-0 overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+      <div className="flex min-h-full items-start justify-center py-4 sm:items-center sm:py-8">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-2xl">
+          <Card className="rounded-[var(--radius-card)] border border-border bg-card shadow-2xl">
+            <CardContent className="p-4 sm:p-8">
+              {completeMutation.isSuccess ? (
+                <div className="py-6 text-center" role="status">
+                  <CheckCircle2 className="mx-auto mb-6 h-12 w-12 text-primary" />
+                  <h2 className="mb-3 text-2xl font-semibold text-foreground">{t('home_practice.success_title')}</h2>
+                  <p className="text-muted-foreground">{t('home_practice.success_body')}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-6 flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Lightbulb className="h-6 w-6 shrink-0 text-primary" />
+                      <h2 className="text-2xl font-semibold text-foreground">{t('home_practice.reflection_title')}</h2>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.close')} className="shrink-0"><X className="h-5 w-5" /></Button>
+                  </div>
+                  <div className="mb-6 rounded-2xl border border-border bg-secondary/60 p-4 sm:p-6">
+                    <h3 className="mb-3 flex items-center gap-3 font-semibold text-foreground"><Sparkles className="h-5 w-5 shrink-0 text-primary" />{t('home_practice.insight_title')}</h3>
+                    <p className="leading-relaxed text-foreground">{insight}</p>
+                  </div>
+                  <fieldset disabled={completeMutation.isPending} className="mb-6 min-w-0">
+                    <legend className="mb-4 font-semibold text-foreground">{t('home_practice.choose')}</legend>
+                    <div className="mb-4 space-y-2">
+                      {TAKEAWAYS.map((key) => (
+                        <button key={key} type="button" aria-pressed={selectedTakeaway === key}
+                          onClick={() => { setSelectedTakeaway(key); setCustomTakeaway(''); }}
+                          className={`flex w-full items-center gap-3 rounded-xl border p-4 text-start text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selectedTakeaway === key ? 'border-primary bg-secondary ring-1 ring-primary' : 'border-border bg-muted hover:bg-secondary'}`}>
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-primary text-primary" aria-hidden="true">{selectedTakeaway === key && <CheckCircle2 className="h-4 w-4" />}</span>
+                          <span>{t(`home_practice.takeaways.${key}`)}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <label htmlFor="daily-reflection-takeaway" className="mb-2 block text-sm font-medium text-foreground">{t('home_practice.custom')}</label>
+                    <Textarea id="daily-reflection-takeaway" value={customTakeaway} rows={3}
+                      onChange={(event) => { setCustomTakeaway(event.target.value); setSelectedTakeaway(''); }}
+                      placeholder={t('home_practice.placeholder')} />
+                  </fieldset>
+                  {completeMutation.isError && <p role="alert" className="mb-4 rounded-xl border border-border bg-secondary p-3 text-foreground">{t('home_practice.save_error')}</p>}
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" onClick={onClose} className="h-auto flex-1 whitespace-normal">{t('common.cancel')}</Button>
+                    <Button onClick={() => completeMutation.mutate()} disabled={!canSubmit || completeMutation.isPending} className="h-auto flex-1 whitespace-normal" aria-busy={completeMutation.isPending}>
+                      {t(completeMutation.isPending ? 'home_practice.saving' : 'home_practice.complete')}
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </motion.div>
-      </PremiumOverlay>
-    );
-  }
-
-  return (
-    <PremiumOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl my-8"
-      >
-        <Card className="border-0 shadow-2xl" style={{ 
-          borderRadius: 'var(--r-xl)',
-          backgroundColor: 'rgb(var(--surface))'
-        }}>
-          <CardContent className="p-8">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center" style={{ 
-                  borderRadius: 'var(--r-md)',
-                  backgroundColor: 'rgb(var(--calm) / 0.15)'
-                }}>
-                  <Lightbulb className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
-                </div>
-                <h2 className="text-2xl font-semibold" style={{ color: 'rgb(var(--text))' }}>
-                  Daily Reflection
-                </h2>
-              </div>
-              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-                <X className="w-5 h-5" strokeWidth={2} />
-              </Button>
-            </div>
-
-            {/* Key Insight */}
-            <div className="mb-8 p-6 transition-calm" style={{ 
-              borderRadius: 'var(--r-lg)',
-              backgroundColor: 'rgb(var(--calm) / 0.05)',
-              border: '1px solid rgb(var(--theme-border))'
-            }}>
-              <div className="flex items-start gap-3 mb-3">
-                <Sparkles className="w-5 h-5 icon-default mt-0.5" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
-                <h3 className="font-semibold" style={{ color: 'rgb(var(--text))' }}>
-                  Today's Key Insight
-                </h3>
-              </div>
-              <p className="leading-relaxed" style={{ color: 'rgb(var(--text))' }}>
-                {generateInsight(exercise)}
-              </p>
-            </div>
-
-            {/* Takeaway Selection */}
-            <div className="mb-6">
-              <h3 className="font-semibold mb-4" style={{ color: 'rgb(var(--text))' }}>
-                Choose one focus for the rest of your day:
-              </h3>
-              <div className="space-y-2 mb-4">
-                {SUGGESTED_TAKEAWAYS.map((takeaway) => (
-                  <button
-                    key={takeaway}
-                    onClick={() => {
-                      setSelectedTakeaway(takeaway);
-                      setCustomTakeaway('');
-                    }}
-                    className="w-full text-left p-4 transition-calm"
-                    style={{ 
-                      borderRadius: 'var(--r-md)',
-                      backgroundColor: selectedTakeaway === takeaway 
-                        ? 'rgb(var(--theme-accent) / 0.1)' 
-                        : 'rgb(var(--surface-2))',
-                      border: selectedTakeaway === takeaway 
-                        ? '2px solid rgb(var(--theme-accent))' 
-                        : '1px solid rgb(var(--theme-border))'
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 flex items-center justify-center transition-calm" style={{ 
-                        borderRadius: 'var(--r-xs)',
-                        border: `2px solid ${selectedTakeaway === takeaway ? 'rgb(var(--theme-accent))' : 'rgb(var(--theme-border))'}`,
-                        backgroundColor: selectedTakeaway === takeaway ? 'rgb(var(--theme-accent))' : 'transparent'
-                      }}>
-                        {selectedTakeaway === takeaway && (
-                          <CheckCircle2 className="w-4 h-4" style={{ color: 'rgb(var(--accent-contrast))' }} strokeWidth={3} />
-                        )}
-                      </div>
-                      <span style={{ color: 'rgb(var(--text))' }}>{takeaway}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Custom Takeaway */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text))' }}>
-                  Or write your own:
-                </label>
-                <Textarea
-                  value={customTakeaway}
-                  onChange={(e) => {
-                    setCustomTakeaway(e.target.value);
-                    setSelectedTakeaway('');
-                  }}
-                  placeholder="What will you focus on today?"
-                  className="transition-calm"
-                  style={{ 
-                    borderRadius: 'var(--r-md)',
-                    borderColor: 'rgb(var(--theme-border))'
-                  }}
-                  rows={3}
-                />
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={onClose}
-                className="flex-1 transition-calm"
-                style={{ borderRadius: 'var(--r-md)' }}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleComplete}
-                disabled={!customTakeaway && !selectedTakeaway}
-                className="flex-1 transition-calm"
-                style={{ 
-                  borderRadius: 'var(--r-md)',
-                  backgroundColor: 'rgb(var(--theme-accent))',
-                  color: 'rgb(var(--accent-contrast))',
-                  opacity: (!customTakeaway && !selectedTakeaway) ? 0.5 : 1
-                }}
-              >
-                Complete Reflection
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </PremiumOverlay>
+      </div>
+    </PremiumDialog>
   );
 }

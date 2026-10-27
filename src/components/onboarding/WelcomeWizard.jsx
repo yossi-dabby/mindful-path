@@ -192,7 +192,7 @@ export default function WelcomeWizard({ onComplete }) {
 
                   {step === 4 && (
                     <StepHeader title={t('onboarding.first.title')} subtitle={t('onboarding.first.description')}>
-                      <div className="rounded-[26px] border border-border bg-gradient-to-br from-teal-50 to-amber-50 p-5 text-center">
+                      <div className="rounded-[26px] border border-border bg-gradient-to-br from-secondary to-card p-5 text-center">
                         <GrowingShieldMark size={64} className="mx-auto" />
                         <p className="mt-4 text-sm font-semibold text-primary">{t('daily_path.title')}</p>
                         <p className="mt-1 text-sm leading-6 text-muted-foreground">{t('daily_path.description')}</p>

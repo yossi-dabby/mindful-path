@@ -19,7 +19,7 @@ export function GrowingShieldMark({ size = 40, className = '', decorative = true
 export function AppWordmark({ name, compact = false, className = '' }) {
   return (
     <span className={`relative inline-flex min-w-0 flex-col pb-1.5 ${className}`}>
-      <span className={`${compact ? 'text-[15px]' : 'text-[19px]'} truncate font-semibold tracking-[-0.025em] text-transparent bg-clip-text bg-gradient-to-r from-teal-800 via-teal-700 to-teal-500`}>
+      <span className={`${compact ? 'text-[0.9375rem]' : 'text-[1.1875rem]'} [overflow-wrap:anywhere] font-semibold tracking-[-0.025em] text-primary`}>
         {name}
       </span>
       <svg

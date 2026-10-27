@@ -49,8 +49,8 @@ export default function AppContent({ children, currentPageName }) {
           height: '100dvh',
           WebkitOverflowScrolling: 'touch',
           // Mobile: padding for header + bottom nav + safe areas
-          paddingTop: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0))`,
-          paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0))`,
+          paddingTop: `var(--mobile-header-height, calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px)))`,
+          paddingBottom: `var(--mobile-bottom-nav-height, calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px)))`,
           paddingLeft: '0',
           paddingRight: '0'
         }}>
