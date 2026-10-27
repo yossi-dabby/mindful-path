@@ -85,11 +85,11 @@ export default function ThoughtCoachPage() {
           </Button>
         )}
         {step < 4 ? (
-          <Button type="button" onClick={() => canProceed && setStep((current) => current + 1)} disabled={!canProceed} className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:from-teal-700 hover:to-emerald-800" data-testid="thoughtcoach-next">
+          <Button type="button" onClick={() => canProceed && setStep((current) => current + 1)} disabled={!canProceed} className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90" data-testid="thoughtcoach-next">
             {t('thought_coach.next_button')}<ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" aria-hidden="true" />
           </Button>
         ) : (
-          <Button type="button" onClick={() => !createJournalMutation.isPending && createJournalMutation.mutate(formData)} disabled={!canProceed || createJournalMutation.isPending} className="min-h-12 flex-1 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-700 text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:from-teal-700 hover:to-emerald-800" data-testid="thoughtcoach-save">
+          <Button type="button" onClick={() => !createJournalMutation.isPending && createJournalMutation.mutate(formData)} disabled={!canProceed || createJournalMutation.isPending} className="min-h-12 flex-1 rounded-2xl bg-primary text-white shadow-[0_12px_24px_rgba(13,148,136,0.22)] hover:bg-primary/90" data-testid="thoughtcoach-save">
             {createJournalMutation.isPending ? <Sparkles className="me-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Brain className="me-2 h-4 w-4" aria-hidden="true" />}
             {createJournalMutation.isPending ? t('thought_coach.saving_button') : t('thought_coach.save_button')}
           </Button>

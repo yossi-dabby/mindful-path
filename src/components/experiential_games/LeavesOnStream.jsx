@@ -23,16 +23,16 @@ export default function LeavesOnStream({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.leaves_on_stream.description')}
         </p>
 
         {!placed ? (
           <>
-            <p className="text-sm font-semibold mb-2" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.leaves_on_stream.thought_prompt')}
             </p>
             <input
@@ -46,7 +46,7 @@ export default function LeavesOnStream({ onClose }) {
                 border: '1px solid rgba(38, 166, 154, 0.3)',
                 outline: 'none'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#26A69A'}
+              onFocus={(e) => e.target.style.borderColor = 'hsl(var(--primary))'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(38, 166, 154, 0.3)'}
             />
             <Button
@@ -55,8 +55,8 @@ export default function LeavesOnStream({ onClose }) {
               className="w-full"
               style={{
                 borderRadius: '12px',
-                backgroundColor: thought.trim() ? '#9F7AEA' : '#ccc',
-                color: 'white'
+                backgroundColor: thought.trim() ? 'hsl(var(--primary))' : '#ccc',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.leaves_on_stream.place_btn')}
@@ -71,12 +71,12 @@ export default function LeavesOnStream({ onClose }) {
             <div className="mb-4 animate-pulse">
               <div className="inline-block px-4 py-2 rounded-full" style={{
                 backgroundColor: 'rgba(159, 122, 234, 0.3)',
-                color: '#1A3A34'
+                color: 'hsl(var(--foreground))'
               }}>
                 <span className="inline-flex items-center gap-2"><PremiumIcon name="leaf" size="sm" bare /> “{thought}”</span>
               </div>
             </div>
-            <p className="text-sm italic break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+            <p className="text-sm italic break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.leaves_on_stream.floating')}
             </p>
           </div>
@@ -87,7 +87,7 @@ export default function LeavesOnStream({ onClose }) {
           backgroundColor: 'rgba(159, 122, 234, 0.05)',
           border: '1px solid rgba(159, 122, 234, 0.2)'
         }}>
-          <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+          <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {t('mind_games.leaves_on_stream.tip')}
           </p>
         </div>

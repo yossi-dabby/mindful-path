@@ -89,14 +89,14 @@ export default function ThoughtQuiz({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <Badge variant="outline" style={{
             borderRadius: '8px',
             borderColor: 'rgba(38, 166, 154, 0.3)',
-            color: '#26A69A'
+            color: 'hsl(var(--primary))'
           }}>
             {t('mind_games.thought_quiz.score')}: {score}/{questionsAnswered}
           </Badge>
@@ -109,8 +109,8 @@ export default function ThoughtQuiz({ onClose }) {
                 className="px-3 py-1 text-xs rounded-lg transition-all"
                 style={{
                   backgroundColor: difficulty === level ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
-                  border: `1px solid ${difficulty === level ? '#26A69A' : 'rgba(38, 166, 154, 0.3)'}`,
-                  color: difficulty === level ? '#26A69A' : '#5A7A72',
+                  border: `1px solid ${difficulty === level ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.3)'}`,
+                  color: difficulty === level ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
                   fontWeight: difficulty === level ? '600' : '400'
                 }}
               >
@@ -124,7 +124,7 @@ export default function ThoughtQuiz({ onClose }) {
           </div>
         </div>
         
-        <p className="text-base font-medium mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+        <p className="text-base font-medium mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
           {prompt}
         </p>
 
@@ -175,7 +175,7 @@ export default function ThoughtQuiz({ onClose }) {
             backgroundColor: 'rgba(38, 166, 154, 0.1)',
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {explanation}
             </p>
           </div>
@@ -191,8 +191,8 @@ export default function ThoughtQuiz({ onClose }) {
             onClick={handleNext}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.thought_quiz.next_question')}

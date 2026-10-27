@@ -59,7 +59,7 @@ export default function ChunkList({ onEdit, onNew }) {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-0 basis-52">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search title, topic, tags…" className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
         </div>

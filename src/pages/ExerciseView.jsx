@@ -1,7 +1,7 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +17,9 @@ import ExerciseMediaBadge from '../components/exercises/ExerciseMediaBadge';
 
 export default function ExerciseViewPage() {
   const { t } = useTranslation();
-  const { exerciseId } = useParams();
+  const { exerciseId: pathId } = useParams();
+  const [searchParams] = useSearchParams();
+  const exerciseId = pathId || searchParams.get('id') || searchParams.get('exerciseId');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [completed, setCompleted] = useState(false);
@@ -27,6 +29,7 @@ export default function ExerciseViewPage() {
 
   const { data: exercise, isLoading } = useQuery({
     queryKey: ['exercise', exerciseId],
+    enabled: !!exerciseId,
     queryFn: async () => {
       const exercises = await base44.entities.Exercise.filter({ id: exerciseId });
       return exercises[0];
@@ -78,9 +81,9 @@ export default function ExerciseViewPage() {
     completeExerciseMutation.mutate();
   };
 
-  if (isLoading) {
+  if (exerciseId && isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="page-container flex min-h-[60dvh] items-center justify-center">
         <p className="text-gray-500">Loading exercise...</p>
       </div>
     );
@@ -88,9 +91,9 @@ export default function ExerciseViewPage() {
 
   if (!exercise) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">{t('exercise_view.not_found')}</p>
+      <div className="page-container flex min-h-[60dvh] items-center justify-center">
+        <div className="garden-surface w-full max-w-xl p-8 text-center">
+          <h1 className="mb-4 text-xl font-semibold text-foreground">{t('exercise_view.not_found')}</h1>
           <Button onClick={() => navigate(-1)}>{t('exercise_view.go_back')}</Button>
         </div>
       </div>
@@ -109,9 +112,9 @@ export default function ExerciseViewPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-gradient-to-br from-green-50 to-blue-50 pb-24">
+    <div className="min-h-dvh pb-24">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10">
+      <div className="bg-card/95 border-b border-border shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto p-4">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label={t('exercise_view.go_back_aria')}>
@@ -202,7 +205,7 @@ export default function ExerciseViewPage() {
                 </Card>
 
                 {exercise.media_type === 'visualization' && exercise.visualization_script && (
-                  <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+                  <Card className="bg-card border-indigo-200">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-2 mb-3">
                         <Eye className="w-5 h-5 text-indigo-600" />
@@ -232,7 +235,7 @@ export default function ExerciseViewPage() {
                 )}
 
                 {exercise.audio_url && (
-                  <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+                  <Card className="bg-card border-purple-200">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-2 mb-3">
                         <Headphones className="w-5 h-5 text-purple-600" />
@@ -298,7 +301,7 @@ export default function ExerciseViewPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        className="flex gap-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 border border-green-200"
+                        className="flex gap-4 bg-card rounded-xl p-4 border border-green-200"
                       >
                         <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold flex-shrink-0">
                           {step.step_number || i + 1}
@@ -336,7 +339,7 @@ export default function ExerciseViewPage() {
                         <Button
                           key={duration}
                           onClick={() => handleStartBreathing(duration)}
-                          className="bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 py-6 text-lg font-semibold"
+                          className="bg-primary hover:bg-primary/90 py-6 text-lg font-semibold"
                         >
                           {duration} min
                         </Button>
@@ -414,7 +417,7 @@ export default function ExerciseViewPage() {
                     Exercise Completed!
                   </div>
                 ) : (
-                  <Button onClick={() => completeExerciseMutation.mutate()} className="flex-1 bg-green-600 hover:bg-green-700">
+                  <Button onClick={() => completeExerciseMutation.mutate()} className="flex-1 bg-primary hover:bg-primary/90">
                     <Play className="w-4 h-4 mr-2" />
                     Mark as Complete
                   </Button>
@@ -425,7 +428,7 @@ export default function ExerciseViewPage() {
 
           {/* Progress Sidebar - Desktop */}
           <div className="hidden lg:flex lg:flex-col gap-4 self-start sticky top-20">
-            <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200">
+            <Card className="bg-card border-2 border-green-200">
               <CardHeader>
                 <CardTitle className="text-sm">Your Progress</CardTitle>
               </CardHeader>
@@ -461,7 +464,7 @@ export default function ExerciseViewPage() {
                     Exercise Completed!
                   </div>
                 ) : (
-                  <Button onClick={() => completeExerciseMutation.mutate()} className="w-full bg-green-600 hover:bg-green-700">
+                  <Button onClick={() => completeExerciseMutation.mutate()} className="w-full bg-primary hover:bg-primary/90">
                     <Play className="w-4 h-4 mr-2" />
                     Mark as Complete
                   </Button>

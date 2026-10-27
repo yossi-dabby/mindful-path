@@ -149,7 +149,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
               <Button
                 onClick={() => generateSuggestions()}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+                className="bg-primary hover:bg-primary/90"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 {copy.goals.generate}
@@ -212,7 +212,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="border-2 border-teal-200 bg-gradient-to-br from-white to-teal-50">
+                <Card className="border border-border/70 bg-card">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -304,7 +304,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
                           completed: false 
                         }))
                       })}
-                      className="w-full bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+                      className="w-full bg-primary hover:bg-primary/90"
                     >
                       <Target className="w-4 h-4 mr-2" />
                       {copy.goals.create}

@@ -48,18 +48,18 @@ export default function PatternShift({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="mb-4 flex justify-between items-center">
-          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-            <Shuffle className="w-5 h-5" style={{ color: '#26A69A' }} />
+          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'hsl(var(--foreground))' }}>
+            <Shuffle className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
             {t('mind_games.pattern_shift.title')}
           </h3>
           <Badge variant="outline" style={{
             borderRadius: '8px',
             borderColor: 'rgba(38, 166, 154, 0.3)',
-            color: '#26A69A'
+            color: 'hsl(var(--primary))'
           }}>
             {score}/{PATTERNS.length}
           </Badge>
@@ -67,7 +67,7 @@ export default function PatternShift({ onClose }) {
 
         {!isComplete ? (
           <div className="space-y-4">
-            <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
               {t(pattern.question_key)}
             </p>
 
@@ -112,12 +112,12 @@ export default function PatternShift({ onClose }) {
           </div>
         ) : (
           <div className="text-center py-8 space-y-4">
-            <CheckCircle className="w-12 h-12 mx-auto" style={{ color: '#26A69A' }} />
+            <CheckCircle className="w-12 h-12 mx-auto" style={{ color: 'hsl(var(--primary))' }} />
             <div>
-              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.pattern_shift.complete_title')}
               </h3>
-              <p className="text-sm" style={{ color: '#5A7A72' }}>
+              <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {t('mind_games.pattern_shift.complete_message', { score, total: PATTERNS.length })}
               </p>
             </div>
@@ -125,8 +125,8 @@ export default function PatternShift({ onClose }) {
               onClick={reset}
               style={{
                 borderRadius: '12px',
-                backgroundColor: '#26A69A',
-                color: 'white'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.common.try_another')}

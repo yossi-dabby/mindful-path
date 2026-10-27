@@ -23,12 +23,12 @@ export default function ValuesCheck({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         {!selectedValue ? (
           <>
-            <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+            <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.values_check.prompt')}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -50,10 +50,10 @@ export default function ValuesCheck({ onClose }) {
           </>
         ) : !alignment ? (
           <>
-            <p className="text-sm font-semibold mb-4 break-words" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-semibold mb-4 break-words" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.values_check.you_chose', { value: selectedValue, defaultValue: `You chose: ${selectedValue}` })}
             </p>
-            <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+            <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.values_check.alignment_prompt')}
             </p>
             <div className="flex gap-3">
@@ -63,7 +63,7 @@ export default function ValuesCheck({ onClose }) {
                 style={{
                   borderRadius: '12px',
                   backgroundColor: '#22C55E',
-                  color: 'white'
+                  color: 'hsl(var(--primary-foreground))'
                 }}
               >
                 {t('mind_games.values_check.yes')}
@@ -74,7 +74,7 @@ export default function ValuesCheck({ onClose }) {
                 style={{
                   borderRadius: '12px',
                   backgroundColor: '#F59E0B',
-                  color: 'white'
+                  color: 'hsl(var(--primary-foreground))'
                 }}
               >
                 {t('mind_games.values_check.somewhat')}
@@ -85,7 +85,7 @@ export default function ValuesCheck({ onClose }) {
                 style={{
                   borderRadius: '12px',
                   backgroundColor: '#EF4444',
-                  color: 'white'
+                  color: 'hsl(var(--primary-foreground))'
                 }}
               >
                 {t('mind_games.values_check.not_really')}
@@ -98,12 +98,12 @@ export default function ValuesCheck({ onClose }) {
             backgroundColor: 'rgba(159, 122, 234, 0.1)',
             border: '1px solid rgba(159, 122, 234, 0.2)'
           }}>
-            <p className="text-sm break-words whitespace-normal mb-3" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal mb-3" style={{ color: 'hsl(var(--foreground))' }}>
               {alignment === 'yes' && t('mind_games.values_check.result_yes')}
               {alignment === 'somewhat' && t('mind_games.values_check.result_somewhat')}
               {alignment === 'no' && t('mind_games.values_check.result_no')}
             </p>
-            <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+            <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.values_check.tip')}
             </p>
           </div>

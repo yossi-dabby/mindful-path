@@ -102,9 +102,9 @@ export default function Coach() {
 
   // Main coach page
   return (
-    <main data-testid="coach-page" className="min-h-[100dvh] w-full bg-transparent">
+    <main data-testid="coach-page" className="min-h-[100dvh] w-full bg-transparent p-3 sm:p-5">
       {/* Mobile Header - Matches web structure */}
-      <motion.header className="border-b border-white/70 bg-white/80 p-3 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:hidden"
+      <motion.header className="rounded-[26px] border border-border/70 bg-card/95 p-3 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:hidden"
 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
@@ -151,7 +151,7 @@ export default function Coach() {
       </motion.header>
 
       {/* Desktop Header - Hidden on mobile */}
-      <motion.header className="hidden border-b border-white/70 bg-white/78 p-4 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:block"
+      <motion.header className="hidden rounded-[26px] border border-border/70 bg-card/95 p-4 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:block"
 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}>
@@ -218,7 +218,7 @@ export default function Coach() {
           animate={{ opacity: 1, scale: 1 }}
           className="mt-4 md:mt-12">
 
-            <Card className="overflow-hidden border border-white/80 bg-white/88 shadow-[var(--shadow-xl)] backdrop-blur-xl">
+            <Card className="overflow-hidden border border-white/80 bg-card/95 shadow-[var(--shadow-xl)] backdrop-blur-xl">
               <CardContent className="p-6 text-center sm:p-8 md:p-12">
                 {/* Animated Heart icon */}
                 <motion.div className="bg-teal-600 text-teal-100 mb-4 mx-auto rounded-full w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shadow-[var(--shadow-md)]"

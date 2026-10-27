@@ -115,13 +115,13 @@ export default function JourneyCard({
           </div>
         )}
 
-        <div className="mt-auto flex flex-col gap-2 pt-5 sm:flex-row">
+        <div className="mt-auto flex flex-wrap gap-2 pt-5">
           {!isStarted && (
             <Button
               type="button"
               onClick={() => onStart(journey)}
               disabled={isStarting || stepCount === 0}
-              className="min-h-12 flex-1 rounded-2xl bg-teal-700 px-4 text-white shadow-md hover:bg-teal-800"
+              className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl bg-teal-700 px-4 text-white shadow-md hover:bg-teal-800"
               data-testid={'journey-start-' + journey.id}
             >
               {isStarting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Footprints className="h-4 w-4" aria-hidden="true" />}
@@ -133,7 +133,7 @@ export default function JourneyCard({
             <Button
               type="button"
               onClick={() => onContinue(journey, progress)}
-              className="min-h-12 flex-1 rounded-2xl bg-teal-700 px-4 text-white shadow-md hover:bg-teal-800"
+              className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl bg-teal-700 px-4 text-white shadow-md hover:bg-teal-800"
               data-testid={'journey-continue-' + journey.id}
             >
               {t('journeys.card.continue_journey')}
@@ -145,7 +145,7 @@ export default function JourneyCard({
             type="button"
             onClick={() => onView(journey, progress)}
             variant="outline"
-            className="min-h-12 flex-1 rounded-2xl border-teal-800/15 bg-white/85 px-4 text-teal-900 hover:bg-white"
+            className="min-h-12 h-auto min-w-0 basis-36 flex-1 whitespace-normal py-3 rounded-2xl border-teal-800/15 bg-white/85 px-4 text-teal-900 hover:bg-white"
             data-testid={'journey-view-' + journey.id}
           >
             {t('journeys.card.view_details')}
@@ -159,7 +159,7 @@ export default function JourneyCard({
               variant="ghost"
               onClick={() => onRestart?.(journey, progress)}
               disabled={isManaging}
-              className="min-h-11 flex-1 rounded-xl text-teal-800 hover:bg-teal-50"
+              className="min-h-11 h-auto min-w-0 basis-32 flex-1 whitespace-normal py-2 rounded-xl text-teal-800 hover:bg-teal-50"
               data-testid={'journey-restart-' + journey.id}
             >
               {isManaging ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
@@ -170,7 +170,7 @@ export default function JourneyCard({
               variant="ghost"
               onClick={() => onRemove?.(journey, progress)}
               disabled={isManaging}
-              className="min-h-11 flex-1 rounded-xl text-red-700 hover:bg-red-50"
+              className="min-h-11 h-auto min-w-0 basis-32 flex-1 whitespace-normal py-2 rounded-xl text-red-700 hover:bg-red-50"
               data-testid={'journey-remove-' + journey.id}
              mobileLabelKey="delete">
               <Trash2 className="h-4 w-4" />

@@ -78,7 +78,7 @@ export default function Videos() {
 
         {/* Loading State */}
         {isLoading &&
-          <div className="text-center py-12">
+          <div className="garden-surface p-8 text-center sm:p-12">
             <p className="text-muted-foreground">{t('videos.loading')}</p>
           </div>
           }
@@ -179,7 +179,7 @@ export default function Videos() {
                       }}
                       className="w-full h-7 text-xs font-medium text-white"
                       style={{
-                        backgroundColor: '#26A69A',
+                        backgroundColor: 'hsl(var(--primary))',
                         borderRadius: '8px'
                       }}>
                       

@@ -212,7 +212,7 @@ Make each step concrete and actionable, not vague.`,
             </div>
 
             {/* Success Metrics */}
-            <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border-2 border-indigo-200">
+            <div className="bg-card p-4 rounded-xl border-2 border-indigo-200">
               <h3 className="font-semibold text-gray-800 mb-3">Measuring Success</h3>
               <ul className="space-y-1">
                 {safeArray(breakdown.success_metrics).map((metric, i) => (
@@ -227,7 +227,7 @@ Make each step concrete and actionable, not vague.`,
             <div className="flex gap-3">
               <Button
                 onClick={() => onApplySteps(breakdown)}
-                className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+                className="flex-1 bg-primary hover:bg-primary/90"
                mobileLabelKey="add">
                 <Plus className="w-4 h-4 mr-2" />
                 Apply These Steps to Goal

@@ -143,7 +143,7 @@ export default function JourneyDetail({
 
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-5 sm:px-7 sm:py-6" style={{ overscrollBehavior: 'contain' }}>
         {Array.isArray(journey.outcomes) && journey.outcomes.length > 0 && (
-          <section className="mb-6 rounded-[24px] border border-violet-700/10 bg-gradient-to-br from-violet-50/90 to-white/80 p-5" aria-labelledby="journey-outcomes-title">
+          <section className="mb-6 rounded-[24px] border border-border/70 bg-secondary/35 p-5" aria-labelledby="journey-outcomes-title">
             <div className="mb-3 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-violet-700" aria-hidden="true" />
               <h3 id="journey-outcomes-title" className="font-bold text-teal-950">{t('journeys.detail.what_youll_gain')}</h3>

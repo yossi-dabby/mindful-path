@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function About() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 text-slate-800">
+    <main className="garden-public-document mx-auto max-w-3xl px-6 py-12 text-slate-800">
       <div className="botanical-title-row"><h1 className="mb-4 text-3xl font-semibold">About Mindful Path</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
       <p className="mb-4 leading-7">
         Mindful Path is a mental wellness support app focused on mindfulness, journaling, and CBT-informed self-help tools.

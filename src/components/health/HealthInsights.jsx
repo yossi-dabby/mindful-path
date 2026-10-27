@@ -164,7 +164,7 @@ Be specific with data points and focus on actionable insights.`,
 
   if (!insights && !isLoading) {
     return (
-      <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+      <Card className="border-2 border-purple-200 bg-card">
         <CardContent className="p-6 text-center">
           <Sparkles className="w-12 h-12 text-purple-600 mx-auto mb-3" />
           <h3 className="font-semibold text-gray-800 mb-2">AI-Powered Holistic Analysis</h3>
@@ -173,7 +173,7 @@ Be specific with data points and focus on actionable insights.`,
           </p>
           <Button
             onClick={generateInsights}
-            className="bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+            className="bg-gradient-to-r from-teal-600 to-emerald-700 hover:bg-primary/90"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Generate Health Insights
@@ -202,7 +202,7 @@ Be specific with data points and focus on actionable insights.`,
     >
       {/* Overall Health Score */}
       {insights.overall_health_score && (
-        <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
+        <Card className="border-2 border-indigo-200 bg-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -220,7 +220,7 @@ Be specific with data points and focus on actionable insights.`,
       )}
 
       {/* Sleep-Mood Correlation */}
-      <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+      <Card className="border-2 border-purple-200 bg-card">
         <CardContent className="p-4">
           <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-600" />
@@ -240,7 +240,7 @@ Be specific with data points and focus on actionable insights.`,
       </Card>
 
       {/* Activity-Energy Connection */}
-      <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+      <Card className="border-2 border-green-200 bg-card">
         <CardContent className="p-4">
           <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <Activity className="w-5 h-5 text-green-600" />
@@ -261,7 +261,7 @@ Be specific with data points and focus on actionable insights.`,
 
       {/* Patterns */}
       {insights.patterns?.length > 0 && (
-        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+        <Card className="border-2 border-blue-200 bg-card">
           <CardContent className="p-4">
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-600" />

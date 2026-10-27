@@ -36,13 +36,13 @@ export default function DBTSTOP({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-xs font-medium mb-3" style={{ color: '#5A7A72' }}>
+        <p className="text-xs font-medium mb-3" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.dbt_stop.trigger')}
         </p>
-        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
           {currentPrompt.trigger}
         </p>
 
@@ -53,16 +53,16 @@ export default function DBTSTOP({ onClose }) {
                 className="w-8 h-8 flex-shrink-0 flex items-center justify-center font-bold text-white"
                 style={{
                   borderRadius: '10px',
-                  backgroundColor: '#26A69A'
+                  backgroundColor: 'hsl(var(--primary))'
                 }}
               >
                 {step.key}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium mb-1 break-words" style={{ color: '#1A3A34' }}>
+                <p className="text-sm font-medium mb-1 break-words" style={{ color: 'hsl(var(--foreground))' }}>
                   {step.label}
                 </p>
-                <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+                <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   {step.text}
                 </p>
               </div>
@@ -70,7 +70,7 @@ export default function DBTSTOP({ onClose }) {
           ))}
         </div>
 
-        <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
           {t('mind_games.dbt_stop.next_step')}
         </p>
 
@@ -102,7 +102,7 @@ export default function DBTSTOP({ onClose }) {
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
-            <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.dbt_stop.chosen', { step: selectedNext })}
             </p>
           </div>
@@ -118,8 +118,8 @@ export default function DBTSTOP({ onClose }) {
             onClick={handleTryAnother}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.common.try_another')}

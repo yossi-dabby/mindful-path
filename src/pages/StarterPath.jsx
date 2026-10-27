@@ -348,7 +348,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
               <Link to={createPageUrl('Home')}>
                 <Button className="transition-calm text-white px-7 py-6" style={{
                   borderRadius: '9999px',
-                  backgroundColor: '#26A69A',
+                  backgroundColor: 'hsl(var(--primary))',
                   boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                 }}>
                 {t('starter_path.return_home')}
@@ -380,7 +380,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
             <div>
               <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}: {t(`starter_path.day_structure.${currentDay}.title`, { defaultValue: dayStructure.title })}
-              </h1><BotanicalAccent variant="landscape" className="botanical-title-art" /></div>
+              </h1><BotanicalAccent variant="route" className="botanical-title-art" /></div>
               <p style={{ color: 'rgb(var(--theme-muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
             </div>
             <div className="text-right">
@@ -456,7 +456,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                   className="w-full transition-calm text-white px-7 py-6"
                   style={{
                     borderRadius: '9999px',
-                    backgroundColor: '#26A69A',
+                    backgroundColor: 'hsl(var(--primary))',
                     boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                   }}>
                   
@@ -519,7 +519,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                     className="flex-1 transition-calm text-white px-6 py-5"
                     style={{
                       borderRadius: '9999px',
-                      backgroundColor: '#26A69A',
+                      backgroundColor: 'hsl(var(--primary))',
                       boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)',
                       opacity: !userResponse.trim() ? 0.5 : 1
                     }}>

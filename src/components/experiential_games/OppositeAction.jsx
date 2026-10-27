@@ -25,37 +25,37 @@ export default function OppositeAction({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="space-y-3 mb-4">
           <div>
-            <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+            <p className="text-xs font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.opposite_action.emotion_label')}
             </p>
-            <p className="text-sm font-semibold break-words" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-semibold break-words" style={{ color: 'hsl(var(--foreground))' }}>
               {currentItem?.emotion}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+            <p className="text-xs font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.opposite_action.urge_label')}
             </p>
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {currentItem?.urge}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+            <p className="text-xs font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.opposite_action.opposite_label')}
             </p>
-            <p className="text-sm font-semibold break-words" style={{ color: '#26A69A' }}>
+            <p className="text-sm font-semibold break-words" style={{ color: 'hsl(var(--primary))' }}>
               {currentItem?.opposite}
             </p>
           </div>
         </div>
 
-        <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
           {t('mind_games.opposite_action.pick_step')}
         </p>
 
@@ -87,7 +87,7 @@ export default function OppositeAction({ onClose }) {
             backgroundColor: 'rgba(38, 166, 154, 0.1)',
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
-            <p className="text-xs break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               <strong>{t('mind_games.opposite_action.note_label')} </strong>{currentItem?.note}
             </p>
           </div>
@@ -103,8 +103,8 @@ export default function OppositeAction({ onClose }) {
             onClick={handleNext}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.common.try_another')}

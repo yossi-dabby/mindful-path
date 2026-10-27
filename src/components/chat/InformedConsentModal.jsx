@@ -15,7 +15,7 @@ export default function InformedConsentModal({ onAccept }) {
         className="max-w-md w-full border-0 shadow-2xl"
         style={{
           borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
+          background: 'hsl(var(--card))',
           backdropFilter: 'blur(16px)',
           boxShadow: '0 20px 60px rgba(38, 166, 154, 0.2)',
           animation: 'slideUp 0.3s ease-out'
@@ -31,16 +31,16 @@ export default function InformedConsentModal({ onAccept }) {
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2)'
             }}
           >
-            <AlertCircle className="w-6 h-6 md:w-7 md:h-7" style={{ color: '#26A69A' }} />
+            <AlertCircle className="w-6 h-6 md:w-7 md:h-7" style={{ color: 'hsl(var(--primary))' }} />
           </div>
 
           {/* Title */}
-          <h2 className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: '#1A3A34' }}>
+          <h2 className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: 'hsl(var(--foreground))' }}>
             Before We Begin
           </h2>
 
           {/* Content */}
-          <div className="space-y-3 mb-6 text-sm md:text-base" style={{ color: '#5A7A72' }}>
+          <div className="space-y-3 mb-6 text-sm md:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>
             <p className="leading-relaxed">
               This AI companion provides wellness support and is <strong>not a substitute for professional therapy or medical advice</strong>.
             </p>
@@ -58,7 +58,7 @@ export default function InformedConsentModal({ onAccept }) {
             className="w-full py-6 text-base md:text-lg text-white font-medium"
             style={{
               borderRadius: '20px',
-              backgroundColor: '#26A69A',
+              backgroundColor: 'hsl(var(--primary))',
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.35)',
             }}
           >

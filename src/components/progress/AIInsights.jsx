@@ -148,7 +148,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
 
   if (!insights && !isGenerating) {
     return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-blue-50">
+      <Card className="border-0 shadow-lg bg-card">
         <CardContent className="p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-purple-600" />
@@ -348,7 +348,7 @@ Be warm, encouraging, and specific. Reference actual data points.`;
 
       {/* Positive Highlights */}
       {insights.positive_highlights?.length > 0 && (
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
+        <Card className="border-0 shadow-lg bg-card border-2 border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-800">
               <Sparkles className="w-5 h-5" />

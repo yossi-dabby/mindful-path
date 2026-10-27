@@ -24,7 +24,7 @@ export default function MountainMeditation({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         {step < steps.length ? (
@@ -34,10 +34,10 @@ export default function MountainMeditation({ onClose }) {
               backgroundColor: 'rgba(38, 166, 154, 0.1)',
               border: '1px solid rgba(38, 166, 154, 0.2)'
             }}>
-              <p className="text-xs mb-2" style={{ color: '#5A7A72' }}>
+              <p className="text-xs mb-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {t('mind_games.mountain_meditation.step_of', { current: step + 1, total: steps.length })}
               </p>
-              <p className="text-base break-words whitespace-normal text-center" style={{ color: '#1A3A34' }}>
+              <p className="text-base break-words whitespace-normal text-center" style={{ color: 'hsl(var(--foreground))' }}>
                 {steps[step]}
               </p>
             </div>
@@ -46,8 +46,8 @@ export default function MountainMeditation({ onClose }) {
               className="w-full"
               style={{
                 borderRadius: '12px',
-                backgroundColor: '#26A69A',
-                color: 'white'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {step === steps.length - 1 ? t('common.finish') : t('common.next')}
@@ -60,7 +60,7 @@ export default function MountainMeditation({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <PremiumIcon name="mountain" size="md" className="mx-auto mb-2" />
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.mountain_meditation.completion')}
             </p>
           </div>

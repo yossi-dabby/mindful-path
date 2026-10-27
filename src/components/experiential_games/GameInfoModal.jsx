@@ -40,10 +40,10 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
           event.preventDefault();
           onClose();
         }}
-        className="max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-t-[28px] border-teal-700/15 bg-gradient-to-br from-white via-emerald-50 to-teal-50 p-0 sm:max-w-lg sm:rounded-[28px]"
+        className="max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-t-[28px] border-border/70 bg-card p-0 sm:max-w-lg sm:rounded-[28px]"
         data-testid="mindgame-info-dialog"
       >
-        <DialogHeader className="border-b border-emerald-100/70 p-6 pe-16 text-start">
+        <DialogHeader className="border-b border-border/70 bg-secondary/35 p-6 pe-16 text-start">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-teal-700">
             {technique || category}
           </p>
@@ -59,8 +59,8 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
               {purpose && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Lightbulb className="w-4 h-4 flex-shrink-0" style={{ color: '#26A69A' }} />
-                    <span className="text-sm font-semibold" style={{ color: '#1A3A34' }}>
+                    <Lightbulb className="w-4 h-4 flex-shrink-0" style={{ color: 'hsl(var(--primary))' }} />
+                    <span className="text-sm font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                       {t('mind_games.help.purpose_label', 'What is it for?')}
                     </span>
                   </div>
@@ -74,8 +74,8 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
               {howToPlay && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Play className="w-4 h-4 flex-shrink-0" style={{ color: '#26A69A' }} />
-                    <span className="text-sm font-semibold" style={{ color: '#1A3A34' }}>
+                    <Play className="w-4 h-4 flex-shrink-0" style={{ color: 'hsl(var(--primary))' }} />
+                    <span className="text-sm font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                       {t('mind_games.help.how_to_play_label', 'How to play')}
                     </span>
                   </div>
@@ -89,15 +89,15 @@ export default function GameInfoModal({ game, onClose, onPlay }) {
               {benefitsArray.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Star className="w-4 h-4 flex-shrink-0" style={{ color: '#26A69A' }} />
-                    <span className="text-sm font-semibold" style={{ color: '#1A3A34' }}>
+                    <Star className="w-4 h-4 flex-shrink-0" style={{ color: 'hsl(var(--primary))' }} />
+                    <span className="text-sm font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                       {t('mind_games.help.benefits_label', 'Benefits')}
                     </span>
                   </div>
                   <ul className="space-y-1.5 ps-6">
                     {benefitsArray.map((benefit, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: '#26A69A' }} />
+                        <span className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: 'hsl(var(--primary))' }} />
                         <span className="text-sm" style={{ color: '#3A6A5E' }}>{benefit}</span>
                       </li>
                     ))}

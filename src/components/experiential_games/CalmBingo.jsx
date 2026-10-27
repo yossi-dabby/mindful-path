@@ -22,7 +22,7 @@ export default function CalmBingo({ onClose }) {
 
   return (
     <div className="space-y-4 w-full min-w-0">
-      <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+      <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
         {t('mind_games.calm_bingo.prompt')}
       </p>
 
@@ -60,7 +60,7 @@ export default function CalmBingo({ onClose }) {
           background: 'rgba(34, 197, 94, 0.1)',
           border: '1px solid rgba(34, 197, 94, 0.2)'
         }}>
-          <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+          <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
             {t('mind_games.calm_bingo.success')}
           </p>
         </Card>

@@ -69,14 +69,14 @@ export default function UrgeSurfing({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <Badge variant="outline" style={{
             borderRadius: '8px',
             borderColor: 'rgba(38, 166, 154, 0.3)',
-            color: '#26A69A'
+            color: 'hsl(var(--primary))'
           }}>
             {t('mind_games.urge_surfing.completed', { count: completedCount })}
           </Badge>
@@ -87,8 +87,8 @@ export default function UrgeSurfing({ onClose }) {
               className="px-3 py-1 text-xs rounded-lg transition-all"
               style={{
                 backgroundColor: difficulty === 'beginner' ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
-                border: `1px solid ${difficulty === 'beginner' ? '#26A69A' : 'rgba(38, 166, 154, 0.3)'}`,
-                color: difficulty === 'beginner' ? '#26A69A' : '#5A7A72',
+                border: `1px solid ${difficulty === 'beginner' ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.3)'}`,
+                color: difficulty === 'beginner' ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
                 fontWeight: difficulty === 'beginner' ? '600' : '400'
               }}
             >
@@ -99,8 +99,8 @@ export default function UrgeSurfing({ onClose }) {
               className="px-3 py-1 text-xs rounded-lg transition-all"
               style={{
                 backgroundColor: difficulty === 'advanced' ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
-                border: `1px solid ${difficulty === 'advanced' ? '#26A69A' : 'rgba(38, 166, 154, 0.3)'}`,
-                color: difficulty === 'advanced' ? '#26A69A' : '#5A7A72',
+                border: `1px solid ${difficulty === 'advanced' ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.3)'}`,
+                color: difficulty === 'advanced' ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
                 fontWeight: difficulty === 'advanced' ? '600' : '400'
               }}
             >
@@ -109,7 +109,7 @@ export default function UrgeSurfing({ onClose }) {
           </div>
         </div>
         
-        <p className="text-sm font-semibold mb-4 break-words" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-4 break-words" style={{ color: 'hsl(var(--foreground))' }}>
           {currentItem?.title}
         </p>
 
@@ -117,8 +117,8 @@ export default function UrgeSurfing({ onClose }) {
           <ul className="space-y-2">
             {steps.map((step, index) => (
               <li key={index} className="flex gap-2">
-                <span className="text-sm flex-shrink-0" style={{ color: '#26A69A' }}>•</span>
-                <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
+                <span className="text-sm flex-shrink-0" style={{ color: 'hsl(var(--primary))' }}>•</span>
+                <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: 'hsl(var(--foreground))' }}>
                   {step}
                 </span>
               </li>
@@ -126,7 +126,7 @@ export default function UrgeSurfing({ onClose }) {
           </ul>
         </div>
 
-        <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
           {t('mind_games.urge_surfing.finish_prompt')}
         </p>
 
@@ -158,7 +158,7 @@ export default function UrgeSurfing({ onClose }) {
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
-            <p className="text-sm font-medium break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-medium break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.urge_surfing.success')}
             </p>
           </div>
@@ -174,8 +174,8 @@ export default function UrgeSurfing({ onClose }) {
             onClick={handleNext}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.common.try_another')}

@@ -23,16 +23,16 @@ export default function ProsAndCons({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.pros_and_cons.description')}
         </p>
 
         {step === 'input' && (
           <>
-            <p className="text-sm font-semibold mb-2" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.pros_and_cons.decision_prompt')}
             </p>
             <input
@@ -53,8 +53,8 @@ export default function ProsAndCons({ onClose }) {
               className="w-full"
               style={{
                 borderRadius: '12px',
-                backgroundColor: decision.trim() ? '#26A69A' : '#ccc',
-                color: 'white'
+                backgroundColor: decision.trim() ? 'hsl(var(--primary))' : '#ccc',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.pros_and_cons.start_btn')}
@@ -64,7 +64,7 @@ export default function ProsAndCons({ onClose }) {
 
         {step === 'pros' && (
           <>
-            <p className="text-sm font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-semibold mb-2 break-words" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.pros_and_cons.pros_label')}
             </p>
             <textarea
@@ -86,8 +86,8 @@ export default function ProsAndCons({ onClose }) {
               className="w-full"
               style={{
                 borderRadius: '12px',
-                backgroundColor: pros.trim() ? '#26A69A' : '#ccc',
-                color: 'white'
+                backgroundColor: pros.trim() ? 'hsl(var(--primary))' : '#ccc',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.pros_and_cons.next_cons_btn')}
@@ -97,7 +97,7 @@ export default function ProsAndCons({ onClose }) {
 
         {step === 'cons' && (
           <>
-            <p className="text-sm font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-semibold mb-2 break-words" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.pros_and_cons.cons_label')}
             </p>
             <textarea
@@ -119,8 +119,8 @@ export default function ProsAndCons({ onClose }) {
               className="w-full"
               style={{
                 borderRadius: '12px',
-                backgroundColor: cons.trim() ? '#26A69A' : '#ccc',
-                color: 'white'
+                backgroundColor: cons.trim() ? 'hsl(var(--primary))' : '#ccc',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.pros_and_cons.see_result_btn')}
@@ -138,7 +138,7 @@ export default function ProsAndCons({ onClose }) {
               <p className="text-xs font-semibold mb-1" style={{ color: '#22C55E' }}>
                 {t('mind_games.pros_and_cons.pros_result_label')}
               </p>
-              <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+              <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
                 {pros}
               </p>
             </div>
@@ -150,11 +150,11 @@ export default function ProsAndCons({ onClose }) {
               <p className="text-xs font-semibold mb-1" style={{ color: '#EF4444' }}>
                 {t('mind_games.pros_and_cons.cons_result_label')}
               </p>
-              <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+              <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
                 {cons}
               </p>
             </div>
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+            <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.pros_and_cons.conclusion')}
             </p>
           </div>

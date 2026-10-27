@@ -16,7 +16,7 @@ export default function FocusFlow({ onClose }) {
   const [gameOver, setGameOver] = useState(false);
 
   const colors = [
-    { id: 1, color: '#26A69A', name: t('mind_games.focus_flow.colors.teal') },
+    { id: 1, color: 'hsl(var(--primary))', name: t('mind_games.focus_flow.colors.teal') },
     { id: 2, color: '#B9A3C1', name: t('mind_games.focus_flow.colors.lavender') },
     { id: 3, color: '#F49283', name: t('mind_games.focus_flow.colors.coral') },
     { id: 4, color: '#8BB2A2', name: t('mind_games.focus_flow.colors.sage') },
@@ -78,24 +78,24 @@ export default function FocusFlow({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="mb-4 flex justify-between items-center">
-          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-            <Target className="w-5 h-5" style={{ color: '#26A69A' }} />
+          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'hsl(var(--foreground))' }}>
+            <Target className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
             {t('mind_games.focus_flow.title')}
           </h3>
           <Badge variant="outline" style={{
             borderRadius: '8px',
             borderColor: 'rgba(38, 166, 154, 0.3)',
-            color: '#26A69A'
+            color: 'hsl(var(--primary))'
           }}>
             {t('mind_games.focus_flow.level')}: {level}
           </Badge>
         </div>
 
-        <p className="text-sm mb-6" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-6" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.focus_flow.instructions')}
         </p>
 
@@ -103,7 +103,7 @@ export default function FocusFlow({ onClose }) {
           <>
             {isShowing && (
               <div className="text-center mb-4">
-                <p className="text-sm font-medium" style={{ color: '#26A69A' }}>
+                <p className="text-sm font-medium" style={{ color: 'hsl(var(--primary))' }}>
                   {t('mind_games.focus_flow.watch_carefully')}
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default function FocusFlow({ onClose }) {
                   className="w-3 h-3 rounded-full transition-all"
                   style={{
                     backgroundColor: idx < userSequence.length 
-                      ? '#26A69A' 
+                      ? 'hsl(var(--primary))'
                       : 'rgba(38, 166, 154, 0.2)'
                   }}
                 />
@@ -149,10 +149,10 @@ export default function FocusFlow({ onClose }) {
           <div className="text-center py-8 space-y-4">
             <Zap className="w-12 h-12 mx-auto" style={{ color: '#F49283' }} />
             <div>
-              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.focus_flow.game_over')}
               </h3>
-              <p className="text-sm" style={{ color: '#5A7A72' }}>
+              <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {t('mind_games.focus_flow.final_score', { score })}
               </p>
             </div>
@@ -160,8 +160,8 @@ export default function FocusFlow({ onClose }) {
               onClick={resetGame}
               style={{
                 borderRadius: '12px',
-                backgroundColor: '#26A69A',
-                color: 'white'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.common.try_another')}

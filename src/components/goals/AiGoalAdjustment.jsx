@@ -236,7 +236,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
               <Button
                 onClick={generateSuggestions}
                 disabled={isGenerating}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Generate Suggestions

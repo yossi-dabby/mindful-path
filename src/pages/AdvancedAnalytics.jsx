@@ -18,9 +18,9 @@ const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
 const LockedCard = ({ title, description, height = "auto", onUnlock }) => {
   const { t } = useTranslation();
   return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
+    <Card className="border-0 shadow-lg bg-card rounded-2xl">
       <CardContent className={`p-6 md:p-8 flex items-center justify-center ${height === "chart" ? "min-h-[300px]" : "min-h-[200px]"}`}>
-        <div className="text-center max-w-sm">
+        <div className="min-w-0 text-center max-w-sm">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-gray-400" />
           </div>
@@ -28,7 +28,7 @@ const LockedCard = ({ title, description, height = "auto", onUnlock }) => {
           <p className="text-sm text-gray-600 mb-4">{description}</p>
           <Button
             onClick={onUnlock}
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
+            className="min-h-11 h-auto max-w-full whitespace-normal bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Crown className="w-4 h-4 mr-2" />
             {t('advanced_analytics.go_premium')}
@@ -155,7 +155,7 @@ export default function AdvancedAnalytics() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div className="botanical-title-row"><h1 className="text-2xl md:text-4xl font-light text-gray-800">{t('advanced_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+              <div className="botanical-title-row"><h1 className="text-2xl md:text-4xl font-semibold text-gray-800">{t('advanced_analytics.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <PremiumBadge locked={!isPremium} compact />
             </div>
             <p className="text-sm md:text-base text-gray-500 ml-12 md:ml-0">
@@ -213,7 +213,7 @@ export default function AdvancedAnalytics() {
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_mood')}</p>
-                      <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                      <Button onClick={handleUnlockClick} className="bg-primary hover:bg-primary/90">
                         <Crown className="w-4 h-4 mr-2" />
                         {t('advanced_analytics.go_premium')}
                       </Button>
@@ -223,7 +223,7 @@ export default function AdvancedAnalytics() {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 min-[1100px]:grid-cols-3 gap-4 md:gap-6">
               {isPremium ? (
                 <>
                   <Card className="border-0 shadow-lg rounded-2xl">
@@ -292,7 +292,7 @@ export default function AdvancedAnalytics() {
                       <div className="text-center max-w-xs px-4">
                         <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                         <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_patterns')}</p>
-                        <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                        <Button onClick={handleUnlockClick} className="bg-primary hover:bg-primary/90">
                           <Crown className="w-4 h-4 mr-2" />
                           {t('advanced_analytics.go_premium')}
                         </Button>
@@ -366,7 +366,7 @@ export default function AdvancedAnalytics() {
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_exercise')}</p>
-                      <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                      <Button onClick={handleUnlockClick} className="bg-primary hover:bg-primary/90">
                         <Crown className="w-4 h-4 mr-2" />
                         {t('advanced_analytics.go_premium')}
                       </Button>

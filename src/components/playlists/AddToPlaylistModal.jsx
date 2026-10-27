@@ -154,7 +154,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                     type="button"
                     onClick={() => setShowCreateModal(true)}
                     style={{ 
-                      backgroundColor: '#26A69A',
+                      backgroundColor: 'hsl(var(--primary))',
                       color: 'white'
                     }}
                    mobileLabelKey="add">
@@ -179,14 +179,14 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                   className="w-full p-3 flex items-center justify-between transition-all disabled:cursor-wait disabled:opacity-70"
                   style={{ 
                     borderRadius: 'var(--r-md)', 
-                    border: inPlaylist ? '2px solid #26A69A' : '1px solid rgb(var(--theme-border))',
+                    border: inPlaylist ? '2px solid hsl(var(--primary))' : '1px solid rgb(var(--theme-border))',
                     backgroundColor: inPlaylist ? 'rgba(38, 166, 154, 0.05)' : 'white'
                   }}
                   whileHover={{ scale: 1.02, backgroundColor: inPlaylist ? 'rgba(38, 166, 154, 0.08)' : 'rgba(0,0,0,0.02)' }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <div className="text-left">
-                    <p className="font-medium text-sm" style={{ color: inPlaylist ? '#26A69A' : 'rgb(var(--text))' }}>
+                    <p className="font-medium text-sm" style={{ color: inPlaylist ? 'hsl(var(--primary))' : 'rgb(var(--text))' }}>
                       {playlist.name}
                     </p>
                     <p className="text-xs" style={{ color: 'rgb(var(--theme-muted))' }}>
@@ -194,7 +194,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                     </p>
                   </div>
                   {inPlaylist ? (
-                    <Check className="w-5 h-5" style={{ color: '#26A69A' }} />
+                    <Check className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
                   ) : (
                     <Plus className="w-5 h-5" style={{ color: 'rgb(var(--theme-muted))' }} />
                   )}

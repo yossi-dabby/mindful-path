@@ -37,7 +37,7 @@ export default function GoalsProgressTracker({ goals = [] }) {
 
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] overflow-hidden" data-testid="progress-goals">
-      <CardHeader className="bg-orange-50/75 dark:bg-orange-950/20 p-4 sm:p-6">
+      <CardHeader className="bg-secondary/45  p-4 sm:p-6">
         <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2 text-foreground"><Target className="h-5 w-5 text-orange-700" />{t('progress_ui.goals.title')}</CardTitle>
           <Button asChild variant="outline" className="min-h-11 w-full min-[420px]:w-auto"><Link to={createPageUrl('Goals')}>{t('progress_ui.goals.manage')}</Link></Button>
@@ -46,10 +46,10 @@ export default function GoalsProgressTracker({ goals = [] }) {
       <CardContent className="p-4 sm:p-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {[
-            [activeGoals.length, t('progress_ui.goals.active'), 'text-orange-700', 'bg-orange-50'],
-            [completedGoals.length, t('progress_ui.goals.completed'), 'text-green-700', 'bg-green-50'],
-            [`${avgProgress.toFixed(0)}%`, t('progress_ui.goals.average'), 'text-blue-700', 'bg-blue-50'],
-            [`${completedMilestones}/${totalMilestones}`, t('progress_ui.goals.milestones'), 'text-purple-700', 'bg-purple-50']
+            [activeGoals.length, t('progress_ui.goals.active'), 'text-orange-700', 'bg-secondary/45'],
+            [completedGoals.length, t('progress_ui.goals.completed'), 'text-green-700', 'bg-secondary/45'],
+            [`${avgProgress.toFixed(0)}%`, t('progress_ui.goals.average'), 'text-blue-700', 'bg-secondary/45'],
+            [`${completedMilestones}/${totalMilestones}`, t('progress_ui.goals.milestones'), 'text-purple-700', 'bg-secondary/45']
           ].map(([value, label, color, background]) => <div key={label} className={`min-w-0 rounded-xl p-3 sm:p-4 text-center ${background}`}><p className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</p><p className="mt-1 text-xs sm:text-sm text-slate-700 break-words">{label}</p></div>)}
         </div>
 
@@ -79,7 +79,7 @@ export default function GoalsProgressTracker({ goals = [] }) {
           </div>
         </section> : <div className="py-10 text-center"><Target className="mx-auto mb-4 h-14 w-14 text-orange-600/40" /><p className="mb-2 text-lg font-semibold text-foreground">{t('progress_ui.goals.empty_title')}</p><p className="mx-auto mb-4 max-w-md text-sm text-muted-foreground">{t('progress_ui.goals.empty_text')}</p><Button asChild className="min-h-11"><Link to={createPageUrl('Goals')}><Target className="h-4 w-4" />{t('progress_ui.goals.create')}</Link></Button></div>}
 
-        {completedGoals.length > 0 && <section className="mt-6 border-t border-border pt-6"><h3 className="mb-3 flex items-center gap-2 font-semibold text-foreground"><CheckCircle2 className="h-4 w-4 text-green-700" />{t('progress_ui.goals.recently_completed')}</h3><div className="space-y-2">{completedGoals.slice(0, 3).map((goal) => <div key={goal?.id} className="flex min-w-0 items-start gap-3 rounded-lg bg-green-50 p-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-700" /><div className="min-w-0"><p className="break-words text-sm font-medium text-slate-900">{goal?.title}</p>{goal?.updated_date && <p className="text-xs text-slate-600">{t('progress_ui.goals.completed_on', { date: dateFormatter.format(new Date(goal.updated_date)) })}</p>}</div></div>)}</div></section>}
+        {completedGoals.length > 0 && <section className="mt-6 border-t border-border pt-6"><h3 className="mb-3 flex items-center gap-2 font-semibold text-foreground"><CheckCircle2 className="h-4 w-4 text-green-700" />{t('progress_ui.goals.recently_completed')}</h3><div className="space-y-2">{completedGoals.slice(0, 3).map((goal) => <div key={goal?.id} className="flex min-w-0 items-start gap-3 rounded-lg bg-secondary/45 p-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-700" /><div className="min-w-0"><p className="break-words text-sm font-medium text-slate-900">{goal?.title}</p>{goal?.updated_date && <p className="text-xs text-slate-600">{t('progress_ui.goals.completed_on', { date: dateFormatter.format(new Date(goal.updated_date)) })}</p>}</div></div>)}</div></section>}
       </CardContent>
     </Card>
   );

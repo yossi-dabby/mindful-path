@@ -56,18 +56,18 @@ export default function NumberSequence({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <div className="mb-4 flex justify-between items-center">
-          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: '#1A3A34' }}>
-            <Hash className="w-5 h-5" style={{ color: '#26A69A' }} />
+          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'hsl(var(--foreground))' }}>
+            <Hash className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
             {t('mind_games.number_sequence.title')}
           </h3>
           <Badge variant="outline" style={{
             borderRadius: '8px',
             borderColor: 'rgba(38, 166, 154, 0.3)',
-            color: '#26A69A'
+            color: 'hsl(var(--primary))'
           }}>
             {currentIndex + 1}/{SEQUENCES.length}
           </Badge>
@@ -75,7 +75,7 @@ export default function NumberSequence({ onClose }) {
 
         {!isComplete ? (
           <div className="space-y-4">
-            <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+            <p className="text-sm mb-4" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {t('mind_games.number_sequence.instructions')}
             </p>
 
@@ -86,7 +86,7 @@ export default function NumberSequence({ onClose }) {
                     className="w-11 h-11 rounded-xl flex items-center justify-center text-base font-bold"
                     style={{
                       backgroundColor: 'rgba(38, 166, 154, 0.15)',
-                      color: '#26A69A',
+                      color: 'hsl(var(--primary))',
                       border: '2px solid rgba(38, 166, 154, 0.3)'
                     }}
                   >
@@ -132,8 +132,8 @@ export default function NumberSequence({ onClose }) {
                 disabled={!userAnswer || showResult}
                 style={{
                   borderRadius: '12px',
-                  backgroundColor: '#26A69A',
-                  color: 'white'
+                  backgroundColor: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))'
                 }}
               >
                 {t('mind_games.number_sequence.check')}
@@ -163,7 +163,7 @@ export default function NumberSequence({ onClose }) {
                       ? t('mind_games.number_sequence.correct')
                       : t('mind_games.number_sequence.incorrect', { answer: current.answer })}
                   </p>
-                  <p className="text-xs" style={{ color: '#5A7A72' }}>
+                  <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
                     {t(current.rule_key)}
                   </p>
                 </div>
@@ -172,12 +172,12 @@ export default function NumberSequence({ onClose }) {
           </div>
         ) : (
           <div className="text-center py-8 space-y-4">
-            <Brain className="w-12 h-12 mx-auto" style={{ color: '#26A69A' }} />
+            <Brain className="w-12 h-12 mx-auto" style={{ color: 'hsl(var(--primary))' }} />
             <div>
-              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.number_sequence.complete_title')}
               </h3>
-              <p className="text-sm" style={{ color: '#5A7A72' }}>
+              <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 {t('mind_games.number_sequence.complete_message', { score, total: SEQUENCES.length })}
               </p>
             </div>
@@ -185,8 +185,8 @@ export default function NumberSequence({ onClose }) {
               onClick={reset}
               style={{
                 borderRadius: '12px',
-                backgroundColor: '#26A69A',
-                color: 'white'
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))'
               }}
             >
               {t('mind_games.common.try_another')}

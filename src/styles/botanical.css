@@ -144,3 +144,32 @@
   .botanical-tool-title,.botanical-tool-description { padding-inline-end:0; }
   .botanical-tool-card { border:1px solid currentColor; }
 }
+
+/* Secondary pages and full-screen flows use the same garden and warm paper
+   as the hubs. These opt-in classes never recolor charts or safety statuses. */
+.garden-surface {
+  border:1px solid hsl(var(--border)/.7);
+  border-radius:26px;
+  background:hsl(var(--card)/.97);
+  box-shadow:var(--shadow-md);
+}
+.garden-public-background,.garden-flow-shell {
+  background-color:hsl(var(--background));
+  background-image:linear-gradient(hsl(var(--background)/.60),hsl(var(--background)/.24)),url('/art/botanical/garden-path-v2.webp');
+  background-position:center bottom;
+  background-size:cover;
+  background-attachment:fixed;
+}
+.garden-flow-shell > .pointer-events-none { display:none; }
+.garden-flow-shell header,.garden-flow-shell footer { border-color:hsl(var(--border)/.7); }
+.garden-public-document {
+  margin-block:24px;
+  width:calc(100% - 32px);
+  border:1px solid hsl(var(--border)/.7);
+  border-radius:28px;
+  background:hsl(var(--card)/.97);
+  box-shadow:var(--shadow-md);
+}
+.dark .garden-public-background,.dark .garden-flow-shell {
+  background-image:linear-gradient(hsl(var(--background)/.90),hsl(var(--background)/.84)),url('/art/botanical/garden-path-v2.webp');
+}

@@ -28,13 +28,13 @@ export default function EvidenceBalance({ onClose }) {
     <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
+        <p className="text-xs font-medium mb-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.evidence_balance.thought_label')}
         </p>
-        <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+        <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
           "{currentItem?.thought}"
         </p>
 
@@ -48,7 +48,7 @@ export default function EvidenceBalance({ onClose }) {
               {evidenceFor?.map((item, index) => (
                 <li key={index} className="flex gap-2">
                   <span className="text-sm flex-shrink-0" style={{ color: '#EF4444' }}>•</span>
-                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
+                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: 'hsl(var(--foreground))' }}>
                     {item}
                   </span>
                 </li>
@@ -64,7 +64,7 @@ export default function EvidenceBalance({ onClose }) {
               {evidenceAgainst?.map((item, index) => (
                 <li key={index} className="flex gap-2">
                   <span className="text-sm flex-shrink-0" style={{ color: '#22C55E' }}>•</span>
-                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
+                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: 'hsl(var(--foreground))' }}>
                     {item}
                   </span>
                 </li>
@@ -79,8 +79,8 @@ export default function EvidenceBalance({ onClose }) {
             className="w-full"
             style={{
               borderRadius: '12px',
-            backgroundColor: '#26A69A',
-            color: 'white'
+            backgroundColor: 'hsl(var(--primary))',
+            color: 'hsl(var(--primary-foreground))'
           }}
         >
           {t('mind_games.evidence_balance.show_conclusion')}
@@ -91,10 +91,10 @@ export default function EvidenceBalance({ onClose }) {
           backgroundColor: 'rgba(38, 166, 154, 0.1)',
           border: '1px solid rgba(38, 166, 154, 0.2)'
         }}>
-          <p className="text-xs font-medium mb-2" style={{ color: '#26A69A' }}>
+          <p className="text-xs font-medium mb-2" style={{ color: 'hsl(var(--primary))' }}>
             {t('mind_games.evidence_balance.conclusion_label')}
           </p>
-          <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+          <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
              {balancedConclusion}
           </p>
         </div>
@@ -110,8 +110,8 @@ export default function EvidenceBalance({ onClose }) {
             onClick={handleNext}
             style={{
               borderRadius: '12px',
-              backgroundColor: '#26A69A',
-              color: 'white'
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {t('mind_games.common.try_another')}

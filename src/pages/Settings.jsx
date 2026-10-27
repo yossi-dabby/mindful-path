@@ -552,7 +552,7 @@ export default function Settings() {
               <ChevronRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </p>
-          <p className="mt-2 text-xs text-slate-600">{t('settings.footer.version')}</p>
+          <p className="mt-2 text-xs text-slate-600">{t('global.app_name')}</p>
         </footer>
       </div>
 

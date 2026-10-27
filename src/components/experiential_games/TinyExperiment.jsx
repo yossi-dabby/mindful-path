@@ -45,18 +45,18 @@ export default function TinyExperiment({ onClose }) {
     <div className="space-y-4">
       <Card className="p-4 border-0" style={{
         borderRadius: '16px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'hsl(var(--card))',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+        <p className="text-xs font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
           {t('mind_games.tiny_experiment.belief_label')}
         </p>
-        <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+        <p className="text-sm italic break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
           "{currentItem.belief}"
         </p>
       </Card>
 
-      <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+      <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
         {t('mind_games.tiny_experiment.pick_experiment')}
       </p>
       <div className="space-y-2">
@@ -91,7 +91,7 @@ export default function TinyExperiment({ onClose }) {
             background: 'rgba(38, 166, 154, 0.1)',
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
-            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-medium mb-2" style={{ color: 'hsl(var(--foreground))' }}>
               {currentItem.reflection_question}
             </p>
             <div className="space-y-2">
@@ -127,7 +127,7 @@ export default function TinyExperiment({ onClose }) {
               background: 'rgba(34, 197, 94, 0.1)',
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
-              <p className="text-xs break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+              <p className="text-xs break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.tiny_experiment.success')}
               </p>
             </Card>

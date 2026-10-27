@@ -36,7 +36,7 @@ export default function ValueCompass({ onClose }) {
     <div className="space-y-4">
       {!selectedValue ? (
         <>
-          <p className="text-sm font-medium mb-3" style={{ color: '#1A3A34' }}>
+          <p className="text-sm font-medium mb-3" style={{ color: 'hsl(var(--foreground))' }}>
             {t('mind_games.value_compass.pick_value')}
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -64,12 +64,12 @@ export default function ValueCompass({ onClose }) {
             background: 'rgba(38, 166, 154, 0.1)',
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
-            <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+            <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.value_compass.your_value', { value: selectedValue.value })}
             </p>
           </Card>
 
-          <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+          <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
             {t('mind_games.value_compass.pick_action')}
           </p>
           <div className="space-y-2">
@@ -103,7 +103,7 @@ export default function ValueCompass({ onClose }) {
               background: 'rgba(34, 197, 94, 0.1)',
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
-              <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+              <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
                 {t('mind_games.value_compass.success')}
               </p>
             </Card>
