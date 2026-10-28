@@ -229,7 +229,7 @@ export default function ConversationsList({
                 <div
                   key={`${conversation.id || 'conversation'}-${index}`}
                   className={cn(
-                    'group relative overflow-hidden transition-all rounded-2xl border',
+                    'group relative flex items-center overflow-hidden transition-all rounded-2xl border',
                     currentConversationId === conversation.id
                       ? 'border-border bg-secondary shadow-[var(--shadow-sm)] ring-1 ring-border'
                       : 'border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm hover:-translate-y-0.5 hover:border-border hover:bg-[hsl(var(--card)/0.97)] hover:shadow-md'
@@ -249,7 +249,7 @@ export default function ConversationsList({
 
                   {editingId === conversation.id ? (
                     <form
-                      className="p-3 ps-12 pe-3 flex items-center gap-2 min-w-0"
+                      className="w-full p-3 ps-12 pe-3 flex items-center gap-2 min-w-0"
                       onSubmit={(event) => { event.preventDefault(); void submitRename(conversation.id); }}
                     >
                       <input
@@ -270,7 +270,7 @@ export default function ConversationsList({
                   ) : (
                   <button
                     onClick={() => onSelectConversation(conversation.id)}
-                    className="bg-transparent text-start p-3 ps-12 pe-14 w-full flex items-start gap-3 min-w-0"
+                    className="bg-transparent text-start p-3 ps-12 pe-2 w-full flex items-start gap-3 min-w-0"
                   >
                     <div className={cn('rounded-[18px] w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 shadow-sm', currentConversationId === conversation.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-primary')}>
                       <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
@@ -298,7 +298,7 @@ export default function ConversationsList({
                       <DropdownMenuTrigger asChild>
                         <button
                           ref={(element) => { if (element) actionRefs.current.set(conversation.id, element); else actionRefs.current.delete(conversation.id); }}
-                          className="absolute end-2 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--card)/0.97)] hover:shadow-sm"
+                          className="me-2 shrink-0 p-2 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--card)/0.97)] hover:shadow-sm"
                           aria-label={t('chat.conversations_list.actions_aria', { name: getConversationName(conversation) })}
                         >
                           <MoreHorizontal className="w-5 h-5 text-primary" />
