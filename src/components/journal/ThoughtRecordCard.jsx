@@ -11,6 +11,8 @@ import { exportThoughtRecordPdf } from './exportPdfUtils';
 import { cn } from '@/lib/utils';
 import AiJournalSuggestions from './AiJournalSuggestions';
 import AiEntrySummary from './AiEntrySummary';
+import { journalNumberOrNull } from './journalPresentation';
+import DOMPurify from 'dompurify';
 
 const stripHtml = (html) => {
   if (!html) return '';
@@ -36,31 +38,35 @@ function ThoughtRecordCard({ entry, onEdit }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.ThoughtJournal.delete(id),
-    onMutate: async (id) => {
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['thoughtJournals'] });
-      const snapshots = queryClient.getQueriesData({ queryKey: ['thoughtJournals'] });
+    },
+    // Keep the card mounted until the server confirms deletion so a failure
+    // retains its actions and error message for a retry.
+    onSuccess: (_data, id) => {
       queryClient.setQueriesData({ queryKey: ['thoughtJournals'] }, (old = []) =>
         Array.isArray(old) ? old.filter((journal) => journal.id !== id) : old
       );
-      return { snapshots };
     },
-    onError: (_error, _variables, context) => context?.snapshots?.forEach(([key, value]) => queryClient.setQueryData(key, value)),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] })
   });
 
-  const beforeIntensity = Number(entry.emotion_intensity);
-  const afterIntensity = Number(entry.outcome_emotion_intensity);
-  const hasOutcome = Number.isFinite(beforeIntensity) && Number.isFinite(afterIntensity);
+  const beforeIntensity = journalNumberOrNull(entry.emotion_intensity);
+  const afterIntensity = journalNumberOrNull(entry.outcome_emotion_intensity);
+  const hasOutcome = beforeIntensity !== null && afterIntensity !== null;
   const intensityChange = hasOutcome ? beforeIntensity - afterIntensity : 0;
   const improvement = intensityChange > 0;
 
   return (
-    <Card data-testid="journal-entry-card" className="w-full overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md backdrop-blur-xl transition-shadow hover:shadow-lg">
+    <Card data-testid="journal-entry-card" data-entry-id={entry.id} className="w-full overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md backdrop-blur-xl transition-shadow hover:shadow-lg">
       <CardContent className="overflow-x-hidden p-4 sm:p-5 md:p-6">
+        {deleteMutation.isError && <p role="alert" className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.cards.delete_error')}</p>}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
             <time className="mb-1 block text-sm text-muted-foreground" dateTime={entry.created_date}>{formattedDate}</time>
-            {!expanded && hasSummary ? (
+            {expanded ? (
+              <RichSection title={t('journal_ui.form.situation_label')} html={entry.situation} />
+            ) : hasSummary ? (
               <AiEntrySummary entry={entry} onSummaryGenerated={() => {
                 setHasSummary(true);
                 queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
@@ -69,10 +75,10 @@ function ThoughtRecordCard({ entry, onEdit }) {
               <p className="line-clamp-2 break-words font-semibold text-foreground" dir="auto">{stripHtml(entry.situation)}</p>
             )}
           </div>
-          <div className="flex shrink-0 justify-end gap-1"><MoreActions>
+          <div className="flex shrink-0 justify-end gap-1"><MoreActions deferActions>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportThoughtRecordPdf(entry)}
               aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-primary" /></Button>
-            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => onEdit(entry)}
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={(event) => onEdit(entry, event.currentTarget)}
               aria-label={t('journal_ui.common.edit_aria', { item: itemLabel })} mobileLabelKey="edit"><Edit className="h-4 w-4 text-blue-700" /></Button>
             <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
               if (window.confirm(t('journal_ui.cards.delete_entry_confirm'))) deleteMutation.mutate(entry.id);
@@ -84,20 +90,20 @@ function ThoughtRecordCard({ entry, onEdit }) {
 
         <div className="mb-4 flex flex-wrap gap-2">
           {(entry.emotions || []).slice(0, 3).map((emotion) => (
-            <Badge key={emotion} variant="secondary" className="rounded-full bg-purple-100 text-purple-800">{localizeEmotion(emotion)}</Badge>
+            <Badge key={emotion} variant="secondary" className="max-w-full rounded-full bg-secondary/70 text-foreground">{localizeEmotion(emotion)}</Badge>
           ))}
-          {(entry.emotions || []).length > 3 && <Badge variant="secondary" className="rounded-full bg-slate-100 text-muted-foreground">
+          {(entry.emotions || []).length > 3 && <Badge variant="secondary" className="rounded-full bg-secondary/70 text-foreground">
             {t('journal_ui.cards.more', { count: entry.emotions.length - 3 })}
           </Badge>}
-          {(entry.tags || []).map((tag) => <Badge key={tag} variant="outline" className="rounded-full border-blue-200 bg-blue-50 text-blue-800">
-            <Tag className="h-3 w-3" /><span dir="auto">{tag}</span>
+          {(entry.tags || []).map((tag) => <Badge key={tag} variant="outline" className="max-w-full gap-1 rounded-full border-border bg-secondary/70 text-primary">
+            <Tag className="h-3 w-3 shrink-0" /><span className="min-w-0 [overflow-wrap:anywhere]" dir="auto">{tag}</span>
           </Badge>)}
         </div>
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {hasOutcome && (
             <div className={cn('flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold',
-              improvement ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-muted-foreground')}>
+              improvement ? 'bg-primary/12 text-primary' : 'bg-secondary/70 text-foreground')}>
               {improvement && <TrendingDown className="h-4 w-4" />}
               {t('journal_ui.cards.intensity', { before: beforeIntensity, after: afterIntensity })}
               {improvement && <span>(-{intensityChange})</span>}
@@ -118,7 +124,7 @@ function ThoughtRecordCard({ entry, onEdit }) {
             {expanded ? t('journal_ui.cards.show_less') : t('journal_ui.cards.show_full')}
           </Button>
           <Button variant="ghost" onClick={() => setShowAiSuggestions((value) => !value)} aria-expanded={showAiSuggestions}
-            className="min-h-11 rounded-xl text-purple-800 hover:bg-purple-50 sm:w-auto">
+            className="min-h-11 rounded-xl text-primary hover:bg-secondary/70 sm:w-auto">
             <Sparkles className="h-4 w-4" />{t('journal_ui.cards.ai_analysis')}
           </Button>
         </div>
@@ -136,13 +142,13 @@ function ThoughtRecordCard({ entry, onEdit }) {
             {entry.evidence_for && <RichSection title={t('journal_ui.cards.evidence_for')} html={entry.evidence_for} />}
             {entry.evidence_against && <RichSection title={t('journal_ui.cards.evidence_against')} html={entry.evidence_against} />}
             {entry.balanced_thought && <RichSection title={t('journal_ui.cards.balanced_thought')} html={entry.balanced_thought}
-              className="rounded-2xl border border-purple-100 bg-purple-50 p-4" />}
+              className="rounded-2xl border border-border bg-secondary/70 p-4" />}
 
             {(entry.homework_tasks || []).length > 0 && (
-              <section className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                <h3 className="mb-2 text-sm font-bold text-blue-950">{t('journal_ui.cards.homework')}</h3>
+              <section className="rounded-2xl border border-border bg-secondary/70 p-4">
+                <h3 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.cards.homework')}</h3>
                 <ul className="space-y-3">{entry.homework_tasks.map((task, index) => (
-                  <li key={index} className="border-s-2 border-blue-300 ps-3 text-sm text-blue-900">
+                  <li key={index} className="border-s-2 border-primary/35 ps-3 text-sm text-foreground [overflow-wrap:anywhere]">
                     <p className="font-semibold">{task.task}</p>
                     {task.duration_minutes && <p className="mt-1 text-xs">{t('journal_ui.cards.duration', { count: task.duration_minutes })}</p>}
                     {task.success_criteria && <p className="text-xs">{t('journal_ui.cards.success', { text: task.success_criteria })}</p>}
@@ -182,7 +188,10 @@ function RichSection({ title, html, className = '' }) {
   return (
     <section className={className}>
       <h3 className="mb-1 text-sm font-bold text-foreground">{title}</h3>
-      <div dir="auto" className="prose prose-sm max-w-none break-words text-muted-foreground" dangerouslySetInnerHTML={{ __html: html }} />
+      <div dir="auto" className="journal-rich-content prose prose-sm max-w-none text-foreground" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(String(html || ''), {
+        USE_PROFILES: { html: true },
+        FORBID_TAGS: ['img', 'video', 'audio', 'iframe', 'object', 'embed', 'svg', 'math'],
+      }) }} />
     </section>
   );
 }

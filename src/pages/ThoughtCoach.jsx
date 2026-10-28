@@ -150,7 +150,7 @@ export default function ThoughtCoachPage() {
               <div className="mt-3 flex flex-wrap gap-2" data-testid="thoughtcoach-emotions-picker">
                 {emotionKeys.map((emotion) => {
                   const selected = formData.emotions.includes(emotion);
-                  return <button key={emotion} type="button" onClick={() => toggleEmotion(emotion)} aria-pressed={selected} data-testid={`thoughtcoach-emotion-${emotion}`} className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selected ? 'border-border bg-primary text-white shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-[hsl(var(--card)/0.97)]')}>{t(`thought_coach.emotion_options.${emotion}`)}</button>;
+                  return <button key={emotion} type="button" onClick={() => toggleEmotion(emotion)} aria-pressed={selected} data-testid={`thoughtcoach-emotion-${emotion}`} className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', selected ? 'border-border bg-primary text-primary-foreground shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-[hsl(var(--card)/0.97)]')}>{t(`thought_coach.emotion_options.${emotion}`)}</button>;
                 })}
               </div>
             </fieldset>
@@ -166,7 +166,7 @@ export default function ThoughtCoachPage() {
         <div data-testid="thoughtcoach-step-3">
           <PremiumStepHeading title={t('thought_coach.step_analysis_title')} subtitle={t('thought_coach.step_analysis_subtitle')} />
           <div className="space-y-5">
-            <div className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-4"><p className="font-bold text-sky-950">{t('thought_coach.reflect_questions_label')}</p><ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-6 text-sky-900"><li>{t('thought_coach.reflect_q1')}</li><li>{t('thought_coach.reflect_q2')}</li><li>{t('thought_coach.reflect_q3')}</li></ul></div>
+            <div className="rounded-2xl border border-border bg-secondary/70 p-4"><p className="font-bold text-foreground">{t('thought_coach.reflect_questions_label')}</p><ul className="mt-3 list-disc space-y-2 ps-5 text-sm leading-6 text-foreground"><li>{t('thought_coach.reflect_q1')}</li><li>{t('thought_coach.reflect_q2')}</li><li>{t('thought_coach.reflect_q3')}</li></ul></div>
             <p className="rounded-2xl border border-border bg-secondary/70 p-4 text-center text-sm font-medium leading-6 text-primary">{t('thought_coach.step_analysis_cbt_note')}</p>
             <label className="block text-sm font-semibold text-primary">{t('thought_coach.step_analysis_balanced_label')}
               <Textarea value={formData.balanced_thought} onChange={(event) => setFormData((current) => ({ ...current, balanced_thought: event.target.value }))} placeholder={t('thought_coach.step_analysis_balanced_placeholder')} className={`${premiumInputClass} mt-2 min-h-32 resize-y`} data-testid="thoughtcoach-balanced-input" />
@@ -189,7 +189,7 @@ export default function ThoughtCoachPage() {
                 {formData.balanced_thought.trim() && <div><p className="font-bold text-primary">{t('thought_coach.field_balanced')}</p><p className="mt-1 break-words text-muted-foreground">{formData.balanced_thought}</p></div>}
               </div>
             </div>
-            <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4"><Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" /><div><p className="font-bold text-emerald-950">{t('thought_coach.what_next_label')}</p><p className="mt-1 text-sm leading-6 text-emerald-800">{t('thought_coach.what_next_text')}</p></div></div>
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-secondary/70 p-4"><Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" aria-hidden="true" /><div><p className="font-bold text-foreground">{t('thought_coach.what_next_label')}</p><p className="mt-1 text-sm leading-6 text-foreground">{t('thought_coach.what_next_text')}</p></div></div>
           </div>
         </div>
       )}

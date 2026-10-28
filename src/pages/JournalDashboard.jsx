@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, TrendingDown, TrendingUp, Minus, Brain, BookOpen, BarChart2, Target, RefreshCw } from 'lucide-react';
+import { journalNumberOrNull as numberOrNull } from '@/components/journal/journalPresentation';
 
 const RANGE_OPTIONS = [
   { key: '14', days: 14 },
@@ -24,15 +25,14 @@ const RANGE_OPTIONS = [
 
 const DISTORTION_COLORS = ['#0f766e', '#7c3aed', '#d97706', '#dc2626', '#059669', '#2563eb', '#db2777', '#4f46e5'];
 const normalizeTaxonomyKey = (value = '') => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-const numberOrNull = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
 
 function CustomTooltip({ active, payload, label, t }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-border bg-[hsl(var(--card)/0.97)] p-3 text-sm shadow-lg">
+    <div className="max-w-full [overflow-wrap:anywhere] rounded-xl border border-border bg-[hsl(var(--card)/0.97)] p-3 text-sm shadow-lg">
       <p className="mb-1 font-semibold text-muted-foreground">{label}</p>
       {payload.map((item) => (
-        <p key={item.dataKey} style={{ color: item.color }} className="flex items-center gap-1">
+        <p key={item.dataKey} className="flex items-center gap-1 text-foreground">
           <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
           {t('journal_ui.dashboard.tooltip_value', {
             name: item.name,
@@ -61,7 +61,6 @@ export default function JournalDashboard() {
     queryKey: ['thoughtJournals', userEmail],
     queryFn: () => base44.entities.ThoughtJournal.filter({ created_by: userEmail }, '-created_date', 300),
     enabled: Boolean(userEmail),
-    initialData: []
   });
 
   const filteredJournals = useMemo(() => {
@@ -166,16 +165,16 @@ export default function JournalDashboard() {
         {RANGE_OPTIONS.map((option) => (
           <Button key={option.key} variant={range === option.days ? 'default' : 'ghost'} size="sm"
             onClick={() => setRange(option.days)} aria-pressed={range === option.days}
-            className={`min-h-11 rounded-xl px-4 ${range === option.days ? 'bg-primary text-white hover:bg-primary' : 'text-primary hover:bg-[hsl(var(--card)/0.97)]'}`}>
+            className={`min-h-11 rounded-xl px-4 ${range === option.days ? 'bg-primary text-primary-foreground hover:bg-primary' : 'text-primary hover:bg-[hsl(var(--card)/0.97)]'}`}>
             {t(`journal_ui.dashboard.range_${option.key}`)}
           </Button>
         ))}
       </div>
 
       {hasError ? (
-        <Card className="border-red-200 bg-[hsl(var(--card)/0.97)]">
+        <Card className="border-destructive/30 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-8 text-center">
-            <p className="font-medium text-red-800">{t('journal_ui.dashboard.load_error')}</p>
+            <p role="alert" className="font-medium text-foreground">{t('journal_ui.dashboard.load_error')}</p>
             <Button onClick={() => { userQuery.refetch(); journalsQuery.refetch(); }} className="mt-4 min-h-11 rounded-2xl">
               <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
             </Button>
@@ -209,7 +208,7 @@ export default function JournalDashboard() {
               <Card key={label} className="border-border/70 bg-[hsl(var(--card)/0.97)] shadow-sm backdrop-blur-xl">
                 <CardContent className="flex min-h-32 flex-col gap-1 p-4">
                   <Icon className="mb-1 h-5 w-5" style={{ color }} />
-                  <p className="text-2xl font-bold" style={{ color }}>{value}</p>
+                  <p className="text-2xl font-bold text-foreground"><bdi dir="ltr">{value}</bdi></p>
                   <p className="text-xs font-medium text-muted-foreground">{label}</p>
                 </CardContent>
               </Card>
@@ -226,15 +225,15 @@ export default function JournalDashboard() {
                 <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.intensity_description')}</p>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto pb-2">
-                  <div className="h-[270px] min-w-[560px]">
+                <div className="min-w-0 pb-2">
+                  <div className="h-[270px] w-full min-w-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={intensityTrend} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,118,110,0.12)" />
-                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
-                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
-                        <Tooltip content={chartTooltip} />
-                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} minTickGap={24} interval="preserveStartEnd" />
+                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} />
+                        <Tooltip content={chartTooltip} position={{ x: 0 }} wrapperStyle={{ maxWidth: '100%', whiteSpace: 'normal' }} />
+                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} formatter={(value) => <span className="text-foreground">{value}</span>} />
                         <ReferenceLine y={5} stroke="rgba(15,118,110,0.18)" strokeDasharray="4 4" />
                         <Area type="monotone" dataKey="before" name={t('journal_ui.dashboard.before')} stroke="#7c3aed" strokeWidth={2.5} fill="#7c3aed18" dot={{ fill: '#7c3aed', r: 3 }} connectNulls />
                         <Area type="monotone" dataKey="after" name={t('journal_ui.dashboard.after')} stroke="#0f766e" strokeWidth={2.5} fill="#0f766e18" dot={{ fill: '#0f766e', r: 3 }} connectNulls />
@@ -256,15 +255,15 @@ export default function JournalDashboard() {
                 <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.daily_description')}</p>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto pb-2">
-                  <div className="h-[230px] min-w-[560px]">
+                <div className="min-w-0 pb-2">
+                  <div className="h-[230px] w-full min-w-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={dailyAverage} margin={{ top: 5, right: 16, left: -10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,118,110,0.12)" />
-                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
-                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: '#64748b' }} tickLine={false} axisLine={false} />
-                        <Tooltip content={chartTooltip} />
-                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} minTickGap={24} interval="preserveStartEnd" />
+                        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} />
+                        <Tooltip content={chartTooltip} position={{ x: 0 }} wrapperStyle={{ maxWidth: '100%', whiteSpace: 'normal' }} />
+                        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} formatter={(value) => <span className="text-foreground">{value}</span>} />
                         <Line type="monotone" dataKey="avgBefore" name={t('journal_ui.dashboard.avg_before')} stroke="#7c3aed" strokeWidth={2.5} dot={{ fill: '#7c3aed', r: 4 }} connectNulls />
                         <Line type="monotone" dataKey="avgAfter" name={t('journal_ui.dashboard.avg_after')} stroke="#0f766e" strokeWidth={2.5} strokeDasharray="5 3" dot={{ fill: '#0f766e', r: 4 }} connectNulls />
                       </LineChart>
@@ -285,13 +284,13 @@ export default function JournalDashboard() {
                   <p className="text-xs text-muted-foreground">{t('journal_ui.dashboard.patterns_description')}</p>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto pb-2">
-                    <div className="h-[240px] min-w-[500px]">
+                  <div className="min-w-0 pb-2">
+                    <div className="h-[240px] w-full min-w-0">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={distortionFreq} layout="vertical" margin={{ top: 0, right: 10, left: 8, bottom: 0 }}>
-                          <XAxis type="number" tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                          <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#334155' }} tickLine={false} axisLine={false} width={150} />
-                          <Tooltip content={chartTooltip} />
+                          <XAxis type="number" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--foreground))' }} tickLine={false} axisLine={false} width={150} />
+                          <Tooltip content={chartTooltip} position={{ x: 0 }} wrapperStyle={{ maxWidth: '100%', whiteSpace: 'normal' }} />
                           <Bar dataKey="count" name={t('journal_ui.dashboard.times_identified')} radius={[0, 6, 6, 0]}>
                             {distortionFreq.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}
                           </Bar>

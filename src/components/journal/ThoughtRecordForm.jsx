@@ -1,4 +1,4 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -54,10 +54,11 @@ const cognitiveDistortions = [
   ['Personalization', 'personalization']
 ];
 
-export default function ThoughtRecordForm({ entry, template, templates = [], onClose, initialSituation = '' }) {
+export default function ThoughtRecordForm({ entry, template, templates = [], onClose, initialSituation = '', returnFocusTo }) {
   const { t } = useTranslation();
   const languageName = t('journal_ui.ai.language_name');
   const [step, setStep] = useState(1);
+  const [dialogNode, setDialogNode] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(() => localizeJournalTemplate(
     template || (entry?.template_id ? (templates || []).find(item => item.id === entry.template_id) : null),
     t
@@ -87,6 +88,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
   const [newTag, setNewTag] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState(false);
   const [savedEntry, setSavedEntry] = useState(null);
   const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
   const [saveError, setSaveError] = useState(null);
@@ -124,10 +126,11 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     },
     onMutate: async (data) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['thoughtJournals'] });
+      const journalKey = ['thoughtJournals', userEmail];
+      await queryClient.cancelQueries({ queryKey: journalKey });
 
       // Snapshot previous values
-      const previousJournals = queryClient.getQueryData(['thoughtJournals']);
+      const snapshots = queryClient.getQueriesData({ queryKey: journalKey });
 
       // Optimistically update
       const validatedData = {
@@ -138,7 +141,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
 
       if (entry) {
         // Update existing entry
-        queryClient.setQueryData(['thoughtJournals'], (old) => {
+        queryClient.setQueriesData({ queryKey: journalKey }, (old) => {
           if (!old) return old;
           return old.map(e => e.id === entry.id ? { ...e, ...validatedData } : e);
         });
@@ -149,12 +152,10 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
           ...validatedData,
           created_date: new Date().toISOString()
         };
-        queryClient.setQueryData(['thoughtJournals'], (old) => [optimisticEntry, ...(old || [])]);
-        setSavedEntry(optimisticEntry);
-        setStep(6);
+        queryClient.setQueriesData({ queryKey: journalKey }, (old) => [optimisticEntry, ...(old || [])]);
       }
 
-      return { previousJournals };
+      return { snapshots };
     },
     onSuccess: (data) => {
       if (!mountedRef.current) return;
@@ -169,9 +170,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       isSavingRef.current = false;
       
       // Rollback on error
-      if (context?.previousJournals !== undefined) {
-        queryClient.setQueryData(['thoughtJournals'], context.previousJournals);
-      }
+      context?.snapshots?.forEach(([key, value]) => queryClient.setQueryData(key, value));
       setStep(5);
       
       if (isAuthError(error) && shouldShowAuthError()) {
@@ -181,7 +180,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       }
     },
     onSettled: () => {
-      if (!mountedRef.current) return;
+      // Refresh after a submitted write even if the user dismissed the form.
       queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
     }
   });
@@ -194,6 +193,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     abortControllerRef.current = new AbortController();
     
     setIsAnalyzing(true);
+    setAnalysisError(false);
     try {
       const prompt = `Analyze this CBT journal entry and provide supportive, non-diagnostic insights.
 Write every user-visible field only in ${languageName}. Do not mix languages and do not expose JSON keys.
@@ -254,6 +254,7 @@ Provide:
       if (error.name === 'AbortError') return;
       console.error('Analysis failed:', error);
       if (!mountedRef.current) return;
+      setAnalysisError(true);
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       }
@@ -340,20 +341,6 @@ Provide:
     }));
   };
 
-  // Keep focus context stable and prevent the page behind the dialog from scrolling.
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const handleEscape = (event) => {
-      if (event.key === 'Escape' && mountedRef.current) onClose();
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [onClose]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -366,12 +353,27 @@ Provide:
     };
   }, [queryClient]);
 
-  // Set inputmode="text" on ReactQuill contenteditable elements for mobile keyboard optimization.
-  // Runs when `step` changes because each step may mount new ReactQuill editor instances.
+  // Each step mounts new editors; associate their visible labels and keep
+  // formatting controls readable to keyboard and screen-reader users.
   useEffect(() => {
-    const contentEditables = document.querySelectorAll('.ql-editor[contenteditable="true"]');
-    contentEditables.forEach(el => el.setAttribute('inputmode', 'text'));
-  }, [step]);
+    const dialog = dialogNode;
+    dialog?.querySelector('[data-ui="card-content"]')?.scrollTo({ top: 0 });
+    dialog?.querySelectorAll('[data-journal-field]').forEach(field => {
+      const editor = field.querySelector('.ql-editor');
+      editor?.setAttribute('inputmode', 'text');
+      editor?.setAttribute('role', 'textbox');
+      editor?.setAttribute('aria-multiline', 'true');
+      editor?.setAttribute('dir', 'auto');
+      editor?.setAttribute('aria-labelledby', `journal-${field.getAttribute('data-journal-field')}-label`);
+    });
+    const formats = { 'ql-bold': 'bold', 'ql-italic': 'italic', 'ql-underline': 'underline', 'ql-clean': 'clear' };
+    dialog?.querySelectorAll('.ql-toolbar button').forEach(button => {
+      const format = button.classList.contains('ql-list')
+        ? button.getAttribute('value') === 'ordered' ? 'numbers' : 'bullets'
+        : Object.entries(formats).find(([className]) => button.classList.contains(className))?.[1];
+      if (format) button.setAttribute('aria-label', t(`journal_ui.form.format_${format}`));
+    });
+  }, [step, t, dialogNode]);
 
   const toggleItem = (field, item) => {
     setFormData(prev => ({
@@ -385,21 +387,23 @@ Provide:
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <PremiumOverlay
-        className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      <PremiumDialog localEscape onClose={onClose} label={selectedTemplate?.name || t('journal_ui.form.title')}
+        returnFocusTo={returnFocusTo}
+        id="journal-record-dialog" data-testid="journal-record-form"
+        className="journal-dialog fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
         role="dialog"
         aria-modal="true"
         aria-labelledby="journal-entry-form-title"
         aria-describedby="journal-entry-form-description"
       >
-        <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
+        <Card ref={setDialogNode} className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
           <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <CardTitle id="journal-entry-form-title" className="text-lg font-bold text-primary sm:text-xl">
                   {selectedTemplate?.name || t('journal_ui.form.title')}
                 </CardTitle>
-                <p id="journal-entry-form-description" className="mt-1 text-sm font-medium text-muted-foreground">
+                <p id="journal-entry-form-description" aria-live="polite" className="mt-1 text-sm font-medium text-muted-foreground">
                   {t('journal_ui.form.step', { step, total: 6 })}
                 </p>
                 {selectedTemplate?.description && (
@@ -411,7 +415,7 @@ Provide:
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
+          <CardContent data-testid="journal-record-content" data-step={step} aria-busy={saveMutation.isPending} className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
           {step === 1 && (
             <div className="space-y-6">
               {/* Template Selection */}
@@ -421,6 +425,7 @@ Provide:
                     {t('journal_ui.form.choose_template')}
                   </label>
                   <BottomSheetSelect
+                    autoFocus
                     value={selectedTemplate?.id || 'none'}
                     onValueChange={(value) => {
                       const tmpl = localizeJournalTemplate(templates.find(item => item.id === value), t);
@@ -448,10 +453,10 @@ Provide:
               )}
 
               <div key="situation-editor">
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label id="journal-situation-label" className="text-sm font-medium text-foreground mb-2 block">
                   {t('journal_ui.form.situation_label')}
                 </label>
-                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
+                <div data-journal-field="situation" className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.situation || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, situation: sanitizeJournalRichText(value) }))}
@@ -470,10 +475,10 @@ Provide:
               </div>
 
               <div key="thoughts-editor">
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label id="journal-automatic_thoughts-label" className="text-sm font-medium text-foreground mb-2 block">
                   {t('journal_ui.form.thoughts_label')}
                 </label>
-                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
+                <div data-journal-field="automatic_thoughts" className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.automatic_thoughts || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, automatic_thoughts: sanitizeJournalRichText(value) }))}
@@ -519,7 +524,7 @@ Provide:
                       key={emotion}
                       aria-pressed={formData.emotions.includes(emotion)}
                       className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                        formData.emotions.includes(emotion) ? 'border-border bg-primary text-white' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70')}
+                        formData.emotions.includes(emotion) ? 'border-border bg-primary text-primary-foreground' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70')}
                       onClick={() => toggleItem('emotions', emotion)}
                     >
                       {t(`journal_ui.taxonomy.emotions.${emotionKey}`)}
@@ -578,7 +583,7 @@ Provide:
                     <Button
                       onClick={() => setShowDistortionAnalysis(true)}
                       variant="outline"
-                      className="border-amber-300 hover:bg-amber-100"
+                      className="border-border hover:bg-secondary/70"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       {t('journal_ui.form.analyze_thoughts')}
@@ -614,7 +619,7 @@ Provide:
                       className={cn(
                         'min-h-11 rounded-full border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                         formData.cognitive_distortions.includes(distortion)
-                          ? 'border-border bg-primary text-white'
+                          ? 'border-border bg-primary text-primary-foreground'
                           : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
                       )}
                       onClick={() => toggleItem('cognitive_distortions', distortion)}
@@ -626,10 +631,10 @@ Provide:
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label id="journal-evidence_for-label" className="text-sm font-medium text-foreground mb-2 block">
                   {t('journal_ui.form.evidence_for')}
                 </label>
-                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
+                <div data-journal-field="evidence_for" className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_for || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_for: sanitizeJournalRichText(value) })}
@@ -647,10 +652,10 @@ Provide:
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label id="journal-evidence_against-label" className="text-sm font-medium text-foreground mb-2 block">
                   {t('journal_ui.form.evidence_against')}
                 </label>
-                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
+                <div data-journal-field="evidence_against" className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_against || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_against: sanitizeJournalRichText(value) })}
@@ -681,10 +686,10 @@ Provide:
           {step === 4 && (
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label id="journal-balanced_thought-label" className="text-sm font-medium text-foreground mb-2 block">
                   {t('journal_ui.form.balanced_label')}
                 </label>
-                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
+                <div data-journal-field="balanced_thought" className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.balanced_thought || ''}
                     onChange={(value) => setFormData({ ...formData, balanced_thought: sanitizeJournalRichText(value) })}
@@ -738,6 +743,7 @@ Provide:
 
           {step === 5 && (
             <div className="space-y-6">
+              {analysisError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.common.ai_error')}</p>}
               {/* AI Analysis Section */}
               {!aiAnalysis && !isAnalyzing && (
                 <div className="bg-secondary/40 p-6 rounded-[var(--radius-card)] border border-border/70">
@@ -776,18 +782,18 @@ Provide:
                       {t('journal_ui.form.sentiment')}
                     </h4>
                     <div className="space-y-2 text-sm">
-                      <p className="text-foreground/85">
+                      <p className="text-foreground">
                         <span className="font-medium">{t('journal_ui.form.overall_tone')}:</span> {aiAnalysis.sentiment.overall_tone}
                       </p>
-                      <p className="text-foreground/85">
+                      <p className="text-foreground">
                         <span className="font-medium">{t('journal_ui.form.emotional_shift')}:</span> {aiAnalysis.sentiment.emotional_shift}
                       </p>
                       {aiAnalysis.sentiment.patterns_noticed?.length > 0 && (
                         <div>
-                          <p className="font-medium text-foreground/85 mb-1">{t('journal_ui.form.patterns')}:</p>
+                          <p className="font-medium text-foreground mb-1">{t('journal_ui.form.patterns')}:</p>
                           <ul className="space-y-1">
                             {aiAnalysis.sentiment.patterns_noticed.map((pattern, i) => (
-                              <li key={i} className="text-muted-foreground text-xs flex items-start gap-1">
+                              <li key={i} className="text-foreground text-xs flex items-start gap-1">
                                 <span className="text-blue-600 mt-0.5">•</span>
                                 {pattern}
                               </li>
@@ -804,7 +810,7 @@ Provide:
                       <Lightbulb className="w-4 h-4 text-accent" />
                       {t('journal_ui.form.key_insight')}
                     </h4>
-                    <p className="text-sm text-muted-foreground">{aiAnalysis.key_insight}</p>
+                    <p className="text-sm text-foreground">{aiAnalysis.key_insight}</p>
                   </div>
 
                   {/* Recommended Exercises */}
@@ -818,7 +824,7 @@ Provide:
                         {aiAnalysis.recommended_exercises.map((rec, i) => (
                           <div key={i} className="surface-nested p-3 rounded-lg">
                             <p className="font-medium text-foreground text-sm capitalize">{rec.category}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{rec.reason}</p>
+                            <p className="text-xs text-foreground mt-1">{rec.reason}</p>
                           </div>
                         ))}
                       </div>
@@ -835,6 +841,7 @@ Provide:
                     {t('journal_ui.form.link_goal')}
                   </label>
                   <BottomSheetSelect
+                    autoFocus
                     value={formData.linked_goal_id || 'none'}
                     onValueChange={(value) => setFormData({ ...formData, linked_goal_id: value === 'none' ? null : value })}
                     options={[
@@ -852,29 +859,30 @@ Provide:
 
               {/* Tags Section */}
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  {t('journal_ui.form.tags')} {aiAnalysis && <span className="text-primary">({t('journal_ui.form.tags_ai')})</span>}
+                <label htmlFor="journal-new-tag" className="text-sm font-medium text-foreground mb-2 block">
+                  {t('journal_ui.form.tags')}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {formData.tags.map((tag) => (
                     <Badge
                       key={tag}
-                      className="bg-primary/12 text-primary pr-1 pl-3 py-1 flex items-center gap-1 border border-primary/12"
+                      className="max-w-full bg-primary/12 text-primary pe-1 ps-3 py-1 flex items-center gap-1 border border-primary/12"
                     >
-                      {tag}
+                      <span dir="auto" className="min-w-0 [overflow-wrap:anywhere]">{tag}</span>
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="hover:bg-primary/10 rounded-full p-1"
+                        className="min-h-11 min-w-11 shrink-0 hover:bg-primary/10 rounded-full p-1"
                         aria-label={t('journal_ui.form.remove_tag_aria', { tag })}
                       >
                         <X className="w-3 h-3" />
-                      <span className="mobile-action-label md:hidden">{t('journal_ui.form.remove_tag_aria', { tag })}</span></button>
+                      <span className="mobile-action-label md:hidden">{t('journal_ui.common.remove')}</span></button>
                     </Badge>
                   ))}
                 </div>
                 <div className="flex gap-2">
                   <Input
+                    id="journal-new-tag"
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                     onKeyDown={(e) => {
@@ -899,7 +907,7 @@ Provide:
                   {t('journal_ui.form.attachments')}
                 </label>
                 {uploadError && (
-                  <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+                  <div role="alert" className="mb-3 p-2 bg-destructive/10 border border-destructive/30 rounded-lg text-xs text-foreground">
                     {uploadError}
                   </div>
                 )}
@@ -908,7 +916,7 @@ Provide:
                     variant="outline"
                     onClick={() => document.getElementById('image-upload').click()}
                     disabled={uploadingFile}
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                   >
                     <ImageIcon className="w-4 h-4 mr-2" />
                     {t('journal_ui.form.add_image')}
@@ -917,7 +925,7 @@ Provide:
                     variant="outline"
                     onClick={() => document.getElementById('audio-upload').click()}
                     disabled={uploadingFile}
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                   >
                     <Mic className="w-4 h-4 mr-2" />
                     {t('journal_ui.form.add_audio')}
@@ -927,51 +935,66 @@ Provide:
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => e.target.files[0] && handleFileUpload(e.target.files[0], 'image')}
+                    onChange={(event) => { const file = event.target.files?.[0]; if (file) handleFileUpload(file, 'image'); event.target.value = ''; }}
                   />
                   <input
                     id="audio-upload"
                     type="file"
                     accept="audio/*"
                     className="hidden"
-                    onChange={(e) => e.target.files[0] && handleFileUpload(e.target.files[0], 'audio')}
+                    onChange={(event) => { const file = event.target.files?.[0]; if (file) handleFileUpload(file, 'audio'); event.target.value = ''; }}
                   />
                 </div>
 
                 {/* Display attached files */}
                 {formData.images?.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-3" data-testid="journal-image-attachments">
                     <p className="text-xs text-muted-foreground mb-2">{t('journal_ui.form.images')}:</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {formData.images.map((url, i) => (
-                        <div key={i} className="relative group">
+                        <div key={i} className="min-w-0 space-y-2">
                           <img src={url} alt={`${t('journal_ui.form.images')} ${i + 1}`} className="w-full h-20 object-cover rounded-lg" />
-                          <button
+                          <Button type="button" variant="outline" size="sm"
                             onClick={() => removeFile(i, 'image')}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="min-h-11 w-full rounded-xl"
                             aria-label={t('journal_ui.common.delete_aria', { item: `${t('journal_ui.form.images')} ${i + 1}` })}
                           >
-                            <Trash2 className="w-3 h-3" />
-                          <span className="mobile-action-label md:hidden">{t('journal_ui.common.delete_aria', { item: `${t('journal_ui.form.images')} ${i + 1}` })}</span></button>
+                            <Trash2 className="w-4 h-4 shrink-0" /><span className="whitespace-nowrap">{t('journal_ui.common.remove')}</span>
+                          </Button>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
+                {formData.audio_notes?.length > 0 && (
+                  <section className="mt-3 space-y-3" data-testid="journal-audio-attachments">
+                    <h4 className="text-sm font-medium text-foreground">{t('journal_ui.cards.audio_notes')}</h4>
+                    {formData.audio_notes.map((url, index) => (
+                      <div key={`${url}-${index}`} className="min-w-0 rounded-xl border border-border bg-secondary/40 p-3 space-y-2">
+                        <audio src={url} controls preload="metadata" className="h-11 w-full min-w-0" />
+                        <Button type="button" variant="outline" size="sm" className="min-h-11 w-full rounded-xl"
+                          onClick={() => removeFile(index, 'audio')}
+                          aria-label={t('journal_ui.common.delete_aria', { item: `${t('journal_ui.cards.audio_notes')} ${index + 1}` })}>
+                          <Trash2 className="w-4 h-4 shrink-0" />{t('journal_ui.common.remove')}
+                        </Button>
+                      </div>
+                    ))}
+                  </section>
+                )}
               </div>
 
               {saveError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 mb-3">
+                <div role="alert" className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-foreground mb-3">
                   {saveError}
                 </div>
               )}
               <div className="flex gap-3">
-                <Button onClick={() => setStep(4)} variant="outline" className="flex-1">
+                <Button onClick={() => setStep(4)} variant="outline" className="flex-1" disabled={saveMutation.isPending}>
                   {t('journal_ui.common.back')}
                 </Button>
                 <Button
                   onClick={() => {
-                    if (isSavingRef.current || saveMutation.isPending) return;
+                    if (isSavingRef.current || saveMutation.isPending || uploadingFile) return;
                     isSavingRef.current = true;
                     setSaveError(null);
                     
@@ -979,7 +1002,7 @@ Provide:
                     const dataToSave = { ...formData };
                     saveMutation.mutate(dataToSave);
                   }}
-                  disabled={isSavingRef.current || saveMutation.isPending}
+                  disabled={isSavingRef.current || saveMutation.isPending || uploadingFile}
                   className="flex-1 shadow-[var(--shadow-md)]"
                 >
                   {saveMutation.isPending ? t('journal_ui.common.saving') : t('journal_ui.form.save_entry')}
@@ -991,8 +1014,8 @@ Provide:
           {step === 6 && savedEntry && savedEntry.id && (
             <div>
               <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-[var(--shadow-md)]">
-                  <Sparkles className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 rounded-full bg-primary/12 flex items-center justify-center mx-auto mb-3 shadow-[var(--shadow-md)]">
+                  <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">{t('journal_ui.form.saved_title')}</h3>
                 <p className="text-sm text-muted-foreground">{t('journal_ui.form.saved_description')}</p>
@@ -1007,7 +1030,7 @@ Provide:
           )}
         </CardContent>
       </Card>
-      </PremiumOverlay>
+      </PremiumDialog>
     </>
   );
 }

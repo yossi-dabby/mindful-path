@@ -70,7 +70,7 @@ export default function AiEntrySummary({ entry, onSummaryGenerated }) {
 
   if (isGenerating) {
     return (
-      <div className="mb-3 flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-3 text-sm text-violet-900" role="status">
+      <div className="mb-3 flex items-center gap-2 rounded-xl border border-border bg-secondary/70 px-3 py-3 text-sm text-foreground" role="status">
         <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
         <span>{t('journal_ui.ai.loading_summary')}</span>
       </div>
@@ -79,8 +79,8 @@ export default function AiEntrySummary({ entry, onSummaryGenerated }) {
 
   if (error && !summary) {
     return (
-      <div className="mb-3 rounded-xl border border-red-200 bg-red-50 p-3" role="alert">
-        <p className="mb-2 text-sm text-red-800">{t('journal_ui.common.ai_error')}</p>
+      <div className="mb-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3" role="alert">
+        <p className="mb-2 text-sm text-foreground">{t('journal_ui.common.ai_error')}</p>
         <Button variant="outline" onClick={generateSummary} className="min-h-11">
           <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
         </Button>
@@ -91,14 +91,15 @@ export default function AiEntrySummary({ entry, onSummaryGenerated }) {
   if (!summary) return null;
 
   return (
-    <section className="mb-3 rounded-2xl border border-violet-200 bg-[hsl(var(--card)/0.97)] p-4" aria-label={t('journal_ui.ai.analysis_title')}>
+    <section className="mb-3 rounded-2xl border border-border bg-[hsl(var(--card)/0.97)] p-4" aria-label={t('journal_ui.ai.analysis_title')}>
+      {error && <p role="alert" className="mb-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.common.ai_error')}</p>}
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100">
-          <Sparkles className="h-4 w-4 text-violet-700" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/70">
+          <Sparkles className="h-4 w-4 text-primary" />
         </div>
-        <p className="min-w-0 flex-1 text-sm leading-relaxed text-muted-foreground">{summary}</p>
+        <p className="min-w-0 flex-1 text-sm leading-relaxed text-foreground">{summary}</p>
       </div>
-      <Button variant="ghost" onClick={generateSummary} className="mt-2 min-h-11 text-violet-700 hover:bg-violet-50">
+      <Button variant="ghost" onClick={generateSummary} className="mt-2 min-h-11 text-primary hover:bg-secondary/70">
         <RefreshCw className="h-4 w-4" />{t('journal_ui.ai.regenerate')}
       </Button>
     </section>

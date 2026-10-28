@@ -3,7 +3,7 @@
  * On desktop it falls back to a standard popover-style list.
  * Safe to use everywhere a native <select> or Radix Select was used.
  */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Check, ChevronDown } from 'lucide-react';
@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
  * @param {string}   [props.id]             - Trigger id for an associated label
  * @param {string}   [props.ariaLabel]      - Accessible trigger label
  * @param {boolean}  [props.disabled]
+ * @param {boolean}  [props.autoFocus]       - Focus options when used inside another dialog
  */
 export default function BottomSheetSelect({
   value,
@@ -31,8 +32,10 @@ export default function BottomSheetSelect({
   id,
   ariaLabel,
   disabled = false,
+  autoFocus = false,
 }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef(null);
 
   const selected = options.find((o) => o.value === value);
 
@@ -44,6 +47,7 @@ export default function BottomSheetSelect({
   return (
     <>
       <Button
+        ref={triggerRef}
         id={id}
         type="button"
         variant="outline"
@@ -62,8 +66,21 @@ export default function BottomSheetSelect({
         <ChevronDown className="w-4 h-4 opacity-50 flex-shrink-0 ml-2" />
       </Button>
 
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent data-testid="bottom-sheet-select-options">
+      <Drawer open={open} onOpenChange={setOpen} autoFocus={autoFocus}>
+        <DrawerContent data-testid="bottom-sheet-select-options" onCloseAutoFocus={(event) => {
+          // This controlled drawer has no DrawerTrigger. Restore focus inside
+          // the parent dialog after either selection or Escape dismissal.
+          if (autoFocus && triggerRef.current?.isConnected) {
+            event.preventDefault();
+            triggerRef.current.focus({ preventScroll: true });
+          }
+        }} onKeyDown={(event) => {
+          if (autoFocus && event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            setOpen(false);
+          }
+        }}>
           <DrawerHeader className="border-b border-border/70 pb-3">
             <DrawerTitle>{title}</DrawerTitle>
             <DrawerDescription className="sr-only">Select one option from the list.</DrawerDescription>

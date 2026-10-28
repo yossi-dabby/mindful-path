@@ -35,6 +35,13 @@ describe('Journal production UX safeguards', () => {
       expect(journal.taxonomy.emotions.anxious).toBeTruthy();
       expect(journal.taxonomy.distortions.catastrophizing).toBeTruthy();
       expect(journal.ai.analysis_title).toBeTruthy();
+      expect(journal.filters.session_summary).toBeTruthy();
+      expect(journal.common.remove).toBeTruthy();
+      for (const format of ['bold','italic','underline','numbers','bullets','clear']) expect(journal.form['format_' + format]).toBeTruthy();
+      expect(journal.cards.delete_error).toBeTruthy();
+      expect(journal.templates.delete_error).toBeTruthy();
+      expect(journal.reminders.save_error).toBeTruthy();
+      expect(journal.reminders.action_error).toBeTruthy();
     }
   });
 
@@ -66,7 +73,8 @@ describe('Journal production UX safeguards', () => {
     expect(page).toContain("setShowAiPrompts(true)");
     expect(page).toContain("setShowReminderManager(true)");
     expect(dashboard).toContain('data-testid="journal-dashboard"');
-    expect(dashboard).toContain('overflow-x-auto');
+    expect(dashboard).toContain('<ResponsiveContainer width="100%" height="100%">');
+    expect(dashboard).not.toMatch(/min-w-\[(?:500|560)px\]/);
     expect(filters).toContain('overflow-x-auto');
     expect(filters).toContain('aria-pressed');
   });
@@ -84,7 +92,8 @@ describe('Journal production UX safeguards', () => {
       expect(source).toContain('role="dialog"');
       expect(source).toContain('aria-modal="true"');
       expect(source).toMatch(/min-h-11|min-h-12|min-w-11/);
-      expect(source).toContain('Escape');
+      expect(source).toContain("import PremiumDialog from '@/components/ui/PremiumDialog'");
+      expect(source).not.toContain("window.addEventListener('keydown'");
     }
     const form = read(files[0]);
     expect(form).toContain('aria-pressed={formData.emotions.includes(emotion)}');

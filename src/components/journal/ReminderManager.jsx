@@ -1,5 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
-import React, { useEffect, useState } from 'react';
+import PremiumDialog from '@/components/ui/PremiumDialog';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,24 +17,12 @@ export default function ReminderManager({ onClose }) {
   const [editingReminder, setEditingReminder] = useState(null);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (event) => event.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onClose]);
-
   const userQuery = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me(), staleTime: 300000 });
   const userEmail = userQuery.data?.email;
   const remindersQuery = useQuery({
     queryKey: ['journalReminders', userEmail],
     queryFn: () => base44.entities.JournalReminder.filter({ created_by: userEmail }, '-created_date', 100),
     enabled: Boolean(userEmail),
-    initialData: []
   });
 
   const toggleActiveMutation = useMutation({
@@ -69,7 +57,7 @@ export default function ReminderManager({ onClose }) {
   const isLoading = userQuery.isLoading || remindersQuery.isLoading;
 
   return (
-    <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    <PremiumDialog localEscape onClose={onClose} label={t('journal_ui.reminders.title')} className="journal-dialog fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-reminders-title" aria-describedby="journal-reminders-description">
       <Card className="my-0 flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
         <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
@@ -86,12 +74,18 @@ export default function ReminderManager({ onClose }) {
           </div>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
+          {(toggleActiveMutation.isError || deleteReminderMutation.isError) && <p role="alert" className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.reminders.action_error')}</p>}
           {!showCreateForm && !editingReminder ? (
             <div className="space-y-4">
               <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-primary text-primary-foreground hover:bg-primary">
                 <Plus className="h-4 w-4" />{t('journal_ui.reminders.create')}
               </Button>
-              {isLoading ? (
+              {userQuery.isError || remindersQuery.isError ? (
+                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3">
+                  <p role="alert" className="text-sm text-foreground">{t('journal_ui.common.load_error')}</p>
+                  <Button variant="outline" className="mt-3 min-h-11" onClick={() => { userQuery.refetch(); remindersQuery.refetch(); }}>{t('journal_ui.common.retry')}</Button>
+                </div>
+              ) : isLoading ? (
                 <div className="py-10 text-center" role="status">
                   <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-border border-t-teal-700" />
                   <p className="mt-3 text-sm text-muted-foreground">{t('journal_ui.reminders.loading')}</p>
@@ -148,7 +142,7 @@ export default function ReminderManager({ onClose }) {
           )}
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }
 
@@ -176,12 +170,12 @@ function ReminderForm({ reminder, onClose, onSuccess, t }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.type')}</label>
-          <BottomSheetSelect value={formData.entry_type} onValueChange={(entry_type) => setFormData({ ...formData, entry_type })}
+          <BottomSheetSelect autoFocus value={formData.entry_type} onValueChange={(entry_type) => setFormData({ ...formData, entry_type })}
             options={typeOptions} title={t('journal_ui.reminders.type')} />
         </div>
         <div>
           <label className="mb-2 block text-sm font-semibold text-primary">{t('journal_ui.reminders.frequency')}</label>
-          <BottomSheetSelect value={formData.frequency} onValueChange={(frequency) => setFormData({ ...formData, frequency })}
+          <BottomSheetSelect autoFocus value={formData.frequency} onValueChange={(frequency) => setFormData({ ...formData, frequency })}
             options={frequencyOptions} title={t('journal_ui.reminders.frequency')} />
         </div>
       </div>
@@ -195,6 +189,7 @@ function ReminderForm({ reminder, onClose, onSuccess, t }) {
         <Input id="journal-reminder-message" value={formData.message} onChange={(event) => setFormData({ ...formData, message: event.target.value })}
           placeholder={t('journal_ui.reminders.message_placeholder')} className="h-12 rounded-xl" />
       </div>
+      {saveMutation.isError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.reminders.save_error')}</p>}
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button type="button" onClick={onClose} variant="outline" className="min-h-12 flex-1 rounded-xl">{t('journal_ui.common.cancel')}</Button>
         <Button type="submit" disabled={!formData.title.trim() || !formData.time || saveMutation.isPending}

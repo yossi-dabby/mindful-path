@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const ENTRY_TYPE_VALUES = ['all', 'cbt_standard', 'gratitude', 'anxiety_log', 'mood_journal', 'custom'];
+const ENTRY_TYPE_VALUES = ['all', 'cbt_standard', 'gratitude', 'anxiety_log', 'mood_journal', 'custom', 'session_summary'];
 
 export default function JournalFilters({ allTags = [], selectedTags, onTagsChange, selectedType, onTypeChange }) {
   const { t } = useTranslation();
@@ -21,10 +21,10 @@ export default function JournalFilters({ allTags = [], selectedTags, onTagsChang
             const isSelected = selectedType === value;
             return (
               <button key={value} type="button" onClick={() => onTypeChange(value)} aria-pressed={isSelected}
-                className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                  isSelected ? 'border-border bg-primary text-white shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
+                className={`min-h-11 max-w-full shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                  isSelected ? 'border-border bg-primary text-primary-foreground shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
                 }`}>
-                {t(`journal.filters.entry_types.${value}`)}
+                {t(value === 'session_summary' ? 'journal_ui.filters.session_summary' : `journal.filters.entry_types.${value}`)}
               </button>
             );
           })}
@@ -39,10 +39,10 @@ export default function JournalFilters({ allTags = [], selectedTags, onTagsChang
               const isSelected = selectedTags.includes(tag);
               return (
                 <button key={tag} type="button" onClick={() => toggleTag(tag)} aria-pressed={isSelected}
-                  className={`min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                    isSelected ? 'border-border bg-primary text-white shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
+                  className={`min-h-11 max-w-full shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                    isSelected ? 'border-border bg-primary text-primary-foreground shadow-sm' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'
                   }`}>
-                  <span dir="auto">{tag}</span>
+                  <span dir="auto" className="min-w-0 [overflow-wrap:anywhere]">{tag}</span>
                 </button>
               );
             })}

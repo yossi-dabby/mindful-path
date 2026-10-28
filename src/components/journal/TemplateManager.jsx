@@ -1,5 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
-import React, { useEffect, useState } from 'react';
+import PremiumDialog from '@/components/ui/PremiumDialog';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,7 +30,7 @@ function localizeBuiltInTemplate(template, t) {
   };
 }
 
-export default function TemplateManager({ templates = [], onClose, onSelectTemplate }) {
+export default function TemplateManager({ templates = [], onClose, onSelectTemplate, isLoading = false, loadError = false, onRetry }) {
   const { t, i18n } = useTranslation();
   const currentLanguage = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].includes(i18n.resolvedLanguage?.split('-')[0])
     ? i18n.resolvedLanguage.split('-')[0]
@@ -38,17 +38,6 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (event) => event.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onClose]);
 
   const deleteTemplateMutation = useMutation({
     mutationFn: (id) => base44.entities.JournalTemplate.delete(id),
@@ -65,7 +54,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
   });
 
   return (
-    <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    <PremiumDialog localEscape onClose={onClose} label={t('journal_ui.templates.title')} className="journal-dialog fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-template-title" aria-describedby="journal-template-description">
       <Card className="my-0 flex max-h-[100dvh] w-full max-w-4xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:my-8 sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
         <CardHeader className="shrink-0 border-b border-border bg-secondary/70 p-4 sm:p-6">
@@ -80,6 +69,12 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
           </div>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
+          {isLoading && <p role="status" className="mb-4 text-sm text-foreground">{t('journal_ui.common.loading')}</p>}
+          {loadError && <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3">
+            <p role="alert" className="text-sm text-foreground">{t('journal_ui.common.load_error')}</p>
+            <Button variant="outline" className="mt-3 min-h-11" onClick={onRetry}>{t('journal_ui.common.retry')}</Button>
+          </div>}
+          {deleteTemplateMutation.isError && <p role="alert" className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.templates.delete_error')}</p>}
           {!showCreateForm && !editingTemplate ? (
             <div className="space-y-6">
               <Button onClick={() => setShowCreateForm(true)} className="min-h-12 w-full rounded-2xl bg-primary text-primary-foreground hover:bg-primary">
@@ -138,7 +133,7 @@ export default function TemplateManager({ templates = [], onClose, onSelectTempl
           )}
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }
 
@@ -207,7 +202,7 @@ function TemplateForm({ template, language, onClose, onSuccess, t }) {
           onChange={(event) => setFormData({ ...formData, description: event.target.value })}
           placeholder={t('journal_ui.templates.description_placeholder')} className="min-h-28 rounded-xl" />
       </div>
-      {saveMutation.isError && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{t('journal_ui.templates.save_error')}</p>}
+      {saveMutation.isError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.templates.save_error')}</p>}
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button type="button" onClick={onClose} variant="outline" className="min-h-12 flex-1 rounded-xl">{t('journal_ui.common.cancel')}</Button>
         <Button type="submit" disabled={!formData.name.trim() || saveMutation.isPending}

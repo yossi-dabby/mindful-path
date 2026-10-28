@@ -37,6 +37,7 @@ test.describe('Journal responsive experience', () => {
       await button.click();
       const dialog = page.getByRole('dialog');
       await expect(dialog).toBeVisible();
+      await expect.poll(() => dialog.evaluate(el => el.contains(document.activeElement))).toBe(true);
       await page.keyboard.press('Escape');
       await expect(dialog).toBeHidden();
     }
