@@ -472,7 +472,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
                 transition={{ duration: phaseDuration, ease: 'easeInOut', repeat: Infinity }}
                 className="absolute rounded-full blur-3xl"
                 style={{
-                  width: '83.3333%', height: '83.3333%',
+                  width: '66.6667%', height: '66.6667%',
                   background: theme.circleGradient,
                 }}
               />
