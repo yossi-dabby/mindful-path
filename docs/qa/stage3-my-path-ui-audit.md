@@ -15,7 +15,7 @@ The isolated browser fixtures use synthetic records, intercept entity and AI req
 | Goal details | Progress, milestones, chart, task board, linked journal panel, adjustment dialog, reminders and add-reminder fields |
 | Goal calendar/timeline | Day markers, localized month/week controls, readable full day-event text, long goal titles and tablet filters |
 | Templates | Localized catalog, category controls, open/close and keyboard focus |
-| AI goal views | Suggestions and structured title/description, breakdown step/description, coaching results; presentation only, AI requests mocked |
+| AI goal views | Suggestions and structured title/description, breakdown step/description, coaching results, generated adjustment milestones, text contrast and unbroken Close/Apply captions; presentation only, AI requests mocked |
 | Progress | All six tabs, charts, achievements, goals, exercise activity, health, local progress-data panel and current insight panels |
 | Health | Populated and partial fields, empty state, notice readability, chart, long data form, last input and cancellation |
 | Mood Tracker | Overview, calendar, insights, data and empty states, detailed entry form and close |
@@ -32,6 +32,7 @@ The isolated browser fixtures use synthetic records, intercept entity and AI req
 - Long milestone timeline content and filters wrap on tablet; the previous 768px layout expanded content to 892px.
 - Goal card/chart/AI panels and health notices use the established theme surfaces. Progress tooltips use themed surfaces. Remaining status colors identify categories or status rather than enclosing whole pages in a separate palette.
 - Suggested-goal rows retain structured objects during rendering. The previous text-list normalizer discarded object fields, leaving blank titles/descriptions and an undefined category. Breakdown rows also retain descriptions and timing fields. Prompts, schemas and agent boundaries are unchanged.
+- Generated AI results use themed surfaces for quick wins, obstacles and suggested milestones. Visual inspection found near-white text on the previous white/green/orange panels in dark mode (quick-win heading `rgb(236,240,243)` on a gradient from `rgb(240,253,244)` to white). Result text now has measured 4.5:1 normal-text checks, including gradient stops and alpha compositing. Close/Apply captions keep their intrinsic width beside long goal titles and adjustment headings; they previously stacked individual letters on phone screens.
 - Calendar, task-board and reminder controls are localized in all seven supported languages. Calendar day selection makes full event titles available on touch screens.
 - Due-today goal dates are distinct from overdue calendar dates; tested at evening/year boundaries and against incomplete dates.
 - Mood trend and trigger charts fit their available width instead of enforcing 500–620px horizontal canvases; axes and tooltips use theme tokens.

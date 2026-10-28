@@ -215,7 +215,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
                 <Brain className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -268,26 +268,26 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                   <Brain className="w-4 h-4 text-primary" />
                   Overall Assessment
                 </h3>
-                <p className="text-sm text-muted-foreground">{suggestions.overall_assessment}</p>
+                <p className="text-sm text-foreground">{suggestions.overall_assessment}</p>
               </div>
 
               {/* Milestone Adjustments */}
               {suggestions.milestone_adjustments && (
                 <div className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0 flex-1">
                       <h3 className="font-semibold mb-1">Milestone Adjustments</h3>
                       <p className="text-sm text-muted-foreground">{suggestions.milestone_adjustments.recommendation}</p>
                     </div>
-                    <Button size="sm" onClick={applyMilestones}>Apply</Button>
+                    <Button size="sm" onClick={applyMilestones} className="shrink-0">Apply</Button>
                   </div>
                   {suggestions.milestone_adjustments.new_milestones?.length > 0 && (
                     <div className="space-y-2 mt-3">
                       {suggestions.milestone_adjustments.new_milestones.map((milestone, i) => (
-                        <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                        <div key={i} data-testid="goal-adjustment-milestone" className="bg-secondary/70 p-3 rounded-lg">
                           <p className="font-medium text-sm">{milestone.title}</p>
                           {milestone.description && (
-                            <p className="text-xs text-muted-foreground mt-1">{milestone.description}</p>
+                            <p className="text-xs text-foreground mt-1">{milestone.description}</p>
                           )}
                         </div>
                       ))}
@@ -299,8 +299,8 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
               {/* Timeline Adjustment */}
               {suggestions.timeline_adjustment && (
                 <div className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="min-w-0 flex-1">
                       <h3 className="font-semibold mb-1">Timeline Adjustment</h3>
                       <p className="text-sm text-muted-foreground mb-2">{suggestions.timeline_adjustment.recommendation}</p>
                       {suggestions.timeline_adjustment.suggested_date && (() => {
@@ -318,7 +318,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                       })()}
                       <p className="text-xs text-muted-foreground mt-2">{suggestions.timeline_adjustment.reasoning}</p>
                     </div>
-                    <Button size="sm" onClick={applyTimeline}>Apply</Button>
+                    <Button size="sm" onClick={applyTimeline} className="shrink-0">Apply</Button>
                   </div>
                 </div>
               )}

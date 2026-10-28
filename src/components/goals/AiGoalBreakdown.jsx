@@ -124,26 +124,26 @@ Make each step concrete and actionable, not vague.`,
     >
       <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
-          <div className="flex items-center justify-between mb-6">
-            <div>
+          <div className="flex items-start justify-between gap-3 mb-6">
+            <div className="min-w-0 flex-1">
               <h2 className="text-2xl font-bold text-foreground">{goal.title}</h2>
               <p className="text-sm text-muted-foreground">AI-Generated Action Plan</p>
             </div>
-            <Button onClick={onClose} variant="ghost">
+            <Button onClick={onClose} variant="ghost" className="shrink-0">
               Close
             </Button>
           </div>
 
           <div className="space-y-6">
             {/* Quick Wins */}
-            <div className="bg-gradient-to-br from-green-50 to-white p-4 rounded-xl border-2 border-green-200">
+            <div data-testid="goal-breakdown-quick-wins" className="bg-secondary/70 p-4 rounded-xl border border-border">
               <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 Quick Wins (Start Here!)
               </h3>
               <ul className="space-y-2">
                 {safeArray(breakdown.quick_wins).map((win, i) => (
-                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <span>{win}</span>
                   </li>
@@ -187,9 +187,9 @@ Make each step concrete and actionable, not vague.`,
                 {resultRows(breakdown.milestones).map((milestone, i) => {
                   const m = typeof milestone === 'object' ? milestone : { title: safeText(milestone), description: '' };
                   return (
-                  <div key={i} className="bg-secondary/70 p-3 rounded-lg border border-border">
+                  <div key={i} data-testid="goal-breakdown-milestone" className="bg-secondary/70 p-3 rounded-lg border border-border">
                     <p className="font-medium text-foreground text-sm">{safeText(m.title, `Milestone ${i + 1}`)}</p>
-                    {m.description && <p className="text-xs text-muted-foreground mt-1">{safeText(m.description)}</p>}
+                    {m.description && <p className="text-xs text-foreground mt-1">{safeText(m.description)}</p>}
                   </div>
                 );
                 })}
@@ -203,10 +203,10 @@ Make each step concrete and actionable, not vague.`,
                 {resultRows(breakdown.potential_obstacles).map((item, i) => {
                   const obs = typeof item === 'object' ? item : { obstacle: safeText(item), solution: '' };
                   return (
-                  <div key={i} className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                  <div key={i} data-testid="goal-breakdown-obstacle" className="bg-secondary/70 p-3 rounded-lg border border-border">
                     <p className="flex items-start gap-2 font-medium text-foreground text-sm"><PremiumIcon name="alert" size="sm" bare className="mt-0.5 shrink-0" /><span>{safeText(obs.obstacle, `Obstacle ${i + 1}`)}</span></p>
                     {obs.solution && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-foreground mt-1">
                         <span className="font-semibold">Solution:</span> {safeText(obs.solution)}
                       </p>
                     )}

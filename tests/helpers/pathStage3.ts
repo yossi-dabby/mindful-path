@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Page, type Locator } from '@playwright/test';
 import { mockApi } from './ui';
 
 export async function preparePathStage3(page: Page, { language = 'en', theme = 'light', populated = true } = {}) {
@@ -61,4 +61,29 @@ export async function preparePathStage3(page: Page, { language = 'en', theme = '
 export async function assertPathWidth(page: Page) {
   const metrics = await page.locator('#app-scroll-container').evaluate(el => ({ width: el.clientWidth, content: el.scrollWidth }));
   expect(metrics.content, 'App content must fit without clipping horizontal overflow').toBeLessThanOrEqual(metrics.width + 2);
+}
+
+// Composite translucent theme surfaces before measuring normal-text contrast.
+export async function assertPathTextContrast(locator: Locator) {
+  const ratio = await locator.evaluate(el => {
+    const rgba = (value: string) => (value.match(/[\d.]+/g) || []).map(Number);
+    const over = (color: number[], background: number[]) => background.map((value, index) => color[index] * (color[3] ?? 1) + value * (1 - (color[3] ?? 1)));
+    const layers: { color: number[]; stops: number[][] }[] = [];
+    for (let node: Element | null = el; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      layers.push({ color: rgba(style.backgroundColor), stops: (style.backgroundImage.match(/rgba?\([^)]+\)/g) || []).map(rgba) });
+    }
+    let backgrounds = [[255, 255, 255]];
+    for (const layer of layers.reverse()) backgrounds = backgrounds.flatMap(background => {
+      const base = over(layer.color, background);
+      return layer.stops.length ? layer.stops.map(stop => over(stop, base)) : [base];
+    });
+    const text = rgba(getComputedStyle(el).color);
+    const luminance = (color: number[]) => color.map(value => value / 255).map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+    return Math.min(...backgrounds.map(background => {
+      const a = luminance(over(text, background)), b = luminance(background);
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    }));
+  });
+  expect(ratio, 'Result text must contrast its rendered theme surface').toBeGreaterThanOrEqual(4.5);
 }

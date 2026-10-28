@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import { preparePathStage3, assertPathWidth } from '../helpers/pathStage3';
+import { preparePathStage3, assertPathWidth, assertPathTextContrast } from '../helpers/pathStage3';
 import { getStage11Copy } from '../../src/components/i18n/stage11UiCopy.js';
 
 const labels = {
@@ -73,6 +73,15 @@ for (const language of ['en', 'he'] as const) for (const width of [360, 768, 144
       if (name === copy.reminders) {
         await dialog.getByRole('button', { name: copy.addReminder, exact: true }).click();
         await dialogFits(page);
+      } else {
+        await dialog.getByRole('button', { name: 'Generate Suggestions', exact: true }).click();
+        const milestone = dialog.getByTestId('goal-adjustment-milestone').first();
+        await expect(milestone).toBeVisible();
+        for (const text of await milestone.locator('p').all()) await assertPathTextContrast(text);
+        for (const apply of await dialog.getByRole('button', { name: 'Apply', exact: true }).all()) {
+          expect(await apply.evaluate(el => { const range=document.createRange(); range.selectNodeContents(el); return range.getClientRects().length; })).toBe(1);
+        }
+        await milestone.scrollIntoViewIfNeeded();
       }
       await page.screenshot({ path: info.outputPath(name === copy.reminders ? 'reminders.png' : 'adjustment.png') });
       await closeDialog(page, opener);
@@ -103,6 +112,17 @@ for (const language of ['en', 'he'] as const) for (const width of [360, 768, 144
       if (name === copy.coach) await dialog.getByRole('button', { name: 'Generate Coaching Plan', exact: true }).click();
       await expect(dialog).toContainText('QA sample content');
       if (name === copy.breakdown) await expect(dialog.getByText('QA action description', { exact: true })).toBeVisible();
+      if (name === copy.breakdown) {
+        const quick = dialog.getByTestId('goal-breakdown-quick-wins');
+        await assertPathTextContrast(quick.getByRole('heading'));
+        await assertPathTextContrast(quick.locator('li').first());
+        for (const text of await dialog.getByTestId('goal-breakdown-obstacle').first().locator('p').all()) await assertPathTextContrast(text);
+        for (const text of await dialog.getByTestId('goal-breakdown-milestone').first().locator('p').all()) await assertPathTextContrast(text);
+        const close = dialog.getByRole('button', { name: 'Close', exact: true });
+        expect(await close.evaluate(el => { const range=document.createRange(); range.selectNodeContents(el); return range.getClientRects().length; })).toBe(1);
+        await close.scrollIntoViewIfNeeded();
+        await page.screenshot({ path: info.outputPath('breakdown-results.png') });
+      }
       await dialogFits(page);
       await closeDialog(page, opener);
     }
