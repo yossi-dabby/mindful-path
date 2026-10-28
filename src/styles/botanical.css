@@ -193,7 +193,7 @@
 /* Goal tools share one card scroller; nested legacy viewport calculations
    otherwise leave only a few lines of content on a landscape phone. */
 .goal-dialog { min-width:0; z-index:90 !important; }
-.goal-dialog > div { min-width:0; margin-block:0; max-height:calc(100dvh - 2rem - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) !important; }
+.goal-dialog > div:not([data-ui="card"]) { min-width:0; margin-block:0; max-height:calc(100dvh - 2rem - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) !important; }
 .goal-dialog > [data-ui="card"],.goal-dialog > div > [data-ui="card"] { margin-block:0; overflow-y:auto !important; scroll-padding-block:104px; }
 .goal-dialog input,.goal-dialog textarea { scroll-margin-block:12px; }
 .goal-dialog [data-ui="card-content"],.goal-dialog [data-ui="card-content"] .overflow-y-auto { max-height:none !important; overflow:visible; }
