@@ -93,12 +93,13 @@ test('Daily history pages through earlier dates and edits the selected historic 
   expect(state.db.DailyFlow[0].daily_takeaway).toBe('QA saved reflection');
 });
 
-for (const language of ['en','he']) for (const size of [{width:333,height:597}, {width:844,height:390}]) for (const theme of ['light','dark']) {
+for (const language of ['en','he']) for (const size of [{width:320,height:568}, {width:333,height:597}, {width:390,height:844}, {width:844,height:390}, {width:768,height:1024}, {width:1440,height:900}]) for (const theme of ['light','dark']) {
   test(`Breathing selector stays in one row and circle clears controls ${language}/${theme}/${size.width}`, async ({ page }) => {
     await setup(page, language, theme, size.width, size.height); await page.goto('/Exercises');
     await page.getByRole('tab', { name: language === 'he' ? 'נשימה' : 'Breathing', exact:true }).click();
     const surface = page.getByTestId('interactive-breathing-surface'), circle = page.getByTestId('breathing-circle');
     await expect(circle).toBeVisible();
+    await expect(surface.locator('.interactive-breathing-practice')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     const bounds = await surface.evaluate(e => {
       const box = (selector: string) => { const r = e.querySelector(selector)!.getBoundingClientRect(); return { x:r.x,y:r.y,right:r.right,bottom:r.bottom }; };
       return {circle:box('.breathing-circle'), controls:box('.breathing-session-controls'), selector:box('.breathing-session-selector'), tabs:[...e.querySelectorAll('[role="tab"]')].map(e => e.getBoundingClientRect().y), header:box('.breathing-session-header'), client:e.clientWidth, scroll:e.scrollWidth};
@@ -108,6 +109,9 @@ for (const language of ['en','he']) for (const size of [{width:333,height:597}, 
     expect(bounds.circle.bottom <= bounds.controls.y || bounds.circle.right <= bounds.controls.x || bounds.controls.right <= bounds.circle.x).toBe(true);
     expect(bounds.scroll).toBeLessThanOrEqual(bounds.client + 1);
     const start = surface.locator('.breathing-session-controls button').first(); await start.scrollIntoViewIfNeeded(); await expect(start).toBeInViewport(); await start.click();
+    await expect(circle).toBeInViewport({ ratio: 1 });
+    const after = await circle.boundingBox(), header = await surface.locator('.breathing-session-header').boundingBox();
+    expect(after!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
     await expect(surface.getByTestId('breathing-countdown')).toBeVisible();
     await page.screenshot({ path:`test-results/stage1-breathing-${language}-${theme}-${size.width}.png` });
   });

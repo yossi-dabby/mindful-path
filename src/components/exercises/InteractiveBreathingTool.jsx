@@ -436,7 +436,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       <div className="breathing-session-main flex flex-1 flex-col items-center justify-center gap-6 px-4 py-4 lg:flex-row lg:gap-12">
 
         {/* ── Circle & Phase Info ──────────────────────────────────────────── */}
-        <div className="breathing-practice flex shrink-0 flex-col items-center justify-center">
+        <div className="interactive-breathing-practice flex shrink-0 flex-col items-center justify-center">
           {/* Phase label */}
           <AnimatePresence mode="wait">
             <motion.p

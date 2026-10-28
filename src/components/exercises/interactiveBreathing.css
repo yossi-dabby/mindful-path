@@ -13,9 +13,17 @@
   min-height: auto;
 }
 
-.breathing-session .breathing-practice {
+.breathing-session .interactive-breathing-practice {
   min-width: 0;
   max-width: 100%;
+}
+
+.breathing-session .breathing-session-stats {
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 1.25rem;
+  row-gap: 0.5rem;
 }
 
 .breathing-session .mobile-action-label {
@@ -44,6 +52,19 @@
   .breathing-session .breathing-session-header .mobile-action-label { max-width: 76px; }
 }
 
+/* Keep the animated circle and primary controls together on short phones. */
+@media (max-width: 639px) and (max-height: 740px) {
+  .breathing-session { --breathing-circle-size: 180px; }
+  .breathing-session .breathing-session-header { padding-block: 8px; }
+  .breathing-session .breathing-session-header h2 { font-size: 0.875rem; }
+  .breathing-session .breathing-session-main { padding-block: 8px; }
+  .breathing-session .breathing-phase { font-size: 1rem; }
+  .breathing-session .breathing-phase-progress { margin-top: 12px; }
+  .breathing-session .breathing-session-stats { margin-top: 12px; }
+  .breathing-session .breathing-session-controls { margin-top: 16px; }
+  .breathing-session .breathing-session-description { margin-top: 12px; font-size: 0.75rem; line-height: 1.5; }
+}
+
 /* Short landscape screens put the controls beside the circle. The surface is
    the only scroll container, so no centered content begins above its viewport. */
 @media (min-width: 640px) and (max-height: 540px) {
@@ -51,7 +72,7 @@
   .breathing-session .breathing-session-header { padding-block: 8px; }
   .breathing-session .breathing-session-header .breathing-session-actions button { min-width: 56px; }
   .breathing-session .breathing-session-main { flex-flow: row wrap; gap: 16px; padding-block: 8px; }
-  .breathing-session .breathing-practice {
+  .breathing-session .interactive-breathing-practice {
     display: grid;
     grid-template-columns: 180px minmax(190px, 300px);
     column-gap: 24px;
