@@ -1,3 +1,4 @@
+import { applyChatStage2UiTranslations } from './chatStage2UiTranslations';
 const chatUiByLanguage = {
   en: {
     common: { back: 'Back', delete: 'Delete' },
@@ -141,6 +142,7 @@ export function applyChatUiTranslations(translations) {
   Object.entries(chatUiByLanguage).forEach(([language, values]) => {
     translations[language].translation = merge(translations[language]?.translation || {}, values);
   });
+  applyChatStage2UiTranslations(translations);
   return translations;
 }
 

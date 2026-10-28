@@ -22,10 +22,12 @@ describe('Chat responsive layout contract', () => {
   });
 
   it('uses the conversation list as a drawer and allows it to collapse on extra-wide desktop', () => {
-    expect(chat).toContain("showSidebar ? 'block' : 'hidden'");
-    expect(chat).toContain("desktopSidebarCollapsed ? 'xl:hidden' : 'xl:block'");
-    expect(chat).toContain('xl:hidden fixed inset-0');
-    expect(chat).toContain('fixed xl:relative');
+    const drawer = readFileSync(new URL('../../src/components/chat/ChatConversationsSidebar.jsx', import.meta.url), 'utf8');
+    expect(chat).toContain('<ChatConversationsSidebar');
+    expect(drawer).toContain("window.matchMedia('(min-width: 1280px)')");
+    expect(drawer).toContain('<Sheet open={open}');
+    expect(drawer).toContain('if (desktop) return desktopCollapsed ? null');
+    expect(drawer).toContain('onCloseAutoFocus');
     expect(chat).toContain('setDesktopSidebarCollapsed((collapsed) => !collapsed)');
     expect(chat).toContain('aria-expanded={!desktopSidebarCollapsed}');
     expect(conversations).toContain('className="xl:hidden flex-shrink-0"');

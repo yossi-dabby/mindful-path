@@ -1,48 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ShieldAlert } from 'lucide-react';
 
 export default function AgeRestrictedMessage() {
+  const { t } = useTranslation();
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100">
-      <Card 
-        className="max-w-md w-full border-0 shadow-xl"
-        style={{
-          borderRadius: '24px',
-          background: 'hsl(var(--card))',
-          backdropFilter: 'blur(16px)',
-        }}
-      >
-        <div className="p-8 text-center">
-          <div 
-            className="w-16 h-16 flex items-center justify-center mx-auto mb-4"
-            style={{
-              borderRadius: '20px',
-              background: 'linear-gradient(145deg, rgba(156, 163, 175, 0.15) 0%, rgba(107, 114, 128, 0.15) 100%)',
-            }}
-          >
-            <ShieldAlert className="w-8 h-8" style={{ color: '#6B7280' }} />
-          </div>
-
-          <h2 className="text-2xl font-semibold mb-3" style={{ color: 'hsl(var(--foreground))' }}>
-            Age Restricted
-          </h2>
-
-          <p className="text-base leading-relaxed mb-6" style={{ color: 'hsl(var(--muted-foreground))' }}>
-            Our AI-powered chat features are designed for users 18 and older. You still have access to other wellness tools like mood tracking, journaling, and exercises.
-          </p>
-
-          <a
-            href="/"
-            className="inline-block px-6 py-3 text-white font-medium rounded-xl"
-            style={{
-              backgroundColor: 'hsl(var(--primary))',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
-            }}
-          >
-            Back to Home
-          </a>
-        </div>
+    <div className="flex min-h-dvh items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md rounded-[28px] border border-border bg-card p-6 text-center shadow-[var(--shadow-md)] sm:p-8">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-primary"><ShieldAlert className="h-8 w-8" aria-hidden="true" /></div>
+        <h1 className="mb-3 text-2xl font-semibold text-foreground">{t('chat_stage2.restricted_title')}</h1>
+        <p className="mb-6 text-base leading-relaxed text-muted-foreground">{t('chat_stage2.restricted_description')}</p>
+        <Button asChild className="h-auto min-h-11 whitespace-normal"><Link to="/">{t('chat_stage2.back_home')}</Link></Button>
       </Card>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,8 +16,8 @@ export default function ThoughtWorkSaveHandler({
   onSaveComplete, 
   onCancel 
 }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState('idle'); // idle | extracting | saving | success | error
-  const [errorMessage, setErrorMessage] = useState('');
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
@@ -76,7 +77,6 @@ export default function ThoughtWorkSaveHandler({
     onError: (error) => {
       console.error('Save error:', error);
       setStatus('error');
-      setErrorMessage(error.message || 'Failed to save. Please try again.');
     }
   });
 
@@ -84,134 +84,17 @@ export default function ThoughtWorkSaveHandler({
     saveMutation.mutate();
   };
 
-  if (status === 'idle') {
-    return (
-      <Card className="p-4 border-0" style={{
-        borderRadius: '24px',
-        background: 'hsl(var(--card) / 0.97)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: 'var(--shadow-md)'
-      }}>
-        <p className="text-sm mb-4" style={{ color: 'hsl(var(--foreground))' }}>
-          Save this thought record with your homework plan to your Journal?
-        </p>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleSave}
-            className="text-white"
-            style={{
-              borderRadius: '16px',
-              backgroundColor: 'hsl(var(--primary))',
-              boxShadow: 'var(--shadow-md)'
-            }}
-          >
-            Save to Journal
-          </Button>
-          <Button
-            onClick={onCancel}
-            variant="outline"
-            style={{
-              borderRadius: '16px',
-              borderColor: 'hsl(var(--border))'
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
-  if (status === 'extracting') {
-    return (
-      <Card className="p-4 border-0" style={{
-        borderRadius: '24px',
-        background: 'hsl(var(--card) / 0.97)',
-        backdropFilter: 'blur(12px)'
-      }}>
-        <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
-          <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
-            Analyzing conversation and extracting homework...
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  if (status === 'saving') {
-    return (
-      <Card className="p-4 border-0" style={{
-        borderRadius: '24px',
-        background: 'hsl(var(--card) / 0.97)',
-        backdropFilter: 'blur(12px)'
-      }}>
-        <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
-          <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
-            Saving to your Journal...
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  if (status === 'success') {
-    return (
-      <Card className="p-4 border-0" style={{
-        borderRadius: '24px',
-        background: 'hsl(var(--card) / 0.97)',
-        backdropFilter: 'blur(12px)'
-      }}>
-        <div className="flex items-center gap-3">
-          <CheckCircle className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
-          <p className="text-sm font-medium" style={{ color: 'hsl(var(--foreground))' }}>
-            ✓ Saved to your Thought Journal with homework plan.
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  if (status === 'error') {
-    return (
-      <Card className="p-4 border-0" style={{
-        borderRadius: '24px',
-        background: 'hsl(var(--card) / 0.97)',
-        backdropFilter: 'blur(12px)'
-      }}>
-        <div className="flex items-start gap-3 mb-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: '#E57373' }} />
-          <p className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>
-            {errorMessage}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleSave}
-            size="sm"
-            style={{
-              borderRadius: '16px',
-              backgroundColor: 'hsl(var(--primary))'
-            }}
-          >
-            Try Again
-          </Button>
-          <Button
-            onClick={onCancel}
-            size="sm"
-            variant="outline"
-            style={{
-              borderRadius: '16px',
-              borderColor: 'hsl(var(--border))'
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
-  return null;
+  const busy = status === 'extracting' || status === 'saving';
+  return (
+    <Card className="min-w-0 rounded-[28px] border border-border/70 bg-card p-4 text-foreground shadow-[var(--shadow-md)] sm:p-5" data-testid="chat-thought-save">
+      {status === 'idle' && <p className="mb-4 text-sm leading-relaxed">{t('chat_stage2.save_prompt')}</p>}
+      {busy && <div role="status" className="flex items-start gap-3"><Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" /><p className="text-sm leading-relaxed text-muted-foreground">{t(status === 'extracting' ? 'chat_stage2.extracting' : 'chat_stage2.saving')}</p></div>}
+      {status === 'success' && <div role="status" className="flex items-start gap-3"><CheckCircle className="h-5 w-5 shrink-0 text-primary" /><p className="text-sm font-medium leading-relaxed">{t('chat_stage2.saved')}</p></div>}
+      {status === 'error' && <div role="alert" className="mb-3 flex items-start gap-3"><AlertCircle className="h-5 w-5 shrink-0 text-red-700 dark:text-red-300" /><p className="text-sm leading-relaxed">{t('chat_stage2.save_error')}</p></div>}
+      {(status === 'idle' || status === 'error') && <div className="flex flex-wrap gap-2">
+        <Button onClick={handleSave} disabled={saveMutation.isPending} className="h-auto min-h-11 whitespace-normal">{t(status === 'error' ? 'common.retry' : 'chat_stage2.save_action')}</Button>
+        <Button onClick={onCancel} variant="outline" className="h-auto min-h-11 whitespace-normal">{t('common.cancel')}</Button>
+      </div>}
+    </Card>
+  );
 }

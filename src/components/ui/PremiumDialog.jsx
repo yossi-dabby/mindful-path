@@ -13,10 +13,10 @@ export default function PremiumDialog({ children, onClose, label, className, sty
     <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Content
+          aria-describedby={undefined}
           {...props}
           aria-label={label}
           aria-modal="true"
-          aria-describedby={undefined}
           dir={i18n.dir()}
           className={cn('premium-overlay outline-none', className)}
           style={{ ...style, zIndex: 10000 }}

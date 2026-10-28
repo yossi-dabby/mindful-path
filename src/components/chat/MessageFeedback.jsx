@@ -1,4 +1,3 @@
-import MobileActionLabel from '@/components/ui/MobileActionLabel';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -9,10 +8,12 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
   const { t } = useTranslation();
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const handleFeedback = async (type) => {
     if (isSubmitting || feedback) return;
 
+    setHasError(false);
     setIsSubmitting(true);
     setFeedback(type);
 
@@ -40,6 +41,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
     } catch (error) {
       console.error('Failed to submit feedback:', error);
       setFeedback(null);
+      setHasError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -50,8 +52,10 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
       <span className="text-foreground mr-2 text-xs">{t('chat.feedback.prompt')}</span>
       <button
         onClick={() => handleFeedback('helpful')}
-        disabled={feedback !== null}
-        data-testid="feedback-helpful" className="text-foreground min-h-11 min-w-11 p-2 rounded-xl transition-colors hover:text-green-600 hover:bg-green-50"
+        disabled={isSubmitting || feedback !== null}
+        aria-busy={isSubmitting}
+        aria-pressed={feedback === 'helpful'}
+        data-testid="feedback-helpful" className="text-foreground min-h-11 min-w-11 p-2 rounded-xl transition-colors hover:text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 
 
@@ -61,11 +65,13 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         aria-label={t('chat.feedback.helpful')}>
 
         <ThumbsUp className="w-3.5 h-3.5" />
-      <MobileActionLabel action="favorite" /></button>
+      <span className="mobile-action-label md:hidden">{t('chat.feedback.helpful')}</span></button>
       <button
         onClick={() => handleFeedback('not_helpful')}
-        disabled={feedback !== null}
-        data-testid="feedback-not-helpful" className="text-foreground min-h-11 min-w-11 p-2 rounded-xl transition-colors hover:text-red-600 hover:bg-red-50"
+        disabled={isSubmitting || feedback !== null}
+        aria-busy={isSubmitting}
+        aria-pressed={feedback === 'not_helpful'}
+        data-testid="feedback-not-helpful" className="text-foreground min-h-11 min-w-11 p-2 rounded-xl transition-colors hover:text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 
 
@@ -75,10 +81,11 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         aria-label={t('chat.feedback.not_helpful')}>
 
         <ThumbsDown className="w-3.5 h-3.5" />
-      <MobileActionLabel action="remove" /></button>
-      {feedback &&
+      <span className="mobile-action-label md:hidden">{t('chat.feedback.not_helpful')}</span></button>
+      {feedback && !isSubmitting && !hasError &&
       <span className="text-foreground ml-2 text-xs">{t('chat.feedback.thanks')}</span>
       }
+      {hasError && <p role="alert" className="basis-full text-xs text-red-700 dark:text-red-300">{t('chat_stage2.feedback_error')}</p>}
     </div>);
 
 }
