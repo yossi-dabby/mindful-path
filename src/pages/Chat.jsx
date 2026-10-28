@@ -5300,6 +5300,20 @@ export default function Chat() {
               height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
             }
           }
+          @media (max-width: 767px) and (max-height: 540px) {
+            body:has([data-testid="therapist-chat-input"]:focus) [data-mobile-header] { display: none; }
+            body:has([data-testid="therapist-chat-input"]:focus) #app-scroll-container { padding-top: 0 !important; }
+            body:has([data-testid="therapist-chat-input"]:focus) [data-testid="chat-root"] {
+              height: calc(100dvh - var(--mobile-bottom-nav-height, 80px)) !important;
+            }
+            [data-testid="chat-header"] { min-height: 44px; padding-block: 0; }
+            [data-testid="chat-human-support"] { width: 44px; min-width: 44px; gap: 0; padding-inline: 8px; }
+            [data-testid="chat-human-support"] span {
+              position: absolute; width: 1px; height: 1px; overflow: hidden;
+              clip-path: inset(50%); white-space: nowrap;
+            }
+            [data-testid="chat-disclaimer"] { line-height: 12px; }
+          }
         `}</style>
       <ChatConversationsSidebar open={showSidebar} desktopCollapsed={desktopSidebarCollapsed} onClose={() => setShowSidebar(false)}>
         <ErrorBoundary>
@@ -5321,7 +5335,7 @@ export default function Chat() {
       {/* Main Chat Area */}
       <div className="rounded-2xl flex-1 flex flex-col min-h-0 min-w-0">
         {/* Header */}
-        <div className="bg-[hsl(var(--card)/0.97)] min-h-12 px-2 py-1 rounded-2xl sm:min-h-14 sm:px-4 sm:py-2 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-border backdrop-blur-xl shadow-[var(--shadow-sm)]">
+        <div data-testid="chat-header" className="bg-[hsl(var(--card)/0.97)] min-h-12 px-2 py-1 rounded-2xl sm:min-h-14 sm:px-4 sm:py-2 lg:px-6 flex items-center gap-2 sm:gap-3 border-b border-border backdrop-blur-xl shadow-[var(--shadow-sm)]">
           <Button
               variant="ghost"
               size="icon"

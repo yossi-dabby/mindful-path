@@ -39,8 +39,11 @@ for(const language of ['en','he'])for(const theme of ['light','dark'])for(const 
  await expect(older).toBeAttached();for(let n=0;n<5&&await older.count();n++)await older.click();await expect(page.getByRole('log')).toContainText('Oldest synthetic entry');
  await input.fill('A long draft without spaces: '+ 'LongDraft'.repeat(150));await expect(input).toBeInViewport({ratio:1});expect(await input.evaluate(e=>e.getBoundingClientRect().height)).toBeLessThanOrEqual(160);
  await page.setViewportSize({width,height:width<768?440:width===768?560:650});await expect(input).toBeInViewport({ratio:1});
+ await expect.poll(()=>page.getByTestId('chat-messages').evaluate(el=>el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(64);
+ const support=page.getByTestId('chat-human-support');await expect(support).toBeInViewport({ratio:1});await expect(support).toHaveAccessibleName(language==='he'?'עזרה אנושית':'Human support');
  expect(await page.getByTestId('chat-root').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
  await page.screenshot({path:`test-results/chat-stage2-${language}-${theme}-${width}.png`});
+ if(width<768){await page.getByTestId('chat-header').getByRole('button').first().focus();await expect(page.locator('[data-mobile-header]')).toBeVisible();}
 });
 
 for(const language of ['en','he'])for(const theme of ['light','dark'])test(`Stage 2 feedback handles failure and confirms one saved choice ${language}/${theme}`,async({page})=>{
