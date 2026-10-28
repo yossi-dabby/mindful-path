@@ -1,4 +1,4 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -73,13 +73,10 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
   const popularTemplates = localizedTemplates.filter((template) => template.is_popular);
 
   return (
-    <PremiumOverlay className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <PremiumDialog onClose={onClose} label={copy.title || copy.all} className="goal-dialog fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <Card
         className="w-full max-w-5xl max-h-[90vh] overflow-y-auto border-0 bg-card"
         style={{ borderRadius: '32px' }}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="goal-template-library-title"
         data-testid="goal-template-library"
       >
         <CardHeader
@@ -121,6 +118,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
               return (
                 <Button
                   key={category.value}
+                  aria-pressed={selectedCategory === category.value}
                   variant={selectedCategory === category.value ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCategory(category.value)}
@@ -189,7 +187,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
           </section>
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }
 

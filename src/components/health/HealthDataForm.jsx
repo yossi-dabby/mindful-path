@@ -1,5 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
-import React, { useEffect, useMemo, useState } from 'react';
+import PremiumDialog from '@/components/ui/PremiumDialog';
+import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,13 +18,6 @@ export default function HealthDataForm({ metric, onClose }) {
   const [formData, setFormData] = useState(metric || { date: new Date().toISOString().split('T')[0], sleep_hours: '', sleep_quality: '', steps: '', active_minutes: '', heart_rate_avg: '', heart_rate_resting: '', exercise_type: '', exercise_duration: '', water_intake: '', caffeine_mg: '', source: 'manual', notes: '' });
   const sleepQualityOptions = useMemo(() => ['poor', 'fair', 'good', 'excellent'].map((value) => ({ value, label: t(`progress_ui.quality.${value}`) })), [t]);
 
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const handleKeyDown = (event) => { if (event.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener('keydown', handleKeyDown); };
-  }, [onClose]);
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
@@ -47,7 +40,7 @@ export default function HealthDataForm({ metric, onClose }) {
   const field = (key, label, props = {}) => <div><label htmlFor={`health-${key}`} className="mb-1 block text-sm text-foreground">{label}</label><Input id={`health-${key}`} value={formData[key]} onChange={(event) => setFormData((current) => ({ ...current, [key]: props.numeric ? numberOrEmpty(event.target.value) : event.target.value }))} className="min-h-11" {...props} /></div>;
 
   return (
-    <PremiumOverlay className="flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="health-form-title" data-testid="health-form-dialog" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <PremiumDialog onClose={onClose} label={t('progress_ui.form.title')} className="goal-dialog flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="health-form-title" data-testid="health-form-dialog" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <Card className="max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-b-none sm:rounded-[var(--radius-card)] border-border shadow-2xl">
         <CardHeader className="border-b p-4 sm:p-6"><div className="flex items-center justify-between gap-3"><CardTitle id="health-form-title">{t('progress_ui.form.title')}</CardTitle><Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={onClose} aria-label={t('progress_ui.common.close')}><X className="h-5 w-5" /></Button></div></CardHeader>
         <CardContent className="max-h-[calc(92dvh-76px)] overflow-y-auto p-4 sm:p-6">
@@ -63,6 +56,6 @@ export default function HealthDataForm({ metric, onClose }) {
           </form>
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }

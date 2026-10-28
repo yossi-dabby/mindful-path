@@ -124,48 +124,48 @@ export default function MilestonesTimeline() {
     completed: {
       color: 'bg-green-500',
       textColor: 'text-green-700',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
+      bgColor: 'bg-secondary/70',
+      borderColor: 'border-border',
       icon: CheckCircle2,
       label: 'Completed'
     },
     overdue: {
       color: 'bg-red-500',
       textColor: 'text-red-700',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
+      bgColor: 'bg-secondary/70',
+      borderColor: 'border-border',
       icon: AlertCircle,
       label: 'Overdue'
     },
     'due-soon': {
       color: 'bg-amber-500',
       textColor: 'text-amber-700',
-      bgColor: 'bg-amber-50',
-      borderColor: 'border-amber-200',
+      bgColor: 'bg-secondary/70',
+      borderColor: 'border-border',
       icon: Clock,
       label: 'Due Soon'
     },
     upcoming: {
       color: 'bg-blue-500',
       textColor: 'text-blue-700',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
+      bgColor: 'bg-secondary/70',
+      borderColor: 'border-border',
       icon: Calendar,
       label: 'Upcoming'
     },
     future: {
       color: 'bg-gray-400',
       textColor: 'text-muted-foreground',
-      bgColor: 'bg-gray-50',
-      borderColor: 'border-gray-200',
+      bgColor: 'bg-secondary/70',
+      borderColor: 'border-border',
       icon: Calendar,
       label: 'Future'
     },
     'no-date': {
       color: 'bg-slate-400',
       textColor: 'text-muted-foreground',
-      bgColor: 'bg-slate-50',
-      borderColor: 'border-slate-200',
+      bgColor: 'bg-secondary/70',
+      borderColor: 'border-border',
       icon: Clock,
       label: 'No Date Set'
     }
@@ -191,12 +191,12 @@ export default function MilestonesTimeline() {
   }, [filteredMilestones, allMilestones]);
 
   return (
-    <Card className="border-0 shadow-md">
+    <Card className="border border-border/70 bg-card shadow-[var(--shadow-md)]">
       <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <CardTitle className="text-2xl font-bold">Milestones Timeline</CardTitle>
           
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex flex-col lg:flex-row gap-2">
             <BottomSheetSelect
               value={selectedGoalId}
               onValueChange={setSelectedGoalId}
@@ -222,19 +222,19 @@ export default function MilestonesTimeline() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="p-3 bg-secondary/70 rounded-lg border border-border">
             <div className="text-2xl font-bold text-foreground">{stats.total}</div>
             <div className="text-xs text-muted-foreground">Total</div>
           </div>
-          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+          <div className="p-3 bg-secondary/70 rounded-lg border border-border">
             <div className="text-2xl font-bold text-red-700">{stats.overdue}</div>
             <div className="text-xs text-red-600">Overdue</div>
           </div>
-          <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <div className="p-3 bg-secondary/70 rounded-lg border border-border">
             <div className="text-2xl font-bold text-amber-700">{stats.dueSoon}</div>
             <div className="text-xs text-amber-600">Due Soon</div>
           </div>
-          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+          <div className="p-3 bg-secondary/70 rounded-lg border border-border">
             <div className="text-xl md:text-2xl font-bold text-green-700 truncate">
               {stats.completed}/{stats.total}
             </div>
@@ -252,7 +252,7 @@ export default function MilestonesTimeline() {
         ) : (
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200" />
+            <div className="absolute start-6 top-0 bottom-0 w-0.5 bg-gray-200" />
 
             {/* Milestones */}
             <div className="space-y-6">
@@ -275,13 +275,13 @@ export default function MilestonesTimeline() {
 
                     {/* Content */}
                     <div className={cn(
-                      "flex-1 p-4 rounded-lg border-2 transition-all",
+                      "min-w-0 flex-1 p-4 rounded-lg border-2 transition-all",
                       config.bgColor,
                       config.borderColor,
                       milestone.completed && "opacity-75"
                     )}>
-                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-2">
-                        <div className="flex-1">
+                      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-2 mb-2">
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className={cn(
                               "text-sm font-semibold",
@@ -291,7 +291,7 @@ export default function MilestonesTimeline() {
                             </span>
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <Badge className={categoryColors[milestone.goalCategory]} variant="secondary">
+                            <Badge className={cn(categoryColors[milestone.goalCategory], "max-w-full whitespace-normal [overflow-wrap:anywhere]")} variant="secondary">
                               {milestone.goalTitle}
                             </Badge>
                             <Badge className={cn("text-xs", config.textColor)} variant="outline">

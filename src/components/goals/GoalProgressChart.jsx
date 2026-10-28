@@ -1,3 +1,4 @@
+import { isGoalDateOverdue } from './goalDatePresentation';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -96,13 +97,13 @@ export default function GoalProgressChart({ goal }) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg shadow-lg border border-gray-200">
+        <div className="bg-[hsl(var(--card)/0.97)] p-3 rounded-lg shadow-lg border border-border">
           <p className="text-sm font-medium text-foreground">{data.date}</p>
-          <p className="text-sm text-blue-600 font-semibold">
+          <p className="text-sm text-primary font-semibold">
             {payload[0].value.toFixed(1)}% complete
           </p>
           {data.milestone && (
-            <div className="mt-2 pt-2 border-t border-gray-200">
+            <div className="mt-2 pt-2 border-t border-border">
               <p className="text-xs text-green-600 font-medium flex items-center gap-1">
                 <span>✓</span> {data.milestone}
               </p>
@@ -117,7 +118,7 @@ export default function GoalProgressChart({ goal }) {
   return (
     <Card className="border-0 shadow-md">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-lg">Progress Over Time</span>
           <div className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
             <TrendingUp className={`w-4 h-4 ${velocity > 0 ? 'text-green-600' : 'text-gray-400'}`} />
@@ -129,32 +130,32 @@ export default function GoalProgressChart({ goal }) {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Area Chart */}
-        <div className="h-64">
+        <div className="h-64 min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={progressData}>
               <defs>
                 <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis 
                 dataKey="date" 
                 tick={{ fontSize: 12 }}
-                stroke="#9CA3AF"
+                stroke="hsl(var(--muted-foreground))"
               />
               <YAxis 
                 domain={[0, 100]}
                 tick={{ fontSize: 12 }}
-                stroke="#9CA3AF"
+                stroke="hsl(var(--muted-foreground))"
                 label={{ value: 'Progress %', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area 
                 type="monotone" 
                 dataKey="progress" 
-                stroke="#3B82F6" 
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 fill="url(#progressGradient)" 
               />
@@ -163,10 +164,10 @@ export default function GoalProgressChart({ goal }) {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-            <p className="text-xs text-blue-700 font-medium mb-1">Current Progress</p>
-            <p className="text-2xl font-bold text-blue-800">{goal.progress}%</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-secondary/70 p-4 rounded-xl border border-border">
+            <p className="text-xs text-foreground font-medium mb-1">Current Progress</p>
+            <p className="text-2xl font-bold text-foreground">{goal.progress}%</p>
           </div>
           
           <div className="bg-green-50 p-4 rounded-xl border border-green-100">
@@ -176,9 +177,9 @@ export default function GoalProgressChart({ goal }) {
             </p>
           </div>
           
-          <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
-            <p className="text-xs text-purple-700 font-medium mb-1">Completion Rate</p>
-            <p className="text-2xl font-bold text-purple-800">{completionRate.toFixed(0)}%</p>
+          <div className="bg-secondary/70 p-4 rounded-xl border border-border">
+            <p className="text-xs text-foreground font-medium mb-1">Completion Rate</p>
+            <p className="text-2xl font-bold text-foreground">{completionRate.toFixed(0)}%</p>
           </div>
         </div>
 
@@ -196,7 +197,7 @@ export default function GoalProgressChart({ goal }) {
                 <p className="text-sm text-orange-700">
                   {format(targetDate, 'MMMM d, yyyy')}
                 </p>
-                {targetDate < new Date() && goal.progress < 100 && (
+                {isGoalDateOverdue(goal.target_date) && goal.progress < 100 && (
                   <p className="text-xs text-red-600 mt-1 font-medium">
                     Goal is overdue - consider adjusting timeline or breaking into smaller steps
                   </p>
@@ -210,8 +211,8 @@ export default function GoalProgressChart({ goal }) {
 
         {/* Insights */}
         {velocity > 0 && goal.progress < 100 && (
-          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-            <p className="text-sm text-blue-800">
+          <div className="bg-secondary/70 p-4 rounded-xl border border-border">
+            <p className="text-sm text-foreground">
               <span className="font-semibold">Projected completion:</span>{' '}
               At your current pace, you'll reach 100% in approximately{' '}
               <span className="font-bold">

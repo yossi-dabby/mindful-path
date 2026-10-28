@@ -173,8 +173,8 @@ function ImpactChart({ data, color, emptyLabel, t }) {
   if (data.length === 0) return <p className="py-8 text-center text-muted-foreground">{emptyLabel}</p>;
 
   return (
-    <div className="-mx-1 overflow-x-auto pb-2" tabIndex={0}>
-      <div className="h-[300px] min-w-[500px]">
+    <div className="min-w-0 pb-2">
+      <div className="h-[300px] w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 4, right: 20, bottom: 4, left: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />

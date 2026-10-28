@@ -1,4 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import { useTranslation } from 'react-i18next';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import { Sparkles, TrendingUp, Brain, Loader2, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns';
 
 export default function AiGoalAdjustment({ goal, onApply, onClose }) {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [suggestions, setSuggestions] = useState(null);
   const [error, setError] = useState(null);
@@ -202,8 +204,8 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
   };
 
   return (
-    <PremiumOverlay 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    <PremiumDialog onClose={onClose} label={t('goals.card.ai_adjust')}
+      className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
@@ -214,7 +216,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-purple-600" />
+                <Brain className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <CardTitle>AI Goal Adjustment</CardTitle>
@@ -228,7 +230,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
         <CardContent className="space-y-6">
           {!suggestions && !isGenerating && (
             <div className="text-center py-8">
-              <Sparkles className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Get AI-Powered Suggestions</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Analyze your journal entries and mood data to get personalized recommendations for adjusting this goal.
@@ -246,7 +248,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
 
           {isGenerating && (
             <div className="text-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Analyzing your journal data...</p>
             </div>
           )}
@@ -261,9 +263,9 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           {suggestions && (
             <>
               {/* Overall Assessment */}
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="bg-secondary/70 border border-border rounded-lg p-4">
                 <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-purple-600" />
+                  <Brain className="w-4 h-4 text-primary" />
                   Overall Assessment
                 </h3>
                 <p className="text-sm text-muted-foreground">{suggestions.overall_assessment}</p>
@@ -374,6 +376,6 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           )}
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }

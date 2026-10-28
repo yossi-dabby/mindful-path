@@ -1,3 +1,4 @@
+import { isGoalDateOverdue } from './goalDatePresentation';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -151,7 +152,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     if (!goal.target_date || isCompleted) return false;
     try {
       const targetDate = new Date(goal.target_date);
-      return !isNaN(targetDate.getTime()) && targetDate < new Date();
+      return !isNaN(targetDate.getTime()) && isGoalDateOverdue(goal.target_date);
     } catch {
       return false;
     }
@@ -177,18 +178,18 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   };
 
   return (
-    <Card className={cn('border-0 shadow-md w-full', isCompleted && 'opacity-75')}>
+    <Card className={cn('border border-border/70 bg-card shadow-[var(--shadow-md)] w-full min-w-0', isCompleted && 'opacity-75')}>
       <CardContent className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-0 mb-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-foreground text-xl font-semibold">
+              <h3 className="text-foreground text-xl font-semibold break-words [overflow-wrap:anywhere]">
                 {goal.title}
               </h3>
               {isCompleted && <CheckCircle2 className="w-5 h-5 text-green-600" />}
             </div>
             {goal.description &&
-            <p className="text-sm text-muted-foreground mb-3">{goal.description}</p>
+            <p className="text-sm text-muted-foreground mb-3 break-words [overflow-wrap:anywhere]">{goal.description}</p>
             }
             <div className="flex items-center gap-2 flex-wrap">
                 {goal.category &&
@@ -202,7 +203,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   if (isNaN(date.getTime())) return null;
                   return (
                     <Badge
-                      variant="outline" className="bg-[hsl(var(--card)/0.82)] text-red-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 flex items-center gap-1 border-red-300">
+                      variant="outline" className={cn("bg-card text-muted-foreground px-2.5 py-1 font-medium leading-4 rounded-2xl border flex items-center gap-1 border-border", isOverdue && "text-destructive border-destructive/40")}>
 
 
 
@@ -252,7 +253,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="mb-4">
            <div className="flex items-center justify-between mb-2">
              <span className="text-sm font-medium text-muted-foreground">{t('goals.card.progress')} {updateMilestone.isPending && <span className="text-xs text-muted-foreground ml-2">{t('goals.card.saving')}</span>}</span>
-             <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
+             <span className="text-sm font-bold text-primary">{localProgress}%</span>
            </div>
            <Progress
             value={localProgress}
@@ -269,9 +270,9 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 <span className="text-muted-foreground text-sm font-medium">
                   {localMilestones.filter((m) => m.completed).length}/{localMilestones.length}
                 </span>
-                <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="w-20 h-2 bg-secondary rounded-full overflow-hidden">
                   <div
-                  className="h-full bg-blue-500 transition-all duration-300"
+                  className="h-full bg-primary transition-all duration-300"
                   style={{
                     width: `${localMilestones.length > 0 ? localMilestones.filter((m) => m.completed).length / localMilestones.length * 100 : 0}%`
                   }} />
@@ -284,7 +285,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               if (!milestone.due_date || milestone.completed) return false;
               try {
                 const dueDate = new Date(milestone.due_date);
-                return !isNaN(dueDate.getTime()) && dueDate < new Date();
+                return !isNaN(dueDate.getTime()) && isGoalDateOverdue(milestone.due_date);
               } catch {
                 return false;
               }
@@ -306,20 +307,20 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 key={index}
                 className={cn(
                   "flex items-start gap-3 p-3 rounded-lg border transition-colors relative",
-                  milestone.completed ? "border-green-100 bg-green-50/30" : "border-gray-100 hover:bg-gray-50",
+                  milestone.completed ? "border-green-100 bg-green-50/30" : "border-border hover:bg-secondary/50",
                   isOverdue && "border-red-200 bg-red-50/30",
                   isDueSoon && !isOverdue && "border-amber-200 bg-amber-50/30",
                   updateMilestone.isPending && "opacity-60"
                 )}>
 
                 {milestone.completed &&
-                <div className="absolute top-2 right-2">
+                <div className="absolute top-2 end-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600" />
                   </div>
                 }
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-primary text-primary-foreground mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
+                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-card mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
 
                   id={`milestone-${goal.id}-${index}`} />
 
@@ -329,9 +330,9 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
                   <span
                     className={cn(
-                      'text-sm font-medium block',
+                      'text-sm font-medium block break-words [overflow-wrap:anywhere]',
                       milestone.completed ?
-                      'line-through text-gray-400' :
+                      'line-through text-muted-foreground' :
                       'text-muted-foreground'
                     )}>
 
@@ -442,7 +443,7 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowKanban(!showKanban)} className="bg-emerald-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+            onClick={() => setShowKanban(!showKanban)} className="bg-secondary text-secondary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
 
             size="sm">
 

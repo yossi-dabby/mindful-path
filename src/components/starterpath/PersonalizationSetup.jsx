@@ -1,7 +1,7 @@
+import PremiumOverlay from '@/components/ui/PremiumOverlay';
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Target, Brain, Heart, TrendingUp, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -19,7 +19,7 @@ export default function PersonalizationSetup({ onComplete }) {
     { id: 'mood', label: t('personalization.concerns.mood.label'), icon: Heart, color: '#ED8936', description: t('personalization.concerns.mood.description') },
     { id: 'self_esteem', label: t('personalization.concerns.self_esteem.label'), icon: Sparkles, color: '#9F7AEA', description: t('personalization.concerns.self_esteem.description') },
     { id: 'sleep', label: t('personalization.concerns.sleep.label'), icon: Brain, color: '#38B2AC', description: t('personalization.concerns.sleep.description') },
-    { id: 'relationships', label: t('personalization.concerns.relationships.label'), icon: Heart, color: '#26A69A', description: t('personalization.concerns.relationships.description') }
+    { id: 'relationships', label: t('personalization.concerns.relationships.label'), icon: Heart, color: 'hsl(var(--primary))', description: t('personalization.concerns.relationships.description') }
   ];
 
   const goals = [
@@ -53,7 +53,7 @@ export default function PersonalizationSetup({ onComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-6" style={{
+    <PremiumOverlay className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-6" style={{
       background: 'hsl(var(--overlay) / 0.34)',
       backdropFilter: 'blur(8px)'
     }}>
@@ -91,11 +91,11 @@ export default function PersonalizationSetup({ onComplete }) {
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
-                    <Target className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" style={{ color: '#26A69A' }} />
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A3A34' }}>
+                    <Target className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" style={{ color: 'hsl(var(--primary))' }} />
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                       {t('personalization.title_step1')}
                     </h2>
-                    <p className="text-sm sm:text-base" style={{ color: '#5A7A72' }}>
+                    <p className="text-sm sm:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>
                       {t('personalization.subtitle_step1')}
                     </p>
                   </div>
@@ -108,19 +108,21 @@ export default function PersonalizationSetup({ onComplete }) {
                       return (
                         <motion.button
                           key={concern.id}
+                          type="button"
+                          aria-pressed={isSelected}
                           onClick={() => toggleConcern(concern.id)}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className={cn(
-                            'p-4 rounded-2xl text-left transition-all border-2',
+                            'p-4 rounded-2xl text-start transition-all border-2',
                             isSelected 
                               ? 'shadow-lg' 
                               : 'shadow-sm hover:shadow-md'
                           )}
                           style={{
                             background: isSelected 
-                              ? `linear-gradient(145deg, ${concern.color}20 0%, ${concern.color}10 100%)`
-                              : 'rgba(255, 255, 255, 0.9)',
+                              ? 'hsl(var(--secondary))'
+                              : 'hsl(var(--card))',
                             borderColor: isSelected ? concern.color : 'rgba(200, 220, 215, 0.3)'
                           }}
                         >
@@ -132,10 +134,10 @@ export default function PersonalizationSetup({ onComplete }) {
                               <Icon className="w-5 h-5" style={{ color: concern.color }} />
                             </div>
                             <div className="flex-1">
-                              <p className="font-semibold text-sm sm:text-base mb-1" style={{ color: '#1A3A34' }}>
+                              <p className="font-semibold text-sm sm:text-base mb-1" style={{ color: 'hsl(var(--foreground))' }}>
                                 {concern.label}
                               </p>
-                              <p className="text-xs" style={{ color: '#5A7A72' }}>
+                              <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
                                 {concern.description}
                               </p>
                             </div>
@@ -151,7 +153,7 @@ export default function PersonalizationSetup({ onComplete }) {
                     className="w-full py-6 text-white text-base"
                     style={{
                       borderRadius: '20px',
-                      backgroundColor: '#26A69A',
+                      backgroundColor: 'hsl(var(--primary))',
                       boxShadow: '0 8px 24px rgba(38, 166, 154, 0.3)'
                     }}
                   >
@@ -171,10 +173,10 @@ export default function PersonalizationSetup({ onComplete }) {
                 >
                   <div className="text-center mb-6">
                     <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" style={{ color: '#9F7AEA' }} />
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A3A34' }}>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'hsl(var(--foreground))' }}>
                       {t('personalization.title_step2')}
                     </h2>
-                    <p className="text-sm sm:text-base" style={{ color: '#5A7A72' }}>
+                    <p className="text-sm sm:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>
                       {t('personalization.subtitle_step2')}
                     </p>
                   </div>
@@ -184,11 +186,14 @@ export default function PersonalizationSetup({ onComplete }) {
                       const isSelected = selectedGoals.includes(goal);
                       
                       return (
-                        <Badge
+                        <Button
+                          type="button"
+                          variant="outline"
+                          aria-pressed={isSelected}
                           key={goal}
                           onClick={() => toggleGoal(goal)}
                           className={cn(
-                            'cursor-pointer px-4 py-2 text-sm transition-all',
+                            'min-h-11 h-auto whitespace-normal text-start cursor-pointer px-4 py-2 text-sm transition-all',
                             isSelected
                               ? 'shadow-md'
                               : 'shadow-sm hover:shadow-md'
@@ -196,14 +201,14 @@ export default function PersonalizationSetup({ onComplete }) {
                           style={{
                             borderRadius: '16px',
                             background: isSelected 
-                              ? 'linear-gradient(145deg, rgba(159, 122, 234, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%)'
-                              : 'rgba(255, 255, 255, 0.9)',
-                            color: isSelected ? '#fff' : '#3D5A52',
+                              ? 'hsl(var(--primary))'
+                              : 'hsl(var(--card))',
+                            color: isSelected ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))',
                             border: isSelected ? 'none' : '1px solid rgba(200, 220, 215, 0.3)'
                           }}
                         >
                           {goal}
-                        </Badge>
+                        </Button>
                       );
                     })}
                   </div>
@@ -223,7 +228,7 @@ export default function PersonalizationSetup({ onComplete }) {
                       className="flex-1 py-6 text-white"
                       style={{
                         borderRadius: '20px',
-                        backgroundColor: '#9F7AEA',
+                        backgroundColor: 'hsl(var(--primary))',
                         boxShadow: '0 8px 24px rgba(159, 122, 234, 0.3)'
                       }}
                     >
@@ -237,6 +242,6 @@ export default function PersonalizationSetup({ onComplete }) {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </PremiumOverlay>
   );
 }

@@ -302,7 +302,7 @@ export default function JourneysPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" data-testid="journeys-tabs">
               <TabsList
                 className="mb-6 grid h-auto w-full grid-cols-3 gap-1 rounded-2xl border-border/70 bg-[hsl(var(--card)/0.97)] p-1.5 shadow-sm"
-                aria-label={t('journeys.premium.tabs_aria')}
+                aria-label={t('journeys.page_title')}
               >
                 <TabsTrigger value="available" className="min-h-12 min-w-0 rounded-xl px-2 text-xs sm:text-sm" data-testid="journeys-tab-available">
                   <span className="truncate">{t('journeys.tabs.available')}</span>

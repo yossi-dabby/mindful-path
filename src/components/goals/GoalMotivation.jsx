@@ -97,12 +97,12 @@ Keep it warm, personal, and actionable.`,
         <Card className="border border-border/70 bg-card shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="flex min-w-0 items-start gap-2">
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <h3 className="min-w-0 break-words font-semibold text-foreground flex items-center gap-2">
                     Goal Check-in: {motivation.goal.title}
                   </h3>
                   <p className="text-xs text-muted-foreground">AI-powered motivation boost</p>
@@ -120,7 +120,7 @@ Keep it warm, personal, and actionable.`,
 
             <div className="space-y-4">
               {/* Motivational Message */}
-              <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-purple-200">
+              <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-border">
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
                   <p className="text-muted-foreground">{motivation.motivational_message}</p>
@@ -128,7 +128,7 @@ Keep it warm, personal, and actionable.`,
               </div>
 
               {/* Progress Questions */}
-              <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-blue-200">
+              <div className="bg-[hsl(var(--card)/0.97)] p-4 rounded-lg border-2 border-border">
                 <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-blue-600" />
                   Progress Reflection
@@ -144,7 +144,7 @@ Keep it warm, personal, and actionable.`,
               </div>
 
               {/* Next Action */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-200">
+              <div className="bg-secondary/70 p-4 rounded-lg border-2 border-border">
                 <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                   <Target className="w-4 h-4 text-green-600" />
                   Today's Action
@@ -158,7 +158,7 @@ Keep it warm, personal, and actionable.`,
               </div>
             </div>
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex flex-wrap gap-3 mt-4">
               <Button
                 onClick={() => {
                   // Mark as updated

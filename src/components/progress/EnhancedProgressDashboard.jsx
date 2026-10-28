@@ -243,7 +243,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
                 interval={Math.floor(moodTrendData.length / 6)} />
 
               <YAxis domain={[0, 10]} tick={{ fontSize: 10 }} />
-              <Tooltip />
+              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))', borderRadius: 12 }} />
               <Line
                 type="monotone"
                 dataKey="mood"
@@ -272,7 +272,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))', borderRadius: 12 }} />
                 <Bar dataKey="count" fill="#68B39B" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -297,7 +297,7 @@ export default function EnhancedProgressDashboard({ moodEntries = [], journalEnt
                   interval={Math.floor(journalConsistencyData.length / 6)} />
 
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))', borderRadius: 12 }} />
                 <Bar dataKey="entries" fill="#E6B86E" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

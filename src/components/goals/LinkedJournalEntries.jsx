@@ -24,7 +24,7 @@ export default function LinkedJournalEntries({ goalId }) {
 
   if (isLoading) {
     return (
-      <Card className="border-0 shadow-md">
+      <Card className="border border-border/70 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-6 text-center text-muted-foreground">
           Loading related entries...
         </CardContent>
@@ -34,7 +34,7 @@ export default function LinkedJournalEntries({ goalId }) {
 
   if (entries.length === 0) {
     return (
-      <Card className="border-0 shadow-md">
+      <Card className="border border-border/70 bg-card shadow-[var(--shadow-md)]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <BookOpen className="w-4 h-4" />
@@ -54,7 +54,7 @@ export default function LinkedJournalEntries({ goalId }) {
   }
 
   return (
-    <Card className="border-0 shadow-md">
+    <Card className="border border-border/70 bg-card shadow-[var(--shadow-md)]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <BookOpen className="w-4 h-4" />
@@ -69,7 +69,7 @@ export default function LinkedJournalEntries({ goalId }) {
           return (
             <div
               key={entry.id}
-              className="p-3 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 transition-all"
+              className="p-3 rounded-lg border border-border hover:border-purple-300 hover:bg-secondary/70 transition-all"
             >
               <div className="flex items-start justify-between mb-2">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">

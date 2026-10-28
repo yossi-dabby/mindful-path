@@ -74,8 +74,12 @@ describe('Mood production UX safeguards', () => {
     const form = read('src/components/mood/DetailedMoodForm.jsx');
     expect(page).toContain('grid-cols-3');
     expect(page).toContain('sm:inline-grid sm:w-auto');
-    expect(trend).toContain('overflow-x-auto');
-    expect(triggers).toContain('min-w-[500px]');
+    // The entire canvas now fits the viewport instead of requiring a 500–620px
+    // nested horizontal scroller; path-stage3-flows checks the rendered bounds.
+    expect(trend).toContain('ResponsiveContainer');
+    expect(trend).not.toContain('min-w-[620px]');
+    expect(triggers).toContain('ResponsiveContainer');
+    expect(triggers).not.toContain('min-w-[500px]');
     expect(form).toContain('min(92dvh, 900px)');
     expect(form).toContain("env(safe-area-inset-bottom, 0px)");
   });

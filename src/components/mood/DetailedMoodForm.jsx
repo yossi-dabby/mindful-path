@@ -1,3 +1,4 @@
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -161,26 +162,14 @@ export default function DetailedMoodForm({ entry, onClose }) {
     setFormData({ ...formData, [field]: updated });
   };
 
-  React.useEffect(() => {
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') onClose();
-    };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [onClose]);
 
   return (
-    <div 
+    <PremiumDialog onClose={onClose} label={t('mood_tracker.form.title')}
       role="dialog"
       aria-modal="true"
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
-      className="fixed inset-0 bg-[hsl(var(--overlay)/0.24)] backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
+      className="goal-dialog fixed inset-0 bg-[hsl(var(--overlay)/0.24)] backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
@@ -443,6 +432,6 @@ export default function DetailedMoodForm({ entry, onClose }) {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PremiumDialog>
   );
 }

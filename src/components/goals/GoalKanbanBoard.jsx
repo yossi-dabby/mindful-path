@@ -1,3 +1,5 @@
+import { isGoalDateOverdue } from './goalDatePresentation';
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,12 +14,13 @@ import { toBackendMilestone } from './milestoneSchemaAdapter';
 import { emitEntityChange } from '@/components/utils/crossTabSync';
 
 const statusColumns = {
-  todo: { title: 'To Do', color: 'bg-gray-100', badge: 'bg-gray-500' },
-  in_progress: { title: 'In Progress', color: 'bg-blue-100', badge: 'bg-blue-500' },
-  completed: { title: 'Completed', color: 'bg-green-100', badge: 'bg-green-500' }
+  todo: { title: 'To Do', color: 'bg-secondary/70', badge: 'bg-muted-foreground' },
+  in_progress: { title: 'In Progress', color: 'bg-secondary/70', badge: 'bg-primary' },
+  completed: { title: 'Completed', color: 'bg-secondary/70', badge: 'bg-primary' }
 };
 
 export default function GoalKanbanBoard({ goal }) {
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [localMilestones, setLocalMilestones] = useState(() => {
     if (!goal.milestones || goal.milestones.length === 0) return [];
@@ -145,29 +148,29 @@ export default function GoalKanbanBoard({ goal }) {
 
   if (!goal.milestones || goal.milestones.length === 0) {
     return (
-      <Card className="border-0 shadow-md">
+      <Card className="border border-border/70 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-8 text-center text-muted-foreground">
-          No tasks to display. Add milestones to your goal to use the Kanban board.
+          {t('path_ui.no_tasks')}
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-0 shadow-md">
+    <Card className="border border-border/70 bg-card shadow-[var(--shadow-md)]">
       <CardHeader>
-        <CardTitle className="text-lg">Task Board</CardTitle>
-        <p className="text-sm text-muted-foreground">Drag tasks between columns to update their status</p>
+        <CardTitle className="text-lg">{t('path_ui.board')}</CardTitle>
+        <p className="text-sm text-muted-foreground">{t('path_ui.board_hint')}</p>
       </CardHeader>
       <CardContent>
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {Object.entries(statusColumns).map(([status, config]) => {
               const tasks = getMilestonesByStatus(status);
               return (
-                <div key={status} className="flex flex-col">
+                <div key={status} className="flex min-w-0 flex-col">
                   <div className={cn('rounded-t-lg p-3 flex items-center justify-between', config.color)}>
-                    <h3 className="font-semibold text-sm">{config.title}</h3>
+                    <h3 className="font-semibold text-sm">{t(`path_ui.${status}`)}</h3>
                     <Badge className={cn('text-white', config.badge)}>
                       {tasks.length}
                     </Badge>
@@ -189,7 +192,7 @@ export default function GoalKanbanBoard({ goal }) {
                               if (!milestone.due_date || milestone.completed) return false;
                               try {
                                 const dueDate = new Date(milestone.due_date);
-                                return !isNaN(dueDate.getTime()) && dueDate < new Date();
+                                return !isNaN(dueDate.getTime()) && isGoalDateOverdue(milestone.due_date);
                               } catch {
                                 return false;
                               }

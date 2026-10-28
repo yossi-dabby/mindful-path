@@ -290,7 +290,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
           <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('starter_path.loading')}</p>
@@ -301,7 +301,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
   if (step === 'complete') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-dvh flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -376,14 +376,14 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
               {t('starter_path.back_to_home')}
             </Button>
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
+          <div className="flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row">
+            <div className="min-w-0 flex-1">
+              <div className="botanical-title-row"><h1 className="min-w-0 break-words text-2xl sm:text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}: {t(`starter_path.day_structure.${currentDay}.title`, { defaultValue: dayStructure.title })}
               </h1><BotanicalAccent variant="route" className="botanical-title-art" /></div>
               <p style={{ color: 'rgb(var(--theme-muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
             </div>
-            <div className="text-right">
+            <div className="shrink-0 text-start sm:text-end">
               <p className="text-sm font-medium" style={{ color: 'rgb(var(--calm))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}
               </p>
