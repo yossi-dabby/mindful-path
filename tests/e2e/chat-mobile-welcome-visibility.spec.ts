@@ -20,7 +20,7 @@ test.describe('Chat mobile welcome-card visibility', () => {
     });
   });
 
-  test('keeps the complete welcome card reachable without crossing the composer', async ({ page }) => {
+  test('shows the complete welcome and start action on entry without scrolling', async ({ page }) => {
     await page.goto(`${BASE_URL}/Chat`, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => document.querySelector('[data-page-ready="true"]'));
 
@@ -31,8 +31,10 @@ test.describe('Chat mobile welcome-card visibility', () => {
 
     await expect(scroller).toBeVisible();
     await expect(welcome).toBeVisible();
-    await startButton.scrollIntoViewIfNeeded();
-    await expect(startButton).toBeVisible();
+    await expect(welcome).toBeInViewport({ ratio: 1 });
+    await expect(startButton).toBeInViewport({ ratio: 1 });
+    expect(await scroller.evaluate(el => el.scrollTop)).toBe(0);
+    expect(await page.locator('#app-scroll-container').evaluate(el => el.scrollTop)).toBe(0);
 
     const [scrollerBox, startButtonBox, composerBox] = await Promise.all([
       scroller.boundingBox(),
