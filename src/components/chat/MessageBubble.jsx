@@ -320,7 +320,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     <div className={cn('flex gap-2 sm:gap-3 py-2 px-1 sm:px-2', isUser ? 'justify-end' : 'justify-start')} dir={dir}>
       {!isUser &&
       <div className="bg-secondary/70 text-primary border border-border rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.ai_label')}>
-          <Sparkles className="w-4 h-4" aria-hidden="true" />
+          <Sparkles className="w-4 h-4 shrink-0" aria-hidden="true" />
         </div>
       }
       <div className={cn('max-w-[88%] sm:max-w-[82%] lg:max-w-[74%] min-w-0', isUser && 'flex flex-col items-end')}>
@@ -358,25 +358,25 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
             {isUser ?
           <>
-                {(isImageAttachment || isPdfAttachment || isAudioAttachment) &&
+                {(isImageAttachment || isPdfAttachment || isAudioAttachment || isGenericFileAttachment) &&
             <div className="mb-3">
                     {isImageAttachment &&
               <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
                         <img
                   src={attachmentUrl}
                   alt={t('chat.attachments.image_preview_alt')}
-                  className="max-w-[180px] max-h-[180px] rounded-lg object-cover border border-primary-foreground/20" />
+                  className="max-w-full max-h-[180px] rounded-lg object-cover border border-primary-foreground/20" />
                       </a>
               }
-                    {isPdfAttachment &&
+                    {(isPdfAttachment || isGenericFileAttachment) &&
               <a
                 href={attachmentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors">
-                        <FileText className="w-4 h-4" />
-                        <span className="max-w-[180px] truncate">{attachmentName || t('chat.attachments.pdf_chip_label')}</span>
-                        <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors">
+                        <FileText className="w-4 h-4 shrink-0" />
+                        <span className="min-w-0 truncate">{attachmentName || t(isPdfAttachment ? 'chat.attachments.pdf_chip_label' : 'chat_stage2.file_attachment')}</span>
+                        <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-80" />
                       </a>
               }
                     {isAudioAttachment &&
@@ -387,7 +387,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
             }
                 {content ?
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere !text-primary-foreground" dir="auto">{content}</p> :
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] !text-primary-foreground" dir="auto">{content}</p> :
             null}
                 {/* Collapsible full PDF text — stored in metadata.pdf_extracted_text at send time */}
                 {isPdfAttachment && pdfFullText &&
@@ -423,10 +423,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 key={attachmentKey}
                 type="button"
                 onClick={() => handleAssistantPdfDownload(assistantAttachment.url)}
-                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
-                        <FileText className="w-4 h-4" />
-                        <span className="max-w-[220px] truncate">{chipLabel}</span>
-                        <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                        <FileText className="w-4 h-4 shrink-0" />
+                        <span className="min-w-0 truncate">{chipLabel}</span>
+                        <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-80" />
                       </button>
                     );
                   }
@@ -439,9 +439,9 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 href={assistantAttachment.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
                         <FileText className="w-4 h-4 flex-shrink-0" />
-                        <span className="max-w-[220px] truncate">{chipLabel}</span>
+                        <span className="min-w-0 truncate">{chipLabel}</span>
                         <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
                       </a>
                     );
@@ -480,7 +480,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 if (!src) return null;
                 return (
                   <a href={src} target="_blank" rel="noopener noreferrer" className="inline-block my-2">
-                    <img src={src} alt={alt || ''} className="max-w-[260px] max-h-[260px] rounded-lg object-cover border border-primary-foreground/20" />
+                    <img src={src} alt={alt || ''} className="max-w-full max-h-[260px] rounded-lg object-cover border border-primary-foreground/20" />
                   </a>
                 );
               },
@@ -491,24 +491,24 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 if (fileType === 'image') {
                   return (
                     <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block my-2">
-                      <img src={href} alt={String(children || '')} className="max-w-[260px] max-h-[260px] rounded-lg object-cover border border-primary-foreground/20" />
+                      <img src={href} alt={String(children || '')} className="max-w-full max-h-[260px] rounded-lg object-cover border border-primary-foreground/20" />
                     </a>
                   );
                 }
                 if (fileType === 'pdf') {
                   return (
-                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
                       <FileText className="w-4 h-4 flex-shrink-0" />
-                      <span className="max-w-[200px] truncate">{String(children || href)}</span>
+                      <span className="min-w-0 truncate">{String(children || href)}</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
                     </a>
                   );
                 }
                 if (fileType === 'file') {
                   return (
-                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
                       <FileText className="w-4 h-4 flex-shrink-0" />
-                      <span className="max-w-[200px] truncate">{String(children || href)}</span>
+                      <span className="min-w-0 truncate">{String(children || href)}</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
                     </a>
                   );
@@ -519,10 +519,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
               <p className="my-2 leading-relaxed text-[15px]">{children || ''}</p>,
 
               ul: ({ children }) =>
-              <ul className="my-2 ml-4 list-disc space-y-1">{children || ''}</ul>,
+              <ul className="my-2 ms-4 list-disc space-y-1">{children || ''}</ul>,
 
               ol: ({ children }) =>
-              <ol className="my-2 ml-4 list-decimal space-y-1">{children || ''}</ol>,
+              <ol className="my-2 ms-4 list-decimal space-y-1">{children || ''}</ol>,
 
               li: ({ children }) => <li className="my-1">{children || ''}</li>,
               strong: ({ children }) =>
@@ -530,7 +530,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
               em: ({ children }) => <em className="italic">{children || ''}</em>,
               blockquote: ({ children }) =>
-              <blockquote className="border-l-4 border-primary/35 pl-4 my-3 italic text-muted-foreground">
+              <blockquote className="border-s-4 border-primary/35 ps-4 my-3 italic text-muted-foreground">
                       {children || ''}
                     </blockquote>
 
@@ -583,7 +583,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
       {isUser &&
       <div className="bg-primary text-primary-foreground rounded-xl h-9 w-9 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]" aria-label={t('common.you_label')}>
-          <UserRound className="w-4 h-4" aria-hidden="true" />
+          <UserRound className="w-4 h-4 shrink-0" aria-hidden="true" />
         </div>
       }
     </div>);

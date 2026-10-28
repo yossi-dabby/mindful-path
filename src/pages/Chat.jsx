@@ -25,6 +25,7 @@ import {
 '@/components/ui/alert-dialog';
 import MessageList from '../components/chat/MessageList';
 import ConversationsList from '../components/chat/ConversationsList';
+import ChatConversationsSidebar from '../components/chat/ChatConversationsSidebar';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import { validateChatAttachment } from '../components/chat/utils/fileValidation';
@@ -414,6 +415,7 @@ export default function Chat() {
   const [deliveryStatus, setDeliveryStatus] = useState('idle');
   const [responseWaitSeconds, setResponseWaitSeconds] = useState(0);
   const [showSidebar, setShowSidebar] = useState(false);
+  const deleteReturnFocusRef = useRef(null);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(true);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const summaryPromptShownConversationIdsRef = useRef(new Set());
@@ -5103,7 +5105,8 @@ export default function Chat() {
     }
   });
 
-  const handleDeleteConversation = (conversationId) => {
+  const handleDeleteConversation = (conversationId, opener) => {
+    deleteReturnFocusRef.current = opener || document.activeElement;
     setPendingDeleteId(conversationId);
   };
 
@@ -5262,7 +5265,11 @@ export default function Chat() {
   return (
     <>
       <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => {if (!open) setPendingDeleteId(null);}}>
-        <AlertDialogContent>
+        <AlertDialogContent onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          const target = deleteReturnFocusRef.current?.isConnected ? deleteReturnFocusRef.current : document.querySelector('[data-testid="chat-new-conversation"]');
+          target?.focus?.({ preventScroll: true });
+        }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2"><Trash2 className="w-5 h-5 text-destructive" />{t('chat.delete_session_title', 'Delete this session?')}</AlertDialogTitle>
             <AlertDialogDescription>{t('chat.delete_session_desc', 'This action cannot be undone.')}</AlertDialogDescription>
@@ -5294,21 +5301,7 @@ export default function Chat() {
             }
           }
         `}</style>
-      {/* Backdrop overlay when sidebar is open - below input area */}
-      {showSidebar &&
-        <div
-          className="xl:hidden fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-30"
-          onClick={() => setShowSidebar(false)}
-          style={{ zIndex: 30 }} />
-
-        }
-
-      {/* Sidebar - Conversations List */}
-      <div className={`
-        ${showSidebar ? 'block' : 'hidden'} ${desktopSidebarCollapsed ? 'xl:hidden' : 'xl:block'}
-        fixed xl:relative inset-y-0 start-0 xl:inset-auto w-[min(20rem,calc(100vw-1rem))]
-        border-e border-border/70 bg-[hsl(var(--sidebar-background)/0.96)] backdrop-blur-2xl shadow-[var(--shadow-lg)] xl:shadow-none z-40
-      `}>
+      <ChatConversationsSidebar open={showSidebar} desktopCollapsed={desktopSidebarCollapsed} onClose={() => setShowSidebar(false)}>
         <ErrorBoundary>
           <ConversationsList
               conversations={Array.isArray(displayConversations) ? displayConversations : []}
@@ -5323,7 +5316,7 @@ export default function Chat() {
               onClose={() => setShowSidebar(false)} />
 
         </ErrorBoundary>
-      </div>
+      </ChatConversationsSidebar>
 
       {/* Main Chat Area */}
       <div className="rounded-2xl flex-1 flex flex-col min-h-0 min-w-0">
@@ -5341,7 +5334,7 @@ export default function Chat() {
               variant="ghost"
               size="icon"
               onClick={() => setShowSidebar(!showSidebar)}
-              mobileLabelKey="menu" aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="xl:hidden text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0" mobileLabelKey="menu">
+              mobileLabelKey="menu" aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="xl:hidden text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
             <Menu className="w-5 h-5" />
           </Button>
@@ -5491,7 +5484,7 @@ export default function Chat() {
                     <button
                     onClick={() => setVisibleCount((prev) => Math.min(prev + 30, messages.length))}
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border/50">
-                      Load earlier messages
+                      {t('chat_stage2.load_earlier')}
                     </button>
                   </div>
                 }
@@ -5595,16 +5588,10 @@ export default function Chat() {
                   </div>
                 </div>
               }
+              {currentConversationData?.session_summary && <SessionSummary conversation={currentConversationData} />}
             </div>
             }
         </div>
-
-        {/* Session Summary Display */}
-        {currentConversationData?.session_summary &&
-          <div className="border-t border-border/70 bg-card/85 backdrop-blur-xl">
-            <SessionSummary conversation={currentConversationData} />
-          </div>
-          }
 
         {/* Input Area - Always visible, always on top */}
         <div data-testid="chat-composer" className="bg-[hsl(var(--card)/0.97)] text-foreground rounded-2xl px-2 py-1 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
@@ -5637,7 +5624,7 @@ export default function Chat() {
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-secondary/70 border border-border text-xs text-primary">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
                       <span className="truncate max-w-[160px]">{attachedFile.name}</span>
-                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ml-auto text-primary hover:text-primary flex-shrink-0">✕<span className="mobile-action-label md:hidden">{t('chat.attachments.remove_button_aria')}</span></button>
+                      <button onClick={() => setAttachedFile(null)} aria-label={t('chat.attachments.remove_button_aria')} className="ms-auto flex min-h-11 min-w-11 shrink-0 flex-col items-center justify-center rounded-xl p-2 text-primary hover:bg-secondary">✕<span className="mobile-action-label md:hidden">{t('chat.attachments.remove_button_aria')}</span></button>
                     </div>
                   )}
                   {messages.filter((message) => message.role === 'user').length === 0 && !inputMessage.trim() && (
@@ -5785,7 +5772,7 @@ export default function Chat() {
               role="status"
               aria-live="polite"
               data-testid="chat-delivery-status"
-              className={`text-center mt-1 text-xs ${deliveryStatus === 'failed' ? 'text-red-700' : 'text-muted-foreground'}`}
+              className={`text-center mt-1 text-xs ${deliveryStatus === 'failed' ? 'text-red-700 dark:text-red-300' : 'text-muted-foreground'}`}
             >
               {t(`chat.delivery.${deliveryStatus}`)}
             </p>

@@ -91,7 +91,7 @@ export default function InlineConsentBanner({ onAccept }) {
       aria-labelledby="consent-banner-title"
       dir={copy.direction}
       lang={copy.language}
-      className="mb-4 overflow-hidden rounded-[22px] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)]"
+      className="mb-4 min-w-0 overflow-hidden rounded-[28px] [overflow-wrap:anywhere] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)]"
     >
       <div className="p-4 sm:p-5">
         <div className="flex items-start gap-3">
@@ -129,7 +129,7 @@ export default function InlineConsentBanner({ onAccept }) {
             </div>
 
             {saveError && (
-              <p role="alert" className="mt-3 text-sm font-medium text-red-700">{saveError}</p>
+              <p role="alert" className="mt-3 text-sm font-medium text-red-700 dark:text-red-300">{saveError}</p>
             )}
             <Button
               onClick={handleAccept}

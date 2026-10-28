@@ -21,7 +21,7 @@ describe('Chat visual hierarchy contract', () => {
   it('visually distinguishes user and assistant messages', () => {
     expect(bubble).toContain("isUser ? 'justify-end' : 'justify-start'");
     expect(bubble).toContain("'bg-primary text-primary-foreground rounded-ee-md'");
-    expect(bubble).toContain('overflow-wrap-anywhere !text-primary-foreground');
+    expect(bubble).toContain('[overflow-wrap:anywhere] !text-primary-foreground');
     expect(bubble).toContain("'bg-[hsl(var(--card)/0.97)] text-foreground border border-border rounded-es-md backdrop-blur-sm'");
     expect(bubble).toContain('Sparkles');
     expect(bubble).toContain('UserRound');

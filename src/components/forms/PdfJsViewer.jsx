@@ -15,6 +15,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import {
   createPdfJsWorkerDeploymentIssueKey,
@@ -104,6 +105,7 @@ export default function PdfJsViewer({ fileUrl }) {
   const qaSignalDedupeRef = useRef(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [workerDeploymentIssue, setWorkerDeploymentIssue] = useState(null);
 
   const handleWorkerDeploymentIssue = useCallback((issue) => {
@@ -195,7 +197,7 @@ export default function PdfJsViewer({ fileUrl }) {
     const ac = new AbortController();
     renderPdf(fileUrl, ac.signal);
     return () => ac.abort();
-  }, [fileUrl, renderPdf]);
+  }, [fileUrl, renderPdf, retryCount]);
 
   // Re-render on resize / orientation change so canvas widths stay correct.
   useEffect(() => {
@@ -284,7 +286,7 @@ export default function PdfJsViewer({ fileUrl }) {
             gap: '0.75rem',
             paddingTop: '4rem',
             textAlign: 'center',
-            color: 'var(--destructive, #ef4444)',
+            color: 'hsl(var(--foreground))',
           }}
         >
           <p style={{ margin: 0 }}>
@@ -294,8 +296,9 @@ export default function PdfJsViewer({ fileUrl }) {
             data-testid="pdfjs-error-message"
             style={{ margin: 0, fontSize: '0.75rem', opacity: 0.75 }}
           >
-            {errorMessage}
+            {t('pdf_ui.load_error')}
           </p>
+          <Button type="button" variant="outline" onClick={() => setRetryCount((count) => count + 1)}>{t('common.retry')}</Button>
           {fileUrl && (
             <a
               href={fileUrl}

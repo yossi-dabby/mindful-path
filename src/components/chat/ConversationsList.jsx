@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, MessageCircle, X, Trash2, Search, MoreHorizontal, Pencil, Pin, PinOff, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -42,6 +42,9 @@ export default function ConversationsList({
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [nameDraft, setNameDraft] = useState('');
+  const bulkTriggerRef = useRef(null);
+  const newConversationRef = useRef(null);
+  const actionRefs = useRef(new Map());
 
   const getConversationName = (conversation) =>
     conversation.metadata?.name || `${t('chat.conversations_list.session_prefix')} ${(conversation.id || '').slice(0, 8)}`;
@@ -61,7 +64,8 @@ export default function ConversationsList({
   const submitRename = async (conversationId) => {
     const nextTitle = nameDraft.trim().slice(0, 80);
     if (!nextTitle) return;
-    await onRenameConversation?.(conversationId, nextTitle);
+    try { await onRenameConversation?.(conversationId, nextTitle); }
+    catch { return; } // Keep the name draft; the parent displays the write error.
     setEditingId(null);
     setNameDraft('');
   };
@@ -100,7 +104,10 @@ export default function ConversationsList({
   return (
     <>
       <AlertDialog open={showBulkConfirm} onOpenChange={setShowBulkConfirm}>
-        <AlertDialogContent>
+        <AlertDialogContent onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          (bulkTriggerRef.current?.isConnected ? bulkTriggerRef.current : newConversationRef.current)?.focus?.({ preventScroll: true });
+        }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" />
@@ -120,11 +127,11 @@ export default function ConversationsList({
       </AlertDialog>
 
       <div className="relative h-full min-h-0 overflow-hidden rounded-[28px] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)] flex flex-col">
-        <div className="h-1.5 flex-shrink-0 bg-primary/25" />
         {/* Header */}
         <div className="bg-[hsl(var(--card)/0.97)] p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border backdrop-blur-xl">
           {selected.size > 0 ? (
             <div className="flex items-center gap-2 flex-1 min-w-0">
+              <label className="inline-flex h-11 w-11 shrink-0 items-center justify-center" onClick={(event) => event.stopPropagation()}>
               <input
                 type="checkbox"
                 checked={allSelected}
@@ -132,11 +139,12 @@ export default function ConversationsList({
                 onChange={toggleAll}
                 className="w-4 h-4 flex-shrink-0 accent-primary cursor-pointer"
                 aria-label={t('chat.conversations_list.select_all')}
-              />
+              /></label>
               <span className="text-primary text-sm font-medium truncate">{t('chat.conversations_list.selected_count', { count: selected.size })}</span>
               <button
+                ref={bulkTriggerRef}
                 onClick={() => setShowBulkConfirm(true)}
-                className="ms-auto flex items-center gap-1 px-2 py-1 rounded-[var(--radius-nested)] bg-destructive/10 text-red-600 text-xs font-medium flex-shrink-0 min-h-[36px] min-w-[44px]"
+                className="ms-auto flex items-center gap-1 px-2 py-1 rounded-[var(--radius-nested)] bg-destructive/10 text-red-600 text-xs font-medium flex-shrink-0 min-h-[44px] min-w-[44px]"
                 aria-label={t('chat.conversations_list.bulk_delete_aria', { count: selected.size })}
               >
                 <Trash2 className="w-4 h-4" />
@@ -146,19 +154,22 @@ export default function ConversationsList({
           ) : (
             <div className="flex items-center gap-2 flex-1 min-w-0">
               {safeConversations.length > 0 && (
+                <label className="inline-flex h-11 w-11 shrink-0 items-center justify-center" onClick={(event) => event.stopPropagation()}>
                 <input
                   type="checkbox"
                   checked={false}
                   onChange={toggleAll}
                   className="w-4 h-4 flex-shrink-0 accent-primary cursor-pointer"
                   aria-label={t('chat.conversations_list.select_all')}
-                />
+                /></label>
               )}
               <h2 className="text-foreground text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
             </div>
           )}
           <div className="flex gap-2 flex-shrink-0 ms-2">
             <Button
+              ref={newConversationRef}
+              data-testid="chat-new-conversation"
               onClick={onNewConversation}
               size="icon"
               className="bg-primary text-primary-foreground font-medium tracking-[0.005em] leading-none rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0"
@@ -184,6 +195,7 @@ export default function ConversationsList({
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" aria-hidden="true" />
               <input
                 type="search"
+                aria-label={t('chat.conversations_list.search_placeholder')}
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder={t('chat.conversations_list.search_placeholder')}
@@ -219,7 +231,7 @@ export default function ConversationsList({
                   )}
                 >
                   {/* Checkbox — left side */}
-                  <div className="absolute start-2 top-1/2 -translate-y-1/2 z-10">
+                  <label className="absolute start-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center" onClick={(event) => event.stopPropagation()}>
                     <input
                       type="checkbox"
                       checked={selected.has(conversation.id)}
@@ -228,11 +240,11 @@ export default function ConversationsList({
                       className="w-4 h-4 accent-primary cursor-pointer"
                       aria-label={t('chat.conversations_list.select_session', { name: conversation.metadata?.name || conversation.id })}
                     />
-                  </div>
+                  </label>
 
                   {editingId === conversation.id ? (
                     <form
-                      className="p-3 ps-8 pe-3 flex items-center gap-2 min-w-0"
+                      className="p-3 ps-12 pe-3 flex items-center gap-2 min-w-0"
                       onSubmit={(event) => { event.preventDefault(); void submitRename(conversation.id); }}
                     >
                       <input
@@ -253,7 +265,7 @@ export default function ConversationsList({
                   ) : (
                   <button
                     onClick={() => onSelectConversation(conversation.id)}
-                    className="bg-transparent text-start p-3 ps-8 pe-14 w-full flex items-start gap-3 min-w-0"
+                    className="bg-transparent text-start p-3 ps-12 pe-14 w-full flex items-start gap-3 min-w-0"
                   >
                     <div className={cn('rounded-[18px] w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 shadow-sm', currentConversationId === conversation.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-primary')}>
                       <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
@@ -280,6 +292,7 @@ export default function ConversationsList({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
+                          ref={(element) => { if (element) actionRefs.current.set(conversation.id, element); else actionRefs.current.delete(conversation.id); }}
                           className="absolute end-2 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center hover:bg-[hsl(var(--card)/0.97)] hover:shadow-sm"
                           aria-label={t('chat.conversations_list.actions_aria', { name: getConversationName(conversation) })}
                         >
@@ -291,11 +304,11 @@ export default function ConversationsList({
                           <Pencil className="w-4 h-4" />
                           {t('chat.conversations_list.rename_aria')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onTogglePinConversation?.(conversation.id, !conversation.ui_is_pinned)} disabled={isPreferenceSaving}>
+                        <DropdownMenuItem onSelect={async () => { try { await onTogglePinConversation?.(conversation.id, !conversation.ui_is_pinned); } catch { /* The parent reports the write error. */ } }} disabled={isPreferenceSaving}>
                           {conversation.ui_is_pinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
                           {t(conversation.ui_is_pinned ? 'chat.conversations_list.unpin_aria' : 'chat.conversations_list.pin_aria')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:text-red-700" onSelect={() => onDeleteConversation(conversation.id)}>
+                        <DropdownMenuItem className="text-red-600 focus:text-red-700" onSelect={() => onDeleteConversation(conversation.id, actionRefs.current.get(conversation.id))}>
                           <Trash2 className="w-4 h-4" />
                           {t('common.delete')}
                         </DropdownMenuItem>

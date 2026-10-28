@@ -23,19 +23,19 @@ export default function SessionSummary({ conversation }) {
   );
 
   return (
-    <div className="overflow-x-hidden border-t border-border bg-[hsl(var(--card)/0.97)] p-4 md:p-6">
+    <section data-testid="chat-session-summary" className="min-w-0 p-3 sm:p-4 md:p-6">
       <Card className="mx-auto max-w-3xl rounded-[28px] border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-[var(--shadow-md)]">
         <CardContent className="space-y-3 p-5 sm:p-6">
           <SummarySection icon={CheckCircle2} title={t('chat_stage.summary.understood')}>
-            <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{conversation.session_summary}</p>
+            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm leading-6 text-muted-foreground">{conversation.session_summary}</p>
           </SummarySection>
 
           <SummarySection icon={Sparkles} title={t('chat_stage.summary.practice')}>
             {recommendedExercise ? (
               <div className="flex flex-col gap-3 rounded-2xl bg-secondary/70 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-semibold text-foreground">{recommendedExercise.title}</p>
-                  {recommendedExercise.description && <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{recommendedExercise.description}</p>}
+                <div className="min-w-0">
+                  <p className="break-words font-semibold text-foreground">{recommendedExercise.title}</p>
+                  {recommendedExercise.description && <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-muted-foreground">{recommendedExercise.description}</p>}
                 </div>
                 <Link to={createPageUrl('Exercises')} className="shrink-0">
                   <Button className="min-h-11 w-full rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary sm:w-auto">
@@ -53,7 +53,7 @@ export default function SessionSummary({ conversation }) {
           </SummarySection>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }
 

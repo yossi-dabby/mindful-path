@@ -35,7 +35,7 @@ describe('Stage 17 live-QA regression fixes', () => {
   });
 
   it('forces readable theme foreground inside the primary user bubble', () => {
-    expect(BUBBLE_SOURCE).toContain('overflow-wrap-anywhere !text-primary-foreground');
+    expect(BUBBLE_SOURCE).toContain('[overflow-wrap:anywhere] !text-primary-foreground');
   });
 
   it('shows a localized opening preview instead of a blank new session', () => {

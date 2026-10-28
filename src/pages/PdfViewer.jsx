@@ -73,8 +73,8 @@ export default function PdfViewer() {
           reason: error?.message || error
         });
         toast({
-          title: 'Unable to open worksheet',
-          description: 'This worksheet file could not be opened. Please try again or contact support.',
+          title: t('pdf_ui.unavailable'),
+          description: t('pdf_ui.load_error'),
           variant: 'destructive'
         });
         if (isCancelled) return;
@@ -92,7 +92,7 @@ export default function PdfViewer() {
     return () => {
       isCancelled = true;
     };
-  }, [normalizedRequestedFile, requestedFile, toast]);
+  }, [normalizedRequestedFile, requestedFile, toast, t]);
 
   const handleDownload = async () => {
     if (!resolvedFileUrl) return;
@@ -106,8 +106,8 @@ export default function PdfViewer() {
         reason: error?.message || error
       });
       toast({
-        title: 'Unable to download worksheet',
-        description: 'This worksheet file could not be downloaded. Please try again or contact support.',
+        title: t('chat.generated_file.download_error_title'),
+        description: t('chat.generated_file.download_error_desc'),
         variant: 'destructive'
       });
     }
@@ -126,13 +126,13 @@ export default function PdfViewer() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-background" style={{ height: '100dvh', overflow: 'hidden' }}>
-      <div className="flex items-center justify-between gap-3 border-b bg-background/95 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3">
         <div className="min-w-0 truncate text-sm font-medium text-foreground">
           {t('chat.generated_file.type_label', 'PDF')}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           {hasError && requestedFile &&
-          <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <Button type="button" variant="outline" size="sm" className="h-auto min-h-11 whitespace-normal" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>
           }
@@ -141,12 +141,12 @@ export default function PdfViewer() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleDownload} className="[font-family:'Albert_Sans',_sans-serif] font-semibold">
+            onClick={handleDownload} className="h-auto min-h-11 whitespace-normal [font-family:'Albert_Sans',_sans-serif] font-semibold">
             
               {t('chat.generated_file.download_button', 'Download')}
             </Button>
           }
-          <Button type="button" variant="ghost" size="sm" onClick={handleClose}>
+          <Button type="button" variant="ghost" size="sm" className="h-auto min-h-11 whitespace-normal" onClick={handleClose}>
             {t('common.close', 'Close')}
           </Button>
         </div>
@@ -174,7 +174,7 @@ export default function PdfViewer() {
             <FileWarning className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
             <h1 className="text-lg font-semibold">{t('pdf_ui.unavailable')}</h1>
             <p className="text-sm text-muted-foreground">{t(requestedFile ? 'pdf_ui.load_error' : 'pdf_ui.no_file')}</p>
-            <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
+            <Button type="button" variant="outline" size="sm" className="h-auto min-h-11 whitespace-normal" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>
           </div>
