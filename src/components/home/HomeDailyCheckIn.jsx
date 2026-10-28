@@ -30,6 +30,7 @@ export default function HomeDailyCheckIn({ initialMood, onClose }) {
       queryClient.setQueryData(['todayFlow'], flow);
       queryClient.invalidateQueries({ queryKey: ['moodEntries'] });
       queryClient.invalidateQueries({ queryKey: ['todayExercise'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyRecords'] });
       onClose();
     },
   });
@@ -49,6 +50,7 @@ export default function HomeDailyCheckIn({ initialMood, onClose }) {
             <h2 className="text-2xl font-semibold">{t('home_practice.checkin_title')}</h2>
             <Button type="button" variant="ghost" size="icon" aria-label={t('common.close')} onClick={onClose}><X className="h-5 w-5" /></Button>
           </div>
+          <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{t('home_practice.records.storage')}</p>
           <fieldset disabled={save.isPending} className="min-w-0 space-y-5">
             <fieldset>
               <legend className="mb-3 font-semibold">{t('home_practice.checkin_mood')}</legend>

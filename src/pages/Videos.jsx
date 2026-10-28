@@ -1,4 +1,4 @@
-import BotanicalAccent from '@/components/brand/BotanicalAccent';
+import LibraryPageHeader from '@/components/ui/LibraryPageHeader';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -45,36 +45,10 @@ export default function Videos() {
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
       <div className="min-h-dvh bg-transparent safe-bottom">
         <div className="page-container max-w-7xl">
-        {/* Header */}
-        <div className="garden-responsive-heading flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 mt-6">
-          <div>
-            <div className="botanical-title-row"><h1 className="text-foreground mb-1 text-2xl font-semibold md:text-3xl">
-              {t('videos.title')}
-            </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            <p className="text-primary text-sm">
-              {t('videos.subtitle')}
-            </p>
-          </div>
-          <div className="flex gap-2 flex-wrap md:flex-nowrap">
-            <Link to={createPageUrl('Playlists')}>
-              <Button className="bg-primary text-primary-foreground px-6 py-5 text-sm font-medium tracking-[0.005em] rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto">
-
-                  
-                <List className="w-4 h-4 mr-1" />
-                {t('videos.my_playlists')}
-              </Button>
-            </Link>
-            <Button
-                variant="outline"
-                onClick={() => setShowCreatePlaylist(true)} className="bg-primary text-primary-foreground px-5 py-5 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto"
-
-                style={{ borderRadius: '9999px' }}>
-                
-              <Plus className="text-slate-50 mr-1 lucide lucide-plus w-4 h-4" />
-              {t('videos.new_button')}
-            </Button>
-          </div>
-        </div>
+        <LibraryPageHeader title={t('videos.title')} subtitle={t('videos.subtitle')}>
+          <Button asChild><Link to={createPageUrl('Playlists')}><List className="h-4 w-4" />{t('videos.my_playlists')}</Link></Button>
+          <Button variant="outline" onClick={() => setShowCreatePlaylist(true)}><Plus className="h-4 w-4" />{t('videos.new_button')}</Button>
+        </LibraryPageHeader>
 
         {/* Loading State */}
         {isLoading &&
@@ -93,7 +67,7 @@ export default function Videos() {
 
         {/* Video Grid */}
         {!isLoading && videos.length > 0 &&
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {videos.map((video, index) =>
             <motion.div
               key={video.id}
@@ -101,7 +75,7 @@ export default function Videos() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}>
               
-                <Card className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden group flex flex-col h-full">
+                <Card className="border border-border/70 bg-card rounded-[28px] hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden group flex flex-col h-full">
                   <CardContent className="p-0 flex flex-col" style={{ height: '100%' }}>
                     <Link
                     to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}>
@@ -115,12 +89,12 @@ export default function Videos() {
                       
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/40 transition-colors flex items-center justify-center">
                           <div
-                          className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-[hsl(var(--card)/0.97)] backdrop-blur-sm"
+                          className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-primary"
                           style={{
                             borderRadius: 'var(--r-lg)'
                           }}>
                           
-                            <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+                            <Play className="w-5 h-5 text-primary-foreground fill-current ml-0.5" />
                           </div>
                         </div>
                         {(() => {

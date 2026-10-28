@@ -17,6 +17,7 @@ import StreakWidget from '../components/gamification/StreakWidget';
 import BadgeDisplay from '../components/gamification/BadgeDisplay';
 import DailyPath from '../components/home/DailyPath';
 import DailyReflection from '../components/home/DailyReflection';
+import DailyRecordsDialog from '../components/home/DailyRecordsDialog';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
 import GoalsDashboardWidget from '../components/goals/GoalsDashboardWidget';
@@ -30,6 +31,7 @@ export default function Home() {
   const [showMoodCheckIn, setShowMoodCheckIn] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
+  const [showDailyRecords, setShowDailyRecords] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
   const [showGoalsVideo, setShowGoalsVideo] = useState(false);
   const [showJournalVideo, setShowJournalVideo] = useState(false);
@@ -67,7 +69,7 @@ export default function Home() {
     queryKey: ['todayMood'],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
-      const moods = await base44.entities.MoodEntry.filter({ date: today });
+      const moods = await base44.entities.MoodEntry.filter({ date: today }, '-created_date', 1);
       return moods[0] || null;
     },
     staleTime: 1000 * 60 * 5,
@@ -105,7 +107,7 @@ export default function Home() {
     queryKey: ['todayFlow'],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
-      const flows = await base44.entities.DailyFlow.filter({ date: today });
+      const flows = await base44.entities.DailyFlow.filter({ date: today }, '-created_date', 1);
       return flows[0] || null;
     },
     staleTime: 1000 * 60 * 5,
@@ -251,6 +253,14 @@ export default function Home() {
           />
         </div>
 
+        <section className="mb-8 flex flex-col gap-4 rounded-[24px] border border-border bg-card p-5 text-foreground shadow-[var(--shadow-sm)] sm:flex-row sm:items-center sm:justify-between" aria-labelledby="daily-records-heading">
+          <div className="min-w-0">
+            <h2 id="daily-records-heading" className="flex items-center gap-2 text-lg font-semibold"><BookOpen className="h-5 w-5 shrink-0 text-primary" />{t('home_practice.records.title')}</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{t('home_practice.records.storage')}</p>
+          </div>
+          <Button variant="outline" className="h-auto shrink-0 whitespace-normal" disabled={!user?.email} onClick={() => setShowDailyRecords(true)} data-testid="open-daily-records">{t('home_practice.records.open')}</Button>
+        </section>
+
           {/* Secondary Content - Progress Context */}
         <div className="hidden bg-secondary/70 text-emerald-200 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
@@ -366,6 +376,8 @@ export default function Home() {
         <div className="hidden bg-secondary/70 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
+
+      {showDailyRecords && <DailyRecordsDialog userKey={user?.id || user?.email} onClose={() => setShowDailyRecords(false)} onEditCheckIn={() => setShowMoodCheckIn(true)} />}
 
       {/* Mood Check-in Modal */}
       {showMoodCheckIn &&

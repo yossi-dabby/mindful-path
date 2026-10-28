@@ -273,7 +273,7 @@ Provide recommendations with:
 
   if (!isExpanded) {
     return (
-      <Card className="exercise-card-art--subtle border border-border/80 shadow-[var(--shadow-sm)]">
+      <Card className="exercise-card-art--subtle overflow-hidden rounded-[28px] border border-border/70 shadow-[var(--shadow-sm)]">
         <button
           type="button"
           onClick={() => setIsExpanded(true)}
@@ -290,8 +290,8 @@ Provide recommendations with:
   }
 
   return (
-    <Card className="exercise-card-art--subtle border border-border/80 shadow-[var(--shadow-md)]">
-      <CardHeader className="bg-secondary/50 p-6 flex flex-col space-y-1.5 border-b border-border/70">
+    <Card className="exercise-card-art--subtle overflow-hidden rounded-[28px] border border-border/70 shadow-[var(--shadow-md)]">
+      <CardHeader className="bg-secondary/35 p-4 sm:p-6 flex flex-col space-y-1.5 border-b border-border/70">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="text-primary lucide lucide-sparkles w-5 h-5" />
@@ -341,7 +341,7 @@ Provide recommendations with:
           </div>
         </div>
       </CardHeader>
-      <CardContent className="bg-card p-6 overflow-x-hidden">
+      <CardContent className="bg-card p-4 sm:p-6 overflow-x-hidden">
         {/* Mood/Goal Filters */}
         <AnimatePresence>
           {showFilters &&
@@ -401,7 +401,7 @@ Provide recommendations with:
         </AnimatePresence>
 
         {!recommendations && !generateMutation.isPending &&
-        <div className="text-center py-8 px-4">
+        <div className="rounded-2xl border border-border/70 bg-secondary/25 px-4 py-6 text-center">
             <Sparkles className="text-primary mb-3 mx-auto lucide lucide-sparkles w-12 h-12" />
             <p className="text-primary mb-4 text-sm sm:text-base">{t('exercises.recommendations.intro')}</p>
           </div>

@@ -14,11 +14,12 @@ const INSIGHTS = ['breathing', 'grounding', 'cognitive_restructuring', 'behavior
 
 export default function DailyReflection({ todayFlow, exercise, onClose }) {
   const { t } = useTranslation();
-  const [selectedTakeaway, setSelectedTakeaway] = useState('');
-  const [customTakeaway, setCustomTakeaway] = useState('');
+  const [selectedTakeaway, setSelectedTakeaway] = useState(() => TAKEAWAYS.find((key) => t(`home_practice.takeaways.${key}`) === todayFlow?.daily_takeaway) || '');
+  const [customTakeaway, setCustomTakeaway] = useState(() => selectedTakeaway ? '' : todayFlow?.daily_takeaway || '');
+  const isEditing = Boolean(todayFlow?.daily_takeaway || todayFlow?.reflection_completed);
   const closeTimer = useRef();
   const queryClient = useQueryClient();
-  const insight = t(`home_practice.insights.${!exercise ? 'no_exercise' : INSIGHTS.includes(exercise.category) ? exercise.category : 'general'}`);
+  const insight = todayFlow?.key_insight || t(`home_practice.insights.${!exercise ? 'no_exercise' : INSIGHTS.includes(exercise.category) ? exercise.category : 'general'}`);
   useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   const completeMutation = useMutation({
@@ -32,6 +33,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyRecords'] });
       closeTimer.current = setTimeout(onClose, 2000);
     }
   });
@@ -47,8 +49,8 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
               {completeMutation.isSuccess ? (
                 <div className="py-6 text-center" role="status">
                   <CheckCircle2 className="mx-auto mb-6 h-12 w-12 text-primary" />
-                  <h2 className="mb-3 text-2xl font-semibold text-foreground">{t('home_practice.success_title')}</h2>
-                  <p className="text-muted-foreground">{t('home_practice.success_body')}</p>
+                  <h2 className="mb-3 text-2xl font-semibold text-foreground">{t(isEditing ? 'home_practice.records.reflection_saved' : 'home_practice.success_title')}</h2>
+                  <p className="text-muted-foreground">{t(isEditing ? 'home_practice.records.storage' : 'home_practice.success_body')}</p>
                 </div>
               ) : (
                 <>
@@ -59,6 +61,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
                     </div>
                     <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('common.close')} className="shrink-0"><X className="h-5 w-5" /></Button>
                   </div>
+                  <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{t('home_practice.records.storage')}</p>
                   <div className="mb-6 rounded-2xl border border-border bg-secondary/60 p-4 sm:p-6">
                     <h3 className="mb-3 flex items-center gap-3 font-semibold text-foreground"><Sparkles className="h-5 w-5 shrink-0 text-primary" />{t('home_practice.insight_title')}</h3>
                     <p className="leading-relaxed text-foreground">{insight}</p>
@@ -84,7 +87,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
                   <div className="flex flex-wrap gap-3">
                     <Button variant="outline" onClick={onClose} className="h-auto flex-1 whitespace-normal">{t('common.cancel')}</Button>
                     <Button onClick={() => completeMutation.mutate()} disabled={!canSubmit || completeMutation.isPending} className="h-auto flex-1 whitespace-normal" aria-busy={completeMutation.isPending}>
-                      {t(completeMutation.isPending ? 'home_practice.saving' : 'home_practice.complete')}
+                      {t(completeMutation.isPending ? 'home_practice.saving' : isEditing ? 'home_practice.records.save_changes' : 'home_practice.complete')}
                     </Button>
                   </div>
                 </>
