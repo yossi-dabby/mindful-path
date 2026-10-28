@@ -145,11 +145,11 @@ export default function Playlists() {
                   <Card className="rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-sm)] transition-calm hover:shadow-[var(--shadow-md)] group">
                     <CardContent className="p-5 h-full flex flex-col">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold mb-1.5" style={{ color: 'hsl(var(--foreground))' }}>
+                        <h3 className="mb-1.5 break-words text-lg font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                           {playlist.name}
                         </h3>
                         {playlist.description && (
-                          <p className="text-sm line-clamp-2 mb-3" style={{ color: 'hsl(var(--muted-foreground))' }}>
+                          <p className="mb-3 break-words text-sm line-clamp-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
                             {playlist.description}
                           </p>
                         )}
@@ -181,7 +181,7 @@ export default function Playlists() {
                           }}
                           disabled={deleteMutation.isPending}
                           aria-label={t('playlists.delete_aria')}
-                          className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
+                          className="shrink-0 transition-colors hover:bg-destructive/10"
                          mobileLabelKey="delete">
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>

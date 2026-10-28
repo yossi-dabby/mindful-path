@@ -133,11 +133,19 @@ for (const language of ['en','he']) test(`Notification preview belongs to curren
 });
 
 for (const language of ['en','he']) for (const width of [390,768,1440]) test(`Media pages share readable headers and playlist form ${language}/${width}`, async ({ page }) => {
-  await setup(page, language, 'dark', width);
+  const { db } = await setup(page, language, 'dark', width);
+  db.Playlist[0].name = `QA playlist ${'LongTitle'.repeat(15)}`;
   for (const path of ['/Exercises','/Videos','/Playlists','/PlaylistDetail?id=playlist','/VideoPlayer?videoUrl=%2Fqa.mp4&title=QA%20video']) {
     await page.goto(path); const header = page.getByTestId('library-page-header'); await expect(header).toBeVisible();
     await expect(header.getByRole('heading', {level:1})).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    if (path === '/Playlists') {
+      const title = page.getByRole('heading', {level:3});
+      await expect(title).toBeVisible();
+      expect(await title.evaluate(e => e.scrollWidth <= e.clientWidth + 1)).toBe(true);
+      const remove = page.getByRole('button', { name: language === 'he' ? 'מחק רשימה' : 'Delete playlist', exact:true });
+      await expect(remove).toHaveCSS('opacity', '1');
+    }
     if (path === '/Videos') {
       await header.getByRole('button', { name: language === 'he' ? 'חדש' : 'New', exact:true }).click();
       const dialog = page.getByRole('dialog'); await expect(dialog).toBeVisible();
