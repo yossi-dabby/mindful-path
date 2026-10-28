@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Bell, Mail, Target, Dumbbell, TrendingUp, Calendar, Flame, AtSign, AlertCircle } from 'lucide-react';
@@ -43,6 +46,27 @@ function PrefRow({ pref, checked, onChange, disabled, alwaysOnLabel }) {
 
 export default function NotificationSettings({ notifications, emailNotifications, onToggleInApp, onToggleEmail }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const previewInFlight = useRef(false);
+  const preview = useMutation({
+    mutationFn: () => base44.entities.AppNotification.create({
+      title: t('home_practice.notification_test.title'),
+      message: t('home_practice.notification_test.body'),
+      type: 'daily_checkin',
+      priority: 'normal',
+      action_url: '/Home',
+      reference_id: 'notification-preview',
+      is_read: false,
+      email_sent: false,
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+  const sendPreview = async () => {
+    if (previewInFlight.current) return;
+    previewInFlight.current = true;
+    try { await preview.mutateAsync(); } catch (_) { /* A localized error is rendered below. */ }
+    finally { previewInFlight.current = false; }
+  };
 
   const inAppPrefs = [
     {
@@ -185,6 +209,12 @@ export default function NotificationSettings({ notifications, emailNotifications
                   alwaysOnLabel={t('settings.notifications.always_on')}
                 />
               ))}
+              {group.id === 'in-app-notifications' && <div className="space-y-3 py-5">
+                <p className="text-sm leading-relaxed text-muted-foreground">{t('home_practice.notification_test.description')}</p>
+                <Button variant="outline" disabled={preview.isPending} aria-busy={preview.isPending} onClick={sendPreview} className="h-auto whitespace-normal" data-testid="send-notification-preview">{t('home_practice.notification_test.action')}</Button>
+                {preview.isSuccess && <p role="status" className="text-sm text-foreground">{t('home_practice.notification_test.sent')}</p>}
+                {preview.isError && <p role="alert" className="text-sm text-foreground">{t('home_practice.notification_test.error')}</p>}
+              </div>}
             </CardContent>
           </Card>
         );

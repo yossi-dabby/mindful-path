@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +9,7 @@ import { motion } from 'framer-motion';
 import CreatePlaylistModal from './CreatePlaylistModal';
 
 export default function AddToPlaylistModal({ isOpen, onClose, video }) {
+  const { t } = useTranslation();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
 
@@ -134,20 +136,20 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md" style={{ borderRadius: 'var(--r-lg)' }}>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-[28px] border-border bg-card text-foreground sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add to Playlist</DialogTitle>
+            <DialogTitle>{t('home_practice.media.add_title')}</DialogTitle>
             <p className="text-sm mt-1" style={{ color: 'rgb(var(--theme-muted))' }}>{video?.title}</p>
           </DialogHeader>
-          <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
+          <div className="mt-4 space-y-2">
             {playlists.length === 0 ? (
               <div className="text-center py-8">
                 <List className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgb(var(--theme-muted))' }} />
                 <p className="text-base font-medium mb-2" style={{ color: 'rgb(var(--text))' }}>
-                  No playlists yet
+                  {t('playlists.no_playlists_title')}
                 </p>
                 <p className="text-sm mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
-                  Create your first playlist to organize videos
+                  {t('playlists.no_playlists_description')}
                 </p>
                 <div className="flex gap-2 justify-center">
                   <Button 
@@ -155,14 +157,14 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                     onClick={() => setShowCreateModal(true)}
                     style={{ 
                       backgroundColor: 'hsl(var(--primary))',
-                      color: 'white'
+                      color: 'hsl(var(--primary-foreground))'
                     }}
                    mobileLabelKey="add">
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Playlist
+                    {t('home_practice.media.create_title')}
                   </Button>
                   <Button type="button" variant="outline" onClick={onClose}>
-                    Close
+                    {t('common.close')}
                   </Button>
                 </div>
               </div>
@@ -180,17 +182,17 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                   style={{ 
                     borderRadius: 'var(--r-md)', 
                     border: inPlaylist ? '2px solid hsl(var(--primary))' : '1px solid rgb(var(--theme-border))',
-                    backgroundColor: inPlaylist ? 'rgba(38, 166, 154, 0.05)' : 'white'
+                    backgroundColor: inPlaylist ? 'hsl(var(--secondary))' : 'hsl(var(--card))'
                   }}
-                  whileHover={{ scale: 1.02, backgroundColor: inPlaylist ? 'rgba(38, 166, 154, 0.08)' : 'rgba(0,0,0,0.02)' }}
+                  whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="text-left">
-                    <p className="font-medium text-sm" style={{ color: inPlaylist ? 'hsl(var(--primary))' : 'rgb(var(--text))' }}>
+                  <div className="min-w-0 text-start">
+                    <p className="break-words text-sm font-medium" style={{ color: inPlaylist ? 'hsl(var(--primary))' : 'rgb(var(--text))' }}>
                       {playlist.name}
                     </p>
                     <p className="text-xs" style={{ color: 'rgb(var(--theme-muted))' }}>
-                      {playlist.video_count || 0} videos
+                      {t('playlists.video_count', { count: playlist.video_count || 0 })}
                     </p>
                   </div>
                   {inPlaylist ? (
@@ -204,7 +206,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
             )}
             </div>
             <div className="flex justify-end mt-4">
-            <Button type="button" onClick={onClose}>Done</Button>
+            <Button type="button" onClick={onClose}>{t('common.close')}</Button>
             </div>
             </DialogContent>
             </Dialog>

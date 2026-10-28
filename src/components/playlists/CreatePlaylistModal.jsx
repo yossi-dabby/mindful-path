@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import React, { useState, useId } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -7,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function CreatePlaylistModal({ isOpen, onClose }) {
+  const { t } = useTranslation();
+  const formId = useId();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const queryClient = useQueryClient();
@@ -61,36 +64,38 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" style={{ borderRadius: 'var(--r-lg)' }}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-[28px] border-border bg-card text-foreground sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Playlist</DialogTitle>
+          <DialogTitle>{t('home_practice.media.create_title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: 'rgb(var(--text))' }}>
-              Playlist Name *
+            <label htmlFor={`${formId}-name`} className="mb-2 block text-sm font-medium">
+              {t('home_practice.media.name')} *
             </label>
             <Input
+              id={`${formId}-name`}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="My CBT Journey"
+              placeholder={t('home_practice.media.name_example')}
               required
             />
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: 'rgb(var(--text))' }}>
-              Description (optional)
+            <label htmlFor={`${formId}-description`} className="mb-2 block text-sm font-medium">
+              {t('home_practice.media.description')}
             </label>
             <Textarea
+              id={`${formId}-description`}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Videos to help me with anxiety"
+              placeholder={t('home_practice.media.description_example')}
               rows={3}
             />
           </div>
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-wrap justify-end gap-3">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button 
               type="submit" 
@@ -100,7 +105,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
                 color: 'hsl(var(--primary-foreground))'
               }}
             >
-              {createMutation.isPending ? 'Creating...' : 'Create Playlist'}
+              {t(createMutation.isPending ? 'home_practice.media.creating' : 'home_practice.media.create_title')}
             </Button>
           </div>
         </form>

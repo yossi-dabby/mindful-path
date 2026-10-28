@@ -48,8 +48,12 @@ describe('exercise preview localization and responsive fixes', () => {
   it('keeps the tablet title intact and the active category visible after resize', () => {
     const source = readFileSync(new URL('../../src/pages/Exercises.jsx', import.meta.url), 'utf8');
 
-    expect(source).toContain('lg:flex-row lg:items-center');
-    expect(source).toContain('lg:text-4xl whitespace-nowrap');
+    const header = readFileSync(new URL('../../src/components/ui/LibraryPageHeader.jsx', import.meta.url), 'utf8');
+    expect(source).toContain('<LibraryPageHeader');
+    expect(header).toContain('lg:flex-row lg:items-center');
+    // The shared header wraps long translated titles instead of clipping them.
+    // home-stage1-completion.spec.ts also checks actual page bounds in 3 sizes.
+    expect(header).toContain('min-w-0 break-words text-2xl');
     expect(source).toContain('new ResizeObserver(keepActiveCategoryVisible)');
     expect(source).toContain('const resizeTarget = categoryScrollerRef.current');
     expect(source).toContain('ref={categoryScrollerRef}');

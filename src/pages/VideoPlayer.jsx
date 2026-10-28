@@ -1,4 +1,4 @@
-import BotanicalAccent from '@/components/brand/BotanicalAccent';
+import LibraryPageHeader from '@/components/ui/LibraryPageHeader';
 import React, { useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -17,7 +16,7 @@ export default function VideoPlayer() {
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const videoUrl = urlParams.get('videoUrl');
-  const title = urlParams.get('title') || 'Video';
+  const title = urlParams.get('title') || t('home_practice.media.video');
   const videoId = urlParams.get('videoId');
 
   // Get current progress
@@ -40,7 +39,7 @@ export default function VideoPlayer() {
   const updateProgressMutation = useMutation({
     mutationFn: async ({ progress, completed }) => {
       if (!videoId) return;
-      
+
       try {
         if (videoProgress) {
           await base44.entities.VideoProgress.update(videoProgress.id, {
@@ -76,7 +75,7 @@ export default function VideoPlayer() {
     const handleTimeUpdate = () => {
       const currentProgress = (video.currentTime / video.duration) * 100;
       const roundedProgress = Math.floor(currentProgress);
-      
+
       // Update every 5%
       if (roundedProgress - lastUpdate >= 5) {
         lastUpdate = roundedProgress;
@@ -110,7 +109,7 @@ export default function VideoPlayer() {
             <h1 className="text-xl font-semibold mb-4 text-foreground">
               {t('video_player.no_video')}
             </h1>
-            <Button onClick={handleBack} className="px-6 py-5 text-white" style={{ 
+            <Button onClick={handleBack} className="px-6 py-5 text-primary-foreground" style={{
               borderRadius: '9999px',
               backgroundColor: 'hsl(var(--primary))',
               boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
@@ -129,29 +128,10 @@ export default function VideoPlayer() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {/* Header */}
-          <div className="mb-6 mt-6">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="mb-4 -ms-2"
-              style={{ color: '#718096' }}
-            >
-              <ArrowLeft className="w-4 h-4 me-2 rtl:scale-x-[-1]" />
-              {t('video_player.back_to_library')}
-            </Button>
-            <div className="botanical-title-row"><h1 className="text-2xl font-semibold" style={{ color: '#2D3748' }}>
-              {title}
-            </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-          </div>
+          <LibraryPageHeader title={title} onBack={handleBack} backLabel={t('video_player.back_to_library')} />
 
-          {/* Video Player Card */}
-          <Card className="border-0" style={{ 
-            borderRadius: '24px',
-            background: 'hsl(var(--card))',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
-          }}>
+        {/* Video Player Card */}
+          <Card className="overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-md)]">
             <CardContent className="p-0">
               <div className="relative" style={{ borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
                 <video
@@ -173,10 +153,10 @@ export default function VideoPlayer() {
                       {videoProgress.completed ? t('video_player.completed') : t('video_player.watched_percent', { percent: Math.floor(videoProgress.progress) })}
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
+                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                    <div
                       className="h-full transition-all duration-300"
-                      style={{ 
+                      style={{
                         width: `${videoProgress.progress}%`,
                         backgroundColor: 'hsl(var(--primary))'
                       }}
@@ -191,8 +171,8 @@ export default function VideoPlayer() {
           <div className="mt-6 text-center">
             <Button
               onClick={handleBack}
-              className="px-7 py-6 text-white"
-              style={{ 
+              className="px-7 py-6 text-primary-foreground"
+              style={{
                 borderRadius: '9999px',
                 backgroundColor: 'hsl(var(--primary))',
                 boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PremiumDialog from '@/components/ui/PremiumDialog';
+import './interactiveBreathing.css';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import {
@@ -99,7 +100,8 @@ function ProgressRing({ radius, strokeWidth, progress, color }) {
     <svg
       height={radius * 2}
       width={radius * 2}
-      style={{ transform: 'rotate(-90deg)', position: 'absolute', inset: 0, pointerEvents: 'none' }}
+      viewBox={`0 0 ${radius * 2} ${radius * 2}`}
+      style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)', position: 'absolute', inset: 0, pointerEvents: 'none' }}
       aria-hidden="true"
     >
       <circle
@@ -336,12 +338,12 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       label={t('breathing_tool.title')}
       className="fixed inset-0 flex flex-col"
     >
-      <div className="absolute inset-0 flex flex-col" style={{ background: theme.bgGradient }} data-testid="interactive-breathing-surface">
+      <div className="breathing-session absolute inset-0 flex flex-col overflow-y-auto overscroll-contain" style={{ background: theme.bgGradient }} data-testid="interactive-breathing-surface">
       {/* ── Top Bar ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 flex-shrink-0">
+      <div className="breathing-session-header flex shrink-0 items-center justify-between gap-2 px-4 py-3 md:px-6 md:py-4" style={{ background: theme.bgGradient }}>
         <button
           onClick={onClose}
-          className="flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-full transition-colors"
+          className="breathing-session-close flex min-h-11 shrink-0 items-center gap-1 rounded-full px-2 py-2 text-sm font-medium transition-colors"
           style={{ color: theme.textSecondary, background: theme.cardBg }}
           aria-label={t('breathing_tool.controls.close')}
         >
@@ -349,14 +351,14 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           <span className="inline">{t('breathing_tool.controls.close')}</span>
         </button>
 
-        <h2 className="text-base md:text-lg font-semibold" style={{ color: theme.textPrimary }}>
+        <h2 className="min-w-0 text-center text-base font-semibold md:text-lg" style={{ color: theme.textPrimary }}>
           {t('breathing_tool.title')}
         </h2>
 
-        <div className="flex gap-2">
+        <div className="breathing-session-actions flex shrink-0 gap-2">
           <button
             onClick={() => setSoundEnabled(s => !s)}
-            className="p-2 rounded-full transition-colors"
+            className="breathing-session-sound min-h-11 min-w-11 rounded-full p-2 transition-colors"
             style={{ color: theme.textSecondary, background: theme.cardBg }}
             aria-label={soundEnabled ? t('breathing_tool.controls.sound_off') : t('breathing_tool.controls.sound_on')}
           >
@@ -364,7 +366,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           <span className="mobile-action-label md:hidden">{soundEnabled ? t('breathing_tool.controls.sound_off') : t('breathing_tool.controls.sound_on')}</span></button>
           <button
             onClick={() => setShowSettings(s => !s)}
-            className="p-2 rounded-full transition-colors"
+            className="breathing-session-settings min-h-11 min-w-11 rounded-full p-2 transition-colors"
             style={{
               color: showSettings ? '#fff' : theme.textSecondary,
               background: showSettings ? theme.ringColor : theme.cardBg
@@ -377,23 +379,23 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       </div>
 
       {/* ── Exercise Selector ───────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 flex items-center gap-1 px-2 pb-2">
+      <div className="breathing-session-selector flex shrink-0 items-center gap-1 px-2 pb-2">
         {/* Previous exercise arrow */}
         <button
           onClick={() => switchExercise(Math.max(0, exerciseIdx - 1))}
           disabled={exerciseIdx === 0}
-          className="flex-shrink-0 p-1.5 rounded-full transition-colors disabled:opacity-30"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-30"
           style={{ color: theme.textSecondary, background: theme.cardBg }}
           aria-label={t('breathing_tool.controls.prev_exercise')}
         >
           <ChevronLeft className="w-4 h-4" />
-        <span className="mobile-action-label md:hidden">{t('breathing_tool.controls.prev_exercise')}</span></button>
+        </button>
 
         {/* Scrollable pills */}
         <div
           ref={selectorScrollRef}
-          className="flex gap-2 overflow-x-auto flex-1 [&::-webkit-scrollbar]:hidden"
-          style={{ scrollbarWidth: 'none' }}
+          className="flex min-w-0 flex-1 gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: 'none', flexWrap: 'nowrap' }}
           role="tablist"
           onKeyDown={handleSelectorKeyDown}
         >
@@ -409,6 +411,8 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
                 background: idx === exerciseIdx ? theme.ringColor : theme.cardBg,
                 color: idx === exerciseIdx ? '#fff' : theme.textSecondary,
                 border: `1px solid ${idx === exerciseIdx ? theme.ringColor : theme.cardBorder}`,
+                whiteSpace: 'nowrap',
+                minWidth: 'max-content',
               }}
             >
               {t(ex.nameKey)}
@@ -420,19 +424,19 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
         <button
           onClick={() => switchExercise(Math.min(BREATHING_EXERCISES.length - 1, exerciseIdx + 1))}
           disabled={exerciseIdx === BREATHING_EXERCISES.length - 1}
-          className="flex-shrink-0 p-1.5 rounded-full transition-colors disabled:opacity-30"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-30"
           style={{ color: theme.textSecondary, background: theme.cardBg }}
           aria-label={t('breathing_tool.controls.next_exercise')}
         >
           <ChevronRight className="w-4 h-4" />
-        <span className="mobile-action-label md:hidden">{t('breathing_tool.controls.next_exercise')}</span></button>
+        </button>
       </div>
 
       {/* ── Main Area ───────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 px-4 py-4 min-h-0 overflow-y-auto">
+      <div className="breathing-session-main flex flex-1 flex-col items-center justify-center gap-6 px-4 py-4 lg:flex-row lg:gap-12">
 
         {/* ── Circle & Phase Info ──────────────────────────────────────────── */}
-        <div className="flex flex-col items-center justify-center flex-shrink-0">
+        <div className="interactive-breathing-practice flex shrink-0 flex-col items-center justify-center">
           {/* Phase label */}
           <AnimatePresence mode="wait">
             <motion.p
@@ -441,7 +445,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.3 }}
-              className="text-xl md:text-2xl font-light mb-2 tracking-widest uppercase"
+              className="breathing-phase mb-2 text-xl font-light uppercase tracking-widest md:text-2xl"
               style={{ color: theme.textPrimary }}
               aria-live="polite"
               aria-label={t('breathing_tool.accessibility.aria_phase', { phase: t(currentPhase?.labelKey || '') })}
@@ -456,8 +460,9 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
 
           {/* Animated Circle with Progress Ring */}
           <div
-            className="relative flex items-center justify-center"
-            style={{ width: 240, height: 240 }}
+            className="breathing-circle relative flex items-center justify-center"
+            style={{ width: 'var(--breathing-circle-size, 240px)', height: 'var(--breathing-circle-size, 240px)' }}
+            data-testid="breathing-circle"
             aria-hidden="true"
           >
             {/* Outer glow (reduced for prefers-reduced-motion) */}
@@ -467,7 +472,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
                 transition={{ duration: phaseDuration, ease: 'easeInOut', repeat: Infinity }}
                 className="absolute rounded-full blur-3xl"
                 style={{
-                  width: 200, height: 200,
+                  width: '66.6667%', height: '66.6667%',
                   background: theme.circleGradient,
                 }}
               />
@@ -490,8 +495,8 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
               }}
               className="absolute rounded-full flex items-center justify-center"
               style={{
-                width: 160,
-                height: 160,
+                width: '66.6667%',
+                height: '66.6667%',
                 background: theme.circleGradient,
                 boxShadow: `0 0 60px ${theme.circleShadow}, 0 0 120px ${theme.circleShadow.replace('0.55', '0.2')}`,
               }}
@@ -517,7 +522,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           </div>
 
           {/* Phase progress bar */}
-          <div className="mt-4 w-48 md:w-56">
+          <div className="breathing-phase-progress mt-4 w-48 md:w-56">
             <div
               className="h-1.5 rounded-full overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.3)' }}
@@ -532,7 +537,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           </div>
 
           {/* Session info row */}
-          <div className="mt-4 flex items-center gap-6 text-center">
+          <div className="breathing-session-stats mt-4 flex items-center gap-6 text-center">
             <div>
               <p className="text-xs uppercase tracking-wider" style={{ color: theme.textSecondary }}>
                 {t('breathing_tool.controls.cycles')}
@@ -566,7 +571,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           </div>
 
           {/* Controls */}
-          <div className="mt-6 flex gap-3">
+          <div className="breathing-session-controls mt-6 flex flex-wrap justify-center gap-3">
             <button
               onClick={handlePlayPause}
               disabled={display.isComplete}
@@ -601,7 +606,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
 
           {/* Description */}
           <p
-            className="mt-4 text-sm text-center max-w-xs"
+            className="breathing-session-description mt-4 max-w-xs text-center text-sm"
             style={{ color: theme.textSecondary }}
           >
             {t(exercise.descKey)}
@@ -718,7 +723,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="absolute bottom-8 left-4 right-4 mx-auto max-w-sm rounded-3xl p-5 text-center shadow-2xl"
+            className="mx-auto mb-6 w-[calc(100%_-_2rem)] max-w-sm shrink-0 rounded-3xl p-5 text-center shadow-2xl"
             style={{ background: theme.cardBg, border: `1px solid ${theme.cardBorder}`, backdropFilter: 'blur(16px)' }}
           >
             <p className="mb-1 flex items-center justify-center gap-2 text-lg font-semibold" style={{ color: theme.textPrimary }}>

@@ -1,4 +1,4 @@
-import BotanicalAccent from '@/components/brand/BotanicalAccent';
+import LibraryPageHeader from '@/components/ui/LibraryPageHeader';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,7 +8,7 @@ import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorH
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, List, Trash2, ArrowLeft, Dumbbell } from 'lucide-react';
+import { Plus, List, Trash2, Dumbbell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import { useTranslation } from 'react-i18next';
@@ -58,50 +58,13 @@ export default function Playlists() {
       <PullToRefresh queryKeys={['playlists']}>
         <div className="min-h-dvh safe-bottom">
           <div className="page-container max-w-7xl">
-        {/* Header with Back Button */}
-        <div className="mb-6 mt-6">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => navigate(createPageUrl('Videos'))}
-            className="mb-4 -ml-2 text-sm"
-            style={{ color: 'hsl(var(--primary))' }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            {t('playlists.back_to_videos')}
-          </Button>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="max-w-2xl">
-              <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
-                {t('playlists.title')}
-              </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-              <p className="text-base" style={{ color: '#718096' }}>
-                {t('playlists.subtitle')}
-              </p>
-            </div>
-            <Button
-              type="button"
-              onClick={() => setShowCreateModal(true)}
-              className="text-white px-6 py-5 w-full md:w-auto"
-              style={{ 
-                borderRadius: '9999px',
-                backgroundColor: 'hsl(var(--primary))',
-                boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
-              }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t('playlists.new_playlist')}
-            </Button>
-          </div>
-        </div>
+        <LibraryPageHeader title={t('playlists.title')} subtitle={t('playlists.subtitle')} onBack={() => navigate(createPageUrl('Videos'))} backLabel={t('playlists.back_to_videos')}>
+          <Button onClick={() => setShowCreateModal(true)}><Plus className="h-4 w-4" />{t('playlists.new_playlist')}</Button>
+        </LibraryPageHeader>
 
         {/* Error State */}
         {isError && (
-          <Card className="border-0 max-w-2xl mx-auto" style={{
-            borderRadius: '32px',
-            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 242, 242, 0.9) 100%)',
-            boxShadow: '0 12px 40px rgba(239, 68, 68, 0.12)'
-          }}>
+          <Card className="mx-auto max-w-2xl rounded-[28px] border border-destructive/40 bg-card shadow-[var(--shadow-md)]">
             <CardContent className="p-10 md:p-12 text-center">
               <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
                 borderRadius: '50%',
@@ -114,7 +77,7 @@ export default function Playlists() {
               <div className="flex justify-center">
                 <Button
                   onClick={() => refetch()}
-                  className="text-white px-8 py-6"
+                  className="text-primary-foreground px-8 py-6"
                   style={{
                     borderRadius: '24px',
                     backgroundColor: 'hsl(var(--primary))',
@@ -179,19 +142,14 @@ export default function Playlists() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <Card className="border-0 hover:shadow-lg transition-calm group" style={{ 
-                    borderRadius: '20px',
-                    background: 'hsl(var(--card))',
-                    backdropFilter: 'blur(10px)',
-                    boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-                  }}>
+                  <Card className="rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-sm)] transition-calm hover:shadow-[var(--shadow-md)] group">
                     <CardContent className="p-5 h-full flex flex-col">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold mb-1.5" style={{ color: '#2D3748' }}>
+                        <h3 className="mb-1.5 break-words text-lg font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                           {playlist.name}
                         </h3>
                         {playlist.description && (
-                          <p className="text-sm line-clamp-2 mb-3" style={{ color: '#718096' }}>
+                          <p className="mb-3 break-words text-sm line-clamp-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
                             {playlist.description}
                           </p>
                         )}
@@ -223,7 +181,7 @@ export default function Playlists() {
                           }}
                           disabled={deleteMutation.isPending}
                           aria-label={t('playlists.delete_aria')}
-                          className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
+                          className="shrink-0 transition-colors hover:bg-destructive/10"
                          mobileLabelKey="delete">
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>

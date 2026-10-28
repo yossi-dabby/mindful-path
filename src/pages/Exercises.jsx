@@ -1,4 +1,4 @@
-import BotanicalAccent from '@/components/brand/BotanicalAccent';
+import LibraryPageHeader from '@/components/ui/LibraryPageHeader';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -284,54 +284,12 @@ export default function Exercises() {
     <PullToRefresh queryKeys={['exercises']}>
       <div className="min-h-dvh w-full bg-transparent">
         <div className="mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full">
-      {/* Header */}
-      <div className="mb-10 mt-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/')}
-                  style={{ borderRadius: '50%' }}
-                  aria-label={t('exercises.go_back_aria')} className="text-primary font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0">
+      <LibraryPageHeader title={t('exercises.page_title')} subtitle={t('exercises.page_subtitle_full')} onBack={() => navigate('/')} backLabel={t('exercises.go_back_aria')}>
+        <Button variant="outline" onClick={() => setShowCoaching(true)} className="h-auto whitespace-normal"><Sparkles className="h-4 w-4" />{t('exercises.ai_plan')}</Button>
+        <Button variant={showFavoritesOnly ? 'secondary' : 'outline'} aria-pressed={showFavoritesOnly} onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="h-auto whitespace-normal"><Star className="h-4 w-4" />{t('exercises.favorites')}{showFavoritesOnly && ` (${exercises.filter((e) => e.favorite).length})`}</Button>
+      </LibraryPageHeader>
 
-
-              <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
-            </Button>
-            <div className="min-w-0">
-              <div className="botanical-title-row"><h1 className="text-foreground text-2xl font-semibold md:text-3xl lg:text-4xl whitespace-nowrap">{t('exercises.page_title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-              <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
-            </div>
-          </div>
-          <div className="flex gap-2 flex-wrap sm:flex-nowrap items-start">
-            <Button
-                  onClick={() => setShowCoaching(true)}
-                  variant="outline" className="bg-secondary/70 text-primary px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 flex">
-
-
-              <Sparkles className="w-4 h-4" />
-              <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
-            </Button>
-            <button
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="bg-secondary/70 text-primary px-3 py-2 text-sm rounded-[var(--radius-card)] md:px-4 md:py-2 transition-all md:text-base whitespace-nowrap border shadow-[var(--shadow-sm)] border-border/70 hover:text-foreground">
-
-
-
-
-
-
-
-            <Star className="text-primary mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
-            <span className="text-primary inline">{t('exercises.favorites')}</span>
-            {showFavoritesOnly && <span className="text-primary md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
-            {showFavoritesOnly && <span className="text-primary opacity-100 hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
-          </button>
-          </div>
-        </div>
-        <p className="text-primary ml-0 text-sm md:text-base md:ml-12 hidden md:block">{t('exercises.page_subtitle_full')}</p>
-      </div>
-
-      {/* Search Bar */}
+        {/* Search Bar */}
       <div className="mb-5">
         <div className="relative">
           <Search className="text-primary lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />

@@ -1,47 +1,24 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 
 export default function VideoModal({ videoUrl, onClose }) {
+  const { t } = useTranslation();
   return (
-    <div 
-      className="fixed inset-0 flex items-center justify-center p-4 pb-24 bg-black/60 backdrop-blur-sm"
-      onClick={onClose}
-      style={{
-        zIndex: 60,
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
-      }}
-    >
-      <div 
-        className="relative w-full max-w-4xl bg-[hsl(var(--card)/0.97)] rounded-3xl shadow-2xl overflow-hidden my-8"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: 'calc(90vh - 120px)' }}
-      >
-        {/* Close Button */}
-        <Button
-          onClick={onClose}
-          size="icon"
-          variant="ghost"
-          className="absolute top-4 right-4 z-10 bg-[hsl(var(--card)/0.97)] hover:bg-[hsl(var(--card)/0.97)] rounded-full shadow-lg"
-          aria-label="Close video"
-        >
-          <X className="w-5 h-5" />
-        </Button>
-
-        {/* Video Player */}
-        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-          <video
-            className="absolute inset-0 w-full h-full"
-            controls
-            autoPlay
-            playsInline
-            src={videoUrl}
-          >
-            Your browser does not support the video tag.
+    <PremiumDialog label={t('home_practice.media.video')} onClose={onClose} className="fixed inset-0 overflow-y-auto bg-black/60 p-3 backdrop-blur-sm sm:p-6">
+      <div className="flex min-h-full items-center justify-center" onClick={onClose}>
+        <section className="w-full max-w-4xl overflow-hidden rounded-[28px] border border-border bg-card text-foreground shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <header className="flex items-center justify-between gap-3 px-5 py-3">
+            <h2 className="text-lg font-semibold">{t('home_practice.media.video')}</h2>
+            <Button onClick={onClose} size="icon" variant="ghost" aria-label={t('common.close')}><X className="h-5 w-5" /></Button>
+          </header>
+          <video className="max-h-[calc(100dvh-9rem)] w-full bg-black object-contain" controls autoPlay playsInline src={videoUrl}>
+            {t('video_player.browser_no_support')}
           </video>
-        </div>
+        </section>
       </div>
-    </div>
+    </PremiumDialog>
   );
 }

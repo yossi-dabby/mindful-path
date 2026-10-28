@@ -1,4 +1,4 @@
-import BotanicalAccent from '@/components/brand/BotanicalAccent';
+import LibraryPageHeader from '@/components/ui/LibraryPageHeader';
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Play, X } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -132,29 +132,9 @@ export default function PlaylistDetail() {
   return (
     <div className="min-h-dvh bg-warm-gradient safe-bottom">
       <div className="page-container max-w-7xl">
-        {/* Header */}
-        <div className="mb-8 mt-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(createPageUrl('Playlists'))}
-            className="mb-4 -ml-2"
-            style={{ color: 'rgb(var(--theme-muted))' }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('playlist_detail.back_to_playlists')}
-          </Button>
-          <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
-            {playlist.name}
-          </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-          {playlist.description && (
-            <p className="text-base mb-2" style={{ color: 'rgb(var(--theme-muted))' }}>
-              {playlist.description}
-            </p>
-          )}
-          <p className="text-sm" style={{ color: 'hsl(var(--primary))' }}>
-            {t('playlist_detail.video_count', { count: videos.length })}
-          </p>
-        </div>
+        <LibraryPageHeader title={playlist.name} subtitle={playlist.description} onBack={() => navigate(createPageUrl('Playlists'))} backLabel={t('playlist_detail.back_to_playlists')}>
+          <span className="text-sm text-primary">{t('playlist_detail.video_count', { count: videos.length })}</span>
+        </LibraryPageHeader>
 
         {/* Empty State */}
         {videos.length === 0 && (
@@ -187,10 +167,7 @@ export default function PlaylistDetail() {
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 className="group"
               >
-                <Card className="border-0 shadow-soft hover:shadow-lg transition-calm overflow-hidden" style={{ 
-                  borderRadius: 'var(--r-lg)',
-                  backgroundColor: 'rgb(var(--surface))'
-                }}>
+                <Card className="overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-sm)] transition-calm hover:shadow-[var(--shadow-md)]">
                   <CardContent className="p-0">
                     <Link to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}>
                       <div className="relative aspect-square overflow-hidden">
@@ -207,7 +184,7 @@ export default function PlaylistDetail() {
                               backgroundColor: 'hsl(var(--primary))'
                             }}
                           >
-                            <Play className="w-8 h-8 text-white fill-white" />
+                            <Play className="w-8 h-8 text-primary-foreground fill-current" />
                           </div>
                         </div>
                         {(() => {
@@ -240,7 +217,7 @@ export default function PlaylistDetail() {
                           }}
                           disabled={removeMutation.isPending}
                           aria-busy={removeMutation.isPending}
-                          className="absolute top-2 right-2 bg-[hsl(var(--card)/0.97)] hover:bg-[hsl(var(--card)/0.97)] opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait disabled:opacity-60"
+                          className="absolute top-2 right-2 bg-[hsl(var(--card)/0.97)] hover:bg-[hsl(var(--card)/0.97)] opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-opacity disabled:cursor-wait disabled:opacity-60"
                           aria-label={t('playlist_detail.remove_video_aria')}
                          mobileLabel={t('playlist_detail.remove_video_aria')}>
                           <X className="w-4 h-4 text-red-500" />
