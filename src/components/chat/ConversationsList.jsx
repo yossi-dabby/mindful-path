@@ -42,6 +42,7 @@ export default function ConversationsList({
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [nameDraft, setNameDraft] = useState('');
+  const [preferenceError, setPreferenceError] = useState(false);
   const bulkTriggerRef = useRef(null);
   const newConversationRef = useRef(null);
   const actionRefs = useRef(new Map());
@@ -57,6 +58,7 @@ export default function ConversationsList({
     });
 
   const beginRename = (conversation) => {
+    setPreferenceError(false);
     setEditingId(conversation.id);
     setNameDraft(getConversationName(conversation));
   };
@@ -64,8 +66,9 @@ export default function ConversationsList({
   const submitRename = async (conversationId) => {
     const nextTitle = nameDraft.trim().slice(0, 80);
     if (!nextTitle) return;
+    setPreferenceError(false);
     try { await onRenameConversation?.(conversationId, nextTitle); }
-    catch { return; } // Keep the name draft; the parent displays the write error.
+    catch { setPreferenceError(true); return; } // Keep the name draft; the parent displays the write error.
     setEditingId(null);
     setNameDraft('');
   };
@@ -205,6 +208,8 @@ export default function ConversationsList({
           </div>
         )}
 
+        {preferenceError && <p role="alert" className="mx-3 mb-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-red-700 dark:text-red-300">{t('chat.conversations_list.update_error_title')}. {t('chat.conversations_list.update_error_desc')}</p>}
+
         {/* Conversations List */}
         <div className="bg-transparent p-2.5 flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
           {safeConversations.length === 0 ? (
@@ -304,7 +309,7 @@ export default function ConversationsList({
                           <Pencil className="w-4 h-4" />
                           {t('chat.conversations_list.rename_aria')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={async () => { try { await onTogglePinConversation?.(conversation.id, !conversation.ui_is_pinned); } catch { /* The parent reports the write error. */ } }} disabled={isPreferenceSaving}>
+                        <DropdownMenuItem onSelect={async () => { setPreferenceError(false); try { await onTogglePinConversation?.(conversation.id, !conversation.ui_is_pinned); } catch { setPreferenceError(true); } }} disabled={isPreferenceSaving}>
                           {conversation.ui_is_pinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
                           {t(conversation.ui_is_pinned ? 'chat.conversations_list.unpin_aria' : 'chat.conversations_list.pin_aria')}
                         </DropdownMenuItem>

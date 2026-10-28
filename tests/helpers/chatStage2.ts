@@ -28,6 +28,7 @@ export async function prepareChatStage2(page: Page, { language='en', theme='ligh
     if((entity==='TherapyFeedback'&&state.failFeedback)||(entity==='ThoughtJournal'&&state.failSave)||(entity==='Conversation'&&state.failPreference))return route.fulfill({status:503,json:{message:'Synthetic write failure'}});
     const row=id?db[entity].find(row=>row.id===id):{id:`qa-${entity}-${state.writes.length}`,created_by:'test@example.com'};Object.assign(row,data);if(!id)db[entity].push(row);return route.fulfill({json:row});
   });
+  await page.route(/\/functions\/extractThoughtWorkData(?:[/?]|$)/, route => route.fulfill({json:{success:true,data:{situation:'Synthetic QA situation',automatic_thoughts:'Synthetic thought',balanced_thought:'A balanced QA perspective',homework:['Synthetic practice']}}}));
   const pdf = new jsPDF(); pdf.text('Synthetic Stage 2 worksheet',20,30); pdf.addPage(); pdf.text('Second QA page',20,30);
   const pdfBytes = Buffer.from(pdf.output('arraybuffer'));
   await page.route(/\/forms\/qa-stage2\.pdf(?:[?#]|$)/, route => state.fileAvailable ? route.fulfill({body:pdfBytes,contentType:'application/pdf'}) : route.fulfill({status:404,body:'Synthetic missing file'}));

@@ -53,13 +53,13 @@ for(const language of ['en','he'])for(const theme of ['light','dark'])test(`Stag
 for(const language of ['en','he'])for(const theme of ['light','dark'])test(`Stage 2 thought save stays localized and retry saves once ${language}/${theme}`,async({page})=>{
  const state=await prepareChatStage2(page,{language,theme,width:333,height:597});await page.evaluate(async()=>{const {renderStage2Fixture}=await import('/tests/fixtures/chat-stage2-preview.jsx');renderStage2Fixture('save');});
  const panel=page.getByTestId('chat-thought-save');state.failSave=true;await panel.getByRole('button',{name:language==='he'?'שמירה ביומן':'Save to Journal',exact:true}).click();await expect(panel.getByRole('alert')).toBeVisible();await expect(panel).not.toContainText('Synthetic write failure');expect(state.db.ThoughtJournal).toHaveLength(0);
- state.failSave=false;await panel.getByRole('button',{name:language==='he'?'נסו שוב':'Try again',exact:true}).click();await expect(panel.getByRole('status')).toContainText(language==='he'?'נשמרו':'Saved');expect(state.db.ThoughtJournal).toHaveLength(1);expect(state.db.ThoughtJournal[0].custom_fields.conversation_id).toBe('qa-only');
+ state.failSave=false;await panel.getByRole('button',{name:language==='he'?'נסו שוב':'Retry',exact:true}).click();await expect(panel.getByRole('status')).toContainText(language==='he'?'נשמרו':'Saved');expect(state.db.ThoughtJournal).toHaveLength(1);expect(state.db.ThoughtJournal[0].custom_fields.conversation_id).toBe('qa-only');expect(state.db.ThoughtJournal[0].situation).toBe('Synthetic QA situation');expect(state.db.ThoughtJournal[0].homework_tasks).toEqual(['Synthetic practice']);
 });
 
 for(const language of ['en','he'])for(const width of [333,768])test(`Stage 2 PDF missing file retry, download and return ${language}/${width}`,async({page})=>{
  const state=await prepareChatStage2(page,{language,width,theme:'dark'});(state.conversation.messages[1].metadata as any).generated_file={type:'pdf',url:'/forms/qa-stage2.pdf',name:'qa-stage2.pdf',title:'Synthetic QA worksheet',description:'No personal data'};
- await openStage2Conversation(page,width);await page.getByTestId('generated-file-open').scrollIntoViewIfNeeded();state.fileAvailable=false;await page.getByTestId('generated-file-open').click();await expect(page).toHaveURL(/\/PdfViewer\?/);await expect(page.getByRole('alert')).toBeVisible({timeout:15000});
- state.fileAvailable=true;await page.getByRole('button',{name:language==='he'?'נסו שוב':'Try again',exact:true}).click();await expect(page.locator('canvas')).toHaveCount(2,{timeout:15000});
+ await openStage2Conversation(page,width);await page.getByTestId('generated-file-open').scrollIntoViewIfNeeded();state.fileAvailable=false;await page.getByTestId('generated-file-open').click();await expect(page).toHaveURL(/\/pdf-viewer\?/);await expect(page.getByRole('alert')).toBeVisible({timeout:15000});
+ state.fileAvailable=true;await page.getByRole('button',{name:language==='he'?'נסו שוב':'Retry',exact:true}).click();await expect(page.locator('canvas')).toHaveCount(2,{timeout:15000});
  const pending=page.waitForEvent('download');await page.getByRole('button',{name:language==='he'?'הורד דף עבודה':'Download Worksheet',exact:true}).click();const download=await pending;expect(download.suggestedFilename()).toMatch(/\.pdf$/i);
  await page.getByRole('button',{name:language==='he'?'סגירה':'Close',exact:true}).click();await expect(page).toHaveURL(/\/Chat$/);await expect(page.getByRole('log')).toContainText('One small step is enough.');
 });
@@ -71,8 +71,33 @@ test('Stage 2 generic user file renders a named attachment chip',async({page})=>
 for(const language of ['en','he','es','fr','de','it','pt'])test(`Stage 2 consent and age views retain accessible layout ${language}`,async({page})=>{
  await prepareChatStage2(page,{language,theme:'dark',width:333,height:597});await page.evaluate(async()=>{const {renderStage2Fixture}=await import('/tests/fixtures/chat-stage2-preview.jsx');renderStage2Fixture('age');});
  const gate=page.getByRole('dialog');await expect(gate).toHaveAttribute('aria-describedby','age-gate-description');await expect.poll(()=>gate.evaluate(el=>el.contains(document.activeElement))).toBe(true);
- for(let n=0;n<10;n++){await page.keyboard.press('Tab');expect(await gate.evaluate(el=>el.contains(document.activeElement))).toBe(true);}for(const button of await gate.getByRole('button').all()){await button.scrollIntoViewIfNeeded();await expect(button).toBeInViewport({ratio:1});expect(await button.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);}
+ for(let n=0;n<10;n++){await page.keyboard.press('Tab');expect(await gate.evaluate(el=>el.contains(document.activeElement))).toBe(true);}for(const button of await gate.getByRole('button').all()){await button.evaluate(el=>el.scrollIntoView({block:'center'}));await expect(button).toBeInViewport({ratio:1});expect(await button.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);}
  await page.goto('/Chat');await expect(page.getByTestId('chat-root')).toBeVisible();await page.evaluate(async()=>{const {renderStage2Fixture}=await import('/tests/fixtures/chat-stage2-preview.jsx');renderStage2Fixture('consent');});
  const consent=page.getByTestId('consent-banner');await expect(consent).toBeVisible();await expect(consent.getByRole('link')).toHaveCount(2);const accept=consent.getByTestId('consent-accept');await accept.scrollIntoViewIfNeeded();await expect(accept).toBeInViewport({ratio:1});expect(await consent.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
  await page.screenshot({path:`test-results/chat-stage2-consent-${language}.png`});
+});
+
+for(const width of [333,768,1440])test(`Stage 2 conversation actions preserve drafts and focus ${width}`,async({page})=>{
+ const state=await prepareChatStage2(page,{width,theme:'dark'});await openStage2Conversation(page,width);
+ if(width<1280)await page.getByTestId('chat-root').locator('button').filter({has:page.locator('svg.lucide-menu')}).click();
+ const sidebar=width<1280?page.getByRole('dialog',{name:'Sessions',exact:true}):page.getByTestId('chat-desktop-sessions');
+ const search=sidebar.getByRole('searchbox',{name:'Search conversations'});await search.fill('No match in QA');await expect(sidebar).toContainText('No conversations match your search.');await expect(sidebar.getByRole('button',{name:/^QA stage 2 conversation/})).toHaveCount(0);await search.fill('');
+ const actions=()=>sidebar.getByRole('button',{name:/^Conversation actions for /});
+ await actions().click();await page.getByRole('menuitem',{name:'Rename',exact:true}).click();const draft=sidebar.getByRole('textbox',{name:'Conversation name'});await expect(draft).toHaveAttribute('maxlength','80');await draft.fill('');await expect(sidebar.getByRole('button',{name:'Save name',exact:true})).toBeDisabled();
+ await draft.fill('QA renamed after retry');state.failPreference=true;await sidebar.getByRole('button',{name:'Save name',exact:true}).click();await expect(sidebar.getByRole('alert')).toBeVisible();await expect(draft).toHaveValue('QA renamed after retry');
+ state.failPreference=false;await sidebar.getByRole('button',{name:'Save name',exact:true}).click();await expect(draft).toHaveCount(0);await expect(sidebar.getByRole('button',{name:/^QA renamed after retry/})).toBeVisible();
+ await actions().click();await page.getByRole('menuitem',{name:'Pin',exact:true}).click();await expect.poll(()=>state.db.Conversation[0]?.is_pinned).toBe(true);
+ await actions().click();await page.getByRole('menuitem',{name:'Unpin',exact:true}).click();await expect.poll(()=>state.db.Conversation[0]?.is_pinned).toBe(false);
+ await actions().click();await page.getByRole('menuitem',{name:'Delete',exact:true}).click();const confirm=page.getByRole('alertdialog');await expect(confirm.getByRole('button',{name:'Cancel',exact:true})).toBeFocused();await confirm.getByRole('button',{name:'Cancel',exact:true}).click();await expect(confirm).toHaveCount(0);await expect(actions()).toBeFocused();expect(state.db.UserDeletedConversations).toHaveLength(0);
+ await actions().click();await page.getByRole('menuitem',{name:'Delete',exact:true}).click();await page.getByRole('alertdialog').getByRole('button',{name:'Delete',exact:true}).click();await expect.poll(()=>state.db.UserDeletedConversations.length).toBe(1);await expect(sidebar.getByRole('button',{name:/^QA renamed after retry/})).toHaveCount(0);await expect(sidebar.getByTestId('chat-new-conversation')).toBeFocused();
+});
+
+for(const language of ['en','he'])test(`Stage 2 bulk delete confirmation returns focus ${language}`,async({page})=>{
+ const state=await prepareChatStage2(page,{language,width:333});await openStage2Conversation(page,333);await page.getByTestId('chat-root').locator('button').filter({has:page.locator('svg.lucide-menu')}).click();const sidebar=page.getByRole('dialog');
+ await sidebar.getByRole('checkbox').first().check();const bulk=sidebar.getByRole('button',{name:language==='he'?'מחיקת 1 שיחות שנבחרו':'Delete 1 selected sessions',exact:true});await bulk.click();await page.getByRole('alertdialog').getByRole('button',{name:language==='he'?'ביטול':'Cancel',exact:true}).click();await expect(bulk).toBeFocused();expect(state.db.UserDeletedConversations).toHaveLength(0);
+ await bulk.click();await page.getByRole('alertdialog').getByRole('button',{name:language==='he'?'מחיקה':'Delete',exact:true}).click();await expect.poll(()=>state.db.UserDeletedConversations.length).toBe(1);await expect(sidebar.getByTestId('chat-new-conversation')).toBeFocused();
+});
+
+for(const language of ['en','he','es','fr','de','it','pt'])test(`Stage 2 restricted view wraps translated copy ${language}`,async({page})=>{
+ await prepareChatStage2(page,{language,width:333,height:597,theme:'dark'});await page.evaluate(async()=>{const {renderStage2Fixture}=await import('/tests/fixtures/chat-stage2-preview.jsx');renderStage2Fixture('restricted');});const panel=page.locator('#stage2-fixture');await expect(panel.getByRole('heading')).toBeVisible();const home=panel.getByRole('link');await home.scrollIntoViewIfNeeded();await expect(home).toBeInViewport({ratio:1});await expect(home).toHaveAttribute('href','/');expect(await panel.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
 });
