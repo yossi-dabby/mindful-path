@@ -98,6 +98,12 @@ for (const language of ['en', 'he']) test(`Interactive breathing contains focus 
     // A mounted dialog can precede Radix's focus/listener effect. Wait for the
     // real keyboard target before sending Escape, as on the initial opening.
     await expect.poll(() => dialog.evaluate(e => e.contains(document.activeElement))).toBe(true);
+    // Reopening also exercises the focus trap before dismissal. Autofocus can
+    // precede Radix's passive layer registration under a busy CI renderer.
+    for (let i = 0; i < 8; i++) {
+      await page.keyboard.press('Tab');
+      expect(await dialog.evaluate(e => e.contains(document.activeElement))).toBe(true);
+    }
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
     await expect(trigger).toBeFocused();
