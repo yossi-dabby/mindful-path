@@ -1,5 +1,7 @@
 import {test,expect} from '@playwright/test';
-import {prepareChatStage2,openStage2Conversation} from '../helpers/chatStage2';
+import {prepareChatStage2,openStage2Conversation,attachStage2RequestDiagnostics} from '../helpers/chatStage2';
+
+test.afterEach(async({page},info)=>{if(info.status!==info.expectedStatus)await attachStage2RequestDiagnostics(page);});
 
 test('Stage 2: narrow conversation drawer owns focus, covers composer and closes on Escape',async({page})=>{
  await prepareChatStage2(page,{width:333,height:597});const trigger=page.getByTestId('chat-root').getByRole('button',{name:'Open conversations sidebar',exact:true});await trigger.focus();await trigger.click();
@@ -113,6 +115,6 @@ for(const language of ['en','he'])test(`Stage 2 mixed-language assistant paragra
 });
 
 for(const width of [333,768,1440])test(`Stage 2 summary practice and support links navigate ${width}`,async({page})=>{
- const state=await prepareChatStage2(page,{width,summary:'A synthetic session summary.'});(state.conversation as any).suggested_exercises=['qa-exercise'];await page.route(/\/api\/apps\/[^/]+\/entities\/Exercise(?:[/?]|$)/,route=>route.fulfill({json:[{id:'qa-exercise',title:'Synthetic QA practice',description:'A short QA practice description.',category:'mindfulness',is_active:true}]}));await openStage2Conversation(page,width);
+ const state=await prepareChatStage2(page,{width,summary:'A synthetic session summary.'});(state.conversation as any).suggested_exercises=['qa-exercise'];await page.route(/\/api\/.*\/entities\/Exercise(?:[/?]|$)/,route=>route.fulfill({json:[{id:'qa-exercise',title:'Synthetic QA practice',description:'A short QA practice description.',category:'mindfulness',is_active:true}]}));await openStage2Conversation(page,width);
  const practice=page.getByTestId('chat-session-summary').getByRole('link');await practice.scrollIntoViewIfNeeded();await expect(practice).toBeInViewport({ratio:1});expect(await practice.locator('button').count()).toBe(0);await practice.click();await expect(page).toHaveURL(/\/Exercises$/);await page.goBack();await expect(page.getByRole('log')).toContainText('One small step is enough.');await page.getByTestId('chat-human-support').click();await expect(page).toHaveURL(/\/contact$/);
 });
