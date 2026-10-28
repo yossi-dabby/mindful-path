@@ -19,7 +19,7 @@ The isolated browser fixtures use synthetic records, intercept entity and AI req
 | Progress | All six tabs, charts, achievements, goals, exercise activity, health, local progress-data panel and current insight panels |
 | Health | Populated and partial fields, empty state, notice readability, chart, long data form, last input and cancellation |
 | Mood Tracker | Overview, calendar, insights, data and empty states, detailed entry form and close |
-| Starter Path | Personalization both steps and retained choices; daily intro, example, input, completion, stored day advancement and reload |
+| Starter Path | Personalization both steps and retained choices; daily intro, example, input, exact completed-day summary, stored day advancement and reload; day-seven final completion and return home |
 | Journeys | Available/in-progress/completed tabs, detail, reflection, both steps, final completion and completed-card state |
 
 ## Findings addressed
@@ -28,6 +28,7 @@ The isolated browser fixtures use synthetic records, intercept entity and AI req
 - Goal dialogs are above app chrome and below nested selection drawers. Nested picker hit-testing is tested after its entrance animation.
 - Goals exposes its existing manual form through More actions while preserving the existing AI/chat entry points.
 - Starter Path's title and day indicator wrap on narrow screens; the previous English 360px layout expanded app content to 411px. Personalization uses theme tokens and keyboard-operable selected goal buttons.
+- Starter Path completion preserves the day actually finished while the progress query advances. Previously completing day one could show “Day 2 Complete” and “tomorrow Day 3.” The themed summary resets the previous exercise's scroll and focuses its heading; phone bounds cover the whole card between the fixed bars. Day-seven final completion is tested separately.
 - Long milestone timeline content and filters wrap on tablet; the previous 768px layout expanded content to 892px.
 - Goal card/chart/AI panels and health notices use the established theme surfaces. Progress tooltips use themed surfaces. Remaining status colors identify categories or status rather than enclosing whole pages in a separate palette.
 - Suggested-goal rows retain structured objects during rendering. The previous text-list normalizer discarded object fields, leaving blank titles/descriptions and an undefined category. Breakdown rows also retain descriptions and timing fields. Prompts, schemas and agent boundaries are unchanged.

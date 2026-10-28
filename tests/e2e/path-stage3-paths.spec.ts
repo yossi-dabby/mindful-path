@@ -26,9 +26,18 @@ for (const language of ['en', 'he']) for (const width of [360, 768, 1440]) {
     await assertPathWidth(page);
     await page.getByRole('button', { name: language === 'he' ? 'השלימו יום 1' : 'Complete Day 1', exact: true }).click();
     await expect.poll(() => state.db.StarterPath[0]?.current_day).toBe(2);
-    const completion = page.getByRole('heading', { name: language === 'he' ? /^יום \d הושלם!$/ : /^Day \d Complete!$/ });
+    const completion = page.getByRole('heading', { name: language === 'he' ? 'יום 1 הושלם!' : 'Day 1 Complete!', exact: true });
     await expect(completion).toBeVisible();
-    await expect(completion.locator('..').getByText('QA sample content', { exact: true })).toBeVisible();
+    await expect(completion).toBeFocused();
+    const summary = page.getByTestId('starter-path-completion');
+    await expect(summary.getByText('QA sample content', { exact: true })).toBeVisible();
+    await expect(summary.getByText(language === 'he' ? 'חזרו מחר ליום 2' : 'Come back tomorrow for Day 2', { exact: true })).toBeVisible();
+    await expect.poll(() => summary.evaluate(el => {
+      const bounds = el.getBoundingClientRect();
+      const main = document.querySelector('#app-scroll-container')!;
+      const style = getComputedStyle(main);
+      return bounds.top >= parseFloat(style.paddingTop) - 1 && bounds.bottom <= innerHeight - parseFloat(style.paddingBottom) + 1;
+    })).toBe(true);
     await page.screenshot({ path: info.outputPath('starter-complete.png') });
     await page.reload();
     await expect(page.getByTestId('starter-path-begin')).toBeVisible();
