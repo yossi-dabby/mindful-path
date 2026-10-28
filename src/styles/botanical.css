@@ -71,14 +71,15 @@
 .botanical-tool-link:focus-visible,.botanical-navigation-grid > a:focus-visible { outline:3px solid hsl(var(--ring)); outline-offset:4px; }
 .botanical-tool-card { width:100%; display:flex; flex-direction:column; align-items:center; padding:20px; border-radius:26px; background:hsl(var(--card)/.97); border-color:hsl(var(--border)/.65); box-shadow:var(--shadow-sm); transition:transform var(--dur-med),box-shadow var(--dur-med),border-color var(--dur-med); }
 .botanical-tool-link:hover .botanical-tool-card { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:hsl(var(--primary)/.45); }
-.botanical-tool-art { display:block; position:relative; width:100%; height:106px; margin-bottom:14px; }
-.botanical-tool-art > .botanical-accent { position:absolute; inset-inline-end:6%; top:0; width:64%; height:100%; opacity:.7; }
-.botanical-tool-icon { position:absolute; inset-inline-start:12%; top:24px; display:grid; place-items:center; width:64px; height:64px; border-radius:22px; color:hsl(var(--primary)); background:hsl(var(--secondary)/.85); border:1px solid hsl(var(--border)/.6); box-shadow:0 6px 16px hsl(var(--primary)/.06); }
-.botanical-tool-icon > svg { width:34px; height:34px; }
+.botanical-tool-art { display:block; position:relative; width:100%; height:90px; margin-bottom:14px; }
+.botanical-tool-art > .botanical-accent { position:absolute; inset:0; width:100%; height:100%; opacity:.7; }
+.botanical-tool-heading { display:flex; width:100%; min-width:0; align-items:center; justify-content:center; gap:10px; }
+.botanical-tool-icon { display:grid; flex-shrink:0; place-items:center; width:44px; height:44px; border-radius:16px; color:hsl(var(--primary)); background:hsl(var(--secondary)/.85); border:1px solid hsl(var(--border)/.6); box-shadow:0 6px 16px hsl(var(--primary)/.06); }
+.botanical-tool-icon > svg { width:26px; height:26px; }
 [data-tool=forms] .botanical-tool-icon,[data-tool=resources] .botanical-tool-icon { background:#f3eddf; color:#756244; border-color:#dfd3b9; }
 [data-tool=videos] .botanical-tool-icon { background:#e6edf1; color:#456979; border-color:#c9d9df; }
 [data-tool=games] .botanical-tool-icon { background:#eee9ee; color:#74617c; border-color:#dbd0df; }
-.botanical-tool-title { margin:0; font-size:17px; font-weight:650; line-height:1.45; text-align:center; color:hsl(var(--foreground)); overflow-wrap:anywhere; }
+.botanical-tool-title { min-width:0; margin:0; font-size:17px; font-weight:650; line-height:1.45; text-align:center; color:hsl(var(--foreground)); overflow-wrap:anywhere; }
 .botanical-tool-description { margin:8px 0 14px; font-size:13px; line-height:1.65; text-align:center; color:hsl(var(--muted-foreground)); }
 .botanical-tool-card .botanical-open { width:100%; }
 
@@ -129,9 +130,10 @@
   .botanical-tools-grid { grid-template-columns:1fr; gap:12px; }
   .botanical-tool-card { position:relative; align-items:stretch; padding:18px; min-height:164px; }
   .botanical-tool-art { position:absolute; inset-inline-end:10px; top:28px; width:104px; height:90px; margin:0; }
-  .botanical-tool-icon { width:46px; height:46px; top:30px; inset-inline-start:2px; border-radius:16px; }
   .botanical-tool-icon > svg { width:26px; height:26px; }
-  .botanical-tool-title,.botanical-tool-description { text-align:start; padding-inline-end:110px; }
+  .botanical-tool-heading,.botanical-tool-description { text-align:start; padding-inline-end:110px; }
+  .botanical-tool-heading { justify-content:flex-start; }
+  .botanical-tool-title { text-align:start; }
   .botanical-tool-title { font-size:16px; }
   .botanical-tool-card .botanical-open { justify-content:start; }
   .botanical-chat-art { width:96px; height:30px; margin-bottom:4px; }
@@ -141,7 +143,7 @@
   .botanical-accent { display:none; }
   .app-global-background.botanical-theme { background-image:none; }
   .botanical-tool-art { display:none; }
-  .botanical-tool-title,.botanical-tool-description { padding-inline-end:0; }
+  .botanical-tool-heading,.botanical-tool-description { padding-inline-end:0; }
   .botanical-tool-card { border:1px solid currentColor; }
 }
 
@@ -177,3 +179,13 @@
 /* Keep reading surfaces quiet while the shared garden stays between sections. */
 .garden-chat-content { border-radius:24px; background:hsl(var(--card)/.94); }
 .garden-chat [data-testid="chat-welcome"] { box-shadow:var(--shadow-md); }
+
+/* The entry card stays above the composer in the app's normal page flow.
+   Short viewports spend their space on the complete copy and start action. */
+@media (max-height:700px) {
+  [data-testid="chat-empty-welcome-shell"] { padding:8px; }
+  [data-testid="chat-welcome"] { padding:12px; }
+  [data-testid="chat-welcome-icon"], [data-testid="chat-welcome"] .botanical-chat-art { display:none; }
+  [data-testid="chat-welcome-title"] { margin-bottom:6px; font-size:18px; line-height:24px; }
+  [data-testid="chat-welcome-copy"] { margin-bottom:10px; font-size:13px; line-height:19px; }
+}

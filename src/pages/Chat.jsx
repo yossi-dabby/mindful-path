@@ -5281,29 +5281,36 @@ export default function Chat() {
         </AlertDialogContent>
       </AlertDialog>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-                                                `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-                                                (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+      {/* Active conversations use a viewport height for their message scroll chain.
+          The empty entry follows normal page flow so its complete start card is visible. */}
       <div className="garden-chat rounded-2xl flex relative"
 
       data-testid="chat-root"
+      data-chat-empty={!currentConversationId}
       data-page-ready={isPageReady}
       style={{
-        height: `calc(100dvh - var(--mobile-header-height, calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px))) - var(--mobile-bottom-nav-height, calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))))`
+        height: currentConversationId ? `calc(100dvh - var(--mobile-header-height, calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px))) - var(--mobile-bottom-nav-height, calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))))` : 'auto',
+        minHeight: !currentConversationId ? `calc(100dvh - var(--mobile-header-height, calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px))) - var(--mobile-bottom-nav-height, calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))))` : undefined
       }}>
 
-        {/* On desktop (≥1024px) there is no fixed mobile header or bottom nav,
+        {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
                                                   so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
-            [data-testid="chat-root"] {
+            [data-testid="chat-root"][data-chat-empty="false"] {
               height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
             }
           }
+          @media (min-width: 768px) {
+            [data-testid="chat-root"][data-chat-empty="true"] {
+              min-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+            }
+          }
+          [data-chat-empty="true"] .garden-chat-content { flex: 0 0 auto; overflow: visible; }
           @media (max-width: 767px) and (max-height: 540px) {
             body:has([data-testid="therapist-chat-input"]:focus) [data-mobile-header] { display: none; }
             body:has([data-testid="therapist-chat-input"]:focus) #app-scroll-container { padding-top: 0 !important; }
-            body:has([data-testid="therapist-chat-input"]:focus) [data-testid="chat-root"] {
+            body:has([data-testid="therapist-chat-input"]:focus) [data-testid="chat-root"][data-chat-empty="false"] {
               height: calc(100dvh - var(--mobile-bottom-nav-height, 80px)) !important;
             }
             [data-testid="chat-header"] { min-height: 44px; padding-block: 0; }
@@ -5401,10 +5408,9 @@ export default function Chat() {
           {!currentConversationId ?
             <div
               data-testid="chat-empty-state-scroll"
-              className="h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4"
-              style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+              className="min-h-0 shrink-0 pb-3 sm:pb-4">
               {/* Welcome Section - Separate container */}
-              <div data-testid="chat-empty-welcome-shell" className="p-1.5 flex items-start justify-center sm:min-h-full sm:items-center sm:p-4 lg:p-6">
+              <div data-testid="chat-empty-welcome-shell" className="p-1.5 flex items-start justify-center sm:p-4 lg:p-6">
                 <Card data-testid="chat-welcome" className="bg-[hsl(var(--card)/0.97)] text-primary p-2 sm:p-6 text-center rounded-3xl backdrop-blur-xl w-full max-w-md border border-border/70 shadow-[var(--shadow-lg)]">
                   <div data-testid="chat-welcome-icon" className="mx-auto mb-1.5 sm:mb-4 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-14 sm:h-14 flex items-center justify-center bg-primary text-primary-foreground shadow-[var(--shadow-md)] ring-4 ring-ring">
                     <PremiumIcon name="sparkle" size="lg" bare className="h-6 w-6 sm:h-7 sm:w-7" />
@@ -5607,9 +5613,9 @@ export default function Chat() {
             }
         </div>
 
-        {/* Input Area - Always visible, always on top */}
+        {/* Composer stays above conversation content; the empty page respects app navigation. */}
         <div data-testid="chat-composer" className="bg-[hsl(var(--card)/0.97)] text-foreground rounded-2xl px-2 py-1 sm:px-4 sm:py-2 lg:px-5 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
-            zIndex: 50
+            zIndex: currentConversationId ? 50 : 20
           }}>
           <div className="text-primary mx-auto max-w-5xl flex min-w-0">
             {variantProfileBlocked ?

@@ -60,11 +60,13 @@ describe('Chat responsive layout contract', () => {
     expect(appContent).not.toContain('BOTTOM_NAV_HEIGHT + 72');
   });
 
-  it('keeps an oversized mobile welcome card reachable above the composer', () => {
+  it('keeps the empty welcome in page flow and the conversation in its message scroller', () => {
     expect(chat).toContain('data-testid="chat-empty-state-scroll"');
-    expect(chat).toContain('h-full min-h-0 overflow-y-auto overscroll-contain pb-3 sm:pb-4');
-    expect(chat).toContain("WebkitOverflowScrolling: 'touch', touchAction: 'pan-y'");
-    expect(chat).toContain('items-start justify-center sm:min-h-full sm:items-center');
+    expect(chat).toContain('data-chat-empty={!currentConversationId}');
+    expect(chat).toContain('[data-chat-empty="true"] .garden-chat-content { flex: 0 0 auto; overflow: visible; }');
+    expect(chat).toContain('className="min-h-0 shrink-0 pb-3 sm:pb-4"');
+    expect(chat).toContain("zIndex: currentConversationId ? 50 : 20");
+    expect(chat).toContain('p-1.5 flex items-start justify-center sm:p-4 lg:p-6');
     expect(chat).toContain('data-testid="chat-empty-welcome-shell"');
     expect(chat).toContain('p-2 sm:p-6 text-center');
     expect(chat).toContain('data-testid="chat-welcome-title"');

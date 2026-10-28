@@ -35,7 +35,10 @@ export async function prepareChatStage2(page: Page, { language='en', theme='ligh
   const pdfBytes = Buffer.from(pdf.output('arraybuffer'));
   await page.route(/\/forms\/qa-stage2\.pdf(?:[?#]|$)/, route => state.fileAvailable ? route.fulfill({body:pdfBytes,contentType:'application/pdf'}) : route.fulfill({status:404,body:'Synthetic missing file'}));
   stage2States.set(page,state);
-  await page.goto('/Chat');await expect(page.getByTestId('chat-root')).toBeVisible();
+  await page.goto('/Chat');
+  // Wait for the app's hydration boundary; route modules can still be loading after document load.
+  await expect(page.getByTestId('chat-root')).toBeVisible({timeout:20000});
+  await expect(page.getByTestId('chat-root')).toHaveAttribute('data-page-ready','true');
   return state;
 }
 

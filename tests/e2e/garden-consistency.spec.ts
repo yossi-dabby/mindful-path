@@ -29,12 +29,14 @@ for (const language of ['en', 'he', 'es', 'fr', 'de', 'it', 'pt']) {
         const description = el.querySelector('p')!;
         const art = el.querySelector('.botanical-tool-art')!.getBoundingClientRect();
         const titleBox = title.getBoundingClientRect();
+        const icon = el.querySelector('.botanical-tool-icon')!.getBoundingClientRect();
         return {
           left: card.left, right: card.right, top: card.top,
           description: description.textContent,
           titleFits: title.scrollWidth <= title.clientWidth + 1,
           descriptionFits: description.scrollWidth <= description.clientWidth + 1,
           artworkFits: art.left >= card.left && art.right <= card.right,
+          iconOverlapsArt: icon.left < art.right && icon.right > art.left && icon.top < art.bottom && icon.bottom > art.top,
           titleLeft: titleBox.left, titleRight: titleBox.right,
         };
       }));
@@ -44,6 +46,7 @@ for (const language of ['en', 'he', 'es', 'fr', 'de', 'it', 'pt']) {
         expect(box.titleFits).toBe(true);
         expect(box.descriptionFits).toBe(true);
         expect(box.artworkFits).toBe(true);
+        expect(box.iconOverlapsArt).toBe(false);
         expect(box.description).not.toMatch(/tools_hub\./);
         expect(box.description!.length).toBeGreaterThan(10);
       }

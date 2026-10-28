@@ -36,9 +36,11 @@ export default function Tools() {
             <Card className="botanical-tool-card" data-tool={key}>
               <span className="botanical-tool-art" aria-hidden="true">
                 <BotanicalAccent variant={art} />
-                <span className="botanical-tool-icon mx-auto"><Icon strokeWidth={1.4} /></span>
               </span>
-              <h2 id={`tool-${key}`} className="botanical-tool-title">{t(`tools_hub.${key}`)}</h2>
+              <div className="botanical-tool-heading">
+                <span className="botanical-tool-icon" aria-hidden="true"><Icon strokeWidth={1.4} /></span>
+                <h2 id={`tool-${key}`} className="botanical-tool-title">{t(`tools_hub.${key}`)}</h2>
+              </div>
               <p className="botanical-tool-description">{t(`tools_hub.descriptions.${key}`)}</p>
               <span className="botanical-open">{t('tools_hub.open')}<Arrow className="h-4 w-4" /></span>
             </Card>
