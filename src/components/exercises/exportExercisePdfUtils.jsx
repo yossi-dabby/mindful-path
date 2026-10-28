@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { measurePdfProtectedRanges, pdfPageSlices } from '@/lib/pdfPagination';
 
 const stripHtml = (html) => {
   if (!html) return '';
@@ -39,8 +40,8 @@ const getInstructionSteps = (exercise) => {
 const sectionHtml = (title, content) => {
   if (!content) return '';
   return `
-    <div style="margin-bottom:18px;">
-      <div style="font-size:11px;font-weight:700;color:#1a3a34;letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
+    <div data-pdf-section style="margin-bottom:18px;">
+      <div data-pdf-heading style="font-size:11px;font-weight:700;color:#1a3a34;letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
       <div style="border-top:1px solid #b4dcd2;margin-bottom:8px;"></div>
       <div style="font-size:13px;color:#374151;white-space:pre-wrap;direction:inherit;unicode-bidi:plaintext;">${content}</div>
     </div>`;
@@ -49,8 +50,8 @@ const sectionHtml = (title, content) => {
 const bulletListHtml = (title, items) => {
   if (!items?.length) return '';
   return `
-    <div style="margin-bottom:18px;">
-      <div style="font-size:11px;font-weight:700;color:#1a3a34;letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
+    <div data-pdf-section style="margin-bottom:18px;">
+      <div data-pdf-heading style="font-size:11px;font-weight:700;color:#1a3a34;letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
       <div style="border-top:1px solid #b4dcd2;margin-bottom:8px;"></div>
       <ul style="margin:0;padding-inline-start:20px;font-size:13px;color:#374151;">
         ${items.map((item) => `<li style="margin-bottom:6px;direction:inherit;unicode-bidi:plaintext;">${item}</li>`).join('')}
@@ -116,7 +117,7 @@ const buildExercisePdfHtml = ({ exercise, labels, language }) => {
         ${bulletListHtml(labels.helpsWith, exercise.tags || [])}
         ${bulletListHtml(labels.progress, progressItems)}
       </div>
-      <div style="padding:0 24px 20px;color:#6b7280;font-size:10px;border-top:1px solid #e5e7eb;direction:inherit;unicode-bidi:plaintext;">
+      <div data-pdf-footer style="padding:0 24px 20px;color:#6b7280;font-size:10px;border-top:1px solid #e5e7eb;direction:inherit;unicode-bidi:plaintext;">
         <div style="padding-top:12px;">${labels.footer}</div>
       </div>
     </div>`;
@@ -136,6 +137,8 @@ const captureAndSavePdf = async (htmlContent, filename) => {
   document.body.appendChild(container);
 
   try {
+    await document.fonts.ready;
+    const protectedRanges = measurePdfProtectedRanges(container);
     const canvas = await html2canvas(container, {
       scale: 2,
       useCORS: true,
@@ -146,21 +149,22 @@ const captureAndSavePdf = async (htmlContent, filename) => {
     const pdf = new jsPDF({ format: 'a4', unit: 'mm' });
     const pdfW = pdf.internal.pageSize.getWidth();
     const pdfH = pdf.internal.pageSize.getHeight();
-    const logicalW = canvas.width / 2;
-    const logicalH = canvas.height / 2;
-    const mmPerPx = pdfW / logicalW;
-    const totalMmH = logicalH * mmPerPx;
-    const imgData = canvas.toDataURL('image/png');
-
-    if (totalMmH <= pdfH) {
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfW, totalMmH);
-    } else {
-      const totalPages = Math.ceil(totalMmH / pdfH);
-      for (let page = 0; page < totalPages; page++) {
-        if (page > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, -(page * pdfH), pdfW, totalMmH);
-      }
-    }
+    const scale = canvas.width / container.getBoundingClientRect().width;
+    const mmPerPixel = pdfW / canvas.width;
+    const margin = 24 * scale * mmPerPixel;
+    const pageHeight = Math.floor((pdfH - margin * 2) / mmPerPixel);
+    const ranges = protectedRanges.map(({ top, bottom }) => ({ top: Math.floor(top * scale), bottom: Math.ceil(bottom * scale) }));
+    const pages = pdfPageSlices(canvas.height, pageHeight, ranges);
+    pages.forEach(({ top, height }, index) => {
+      if (index) pdf.addPage();
+      const slice = document.createElement('canvas');
+      slice.width = canvas.width;
+      slice.height = height;
+      const context = slice.getContext('2d');
+      if (!context) throw new Error('Unable to prepare PDF page');
+      context.drawImage(canvas, 0, top, canvas.width, height, 0, 0, canvas.width, height);
+      pdf.addImage(slice.toDataURL('image/png'), 'PNG', 0, margin, pdfW, height * mmPerPixel);
+    });
 
     pdf.save(filename);
   } finally {

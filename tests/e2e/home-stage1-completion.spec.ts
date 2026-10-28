@@ -12,7 +12,7 @@ async function setup(page: Page, language = 'en', theme = 'light', width = 390, 
   }, { language, theme });
   const date = new Date().toISOString().slice(0, 10);
   const db: Record<string, any[]> = {
-    MoodEntry: [{ id: 'today-mood', date, mood: 'good', energy_level: 'medium', stress_level: 3, notes: 'QA saved check-in', created_date: `${date}T10:00:00Z` }],
+    MoodEntry: [{ id: 'today-mood', date, mood: 'good', energy_level: 'moderate', stress_level: 3, notes: 'QA saved check-in', created_date: `${date}T10:00:00Z` }],
     DailyFlow: [{ id: 'today-flow', date, check_in_completed: true, exercise_completed: true, reflection_completed: true, key_insight: 'QA saved insight', daily_takeaway: 'QA saved reflection' }],
     UserExerciseProgress: [{ id: 'progress', exercise_id: 'builtin-grounding-54321', completed_count: 4, favorite: true }],
     AppNotification: [], Playlist: [{ id: 'playlist', name: 'QA playlist', description: 'QA description', video_count: 0 }], PlaylistVideo: [], Video: [], VideoProgress: [],
@@ -47,6 +47,7 @@ for (const language of ['en', 'he']) for (const width of [333, 768, 1440]) {
     const trigger = page.getByTestId('open-daily-records');
     await trigger.click(); const history = page.getByTestId('daily-records-dialog');
     const day = history.getByTestId('daily-record-day'); await day.locator('summary').click();
+    await expect(history).not.toContainText('home_practice.');
     await expect(history).toContainText('QA saved check-in'); await expect(history).toContainText('QA saved insight'); await expect(history).toContainText('QA saved reflection');
     const open = history.getByRole('button', { name: language === 'he' ? 'פתיחת ההתבוננות' : 'Open reflection', exact: true });
     await open.click(); let reflection = page.getByRole('dialog').filter({ has: page.locator('textarea') });
