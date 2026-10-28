@@ -197,10 +197,10 @@ export default function Goals() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <PullToRefresh queryKeys={['allGoals', 'recentGoals']}>
-        <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100dvh' }}>
+        <div data-testid="goals-page" className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100dvh' }}>
       {/* Header */}
       <div className="garden-responsive-heading flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8 mt-4">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <Button
                 variant="ghost"
                 size="icon"
@@ -212,11 +212,12 @@ export default function Goals() {
           </Button>
           <div>
             <div className="botanical-title-row"><h1 className="mb-1 text-2xl font-medium md:text-3xl lg:text-4xl md:mb-2" style={{ color: 'hsl(var(--foreground))' }}>{t('goals.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            <p className="text-foreground text-sm font-medium text-right md:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>{t('goals.subtitle')}</p>
+            <p className="text-foreground text-sm font-medium text-start md:text-base" style={{ color: 'hsl(var(--muted-foreground))' }}>{t('goals.subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <MoreActions>
+          <Button variant="outline" onClick={() => { setEditingGoal(null); setPrefilledGoal(null); setShowForm(true); }} data-testid="goal-create-manual">{t('goals.form.create_title')}</Button>
           <Button
                 onClick={() => setShowCalendar(!showCalendar)}
                 variant="outline" className="bg-primary text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
@@ -289,10 +290,10 @@ export default function Goals() {
       {isError ?
           <Card className="border-0" style={{
             borderRadius: '32px',
-            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 242, 242, 0.9) 100%)',
+            background: 'hsl(var(--card))',
             boxShadow: '0 12px 40px rgba(239, 68, 68, 0.12)'
           }}>
-          <CardContent className="p-12 text-center">
+          <CardContent className="p-5 sm:p-10 text-center">
             <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
                 borderRadius: '50%',
                 background: 'rgba(239, 68, 68, 0.1)'
@@ -324,7 +325,7 @@ export default function Goals() {
             background: 'hsl(var(--card) / 0.97)',
             boxShadow: 'var(--shadow-md)'
           }}>
-          <CardContent className="p-12 text-center">
+          <CardContent className="p-5 sm:p-10 text-center">
             <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
                 borderRadius: '50%',
                 background: 'hsl(var(--card) / 0.97)'
@@ -338,7 +339,7 @@ export default function Goals() {
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
                   onClick={() => setShowTemplates(true)}
-                  className="text-white px-8 py-6 text-lg w-full"
+                  className="h-auto min-h-12 whitespace-normal text-primary-foreground px-4 py-3 text-base w-full"
                   style={{
                     borderRadius: '32px',
                     background: 'hsl(var(--primary))',
@@ -352,7 +353,7 @@ export default function Goals() {
                   onClick={() => setShowAiSuggestions(true)}
                 aria-label={t('goals.ai_suggestions')}
                   variant="outline"
-                  className="px-8 py-6 text-lg w-full"
+                  className="h-auto min-h-12 whitespace-normal px-4 py-3 text-base w-full"
                   style={{ borderRadius: '32px' }}>
 
                 <Sparkles className="w-5 h-5 mr-2" />
@@ -361,7 +362,7 @@ export default function Goals() {
               <Button
                   onClick={() => navigate('/Chat?intent=goal_work')}
                   variant="outline"
-                  className="px-8 py-6 text-lg w-full"
+                  className="h-auto min-h-12 whitespace-normal px-4 py-3 text-base w-full"
                   style={{ borderRadius: '32px' }}>
 
                 {t('goals.create_with_ai')}
@@ -414,7 +415,7 @@ export default function Goals() {
           {/* Active Goals */}
           {activeGoals.length > 0 &&
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <h2 className="text-xl font-semibold text-foreground">{t('goals.active_goals')}</h2>
                 {activeGoals.length > 0 &&
                 <Button

@@ -61,7 +61,10 @@ describe('Progress production UX safeguards', () => {
     const source = read('src/components/health/HealthDataForm.jsx');
     expect(source).toContain('role="dialog"');
     expect(source).toContain('aria-modal="true"');
-    expect(source).toContain("event.key === 'Escape'");
+    // Escape and focus restoration belong to the shared Radix dialog now;
+    // progress-responsive and path-stage3-flows exercise actual dismissal.
+    expect(source).toContain("import PremiumDialog from '@/components/ui/PremiumDialog'");
+    expect(source).toContain('<PremiumDialog onClose={onClose}');
     expect(source).toContain('max-h-[92dvh]');
     expect(source).toContain('min-h-11');
     expect(source).toContain('saveMutation.isError');

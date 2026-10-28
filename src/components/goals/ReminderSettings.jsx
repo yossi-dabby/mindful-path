@@ -1,4 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import { useTranslation } from 'react-i18next';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +11,6 @@ import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Trash2, Plus, Mail, AppWindow, Check } from 'lucide-react';
-import { format } from 'date-fns';
 
 const REMINDER_TYPE_OPTIONS = [
   { value: 'goal_deadline', label: 'Goal Deadline' },
@@ -33,6 +33,7 @@ const FREQUENCY_OPTIONS = [
 ];
 
 export default function ReminderSettings({ goal, onClose }) {
+  const { t, i18n } = useTranslation();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newReminder, setNewReminder] = useState({
     reminder_type: 'goal_deadline',
@@ -42,6 +43,9 @@ export default function ReminderSettings({ goal, onClose }) {
     active: true
   });
 
+  const reminderTypes = REMINDER_TYPE_OPTIONS.map(option => ({ ...option, label: t(`path_ui.${option.value === 'goal_deadline' ? 'deadline' : option.value}`) }));
+  const methods = NOTIFICATION_METHOD_OPTIONS.map(option => ({ ...option, label: t(`path_ui.${option.value}`) }));
+  const frequencies = FREQUENCY_OPTIONS.map(option => ({ ...option, label: t(`path_ui.${option.value}`) }));
   const queryClient = useQueryClient();
 
   const { data: reminders = [], isLoading } = useQuery({
@@ -134,13 +138,7 @@ export default function ReminderSettings({ goal, onClose }) {
   };
 
   const getReminderTypeLabel = (type) => {
-    const labels = {
-      goal_deadline: 'Goal Deadline',
-      milestone_deadline: 'Milestone Deadline',
-      weekly_checkin: 'Weekly Check-in',
-      custom: 'Custom'
-    };
-    return labels[type] || type;
+    return reminderTypes.find(option => option.value === type)?.label || type;
   };
 
   const getMethodIcon = (method) => {
@@ -150,24 +148,24 @@ export default function ReminderSettings({ goal, onClose }) {
   };
 
   return (
-    <PremiumOverlay className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <PremiumDialog onClose={onClose} label={t('goals.card.reminders')} className="goal-dialog fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="max-w-2xl w-full max-h-[90vh] overflow-auto">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5" />
-              Goal Reminders
+              {t('path_ui.reminders')}
             </CardTitle>
-            <Button variant="ghost" aria-label="Close" onClick={onClose}>✕</Button>
+            <Button variant="ghost" aria-label={t('goals.form.close_aria')} onClick={onClose}>✕</Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            Set up reminders for "{goal.title}"
+            {t('path_ui.reminder_intro', { title: goal.title })}
           </p>
         </CardHeader>
         
         <CardContent className="space-y-4">
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading reminders...</p>
+            <p className="text-sm text-muted-foreground">{t('path_ui.loading_reminders')}</p>
           ) : (
             <>
               {reminders.length > 0 && (
@@ -177,7 +175,7 @@ export default function ReminderSettings({ goal, onClose }) {
                       key={reminder.id}
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
-                      <div className="flex-1">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant="outline" className="text-xs">
                             {getReminderTypeLabel(reminder.reminder_type)}
@@ -188,17 +186,17 @@ export default function ReminderSettings({ goal, onClose }) {
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {reminder.reminder_type === 'goal_deadline' && 
-                            `${reminder.days_before} days before deadline`}
+                            t('path_ui.before_goal', { count: reminder.days_before })}
                           {reminder.reminder_type === 'milestone_deadline' && 
-                            `${reminder.days_before} days before milestone`}
+                            t('path_ui.before_milestone', { count: reminder.days_before })}
                           {reminder.reminder_type === 'weekly_checkin' && 
-                            'Every week'}
+                            t('path_ui.weekly')}
                           {reminder.reminder_type === 'custom' && 
                             reminder.custom_message?.substring(0, 50)}
                         </p>
                         {reminder.last_sent && (
                           <p className="text-xs text-gray-400 mt-1">
-                            Last sent: {format(new Date(reminder.last_sent), 'MMM d, h:mm a')}
+                            {t('path_ui.last_sent')}: {new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(reminder.last_sent))}
                           </p>
                         )}
                       </div>
@@ -213,11 +211,11 @@ export default function ReminderSettings({ goal, onClose }) {
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            if (confirm('Delete this reminder?')) {
+                            if (confirm(t('path_ui.delete_confirm'))) {
                               deleteReminder.mutate(reminder.id);
                             }
                           }}
-                          aria-label="Delete reminder"
+                          aria-label={t('path_ui.delete_reminder')}
                          mobileLabelKey="delete">
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
@@ -234,26 +232,26 @@ export default function ReminderSettings({ goal, onClose }) {
                   className="w-full"
                  mobileLabelKey="add">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Reminder
+                  {t('path_ui.add')}
                 </Button>
               ) : (
-                <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
+                <div className="border rounded-lg p-4 space-y-4 bg-secondary/50">
                   <div className="space-y-2">
-                    <Label>Reminder Type</Label>
+                    <Label>{t('path_ui.type')}</Label>
                     <BottomSheetSelect
                       value={newReminder.reminder_type}
                       onValueChange={(value) => 
                         setNewReminder({ ...newReminder, reminder_type: value })
                       }
-                      options={REMINDER_TYPE_OPTIONS}
-                      title="Reminder Type"
+                      options={reminderTypes}
+                      title={t('path_ui.type')}
                     />
                   </div>
 
                   {(newReminder.reminder_type === 'goal_deadline' || 
                     newReminder.reminder_type === 'milestone_deadline') && (
                     <div className="space-y-2">
-                      <Label>Days Before Deadline</Label>
+                      <Label>{t('path_ui.days_before')}</Label>
                       <Input
                         type="number"
                         min="0"
@@ -267,7 +265,7 @@ export default function ReminderSettings({ goal, onClose }) {
 
                   {newReminder.reminder_type === 'milestone_deadline' && (
                     <div className="space-y-2">
-                      <Label>Select Milestone</Label>
+                      <Label>{t('path_ui.select_milestone')}</Label>
                       <BottomSheetSelect
                         value={newReminder.milestone_index?.toString()}
                         onValueChange={(value) => 
@@ -275,19 +273,19 @@ export default function ReminderSettings({ goal, onClose }) {
                         }
                         options={(goal.milestones || []).map((m, idx) => ({
                           value: idx.toString(),
-                          label: m.title || `Step ${idx + 1}`,
+                          label: m.title || t('goals.card.step_default', { number: idx + 1 }),
                         }))}
-                        placeholder="Choose milestone…"
-                        title="Select Milestone"
+                        placeholder={t('path_ui.select_milestone')}
+                        title={t('path_ui.select_milestone')}
                       />
                     </div>
                   )}
 
                   {newReminder.reminder_type === 'custom' && (
                     <div className="space-y-2">
-                      <Label>Custom Message</Label>
+                      <Label>{t('path_ui.message')}</Label>
                       <Input
-                        placeholder="Enter your reminder message..."
+                        placeholder={t('path_ui.message_placeholder')}
                         value={newReminder.custom_message || ''}
                         onChange={(e) => 
                           setNewReminder({ ...newReminder, custom_message: e.target.value })
@@ -297,27 +295,27 @@ export default function ReminderSettings({ goal, onClose }) {
                   )}
 
                   <div className="space-y-2">
-                    <Label>Send Via</Label>
+                    <Label>{t('path_ui.send_via')}</Label>
                     <BottomSheetSelect
                       value={newReminder.notification_method}
                       onValueChange={(value) => 
                         setNewReminder({ ...newReminder, notification_method: value })
                       }
-                      options={NOTIFICATION_METHOD_OPTIONS}
-                      title="Notification Method"
+                      options={methods}
+                      title={t('path_ui.send_via')}
                     />
                   </div>
 
                   {newReminder.reminder_type !== 'weekly_checkin' && (
                     <div className="space-y-2">
-                      <Label>Frequency</Label>
+                      <Label>{t('path_ui.frequency')}</Label>
                       <BottomSheetSelect
                         value={newReminder.frequency}
                         onValueChange={(value) => 
                           setNewReminder({ ...newReminder, frequency: value })
                         }
-                        options={FREQUENCY_OPTIONS}
-                        title="Reminder Frequency"
+                        options={frequencies}
+                        title={t('path_ui.frequency')}
                       />
                     </div>
                   )}
@@ -326,16 +324,16 @@ export default function ReminderSettings({ goal, onClose }) {
                     <Button
                       onClick={handleAddReminder}
                       disabled={createReminder.isPending}
-                      className="flex-1"
+                      className="min-w-0 flex-1"
                     >
                       <Check className="w-4 h-4 mr-2" />
-                      Create Reminder
+                      {t('path_ui.create')}
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setShowAddForm(false)}
                     >
-                      Cancel
+                      {t('goals.form.cancel')}
                     </Button>
                   </div>
                 </div>
@@ -344,6 +342,6 @@ export default function ReminderSettings({ goal, onClose }) {
           )}
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }

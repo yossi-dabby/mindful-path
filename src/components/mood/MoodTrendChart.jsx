@@ -133,23 +133,25 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         {/* Mood Line Chart */}
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-foreground mb-3">{t('mood_tracker.analytics.mood_stress_levels')}</h3>
-          <div className="overflow-x-auto pb-2" tabIndex={0}><div className="min-w-[620px] h-[300px]">
+          <div className="min-w-0 pb-2"><div className="h-[300px] w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} className="bg-secondary/70 recharts-surface">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <LineChart data={chartData} className="bg-card recharts-surface">
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="date"
-                stroke="#6b7280"
+                interval="preserveStartEnd" minTickGap={24}
+                stroke="hsl(var(--muted-foreground))"
                 style={{ fontSize: '12px' }} />
 
               <YAxis
-                stroke="#6b7280"
+                stroke="hsl(var(--muted-foreground))"
                 style={{ fontSize: '12px' }} />
 
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'hsl(var(--card))',
+                  color: 'hsl(var(--foreground))',
+                  border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }} />
 
@@ -180,23 +182,25 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         {/* Energy Area Chart */}
         <div>
           <h3 className="text-sm font-semibold text-foreground mb-3">{t('mood_tracker.analytics.energy_intensity')}</h3>
-          <div className="overflow-x-auto pb-2" tabIndex={0}><div className="min-w-[620px] h-[220px]">
+          <div className="min-w-0 pb-2"><div className="h-[220px] w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="date"
-                stroke="#6b7280"
+                interval="preserveStartEnd" minTickGap={24}
+                stroke="hsl(var(--muted-foreground))"
                 style={{ fontSize: '12px' }} />
 
               <YAxis
-                stroke="#6b7280"
+                stroke="hsl(var(--muted-foreground))"
                 style={{ fontSize: '12px' }} />
 
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'hsl(var(--card))',
+                  color: 'hsl(var(--foreground))',
+                  border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }} />
 

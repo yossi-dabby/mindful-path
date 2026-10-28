@@ -1,5 +1,5 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PersonalizationSetup from '../components/starterpath/PersonalizationSetup';
 import { getStage11Copy } from '../components/i18n/stage11UiCopy.js';
+import { getScrollContainer } from '@/lib/scrollContainer';
 
 const DAY_STRUCTURE = [
 {
@@ -73,6 +74,7 @@ export default function StarterPath() {
   const [generatedContent, setGeneratedContent] = useState(null);
   const [showPersonalization, setShowPersonalization] = useState(false);
   const [userPreferences, setUserPreferences] = useState(null);
+  const completionHeading = useRef(null);
   const queryClient = useQueryClient();
 
   // Get starter path progress
@@ -237,7 +239,8 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
       await base44.entities.StarterPath.update(starterPath.id, updates);
 
-      return { takeaway: takeawayResult };
+      // Keep the finished day stable while the progress query advances to tomorrow.
+      return { takeaway: takeawayResult, completedDay: currentDay };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['starterPath'] });
@@ -284,13 +287,20 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
     }
   }, [starterPath?.id, step]);
 
+  useEffect(() => {
+    if (step === 'complete') {
+      getScrollContainer().scrollTop = 0;
+      completionHeading.current?.focus({ preventScroll: true });
+    }
+  }, [step]);
+
   if (showPersonalization && !starterPath) {
     return <PersonalizationSetup onComplete={handlePersonalizationComplete} />;
   }
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
           <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('starter_path.loading')}</p>
@@ -300,57 +310,43 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
   }
 
   if (step === 'complete') {
+    const completedDay = completeDayMutation.data?.completedDay ?? currentDay;
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-[calc(100dvh-var(--mobile-header-height,60px)-var(--mobile-bottom-nav-height,76px))] md:min-h-dvh flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-2xl">
           
-          <Card className="border-0 shadow-2xl" style={{
-            borderRadius: 'var(--r-xl)',
-            backgroundColor: 'rgb(var(--surface))'
-          }}>
-            <CardContent className="p-10 text-center">
+          <Card data-testid="starter-path-completion" className="border border-border bg-card/95 shadow-lg">
+            <CardContent className="p-6 sm:p-10 text-center">
               <motion.div
                 animate={{ scale: [1, 1.15, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-                className="inline-flex w-20 h-20 items-center justify-center mb-6"
-                style={{
-                  borderRadius: 'var(--r-xl)',
-                  backgroundColor: 'rgb(var(--success) / 0.15)'
-                }}>
+                className="inline-flex w-12 h-12 sm:w-20 sm:h-20 items-center justify-center mb-4 sm:mb-6 rounded-2xl bg-primary/10">
                 
-                <CheckCircle2 className="w-10 h-10 icon-default" style={{ color: 'rgb(var(--success))' }} strokeWidth={2} />
+                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-primary" strokeWidth={2} />
               </motion.div>
-              <h2 className="text-2xl font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
-                {t('starter_path.day_complete', { day: currentDay })}
+              <h2 ref={completionHeading} tabIndex={-1} className="text-xl sm:text-2xl font-semibold mb-3 text-foreground">
+                {t('starter_path.day_complete', { day: completedDay })}
               </h2>
               {completeDayMutation.data?.takeaway &&
-              <div className="mb-6 p-4" style={{
-                borderRadius: 'var(--r-lg)',
-                backgroundColor: 'rgb(var(--calm) / 0.1)',
-                border: '1px solid rgb(var(--theme-border))'
-              }}>
-                  <p className="text-sm font-medium mb-2" style={{ color: 'rgb(var(--calm))' }}>
+              <div className="mb-4 sm:mb-6 p-4 rounded-2xl bg-secondary/70 border border-border">
+                  <p className="text-sm font-medium mb-2 text-primary">
                     {t('starter_path.todays_takeaway')}
                   </p>
-                  <p style={{ color: 'rgb(var(--text))' }}>
+                  <p className="text-foreground break-words">
                     {completeDayMutation.data.takeaway}
                   </p>
                 </div>
               }
-              <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
-                {currentDay === 7 ?
+              <p className="mb-4 sm:mb-6 text-muted-foreground">
+                {completedDay === 7 ?
                 t('starter_path.completed_all') :
-                t('starter_path.come_back_tomorrow', { day: currentDay + 1 })}
+                t('starter_path.come_back_tomorrow', { day: completedDay + 1 })}
               </p>
               <Link to={createPageUrl('Home')}>
-                <Button className="transition-calm text-white px-7 py-6" style={{
-                  borderRadius: '9999px',
-                  backgroundColor: 'hsl(var(--primary))',
-                  boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
-                }}>
+                <Button className="min-h-11 rounded-full px-7">
                 {t('starter_path.return_home')}
                 </Button>
               </Link>
@@ -376,14 +372,14 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
               {t('starter_path.back_to_home')}
             </Button>
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="botanical-title-row"><h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
+          <div className="flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row">
+            <div className="min-w-0 flex-1">
+              <div className="botanical-title-row"><h1 className="min-w-0 break-words text-2xl sm:text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}: {t(`starter_path.day_structure.${currentDay}.title`, { defaultValue: dayStructure.title })}
               </h1><BotanicalAccent variant="route" className="botanical-title-art" /></div>
               <p style={{ color: 'rgb(var(--theme-muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
             </div>
-            <div className="text-right">
+            <div className="shrink-0 text-start sm:text-end">
               <p className="text-sm font-medium" style={{ color: 'rgb(var(--calm))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}
               </p>

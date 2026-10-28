@@ -1,4 +1,4 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -188,17 +188,6 @@ ${t('goals.form.ai_prompt_request')}`,
     });
   };
 
-  // Handle Escape key to close
-  React.useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
-
   // Cleanup on unmount
   React.useEffect(() => {
     return () => {
@@ -225,8 +214,8 @@ ${t('goals.form.ai_prompt_request')}`,
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <PremiumOverlay 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto" 
+      <PremiumDialog onClose={onClose} label={goal ? t('goals.form.edit_title') : t('goals.form.create_title')}
+        className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto"
         style={{ 
           zIndex: 50,
           paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -253,7 +242,7 @@ ${t('goals.form.ai_prompt_request')}`,
               <TabsTrigger value="milestones">{t('goals.form.tabs.milestones')}</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basic" className="overflow-y-auto flex-1">
+            <TabsContent value="basic" className="flex-1">
               <div className="space-y-6">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('goals.form.goal_title')}</label>
@@ -343,11 +332,11 @@ ${t('goals.form.ai_prompt_request')}`,
               </div>
             </TabsContent>
 
-            <TabsContent value="smart" className="overflow-y-auto flex-1">
+            <TabsContent value="smart" className="flex-1">
               <div className="space-y-6">
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                <div className="bg-secondary/70 p-4 rounded-xl border border-border">
                   <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                    <Target className="w-5 h-5 text-blue-600" />
+                    <Target className="w-5 h-5 text-primary" />
                     {t('goals.form.framework_title')}
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -432,10 +421,10 @@ ${t('goals.form.ai_prompt_request')}`,
               </div>
             </TabsContent>
 
-            <TabsContent value="milestones" className="overflow-y-auto flex-1">
+            <TabsContent value="milestones" className="flex-1">
               <div className="space-y-6">
 
-                <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-4">
+                <div className="bg-secondary/70 p-4 rounded-xl border border-border mb-4">
                   <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     {t('goals.form.breakdown_title')}
@@ -460,9 +449,9 @@ ${t('goals.form.ai_prompt_request')}`,
                     </div>
                   )}
                   {formData.milestones.map((milestone, index) => (
-                    <div key={index} className="p-4 border-2 rounded-xl bg-[hsl(var(--card)/0.97)] hover:border-blue-300 transition-colors">
+                    <div key={index} className="p-4 border-2 rounded-xl bg-[hsl(var(--card)/0.97)] hover:border-primary/50 transition-colors">
                       <div className="flex gap-2 mb-3">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-semibold text-sm flex-shrink-0">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold text-sm flex-shrink-0">
                           {index + 1}
                         </div>
                         <Input
@@ -481,7 +470,7 @@ ${t('goals.form.ai_prompt_request')}`,
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="ml-10 space-y-2">
+                      <div className="ms-0 space-y-2 sm:ms-10">
                         <Textarea
                           value={milestone.description || ''}
                           onChange={(e) => updateMilestone(index, 'description', e.target.value)}
@@ -505,7 +494,7 @@ ${t('goals.form.ai_prompt_request')}`,
             </TabsContent>
           </Tabs>
 
-          <div className="flex gap-3 pt-6 border-t mt-6">
+          <div className="flex flex-wrap gap-3 pt-6 border-t mt-6">
             {saveError && (
               <div className="w-full mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                 {saveError}
@@ -522,14 +511,14 @@ ${t('goals.form.ai_prompt_request')}`,
                 saveMutation.mutate(formData);
               }}
               disabled={!formData.title.trim() || isSavingRef.current || saveMutation.isPending}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {saveMutation.isPending ? t('goals.form.saving') : goal ? t('goals.form.update_goal') : t('goals.form.create_goal')}
             </Button>
           </div>
         </CardContent>
       </Card>
-      </PremiumOverlay>
+      </PremiumDialog>
     </>
   );
 }

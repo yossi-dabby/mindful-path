@@ -1,4 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import { useTranslation } from 'react-i18next';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +11,7 @@ import { motion } from 'framer-motion';
 import PremiumIcon from '@/components/ui/PremiumIcon';
 
 export default function AiGoalCoaching({ goal, onClose }) {
+  const { t } = useTranslation();
   const [coaching, setCoaching] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const queryClient = useQueryClient();
@@ -82,8 +84,8 @@ Format as JSON with: {
   });
 
   return (
-    <PremiumOverlay 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    <PremiumDialog onClose={onClose} label={t('goals.coach_button')}
+      className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
@@ -119,7 +121,7 @@ Format as JSON with: {
             }}>
               <div className="flex items-start justify-between mb-2">
                 <h3 className="font-semibold text-lg" style={{ color: 'hsl(var(--foreground))' }}>{goal.title}</h3>
-                <Badge style={{ backgroundColor: 'hsl(var(--primary))', color: 'white' }}>
+                <Badge style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}>
                   {goal.progress}% Complete
                 </Badge>
               </div>
@@ -258,10 +260,10 @@ Format as JSON with: {
                 {/* Timeline Advice */}
                 {coaching.timeline_advice && (
                   <div className="p-4 rounded-xl" style={{
-                    background: 'linear-gradient(145deg, rgba(240, 240, 250, 0.6) 0%, rgba(245, 245, 255, 0.5) 100%)',
-                    border: '1px solid rgba(139, 92, 246, 0.2)'
+                    background: 'hsl(var(--secondary) / 0.7)',
+                    border: '1px solid hsl(var(--border))'
                   }}>
-                    <h4 className="flex items-center gap-2 font-semibold mb-2 text-sm" style={{ color: '#6D28D9' }}>
+                    <h4 className="flex items-center gap-2 font-semibold mb-2 text-sm" style={{ color: 'hsl(var(--primary))' }}>
                       <PremiumIcon name="clock" size="sm" bare /> Timeline Suggestion
                     </h4>
                     <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>{coaching.timeline_advice}</p>
@@ -272,6 +274,6 @@ Format as JSON with: {
           </CardContent>
         </Card>
       </motion.div>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }

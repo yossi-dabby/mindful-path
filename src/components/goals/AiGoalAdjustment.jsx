@@ -1,4 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import { useTranslation } from 'react-i18next';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import { Sparkles, TrendingUp, Brain, Loader2, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns';
 
 export default function AiGoalAdjustment({ goal, onApply, onClose }) {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [suggestions, setSuggestions] = useState(null);
   const [error, setError] = useState(null);
@@ -202,8 +204,8 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
   };
 
   return (
-    <PremiumOverlay 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    <PremiumDialog onClose={onClose} label={t('goals.card.ai_adjust')}
+      className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
@@ -213,8 +215,8 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                <Brain className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <CardTitle>AI Goal Adjustment</CardTitle>
@@ -228,7 +230,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
         <CardContent className="space-y-6">
           {!suggestions && !isGenerating && (
             <div className="text-center py-8">
-              <Sparkles className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Get AI-Powered Suggestions</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Analyze your journal entries and mood data to get personalized recommendations for adjusting this goal.
@@ -246,7 +248,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
 
           {isGenerating && (
             <div className="text-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Analyzing your journal data...</p>
             </div>
           )}
@@ -261,31 +263,31 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           {suggestions && (
             <>
               {/* Overall Assessment */}
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="bg-secondary/70 border border-border rounded-lg p-4">
                 <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-purple-600" />
+                  <Brain className="w-4 h-4 text-primary" />
                   Overall Assessment
                 </h3>
-                <p className="text-sm text-muted-foreground">{suggestions.overall_assessment}</p>
+                <p className="text-sm text-foreground">{suggestions.overall_assessment}</p>
               </div>
 
               {/* Milestone Adjustments */}
               {suggestions.milestone_adjustments && (
                 <div className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0 flex-1">
                       <h3 className="font-semibold mb-1">Milestone Adjustments</h3>
                       <p className="text-sm text-muted-foreground">{suggestions.milestone_adjustments.recommendation}</p>
                     </div>
-                    <Button size="sm" onClick={applyMilestones}>Apply</Button>
+                    <Button size="sm" onClick={applyMilestones} className="shrink-0">Apply</Button>
                   </div>
                   {suggestions.milestone_adjustments.new_milestones?.length > 0 && (
                     <div className="space-y-2 mt-3">
                       {suggestions.milestone_adjustments.new_milestones.map((milestone, i) => (
-                        <div key={i} className="bg-gray-50 p-3 rounded-lg">
+                        <div key={i} data-testid="goal-adjustment-milestone" className="bg-secondary/70 p-3 rounded-lg">
                           <p className="font-medium text-sm">{milestone.title}</p>
                           {milestone.description && (
-                            <p className="text-xs text-muted-foreground mt-1">{milestone.description}</p>
+                            <p className="text-xs text-foreground mt-1">{milestone.description}</p>
                           )}
                         </div>
                       ))}
@@ -297,8 +299,8 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
               {/* Timeline Adjustment */}
               {suggestions.timeline_adjustment && (
                 <div className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="min-w-0 flex-1">
                       <h3 className="font-semibold mb-1">Timeline Adjustment</h3>
                       <p className="text-sm text-muted-foreground mb-2">{suggestions.timeline_adjustment.recommendation}</p>
                       {suggestions.timeline_adjustment.suggested_date && (() => {
@@ -316,7 +318,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                       })()}
                       <p className="text-xs text-muted-foreground mt-2">{suggestions.timeline_adjustment.reasoning}</p>
                     </div>
-                    <Button size="sm" onClick={applyTimeline}>Apply</Button>
+                    <Button size="sm" onClick={applyTimeline} className="shrink-0">Apply</Button>
                   </div>
                 </div>
               )}
@@ -374,6 +376,6 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
           )}
         </CardContent>
       </Card>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }

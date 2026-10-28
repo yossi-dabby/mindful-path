@@ -1,4 +1,4 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -129,8 +129,8 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
 
   if (!suggestions && !isLoading) {
     return (
-      <PremiumOverlay 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24"
+      <PremiumDialog onClose={onClose} label={copy.goals.introTitle}
+        className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
           paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
@@ -160,14 +160,14 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
             </div>
           </CardContent>
         </Card>
-      </PremiumOverlay>
+      </PremiumDialog>
     );
   }
 
   if (isLoading) {
     return (
-      <PremiumOverlay 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24"
+      <PremiumDialog onClose={onClose} label={copy.goals.introTitle}
+        className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
           paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
@@ -179,13 +179,13 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
             <p className="text-muted-foreground">{copy.goals.loading}</p>
           </CardContent>
         </Card>
-      </PremiumOverlay>
+      </PremiumDialog>
     );
   }
 
   return (
-    <PremiumOverlay 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
+    <PremiumDialog onClose={onClose} label={copy.goals.introTitle}
+      className="goal-dialog fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
@@ -205,7 +205,7 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
           </div>
 
           <div className="space-y-6 overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(100vh - 320px)' }}>
-            {safeArray(suggestions?.goals).map((goal, index) => (
+            {(Array.isArray(suggestions?.goals) ? suggestions.goals : []).map((goal, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -317,6 +317,6 @@ LANGUAGE REQUIREMENT: Write every user-visible value in ${copy.languageName}. Ke
         </CardContent>
         </Card>
       </div>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }
