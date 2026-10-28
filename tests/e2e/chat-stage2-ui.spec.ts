@@ -104,3 +104,14 @@ for(const language of ['en','he'])test(`Stage 2 bulk delete confirmation returns
 for(const language of ['en','he','es','fr','de','it','pt'])test(`Stage 2 restricted view wraps translated copy ${language}`,async({page})=>{
  await prepareChatStage2(page,{language,width:333,height:597,theme:'dark'});await page.evaluate(async()=>{const {renderStage2Fixture}=await import('/tests/fixtures/chat-stage2-preview.jsx');renderStage2Fixture('restricted');});const panel=page.locator('#stage2-fixture');await expect(panel.getByRole('heading')).toBeVisible();const home=panel.getByRole('link');await home.scrollIntoViewIfNeeded();await expect(home).toBeInViewport({ratio:1});await expect(home).toHaveAttribute('href','/');expect(await panel.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
 });
+
+for(const language of ['en','he'])test(`Stage 2 mixed-language assistant paragraphs retain natural direction ${language}`,async({page})=>{
+ const state=await prepareChatStage2(page,{language,width:333,theme:'dark'});state.conversation.messages[1].content='One small step is enough.\n\nEnglish paragraph with a final period.\n\nפסקה בעברית עם נקודה בסוף.\n\n1. A short item.\n2. A longer item with '+ 'LongWord'.repeat(60)+'\n\n[QA information](https://example.com/qa)';await openStage2Conversation(page,333);
+ for(const [text,direction]of [['English paragraph with a final period.','ltr'],['פסקה בעברית עם נקודה בסוף.','rtl']])expect(await page.getByRole('log').getByText(text,{exact:true}).evaluate(el=>getComputedStyle(el).direction)).toBe(direction);
+ const link=page.getByRole('log').getByRole('link',{name:'QA information'});await expect(link).toHaveAttribute('href','https://example.com/qa');await expect(link).toHaveAttribute('rel','noopener noreferrer');expect(await page.getByTestId('chat-messages').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+});
+
+for(const width of [333,768,1440])test(`Stage 2 summary practice and support links navigate ${width}`,async({page})=>{
+ const state=await prepareChatStage2(page,{width,summary:'A synthetic session summary.'});(state.conversation as any).suggested_exercises=['qa-exercise'];await page.route(/\/api\/apps\/[^/]+\/entities\/Exercise(?:[/?]|$)/,route=>route.fulfill({json:[{id:'qa-exercise',title:'Synthetic QA practice',description:'A short QA practice description.',category:'mindfulness',is_active:true}]}));await openStage2Conversation(page,width);
+ const practice=page.getByTestId('chat-session-summary').getByRole('link');await practice.scrollIntoViewIfNeeded();await expect(practice).toBeInViewport({ratio:1});expect(await practice.locator('button').count()).toBe(0);await practice.click();await expect(page).toHaveURL(/\/Exercises$/);await page.goBack();await expect(page.getByRole('log')).toContainText('One small step is enough.');await page.getByTestId('chat-human-support').click();await expect(page).toHaveURL(/\/contact$/);
+});

@@ -460,9 +460,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                    </div>
              }
                 {content ?
-            <ReactMarkdown
+            <div dir="auto"><ReactMarkdown
             className="prose prose-sm dark:prose-invert max-w-none break-words [overflow-wrap:anywhere] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-            dir="auto"
             components={{
               code: ({ inline, className, children }) => {
                 const safeClassName = String(className || '');
@@ -516,13 +515,13 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 return <a href={href} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80 transition-opacity">{children}</a>;
               },
               p: ({ children }) =>
-              <p className="my-2 leading-relaxed text-[15px]">{children || ''}</p>,
+              <p dir="auto" className="my-2 leading-relaxed text-[15px]">{children || ''}</p>,
 
               ul: ({ children }) =>
-              <ul className="my-2 ms-4 list-disc space-y-1">{children || ''}</ul>,
+              <ul dir="auto" className="my-2 ms-4 list-disc space-y-1">{children || ''}</ul>,
 
               ol: ({ children }) =>
-              <ol className="my-2 ms-4 list-decimal space-y-1">{children || ''}</ol>,
+              <ol dir="auto" className="my-2 ms-4 list-decimal space-y-1">{children || ''}</ol>,
 
               li: ({ children }) => <li className="my-1">{children || ''}</li>,
               strong: ({ children }) =>
@@ -530,14 +529,14 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
               em: ({ children }) => <em className="italic">{children || ''}</em>,
               blockquote: ({ children }) =>
-              <blockquote className="border-s-4 border-primary/35 ps-4 my-3 italic text-muted-foreground">
+              <blockquote dir="auto" className="border-s-4 border-primary/35 ps-4 my-3 italic text-muted-foreground">
                       {children || ''}
                     </blockquote>
 
             }}>
 
                   {content}
-                  </ReactMarkdown> :
+                  </ReactMarkdown></div> :
                   null}
                   </>
                   }

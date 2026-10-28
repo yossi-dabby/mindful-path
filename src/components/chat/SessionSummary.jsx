@@ -37,11 +37,9 @@ export default function SessionSummary({ conversation }) {
                   <p className="break-words font-semibold text-foreground">{recommendedExercise.title}</p>
                   {recommendedExercise.description && <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-muted-foreground">{recommendedExercise.description}</p>}
                 </div>
-                <Link to={createPageUrl('Exercises')} className="shrink-0">
-                  <Button className="min-h-11 w-full rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary sm:w-auto">
-                    {t('chat_stage.summary.open_practice')}
-                  </Button>
-                </Link>
+                <Button asChild className="min-h-11 w-full shrink-0 rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary sm:w-auto">
+                  <Link to={createPageUrl('Exercises')}>{t('chat_stage.summary.open_practice')}</Link>
+                </Button>
               </div>
             ) : (
               <p className="text-sm leading-6 text-muted-foreground">{t('daily_path.action.description')}</p>
