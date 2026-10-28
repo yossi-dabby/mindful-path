@@ -51,7 +51,9 @@ The original live goal/template/health overlays left keyboard focus on the backg
 
 ## Verification status
 
-Local expanded checks and required CI results are recorded in the pull request when complete. No pre-existing assertion is removed, no skip/fixme is added, and mocked results do not substitute for production persistence verification.
+Local expanded checks and required CI results are recorded in the pull request when complete. No skip/fixme is added, and mocked results do not substitute for production persistence verification.
+
+The existing seven-language mobile-action test now expects four items instead of three because the manual goal action is intentionally exposed. It additionally checks that action's localized label, and retains all action-height, readable-caption, calendar activation, menu-dismissal and overflow checks. New Starter Path checks wait for account/path initialization and the completion heading before reading the takeaway; a repeated fixture string in the previous exercise is not evidence of completion. Mood closing is checked after the same focus, keyboard containment and viewport checks used for the other goal dialogs.
 
 After owner review, merge and publication, verify the deployed changes using the designated QA user. Physical phone/tablet keyboard, rotation and native-browser behavior remain device checks, separate from viewport emulation.
 

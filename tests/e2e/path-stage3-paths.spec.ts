@@ -9,7 +9,8 @@ for (const language of ['en', 'he']) for (const width of [360, 768, 1440]) {
     state.db.StarterPath.length = 0;
     await page.goto('/StarterPath');
     const setup = page.locator('.premium-overlay');
-    await expect(setup).toBeVisible();
+    // The route first resolves both the path and account preferences.
+    await expect(setup).toBeVisible({ timeout: 20000 });
     await setup.getByRole('button', { pressed: false }).first().click();
     await setup.getByRole('button', { name: language === 'he' ? 'המשיכו' : 'Continue', exact: true }).click();
     await setup.getByRole('button', { pressed: false }).first().click();
@@ -25,7 +26,9 @@ for (const language of ['en', 'he']) for (const width of [360, 768, 1440]) {
     await assertPathWidth(page);
     await page.getByRole('button', { name: language === 'he' ? 'השלימו יום 1' : 'Complete Day 1', exact: true }).click();
     await expect.poll(() => state.db.StarterPath[0]?.current_day).toBe(2);
-    await expect(page.getByText('QA sample content', { exact: true })).toBeVisible();
+    const completion = page.getByRole('heading', { name: language === 'he' ? /^יום \d הושלם!$/ : /^Day \d Complete!$/ });
+    await expect(completion).toBeVisible();
+    await expect(completion.locator('..').getByText('QA sample content', { exact: true })).toBeVisible();
     await page.screenshot({ path: info.outputPath('starter-complete.png') });
     await page.reload();
     await expect(page.getByTestId('starter-path-begin')).toBeVisible();

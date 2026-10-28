@@ -153,7 +153,8 @@ for (const language of ['en', 'he'] as const) for (const width of [360, 768, 144
     for (const tab of await moodTabs.all()) { await tab.click(); await expect(tab).toHaveAttribute('aria-selected','true'); await assertPathWidth(page); }
     await page.getByTestId('mood-log-button').click();
     await expect(page.getByTestId('mood-entry-dialog')).toBeVisible();
-    await page.keyboard.press('Escape');
+    await dialogFits(page);
+    await closeDialog(page);
     await expect(page.getByTestId('mood-entry-dialog')).toBeHidden();
   });
 }
