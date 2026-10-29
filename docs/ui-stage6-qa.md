@@ -75,3 +75,16 @@ clipping, keyboard focus, announcement stability, and Goals navigation checks
 are preserved. All 10 affected cases pass locally across the two CI projects;
 GitHub must validate the new head before merge. No timeout increase, assertion
 removal, skip, or product accessibility rollback was used.
+
+The replacement run 5060 resolved all five notification failures. Its desktop
+project then exposed one Journal history race (680 passed, one failed): after
+View All and an immediate Back traversal, the URL returned to the focused
+summary while local focus state still showed all entries. Journal now derives
+its focused entry/summary directly from the route instead of mirroring it in
+state and clearing it before navigation commits. The existing end-to-end
+edit/delete/PDF/history assertions are unchanged. Additional EN/HE tests
+exercise 12 Back/Forward cycles for both entry and summary routes in each CI
+project. Entity queries, data ownership and mutations are unchanged.
+All 16 Journal action/history cases passed locally across desktop and mobile,
+including the original failing case and 96 focused-route history cycles.
+The full unit suite, lint, typecheck and build were rerun for this correction.

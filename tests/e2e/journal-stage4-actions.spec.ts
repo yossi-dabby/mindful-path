@@ -51,3 +51,29 @@ for(const language of ['en','he'])for(const width of [360,768,1440]){
     await assertPathWidth(page);
   });
 }
+
+// A focused route must remain authoritative even when history is traversed
+// immediately after View All makes the full list visible.
+for(const language of ['en','he']){
+  test(`Journal focused routes survive rapid browser history ${language}`,async({page})=>{
+    test.setTimeout(120000);
+    const state=await prepareJournalStage4(page,{language,theme:'light'});
+    const allCount=state.db.ThoughtJournal.length;
+    const entries=page.getByTestId('journal-entry-card'),summaries=page.getByTestId('session-summary-card');
+    for(const kind of ['entry','summary']){
+      const id=kind==='entry'?'journal-qa':'summary-qa';
+      await page.goto(`/Journal?${kind}=${id}`);
+      await expect(entries).toHaveCount(kind==='entry'?1:0);
+      await expect(summaries).toHaveCount(kind==='summary'?1:0);
+      await page.getByRole('button',{name:language==='he'?'הצג את כל הרשומות':'View All Entries',exact:true}).click();
+      await expect(entries).toHaveCount(allCount);
+      for(let traversal=0;traversal<12;traversal++){
+        await page.goBack();await expect(page).toHaveURL(new RegExp(`Journal\\?${kind}=${id}$`));
+        await expect(entries).toHaveCount(kind==='entry'?1:0);
+        await expect(summaries).toHaveCount(kind==='summary'?1:0);
+        await page.goForward();await expect(page).toHaveURL(/Journal$/);
+        await expect(entries).toHaveCount(allCount);await expect(summaries).toHaveCount(1);
+      }
+    }
+  });
+}

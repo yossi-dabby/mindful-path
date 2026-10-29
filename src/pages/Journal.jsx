@@ -1,5 +1,5 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
@@ -37,17 +37,16 @@ export default function Journal() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedType, setSelectedType] = useState('all');
   const [promptedSituation, setPromptedSituation] = useState('');
-  const [focusedEntryId, setFocusedEntryId] = useState(null);
-  const [focusedSummaryId, setFocusedSummaryId] = useState(null);
+  // The route owns the focused record. Mirrored state can clear before a
+  // navigation commits and remain stale during a rapid Back/Forward traversal.
+  const focusedParams = new URLSearchParams(location.search);
+  const focusedEntryId = focusedParams.get('entry');
+  const focusedSummaryId = focusedParams.get('summary');
   const templateTriggerRef = useRef(null);
   const promptTriggerRef = useRef(null);
   const formReturnFocusRef = useRef(null);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    setFocusedEntryId(urlParams.get('entry'));
-    setFocusedSummaryId(urlParams.get('summary'));
-  }, [location.search]);
+
 
   const userQuery = useQuery({
     queryKey: ['currentUser'],
@@ -138,8 +137,6 @@ export default function Journal() {
   };
 
   const clearFocusedEntry = () => {
-    setFocusedEntryId(null);
-    setFocusedSummaryId(null);
     navigate(createPageUrl('Journal'));
   };
 
