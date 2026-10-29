@@ -707,6 +707,13 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await page.route('**/api/**/functions/**', async (route) => {
       if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
+        const req = route.request();
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        expect(rawBody).toContain('name="file"');
+        expect(rawBody).not.toContain('name="file_url"');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -763,6 +770,13 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await page.route('**/api/**/functions/**', async (route) => {
       if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
+        const req = route.request();
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        expect(rawBody).toContain('name="file"');
+        expect(rawBody).not.toContain('name="file_url"');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -821,6 +835,13 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await page.route('**/api/**/functions/**', async (route) => {
       if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
+        const req = route.request();
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        expect(rawBody).toContain('name="file"');
+        expect(rawBody).not.toContain('name="file_url"');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -879,6 +900,13 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await page.route('**/api/**/functions/**', async (route) => {
       if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
+        const req = route.request();
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        expect(rawBody).toContain('name="file"');
+        expect(rawBody).not.toContain('name="file_url"');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -917,7 +945,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     const captured = {
       uploadFileName: '',
       uploadMimeType: '',
-      transcribeFileUrl: '',
+      publicUploadCount: 0,
     };
 
     await page.route('**/api/**/integration-endpoints/**', async (route) => {
@@ -925,6 +953,7 @@ test.describe('Chat voice transcription runtime flow', () => {
       const url = req.url();
 
       if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        captured.publicUploadCount += 1;
         const rawBody = req.postData() || '';
         captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
         captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
@@ -941,10 +970,13 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await page.route('**/api/**/functions/**', async (route) => {
       if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
-        try {
-          const body = route.request().postDataJSON() as Record<string, any>;
-          captured.transcribeFileUrl = typeof body?.file_url === 'string' ? body.file_url : '';
-        } catch { /* ignore */ }
+        const req = route.request();
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        expect(rawBody).toContain('name="file"');
+        expect(rawBody).not.toContain('name="file_url"');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -970,7 +1002,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     await expect(page.getByText('Transcript added to the message.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/ogg');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.ogg$/);
-    expect(captured.transcribeFileUrl).toBe('https://files.example.com/voice-draft.ogg');
+    expect(captured.publicUploadCount).toBe(0);
   });
 
   test('android voice-derived send posts transcript-only payload without audio attachment fields', async ({ page }) => {
@@ -1001,6 +1033,11 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     await page.route('**/api/**/functions/**', async (route) => {
       if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
+        const req = route.request();
+        const rawBody = req.postData() || '';
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        expect(rawBody).toContain('name="file"');
+        expect(rawBody).not.toContain('name="file_url"');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -1049,8 +1086,74 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(String(sent.content || '')).not.toContain('[ATTACHMENT_CONTEXT]');
     expect(String(sent.content || '')).not.toContain('[ATTACHMENT_METADATA]');
     expect(sent.file_urls).toBeUndefined();
-    expect(captured.uploadCount).toBe(1);
+    expect(captured.uploadCount).toBe(0);
   });
+
+  for (const runtime of ['android', 'ios']) {
+    test(`${runtime} mp4 opus draft survives backend failure and retries without uploading or auto-sending`, async ({ page }) => {
+      await installFakeAndroidMediaRecordingWithMp4CodecsMimeType(page);
+      if (runtime === 'ios') {
+        await page.addInitScript(() => {
+          Object.defineProperty(navigator, 'userAgent', { configurable: true, get: () => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1' });
+          (window as any).Capacitor = undefined;
+        });
+      }
+      // Match a WebView that cannot decode MP4/Opus locally: preserve original bytes.
+      await page.addInitScript(() => {
+        (window as any).AudioContext = undefined;
+        (window as any).webkitAudioContext = undefined;
+      });
+      await mockApi(page);
+      let recover = false;
+      let publicUploads = 0;
+      let messagePosts = 0;
+      const submittedBodies: string[] = [];
+      await page.route('**/api/**/integration-endpoints/Core/UploadFile', async route => {
+        publicUploads += 1;
+        await route.fulfill({ status: 500, body: '{}' });
+      });
+      await page.route('**/api/**/agents/conversations/**/messages**', async route => {
+        messagePosts += 1;
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+      });
+      await page.route('**/api/**/functions/transcribeMobileAudio', async route => {
+        const req = route.request();
+        expect(req.headers()['content-type']).toContain('multipart/form-data; boundary=');
+        submittedBodies.push(req.postData() || '');
+        await route.fulfill({
+          status: recover ? 200 : 503,
+          contentType: 'application/json',
+          body: JSON.stringify(recover ? { transcription: 'Recovered mobile recording.' } : { error: 'Temporary service failure' }),
+        });
+      });
+      await spaNavigate(page, '/Chat');
+      const composer = page.getByTestId('therapist-chat-input');
+      await composer.fill('Existing draft');
+      await page.getByRole('button', { name: 'Record' }).click();
+      await page.getByRole('button', { name: 'Stop' }).click();
+      await expect(page.getByText('Voice draft ready')).toBeVisible();
+      await page.getByRole('button', { name: 'Transcribe' }).click();
+      await expect(page.getByText('Audio transcription failed', { exact: true })).toBeVisible();
+      await expect(composer).toHaveValue('Existing draft');
+      await expect(page.getByText('Voice draft ready')).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Transcribe' })).toBeEnabled();
+      const failureAttempts = submittedBodies.length;
+      expect(failureAttempts).toBeGreaterThan(0);
+      expect(submittedBodies[0]).toContain('Content-Type: audio/mp4;codecs=opus');
+      recover = true;
+      await page.getByRole('button', { name: 'Transcribe' }).click();
+      await expect(composer).toHaveValue('Existing draft\nRecovered mobile recording.');
+      expect(submittedBodies.length).toBeGreaterThan(failureAttempts);
+      expect(submittedBodies.every(body => body.includes('name="file"') && !body.includes('name="file_url"'))).toBe(true);
+      expect(publicUploads).toBe(0);
+      expect(messagePosts).toBe(0);
+      if (runtime === 'android') {
+        await expect(page.getByText('Voice draft ready')).not.toBeVisible();
+      } else {
+        await expect(page.getByText('Voice draft ready')).toBeVisible();
+      }
+    });
+  }
 
   test('toast close button dismisses and mobile toast layout is less intrusive', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });

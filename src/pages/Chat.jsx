@@ -3617,9 +3617,11 @@ export default function Chat() {
 
       let file_url = '';
       try {
-        const uploadResult = await base44.integrations.Core.UploadFile({ file: transcriptionSourceFile });
-        file_url = uploadResult?.file_url;
-        if (!file_url) throw new Error('Upload returned no file_url');
+        if (!onMobile) {
+          const uploadResult = await base44.integrations.Core.UploadFile({ file: transcriptionSourceFile });
+          file_url = uploadResult?.file_url;
+          if (!file_url) throw new Error('Upload returned no file_url');
+        }
       } catch (uploadError) {
         console.error('[Audio] Upload failed before transcription:', uploadError);
         toast({
@@ -3633,9 +3635,11 @@ export default function Chat() {
       let result;
       // Mobile: dedicated Whisper backend (avoids Base44 InvokeLLM format restrictions on Android)
       // Web: InvokeLLM unchanged
-      const runTranscription = async (targetFileUrl) => {
+      const runTranscription = async (targetFileUrl, targetFile = transcriptionSourceFile) => {
         if (onMobile) {
-          const r = await base44.functions.invoke('transcribeMobileAudio', { file_url: targetFileUrl });
+          // The SDK sends File parameters as authenticated multipart/form-data.
+          // Storage URLs do not encode reliable ownership; send the local bytes.
+          const r = await base44.functions.invoke('transcribeMobileAudio', { file: targetFile });
           const t = r?.data?.transcription;
           if (!t) throw new Error('No transcription returned from backend');
           return t;
@@ -3661,10 +3665,13 @@ export default function Chat() {
         const normalizedRetryFile = buildNormalizedAudioDraftForTranscriptionRetry(transcriptionSourceFile);
         if (normalizedRetryFile) {
           try {
-            const retryUploadResult = await base44.integrations.Core.UploadFile({ file: normalizedRetryFile });
-            const retryFileUrl = retryUploadResult?.file_url;
-            if (!retryFileUrl) throw new Error('Retry upload returned no file_url');
-            result = await runTranscription(retryFileUrl);
+            let retryFileUrl = '';
+            if (!onMobile) {
+              const retryUploadResult = await base44.integrations.Core.UploadFile({ file: normalizedRetryFile });
+              retryFileUrl = retryUploadResult?.file_url;
+              if (!retryFileUrl) throw new Error('Retry upload returned no file_url');
+            }
+            result = await runTranscription(retryFileUrl, normalizedRetryFile);
           } catch (retryError) {
             const diagInfo = onMobile ? await diagInfoPromise : null;
             const backendReason = extractBackendTranscriptionErrorReason(retryError) ||
