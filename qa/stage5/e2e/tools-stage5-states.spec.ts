@@ -69,8 +69,10 @@ for(const language of ['en','he'])for(const mode of ['light','dark'])for(const p
 test(`Stage5 palette observations ${language}/${mode}/${palette}`,async({page})=>{
   test.setTimeout(120000);await page.setViewportSize({width:language==='he'?1024:390,height:844});await prepareTools(page,language,mode);
   await page.route(/\/entities\/User\/(?:me|test-user-123)(?:\?|$)/,r=>r.fulfill({json:{id:'test-user-123',email:'test@example.com',full_name:'QA synthetic user',onboarding_completed:true,role:'user',preferences:{theme:palette,language}}}));
+  const expectedPrimary={ocean:'91 161 170',sunset:'169 149 118',forest:'95 154 132',lavender:'137 146 180',minimal:'104 124 128'}[palette];
   for(const route of ['Tools','Exercises','Resources','ExperientialGames','Videos','Coach','Community','PersonalizedFeed']){
     await page.goto('/'+route);const root=page.locator('#app-scroll-container');await expect(root.locator('h1,h2,[role="status"]').filter({visible:true}).first()).toBeVisible();
+    await expect.poll(()=>page.evaluate(()=>document.documentElement.style.getPropertyValue('--color-primary').trim())).toBe(expectedPrimary);
     await inspect(page,root,`palette-${route}-${language}-${mode}-${palette}`);
   }
 });}
