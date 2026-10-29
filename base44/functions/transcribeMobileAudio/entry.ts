@@ -100,9 +100,23 @@ class AudioRequestError extends Error {
   }
 }
 
+// Optional for older clients. Never turn a missing language into English:
+// the provider should detect it when no supported input locale was supplied.
+function normalizeAudioLanguage(value: unknown): string | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || value.length > 32) {
+    throw new AudioRequestError('Invalid audio language.', 400);
+  }
+  const language = value.trim().toLowerCase().split(/[-_]/)[0];
+  if (!['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].includes(language)) {
+    throw new AudioRequestError('Unsupported audio language.', 400);
+  }
+  return language;
+}
+
 // Read the wire body with a real byte limit, including when Content-Length is
 // missing or untrusted. Do not let formData() buffer an unbounded upload.
-async function readMultipartAudio(req: Request): Promise<Blob> {
+async function readMultipartAudio(req: Request): Promise<{ audio: Blob; language: string | undefined }> {
   const reader = req.body?.getReader();
   if (!reader) throw new AudioRequestError('Audio file is required.', 400);
   const chunks: Uint8Array[] = [];
@@ -140,7 +154,8 @@ async function readMultipartAudio(req: Request): Promise<Blob> {
   if (!type.startsWith('audio/') && type !== 'video/mp4') {
     throw new AudioRequestError('Unsupported audio content type.', 415);
   }
-  return audio;
+  if (form.getAll('language').length > 1) throw new AudioRequestError('Invalid audio language.', 400);
+  return { audio, language: normalizeAudioLanguage(form.get('language')) };
 }
 
 /**
@@ -174,16 +189,20 @@ Deno.serve(async (req) => {
     }
 
     let audioBlob: Blob;
+    let language: string | undefined;
     if (multipart) {
       // New mobile clients send their local draft through the authenticated SDK.
       // UploadFile URLs are storage identifiers, not proof of user ownership.
       // Receiving the bytes directly avoids guessing a URL layout or fetching
       // a client-supplied remote location. Nothing is persisted to public storage.
-      audioBlob = await readMultipartAudio(req);
+      const upload = await readMultipartAudio(req);
+      audioBlob = upload.audio;
+      language = upload.language;
     } else {
       // Preserve the restricted URL contract for older clients. Never loosen
       // host/ownership checks to accommodate a different storage URL layout.
-      const { file_url } = await req.json();
+      const { file_url, language: inputLanguage } = await req.json();
+      language = normalizeAudioLanguage(inputLanguage);
       if (!isOwnedBase44Upload(file_url, user.id)) {
         return Response.json({ error: 'File not found or not accessible' }, { status: 403 });
       }
@@ -218,6 +237,8 @@ Deno.serve(async (req) => {
       file: audioFile,
       model: 'whisper-1',
       response_format: 'text',
+      ...(language ? { language } : {}),
+      temperature: 0,
     });
 
     return Response.json({ transcription });
