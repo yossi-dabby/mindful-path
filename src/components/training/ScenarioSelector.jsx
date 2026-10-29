@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -73,17 +74,20 @@ const DIFFICULTY_COLORS = {
 export { SCENARIOS };
 
 export default function ScenarioSelector({ onSelect }) {
+  const {t}=useTranslation();
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Choose a Training Scenario</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">Select a simulated patient case to practice your CBT skills.</p>
+        <h2 className="text-lg font-semibold text-foreground">{t('stage6.choose_scenario')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('stage6.scenario_intro')}</p>
       </div>
       <div className="grid gap-3">
         {SCENARIOS.map(scenario => (
           <Card
             key={scenario.id}
-            className="cursor-pointer hover:border-primary/60 transition-all hover:shadow-md"
+            role="button" tabIndex={0}
+            onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(scenario);}}}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer hover:border-primary/60 transition-all hover:shadow-md"
             onClick={() => onSelect(scenario)}
           >
             <CardContent className="pt-4 pb-4">

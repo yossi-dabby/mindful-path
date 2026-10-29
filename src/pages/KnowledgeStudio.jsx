@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -9,30 +10,32 @@ import RetrievalPreview from '../components/knowledge/RetrievalPreview';
 import BulkImport from '../components/knowledge/BulkImport';
 
 export default function KnowledgeStudio() {
+  const {t}=useTranslation();
   const [editingChunk, setEditingChunk] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('library');
 
   // Admin gate
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading, isError, refetch } = useQuery({
     queryKey: ['me'],
     queryFn: () => base44.auth.me(),
   });
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="flex items-center justify-center min-h-dvh">
+        <p role="status">{t('stage6.loading')}</p>
       </div>
     );
   }
 
+  if(isError) return <div role="alert" className="p-6"><p>{t('stage6.load_error')}</p><button className="min-h-11 underline" onClick={()=>refetch()}>{t('stage6.retry')}</button></div>;
   if (!user || user.role !== 'admin') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-center px-6">
+      <div className="flex flex-col items-center justify-center min-h-dvh gap-4 text-center px-6">
         <Shield className="w-12 h-12 text-destructive" />
-        <h1 className="text-2xl font-semibold">Access Denied</h1>
-        <p className="text-muted-foreground">This page is restricted to administrators only.</p>
+        <h1 className="text-2xl font-semibold">{t('stage6.access_denied')}</h1>
+        <p className="text-muted-foreground">{t('stage6.admin_only')}</p>
       </div>
     );
   }
@@ -63,17 +66,17 @@ export default function KnowledgeStudio() {
           <Shield className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold">Knowledge Studio</h1>
+          <h1 className="text-xl font-semibold">{t('stage6.knowledge_title')}</h1>
           <p className="text-sm text-muted-foreground">Admin · TrustedCBTChunk management</p>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6 h-auto w-full flex-wrap">
-          <TabsTrigger value="library">Library</TabsTrigger>
-          <TabsTrigger value="editor">{editingChunk ? 'Edit Chunk' : 'New Chunk'}</TabsTrigger>
-          <TabsTrigger value="preview">Retrieval Preview</TabsTrigger>
-          <TabsTrigger value="import">Bulk Import</TabsTrigger>
+          <TabsTrigger value="library">{t('stage6.library')}</TabsTrigger>
+          <TabsTrigger value="editor">{t(`stage6.${editingChunk?'edit_chunk':'new_chunk'}`)}</TabsTrigger>
+          <TabsTrigger value="preview">{t('stage6.retrieval_preview')}</TabsTrigger>
+          <TabsTrigger value="import">{t('stage6.bulk_import')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="library">

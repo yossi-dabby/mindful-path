@@ -1,119 +1,35 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Trash2 } from 'lucide-react';
-
-const SUPPORT_EMAIL = 'support@mindful-path.app';
-
-function PartialDataDeletion() {
-  return (
-    <section id="delete-data" className="scroll-mt-6">
-      <h2 className="text-xl font-bold text-foreground">Delete selected data without deleting your account</h2>
-      <p className="mt-3 leading-7 text-muted-foreground">
-        You can permanently delete individual records while keeping your Mindful Path account active.
-      </p>
-      <ol className="mt-3 list-decimal space-y-2 ps-6 leading-7 text-muted-foreground">
-        <li>Sign in to Mindful Path.</li>
-        <li>Open the area containing the record, such as <strong>Journal</strong>, <strong>Goals</strong>, <strong>Home check-ins</strong>, <strong>Coach</strong>, or <strong>Playlists</strong>.</li>
-        <li>Open the item menu or the delete control, select <strong>Delete</strong>, and confirm.</li>
-      </ol>
-      <p className="mt-3 leading-7 text-muted-foreground">
-        This removes the selected active record without closing your account. Residual encrypted backups may take up to 90 days to expire.
-      </p>
-      <p className="mt-3 leading-7 text-muted-foreground">
-        If you cannot access the app, email <a className="font-medium text-primary underline" href={`mailto:${SUPPORT_EMAIL}?subject=Mindful%20Path%20partial%20data%20deletion%20request`}>{SUPPORT_EMAIL}</a> from the registered address. Use the subject “Mindful Path partial data deletion request” and identify only the categories or date range you want deleted. Do not include sensitive journal or conversation content in the email. We may ask you to verify account ownership.
-      </p>
-    </section>
-  );
-}
-
-function AccountDeletionDetails() {
-  return (
-    <>
-      <section id="delete-account" className="scroll-mt-6">
-        <h2 className="text-xl font-bold text-foreground">Delete from the app</h2>
-        <ol className="mt-3 list-decimal space-y-2 ps-6 leading-7 text-muted-foreground">
-          <li>Sign in to Mindful Path.</li>
-          <li>Open <strong>Settings</strong>, then <strong>Account</strong>.</li>
-          <li>Select <strong>Delete Account</strong>.</li>
-          <li>Enter the confirmation text shown in the app and confirm permanent deletion.</li>
-        </ol>
-      </section>
-
-      <PartialDataDeletion />
-
-      <section>
-        <h2 className="text-xl font-bold text-foreground">Request deletion without app access</h2>
-        <p className="mt-3 leading-7 text-muted-foreground">
-          Email <a className="font-medium text-primary underline" href={`mailto:${SUPPORT_EMAIL}?subject=Mindful%20Path%20account%20deletion%20request`}>{SUPPORT_EMAIL}</a> from the address registered to the account. Use the subject “Mindful Path account deletion request”. We may ask you to verify account ownership before processing the request.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-bold text-foreground">What is deleted</h2>
-        <ul className="mt-3 list-disc space-y-2 ps-6 leading-7 text-muted-foreground">
-          <li>The account and profile information.</li>
-          <li>User-owned wellness records, including goals, journals, mood entries, exercise progress, and conversations.</li>
-          <li>Associated preferences and other user-created records.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-bold text-foreground">Limited retention</h2>
-        <p className="mt-3 leading-7 text-muted-foreground">
-          Active account data is scheduled for deletion when the request is completed. Residual encrypted backups may take up to 90 days to expire. Security, fraud-prevention, transaction, or legal records may be retained only for the period required by applicable law or a legitimate security obligation.
-        </p>
-      </section>
-    </>
-  );
-}
-
-export default function AccountDeletion({ defaultSection = 'account' }) {
-  const isDataDeletion = defaultSection === 'data';
-
-  return (
-    <main className="garden-public-background min-h-screen px-4 py-8 text-foreground sm:px-6 sm:py-12">
-      <article className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-border/70 bg-card/95 shadow-[0_24px_70px_rgba(15,118,110,0.12)] backdrop-blur-xl">
-        <header className="border-b border-border bg-secondary/35 px-5 py-7 sm:px-9 sm:py-9">
-          <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-medium text-primary hover:bg-secondary/70 focus:outline-none focus:ring-2 focus:ring-ring">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Mindful Path
-          </Link>
-          <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-teal-600/20">
-              <Trash2 className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="mb-1 text-sm font-semibold tracking-wide text-primary">Mindful Path</p>
-              <div className="botanical-title-row"><h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                {isDataDeletion ? 'Delete selected data' : 'Delete your account and data'}
-              </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-            </div>
-          </div>
-          <p className="mt-6 text-base leading-7 text-muted-foreground">
-            {isDataDeletion
-              ? 'This page explains how to delete selected Mindful Path data while keeping your account active.'
-              : 'This page explains how to request permanent deletion of a Mindful Path account and its associated data.'}
-          </p>
-        </header>
-
-        <div className="space-y-8 px-5 py-8 sm:px-9 sm:py-10">
-          {isDataDeletion ? <PartialDataDeletion /> : <AccountDeletionDetails />}
-
-          <aside className="flex gap-3 rounded-2xl border border-border bg-secondary/70 p-4 text-sm leading-6 text-primary">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-            <p>{isDataDeletion ? 'Deleting selected data does not close your account.' : 'Deleting the app from a device does not delete the account. Follow one of the methods above.'}</p>
-          </aside>
-        </div>
-
-        <footer className="flex flex-wrap gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-6 text-sm sm:px-9">
-          <Link className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to="/privacy">Privacy Notice</Link>
-          <Link className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to={isDataDeletion ? '/account-deletion' : '/data-deletion'}>
-            {isDataDeletion ? 'Delete account and all data' : 'Delete selected data'}
-          </Link>
-          <Link className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to="/contact">Contact</Link>
-          <a className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-        </footer>
-      </article>
-    </main>
-  );
+import { useTranslation } from 'react-i18next';
+const SUPPORT_EMAIL='support@mindful-path.app';
+const subject={partial:'Mindful Path partial data deletion request',account:'Mindful Path account deletion request'};
+function Section({title,children,id}) {return <section id={id} className="scroll-mt-6"><h2 className="text-xl font-bold">{title}</h2><div className="mt-3 space-y-3 leading-7 text-muted-foreground">{children}</div></section>;}
+function PartialDataDeletion(){const {t}=useTranslation();return <Section id="delete-data" title={t('stage6.selected_data_title')}>
+  <p>{t('stage6.selected_data_intro')}</p><ol className="list-decimal space-y-2 ps-6">{['sign_in_step','find_record_step','item_delete_step'].map(key=><li key={key}>{t(`stage6.${key}`)}</li>)}</ol>
+  <p>{t('stage6.selected_data_result')}</p><p>{t('stage6.partial_email',{email:SUPPORT_EMAIL})} <a className="underline text-primary [overflow-wrap:anywhere]" href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject.partial)}`}>{SUPPORT_EMAIL}</a></p>
+</Section>;}
+export default function AccountDeletion({defaultSection='account'}){
+ const {t,i18n}=useTranslation();const isData=defaultSection==='data';
+ return <main dir={i18n.dir()} className="garden-public-background min-h-dvh px-4 py-8 text-foreground sm:px-6 sm:py-12"><article className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-border bg-card/95 shadow-lg">
+  <header className="border-b border-border bg-secondary/35 px-5 py-7 sm:px-9">
+   <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-medium text-primary focus-visible:ring-2 focus-visible:ring-ring"><ArrowLeft className="h-4 w-4 rtl:rotate-180" aria-hidden="true"/>{t('stage6.back_app')}</Link>
+   <div className="flex flex-col sm:flex-row items-start gap-4"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground"><Trash2 className="h-6 w-6" aria-hidden="true"/></span><div className="min-w-0 flex-1"><p className="mb-1 text-sm font-semibold text-primary">Mindful Path</p><div className="botanical-title-row"><h1 className="text-3xl font-bold sm:text-4xl">{t(`stage6.${isData?'data_delete_title':'account_delete_title'}`)}</h1><BotanicalAccent variant="leaves" className="botanical-title-art"/></div></div></div>
+   <p className="mt-6 leading-7 text-muted-foreground">{t(`stage6.${isData?'data_delete_intro':'account_delete_intro'}`)}</p>
+  </header>
+  <div className="space-y-8 px-5 py-8 sm:px-9">
+   {!isData&&<Section id="delete-account" title={t('stage6.delete_from_app')}><ol className="list-decimal space-y-2 ps-6">{['sign_in_step','settings_account_step','delete_account_step','confirm_delete_step'].map(key=><li key={key}>{t(`stage6.${key}`)}</li>)}</ol></Section>}
+   <PartialDataDeletion/>
+   {!isData&&<><Section title={t('stage6.request_delete')}><p>{t('stage6.account_email',{email:SUPPORT_EMAIL})} <a className="text-primary underline [overflow-wrap:anywhere]" href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject.account)}`}>{SUPPORT_EMAIL}</a></p></Section>
+    <Section title={t('stage6.what_deleted')}><ul className="list-disc space-y-2 ps-6">{['deleted_profile','deleted_records','deleted_preferences'].map(key=><li key={key}>{t(`stage6.${key}`)}</li>)}</ul></Section>
+    <Section title={t('stage6.limited_retention')}><p>{t('stage6.retention_body')}</p></Section></>}
+   <aside className="flex gap-3 rounded-2xl border border-border bg-secondary p-4 text-sm leading-6"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true"/><p>{t(`stage6.${isData?'data_keeps_account':'uninstall_note'}`)}</p></aside>
+  </div>
+  <footer className="flex flex-wrap gap-3 border-t border-border bg-card px-5 py-6 text-sm sm:px-9">
+   <Link className="inline-flex min-h-11 items-center px-2 text-primary underline" to="/privacy">{t('stage6.privacy')}</Link>
+   <Link className="inline-flex min-h-11 items-center px-2 text-primary underline" to={isData?'/account-deletion':'/data-deletion'}>{t(`stage6.${isData?'all_data_link':'data_delete_title'}`)}</Link>
+   <Link className="inline-flex min-h-11 items-center px-2 text-primary underline" to="/contact">{t('stage6.contact')}</Link>
+   <a className="inline-flex min-h-11 items-center px-2 text-primary underline [overflow-wrap:anywhere]" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+  </footer>
+ </article></main>;
 }

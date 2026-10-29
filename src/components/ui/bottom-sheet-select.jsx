@@ -3,6 +3,7 @@
  * On desktop it falls back to a standard popover-style list.
  * Safe to use everywhere a native <select> or Radix Select was used.
  */
+import { useTranslation } from 'react-i18next';
 import React, { useRef, useState } from 'react';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
@@ -26,14 +27,17 @@ export default function BottomSheetSelect({
   value,
   onValueChange,
   options = [],
-  placeholder = 'Select…',
-  title = 'Choose an option',
+  placeholder,
+  title,
   className,
   id,
   ariaLabel,
   disabled = false,
-  autoFocus = false,
+  autoFocus = true,
+  ...triggerProps
 }) {
+  const {t,i18n}=useTranslation();
+  title = title || t('stage6.choose_option');
   const [open, setOpen] = useState(false);
   const triggerRef = useRef(null);
 
@@ -47,6 +51,7 @@ export default function BottomSheetSelect({
   return (
     <>
       <Button
+        {...triggerProps}
         ref={triggerRef}
         id={id}
         type="button"
@@ -62,12 +67,12 @@ export default function BottomSheetSelect({
           className
         )}
       >
-        <span className="truncate">{selected ? selected.label : placeholder}</span>
+        <span className="truncate">{selected ? selected.label : placeholder || title}</span>
         <ChevronDown className="w-4 h-4 opacity-50 flex-shrink-0 ml-2" />
       </Button>
 
       <Drawer open={open} onOpenChange={setOpen} autoFocus={autoFocus}>
-        <DrawerContent data-testid="bottom-sheet-select-options" onCloseAutoFocus={(event) => {
+        <DrawerContent dir={i18n.dir()} data-testid="bottom-sheet-select-options" onCloseAutoFocus={(event) => {
           // This controlled drawer has no DrawerTrigger. Restore focus inside
           // the parent dialog after either selection or Escape dismissal.
           if (autoFocus && triggerRef.current?.isConnected) {
@@ -83,9 +88,15 @@ export default function BottomSheetSelect({
         }}>
           <DrawerHeader className="border-b border-border/70 pb-3">
             <DrawerTitle>{title}</DrawerTitle>
-            <DrawerDescription className="sr-only">Select one option from the list.</DrawerDescription>
+            <DrawerDescription className="sr-only">{t('stage6.select_option')}</DrawerDescription>
           </DrawerHeader>
-          <div className="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label={ariaLabel || title}>
+          <div className="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label={ariaLabel || title} onKeyDown={event => {
+            if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key)) return;
+            const options=Array.from(event.currentTarget.querySelectorAll('[role="option"]'));
+            const index=options.indexOf(document.activeElement);
+            const next=event.key==='Home'?0:event.key==='End'?options.length-1:(index+(event.key==='ArrowDown'?1:-1)+options.length)%options.length;
+            event.preventDefault(); options[next]?.focus();
+          }}>
             {options.map((option) => {
               const isSelected = option.value === value;
               return (

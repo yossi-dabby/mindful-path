@@ -874,3 +874,75 @@ html:lang(pt) .journal-rich-text { --format-bold: "Negrito"; --format-italic: "I
     margin: 16px;
   }
 }
+
+/* Saved appearance palettes use the active semantic tokens in both display modes. */
+:root[data-appearance="ocean"] {
+  --primary: 190 70% 27%;
+  --ring: 190 70% 27%;
+  --secondary: 190 22% 91%;
+  --secondary-foreground: 190 25% 25%;
+  --sidebar-primary: 190 70% 27%;
+}
+:root.dark[data-appearance="ocean"] {
+  --primary: 190 70% 68%;
+  --ring: 190 70% 68%;
+  --secondary: 190 20% 18%;
+  --secondary-foreground: 190 20% 88%;
+  --sidebar-primary: 190 70% 68%;
+}
+:root[data-appearance="sunset"] {
+  --primary: 28 60% 30%;
+  --ring: 28 60% 30%;
+  --secondary: 28 22% 91%;
+  --secondary-foreground: 28 25% 25%;
+  --sidebar-primary: 28 60% 30%;
+}
+:root.dark[data-appearance="sunset"] {
+  --primary: 28 60% 70%;
+  --ring: 28 60% 70%;
+  --secondary: 28 20% 18%;
+  --secondary-foreground: 28 20% 88%;
+  --sidebar-primary: 28 60% 70%;
+}
+:root[data-appearance="forest"] {
+  --primary: 155 50% 28%;
+  --ring: 155 50% 28%;
+  --secondary: 155 22% 91%;
+  --secondary-foreground: 155 25% 25%;
+  --sidebar-primary: 155 50% 28%;
+}
+:root.dark[data-appearance="forest"] {
+  --primary: 155 50% 68%;
+  --ring: 155 50% 68%;
+  --secondary: 155 20% 18%;
+  --secondary-foreground: 155 20% 88%;
+  --sidebar-primary: 155 50% 68%;
+}
+:root[data-appearance="lavender"] {
+  --primary: 255 35% 38%;
+  --ring: 255 35% 38%;
+  --secondary: 255 22% 91%;
+  --secondary-foreground: 255 25% 25%;
+  --sidebar-primary: 255 35% 38%;
+}
+:root.dark[data-appearance="lavender"] {
+  --primary: 255 35% 76%;
+  --ring: 255 35% 76%;
+  --secondary: 255 20% 18%;
+  --secondary-foreground: 255 20% 88%;
+  --sidebar-primary: 255 35% 76%;
+}
+:root[data-appearance="minimal"] {
+  --primary: 200 15% 32%;
+  --ring: 200 15% 32%;
+  --secondary: 200 22% 91%;
+  --secondary-foreground: 200 25% 25%;
+  --sidebar-primary: 200 15% 32%;
+}
+:root.dark[data-appearance="minimal"] {
+  --primary: 200 15% 72%;
+  --ring: 200 15% 72%;
+  --secondary: 200 20% 18%;
+  --secondary-foreground: 200 20% 88%;
+  --sidebar-primary: 200 15% 72%;
+}

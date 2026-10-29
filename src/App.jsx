@@ -27,21 +27,22 @@ import { Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from 'next-themes';
+import { useTranslation } from 'react-i18next';
 import React, { Suspense } from 'react';
 
 /** Fallback shown while a lazy-loaded page chunk is being fetched.
  *  Matches the auth-loading spinner style to avoid a jarring flash. */
-const PageLoadingFallback = () => (
+const PageLoadingFallback = () => { const {t}=useTranslation();return (
   <div
     role="status"
     aria-live="polite"
-    aria-label="Loading page"
+    aria-label={t('stage6.loading')}
     className="fixed inset-0 flex items-center justify-center"
     style={{ background: 'rgb(var(--bg, 248 248 246))' }}
   >
     <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" aria-hidden="true" />
   </div>
-);
+);};
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -52,23 +53,20 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 const AUTH_OVERLAY_Z_INDEX = 9999;
 
 const StartupErrorScreen = ({ message, onRetry }) => {
-  const isHebrew = document.documentElement.lang === 'he';
-  const title = isHebrew ? 'לא הצלחנו להפעיל את Mindful Path' : 'Mindful Path could not start';
-  const body = isHebrew
-    ? 'בדוק את החיבור לאינטרנט ונסה שוב. אם הבעיה נמשכת, הפעל מחדש את האפליקציה.'
-    : 'Check your internet connection and try again. If the problem continues, restart the app.';
+  const {t,i18n}=useTranslation();
 
   return (
     <main
       role="alert"
+      dir={i18n.dir()}
       data-testid="startup-error-screen"
-      className="min-h-screen flex items-center justify-center p-6 bg-stone-50 text-slate-900"
+      className="min-h-screen min-h-dvh flex items-center justify-center p-6 bg-background text-foreground"
     >
-      <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-        <h1 className="text-xl font-semibold">{title}</h1>
-        <p className="mt-3 text-sm leading-6 text-slate-600">{body}</p>
+      <section className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
+        <h1 className="text-xl font-semibold">{t('stage6.startup_title')}</h1>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('stage6.startup_body')}</p>
         {message && (
-          <p className="mt-3 break-words rounded-lg bg-slate-100 p-3 text-xs text-slate-600" data-testid="startup-error-detail">
+          <p className="mt-3 break-words rounded-lg bg-secondary p-3 text-xs text-muted-foreground" data-testid="startup-error-detail">
             {message}
           </p>
         )}
@@ -77,7 +75,7 @@ const StartupErrorScreen = ({ message, onRetry }) => {
           onClick={onRetry}
           className="mt-5 min-h-11 rounded-xl bg-teal-700 px-5 py-2.5 font-medium text-white"
         >
-          {isHebrew ? 'נסה שוב' : 'Try again'}
+          {t('stage6.retry')}
         </button>
       </section>
     </main>
@@ -89,6 +87,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
+  const {t}=useTranslation();
   const { isLoadingAuth, isLoadingPublicSettings, authError, checkAppState } = useAuth();
 
   // Only render the explicit "not registered" error screen here. All other
@@ -118,7 +117,7 @@ const AuthenticatedApp = () => {
         <div
           role="status"
           aria-live="polite"
-          aria-label="Loading application"
+          aria-label={t('stage6.loading')}
           className="fixed inset-0 flex items-center justify-center"
           style={{ zIndex: AUTH_OVERLAY_Z_INDEX, background: 'rgb(var(--bg, 248 248 246))', pointerEvents: 'none' }}
         >

@@ -1,3 +1,4 @@
+import { applyAppearancePalette } from '@/lib/appearancePalettes';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
@@ -193,19 +194,7 @@ export default function Layout({ children, currentPageName }) {
       }
 
       // Apply theme colors
-      const themeColors = {
-        default: { primary: '104 176 162', secondary: '142 189 179', accent: '238 181 92' },
-        ocean: { primary: '91 161 170', secondary: '121 177 184', accent: '238 181 92' },
-        sunset: { primary: '169 149 118', secondary: '197 170 136', accent: '236 174 92' },
-        forest: { primary: '95 154 132', secondary: '126 173 152', accent: '230 176 88' },
-        lavender: { primary: '137 146 180', secondary: '164 171 198', accent: '235 183 104' },
-        minimal: { primary: '104 124 128', secondary: '145 158 160', accent: '226 176 94' }
-      };
-
-      const colors = themeColors[userTheme] || themeColors.default;
-      document.documentElement.style.setProperty('--color-primary', colors.primary);
-      document.documentElement.style.setProperty('--color-secondary', colors.secondary);
-      document.documentElement.style.setProperty('--color-accent', colors.accent);
+      applyAppearancePalette(userTheme);
       // Cache so subsequent navigations don't re-fetch
       try {
         sessionStorage.setItem('user_prefs_loaded', JSON.stringify({

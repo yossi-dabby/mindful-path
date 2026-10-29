@@ -19,11 +19,13 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending,setResending]=useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if(loading) return;
     setError("");
     if (password !== confirmPassword) {
       setError(t("auth.register.password_mismatch"));
@@ -41,6 +43,7 @@ export default function Register() {
   };
 
   const handleVerify = async () => {
+    if(loading || resending || otpCode.length !== 6) return;
     setError("");
     setLoading(true);
     try {
@@ -55,13 +58,15 @@ export default function Register() {
   };
 
   const handleResend = async () => {
+    if(loading || resending) return;
     setError("");
+    setResending(true);
     try {
       await base44.auth.resendOtp(email.trim());
       toast({ title: t("auth.otp.sent_title"), description: t("auth.otp.sent_description") });
     } catch {
       setError(t("auth.otp.resend_failed"));
-    }
+    } finally { setResending(false); }
   };
 
   if (showOtp) {
@@ -69,19 +74,19 @@ export default function Register() {
       <AuthLayout icon={Mail} title={t("auth.otp.title")} subtitle={t("auth.otp.subtitle", { email })}>
         {error && <div role="alert" className="mb-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
         <div className="mb-6 flex justify-center" dir="ltr">
-          <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
+          <InputOTP aria-label={t("stage6.otp_code")} inputMode="numeric" pattern="[0-9]*" disabled={loading || resending} maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
             <InputOTPGroup>
-              {[0, 1, 2, 3, 4, 5].map((index) => <InputOTPSlot key={index} index={index} />)}
+              {[0, 1, 2, 3, 4, 5].map((index) => <InputOTPSlot key={index} index={index} className="h-11 w-10 sm:w-11" />)}
             </InputOTPGroup>
           </InputOTP>
         </div>
-        <Button className="h-12 w-full rounded-2xl bg-primary font-semibold hover:bg-primary" onClick={handleVerify} disabled={loading || otpCode.length < 6}>
+        <Button className="h-12 w-full rounded-2xl bg-primary font-semibold hover:bg-primary" onClick={handleVerify} disabled={loading || resending || otpCode.length < 6}>
           {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
           {loading ? t("auth.otp.verifying") : t("auth.otp.verify")}
         </Button>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           {t("auth.otp.no_code")}{" "}
-          <button type="button" onClick={handleResend} className="font-semibold text-primary hover:underline">{t("auth.otp.resend")}</button>
+          <button type="button" disabled={loading || resending} onClick={handleResend} className="min-h-11 font-semibold text-primary hover:underline">{t("auth.otp.resend")}</button>
         </p>
       </AuthLayout>
     );
@@ -105,15 +110,15 @@ export default function Register() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
-        <div className="relative flex justify-center text-xs uppercase"><span className="bg-[hsl(var(--card)/0.97)] px-3 text-slate-400">{t("auth.or")}</span></div>
+        <div className="relative flex justify-center text-xs uppercase"><span className="bg-[hsl(var(--card)/0.97)] px-3 text-muted-foreground">{t("auth.or")}</span></div>
       </div>
 
       {error && <div role="alert" className="mb-4 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-3.5">
-        <Field icon={Mail} id="register-email" label={t("auth.login.email")} type="email" autoComplete="email" value={email} onChange={setEmail} placeholder="you@example.com" autoFocus />
-        <Field icon={Lock} id="register-password" label={t("auth.login.password")} type="password" autoComplete="new-password" value={password} onChange={setPassword} placeholder="••••••••" />
-        <Field icon={Lock} id="register-confirm" label={t("auth.register.confirm_password")} type="password" autoComplete="new-password" value={confirmPassword} onChange={setConfirmPassword} placeholder="••••••••" />
+        <Field disabled={loading} icon={Mail} id="register-email" label={t("auth.login.email")} type="email" autoComplete="email" value={email} onChange={setEmail} placeholder="you@example.com" autoFocus />
+        <Field disabled={loading} icon={Lock} id="register-password" label={t("auth.login.password")} type="password" autoComplete="new-password" value={password} onChange={setPassword} placeholder="••••••••" />
+        <Field disabled={loading} icon={Lock} id="register-confirm" label={t("auth.register.confirm_password")} type="password" autoComplete="new-password" value={confirmPassword} onChange={setConfirmPassword} placeholder="••••••••" />
         <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-border font-semibold text-primary" disabled={loading}>
           {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
           {loading ? t("auth.register.loading") : t("auth.register.submit")}

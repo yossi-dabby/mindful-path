@@ -1,3 +1,4 @@
+import { saveUserPreferences } from '@/lib/userPreferences';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -23,30 +24,27 @@ export default function DataPrivacy({ user }) {
   ];
 
   const updateRetentionMutation = useMutation({
-    mutationFn: (days) =>
-      base44.auth.updateMe({
-        preferences: {
-          ...user?.preferences,
-          data_retention_days: days
-        }
-      }),
+    mutationFn: (days) => saveUserPreferences({ data_retention_days: days }, user?.id),
+    onMutate: (days) => { const previous = retentionDays; setRetentionDays(days); setActionMessage(null); return { previous }; },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       setActionMessage({ type: 'success', text: t('settings.data_privacy.retention_saved') });
-      setTimeout(() => setActionMessage(null), 3000);
+      setTimeout(() => setActionMessage(current => current?.type === 'success' ? null : current), 3000);
     },
-    onError: () => {
+    onError: (_error, _days, context) => {
+      if (context) setRetentionDays(context.previous);
       setActionMessage({ type: 'error', text: t('settings.data_privacy.retention_failed') });
-      setTimeout(() => setActionMessage(null), 3000);
     }
   });
 
   const handleRetentionChange = async (days) => {
-    setRetentionDays(parseInt(days));
-    await updateRetentionMutation.mutateAsync(parseInt(days));
+    if (updateRetentionMutation.isPending) return;
+    try { await updateRetentionMutation.mutateAsync(parseInt(days)); } catch { /* Localized feedback and rollback are handled by the mutation. */ }
   };
 
   const handleExportData = async () => {
+    if(exportingData) return;
+    setActionMessage(null);
     setExportingData(true);
     try {
       const response = await base44.functions.invoke('exportMyData', {});
@@ -68,11 +66,10 @@ export default function DataPrivacy({ user }) {
       window.URL.revokeObjectURL(url);
 
       setActionMessage({ type: 'success', text: t('settings.data_privacy.export_success') });
-      setTimeout(() => setActionMessage(null), 3000);
+      setTimeout(() => setActionMessage(current => current?.type === 'success' ? null : current), 3000);
     } catch (error) {
       console.error('Export error:', error);
       setActionMessage({ type: 'error', text: t('settings.data_privacy.export_failed') });
-      setTimeout(() => setActionMessage(null), 3000);
     } finally {
       setExportingData(false);
     }
@@ -106,6 +103,7 @@ export default function DataPrivacy({ user }) {
                   ? 'bg-green-50 text-green-800'
                   : 'bg-red-50 text-red-800'
               }`}
+              role={actionMessage.type === 'error' ? 'alert' : 'status'}
               data-testid="data-privacy-message"
             >
               {actionMessage.type === 'success' ? (
@@ -119,7 +117,7 @@ export default function DataPrivacy({ user }) {
 
           {/* Data Retention */}
           <div>
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
+            <label htmlFor="settings-retention" className="text-sm font-medium text-muted-foreground mb-3 block">
               {t('settings.data_privacy.retention_label')}
             </label>
             <p className="text-sm text-muted-foreground mb-4">
@@ -127,6 +125,9 @@ export default function DataPrivacy({ user }) {
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <BottomSheetSelect
+                autoFocus
+                id="settings-retention"
+                disabled={updateRetentionMutation.isPending}
                 data-testid="retention-select"
                 value={retentionDays.toString()}
                 onValueChange={handleRetentionChange}

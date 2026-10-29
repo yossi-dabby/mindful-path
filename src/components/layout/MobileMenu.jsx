@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
 export default function MobileMenu() {
+  const triggerRef = React.useRef(null);
   const [open, setOpen] = React.useState(false);
   const { t, i18n } = useTranslation();
   const location = useLocation();
@@ -75,6 +76,7 @@ export default function MobileMenu() {
   return (
     <div className="md:hidden" data-app-chrome>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         data-testid="mobile-menu-button"
@@ -84,10 +86,11 @@ export default function MobileMenu() {
         aria-controls="premium-mobile-menu"
       >
         <Menu className="h-6 w-6" />
-      <span className="mobile-action-label md:hidden">{t('mobile_actions.menu')}</span></button>
+      <span className="sr-only">{t('mobile_actions.menu')}</span></button>
 
-      <Drawer open={open} onOpenChange={setOpen} direction={isRtl ? 'right' : 'left'} shouldScaleBackground={false}>
+      <Drawer autoFocus open={open} onOpenChange={setOpen} direction={isRtl ? 'right' : 'left'} shouldScaleBackground={false}>
         <DrawerContent
+          onCloseAutoFocus={(event) => { event.preventDefault(); triggerRef.current?.focus(); }}
           id="premium-mobile-menu"
           data-testid="mobile-drawer"
           className="m-0 flex max-h-none flex-col overflow-hidden border-sidebar-border bg-sidebar text-sidebar-foreground p-0 shadow-2xl"

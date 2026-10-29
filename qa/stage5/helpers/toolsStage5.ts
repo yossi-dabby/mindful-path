@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const evidenceDir = process.env.STAGE5_EVIDENCE_DIR || path.resolve('reports/stage5/evidence');
-export async function prepareTools(page: Page, language='en', theme='light', populated=true) {
-  const state = await preparePathStage3(page,{language,theme,populated:false});
+export async function prepareTools(page: Page, language='en', theme='light', populated=true, preservePreferencesOnReload=false) {
+  const state = await preparePathStage3(page,{language,theme,populated:false,preservePreferencesOnReload});
   const title=language==='he'?'נתוני דוגמה בלבד — כותרת ארוכה לבדיקת פריסה וטקסט מעורב ABC 123':'Synthetic QA content — a long title to inspect wrapping and mixed text אבג 123';
   const now=new Date().toISOString();
   Object.assign(state.db,{

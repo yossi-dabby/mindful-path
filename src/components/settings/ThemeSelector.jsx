@@ -1,12 +1,15 @@
 import React from 'react';
+import { useTheme } from 'next-themes';
+import { APPEARANCE_PALETTES } from '@/lib/appearancePalettes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Palette, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
-export default function ThemeSelector({ currentTheme, onThemeChange }) {
+export default function ThemeSelector({ currentTheme, onThemeChange, disabled = false }) {
   const { t } = useTranslation();
+  const { theme: mode, setTheme: setMode } = useTheme();
   
   const themes = [
     {
@@ -14,66 +17,42 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
       name: t('settings.theme.default.name'),
       description: t('settings.theme.default.description'),
       preview: 'bg-gradient-to-br from-green-50 via-purple-50 to-blue-50',
-      colors: {
-        primary: '139 178 158',
-        secondary: '185 163 193',
-        accent: '244 146 131'
-      }
+      colors: null
     },
     {
       id: 'ocean',
       name: t('settings.theme.ocean.name'),
       description: t('settings.theme.ocean.description'),
       preview: 'bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50',
-      colors: {
-        primary: '14 165 233',
-        secondary: '6 182 212',
-        accent: '20 184 166'
-      }
+      colors: null
     },
     {
       id: 'sunset',
       name: t('settings.theme.sunset.name'),
       description: t('settings.theme.sunset.description'),
       preview: 'bg-gradient-to-br from-orange-50 via-pink-50 to-rose-50',
-      colors: {
-        primary: '249 115 22',
-        secondary: '236 72 153',
-        accent: '251 146 60'
-      }
+      colors: null
     },
     {
       id: 'forest',
       name: t('settings.theme.forest.name'),
       description: t('settings.theme.forest.description'),
       preview: 'bg-gradient-to-br from-emerald-50 via-green-50 to-lime-50',
-      colors: {
-        primary: '16 185 129',
-        secondary: '34 197 94',
-        accent: '132 204 22'
-      }
+      colors: null
     },
     {
       id: 'lavender',
       name: t('settings.theme.lavender.name'),
       description: t('settings.theme.lavender.description'),
       preview: 'bg-gradient-to-br from-purple-50 via-violet-50 to-fuchsia-50',
-      colors: {
-        primary: '168 85 247',
-        secondary: '139 92 246',
-        accent: '217 70 239'
-      }
+      colors: null
     },
     {
       id: 'minimal',
       name: t('settings.theme.minimal.name'),
       description: t('settings.theme.minimal.description'),
       preview: 'bg-gradient-to-br from-gray-50 via-slate-50 to-zinc-50',
-      colors: {
-        primary: '71 85 105',
-        secondary: '100 116 139',
-        accent: '51 65 85'
-      }
+      colors: null
     }
   ];
   
@@ -86,6 +65,7 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-5 sm:p-6">
+        <div className="mb-5"><p className="mb-2 text-sm font-semibold text-foreground">{t('stage6.appearance_mode')}</p><div className="flex flex-wrap gap-2" role="group" aria-label={t('stage6.appearance_mode')}>{['light','dark','system'].map(value => <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)} className="min-h-11 min-w-11 rounded-xl border border-border bg-card px-4 text-sm text-foreground aria-pressed:bg-primary aria-pressed:text-primary-foreground">{t('stage6.' + value)}</button>)}</div></div>
         <p className="text-sm text-muted-foreground mb-4">
           {t('settings.theme.description')}
         </p>
@@ -93,12 +73,13 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
           {themes.map((theme, index) => (
             <motion.button
               key={theme.id}
-              onClick={() => onThemeChange(theme)}
+              disabled={disabled}
+              onClick={() => onThemeChange({ ...theme, colors: APPEARANCE_PALETTES[theme.id] })}
               className={cn(
                 'relative min-h-[148px] p-4 rounded-2xl border-2 transition-all text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                 currentTheme === theme.id
-                  ? 'border-teal-500 bg-teal-50/60 shadow-md'
-                  : 'border-slate-200 bg-white hover:border-teal-200 hover:shadow-sm'
+                  ? 'border-primary bg-secondary shadow-md'
+                  : 'border-border bg-card hover:border-primary hover:shadow-sm'
               )}
               whileTap={{ scale: 0.99 }}
               aria-pressed={currentTheme === theme.id}
@@ -110,7 +91,7 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold text-foreground">{theme.name}</h3>
-                  <p className="text-xs text-muted-foreground">{theme.description}</p>
+                  <p className="text-xs text-foreground">{theme.description}</p>
                 </div>
                 {currentTheme === theme.id && (
                   <motion.div 
@@ -119,7 +100,7 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Check className="w-4 h-4 text-white" />
+                    <Check className="w-4 h-4 text-primary-foreground" />
                   </motion.div>
                 )}
               </div>

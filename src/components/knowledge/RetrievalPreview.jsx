@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,8 @@ import { Loader2, Zap } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function RetrievalPreview() {
+  const {t}=useTranslation();
+  const [error,setError]=useState(false);
   const { toast } = useToast();
   const [form, setForm] = useState({ userMessage: '', topicHint: '', emotionalState: '', maxResults: 5 });
   const [results, setResults] = useState(null);
@@ -17,7 +20,9 @@ export default function RetrievalPreview() {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const run = async () => {
-    if (!form.userMessage.trim()) { toast({ title: 'userMessage is required', variant: 'destructive' }); return; }
+    if(loading) return;
+    if (!form.userMessage.trim()) { toast({ title: t('stage6.required'), variant: 'destructive' }); return; }
+    setError(false);
     setLoading(true);
     setResults(null);
     try {
@@ -29,7 +34,7 @@ export default function RetrievalPreview() {
       });
       setResults(res.data);
     } catch (e) {
-      toast({ title: 'Retrieval failed', description: e.message, variant: 'destructive' });
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -38,49 +43,50 @@ export default function RetrievalPreview() {
   return (
     <div className="space-y-6 max-w-3xl">
       <Card>
-        <CardHeader><CardTitle className="text-base flex items-center gap-2"><Zap className="w-4 h-4 text-primary" />Retrieval Preview</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><Zap className="w-4 h-4 text-primary" />{t('stage6.retrieval_preview')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>User Message <span className="text-destructive">*</span></Label>
-            <Input value={form.userMessage} onChange={e => set('userMessage', e.target.value)} placeholder="e.g., I keep catastrophizing about losing my job" />
+            <Label htmlFor="knowledge-preview-userMessage">{t('stage6.user_message')}<span className="text-destructive">*</span></Label>
+            <Input id="knowledge-preview-userMessage" disabled={loading} value={form.userMessage} onChange={e => set('userMessage', e.target.value)} placeholder="e.g., I keep catastrophizing about losing my job" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label>Topic Hint</Label>
-              <Input value={form.topicHint} onChange={e => set('topicHint', e.target.value)} placeholder="e.g., anxiety" />
+              <Label htmlFor="knowledge-preview-topicHint">{t('stage6.topic_hint')}</Label>
+              <Input id="knowledge-preview-topicHint" disabled={loading} value={form.topicHint} onChange={e => set('topicHint', e.target.value)} placeholder="e.g., anxiety" />
             </div>
             <div className="space-y-1">
-              <Label>Emotional State</Label>
-              <Input value={form.emotionalState} onChange={e => set('emotionalState', e.target.value)} placeholder="e.g., anxious, overwhelmed" />
+              <Label htmlFor="knowledge-preview-emotionalState">{t('stage6.emotional_state')}</Label>
+              <Input id="knowledge-preview-emotionalState" disabled={loading} value={form.emotionalState} onChange={e => set('emotionalState', e.target.value)} placeholder="e.g., anxious, overwhelmed" />
             </div>
             <div className="space-y-1">
-              <Label>Max Results</Label>
-              <Input type="number" min={1} max={10} value={form.maxResults} onChange={e => set('maxResults', e.target.value)} />
+              <Label htmlFor="knowledge-preview-maxResults">{t('stage6.max_results')}</Label>
+              <Input type="number" min={1} max={10} id="knowledge-preview-maxResults" disabled={loading} value={form.maxResults} onChange={e => set('maxResults', e.target.value)} />
             </div>
           </div>
           <Button onClick={run} disabled={loading} className="gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-            Run Retrieval
+            {t('stage6.run_retrieval')}
           </Button>
         </CardContent>
       </Card>
 
+      {error && <p role="alert" className="text-sm text-destructive">{t('stage6.load_error')}</p>}
       {results && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Mode: <Badge variant="outline">{results.mode}</Badge> · {results.total_results} result(s) returned
+            Mode: <Badge variant="outline">{results.mode}</Badge> · {t('stage6.result_count',{count:results.total_results})}
           </p>
           {results.total_results === 0 ? (
-            <Card><CardContent className="py-8 text-center text-muted-foreground text-sm">No active chunks matched the query. Add TrustedCBTChunk records and publish them.</CardContent></Card>
+            <Card><CardContent className="py-8 text-center text-muted-foreground text-sm">{t('stage6.no_results')}</CardContent></Card>
           ) : (
             results.results.map((chunk, i) => (
               <Card key={chunk.id || i} className="border border-border/60">
                 <CardContent className="p-4 space-y-2">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">#{i + 1} {chunk.title}</span>
+                      <span className="font-medium [overflow-wrap:anywhere]">#{i + 1} {chunk.title}</span>
                       <Badge variant={chunk.is_active ? 'default' : 'secondary'} className="text-xs">
-                        {chunk.is_active ? 'published' : 'draft'}
+                        {t(`stage6.${chunk.is_active?'published':'draft'}`)}
                       </Badge>
                       <Badge variant="outline" className="text-xs">{chunk.language || 'en'}</Badge>
                     </div>

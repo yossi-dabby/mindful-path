@@ -1,13 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import ScenarioSelector from '@/components/training/ScenarioSelector';
 import TrainingSimulator from '@/components/training/TrainingSimulator';
 import { GraduationCap } from 'lucide-react';
 
 export default function TherapistTraining() {
+  const {t}=useTranslation();
   const [activeScenario, setActiveScenario] = useState(null);
 
   return (
-    <div className="min-h-screen p-4 md:p-6 pb-24 md:pb-8">
+    <div className="min-h-dvh p-4 md:p-6 pb-24 md:pb-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -15,9 +17,9 @@ export default function TherapistTraining() {
             <GraduationCap className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">CBT Therapist Training</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('stage6.training_title')}</h1>
             <p className="text-sm text-muted-foreground">
-              Practice with simulated patient scenarios and receive AI supervisor feedback.
+              {t('stage6.training_intro')}
             </p>
           </div>
         </div>

@@ -16,7 +16,7 @@ export default function LegalDocumentPage({ document }) {
     <main
       dir={copy.direction}
       lang={copy.language}
-      className="garden-public-background min-h-screen px-4 py-8 text-foreground sm:px-6 sm:py-12"
+      className="garden-public-background min-h-dvh px-4 py-8 text-foreground sm:px-6 sm:py-12"
     >
       <article className="mx-auto max-w-3xl overflow-hidden rounded-[28px] border border-border/70 bg-card/95 shadow-[0_24px_70px_rgba(15,118,110,0.12)] backdrop-blur-xl">
         <header className="border-b border-border bg-secondary/35 px-5 py-7 sm:px-9 sm:py-9">
@@ -24,11 +24,11 @@ export default function LegalDocumentPage({ document }) {
             <BackIcon className="h-4 w-4" aria-hidden="true" />
             {copy.common.back}
           </Link>
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-teal-600/20">
               <ShieldCheck className="h-6 w-6" aria-hidden="true" />
             </span>
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="mb-1 text-sm font-semibold tracking-wide text-primary">{copy.common.appName}</p>
               <div className="botanical-title-row"><h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{content.title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
               <p className="mt-3 text-sm text-muted-foreground">
@@ -55,14 +55,14 @@ export default function LegalDocumentPage({ document }) {
           ))}
         </div>
 
-        <footer className="flex flex-wrap gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-6 text-sm sm:px-9">
-          <Link className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to={document === 'privacy' ? '/terms' : '/privacy'}>
+        <footer className="flex flex-wrap gap-3 border-t border-border bg-card px-5 py-6 text-sm sm:px-9">
+          <Link className="min-h-11 inline-flex items-center [overflow-wrap:anywhere] rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to={document === 'privacy' ? '/terms' : '/privacy'}>
             {document === 'privacy' ? copy.common.terms : copy.common.privacy}
           </Link>
-          <Link className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to="/contact">
+          <Link className="min-h-11 inline-flex items-center [overflow-wrap:anywhere] rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" to="/contact">
             {copy.common.contact}
           </Link>
-          <a className="rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" href={`mailto:${LEGAL_CONTACT_EMAIL}`}>
+          <a className="min-h-11 inline-flex items-center [overflow-wrap:anywhere] rounded-lg px-2 py-2 font-medium text-primary underline-offset-4 hover:underline" href={`mailto:${LEGAL_CONTACT_EMAIL}`}>
             {LEGAL_CONTACT_EMAIL}
           </a>
         </footer>

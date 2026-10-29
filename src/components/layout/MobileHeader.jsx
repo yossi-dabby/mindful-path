@@ -86,7 +86,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
         paddingTop: 'env(safe-area-inset-top, 0px)'
       }}>
 
-      <div className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-2 px-2 py-2">
+      <div className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2 px-2 py-2">
         {/* Start: Back button on child routes, logo on root */}
         <div className="min-w-0">
           {isSubRoute ?

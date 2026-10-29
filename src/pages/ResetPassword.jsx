@@ -20,6 +20,7 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(loading) return;
     setError("");
     if (newPassword !== confirmPassword) {
       setError(t("auth.reset.password_mismatch"));
@@ -63,7 +64,7 @@ export default function ResetPassword() {
       subtitle={t("auth.reset.subtitle")}
     >
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+        <div role="alert" className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
         </div>
       )}
@@ -73,6 +74,7 @@ export default function ResetPassword() {
           <div className="relative">
             <Lock className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
+              disabled={loading}
               id="password"
               type="password"
               autoComplete="new-password"
@@ -90,6 +92,7 @@ export default function ResetPassword() {
           <div className="relative">
             <Lock className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
+              disabled={loading}
               id="confirm"
               type="password"
               autoComplete="new-password"

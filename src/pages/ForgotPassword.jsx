@@ -17,6 +17,7 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(loading) return;
     setLoading(true);
     try {
       await base44.auth.resetPasswordRequest(email);
@@ -51,6 +52,7 @@ export default function ForgotPassword() {
             <div className="relative">
               <Mail className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
+                disabled={loading}
                 id="email"
                 type="email"
                 autoComplete="email"

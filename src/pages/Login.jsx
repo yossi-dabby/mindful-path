@@ -19,6 +19,7 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if(loading) return;
     setError("");
     setLoading(true);
     try {
@@ -53,7 +54,7 @@ export default function Login() {
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-[hsl(var(--card)/0.97)] px-3 text-slate-400">{t("auth.or")}</span>
+          <span className="bg-[hsl(var(--card)/0.97)] px-3 text-muted-foreground">{t("auth.or")}</span>
         </div>
       </div>
 
@@ -64,7 +65,7 @@ export default function Login() {
           <Label htmlFor="email">{t("auth.login.email")}</Label>
           <div className="relative">
             <Mail className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-            <Input id="email" type="email" inputMode="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} className="h-12 rounded-2xl ps-10" required />
+            <Input disabled={loading} id="email" type="email" inputMode="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} className="h-12 rounded-2xl ps-10" required />
           </div>
         </div>
         <div className="space-y-2">
@@ -74,7 +75,7 @@ export default function Login() {
           </div>
           <div className="relative">
             <Lock className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-            <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} className="h-12 rounded-2xl ps-10" required />
+            <Input disabled={loading} id="password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} className="h-12 rounded-2xl ps-10" required />
           </div>
         </div>
         <Button type="submit" variant="outline" className="h-12 w-full rounded-2xl border-border font-semibold text-primary" disabled={loading}>

@@ -11,7 +11,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
 
   return (
     <main
-      className="botanical-theme garden-public-background relative min-h-[100dvh] overflow-hidden bg-background px-4 py-5 sm:py-8"
+      className="botanical-theme garden-public-background relative min-h-[100dvh] overflow-x-clip bg-background px-4 py-5 sm:py-8"
       dir={isRtl ? "rtl" : "ltr"}
     >
       <div className="pointer-events-none absolute -start-24 -top-28 h-72 w-72 rounded-full bg-teal-300/25 blur-3xl" />
@@ -19,7 +19,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
 
       <div className="relative mx-auto flex min-h-[calc(100dvh-2.5rem)] w-full max-w-md flex-col justify-center">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
             <GrowingShieldMark size={44} />
             <AppWordmark name={t("global.app_name")} className="max-w-[170px]" />
           </div>
@@ -31,7 +31,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
             <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-teal-700/20">
               <Icon className="h-6 w-6" aria-hidden="true" />
             </div>
-            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+            <div className="botanical-title-row"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1><BotanicalAccent variant="leaves" className="botanical-title-art !hidden sm:!block" /></div>
             {subtitle && <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">{subtitle}</p>}
           </div>
 

@@ -13,14 +13,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useToast } from '@/components/ui/use-toast';
 import { deleteAccount } from '@/lib/platform';
 import { Trash2, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function DeleteAccountFlow({ userRole }) {
-  const { t } = useTranslation();
-  const { toast } = useToast();
+  const { t, i18n } = useTranslation();
   const [confirmationText, setConfirmationText] = useState('');
   const [open, setOpen] = useState(false);
   const isAdmin = userRole === 'admin';
@@ -31,18 +29,11 @@ export default function DeleteAccountFlow({ userRole }) {
     },
     // onSuccess is a no-op: deleteAccount() calls performLogout() which
     // triggers a full page reload before this callback would run.
-    onError: (error) => {
-      toast({
-        title: t('settings.account.delete_error'),
-        description: error?.response?.data?.error || error?.message || t('common.retry'),
-        variant: 'destructive',
-      });
-      setOpen(false);
-      setConfirmationText('');
-    },
   });
 
   const handleOpenChange = (val) => {
+    if (deleteAccountMutation.isPending) return;
+    deleteAccountMutation.reset();
     setOpen(val);
     if (!val) setConfirmationText('');
   };
@@ -62,7 +53,7 @@ export default function DeleteAccountFlow({ userRole }) {
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent>
+      <AlertDialogContent dir={i18n.dir()} className="max-w-[calc(100vw-2rem)] sm:max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-red-700 flex items-center gap-2">
             <Trash2 className="w-5 h-5" />
@@ -83,10 +74,12 @@ export default function DeleteAccountFlow({ userRole }) {
                     {t('settings.account.delete_confirm_description')}
                   </p>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    <label htmlFor="delete-account-confirmation" className="mb-1.5 block text-sm font-medium text-foreground">
                       {t('settings.account.delete_confirm_label')}
                     </label>
                     <Input
+                      id="delete-account-confirmation"
+                      disabled={deleteAccountMutation.isPending}
                       value={confirmationText}
                       onChange={(e) => setConfirmationText(e.target.value)}
                       placeholder={t('settings.account.delete_confirm_placeholder')}
@@ -102,8 +95,9 @@ export default function DeleteAccountFlow({ userRole }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
+        {deleteAccountMutation.isError && <p role="alert" className="text-sm text-destructive">{t('stage6.delete_error')}</p>}
         <AlertDialogFooter>
-          <AlertDialogCancel data-testid="delete-account-cancel-button" className="rounded-xl">{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleteAccountMutation.isPending} data-testid="delete-account-cancel-button" className="rounded-xl">{t('common.cancel')}</AlertDialogCancel>
           {!isAdmin && (
             <AlertDialogAction
               data-testid="delete-account-confirm-button"
