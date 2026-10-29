@@ -3,6 +3,7 @@ import OpenAI from 'npm:openai';
 
 const MAX_REQUEST_BYTES = 4_096;
 const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
+const MAX_MULTIPART_BYTES = MAX_AUDIO_BYTES + 64 * 1024;
 const FETCH_TIMEOUT_MS = 20_000;
 const TRUSTED_UPLOAD_HOST_SUFFIXES = ['base44.app', 'base44.com'];
 
@@ -93,6 +94,55 @@ async function readBoundedAudio(response: Response): Promise<Blob> {
   return new Blob(chunks, { type: contentType || 'audio/webm' });
 }
 
+class AudioRequestError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+  }
+}
+
+// Read the wire body with a real byte limit, including when Content-Length is
+// missing or untrusted. Do not let formData() buffer an unbounded upload.
+async function readMultipartAudio(req: Request): Promise<Blob> {
+  const reader = req.body?.getReader();
+  if (!reader) throw new AudioRequestError('Audio file is required.', 400);
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_MULTIPART_BYTES) {
+        await reader.cancel();
+        throw new AudioRequestError('Audio file is too large.', 413);
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  let form: FormData;
+  try {
+    form = await new Response(new Blob(chunks), {
+      headers: { 'Content-Type': req.headers.get('content-type') || '' },
+    }).formData();
+  } catch {
+    throw new AudioRequestError('Invalid audio upload.', 400);
+  }
+  const files = form.getAll('file');
+  const audio = files[0];
+  if (files.length !== 1 || !(audio instanceof Blob) || audio.size === 0) {
+    throw new AudioRequestError('One non-empty audio file is required.', 400);
+  }
+  if (audio.size > MAX_AUDIO_BYTES) throw new AudioRequestError('Audio file is too large.', 413);
+  const type = audio.type.split(';')[0].trim().toLowerCase();
+  if (!type.startsWith('audio/') && type !== 'video/mp4') {
+    throw new AudioRequestError('Unsupported audio content type.', 415);
+  }
+  return audio;
+}
+
 /**
  * Backend transcription endpoint for mobile audio recordings.
  * Uses OpenAI Whisper which natively handles mp4, m4a, webm, wav, ogg, mp3 —
@@ -110,8 +160,9 @@ Deno.serve(async (req) => {
       });
     }
 
+    const multipart = (req.headers.get('content-type') || '').toLowerCase().startsWith('multipart/form-data;');
     const declaredRequestSize = Number(req.headers.get('content-length') || 0);
-    if (Number.isFinite(declaredRequestSize) && declaredRequestSize > MAX_REQUEST_BYTES) {
+    if (Number.isFinite(declaredRequestSize) && declaredRequestSize > (multipart ? MAX_MULTIPART_BYTES : MAX_REQUEST_BYTES)) {
       return Response.json({ error: 'Request too large' }, { status: 413 });
     }
 
@@ -122,29 +173,35 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { file_url } = await req.json();
-
-    if (!isOwnedBase44Upload(file_url, user.id)) {
-      return Response.json({ error: 'File not found or not accessible' }, { status: 403 });
+    let audioBlob: Blob;
+    if (multipart) {
+      // New mobile clients send their local draft through the authenticated SDK.
+      // UploadFile URLs are storage identifiers, not proof of user ownership.
+      // Receiving the bytes directly avoids guessing a URL layout or fetching
+      // a client-supplied remote location. Nothing is persisted to public storage.
+      audioBlob = await readMultipartAudio(req);
+    } else {
+      // Preserve the restricted URL contract for older clients. Never loosen
+      // host/ownership checks to accommodate a different storage URL layout.
+      const { file_url } = await req.json();
+      if (!isOwnedBase44Upload(file_url, user.id)) {
+        return Response.json({ error: 'File not found or not accessible' }, { status: 403 });
+      }
+      const audioResponse = await fetch(file_url, {
+        method: 'GET',
+        redirect: 'error',
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        headers: { Accept: 'audio/*,video/mp4,application/octet-stream' },
+      });
+      if (!audioResponse.ok) {
+        return Response.json({ error: 'Failed to fetch audio file' }, { status: 502 });
+      }
+      audioBlob = await readBoundedAudio(audioResponse);
     }
 
     const openai = new OpenAI({
       apiKey: Deno.env.get('OPENAI_TRANSCRIPTION_KEY'),
     });
-
-    // Reject redirects so a trusted URL cannot bounce the server to an
-    // internal target. Timeout and bounded streaming prevent resource exhaustion.
-    const audioResponse = await fetch(file_url, {
-      method: 'GET',
-      redirect: 'error',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: { Accept: 'audio/*,video/mp4,application/octet-stream' },
-    });
-    if (!audioResponse.ok) {
-      return Response.json({ error: 'Failed to fetch audio file' }, { status: 502 });
-    }
-
-    const audioBlob = await readBoundedAudio(audioResponse);
 
     // Determine a safe filename with extension for Whisper
     // Whisper uses the filename extension to detect format; default to webm which is safe
@@ -165,6 +222,9 @@ Deno.serve(async (req) => {
 
     return Response.json({ transcription });
   } catch (error) {
+    if (error instanceof AudioRequestError) {
+      return Response.json({ error: error.message }, { status: error.status });
+    }
     console.error('[transcribeMobileAudio] Error:', error instanceof Error ? error.message : 'Unknown error');
     return Response.json({ error: 'Transcription failed.' }, { status: 500 });
   }
