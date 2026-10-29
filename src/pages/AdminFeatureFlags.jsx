@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AiRuntimeCapabilitiesPanel from '@/components/admin/AiRuntimeCapabilitiesPanel';
 
 const FLAG_KEYS = [
@@ -27,24 +28,31 @@ const FLAG_DESCRIPTIONS = {
 };
 
 export default function AdminFeatureFlags() {
+  const {t}=useTranslation();
   const [flags, setFlags] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: loadingUser, isError: userError, refetch: refetchUser } = useQuery({
     queryKey: ['me'],
     queryFn: () => base44.auth.me(),
   });
 
-  const fetchFlags = async () => {
+  const fetchFlags = useCallback(async () => {
+    if(user?.role !== 'admin') return;
     setLoading(true);
     setError(null);
-    const res = await base44.functions.invoke('adminFeatureFlags', { action: 'get' });
-    setFlags(res.data.flags);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchFlags(); }, []);
+    try {
+      const res = await base44.functions.invoke('adminFeatureFlags', { action: 'get' });
+      if(!res.data?.flags) throw new Error('Missing flags');
+      setFlags(res.data.flags);
+    } catch { setError(true); }
+    finally { setLoading(false); }
+  }, [user?.role]);
+  useEffect(() => { fetchFlags(); }, [fetchFlags]);
+  if(loadingUser) return <p role="status" className="p-6">{t('stage6.loading')}</p>;
+  if(userError) return <div role="alert" className="p-6"><p>{t('stage6.load_error')}</p><Button onClick={()=>refetchUser()}>{t('stage6.retry')}</Button></div>;
+  if(user?.role !== 'admin') return <div className="p-6 space-y-3"><h1 className="text-2xl font-semibold">{t('stage6.access_denied')}</h1><p>{t('stage6.admin_only')}</p></div>;
 
   const inSync = flags
     ? FLAG_KEYS.every(k => flags[k] === TARGET_STATE[k])
@@ -53,23 +61,23 @@ export default function AdminFeatureFlags() {
   const diffKeys = flags ? FLAG_KEYS.filter(k => flags[k] !== TARGET_STATE[k]) : [];
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-2xl min-w-0 mx-auto p-4 md:p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">AI Therapist Feature Flags</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t('stage6.flags_title')}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Compare production flag settings against the target sandbox configuration.
+          {t('stage6.flags_intro')}
         </p>
       </div>
 
       {loading && (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-          <RefreshCw className="w-4 h-4 animate-spin" /> Loading flags…
+        <div role="status" className="flex items-center gap-2 text-muted-foreground text-sm">
+          <RefreshCw className="w-4 h-4 animate-spin" /> {t('stage6.loading')}
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 text-destructive text-sm">
-          <AlertTriangle className="w-4 h-4" /> {error}
+        <div role="alert" className="flex flex-wrap items-center gap-2 text-destructive text-sm">
+          <AlertTriangle className="w-4 h-4" /> {t('stage6.load_error')} <Button onClick={fetchFlags}>{t('stage6.retry')}</Button>
         </div>
       )}
 
@@ -83,11 +91,11 @@ export default function AdminFeatureFlags() {
                 : <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />}
               <div>
                 <p className="font-semibold text-sm">
-                  {inSync ? 'Production matches target (sandbox) settings.' : `${diffKeys.length} flag(s) differ from sandbox target.`}
+                  {inSync ? t('stage6.flags_synced') : t('stage6.flags_differ',{count:diffKeys.length})}
                 </p>
                 {!inSync && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Flags out of sync: {diffKeys.join(', ')}
+                  <p className="text-xs text-foreground mt-0.5 [overflow-wrap:anywhere]">
+                    {diffKeys.join(', ')}
                   </p>
                 )}
               </div>
@@ -97,7 +105,7 @@ export default function AdminFeatureFlags() {
           {/* Flag Table */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Current vs Target</CardTitle>
+              <CardTitle className="text-base">{t('stage6.current_target')}</CardTitle>
               <CardDescription className="text-xs">
                 "Production" = current server-side env vars. "Target (Sandbox)" = expected fully-upgraded state.
               </CardDescription>
@@ -110,13 +118,13 @@ export default function AdminFeatureFlags() {
                 return (
                   <div key={key} className={`rounded-lg border p-3 ${diff ? 'border-amber-300 bg-amber-50/50 dark:bg-amber-950/10' : 'border-border'}`}>
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="font-mono text-xs font-semibold text-foreground">{key}</span>
+                      <span className="font-mono text-xs font-semibold text-foreground [overflow-wrap:anywhere]">{key}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Production:</span>
+                        <span className="text-xs text-muted-foreground">{t('stage6.production')}:</span>
                         {prod
                           ? <Badge className="bg-green-100 text-green-800 border-green-300">true</Badge>
                           : <Badge variant="outline" className="text-red-600 border-red-300">false</Badge>}
-                        <span className="text-xs text-muted-foreground">Target:</span>
+                        <span className="text-xs text-muted-foreground">{t('stage6.target')}:</span>
                         {target
                           ? <Badge className="bg-green-100 text-green-800 border-green-300">true</Badge>
                           : <Badge variant="outline" className="text-red-600 border-red-300">false</Badge>}
@@ -134,8 +142,8 @@ export default function AdminFeatureFlags() {
 
           {/* Actions */}
           <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="outline" size="sm" onClick={fetchFlags} className="gap-2" mobileLabelKey="refresh">
-              <RefreshCw className="w-4 h-4" /> Refresh
+            <Button variant="outline" size="sm" onClick={fetchFlags} disabled={loading} className="gap-2" mobileLabelKey="refresh">
+              <RefreshCw className="w-4 h-4" /> {t('stage6.refresh')}
             </Button>
             {!inSync && (
               <div className="flex items-center gap-2 p-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-sm text-amber-800 dark:text-amber-300">

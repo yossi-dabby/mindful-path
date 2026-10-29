@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { saveUserPreferences } from '@/lib/userPreferences';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Languages, Check } from 'lucide-react';
@@ -19,25 +21,19 @@ const languages = [
 
 export default function LanguageSelector() {
   const { t, i18n } = useTranslation();
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const currentLang = getCurrentAppLocale(i18n);
 
   const handleLanguageChange = async (langCode) => {
-    // Change the UI language and all document/storage side effects atomically.
-    await changeAppLocale(i18n, langCode);
-    
-    // Save to user preferences (optional, non-blocking)
+    if (saving) return;
+    setSaving(true); setSaveError(false);
     try {
+      await changeAppLocale(i18n, langCode);
       const user = await base44.auth.me();
-      await base44.auth.updateMe({
-        preferences: {
-          ...user.preferences,
-          language: langCode
-        }
-      });
-    } catch (error) {
-      console.log('Could not save language preference to user profile:', error);
-      // Non-blocking: language still works via localStorage
-    }
+      await saveUserPreferences({ language: langCode }, user.id);
+    } catch { setSaveError(true); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -61,12 +57,13 @@ export default function LanguageSelector() {
             return (
               <motion.button
                 key={lang.code}
+                disabled={saving}
                 onClick={() => handleLanguageChange(lang.code)}
                 className={cn(
                   'relative min-h-[78px] p-4 rounded-2xl border-2 transition-all text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                   isSelected
-                    ? 'border-teal-500 bg-teal-50 shadow-md'
-                    : 'border-slate-200 bg-white hover:border-teal-200 hover:shadow-sm'
+                    ? 'border-primary bg-secondary shadow-md'
+                    : 'border-border bg-card hover:border-primary hover:shadow-sm'
                 )}
                 whileTap={{ scale: 0.99 }}
                 aria-pressed={isSelected}
@@ -79,12 +76,12 @@ export default function LanguageSelector() {
                     <span className="text-2xl flex-shrink-0">{lang.flag}</span>
                     <div className="min-w-0 flex-1">
                       <h3 className={cn(
-                        "font-semibold text-gray-800 truncate",
+                        "font-semibold text-foreground truncate",
                         lang.rtl && "text-right"
                       )}>
                         {lang.native}
                       </h3>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-foreground truncate">
                         {t(`settings.language.${lang.code}`)}
                       </p>
                     </div>
@@ -96,7 +93,7 @@ export default function LanguageSelector() {
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}
                     >
-                      <Check className="w-4 h-4 text-white" />
+                      <Check className="w-4 h-4 text-primary-foreground" />
                     </motion.div>
                   )}
                 </div>
@@ -105,6 +102,7 @@ export default function LanguageSelector() {
           })}
         </div>
         
+        {saveError && <div role="alert" className="mt-4 space-y-2 rounded-xl border border-destructive/40 bg-card p-3 text-sm text-foreground"><p>{t('stage6.language_local')}</p><Button variant="outline" onClick={() => handleLanguageChange(currentLang)}>{t('stage6.retry')}</Button></div>}
         {/* Current Language Display */}
         <div className="mt-4 p-3 rounded-2xl bg-secondary/70 border border-border">
           <p className="text-xs text-primary">

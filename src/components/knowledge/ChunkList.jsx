@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -16,6 +17,9 @@ import { useToast } from '@/components/ui/use-toast';
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 export default function ChunkList({ onEdit, onNew }) {
+  const {t,i18n}=useTranslation();
+  const [deleting,setDeleting]=useState(false);
+  const [deleteError,setDeleteError]=useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -24,20 +28,23 @@ export default function ChunkList({ onEdit, onNew }) {
   });
   const [search, setSearch] = useState('');
 
-  const { data: chunks = [], isLoading } = useQuery({
+  const { data: chunks = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['trustedCBTChunks'],
     queryFn: () => base44.entities.TrustedCBTChunk.list('-priority_score', 200),
   });
 
   const handleDelete = async () => {
+    if(deleting || !pendingDelete) return;
+    setDeleting(true);setDeleteError(false);
     try {
       await base44.entities.TrustedCBTChunk.delete(pendingDelete.id);
       queryClient.invalidateQueries({ queryKey: ['trustedCBTChunks'] });
-      toast({ title: 'Chunk deleted' });
-    } catch (e) {
-      toast({ title: 'Delete failed', description: e.message, variant: 'destructive' });
-    } finally {
+      toast({ title: t('stage6.saved') });
       setPendingDelete(null);
+    } catch (e) {
+      setDeleteError(true);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -60,18 +67,18 @@ export default function ChunkList({ onEdit, onNew }) {
       {/* Toolbar */}
       <div className="flex flex-wrap gap-3 items-end">
         <div className="relative flex-1 min-w-0 basis-52">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search title, topic, tags…" className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input aria-label={t('stage6.search_chunks')} placeholder={t('stage6.search_chunks')} className="ps-9" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        <Input placeholder="Topic filter" className="w-32" value={filters.topic} onChange={e => setFilters(f => ({ ...f, topic: e.target.value }))} />
-        <Input placeholder="Subtopic" className="w-32" value={filters.subtopic} onChange={e => setFilters(f => ({ ...f, subtopic: e.target.value }))} />
+        <Input aria-label={t('stage6.topic')} placeholder={t('stage6.topic')} className="w-32" value={filters.topic} onChange={e => setFilters(f => ({ ...f, topic: e.target.value }))} />
+        <Input aria-label={t('stage6.subtopic')} placeholder={t('stage6.subtopic')} className="w-32" value={filters.subtopic} onChange={e => setFilters(f => ({ ...f, subtopic: e.target.value }))} />
         <BottomSheetSelect
           id="knowledge-filter-language"
           value={filters.language}
           onValueChange={v => setFilters(f => ({ ...f, language: v }))}
-          options={[{ value: 'all', label: 'All lang' }, ...LANGUAGES.map(value => ({ value, label: value }))]}
-          title="Filter by language"
-          ariaLabel="Filter by language"
+          options={[{ value: 'all', label: t('stage6.all_languages') }, ...LANGUAGES.map(value => ({ value, label: value }))]}
+          title={t('stage6.filter_language')}
+          ariaLabel={t('stage6.filter_language')}
           className="w-32"
         />
         <BottomSheetSelect
@@ -79,35 +86,35 @@ export default function ChunkList({ onEdit, onNew }) {
           value={filters.is_active}
           onValueChange={v => setFilters(f => ({ ...f, is_active: v }))}
           options={[
-            { value: 'all', label: 'All status' },
-            { value: 'true', label: 'Published' },
-            { value: 'false', label: 'Draft' }
+            { value: 'all', label: t('stage6.all_status') },
+            { value: 'true', label: t('stage6.published') },
+            { value: 'false', label: t('stage6.draft') }
           ]}
-          title="Filter by status"
-          ariaLabel="Filter by status"
+          title={t('stage6.filter_status')}
+          ariaLabel={t('stage6.filter_status')}
           className="w-36"
         />
-        <Input placeholder="Min score" type="number" className="w-24" value={filters.priority_min} onChange={e => setFilters(f => ({ ...f, priority_min: e.target.value }))} />
-        <Input placeholder="Max score" type="number" className="w-24" value={filters.priority_max} onChange={e => setFilters(f => ({ ...f, priority_max: e.target.value }))} />
-        <Button onClick={onNew} className="ml-auto gap-2" mobileLabelKey="add"><Plus className="w-4 h-4" /> New Chunk</Button>
+        <Input aria-label={t('stage6.min_score')} placeholder={t('stage6.min_score')} type="number" className="w-24" value={filters.priority_min} onChange={e => setFilters(f => ({ ...f, priority_min: e.target.value }))} />
+        <Input aria-label={t('stage6.max_score')} placeholder={t('stage6.max_score')} type="number" className="w-24" value={filters.priority_max} onChange={e => setFilters(f => ({ ...f, priority_max: e.target.value }))} />
+        <Button onClick={onNew} className="ms-auto gap-2" mobileLabelKey="add"><Plus className="w-4 h-4" /> {t('stage6.new_chunk')}</Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">{filtered.length} of {chunks.length} chunks</p>
+      <p className="text-xs text-muted-foreground">{t('stage6.chunk_count',{count:filtered.length,total:chunks.length})}</p>
 
       {isLoading ? (
-        <p className="text-muted-foreground text-sm">Loading…</p>
-      ) : filtered.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">No chunks found. Adjust filters or create a new one.</CardContent></Card>
+        <p className="text-muted-foreground text-sm">{t('stage6.loading')}</p>
+      ) : isError ? <div role="alert"><p>{t('stage6.load_error')}</p><Button onClick={()=>refetch()}>{t('stage6.retry')}</Button></div> : filtered.length === 0 ? (
+        <Card><CardContent className="py-12 text-center text-muted-foreground">{t('stage6.chunks_empty')}</CardContent></Card>
       ) : (
         <div className="space-y-2">
           {filtered.map(chunk => (
             <Card key={chunk.id} className="border border-border/60">
-              <CardContent className="p-4 flex gap-4 items-start">
+              <CardContent className="p-4 flex flex-wrap gap-3 items-start">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap gap-2 items-center mb-1">
-                    <span className="font-medium truncate">{chunk.title}</span>
+                    <span className="font-medium [overflow-wrap:anywhere]">{chunk.title}</span>
                     <Badge variant={chunk.is_active ? 'default' : 'secondary'} className="text-xs">
-                      {chunk.is_active ? 'Published' : 'Draft'}
+                      {t(`stage6.${chunk.is_active?'published':'draft'}`)}
                     </Badge>
                     <Badge variant="outline" className="text-xs">{chunk.language || 'en'}</Badge>
                     <span className="text-xs text-muted-foreground">score: {chunk.priority_score ?? 5}</span>
@@ -125,8 +132,8 @@ export default function ChunkList({ onEdit, onNew }) {
                   )}
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
-                  <Button size="icon" variant="ghost" onClick={() => onEdit(chunk)}><Pencil className="w-4 h-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => setPendingDelete(chunk)} mobileLabelKey="delete"><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                  <Button size="icon" variant="ghost" aria-label={t('stage6.edit')} onClick={() => onEdit(chunk)}><Pencil className="w-4 h-4" /></Button>
+                  <Button size="icon" variant="ghost" aria-label={t('stage6.delete')} onClick={() => {setDeleteError(false);setPendingDelete(chunk);}} mobileLabelKey="delete"><Trash2 className="w-4 h-4 text-destructive" /></Button>
                 </div>
               </CardContent>
             </Card>
@@ -134,15 +141,16 @@ export default function ChunkList({ onEdit, onNew }) {
         </div>
       )}
 
-      <AlertDialog open={!!pendingDelete} onOpenChange={open => !open && setPendingDelete(null)}>
-        <AlertDialogContent>
+      <AlertDialog open={!!pendingDelete} onOpenChange={open => !open && !deleting && setPendingDelete(null)}>
+        <AlertDialogContent dir={i18n.dir()} className="max-w-[calc(100vw-2rem)] sm:max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete chunk?</AlertDialogTitle>
-            <AlertDialogDescription>"{pendingDelete?.title}" will be permanently deleted.</AlertDialogDescription>
+            <AlertDialogTitle>{t('stage6.delete_chunk')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('stage6.chunk_delete_body',{title:pendingDelete?.title})}</AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError&&<p role="alert" className="text-sm text-destructive">{t('stage6.delete_error')}</p>}
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel disabled={deleting}>{t('stage6.cancel')}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground" disabled={deleting} onClick={event=>{event.preventDefault();handleDelete();}}>{t('stage6.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

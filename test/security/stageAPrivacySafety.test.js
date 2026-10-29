@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import {stage6UiCopy} from '../../src/components/i18n/stage6UiTranslations.js';
 import {
   LEGAL_CONSENT_VERSION,
   LEGAL_EFFECTIVE_DATE,
@@ -60,11 +61,17 @@ describe('Stage A privacy, consent, and lifecycle contracts', () => {
 
   it('publishes clear public instructions for deleting selected data without closing the account', () => {
     const source = read('src/pages/AccountDeletion.jsx');
-    expect(source).toContain('Delete selected data without deleting your account');
     expect(source).toContain('Mindful Path partial data deletion request');
-    expect(source).toContain('keeping your Mindful Path account active');
-    expect(source).toContain('Residual encrypted backups may take up to 90 days');
-    expect(source).toContain('isDataDeletion ? <PartialDataDeletion /> : <AccountDeletionDetails />');
+    expect(source).toContain('<PartialDataDeletion/>');
+    expect(source).toContain("defaultSection==='data'");
+    expect(stage6UiCopy.en.selected_data_title).toBe('Delete selected data without deleting your account');
+    expect(stage6UiCopy.en.selected_data_intro).toContain('keeping your Mindful Path account active');
+    expect(stage6UiCopy.en.selected_data_result).toContain('Residual encrypted backups may take up to 90 days');
+    for(const copy of Object.values(stage6UiCopy)) {
+      expect(copy.selected_data_result).toContain('90');
+      expect(copy.partial_email).toContain('Mindful Path partial data deletion request');
+      expect(copy.retention_body).toContain('90');
+    }
   });
 
   it('accepts only the current consent version', () => {

@@ -8,21 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { AlertTriangle, Filter, MessageCircle, Brain, Target } from 'lucide-react';
-import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 const surfaceIcons = {
   chat: MessageCircle,
   companion: Brain,
   coach: Target
-};
-
-const reasonLabels = {
-  self_harm: 'Self-Harm',
-  suicide: 'Suicide',
-  overdose: 'Overdose',
-  immediate_danger: 'Immediate Danger',
-  general_crisis: 'General Crisis'
 };
 
 const reasonColors = {
@@ -34,7 +25,7 @@ const reasonColors = {
 };
 
 export default function CrisisAlerts() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const reasonLabels = {
@@ -63,22 +54,12 @@ export default function CrisisAlerts() {
 
   const [surfaceFilter, setSurfaceFilter] = useState('all');
   const [reasonFilter, setReasonFilter] = useState('all');
-  const [isAdminChecked, setIsAdminChecked] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check if user is admin
-  useQuery({
-    queryKey: ['currentUser'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      const userIsAdmin = user?.role === 'admin';
-      setIsAdmin(userIsAdmin);
-      setIsAdminChecked(true);
-      return user;
-    }
+  const {data:user,isLoading:checkingUser,isError:userError,refetch:refetchUser}=useQuery({
+    queryKey:['currentUser'],queryFn:()=>base44.auth.me()
   });
+  const isAdmin=user?.role==='admin';
 
-  const { data: alerts, isLoading } = useQuery({
+  const { data: alerts = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['crisisAlerts', surfaceFilter, reasonFilter],
     queryFn: async () => {
       let query = {};
@@ -88,15 +69,15 @@ export default function CrisisAlerts() {
       const results = await base44.entities.CrisisAlert.filter(query, '-created_date', 100);
       return results;
     },
-    enabled: isAdmin,
-    initialData: []
+    enabled: isAdmin
   });
 
-  if (!isAdminChecked) {
+  if(userError) return <div role="alert" className="p-6"><p>{t('stage6.load_error')}</p><Button onClick={()=>refetchUser()}>{t('stage6.retry')}</Button></div>;
+  if (checkingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">{t('crisis_alerts.loading_check')}</p>
+          <p role="status" className="text-muted-foreground">{t('crisis_alerts.loading_check')}</p>
         </div>
       </div>
     );
@@ -104,12 +85,12 @@ export default function CrisisAlerts() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="min-h-dvh flex items-center justify-center p-6">
         <Card className="max-w-md">
           <CardContent className="p-8 text-center">
             <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">{t('crisis_alerts.admin_required_title')}</h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               {t('crisis_alerts.admin_required_description')}
             </p>
             <Button onClick={() => navigate('/')}>
@@ -122,15 +103,15 @@ export default function CrisisAlerts() {
   }
 
   return (
-    <div className="min-h-dvh p-4 md:p-6 bg-gray-50">
+    <div className="min-h-dvh p-4 md:p-6 bg-background">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
             <AlertTriangle className="w-8 h-8 text-red-600" />
-            <div className="botanical-title-row"><h1 className="text-3xl font-bold text-gray-900">{t('crisis_alerts.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
+            <div className="botanical-title-row"><h1 className="text-3xl font-bold text-foreground">{t('crisis_alerts.title')}</h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
           </div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {t('crisis_alerts.subtitle')}
           </p>
         </div>
@@ -140,8 +121,8 @@ export default function CrisisAlerts() {
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">{t('crisis_alerts.filters_label')}</span>
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">{t('crisis_alerts.filters_label')}</span>
               </div>
               
               <BottomSheetSelect
@@ -162,7 +143,7 @@ export default function CrisisAlerts() {
                 className="w-40"
               />
 
-              <div className="ml-auto text-sm text-gray-500">
+              <div className="ms-auto text-sm text-muted-foreground">
                 {t('crisis_alerts.alert_count', { count: alerts.length, unit: alerts.length === 1 ? t('crisis_alerts.alert_singular') : t('crisis_alerts.alert_plural') })}
               </div>
             </div>
@@ -174,19 +155,21 @@ export default function CrisisAlerts() {
           {isLoading ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <p className="text-gray-500">{t('crisis_alerts.loading_alerts')}</p>
+                <p className="text-muted-foreground">{t('crisis_alerts.loading_alerts')}</p>
               </CardContent>
             </Card>
-          ) : alerts.length === 0 ? (
+          ) : isError ? <Card><CardContent role="alert" className="p-6 space-y-3"><p>{t('stage6.load_error')}</p><Button onClick={()=>refetch()}>{t('stage6.retry')}</Button></CardContent></Card> : alerts.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <AlertTriangle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">{t('crisis_alerts.no_alerts')}</p>
+                <p className="text-muted-foreground">{t('crisis_alerts.no_alerts')}</p>
               </CardContent>
             </Card>
           ) : (
             alerts.map((alert) => {
-              const SurfaceIcon = surfaceIcons[alert.surface];
+              const SurfaceIcon = surfaceIcons[alert.surface] || AlertTriangle;
+              const date=new Date(alert.created_date);
+              const dateText=Number.isNaN(date.getTime())?t('stage6.unknown_date'):new Intl.DateTimeFormat(i18n.resolvedLanguage||'en',{dateStyle:'medium',timeStyle:'short'}).format(date);
               return (
                 <Card key={alert.id} data-testid={`alert-item-${alert.id}`} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
@@ -196,36 +179,36 @@ export default function CrisisAlerts() {
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
                           <Badge variant="outline" className="capitalize">
-                            {alert.surface}
+                            {surfaceOptions.find(option=>option.value===alert.surface)?.label || alert.surface}
                           </Badge>
                           <Badge className={reasonColors[alert.reason_code]}>
                             {reasonLabels[alert.reason_code]}
                           </Badge>
                         </div>
                         
-                        <div className="space-y-1 text-sm text-gray-600">
+                        <div className="space-y-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
                           <p>
                             <span className="font-medium">{t('crisis_alerts.time_label')}</span>{' '}
-                            {format(new Date(alert.created_date), 'MMM d, yyyy h:mm a')}
+                            {dateText}
                           </p>
                           <p>
                             <span className="font-medium">{t('crisis_alerts.user_label')}</span>{' '}
                             {alert.user_email}
                           </p>
                           {alert.conversation_id && alert.conversation_id !== 'none' && (
-                            <p className="truncate">
+                            <p className="[overflow-wrap:anywhere]">
                               <span className="font-medium">{t('crisis_alerts.conversation_label')}</span>{' '}
-                              <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
+                              <code className="text-xs bg-secondary px-1 py-0.5 rounded">
                                 {alert.conversation_id}
                               </code>
                             </p>
                           )}
                           {alert.session_id && (
-                            <p className="truncate">
+                            <p className="[overflow-wrap:anywhere]">
                               <span className="font-medium">{t('crisis_alerts.session_label')}</span>{' '}
-                              <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
+                              <code className="text-xs bg-secondary px-1 py-0.5 rounded">
                                 {alert.session_id}
                               </code>
                             </p>

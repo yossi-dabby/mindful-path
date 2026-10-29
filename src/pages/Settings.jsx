@@ -1,3 +1,5 @@
+import { saveUserPreferences } from '@/lib/userPreferences';
+import { applyAppearancePalette } from '@/lib/appearancePalettes';
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -62,6 +64,8 @@ const cardClassName = 'settings-surface overflow-hidden border border-border/70 
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const reduceMotion = useReducedMotion();
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
   const [showProfileSaved, setShowProfileSaved] = useState(false);
@@ -102,7 +106,8 @@ export default function Settings() {
   useEffect(() => {
     let active = true;
 
-    base44.auth.me().then(async (userData) => {
+    setLoadError(false);
+    base44.auth.me().then((userData) => {
       if (!userData) {
         base44.auth.redirectToLogin(window.location.pathname);
         return;
@@ -116,40 +121,19 @@ export default function Settings() {
       setEmailNotifications({ ...DEFAULT_EMAIL_NOTIFICATIONS, ...(userData.preferences?.emailNotifications || {}) });
       setDashboardLayout(userData.preferences?.dashboardLayout || 'default');
 
-      try {
-        const existingPoints = await base44.entities.UserPoints.list();
-        if (existingPoints.length === 0) {
-          await base44.entities.UserPoints.create({
-            total_points: 0,
-            weekly_points: 0,
-            level: 1,
-            points_to_next_level: 100,
-            last_updated: new Date().toISOString().split('T')[0]
-          });
-        }
-      } catch {
-        // Non-critical initialization.
-      }
-
-      try {
-        const existingSubscriptions = await base44.entities.Subscription.list();
-        if (existingSubscriptions.length === 0) {
-          await base44.entities.Subscription.create({ plan_type: 'free', status: 'trial' });
-        }
-      } catch {
-        // Non-critical initialization.
-      }
-    }).catch(() => {
-      base44.auth.redirectToLogin(window.location.pathname);
+    }).catch((error) => {
+      if (!active) return;
+      if ([401,403].includes(error?.response?.status)) base44.auth.redirectToLogin(window.location.pathname);
+      else setLoadError(true);
     });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [loadAttempt]);
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data) => base44.auth.updateMe(data),
+    mutationFn: (data) => data.preferences ? saveUserPreferences(data.preferences, user?.id) : base44.auth.updateMe(data),
     onMutate: async (data) => {
       const previousUser = user;
       setSaveError(false);
@@ -174,15 +158,12 @@ export default function Settings() {
     onError: (_error, _data, context) => {
       if (context?.previousUser) setUser(context.previousUser);
       setSaveError(true);
-      window.setTimeout(() => setSaveError(false), 4000);
+
     }
   });
 
   const savePreferences = (patch) => updateProfileMutation.mutateAsync({
-    preferences: {
-      ...(user?.preferences || {}),
-      ...patch
-    }
+    preferences: patch
   });
 
   const handleThemeChange = async (theme) => {
@@ -190,9 +171,7 @@ export default function Settings() {
     setCurrentTheme(theme.id);
     try {
       await savePreferences({ theme: theme.id });
-      document.documentElement.style.setProperty('--color-primary', theme.colors.primary);
-      document.documentElement.style.setProperty('--color-secondary', theme.colors.secondary);
-      document.documentElement.style.setProperty('--color-accent', theme.colors.accent);
+      applyAppearancePalette(theme.id);
     } catch {
       setCurrentTheme(previousTheme);
     }
@@ -255,6 +234,8 @@ export default function Settings() {
     viewport: { once: true, amount: 0.08 },
     transition: { duration: 0.35 }
   };
+
+  if (loadError && !user) return <div role="alert" className="page-container flex min-h-[60dvh] items-center justify-center"><div className="garden-surface space-y-4 p-6 text-center"><p>{t('stage6.load_error')}</p><Button onClick={() => setLoadAttempt(value => value + 1)}>{t('stage6.retry')}</Button></div></div>;
 
   if (!user) {
     return (
@@ -320,7 +301,7 @@ export default function Settings() {
         </motion.header>
 
         <nav
-          className="sticky top-[calc(60px+env(safe-area-inset-top,0px))] z-20 -mx-3 mt-4 border-y border-border/70 bg-secondary/70 px-3 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:mt-5 sm:rounded-3xl sm:border sm:bg-[hsl(var(--card)/0.97)] sm:px-4"
+          className="relative z-20 -mx-3 mt-4 border-y border-border/70 bg-secondary/70 px-3 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:mt-5 sm:rounded-3xl sm:border sm:bg-[hsl(var(--card)/0.97)] sm:px-4"
           aria-label={t('settings_ui.quick_navigation')}
           data-testid="settings-quick-nav"
         >
@@ -366,12 +347,14 @@ export default function Settings() {
                   className="grid gap-5 md:grid-cols-2"
                   onSubmit={(event) => {
                     event.preventDefault();
+                    if(updateProfileMutation.isPending) return;
                     updateProfileMutation.mutate({ full_name: fullName.trim() });
                   }}
                 >
                   <div>
                     <label htmlFor="settings-full-name" className="mb-2 block text-sm font-semibold text-muted-foreground">{t('settings.profile.full_name')}</label>
                     <Input
+                      disabled={updateProfileMutation.isPending}
                       id="settings-full-name"
                       value={fullName}
                       onChange={(event) => setFullName(event.target.value)}
@@ -381,7 +364,7 @@ export default function Settings() {
                   </div>
                   <div>
                     <label htmlFor="settings-email" className="mb-2 block text-sm font-semibold text-muted-foreground">{t('settings.profile.email')}</label>
-                    <Input id="settings-email" value={user.email} disabled className="min-h-[48px] rounded-2xl bg-slate-50" />
+                    <Input id="settings-email" value={user.email} disabled className="min-h-[48px] rounded-2xl bg-secondary text-foreground" />
                     <p className="mt-1.5 text-xs text-muted-foreground">{t('settings.profile.email_readonly')}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -416,7 +399,7 @@ export default function Settings() {
           </motion.section>
 
           <motion.section id="settings-appearance" className="scroll-mt-36 space-y-5 sm:scroll-mt-8" {...sectionMotion}>
-            <ThemeSelector currentTheme={currentTheme} onThemeChange={handleThemeChange} />
+            <ThemeSelector currentTheme={currentTheme} onThemeChange={handleThemeChange} disabled={updateProfileMutation.isPending} />
             <Card className={cardClassName}>
               <CardHeader className="border-b border-border p-5 sm:p-6">
                 <CardTitle className="flex items-center gap-3">
@@ -458,7 +441,7 @@ export default function Settings() {
           </motion.section>
 
           <motion.section id="settings-subscription" className="scroll-mt-36 sm:scroll-mt-8" {...sectionMotion}>
-            <Card className="settings-surface overflow-hidden border border-amber-200/80 bg-gradient-to-br from-amber-50/95 via-white/90 to-teal-50/90 shadow-[0_18px_55px_rgba(180,83,9,0.10)] backdrop-blur-xl">
+            <Card className="settings-surface overflow-hidden border border-amber-200/80 bg-gradient-to-br from-secondary via-card to-secondary/50 shadow-[0_18px_55px_rgba(180,83,9,0.10)] backdrop-blur-xl">
               <CardContent className="p-5 sm:p-7">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex min-w-0 items-start gap-4">
@@ -505,6 +488,7 @@ export default function Settings() {
             <NotificationSettings
               notifications={notifications}
               emailNotifications={emailNotifications}
+              disabled={updateProfileMutation.isPending}
               onToggleInApp={handleNotificationToggle}
               onToggleEmail={handleEmailNotificationToggle}
             />
@@ -514,7 +498,7 @@ export default function Settings() {
             <Card className={cardClassName}>
               <CardHeader className="border-b border-border p-5 sm:p-6">
                 <CardTitle className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-muted-foreground">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary text-foreground">
                     <Settings2 className="h-5 w-5" />
                   </span>
                   <span className="text-lg font-bold text-foreground">{t('settings.account.title')}</span>

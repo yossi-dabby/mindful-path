@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { buildRuntimeCapabilitySnapshot } from '@/lib/runtimeCapabilityDiagnostic';
@@ -26,6 +27,7 @@ import { RefreshCw, AlertTriangle, ShieldAlert, Info } from 'lucide-react';
  * @param {{ user: object }} props
  */
 export default function AiRuntimeCapabilitiesPanel({ user }) {
+  const {t}=useTranslation();
   const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -43,7 +45,7 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
 
       setSnapshot({ ...frontendFields, ...backendFields });
     } catch (err) {
-      setError(err?.message || 'Failed to load diagnostic snapshot');
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -67,29 +69,29 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
     if (unusedLabel) {
       return (
         <Badge variant="outline" className="text-muted-foreground border-dashed text-xs">
-          Configured but unused
+          {t('stage6.configured_unused')}
         </Badge>
       );
     }
     if (value === true) {
-      return <Badge className="bg-green-100 text-green-800 border-green-300 text-xs">Enabled</Badge>;
+      return <Badge className="bg-green-100 text-green-800 border-green-300 text-xs">{t('stage6.enabled')}</Badge>;
     }
     if (value === false) {
-      return <Badge variant="outline" className="text-muted-foreground text-xs">Disabled</Badge>;
+      return <Badge variant="outline" className="text-muted-foreground text-xs">{t('stage6.disabled')}</Badge>;
     }
     return (
-      <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">Unavailable</Badge>
+      <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">{t('stage6.unavailable')}</Badge>
     );
   }
 
   function CapabilityRow({ label, value, unusedLabel, mono }) {
     return (
-      <div className="flex items-center justify-between gap-2 py-1.5 border-b border-border/40 last:border-0">
-        <span className={`text-xs ${mono ? 'font-mono' : ''} text-muted-foreground`}>{label}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 py-1.5 border-b border-border/40 last:border-0">
+        <span className={`min-w-0 [overflow-wrap:anywhere] text-xs ${mono ? 'font-mono' : ''} text-muted-foreground`}>{label}</span>
         {unusedLabel
           ? <CapabilityBadge unusedLabel />
           : typeof value === 'string'
-            ? <span className="font-mono text-xs text-foreground">{value}</span>
+            ? <span className="min-w-0 [overflow-wrap:anywhere] font-mono text-xs text-foreground">{value}</span>
             : <CapabilityBadge value={value} />
         }
       </div>
@@ -108,15 +110,15 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
   return (
     <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/10">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <CardTitle className="text-base flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              AI Runtime Capabilities
+              {t('stage6.runtime_title')}
             </CardTitle>
             <CardDescription className="text-xs mt-1 flex items-center gap-1.5">
               <Info className="w-3 h-3 flex-shrink-0" />
-              Admin diagnostic — read only. Reflects actual runtime state, not mere env-var presence.
+              {t('stage6.runtime_intro')}
             </CardDescription>
           </div>
           <Button
@@ -127,23 +129,23 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
             className="gap-1.5 text-xs h-7 px-2 flex-shrink-0"
            mobileLabelKey="refresh">
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            {loading ? 'Loading…' : 'Refresh'}
+            {t(`stage6.${loading?'loading':'refresh'}`)}
           </Button>
         </div>
       </CardHeader>
 
       <CardContent className="pt-0 space-y-1">
         {error && (
-          <div className="flex items-center gap-2 text-destructive text-xs p-2 rounded border border-destructive/30 bg-destructive/5">
+          <div role="alert" className="flex items-center gap-2 text-destructive text-xs p-2 rounded border border-destructive/30 bg-destructive/5">
             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-            {error}
+            {t('stage6.load_error')}
           </div>
         )}
 
         {loading && !snapshot && (
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5 py-2">
+          <div role="status" className="text-xs text-muted-foreground flex items-center gap-1.5 py-2">
             <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            Loading capability snapshot…
+            {t('stage6.loading')}
           </div>
         )}
 
@@ -211,7 +213,7 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
             )}
 
             {/* ── Metadata ──────────────────────────────────────────────── */}
-            <div className="pt-2 text-xs text-muted-foreground/60 border-t border-border/30 mt-2">
+            <div className="pt-2 text-xs text-muted-foreground border-t border-border/30 mt-2">
               Diagnostic v{snapshot.diagnostic_version} · generated {snapshot.generated_at}
             </div>
           </div>

@@ -25,7 +25,7 @@ function PrefRow({ pref, checked, onChange, disabled, alwaysOnLabel }) {
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-semibold leading-5 text-foreground">{pref.label}</p>
             {pref.alwaysOn && (
-              <Badge className="border-0 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+              <Badge className="border-0 bg-secondary px-2 py-0.5 text-[10px] font-semibold text-foreground">
                 {alwaysOnLabel}
               </Badge>
             )}
@@ -33,18 +33,18 @@ function PrefRow({ pref, checked, onChange, disabled, alwaysOnLabel }) {
           <p className="mt-1 text-xs leading-5 text-muted-foreground">{pref.description}</p>
         </div>
       </div>
-      <Switch
+      <label className="flex min-h-11 min-w-11 shrink-0 items-center justify-center" data-testid="notification-touch-target"><Switch
         checked={checked}
         onCheckedChange={onChange}
         disabled={disabled}
         aria-label={pref.label}
         className="shrink-0"
-      />
+      /></label>
     </div>
   );
 }
 
-export default function NotificationSettings({ notifications, emailNotifications, onToggleInApp, onToggleEmail }) {
+export default function NotificationSettings({ notifications, emailNotifications, onToggleInApp, onToggleEmail, disabled = false }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const previewInFlight = useRef(false);
@@ -205,7 +205,7 @@ export default function NotificationSettings({ notifications, emailNotifications
                   pref={pref}
                   checked={pref.alwaysOn ? true : !!group.values[pref.key]}
                   onChange={() => !pref.alwaysOn && group.onToggle(pref.key)}
-                  disabled={pref.alwaysOn}
+                  disabled={pref.alwaysOn || disabled}
                   alwaysOnLabel={t('settings.notifications.always_on')}
                 />
               ))}

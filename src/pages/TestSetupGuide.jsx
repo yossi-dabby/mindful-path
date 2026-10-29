@@ -1,4 +1,5 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,12 +7,17 @@ import { Copy, Check, Terminal, Github, FileCode, ShieldCheck } from 'lucide-rea
 import { cn } from '@/lib/utils';
 
 export default function TestSetupGuide() {
+  const {t}=useTranslation();
+  const [copyError,setCopyError]=useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
-  const copyToClipboard = (text, index) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
+  const copyToClipboard = async (text, index) => {
+    setCopyError(false);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(current=>current===index?null:current), 2000);
+    } catch { setCopyError(true); }
   };
 
   const codeBlocks = [
@@ -230,14 +236,14 @@ jobs:
 
   return (
     <div className="min-h-dvh bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl min-w-0 mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="botanical-title-row"><h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <div className="botanical-title-row"><h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
             <Terminal className="w-8 h-8 text-blue-600" />
             Test Setup Guide
           </h1><BotanicalAccent variant="leaves" className="botanical-title-art" /></div>
-          <p className="text-gray-600">Complete setup for Vitest, property-based testing, and CI/CD</p>
+          <p className="text-muted-foreground">Complete setup for Vitest, property-based testing, and CI/CD</p>
         </div>
 
         {/* Instructions */}
@@ -272,10 +278,10 @@ jobs:
         <div className="space-y-6">
           {codeBlocks.map((block, index) => (
             <Card key={index} className="border-gray-200">
-              <CardHeader className="bg-gray-50 border-b">
-                <div className="flex items-center justify-between">
+              <CardHeader className="bg-background border-b">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <FileCode className="w-5 h-5 text-gray-600" />
+                    <FileCode className="w-5 h-5 text-muted-foreground" />
                     <CardTitle className="text-lg">{block.title}</CardTitle>
                   </div>
                   <Button
@@ -290,20 +296,20 @@ jobs:
                     {copiedIndex === index ? (
                       <>
                         <Check className="w-4 h-4 mr-2 text-green-600" />
-                        Copied!
+                        {t('stage6.copied')}
                       </>
                     ) : (
                       <>
                         <Copy className="w-4 h-4 mr-2" />
-                        Copy
+                        {t('stage6.copy')}
                       </>
                     )}
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">{block.path}</p>
+                <p className="text-sm text-muted-foreground mt-1">{block.path}</p>
               </CardHeader>
               <CardContent className="p-0">
-                <pre className="bg-gray-900 text-gray-100 p-6 overflow-x-auto text-sm">
+                <pre dir="ltr" className="bg-gray-900 text-gray-100 p-6 overflow-x-auto text-sm">
                   <code>{block.code}</code>
                 </pre>
               </CardContent>
@@ -311,6 +317,7 @@ jobs:
           ))}
         </div>
 
+        {copyError && <p role="alert" className="my-4 text-sm text-destructive">{t('stage6.copy_error')}</p>}
         {/* Footer */}
         <Card className="mt-8 bg-green-50 border-green-200">
           <CardContent className="p-6">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ const DIFFICULTY_COLORS = {
 };
 
 export default function TrainingSimulator({ scenario, onReset }) {
+  const {t}=useTranslation();
+  const [error,setError]=useState(false);
   const [messages, setMessages] = useState([
     { role: 'patient', content: scenario.openingMessage }
   ]);
@@ -30,6 +33,7 @@ export default function TrainingSimulator({ scenario, onReset }) {
   const handleSend = async () => {
     if (!input.trim() || loading || sessionEnded) return;
 
+    setError(false);
     const therapistMsg = input.trim();
     setInput('');
     setLoading(true);
@@ -38,24 +42,26 @@ export default function TrainingSimulator({ scenario, onReset }) {
     const newMessages = [...messages, { role: 'therapist', content: therapistMsg }];
     setMessages(newMessages);
 
-    const res = await base44.functions.invoke('evaluateTherapistResponse', {
-      scenario,
-      conversationHistory: messages,
-      therapistResponse: therapistMsg
-    });
+    try {
+      const res = await base44.functions.invoke('evaluateTherapistResponse', {
+        scenario,
+        conversationHistory: messages,
+        therapistResponse: therapistMsg
+      });
 
-    const { feedback, patientReply } = res.data;
-    setLastFeedback(feedback);
-    setTotalScores(prev => [...prev, feedback.overall]);
+      const { feedback, patientReply } = res.data;
+      if (!feedback || typeof feedback.overall !== 'number' || !feedback.scores || typeof feedback.scores !== 'object') throw new Error('Missing feedback');
+      setLastFeedback(feedback);
+      setTotalScores(prev => [...prev, feedback.overall]);
 
-    if (!feedback.session_continues || newMessages.length >= 12) {
-      setSessionEnded(true);
-      setMessages(prev => [...prev, { role: 'system', content: '— Session concluded —' }]);
-    } else {
-      setMessages(prev => [...prev, { role: 'patient', content: patientReply }]);
-    }
-
-    setLoading(false);
+      if (!feedback.session_continues || newMessages.length >= 12) {
+        setSessionEnded(true);
+        setMessages(prev => [...prev, { role: 'system', content: '— Session concluded —' }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'patient', content: patientReply }]);
+      }
+    } catch { setMessages(messages); setInput(therapistMsg); setError(true); }
+    finally { setLoading(false); }
   };
 
   const avgScore = totalScores.length
@@ -76,33 +82,33 @@ export default function TrainingSimulator({ scenario, onReset }) {
                 <Badge variant="outline" className="text-xs">Avg: {avgScore}/10</Badge>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">{scenario.description}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{scenario.description}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={onReset} className="gap-1 flex-shrink-0">
-            <RotateCcw className="w-3 h-3" /> New Scenario
+            <RotateCcw className="w-3 h-3" /> {t('stage6.new_scenario')}
           </Button>
         </div>
 
         {/* Patient Profile */}
         <details className="rounded-xl border border-border bg-secondary/30 px-4 py-2 text-xs cursor-pointer">
-          <summary className="font-medium text-muted-foreground select-none">Patient Profile (click to expand)</summary>
+          <summary className="font-medium text-muted-foreground select-none">{t('stage6.patient_profile')}</summary>
           <p className="mt-2 text-foreground/80 leading-relaxed whitespace-pre-line">{scenario.patientProfile}</p>
         </details>
 
         {/* Messages */}
-        <div className="flex-1 rounded-xl border border-border bg-card overflow-y-auto p-4 space-y-3 min-h-[320px] max-h-[480px]">
+        <div className="flex-1 rounded-xl border border-border bg-card overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[min(480px,55dvh)]">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'therapist' ? 'justify-end' : msg.role === 'system' ? 'justify-center' : 'justify-start'}`}>
               {msg.role === 'system' ? (
                 <span className="text-xs text-muted-foreground italic">{msg.content}</span>
               ) : (
-                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                <div className={`max-w-[85%] min-w-0 [overflow-wrap:anywhere] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   msg.role === 'therapist'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground'
                 }`}>
-                  <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-60 mb-1">
-                    {msg.role === 'therapist' ? 'You (Therapist)' : 'Patient'}
+                  <span className="block text-[10px] font-semibold uppercase tracking-wide mb-1">
+                    {t(`stage6.${msg.role === 'therapist' ? 'therapist' : 'patient'}`)}
                   </span>
                   {msg.content}
                 </div>
@@ -112,36 +118,39 @@ export default function TrainingSimulator({ scenario, onReset }) {
           {loading && (
             <div className="flex justify-start">
               <div className="bg-secondary rounded-2xl px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="w-3 h-3 animate-spin" /> Evaluating response…
+                <Loader2 className="w-3 h-3 animate-spin" /> {t('stage6.evaluating')}
               </div>
             </div>
           )}
           <div ref={bottomRef} />
         </div>
 
+        {error && <p role="alert" className="text-sm text-destructive">{t('stage6.training_error')}</p>}
         {/* Input */}
         {!sessionEnded ? (
           <div className="flex gap-2 items-end">
             <Textarea
+              aria-label={t('stage6.training_response')}
+              disabled={loading}
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Type your therapist response here…"
+              placeholder={t('stage6.training_response')}
               className="resize-none flex-1"
               rows={3}
               onKeyDown={e => {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSend();
               }}
             />
-            <Button onClick={handleSend} disabled={loading || !input.trim()} className="gap-1 self-end" mobileLabelKey="send">
+            <Button aria-label={t('stage6.send')} onClick={handleSend} disabled={loading || !input.trim()} className="gap-1 self-end" mobileLabelKey="send">
               <Send className="w-4 h-4" />
             </Button>
           </div>
         ) : (
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-center space-y-2">
-            <p className="text-sm font-semibold text-foreground">Session Complete</p>
-            <p className="text-xs text-muted-foreground">Average score across all responses: <strong>{avgScore}/10</strong></p>
+            <p className="text-sm font-semibold text-foreground">{t('stage6.session_complete')}</p>
+            <p className="text-xs text-muted-foreground">{t('stage6.average_score',{score:avgScore})}</p>
             <Button variant="outline" size="sm" onClick={onReset} className="gap-1">
-              <ChevronRight className="w-3 h-3" /> Try Another Scenario
+              <ChevronRight className="w-3 h-3" /> {t('stage6.new_scenario')}
             </Button>
           </div>
         )}
@@ -153,7 +162,7 @@ export default function TrainingSimulator({ scenario, onReset }) {
           <FeedbackPanel feedback={lastFeedback} />
         ) : (
           <div className="rounded-xl border border-dashed border-border p-6 text-center text-muted-foreground text-sm">
-            Submit a response to receive AI supervisor feedback.
+            {t('stage6.feedback_empty')}
           </div>
         )}
       </div>

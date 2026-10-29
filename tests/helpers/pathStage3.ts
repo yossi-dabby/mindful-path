@@ -1,15 +1,18 @@
 import { expect, type Page, type Locator } from '@playwright/test';
 import { mockApi } from './ui';
 
-export async function preparePathStage3(page: Page, { language = 'en', theme = 'light', populated = true } = {}) {
+export async function preparePathStage3(page: Page, { language = 'en', theme = 'light', populated = true, preservePreferencesOnReload = false } = {}) {
   await mockApi(page);
-  await page.addInitScript(({ language, theme }) => {
-    localStorage.setItem('language', language);
-    localStorage.setItem('i18nextLng', language);
-    localStorage.setItem('theme', theme);
+  await page.addInitScript(({ language, theme, preservePreferencesOnReload }) => {
+    if(!preservePreferencesOnReload || !sessionStorage.getItem('qa-preferences-initialized')){
+      localStorage.setItem('language', language);
+      localStorage.setItem('i18nextLng', language);
+      localStorage.setItem('theme', theme);
+      sessionStorage.setItem('qa-preferences-initialized','true');
+    }
     (window as any).__TEST_APP_ID__ = 'test-app-id';
     (window as any).__DISABLE_ANALYTICS__ = true;
-  }, { language, theme });
+  }, { language, theme, preservePreferencesOnReload });
   const today = new Date().toISOString().slice(0, 10);
   const title = language === 'he' ? 'מטרת בדיקה עם כותרת ארוכה במיוחד ותכנון צעדים קטנים להתקדמות יומיומית' : 'QA goal with an especially long title and small practical steps for everyday progress';
   const db: Record<string, any[]> = {

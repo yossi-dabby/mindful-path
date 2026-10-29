@@ -130,7 +130,7 @@ test.describe('Settings — Delete Account flow', () => {
     await expect(confirmButton).toBeDisabled();
   });
 
-  test('failure path: backend error shows error toast and user stays on Settings', async ({ page }) => {
+  test('failure path: backend error preserves confirmation for retry and user stays on Settings', async ({ page }) => {
     // Override the deleteMyAccount function to return an error
     await mockApi(page);
 
@@ -162,8 +162,10 @@ test.describe('Settings — Delete Account flow', () => {
     const confirmButton = page.locator('[data-testid="delete-account-confirm-button"]');
     await confirmButton.click();
 
-    // Dialog should close after error
-    await expect(input).not.toBeVisible({ timeout: 5000 });
+    // A failed request keeps the confirmation and exposes a recoverable error.
+    await expect(page.getByRole('alertdialog').getByRole('alert')).toBeVisible();
+    await expect(input).toHaveValue('DELETE');
+    await expect(confirmButton).toBeEnabled();
 
     // URL should not have changed (error did not log out user)
     expect(page.url()).toBe(settingsUrl);
