@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +21,8 @@ const INTEREST_AREAS = [
 ];
 
 export default function FeedPreferences({ onPreferencesChange }) {
+  const { t } = useTranslation();
+  const [saveError, setSaveError] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -50,6 +53,7 @@ export default function FeedPreferences({ onPreferencesChange }) {
 
   const savePreferences = async () => {
     setSaving(true);
+    setSaveError(false);
     try {
       await base44.auth.updateMe({
         feed_preferences: { interests: selectedInterests }
@@ -58,7 +62,7 @@ export default function FeedPreferences({ onPreferencesChange }) {
       setExpanded(false);
     } catch (error) {
       console.error('Failed to save preferences:', error);
-      alert('Failed to save preferences. Please try again.');
+      setSaveError(true);
     } finally {
       setSaving(false);
     }
@@ -69,13 +73,14 @@ export default function FeedPreferences({ onPreferencesChange }) {
       <CardContent className="p-4">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-between"
+          aria-expanded={expanded}
+          className="min-h-11 w-full flex items-center justify-between gap-2"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <Settings className="w-5 h-5 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground">Content Preferences</h3>
+            <h3 className="font-semibold text-foreground">{t('tools_stage5.preferences')}</h3>
             <Badge variant="secondary" className="text-xs">
-              {selectedInterests.length} selected
+              {t('tools_stage5.selected', { count: selectedInterests.length })}
             </Badge>
           </div>
           <motion.div
@@ -99,7 +104,7 @@ export default function FeedPreferences({ onPreferencesChange }) {
             >
               <div className="mt-4 pt-4 border-t">
                 <p className="text-sm text-muted-foreground mb-3">
-                  Select areas of interest to personalize your feed content:
+                  {t('tools_stage5.preferences_intro')}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {INTEREST_AREAS.map((interest) => {
@@ -107,27 +112,30 @@ export default function FeedPreferences({ onPreferencesChange }) {
                     return (
                       <button
                         key={interest.id}
+                        aria-pressed={isSelected}
+                        disabled={saving}
                         onClick={() => toggleInterest(interest.id)}
                         className={`
-                          px-3 py-2 rounded-lg text-sm font-medium transition-all
-                          ${isSelected 
-                            ? interest.color + ' ring-2 ring-offset-1 ring-current' 
-                            : 'bg-gray-100 text-muted-foreground hover:bg-gray-200'
+                          min-h-11 px-3 py-2 rounded-lg text-sm font-medium transition-all
+                          ${isSelected
+                            ? 'bg-primary text-primary-foreground ring-2 ring-offset-1 ring-ring'
+                            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                           }
                         `}
                       >
                         {isSelected && <Check className="w-3 h-3 inline mr-1" />}
-                        {interest.label}
+                        {t('tools_stage5.' + interest.id)}
                       </button>
                     );
                   })}
                 </div>
+                {saveError && <p role="alert" className="mb-3 rounded-lg border border-destructive/40 p-3 text-sm text-foreground">{t('tools_stage5.preferences_error')}</p>}
                 <Button
                   onClick={savePreferences}
                   disabled={saving}
                   className="w-full"
                 >
-                  {saving ? 'Saving...' : 'Save Preferences'}
+                  {t(saving ? 'tools_stage5.saving' : 'tools_stage5.save_preferences')}
                 </Button>
               </div>
             </motion.div>

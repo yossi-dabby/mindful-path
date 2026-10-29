@@ -11,6 +11,9 @@ import PremiumBadge from '../subscription/PremiumBadge';
 
 export default function AudioPlayer({ audioContent, onComplete, compact = false }) {
   const { t } = useTranslation();
+  const [mediaError, setMediaError] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -30,7 +33,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
     if (!audio) return;
 
     const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
+    const updateDuration = () => setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
     const handleEnded = () => {
       setIsPlaying(false);
       if (onComplete) onComplete();
@@ -47,17 +50,22 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
     };
   }, [onComplete]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current;
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
-      if (currentTime === 0) {
-        updatePlayCountMutation.mutate();
-      }
-    }
-    setIsPlaying(!isPlaying);
+    if (!audio || isStarting) return;
+    if (isPlaying) { audio.pause(); setIsPlaying(false); return; }
+    setIsStarting(true);
+    setMediaError(false);
+    try {
+      if (audio.error) audio.load();
+      const startedAtBeginning = audio.currentTime === 0;
+      await audio.play();
+      setIsPlaying(true);
+      if (startedAtBeginning) updatePlayCountMutation.mutate();
+    } catch {
+      setIsPlaying(false);
+      setMediaError(true);
+    } finally { setIsStarting(false); }
   };
 
   const handleSeek = (value) => {
@@ -99,7 +107,9 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
   const downloadAudio = async () => {
     try {
       const response = await fetch(audioContent.audio_url);
+      if (!response.ok || response.headers.get('content-type')?.includes('text/html')) throw new Error('Audio download unavailable');
       const blob = await response.blob();
+      setDownloadError(false);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -109,18 +119,21 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (error) {
-      console.error('Download failed:', error);
+      setDownloadError(true);
     }
   };
 
+  const errorNotice = (mediaError || downloadError) && <div role="alert" className="mt-3 rounded-xl border border-destructive/40 bg-card p-3 text-sm text-foreground"><p>{t(mediaError ? 'tools_stage5.media_error' : 'tools_stage5.download_error')}</p><Button variant="outline" className="mt-2 min-h-11" disabled={isStarting} onClick={mediaError ? togglePlay : downloadAudio}>{t('tools_stage5.retry')}</Button></div>;
+
   if (compact) {
     return (
-      <div className="flex items-center gap-3 p-3 bg-secondary rounded-xl border border-border">
-        <audio ref={audioRef} src={audioContent.audio_url} preload="metadata" />
+      <div className="flex flex-wrap items-center gap-3 p-3 bg-secondary rounded-xl border border-border">
+        <audio ref={audioRef} src={audioContent.audio_url} preload="metadata" onError={() => { setMediaError(true); setIsPlaying(false); }} />
         <Button
           onClick={togglePlay}
+          disabled={isStarting}
           size="icon"
-          className="rounded-full bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800"
+          className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
           aria-label={t(isPlaying ? 'mobile_actions.pause' : 'mobile_actions.play')}
          mobileLabelKey={isPlaying ? 'pause' : 'play'}>
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
@@ -132,6 +145,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
         <div className="text-xs text-foreground">
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
+        {errorNotice}
       </div>
     );
   }
@@ -139,7 +153,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
   return (
     <Card className="border border-border bg-card overflow-hidden">
       <CardContent className="p-6">
-        <audio ref={audioRef} src={audioContent.audio_url} preload="metadata" />
+        <audio ref={audioRef} src={audioContent.audio_url} preload="metadata" onError={() => { setMediaError(true); setIsPlaying(false); }} />
 
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -151,7 +165,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
                 {t('breathing_tool.controls.duration_value', { min: audioContent.duration_minutes })}
               </span>
               <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full capitalize">
-                {audioContent.type.replace('_', ' ')}
+                {(audioContent.type || '').replace(/_/g, ' ')}
               </span>
               {audioContent.narrator && (
                 <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
@@ -229,8 +243,9 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
             </Button>
             <Button
               onClick={togglePlay}
+          disabled={isStarting}
               size="lg"
-              className="rounded-full w-14 h-14 bg-gradient-to-br from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 shadow-lg"
+              className="rounded-full w-14 h-14 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
               aria-label={t(isPlaying ? 'mobile_actions.pause' : 'mobile_actions.play')}
              mobileLabelKey={isPlaying ? 'pause' : 'play'}>
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
@@ -250,6 +265,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
         </div>
 
         {/* Background Music Indicator */}
+        {errorNotice}
         {audioContent.background_music && (
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-foreground">
             <Music2 className="h-3.5 w-3.5" aria-hidden="true" /> {t('home_practice.audio_music')}

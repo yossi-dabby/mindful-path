@@ -54,7 +54,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (name.trim()) {
+    if (name.trim() && !createMutation.isPending) {
       createMutation.mutate({
         playlistName: name.trim(),
         playlistDescription: description.trim()
@@ -93,6 +93,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
               rows={3}
             />
           </div>
+          {createMutation.isError && <p role="alert" className="rounded-xl border border-destructive/40 bg-card p-3 text-sm text-foreground">{t('tools_stage5.playlist_save_error')}</p>}
           <div className="flex flex-wrap justify-end gap-3">
             <Button type="button" variant="outline" onClick={onClose}>
               {t('common.cancel')}

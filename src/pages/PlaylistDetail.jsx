@@ -21,18 +21,18 @@ export default function PlaylistDetail() {
     queryKey: ['playlist', playlistId],
     queryFn: async () => {
       const playlists = await base44.entities.Playlist.filter({ id: playlistId });
-      return playlists[0];
+      return playlists[0] || null;
     },
     enabled: !!playlistId
   });
 
-  const { data: playlistVideos = [] } = useQuery({
+  const { data: playlistVideos = [], isLoading: isLinksLoading, isError: isLinksError, refetch: refetchLinks } = useQuery({
     queryKey: ['playlistVideos', playlistId],
     queryFn: () => base44.entities.PlaylistVideo.filter({ playlist_id: playlistId }),
     enabled: !!playlistId
   });
 
-  const { data: videos = [] } = useQuery({
+  const { data: videos = [], isLoading: isVideosLoading, isError: isVideosError, refetch: refetchVideos } = useQuery({
     queryKey: ['videos', playlistVideos],
     queryFn: async () => {
       if (playlistVideos.length === 0) return [];
@@ -47,8 +47,7 @@ export default function PlaylistDetail() {
           return posA - posB;
         });
     },
-    enabled: playlistVideos.length > 0,
-    initialData: []
+    enabled: playlistVideos.length > 0
   });
 
   const { data: allProgress = [] } = useQuery({
@@ -122,7 +121,7 @@ export default function PlaylistDetail() {
       <div className="min-h-dvh bg-warm-gradient safe-bottom">
         <div className="page-container max-w-7xl">
           <div className="text-center py-12">
-            <Card className="mx-auto max-w-xl"><CardContent className="space-y-4 p-8"><p role="status">{t(playlistId && isLoading ? 'playlist_detail.loading' : 'playlist_detail.not_found')}</p>{isError && <Button variant="outline" onClick={() => refetch()}>{t('playlists.retry')}</Button>}<Button onClick={() => navigate(createPageUrl('Playlists'))}>{t('playlist_detail.back_to_playlists')}</Button></CardContent></Card>
+            <Card className="mx-auto max-w-xl"><CardContent className="space-y-4 p-8"><p role="status">{t(isError ? 'tools_stage5.load_error' : playlistId && isLoading ? 'playlist_detail.loading' : 'playlist_detail.not_found')}</p>{isError && <Button variant="outline" onClick={() => refetch()}>{t('playlists.retry')}</Button>}<Button onClick={() => navigate(createPageUrl('Playlists'))}>{t('playlist_detail.back_to_playlists')}</Button></CardContent></Card>
           </div>
         </div>
       </div>
@@ -136,8 +135,10 @@ export default function PlaylistDetail() {
           <span className="text-sm text-primary">{t('playlist_detail.video_count', { count: videos.length })}</span>
         </LibraryPageHeader>
 
+        {(isLinksError || isVideosError || removeMutation.isError) && <div role="alert" className="garden-surface mb-4 space-y-3 p-4 text-foreground"><p>{t('tools_stage5.load_error')}</p>{(isLinksError || isVideosError) && <Button variant="outline" onClick={() => { refetchLinks(); refetchVideos(); }}>{t('tools_stage5.retry')}</Button>}</div>}
+        {(isLinksLoading || isVideosLoading) && <p role="status">{t('playlist_detail.loading')}</p>}
         {/* Empty State */}
-        {videos.length === 0 && (
+        {!isLinksLoading && !isVideosLoading && !isLinksError && !isVideosError && videos.length === 0 && (
           <div className="text-center py-12">
             <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlist_detail.no_videos_title')}</p>
             <p style={{ color: 'rgb(var(--theme-muted))' }}>

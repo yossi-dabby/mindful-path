@@ -40,7 +40,7 @@ export default function ValuesCheck({ onClose }) {
                   style={{
                     backgroundColor: 'rgba(159, 122, 234, 0.1)',
                     border: '1px solid rgba(159, 122, 234, 0.3)',
-                    color: '#9F7AEA'
+                    color: 'hsl(var(--foreground))'
                   }}
                 >
                   {label}
@@ -62,7 +62,7 @@ export default function ValuesCheck({ onClose }) {
                 className="flex-1"
                 style={{
                   borderRadius: '12px',
-                  backgroundColor: '#22C55E',
+                  backgroundColor: 'hsl(var(--primary))',
                   color: 'hsl(var(--primary-foreground))'
                 }}
               >
@@ -73,8 +73,8 @@ export default function ValuesCheck({ onClose }) {
                 className="flex-1"
                 style={{
                   borderRadius: '12px',
-                  backgroundColor: '#F59E0B',
-                  color: 'hsl(var(--primary-foreground))'
+                  backgroundColor: 'hsl(var(--secondary))',
+                  color: 'hsl(var(--secondary-foreground))'
                 }}
               >
                 {t('mind_games.values_check.somewhat')}
@@ -84,8 +84,8 @@ export default function ValuesCheck({ onClose }) {
                 className="flex-1"
                 style={{
                   borderRadius: '12px',
-                  backgroundColor: '#EF4444',
-                  color: 'hsl(var(--primary-foreground))'
+                  backgroundColor: 'hsl(var(--card))',
+                  color: 'hsl(var(--foreground))'
                 }}
               >
                 {t('mind_games.values_check.not_really')}

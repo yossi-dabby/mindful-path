@@ -41,8 +41,7 @@ export default function Coach() {
         throw error;
       }
     },
-    enabled: !!user,
-    initialData: []
+    enabled: !!user
   });
 
   const safeSessions = Array.isArray(sessions) ? sessions : [];

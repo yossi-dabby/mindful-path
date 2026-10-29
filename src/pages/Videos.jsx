@@ -16,12 +16,13 @@ import PullToRefresh from '../components/utils/PullToRefresh';
 export default function Videos() {
   const { t } = useTranslation();
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
   const [selectedVideo, setSelectedVideo] = useState(null);
 
-  const { data: videos, isLoading } = useQuery({
+  const { data: videos = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['videos'],
-    queryFn: () => base44.entities.Video.list('order', 100),
-    initialData: []
+    queryFn: () => base44.entities.Video.list('order', 100)
   });
 
   const { data: allProgress = [] } = useQuery({
@@ -41,6 +42,9 @@ export default function Videos() {
     return allProgress.find((p) => p.video_id === videoId);
   };
 
+  const categories = [...new Set(videos.map(video => video.category).filter(Boolean))];
+  const visibleVideos = videos.filter(video => (category === 'all' || video.category === category) && `${video.title || ''} ${video.category || ''}`.toLocaleLowerCase().includes(search.toLocaleLowerCase().trim()));
+
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
       <div className="min-h-dvh bg-transparent safe-bottom">
@@ -50,6 +54,11 @@ export default function Videos() {
           <Button variant="outline" onClick={() => setShowCreatePlaylist(true)}><Plus className="h-4 w-4" />{t('videos.new_button')}</Button>
         </LibraryPageHeader>
 
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+          <input type="search" value={search} onChange={event => setSearch(event.target.value)} aria-label={t('tools_stage5.search_videos')} placeholder={t('tools_stage5.search_videos')} className="min-h-11 min-w-0 flex-1 rounded-xl border border-border bg-card px-3 text-foreground" />
+          <select value={category} onChange={event => setCategory(event.target.value)} aria-label={t('tools_stage5.all_categories')} className="min-h-11 max-w-full rounded-xl border border-border bg-card px-3 text-foreground"><option value="all">{t('tools_stage5.all_categories')}</option>{categories.map(item => <option key={item} value={item}>{item}</option>)}</select>
+        </div>
+        {isError && <div role="alert" className="garden-surface space-y-4 p-8 text-center"><p>{t('tools_stage5.load_error')}</p><Button onClick={() => refetch()}>{t('tools_stage5.retry')}</Button></div>}
         {/* Loading State */}
         {isLoading &&
           <div className="garden-surface p-8 text-center sm:p-12">
@@ -58,17 +67,18 @@ export default function Videos() {
           }
 
         {/* Empty State */}
-        {!isLoading && videos.length === 0 &&
+        {!isLoading && !isError && videos.length === 0 &&
           <div className="text-center py-12">
             <p className="text-lg mb-2 text-foreground">{t('videos.no_videos_title')}</p>
             <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
           </div>
           }
 
+        {!isLoading && !isError && videos.length > 0 && visibleVideos.length === 0 && <p role="status" className="garden-surface p-8 text-center">{t('tools_stage5.no_matches')}</p>}
         {/* Video Grid */}
-        {!isLoading && videos.length > 0 &&
+        {!isLoading && !isError && visibleVideos.length > 0 &&
           <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {videos.map((video, index) =>
+            {visibleVideos.map((video, index) =>
             <motion.div
               key={video.id}
               initial={{ opacity: 0, y: 20 }}
@@ -151,7 +161,7 @@ export default function Videos() {
                         e.preventDefault();
                         setSelectedVideo(video);
                       }}
-                      className="w-full h-7 text-xs font-medium text-white"
+                      className="w-full min-h-11 text-xs font-medium text-primary-foreground"
                       style={{
                         backgroundColor: 'hsl(var(--primary))',
                         borderRadius: '8px'

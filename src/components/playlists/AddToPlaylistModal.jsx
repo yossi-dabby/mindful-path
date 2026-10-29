@@ -13,13 +13,13 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: playlists = [] } = useQuery({
+  const { data: playlists = [], isLoading: isPlaylistsLoading, isError: isPlaylistsError, refetch: refetchPlaylists } = useQuery({
     queryKey: ['playlists'],
     queryFn: () => base44.entities.Playlist.list('-created_date'),
     enabled: isOpen
   });
 
-  const { data: playlistVideos = [] } = useQuery({
+  const { data: playlistVideos = [], isLoading: isLinksLoading, isError: isLinksError, refetch: refetchLinks } = useQuery({
     queryKey: ['playlistVideos', video?.id],
     queryFn: () => base44.entities.PlaylistVideo.filter({ video_id: video.id }),
     enabled: isOpen && !!video
@@ -125,7 +125,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
   const playlistChangePending = addMutation.isPending || removeMutation.isPending;
 
   const togglePlaylist = (playlistId) => {
-    if (playlistChangePending) return;
+    if (playlistChangePending || isLinksLoading || isLinksError) return;
     if (isVideoInPlaylist(playlistId)) {
       removeMutation.mutate({ playlistId });
     } else {
@@ -142,7 +142,9 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
             <p className="text-sm mt-1" style={{ color: 'rgb(var(--theme-muted))' }}>{video?.title}</p>
           </DialogHeader>
           <div className="mt-4 space-y-2">
-            {playlists.length === 0 ? (
+            {(isPlaylistsLoading || isLinksLoading) && <p role="status">{t('playlists.loading')}</p>}
+            {(isPlaylistsError || isLinksError || addMutation.isError || removeMutation.isError) && <div role="alert" className="space-y-3 p-3 text-foreground"><p>{t('tools_stage5.load_error')}</p>{(isPlaylistsError || isLinksError) && <Button variant="outline" onClick={() => { refetchPlaylists(); refetchLinks(); }}>{t('tools_stage5.retry')}</Button>}</div>}
+            {!isPlaylistsLoading && !isPlaylistsError && playlists.length === 0 ? (
               <div className="text-center py-8">
                 <List className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgb(var(--theme-muted))' }} />
                 <p className="text-base font-medium mb-2" style={{ color: 'rgb(var(--text))' }}>
@@ -176,8 +178,9 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
                   key={playlist.id}
                   type="button"
                   onClick={() => togglePlaylist(playlist.id)}
-                  disabled={playlistChangePending}
-                  aria-busy={playlistChangePending}
+                  disabled={playlistChangePending || isLinksLoading || isLinksError}
+                  aria-busy={playlistChangePending || isLinksLoading}
+                  aria-pressed={inPlaylist}
                   className="w-full p-3 flex items-center justify-between transition-all disabled:cursor-wait disabled:opacity-70"
                   style={{ 
                     borderRadius: 'var(--r-md)', 

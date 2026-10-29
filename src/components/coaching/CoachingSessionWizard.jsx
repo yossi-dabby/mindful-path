@@ -1,6 +1,6 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
 import React, { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import { base44 } from '@/api/base44Client';
 import { ACTIVE_AI_COACH_WIRING } from '@/api/activeAgentWiring.js';
 import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
@@ -187,8 +187,8 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
     });
   };
 
-  return createPortal((
-    <div data-testid="coach-wizard" className="garden-flow-shell flex w-full flex-col bg-background text-foreground" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+  return (
+    <PremiumDialog label={t('coach.wizard.title')} onClose={onClose} localEscape data-testid="coach-wizard" className="garden-flow-shell flex w-full flex-col bg-background text-foreground" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
       <div className="border-b border-border/70 bg-card/95 shadow-[0_10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl flex-shrink-0" style={{ zIndex: 10 }}>
         <div className="max-w-3xl mx-auto px-4 py-3 sm:px-6 sm:py-4 w-full">
@@ -445,7 +445,7 @@ export default function CoachingSessionWizard({ onClose, onSessionCreated }) {
           }
         </div>
       </div>
-    </div>
-  ), document.body);
+    </PremiumDialog>
+  );
 
 }

@@ -1,6 +1,6 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useLayoutEffect, useRef } from 'react';
+import PremiumDialog from '@/components/ui/PremiumDialog';
 import { ChevronLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -22,19 +22,8 @@ export function PremiumCoachShell({
     scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
   }, [step]);
 
-  useEffect(() => {
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleEscape, true);
-    return () => window.removeEventListener('keydown', handleEscape, true);
-  }, [onClose]);
-
-  return createPortal((
-    <div
+  return (
+    <PremiumDialog label={title} onClose={onClose} localEscape
       className="garden-flow-shell fixed inset-0 z-[70] flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground"
       data-testid={testId}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
@@ -87,8 +76,8 @@ export function PremiumCoachShell({
       <footer className="relative z-10 shrink-0 border-t border-border/70 bg-card/95 shadow-[0_-10px_30px_rgba(42,103,91,0.08)] backdrop-blur-xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6">{footer}</div>
       </footer>
-    </div>
-  ), document.body);
+    </PremiumDialog>
+  );
 }
 
 export function PremiumStepHeading({ title, subtitle }) {

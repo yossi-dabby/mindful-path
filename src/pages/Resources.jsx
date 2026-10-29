@@ -304,7 +304,7 @@ export default function Resources() {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="min-h-10"
+                className="min-h-11 text-foreground"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
                 {t('resources_ui.clear_filters')}
@@ -426,10 +426,10 @@ export default function Resources() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList className="grid h-auto min-h-12 w-full grid-cols-2 rounded-xl sm:w-auto sm:min-w-[24rem]">
-            <TabsTrigger value="all" className="min-h-10">
+            <TabsTrigger value="all" className="min-h-11 text-foreground">
               {t('resources_ui.tabs_all')}
             </TabsTrigger>
-            <TabsTrigger value="saved" className="min-h-10 gap-2">
+            <TabsTrigger value="saved" className="min-h-11 gap-2 text-foreground">
               <Bookmark className="h-4 w-4" aria-hidden="true" />
               {t('resources_ui.tabs_saved', { count: savedResources.length })}
             </TabsTrigger>

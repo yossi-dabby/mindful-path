@@ -14,7 +14,7 @@ import PullToRefresh from '@/components/utils/PullToRefresh';
 import { getCurrentAppLocale } from '@/components/i18n/appLocale';
 
 export default function PersonalizedContentFeed({ userInterests = [], contentType = 'all', sortBy = 'relevance' }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const appLocale = getCurrentAppLocale(i18n);
   const [feed, setFeed] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -189,7 +189,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       <Card className="border-0 shadow-lg">
         <CardContent className="p-8 text-center">
           <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">Curating your personalized content...</p>
+          <p className="text-sm text-muted-foreground">{t('tools_stage5.curating')}</p>
         </CardContent>
       </Card>
     );
@@ -198,12 +198,12 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
   if (error) {
     return (
       <Card className="border-0 shadow-lg border-2 border-red-200">
-        <CardContent className="p-6 text-center">
+        <CardContent role="alert" className="p-6 text-center">
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
             <Sparkles className="w-6 h-6 text-red-600" />
           </div>
-          <h3 className="font-semibold text-foreground mb-2">Unable to Generate Feed</h3>
-          <p className="text-sm text-muted-foreground mb-4">{error}</p>
+          <h3 className="font-semibold text-foreground mb-2">{t('tools_stage5.feed_error')}</h3>
+          <p className="text-sm text-muted-foreground mb-4">{t('tools_stage5.load_error')}</p>
           <Button
             onClick={generateFeed}
             variant="outline"
@@ -211,7 +211,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             className="text-primary border-border hover:bg-secondary"
            mobileLabelKey="refresh">
             <RefreshCw className="w-4 h-4 mr-2" />
-            Try Again
+            {t('tools_stage5.retry')}
           </Button>
         </CardContent>
       </Card>
@@ -225,9 +225,9 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
           <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <Sparkles className="w-6 h-6 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-foreground mb-2">No Personalized Feed Yet</h3>
+          <h3 className="font-semibold text-foreground mb-2">{t('tools_stage5.feed_empty')}</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Complete more journal entries and mood check-ins to get personalized recommendations
+            {t('tools_stage5.feed_empty_description')}
           </p>
           <Button
             onClick={generateFeed}
@@ -236,7 +236,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             className="text-primary border-border hover:bg-secondary"
            mobileLabelKey="refresh">
             <RefreshCw className="w-4 h-4 mr-2" />
-            Generate Feed
+            {t('tools_stage5.generate_feed')}
           </Button>
         </CardContent>
       </Card>
@@ -290,19 +290,20 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       queryKeys={['goals', 'moodEntries', 'thoughtJournals', 'exercises', 'resources', 'forumPosts']}
       onRefresh={generateFeed}
     >
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 [overflow-wrap:anywhere]">
       {/* Refresh Button */}
       <div className="flex justify-end mb-2">
         <Button
           onClick={generateFeed}
           variant="ghost"
           size="sm"
-          className="text-muted-foreground hover:text-purple-600"
+          className="text-foreground hover:text-primary"
          mobileLabelKey="refresh">
           <RefreshCw className="w-4 h-4" />
         </Button>
       </div>
 
+      {!((showExercises && safeArray(feed.recommended_exercises).length) || (showResources && safeArray(feed.relevant_resources).length) || (showCommunity && (safeArray(feed.community_highlights).length || highlightedPosts.length)) || (showQuotes && feed.inspirational_quote?.text)) && <p role="status" className="garden-surface p-6 text-foreground">{t('tools_stage5.no_matches')}</p>}
       {/* Daily Focus */}
       {feed.daily_focus && (
         <motion.div
@@ -316,7 +317,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                   <TrendingUp className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">Today's Focus</h3>
+                  <h3 className="font-semibold text-foreground mb-1">{t('tools_stage5.focus')}</h3>
                   <p className="text-sm text-muted-foreground">{feed.daily_focus}</p>
                 </div>
               </div>
@@ -353,13 +354,13 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             <CardContent className="p-4">
               <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Dumbbell className="w-5 h-5 text-green-600" />
-                Recommended for You
+                {t('tools_stage5.recommended')}
               </h3>
               <div className="space-y-3">
                 {safeArray(feed.recommended_exercises).map((rec, i) => {
                   const exercise = recommendedExercisesList.find(ex => ex.category === rec.category);
                   return (
-                    <div key={i} className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <div key={i} className="bg-secondary/50 p-3 rounded-lg border border-border">
                       <div className="flex items-start justify-between mb-1">
                         <div>
                           <p className="font-medium text-sm text-foreground">{rec.title}</p>
@@ -371,8 +372,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                       <p className="text-xs text-muted-foreground mt-2">{rec.reason}</p>
                       {exercise && (
                         <Link to={createPageUrl('Exercises')}>
-                          <Button variant="ghost" size="sm" className="mt-2 text-green-700 hover:text-green-800 p-0 h-auto">
-                            Try this exercise →
+                          <Button variant="ghost" size="sm" className="mt-2 text-primary hover:text-primary min-h-11 p-0">
+                            {t('tools_stage5.try_exercise')}
                           </Button>
                         </Link>
                       )}
@@ -382,7 +383,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
               </div>
               <Link to={createPageUrl('Exercises')}>
                 <Button variant="outline" size="sm" className="w-full mt-3">
-                  Browse All Exercises
+                  {t('tools_stage5.browse_exercises')}
                 </Button>
               </Link>
             </CardContent>
@@ -401,13 +402,13 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             <CardContent className="p-4">
               <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-indigo-600" />
-                Articles & Resources
+                {t('tools_stage5.articles_resources')}
               </h3>
               <div className="space-y-3">
                 {safeArray(feed.relevant_resources).map((rec, i) => {
                   const resource = recommendedResourcesList.find(res => res.category === rec.category);
                   return (
-                    <div key={i} className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                    <div key={i} className="bg-secondary/50 p-3 rounded-lg border border-border">
                       <div className="flex items-start justify-between mb-1">
                         <div>
                           <p className="font-medium text-sm text-foreground">{rec.topic}</p>
@@ -419,8 +420,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                       <p className="text-xs text-muted-foreground mt-2">{rec.reason}</p>
                       {resource && (
                         <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                          <Button variant="ghost" size="sm" className="mt-2 text-indigo-700 hover:text-indigo-800 p-0 h-auto">
-                            Read article <ExternalLink className="w-3 h-3 ml-1" />
+                          <Button variant="ghost" size="sm" className="mt-2 text-primary hover:text-primary min-h-11 p-0">
+                            {t('tools_stage5.read_article')} <ExternalLink className="w-3 h-3 ml-1" />
                           </Button>
                         </a>
                       )}
@@ -430,7 +431,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
               </div>
               <Link to={createPageUrl('Resources')}>
                 <Button variant="outline" size="sm" className="w-full mt-3">
-                  Explore Resources
+                  {t('tools_stage5.explore_resources')}
                 </Button>
               </Link>
             </CardContent>
@@ -449,7 +450,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
             <CardContent className="p-4">
               <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
-                Community Highlights
+                {t('tools_stage5.community_highlights')}
               </h3>
               <div className="space-y-3">
                 {safeArray(feed.community_highlights).map((highlight, i) => (
@@ -461,7 +462,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
               </div>
               {highlightedPosts.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Popular Posts:</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-2">{t('tools_stage5.popular_posts')}</p>
                   <div className="space-y-2">
                     {highlightedPosts.map((post) => (
                       <Link key={post.id} to={createPageUrl('Community')}>
@@ -479,7 +480,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
               )}
               <Link to={createPageUrl('Community')}>
                 <Button variant="outline" size="sm" className="w-full mt-3">
-                  Join Community
+                  {t('tools_stage5.join_community')}
                 </Button>
               </Link>
             </CardContent>
