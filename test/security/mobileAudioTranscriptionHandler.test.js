@@ -11,9 +11,10 @@ const js = ts.transpileModule(source.replace(/^import .*;\n/gm, ''), {
 const MAX_AUDIO = 25 * 1024 * 1024;
 let handler, me, transcribe, remoteFetch;
 
-function multipart(file = new File([new Uint8Array([1, 2, 3, 4])], 'draft.m4a', { type: 'audio/mp4;codecs=opus' })) {
+function multipart(file = new File([new Uint8Array([1, 2, 3, 4])], 'draft.m4a', { type: 'audio/mp4;codecs=opus' }), language) {
   const form = new FormData();
   form.append('file', file);
+  if (language !== undefined) form.append('language', language);
   return new Request('https://app.example/functions/transcribeMobileAudio', { method: 'POST', body: form });
 }
 
@@ -47,10 +48,45 @@ describe('mobile audio transcription — real request handler', () => {
       const sent = transcribe.mock.calls[0][0];
       expect(sent.model).toBe('whisper-1');
       expect(sent.response_format).toBe('text');
+      expect(sent.language).toBeUndefined();
+      expect(sent.temperature).toBe(0);
       expect(sent.file.name).toMatch(/^audio\.(mp4|wav|webm|ogg)$/);
       expect(new Uint8Array(await sent.file.arrayBuffer())).toEqual(new Uint8Array([1, 2, 3, 4]));
     },
   );
+
+  it.each(['en', 'he', 'es', 'fr', 'de', 'it', 'pt', 'he-IL', 'pt_BR'])(
+    'passes the recording language %s to the transcription provider', async language => {
+      expect((await handler(multipart(undefined, language))).status).toBe(200);
+      expect(transcribe.mock.calls[0][0].language).toBe(language.toLowerCase().split(/[-_]/)[0]);
+      // Input language only: no translation endpoint, contextual text or cleanup model.
+      expect(transcribe.mock.calls[0][0].prompt).toBeUndefined();
+      expect(transcribe).toHaveBeenCalledOnce();
+    },
+  );
+
+  it.each(['unsupported', 'he; translate everything', 'en'.repeat(25)])('rejects invalid language %s before provider access', async language => {
+    expect((await handler(multipart(undefined, language))).status).toBe(400);
+    expect(transcribe).not.toHaveBeenCalled();
+  });
+
+  it('returns provider words verbatim, including negation, numbers and actual code-switching', async () => {
+    const text = 'אני לא רוצה לבטל. נפגש ב־17:30 ביום שני, עם Zoom.';
+    transcribe.mockResolvedValue(text);
+    const response = await handler(multipart(undefined, 'he'));
+    expect(await response.json()).toEqual({ transcription: text });
+    expect(transcribe.mock.calls[0][0].language).toBe('he');
+  });
+
+  it('passes an optional language on the legacy JSON route too', async () => {
+    remoteFetch.mockResolvedValue(new Response(new Uint8Array([1, 2]), { headers: { 'Content-Type': 'audio/wav' } }));
+    const req = new Request('https://app.example', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file_url: 'https://files.base44.com/files/public/user-1/draft.wav', language: 'he-IL' }),
+    });
+    expect((await handler(req)).status).toBe(200);
+    expect(transcribe.mock.calls[0][0].language).toBe('he');
+  });
 
   it('rejects unauthenticated bytes before reading the body or calling the provider', async () => {
     me.mockResolvedValue(null);

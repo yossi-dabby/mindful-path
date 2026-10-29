@@ -445,6 +445,7 @@ export default function Chat() {
   const audioDraftUrlRef = useRef(null);
   const speechRecognitionRef = useRef(null);
   const speechTranscriptRef = useRef('');
+  const audioDraftLanguageRef = useRef('');
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -775,6 +776,7 @@ export default function Chat() {
     setAudioDraftFile(null);
     setAudioDraftTranscript('');
     speechTranscriptRef.current = '';
+    audioDraftLanguageRef.current = '';
     setIsTranscribingAudio(false);
     pendingFormulationCorrectionRef.current = null;
     pendingGroundingCorrectionRef.current = null;
@@ -3279,6 +3281,7 @@ export default function Chat() {
     setAudioDraftFile(null);
     setAudioDraftTranscript('');
     speechTranscriptRef.current = '';
+    audioDraftLanguageRef.current = '';
     setIsTranscribingAudio(false);
     audioChunksRef.current = [];
   };
@@ -3311,6 +3314,9 @@ export default function Chat() {
     try {
       clearLocalAudioDraft();
       stopLocalRecordingStream();
+      // Keep the recording's language stable even if the UI locale changes
+      // before Transcribe or a retry. It describes input speech, not output translation.
+      audioDraftLanguageRef.current = (i18n.resolvedLanguage || i18n.language || '').split(/[-_]/)[0].toLowerCase();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
       audioChunksRef.current = [];
@@ -3318,7 +3324,9 @@ export default function Chat() {
       setAudioDraftTranscript('');
 
       const SpeechRecognitionCtor = getSpeechRecognitionConstructor();
-      if (SpeechRecognitionCtor) {
+      // Mobile must transcribe the saved recording, not a separate live
+      // recognition session that may stop early or return unrelated/partial text.
+      if (SpeechRecognitionCtor && !isMobileBrowser()) {
         try {
           const speechRecognition = new SpeechRecognitionCtor();
           speechRecognition.continuous = true;
@@ -3558,7 +3566,7 @@ export default function Chat() {
   const handleTranscribeRecording = async () => {
     if (!audioDraftFile || isTranscribingAudio) return;
     const localTranscript = typeof audioDraftTranscript === 'string' ? audioDraftTranscript.trim() : '';
-    if (localTranscript) {
+    if (localTranscript && !isMobileBrowser()) {
       setInputMessage((prev) => {
         if (!prev.trim()) return localTranscript;
         return `${prev}${prev.endsWith('\n') ? '' : '\n'}${localTranscript}`;
@@ -3639,7 +3647,10 @@ export default function Chat() {
         if (onMobile) {
           // The SDK sends File parameters as authenticated multipart/form-data.
           // Storage URLs do not encode reliable ownership; send the local bytes.
-          const r = await base44.functions.invoke('transcribeMobileAudio', { file: targetFile });
+          const r = await base44.functions.invoke('transcribeMobileAudio', {
+            file: targetFile,
+            ...(audioDraftLanguageRef.current ? { language: audioDraftLanguageRef.current } : {}),
+          });
           const t = r?.data?.transcription;
           if (!t) throw new Error('No transcription returned from backend');
           return t;

@@ -340,7 +340,7 @@ const installFakeSpeechRecognition = async (page: any, transcript: string) => {
       onerror: ((event: any) => void) | null = null;
       onend: (() => void) | null = null;
 
-      start() {}
+      start() { (window as any).__speechRecognitionStarts = ((window as any).__speechRecognitionStarts || 0) + 1; }
 
       stop() {
         this.onresult?.({
@@ -1090,6 +1090,59 @@ test.describe('Chat voice transcription runtime flow', () => {
   });
 
   for (const runtime of ['android', 'ios']) {
+    test(`${runtime} transcribes the saved file in its captured language instead of live browser text`, async ({ page }) => {
+      await installFakeAndroidMediaRecordingWithMp4CodecsMimeType(page);
+      if (runtime === 'ios') {
+        await page.addInitScript(() => {
+          Object.defineProperty(navigator, 'userAgent', { configurable: true, get: () => 'Mozilla/5.0 (iPhone) Mobile Safari/604.1' });
+          (window as any).Capacitor = undefined;
+        });
+      }
+      await installFakeSpeechRecognition(page, 'Wrong browser text in a different language.');
+      await page.addInitScript(() => {
+        (window as any).AudioContext = undefined;
+        (window as any).webkitAudioContext = undefined;
+      });
+      await mockApi(page);
+      const transcript = 'אני לא רוצה לבטל. נפגש ב־17:30 ביום שני, עם Zoom.';
+      let fileRequests = 0;
+      let messagePosts = 0;
+      await page.route('**/api/**/agents/conversations/**/messages**', async route => {
+        messagePosts += 1;
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+      });
+      await page.route('**/api/**/functions/transcribeMobileAudio', async route => {
+        const req = route.request();
+        const form = await new Request(req.url(), { method: 'POST', headers: req.headers(), body: req.postDataBuffer()! }).formData();
+        expect(form.get('language')).toBe('he');
+        expect(form.get('file_url')).toBeNull();
+        const file = form.get('file') as File;
+        expect(file.type).toBe('audio/mp4;codecs=opus');
+        expect(Array.from(new Uint8Array(await file.arrayBuffer()))).toEqual([1, 2, 3, 4]);
+        fileRequests += 1;
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ transcription: transcript }) });
+      });
+      await spaNavigate(page, '/Chat');
+      await page.evaluate(async () => {
+        const { default: i18n } = await import('/src/components/i18n/i18nConfig.jsx');
+        await i18n.changeLanguage('he');
+      });
+      const composer = page.getByTestId('therapist-chat-input');
+      await composer.fill('טיוטה קיימת');
+      await page.getByRole('button', { name: 'הקלטת טיוטה קולית', exact: true }).click();
+      await page.getByRole('button', { name: 'עצירת ההקלטה', exact: true }).click();
+      // A later UI-language change must not reinterpret an already recorded draft.
+      await page.evaluate(async () => {
+        const { default: i18n } = await import('/src/components/i18n/i18nConfig.jsx');
+        await i18n.changeLanguage('en');
+      });
+      await page.getByRole('button', { name: 'Transcribe' }).click();
+      await expect(composer).toHaveValue(`טיוטה קיימת\n${transcript}`);
+      expect(fileRequests).toBe(1);
+      expect(messagePosts).toBe(0);
+      expect(await page.evaluate(() => (window as any).__speechRecognitionStarts || 0)).toBe(0);
+    });
+
     test(`${runtime} mp4 opus draft survives backend failure and retries without uploading or auto-sending`, async ({ page }) => {
       await installFakeAndroidMediaRecordingWithMp4CodecsMimeType(page);
       if (runtime === 'ios') {
@@ -1160,6 +1213,9 @@ test.describe('Chat voice transcription runtime flow', () => {
     await installFakeAndroidMediaRecording(page, 'audio/mp4');
     await installFakeSpeechRecognition(page, 'Transcript from browser speech recognition.');
     await mockApi(page);
+    await page.route('**/api/**/functions/transcribeMobileAudio', route => route.fulfill({
+      status: 200, contentType: 'application/json', body: JSON.stringify({ transcription: 'Transcript from saved recording.' }),
+    }));
 
     await spaNavigate(page, '/Chat');
     await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
