@@ -156,12 +156,13 @@ for (const language of ['en', 'he']) for (const theme of ['light', 'dark']) {
 
   test(`Home notifications wrap and fit landscape ${language}/${theme}`, async ({ page }) => {
     await prepare(page, { language, theme, viewport: { width: 844, height: 390 }, notifications: true });
-    await page.locator('button[aria-haspopup="true"]:visible').first().click();
-    const panel = page.locator('[style*="9999"]');
+    await page.getByTestId('notification-bell').filter({ visible: true }).first().click();
+    const panel = page.getByTestId('notification-panel');
     await expect(panel).toBeVisible();
+    await expect(panel).toHaveAttribute('role', 'dialog');
     const box = await panel.boundingBox();
     expect(box!.y + box!.height).toBeLessThanOrEqual(390);
-    await assertNoClipping(page, '[style*="9999"] a, [style*="9999"] button');
+    await assertNoClipping(page, '[data-testid="notification-panel"] a, [data-testid="notification-panel"] button');
     const link = panel.getByRole('link').first();
     await link.focus();
     await expect(link).toBeFocused();
@@ -245,8 +246,8 @@ test('Home route announcements preserve keyboard focus in notifications', async 
   await prepare(page, { viewport: { width: 844, height: 390 }, notifications: true });
   const announcer = page.locator('[data-a11y-route-announcer]');
   await expect(announcer).not.toBeEmpty();
-  await page.locator('button[aria-haspopup="true"]:visible').first().click();
-  const link = page.locator('[style*="9999"]').getByRole('link').first();
+  await page.getByTestId('notification-bell').filter({ visible: true }).first().click();
+  const link = page.getByTestId('notification-panel').getByRole('link').first();
   await link.focus();
   await expect(link).toBeFocused();
 

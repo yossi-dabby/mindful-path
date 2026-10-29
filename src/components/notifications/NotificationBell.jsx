@@ -187,6 +187,7 @@ export default function NotificationBell() {
   const panel = pos &&
   <Dialog.Content asChild aria-describedby={undefined} aria-label={t('settings.notifications.title')}>
     <motion.div
+      data-testid="notification-panel"
       ref={dropdownRef}
       initial={{ opacity: 0, y: -8, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -263,6 +264,7 @@ export default function NotificationBell() {
     <Dialog.Root modal open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
       <button
+        data-testid="notification-bell"
         ref={buttonRef}
         className="bg-secondary/70 text-primary rounded-3xl relative w-11 h-11 shrink-0 flex items-center justify-center border border-border/60 transition-colors hover:bg-secondary hover:text-foreground"
 

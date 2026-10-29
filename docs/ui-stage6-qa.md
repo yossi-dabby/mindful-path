@@ -61,3 +61,17 @@ Physical iOS/Android keyboards, native rotation/touch, screen readers, actual
 OAuth/email delivery, production persistence/account deletion and live AI
 quality remain separate release checks. Browser viewport/touch emulation does
 not certify those behaviors. CI status must be assessed on the PR head.
+
+## PR #1040 CI follow-up
+
+Run 5059 passed 676 cases in each full desktop/mobile project but failed the
+same five Home notification cases in both. The retained CI error contexts show
+the notification button present; the old tests waited for
+`aria-haspopup="true"`, while the accessible Dialog trigger correctly exposes
+`aria-haspopup="dialog"`. The tests also located the panel through its inline
+z-index. Stable notification trigger/panel test IDs now replace those incidental
+selectors, and the layout cases explicitly assert the dialog role. Geometry,
+clipping, keyboard focus, announcement stability, and Goals navigation checks
+are preserved. All 10 affected cases pass locally across the two CI projects;
+GitHub must validate the new head before merge. No timeout increase, assertion
+removal, skip, or product accessibility rollback was used.
