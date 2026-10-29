@@ -523,7 +523,7 @@ Provide:
                       type="button"
                       key={emotion}
                       aria-pressed={formData.emotions.includes(emotion)}
-                      className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                      className={cn('min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                         formData.emotions.includes(emotion) ? 'border-border bg-primary text-primary-foreground' : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70')}
                       onClick={() => toggleItem('emotions', emotion)}
                     >
@@ -617,7 +617,7 @@ Provide:
                       key={distortion}
                       aria-pressed={formData.cognitive_distortions.includes(distortion)}
                       className={cn(
-                        'min-h-11 rounded-full border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        'min-h-11 rounded-full border px-3 py-2 text-xs font-semibold transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                         formData.cognitive_distortions.includes(distortion)
                           ? 'border-border bg-primary text-primary-foreground'
                           : 'border-border bg-[hsl(var(--card)/0.97)] text-primary hover:bg-secondary/70'

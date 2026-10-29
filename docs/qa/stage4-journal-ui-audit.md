@@ -95,7 +95,7 @@ New Entry currently starts Chat thought work. Direct manual forms are reached fr
 
 ## Local verification and release boundary
 
-Source revision: `9735f241302d409e148f5796978414433fd89dd4`.
+Initial locally verified implementation revision: `9735f241302d409e148f5796978414433fd89dd4`. The subsequent CI follow-up is described below; use the PR head/checks for the final revision.
 
 - Full local Stage 4 / existing Journal / Coach regression run: **242 passed**, no skips or flakes.
 - Final affected actions, dialogs and complementary theme flows: **36 passed**. This includes the new Back/Forward assertions and normal-text contrast checks in generated result bodies. Twenty-four cases overlap the broad run; the union is **254 distinct passing browser cases**, not 278 unique cases.
@@ -104,6 +104,14 @@ Source revision: `9735f241302d409e148f5796978414433fd89dd4`.
 - Comparative visual captures: main after #1037 versus the Stage 4 changes, EN/light and HE/dark at 360/768/1440. Both 6-case capture runs passed; settled chart frames, form placeholder alignment and sample PDFs were visually inspected.
 - New history assertions reproduced the defect before the router fix. The complementary light form results measured 4.36:1 before strengthening the generated body copy. The threshold remains ≥4.5:1.
 - A complementary picker test initially sent the parent Escape while the closed Vaul drawer was still mounted and held focus. The inspected DOM showed the parent still aria-hidden. It now requires the picker to be hidden and focus to return to Frequency before the unchanged single-Escape parent-dismissal assertion. The explicit nested-Escape/focus checks remain.
+
+### Initial CI follow-up
+
+The first desktop matrix reported 655 passed, 188 existing skips and two failures in the selected-emotion contrast assertion. The downloadable artifact contained only the dev-server log: the screenshot artifact upload failed because an existing Stage 3 Progress screenshot name included a Radix ID containing colons. The filename now replaces non-portable characters; its assertions and test coverage are unchanged.
+
+A local diagnostic recorded active `color` / `background-color` transitions after selecting the emotion. The intermediate Hebrew frame measured 1.12:1, while the final light and dark states passed the unchanged 4.5:1 assertion. The production fix changes both emotion and distortion chips from `transition` to `transition-shadow`, so text and background change together. Immediate before/after diagnostics passed in EN/dark and HE/light after the fix, with no active color transitions. No contrast threshold, assertion, retry count or skip was changed. The Journal test helper still delegates to the original contrast assertion without an animation wait.
+
+The initial full mobile matrix passed: 657 passed, 188 existing skips. After the production correction, a clean local 16-case run passed with no skips/retries: the two originally affected theme combinations plus Progress screenshot portability flows, across both Playwright projects and repeated twice. Final-source unit tests again passed (11,041 passed / 267 existing skips), along with lint, typecheck and build. The immediate-transition diagnostics are additional targeted evidence, not extra unique cases in the 254-case coverage total above.
 
 **GitHub handoff:** on 2026-10-29 the owner explicitly authorized publishing these changes to a test branch in the public `yossi-dabby/mindful-path` repository and opening a PR to `main`. Local validation above is separate from GitHub CI; consult the PR checks for remote results. Merge and app publication remain owner actions.
 
@@ -114,3 +122,5 @@ Screenshots and downloaded fixture PDFs are test artifacts. No new skip/fixme or
 After owner merge/publication, recheck the deployed Journal with the designated QA user. Physical phone/tablet keyboards, rotation, browser download handling and native audio playback remain device checks; viewport resizing does not prove those behaviors.
 
 **Stage 1 item 9 remains OPEN:** the deferred live save/network failure and retry is not closed by the mocked Journal tests. The separate Stage 2 live consent/conversation work also remains separate.
+
+Last updated: 2026-10-29.
