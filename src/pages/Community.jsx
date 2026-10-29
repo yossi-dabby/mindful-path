@@ -137,7 +137,7 @@ export default function Community() {
     progress: { label: t('community.buttons.share_progress'), action: () => setShowProgressForm(true) }
   }[activeTab];
 
-  const tabClass = "min-h-[44px] min-w-0 whitespace-normal px-2 text-center text-sm leading-tight text-primary data-[state=active]:bg-[hsl(var(--card)/0.97)] data-[state=active]:text-primary data-[state=active]:shadow-sm sm:px-4";
+  const tabClass = "min-h-[44px] min-w-0 whitespace-normal px-2 text-center text-sm leading-tight text-foreground data-[state=active]:bg-[hsl(var(--card)/0.97)] data-[state=active]:text-primary data-[state=active]:shadow-sm sm:px-4";
 
   return (
     <PullToRefresh queryKeys={['forumPosts','communityGroups','groupMemberships','sharedProgress','communityReactions']}>
@@ -150,8 +150,8 @@ export default function Community() {
         <section aria-label={t('community.page_title')} className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           {[
             [MessageSquare, forumPosts.length, t('community.stats.forum_posts'), 'text-primary'],
-            [Users, visibleGroups.length, t('community.stats.active_groups'), 'text-emerald-700'],
-            [TrendingUp, sharedProgress.length, t('community.stats.success_stories'), 'text-green-700']
+            [Users, visibleGroups.length, t('community.stats.active_groups'), 'text-primary'],
+            [TrendingUp, sharedProgress.length, t('community.stats.success_stories'), 'text-primary']
           ].map(([Icon, count, label, color]) => (
             <Card key={label} className="surface-secondary border-border/70 bg-[hsl(var(--card)/0.88)]">
               <CardContent className="flex items-center gap-3 p-4"><Icon className={`h-7 w-7 shrink-0 sm:h-8 sm:w-8 ${color}`} /><div className="min-w-0"><p className={`text-2xl font-bold ${color}`}>{count}</p><p className="break-words text-sm font-medium text-foreground">{label}</p></div></CardContent>

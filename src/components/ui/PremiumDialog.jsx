@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 // Full-screen practice dialogs live above app chrome, lock background scrolling,
 // contain keyboard focus and restore it to the opening control on dismissal.
-export default function PremiumDialog({ children, onClose, label, className, style, returnFocusTo, localEscape = false, ...props }) {
+export default function PremiumDialog({ children, onClose, label, className, style, returnFocusTo, localEscape = false, layer = 10000, ...props }) {
   const { i18n } = useTranslation();
   const returnFocus = useRef(returnFocusTo || document.activeElement);
   const content = useRef(null);
@@ -25,7 +25,7 @@ export default function PremiumDialog({ children, onClose, label, className, sty
           aria-modal="true"
           dir={i18n.dir()}
           className={cn('premium-overlay outline-none', className)}
-          style={{ ...style, zIndex: 10000 }}
+          style={{ ...style, zIndex: layer }}
           onEscapeKeyDown={(event) => {
             props.onEscapeKeyDown?.(event);
             if (localEscape && !isTopDialog()) event.preventDefault();

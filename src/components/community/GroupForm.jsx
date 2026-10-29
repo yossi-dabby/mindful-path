@@ -63,7 +63,7 @@ export default function GroupForm({ onClose }) {
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium">{t('community_ui.group.category')}</label>
-          <BottomSheetSelect value={formData.category} onValueChange={(category) => setFormData({ ...formData, category })} options={options} title={t('community_ui.group.category_title')} />
+          <BottomSheetSelect autoFocus value={formData.category} onValueChange={(category) => setFormData({ ...formData, category })} options={options} title={t('community_ui.group.category_title')} />
         </div>
         <div>
           <label htmlFor="community-group-guidelines" className="mb-2 block text-sm font-medium">{t('community_ui.group.guidelines')}</label>

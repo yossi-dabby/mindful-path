@@ -83,8 +83,9 @@ export default function UrgeSurfing({ onClose }) {
           
           <div className="flex gap-2">
             <button
+              aria-pressed={difficulty === 'beginner'}
               onClick={() => handleDifficultyChange('beginner')}
-              className="px-3 py-1 text-xs rounded-lg transition-all"
+              className="min-h-11 min-w-11 px-3 py-2 text-xs rounded-lg transition-all"
               style={{
                 backgroundColor: difficulty === 'beginner' ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
                 border: `1px solid ${difficulty === 'beginner' ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.3)'}`,
@@ -95,8 +96,9 @@ export default function UrgeSurfing({ onClose }) {
               {t('mind_games.urge_surfing.guided')}
             </button>
             <button
+              aria-pressed={difficulty === 'advanced'}
               onClick={() => handleDifficultyChange('advanced')}
-              className="px-3 py-1 text-xs rounded-lg transition-all"
+              className="min-h-11 min-w-11 px-3 py-2 text-xs rounded-lg transition-all"
               style={{
                 backgroundColor: difficulty === 'advanced' ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
                 border: `1px solid ${difficulty === 'advanced' ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.3)'}`,

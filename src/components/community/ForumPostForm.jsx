@@ -76,7 +76,7 @@ export default function ForumPostForm({ onClose, groupId }) {
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium text-foreground">{t('community_ui.post.category')}</label>
-          <BottomSheetSelect value={formData.category} onValueChange={(category) => setFormData({ ...formData, category })} options={options} title={t('community_ui.post.category_title')} />
+          <BottomSheetSelect autoFocus value={formData.category} onValueChange={(category) => setFormData({ ...formData, category })} options={options} title={t('community_ui.post.category_title')} />
         </div>
         <div>
           <label htmlFor="community-post-tag" className="mb-2 block text-sm font-medium text-foreground">{t('community_ui.post.tags')}</label>

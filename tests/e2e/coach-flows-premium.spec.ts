@@ -84,7 +84,8 @@ test.describe('Premium Thought Coach and Goal Coach flows', () => {
 
     await page.getByTestId('goalcoach-title-input').fill('  עצירה לפני תגובה  ');
     await page.getByTestId('goalcoach-motivation-input').fill('  להרגיש רגוע יותר  ');
-    await page.getByTestId('goalcoach-target-date').fill('2026-09-30');
+    const targetDate = new Date(); targetDate.setDate(targetDate.getDate() + 30);
+    await page.getByTestId('goalcoach-target-date').fill(targetDate.toISOString().slice(0, 10));
     await next.click();
 
     await page.getByTestId('goalcoach-smart-specific').fill('  לעצור ולנשום  ');

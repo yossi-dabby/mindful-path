@@ -105,8 +105,10 @@ export default function ThoughtQuiz({ onClose }) {
             {['beginner', 'intermediate', 'advanced'].map((level) => (
               <button
                 key={level}
+                aria-label={t('tools_stage5.' + level)}
+                aria-pressed={difficulty === level}
                 onClick={() => handleDifficultyChange(level)}
-                className="px-3 py-1 text-xs rounded-lg transition-all"
+                className="min-h-11 min-w-11 px-3 py-2 text-xs rounded-lg transition-all"
                 style={{
                   backgroundColor: difficulty === level ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
                   border: `1px solid ${difficulty === level ? 'hsl(var(--primary))' : 'rgba(38, 166, 154, 0.3)'}`,
@@ -114,7 +116,7 @@ export default function ThoughtQuiz({ onClose }) {
                   fontWeight: difficulty === level ? '600' : '400'
                 }}
               >
-                <span className="inline-flex gap-0.5" aria-label={level}>
+                <span className="inline-flex gap-0.5" aria-hidden="true">
                   {Array.from({ length: level === 'beginner' ? 1 : level === 'intermediate' ? 2 : 3 }).map((_, starIndex) => (
                     <Star key={starIndex} className="h-3 w-3 fill-current" aria-hidden="true" />
                   ))}

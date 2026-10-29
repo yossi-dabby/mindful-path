@@ -57,7 +57,7 @@ export default function ProgressShareForm({ onClose }) {
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium">{t('community_ui.share.type')}</label>
-          <BottomSheetSelect value={formData.progress_type} onValueChange={(progress_type) => setFormData({ ...formData, progress_type })} options={options} title={t('community_ui.share.type_title')} />
+          <BottomSheetSelect autoFocus value={formData.progress_type} onValueChange={(progress_type) => setFormData({ ...formData, progress_type })} options={options} title={t('community_ui.share.type_title')} />
         </div>
         <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-secondary/70 p-4">
           <div>

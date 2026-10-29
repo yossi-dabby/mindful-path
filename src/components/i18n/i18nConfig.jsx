@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+import { applyToolsStage5UiTranslations } from './toolsStage5UiTranslations';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { translations } from './translations';
@@ -38,6 +39,7 @@ applyStarterPathUiTranslations(translations);
 applyRecommendationsUiTranslations(translations);
 applyStageBUiTranslations(translations);
 applyHomePracticeUiTranslations(translations);
+applyToolsStage5UiTranslations(translations);
 
 /**
  * Convert a dot-notation key into a human-readable fallback label.

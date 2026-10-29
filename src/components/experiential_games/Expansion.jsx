@@ -15,7 +15,7 @@ export default function Expansion({ onClose }) {
   };
 
   const handleNext = () => {
-    if (step < steps.length) setStep(step + 1);
+    if (step <= steps.length) setStep(step + 1);
   };
 
   return (
@@ -36,6 +36,7 @@ export default function Expansion({ onClose }) {
             </p>
             <input
               type="text"
+              aria-label={t('mind_games.expansion.emotion_prompt')}
               value={emotion}
               onChange={(e) => setEmotion(e.target.value)}
               placeholder={t('mind_games.expansion.emotion_placeholder')}
@@ -68,8 +69,8 @@ export default function Expansion({ onClose }) {
               backgroundColor: 'rgba(159, 122, 234, 0.1)',
               border: '1px solid rgba(159, 122, 234, 0.2)'
             }}>
-              <p className="text-xs mb-2" style={{ color: '#9F7AEA' }}>
-                Step {step} of {steps.length}
+              <p className="text-xs mb-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
+                {t('tools_stage5.step', { step, total: steps.length })}
               </p>
               <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
                 {steps[step - 1]}
@@ -88,7 +89,7 @@ export default function Expansion({ onClose }) {
             </Button>
           </>
         ) : (
-          <div className="p-4" style={{
+          <div role="status" data-testid="expansion-complete" className="p-4 space-y-4" style={{
             borderRadius: '12px',
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.2)'
@@ -96,6 +97,7 @@ export default function Expansion({ onClose }) {
             <p className="text-sm break-words whitespace-normal" style={{ color: 'hsl(var(--foreground))' }}>
               {t('mind_games.expansion.completion', { emotion })}
             </p>
+            <Button variant="outline" onClick={() => { setEmotion(''); setStep(0); }}>{t('mind_games.common.try_another')}</Button>
           </div>
         )}
       </Card>

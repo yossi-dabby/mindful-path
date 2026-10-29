@@ -126,10 +126,10 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
             <h2 className="text-xl font-semibold text-foreground">
               {t('resources_ui.ai.title')}
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-foreground">
               {t('resources_ui.ai.subtitle')}
             </p>
-            <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
+            <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-foreground">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
               {t('resources_ui.ai.privacy')}
             </p>
@@ -156,7 +156,7 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
           <h2 className="text-lg font-semibold text-foreground">
             {t('resources_ui.ai.loading_title')}
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-foreground">
             {t('resources_ui.ai.loading_text')}
           </p>
         </CardContent>
@@ -221,7 +221,7 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
         )}
 
         {recommendedResources.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
+          <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-foreground">
             {t('resources_ui.ai.no_results')}
           </p>
         ) : (
@@ -241,7 +241,7 @@ Public resource catalog: ${JSON.stringify(availableResources)}`;
                       {t(`resources_ui.ai.priority.${recommendation.priority}`)}
                     </Badge>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  <p className="mt-2 text-sm leading-6 text-foreground">
                     {recommendation.resource.description}
                   </p>
                   <div className="my-4 rounded-xl border border-primary/15 bg-primary/5 p-3">

@@ -1,5 +1,5 @@
 import LibraryPageHeader from '@/components/ui/LibraryPageHeader';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 export default function VideoPlayer() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [mediaError, setMediaError] = useState(false);
   const videoRef = useRef(null);
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
@@ -136,6 +137,8 @@ export default function VideoPlayer() {
               <div className="relative" style={{ borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
                 <video
                   ref={videoRef}
+                  onError={() => setMediaError(true)}
+                  onLoadedMetadata={() => setMediaError(false)}
                   className="w-full"
                   controls
                   autoPlay={false}
@@ -146,6 +149,7 @@ export default function VideoPlayer() {
                   {t('video_player.browser_no_support')}
                 </video>
               </div>
+              {mediaError && <div role="alert" className="space-y-3 p-4 text-foreground"><p>{t('tools_stage5.media_error')}</p><Button variant="outline" onClick={() => { setMediaError(false); videoRef.current?.load(); }}>{t('tools_stage5.retry')}</Button></div>}
               {videoProgress && videoProgress.progress > 0 && (
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">

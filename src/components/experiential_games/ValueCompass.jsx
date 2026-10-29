@@ -44,11 +44,12 @@ export default function ValueCompass({ onClose }) {
               <Button
                 key={idx}
                 variant="outline"
-                className="h-auto py-4 px-4"
+                className="min-h-11 h-auto py-4 px-4 whitespace-normal break-words"
                 style={{
                   borderRadius: '16px',
                   borderColor: 'rgba(38, 166, 154, 0.3)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                  backgroundColor: 'hsl(var(--card))',
+                  color: 'hsl(var(--foreground))'
                 }}
                 onClick={() => handleValueSelect(valueData)}
               >
@@ -79,7 +80,7 @@ export default function ValueCompass({ onClose }) {
                 <Button
                   key={index}
                   variant="outline"
-                  className="w-full justify-start text-left h-auto py-3 px-4 whitespace-normal break-words"
+                  className="w-full justify-start text-start min-h-11 h-auto py-3 px-4 whitespace-normal break-words"
                   style={{
                     borderRadius: '12px',
                     borderColor: isSelected
@@ -89,6 +90,7 @@ export default function ValueCompass({ onClose }) {
                       ? 'rgba(34, 197, 94, 0.1)'
                       : 'transparent'
                   }}
+                  aria-pressed={isSelected}
                   onClick={() => handleActionSelect(action)}
                 >
                   {action}

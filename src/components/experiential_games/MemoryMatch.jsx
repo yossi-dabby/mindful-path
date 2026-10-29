@@ -47,9 +47,11 @@ export default function MemoryMatch({ onClose }) {
         setMatchedPairs([...matchedPairs, cards[first].id]);
         setFlippedIndices([]);
       } else {
-        setTimeout(() => setFlippedIndices([]), 800);
+        const timeout = setTimeout(() => setFlippedIndices([]), 800);
+        setMoves(value => value + 1);
+        return () => clearTimeout(timeout);
       }
-      setMoves(moves + 1);
+      setMoves(value => value + 1);
     }
   }, [flippedIndices]);
 
@@ -103,6 +105,9 @@ export default function MemoryMatch({ onClose }) {
               <button
                 key={card.uniqueId}
                 onClick={() => handleCardClick(index)}
+                aria-label={t('tools_stage5.memory_card', { number: index + 1, state: isFlipped(index) ? t('tools_stage5.symbol_' + card.icon) + (matchedPairs.includes(card.id) ? ', ' + t('tools_stage5.matched') : '') : t('tools_stage5.hidden') })}
+                aria-pressed={isFlipped(index)}
+                aria-disabled={isFlipped(index) || flippedIndices.length === 2}
                 className="aspect-square rounded-xl transition-all duration-300 text-4xl flex items-center justify-center"
                 style={{
                   backgroundColor: isFlipped(index) 

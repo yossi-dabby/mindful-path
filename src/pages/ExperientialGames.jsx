@@ -1,5 +1,5 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -78,6 +78,10 @@ export default function ExperientialGames() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const gameOpener = useRef(null);
+  const transitioning = useRef(false);
+  const rememberOpener = () => { gameOpener.current = document.activeElement; };
+  const handleInfo = (game) => { rememberOpener(); transitioning.current = false; setInfoGame(game); };
   const [activeGame, setActiveGame] = useState(null);
   const [gameStartTime, setGameStartTime] = useState(null);
   const [infoGame, setInfoGame] = useState(null);
@@ -96,7 +100,8 @@ export default function ExperientialGames() {
     }
   }, [searchParams]);
 
-  const handleGameClick = (game) => {
+  const handleGameClick = (game, fromInfo = false) => {
+    if (!fromInfo) rememberOpener();
     setActiveGame(game);
     setGameStartTime(Date.now());
   };
@@ -196,7 +201,7 @@ export default function ExperientialGames() {
           </div>
         </section>
 
-        <MindGameRecommendations onGameSelect={handleGameClick} onGameInfo={setInfoGame} />
+        <MindGameRecommendations onGameSelect={handleGameClick} onGameInfo={handleInfo} />
 
         <section aria-labelledby="all-games-title">
           <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -262,7 +267,7 @@ export default function ExperientialGames() {
                   key={game.id}
                   game={game}
                   onClick={() => handleGameClick(game)}
-                  onInfo={setInfoGame}
+                  onInfo={handleInfo}
                   index={index}
                 />
               ))}
@@ -283,6 +288,7 @@ export default function ExperientialGames() {
       {/* Game Modal */}
       <Dialog open={!!activeGame} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent
+          onCloseAutoFocus={(event) => { event.preventDefault(); if (gameOpener.current?.isConnected) gameOpener.current.focus({ preventScroll: true }); }}
           closeLabel={t('mind_games.close_aria')}
           onEscapeKeyDown={(event) => {
             event.preventDefault();
@@ -312,8 +318,10 @@ export default function ExperientialGames() {
       {infoGame && (
         <GameInfoModal
           game={infoGame}
+          returnFocusTo={gameOpener}
+          transitioning={transitioning}
           onClose={() => setInfoGame(null)}
-          onPlay={() => { setInfoGame(null); handleGameClick(infoGame); }}
+          onPlay={() => { transitioning.current = true; setInfoGame(null); handleGameClick(infoGame, true); }}
         />
       )}
     </div>

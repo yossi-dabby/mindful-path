@@ -60,9 +60,9 @@ describe('Community production UX and privacy safeguards', () => {
 
   it('keeps every Community form accessible and mobile-safe', () => {
     const shell = read('src/components/community/CommunityDialogShell.jsx');
-    expect(shell).toContain('role="dialog"');
-    expect(shell).toContain('aria-modal="true"');
-    expect(shell).toContain("event.key === 'Escape'");
+    expect(shell).toContain('<PremiumDialog label={title}');
+    expect(read('src/components/ui/PremiumDialog.jsx')).toContain('aria-modal="true"');
+    expect(shell).toContain('onClose={onClose} localEscape');
     expect(shell).toContain('max-h-[92dvh]');
     for (const file of ['ForumPostForm.jsx','GroupForm.jsx','ProgressShareForm.jsx','ModerationTools.jsx']) {
       const source = read(`src/components/community/${file}`);
@@ -79,7 +79,8 @@ describe('Community production UX and privacy safeguards', () => {
     expect(drawer).toContain('z-[101]');
     expect(select).toContain('aria-haspopup="dialog"');
     expect(select).toContain('bottom-sheet-select-options');
-    expect(shell).toContain('[data-vaul-drawer][data-state="open"]');
+    expect(shell).toContain('layer={70}');
+    expect(read('src/components/ui/PremiumDialog.jsx')).toContain('!isTopDialog()');
   });
 
   it('removes dead card navigation and provides inline expansion', () => {
