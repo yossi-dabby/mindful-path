@@ -113,6 +113,14 @@ A local diagnostic recorded active `color` / `background-color` transitions afte
 
 The initial full mobile matrix passed: 657 passed, 188 existing skips. After the production correction, a clean local 16-case run passed with no skips/retries: the two originally affected theme combinations plus Progress screenshot portability flows, across both Playwright projects and repeated twice. Final-source unit tests again passed (11,041 passed / 267 existing skips), along with lint, typecheck and build. The immediate-transition diagnostics are additional targeted evidence, not extra unique cases in the 254-case coverage total above.
 
+### Mobile Escape follow-up
+
+The first mobile attempt of run 5053 was canceled at the 30-minute job budget. A later full rerun completed with 656 passed, 188 existing skips and one failure: `Stage 3 progress and mood tabs he/1440` in the mobile project. The downloaded failure snapshot retained the Mood dialog with focus on the Low mood button after a single Escape. The screenshot artifact upload now succeeds after the filename correction above.
+
+Six unmodified local repeats passed, so the natural CI timing was not reproduced locally. A controlled test then suppressed only document-level capture listeners for Escape, leaving the real keyboard event and React dialog handlers intact. It failed before the fix at the same dialog-dismissal assertion. `DetailedMoodForm` now opts into the existing `PremiumDialog` local Escape handling; focus containment, one-Escape dismissal, focus restoration and no entity writes pass even with the document listener unavailable. Other dialogs' default behavior and the original failing assertion are unchanged.
+
+The final focused regression run passed **40/40** with no skips or retries: existing Progress/Mood flows at all three representative widths plus the controlled Escape cases, in both Playwright projects and repeated twice. These cross-stage regression runs are separate from the 254-case Journal coverage count. The CI job budget is now 40 minutes to accommodate the full unchanged suite, setup and artifact upload; no test timeout, assertion, retry or skip was loosened. Final-source validation also passed again: 11,041 unit tests with 267 existing skips, lint, typecheck and production build.
+
 **GitHub handoff:** on 2026-10-29 the owner explicitly authorized publishing these changes to a test branch in the public `yossi-dabby/mindful-path` repository and opening a PR to `main`. Local validation above is separate from GitHub CI; consult the PR checks for remote results. Merge and app publication remain owner actions.
 
 The Therapeutic Forms library remains `under_revision`, on standby as the owner requested. Its catalog/content status, installed-files activation and download availability were not enabled by this work.
