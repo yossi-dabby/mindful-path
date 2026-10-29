@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -21,6 +21,7 @@ export default function AiJournalSuggestions({ entry, onClose }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const requestStartedRef = useRef(false);
+  const titleId = useId();
 
   const userQuery = useQuery({
     queryKey: ['currentUser'],
@@ -32,7 +33,7 @@ export default function AiJournalSuggestions({ entry, onClose }) {
   const exercisesQuery = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
-    initialData: [],
+    placeholderData: [],
     staleTime: 300000
   });
   const goalsQuery = useQuery({
@@ -169,10 +170,10 @@ export default function AiJournalSuggestions({ entry, onClose }) {
   if (isLoading) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="mb-4 rounded-2xl border border-violet-200 bg-violet-50/90 p-5" role="status">
+        className="mb-4 rounded-2xl border border-border bg-secondary/70 p-5" role="status">
         <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-violet-700" />
-          <p className="text-sm font-medium text-muted-foreground">{t('journal_ui.ai.analysis_loading')}</p>
+          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
+          <p className="text-sm font-medium text-foreground">{t('journal_ui.ai.analysis_loading')}</p>
         </div>
       </motion.div>
     );
@@ -180,8 +181,8 @@ export default function AiJournalSuggestions({ entry, onClose }) {
 
   if (error || !suggestions) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-4" role="alert">
-        <p className="mb-3 text-sm text-red-800">{t('journal_ui.common.ai_error')}</p>
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4" role="alert">
+        <p className="mb-3 text-sm text-foreground">{t('journal_ui.common.ai_error')}</p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button variant="outline" onClick={retry} className="min-h-11 flex-1">
             <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
@@ -198,20 +199,20 @@ export default function AiJournalSuggestions({ entry, onClose }) {
 
   return (
     <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-      className="mt-6 space-y-4" aria-labelledby="journal-ai-reflections-title">
+      className="mt-6 space-y-4" data-testid="journal-ai-reflections" aria-labelledby={titleId}>
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
-          <Sparkles className="h-5 w-5 text-violet-700" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/70">
+          <Sparkles className="h-5 w-5 text-primary" />
         </div>
-        <h3 id="journal-ai-reflections-title" className="text-xl font-bold text-foreground">
+        <h3 id={titleId} className="text-xl font-bold text-foreground">
           {t('journal_ui.ai.analysis_title')}
         </h3>
       </div>
 
-      <Card className="border-indigo-200 bg-[hsl(var(--card)/0.97)]">
+      <Card className="border-border bg-[hsl(var(--card)/0.97)]">
         <CardContent className="p-4 sm:p-5">
           <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
-            <BarChart3 className="h-5 w-5 text-indigo-700" />{t('journal_ui.ai.entry_analysis')}
+            <BarChart3 className="h-5 w-5 text-primary" />{t('journal_ui.ai.entry_analysis')}
           </h4>
           <dl className="grid gap-3 sm:grid-cols-3">
             {[
@@ -219,29 +220,29 @@ export default function AiJournalSuggestions({ entry, onClose }) {
               [t('journal_ui.ai.topic'), suggestions.entry_overview.topic],
               [t('journal_ui.ai.intensity_trend'), suggestions.entry_overview.intensity_trend]
             ].map(([label, value]) => (
-              <div key={label} className="rounded-xl bg-indigo-50 p-3">
-                <dt className="text-xs font-bold uppercase tracking-wide text-indigo-900">{label}</dt>
+              <div key={label} className="rounded-xl bg-secondary/70 p-3">
+                <dt className="text-xs font-bold uppercase tracking-wide text-foreground">{label}</dt>
                 <dd className="mt-1 text-sm text-foreground">{value}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-4 border-t border-indigo-100 pt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 border-t border-border pt-4 text-sm leading-relaxed text-foreground">
             {suggestions.entry_overview.summary}
           </p>
         </CardContent>
       </Card>
 
       {suggestions.recurring_themes.length > 0 && (
-        <Card className="border-sky-200 bg-[hsl(var(--card)/0.97)]">
+        <Card className="border-border bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
             <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
-              <TrendingUp className="h-5 w-5 text-sky-700" />{t('journal_ui.ai.recurring_themes')}
+              <TrendingUp className="h-5 w-5 text-primary" />{t('journal_ui.ai.recurring_themes')}
             </h4>
             <div className="grid gap-3 sm:grid-cols-2">
               {suggestions.recurring_themes.map((theme, index) => (
-                <article key={index} className="rounded-xl border border-sky-100 bg-sky-50/70 p-3">
+                <article key={index} className="rounded-xl border border-border bg-secondary/70 p-3">
                   <h5 className="font-bold text-foreground">{theme.title}</h5>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{theme.description}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground">{theme.description}</p>
                 </article>
               ))}
             </div>
@@ -250,15 +251,15 @@ export default function AiJournalSuggestions({ entry, onClose }) {
       )}
 
       {suggestions.reflection_questions.length > 0 && (
-        <Card className="border-violet-200 bg-[hsl(var(--card)/0.97)]">
+        <Card className="border-border bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
             <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
-              <Lightbulb className="h-5 w-5 text-violet-700" />{t('journal_ui.ai.reflection_questions')}
+              <Lightbulb className="h-5 w-5 text-primary" />{t('journal_ui.ai.reflection_questions')}
             </h4>
             <ol className="space-y-2">
               {suggestions.reflection_questions.map((question, index) => (
-                <li key={index} className="flex gap-3 rounded-xl bg-violet-50 p-3 text-sm leading-relaxed text-muted-foreground">
-                  <span className="font-bold text-violet-700">{index + 1}.</span><span>{question}</span>
+                <li key={index} className="flex gap-3 rounded-xl bg-secondary/70 p-3 text-sm leading-relaxed text-foreground">
+                  <span className="font-bold text-primary">{index + 1}.</span><span>{question}</span>
                 </li>
               ))}
             </ol>
@@ -267,16 +268,16 @@ export default function AiJournalSuggestions({ entry, onClose }) {
       )}
 
       {recommendations.length > 0 && (
-        <Card className="border-emerald-200 bg-[hsl(var(--card)/0.97)]">
+        <Card className="border-border bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
             <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
-              <Dumbbell className="h-5 w-5 text-emerald-700" />{t('journal_ui.ai.exercise_recommendations')}
+              <Dumbbell className="h-5 w-5 text-primary" />{t('journal_ui.ai.exercise_recommendations')}
             </h4>
             <div className="space-y-3">
               {recommendations.map((item, index) => (
-                <article key={index} className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3">
-                  <Badge variant="outline" className="border-emerald-300 bg-[hsl(var(--card)/0.97)] text-emerald-900">{item.title}</Badge>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.reason}</p>
+                <article key={index} className="rounded-xl border border-border bg-secondary/70 p-3">
+                  <Badge variant="outline" className="border-emerald-300 bg-[hsl(var(--card)/0.97)] text-foreground">{item.title}</Badge>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground">{item.reason}</p>
                 </article>
               ))}
               {hasMatchingExercise && (
@@ -295,7 +296,7 @@ export default function AiJournalSuggestions({ entry, onClose }) {
             <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
               <MessageSquare className="h-5 w-5 text-primary" />{t('journal_ui.ai.progress_insights')}
             </h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">{suggestions.progress_insights}</p>
+            <p className="text-sm leading-relaxed text-foreground">{suggestions.progress_insights}</p>
           </CardContent>
         </Card>
       )}
@@ -304,14 +305,14 @@ export default function AiJournalSuggestions({ entry, onClose }) {
         <Card className="border-orange-200 bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
             <h4 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
-              <Target className="h-5 w-5 text-orange-700" />
+              <Target className="h-5 w-5 text-primary" />
               {t('journal_ui.ai.goal_connection', { goal: suggestions.goal_alignment.related_goal })}
             </h4>
-            <h5 className="text-xs font-bold uppercase tracking-wide text-orange-900">{t('journal_ui.ai.how_related')}</h5>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{suggestions.goal_alignment.connection}</p>
+            <h5 className="text-xs font-bold uppercase tracking-wide text-foreground">{t('journal_ui.ai.how_related')}</h5>
+            <p className="mt-1 text-sm leading-relaxed text-foreground">{suggestions.goal_alignment.connection}</p>
             {suggestions.goal_alignment.suggested_action && (
               <>
-                <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-orange-900">{t('journal_ui.ai.suggested_action')}</h5>
+                <h5 className="mt-3 text-xs font-bold uppercase tracking-wide text-foreground">{t('journal_ui.ai.suggested_action')}</h5>
                 <p className="mt-1 text-sm font-medium text-foreground">{suggestions.goal_alignment.suggested_action}</p>
               </>
             )}
@@ -322,7 +323,7 @@ export default function AiJournalSuggestions({ entry, onClose }) {
         </Card>
       )}
 
-      <p className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-muted-foreground">
+      <p className="rounded-xl bg-secondary/70 p-3 text-xs leading-relaxed text-foreground">
         {t('journal_ui.trends.professional_note')}
       </p>
       <Button variant="outline" onClick={onClose} className="min-h-12 w-full">{t('journal_ui.ai.close_suggestions')}</Button>

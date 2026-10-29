@@ -1,7 +1,7 @@
 import BotanicalAccent from '@/components/brand/BotanicalAccent';
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ const actionClass = 'min-h-11 rounded-2xl gap-2 text-sm font-semibold shadow-sm 
 export default function Journal() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
@@ -38,12 +39,15 @@ export default function Journal() {
   const [promptedSituation, setPromptedSituation] = useState('');
   const [focusedEntryId, setFocusedEntryId] = useState(null);
   const [focusedSummaryId, setFocusedSummaryId] = useState(null);
+  const templateTriggerRef = useRef(null);
+  const promptTriggerRef = useRef(null);
+  const formReturnFocusRef = useRef(null);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.search);
     setFocusedEntryId(urlParams.get('entry'));
     setFocusedSummaryId(urlParams.get('summary'));
-  }, []);
+  }, [location.search]);
 
   const userQuery = useQuery({
     queryKey: ['currentUser'],
@@ -56,7 +60,6 @@ export default function Journal() {
     queryKey: ['thoughtJournals', userEmail],
     queryFn: () => base44.entities.ThoughtJournal.filter({ created_by: userEmail }, '-created_date', 100),
     enabled: Boolean(userEmail),
-    initialData: [],
     refetchOnWindowFocus: false
   });
 
@@ -64,7 +67,6 @@ export default function Journal() {
     queryKey: ['sessionSummaries', userEmail],
     queryFn: () => base44.entities.SessionSummary.filter({ created_by: userEmail }, '-session_date', 100),
     enabled: Boolean(userEmail),
-    initialData: [],
     refetchOnWindowFocus: false
   });
 
@@ -72,7 +74,6 @@ export default function Journal() {
     queryKey: ['journalTemplates', userEmail],
     queryFn: () => base44.entities.JournalTemplate.filter({ created_by: userEmail }, '-created_date', 100),
     enabled: Boolean(userEmail),
-    initialData: []
   });
 
   const entries = useMemo(() => {
@@ -109,7 +110,10 @@ export default function Journal() {
     return matchesSearch && matchesTags && matchesType;
   }), [entries, searchQuery, selectedTags, selectedType, focusedEntryId, focusedSummaryId, i18n.resolvedLanguage, i18n.language]);
 
-  const handleEdit = useCallback((entry) => {
+  const handleEdit = useCallback((entry, opener) => {
+    formReturnFocusRef.current = opener?.getAttribute('role') === 'menuitem'
+      ? document.querySelector(`[data-entry-id="${CSS.escape(entry.id)}"] button[aria-haspopup="menu"]`)
+      : opener;
     setEditingEntry(entry);
     setShowForm(true);
   }, []);
@@ -121,16 +125,22 @@ export default function Journal() {
     setPromptedSituation('');
   }, []);
 
-  const handleNewEntry = useCallback((template = null, initialSituation = '') => {
+  const handleNewEntry = useCallback((template = null, initialSituation = '', returnFocusTo = null) => {
+    formReturnFocusRef.current = returnFocusTo;
     setSelectedTemplate(template);
     setPromptedSituation(initialSituation);
     setShowForm(true);
   }, []);
 
+  const openTemplates = (event) => {
+    templateTriggerRef.current = event.currentTarget;
+    setShowTemplateManager(true);
+  };
+
   const clearFocusedEntry = () => {
     setFocusedEntryId(null);
     setFocusedSummaryId(null);
-    window.history.pushState({}, '', createPageUrl('Journal'));
+    navigate(createPageUrl('Journal'));
   };
 
   const isLoading = userQuery.isLoading || journalQuery.isLoading || summariesQuery.isLoading;
@@ -161,7 +171,7 @@ export default function Journal() {
             </div>
 
             <div className="w-full lg:w-auto">
-              <Button onClick={() => navigate('/Chat?intent=thought_work')} className={`${actionClass} w-full bg-primary text-white hover:bg-primary lg:w-auto`}>
+              <Button onClick={() => navigate('/Chat?intent=thought_work')} className={`${actionClass} w-full bg-primary text-primary-foreground hover:bg-primary lg:w-auto`}>
                 <Plus className="h-4 w-4" />
                 {t('journal.new_entry')}
               </Button>
@@ -174,7 +184,7 @@ export default function Journal() {
                   <Sparkles className="h-4 w-4" />
                   {t('journal.ai_insights')}
                 </Button>
-                <Button onClick={() => setShowAiPrompts(true)} variant="outline" className={actionClass}>
+                <Button onClick={(event) => { promptTriggerRef.current = event.currentTarget; setShowAiPrompts(true); }} variant="outline" className={actionClass}>
                   <Sparkles className="h-4 w-4" />
                   {t('journal.ai_prompts')}
                 </Button>
@@ -183,7 +193,7 @@ export default function Journal() {
                   {t('journal.reminders')}
                 </Button>
               </div>
-              <Button onClick={() => setShowTemplateManager(true)} variant="ghost" className="mt-2 min-h-11 w-full rounded-2xl text-primary lg:w-auto lg:float-end">
+              <Button onClick={openTemplates} variant="ghost" className="mt-2 min-h-11 w-full rounded-2xl text-primary lg:w-auto lg:float-end">
                 <Settings className="h-4 w-4" />
                 {t('journal.templates')}
               </Button>
@@ -194,7 +204,7 @@ export default function Journal() {
         <section aria-label={t('journal.search_placeholder')} className="mb-6 rounded-[24px] border border-border/70 bg-[hsl(var(--card)/0.97)] p-3 shadow-sm backdrop-blur-lg sm:p-4">
           <div className="relative">
             <Search className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
-            <Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
+            <Input data-testid="journal-search" aria-label={t('journal.search_placeholder')} value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
               placeholder={t('journal.search_placeholder')} className="h-12 w-full rounded-2xl border-border bg-[hsl(var(--card)/0.97)] ps-11 text-base shadow-none" />
           </div>
           <div className="mt-4">
@@ -204,9 +214,9 @@ export default function Journal() {
         </section>
 
         {hasError ? (
-          <Card className="border-red-200 bg-[hsl(var(--card)/0.97)] shadow-md">
+          <Card className="border-destructive/30 bg-[hsl(var(--card)/0.97)] shadow-md">
             <CardContent className="p-8 text-center">
-              <p className="font-medium text-red-800">{t('journal_ui.main.load_error')}</p>
+              <p role="alert" className="font-medium text-foreground">{t('journal_ui.main.load_error')}</p>
               <Button className="mt-4 min-h-11 rounded-2xl" onClick={() => {
                 userQuery.refetch();
                 journalQuery.refetch();
@@ -234,7 +244,7 @@ export default function Journal() {
                 <Button onClick={() => navigate('/Chat?intent=thought_work')} className="min-h-12 flex-1 rounded-2xl bg-primary text-primary-foreground hover:bg-primary">
                   {t('journal.create_entry')}
                 </Button>
-                <Button onClick={() => setShowTemplateManager(true)} variant="outline" className="min-h-12 flex-1 rounded-2xl">
+                <Button onClick={openTemplates} variant="outline" className="min-h-12 flex-1 rounded-2xl">
                   {t('journal.browse_templates')}
                 </Button>
               </div>
@@ -268,13 +278,14 @@ export default function Journal() {
         )}
 
         {showForm && <ThoughtRecordForm entry={editingEntry} template={selectedTemplate} templates={templatesQuery.data || []}
-          onClose={handleClose} initialSituation={promptedSituation} />}
+          onClose={handleClose} initialSituation={promptedSituation} returnFocusTo={formReturnFocusRef.current} />}
         {showTemplateManager && <TemplateManager templates={templatesQuery.data || []} onClose={() => setShowTemplateManager(false)}
-          onSelectTemplate={(template) => { setShowTemplateManager(false); handleNewEntry(template); }} />}
+          isLoading={templatesQuery.isLoading} loadError={templatesQuery.isError} onRetry={() => templatesQuery.refetch()}
+          onSelectTemplate={(template) => { setShowTemplateManager(false); handleNewEntry(template, '', templateTriggerRef.current); }} />}
         {showReminderManager && <ReminderManager onClose={() => setShowReminderManager(false)} />}
         {showAiPrompts && <AiJournalPrompts onSelectPrompt={(prompt) => {
           setShowAiPrompts(false);
-          handleNewEntry(null, prompt);
+          handleNewEntry(null, prompt, promptTriggerRef.current);
         }} onClose={() => setShowAiPrompts(false)} />}
         {showTrendsSummary && <AiTrendsSummary onClose={() => setShowTrendsSummary(false)} />}
       </main>

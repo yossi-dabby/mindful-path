@@ -10,7 +10,9 @@ on:
 jobs:
   e2e:
     name: E2E ${{ matrix.project }}
-    timeout-minutes: 30
+    # Full mobile coverage plus install/build exceeded 30 minutes in run 5053.
+    # Keep all cases enabled and leave enough time to upload failure artifacts.
+    timeout-minutes: 40
     # Playwright 1.58 supports Ubuntu 24.04; ubuntu-latest can move ahead of it.
     runs-on: ubuntu-24.04
     permissions:

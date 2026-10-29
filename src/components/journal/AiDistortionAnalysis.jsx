@@ -100,10 +100,10 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
   if (isLoading) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="rounded-2xl border border-amber-200 bg-amber-50/90 p-4" role="status">
+        className="rounded-2xl border border-border bg-secondary/70 p-4" role="status">
         <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-amber-700" />
-          <p className="text-sm font-medium text-muted-foreground">{t('journal_ui.ai.distortion_loading')}</p>
+          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
+          <p className="text-sm font-medium text-foreground">{t('journal_ui.ai.distortion_loading')}</p>
         </div>
       </motion.div>
     );
@@ -111,8 +111,8 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
 
   if (error || !analysis) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-4" role="alert">
-        <p className="mb-3 text-sm text-red-800">{t('journal_ui.common.ai_error')}</p>
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4" role="alert">
+        <p className="mb-3 text-sm text-foreground">{t('journal_ui.common.ai_error')}</p>
         <Button variant="outline" onClick={analyzeDistortions} className="min-h-11">
           <RefreshCw className="h-4 w-4" />{t('journal_ui.common.retry')}
         </Button>
@@ -123,20 +123,20 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
   return (
     <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       className="space-y-4" aria-labelledby="distortion-analysis-title">
-      <Card className="border-amber-200 bg-[hsl(var(--card)/0.97)]">
+      <Card className="border-border bg-[hsl(var(--card)/0.97)]">
         <CardContent className="p-4 sm:p-5">
           <h4 id="distortion-analysis-title" className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
-            <AlertCircle className="h-5 w-5 text-amber-700" />{t('journal_ui.ai.distortion_title')}
+            <AlertCircle className="h-5 w-5 text-primary" />{t('journal_ui.ai.distortion_title')}
           </h4>
-          <p className="text-sm leading-relaxed text-muted-foreground">{analysis.overall_assessment}</p>
+          <p className="text-sm leading-relaxed text-foreground">{analysis.overall_assessment}</p>
           {analysis.distortions_found.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {analysis.distortions_found.map((item) => (
-                <Badge key={item.id} variant="outline" className="border-amber-300 bg-amber-50 text-amber-900">{item.title}</Badge>
+                <Badge key={item.id} variant="outline" className="border-amber-300 bg-secondary/70 text-foreground">{item.title}</Badge>
               ))}
             </div>
           ) : (
-            <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
+            <p className="mt-3 rounded-xl bg-secondary/70 p-3 text-sm font-medium text-foreground">
               {t('journal_ui.ai.no_distortions')}
             </p>
           )}
@@ -144,17 +144,17 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
       </Card>
 
       {analysis.distortions_found.map((item) => (
-        <Card key={item.id} className="border-slate-200 bg-[hsl(var(--card)/0.97)]">
+        <Card key={item.id} className="border-border bg-[hsl(var(--card)/0.97)]">
           <CardContent className="p-4 sm:p-5">
             <h5 className="text-base font-bold text-foreground">{item.title}</h5>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border-s-4 border-amber-500 bg-amber-50 p-3">
-                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-amber-900">{t('journal_ui.ai.how_appears')}</p>
-                <p className="text-sm leading-relaxed text-muted-foreground">{item.evidence}</p>
+              <div className="rounded-xl border-s-4 border-amber-500 bg-secondary/70 p-3">
+                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-foreground">{t('journal_ui.ai.how_appears')}</p>
+                <p className="text-sm leading-relaxed text-foreground">{item.evidence}</p>
               </div>
-              <div className="rounded-xl border-s-4 border-emerald-500 bg-emerald-50 p-3">
-                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-emerald-900">{t('journal_ui.ai.challenge')}</p>
-                <p className="text-sm leading-relaxed text-muted-foreground">{item.challenge}</p>
+              <div className="rounded-xl border-s-4 border-emerald-500 bg-secondary/70 p-3">
+                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-foreground">{t('journal_ui.ai.challenge')}</p>
+                <p className="text-sm leading-relaxed text-foreground">{item.challenge}</p>
               </div>
             </div>
           </CardContent>
@@ -162,22 +162,22 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
       ))}
 
       {analysis.suggested_reframe && (
-        <Card className="border-emerald-200 bg-emerald-50/90">
+        <Card className="border-border bg-secondary/70">
           <CardContent className="p-4 sm:p-5">
             <h4 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
-              <Lightbulb className="h-5 w-5 text-emerald-700" />{t('journal_ui.ai.balanced_perspective')}
+              <Lightbulb className="h-5 w-5 text-primary" />{t('journal_ui.ai.balanced_perspective')}
             </h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">{analysis.suggested_reframe}</p>
+            <p className="text-sm leading-relaxed text-foreground">{analysis.suggested_reframe}</p>
           </CardContent>
         </Card>
       )}
 
       {analysis.distortions_found.length > 0 && (
-        <Button onClick={handleApply} className="min-h-12 w-full rounded-xl bg-amber-700 text-white hover:bg-amber-800">
+        <Button onClick={handleApply} className="min-h-12 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
           <BookOpen className="h-5 w-5" />{t('journal_ui.ai.apply')}
         </Button>
       )}
-      <p className="text-xs leading-relaxed text-muted-foreground">{t('journal_ui.trends.professional_note')}</p>
+      <p className="text-xs leading-relaxed text-foreground">{t('journal_ui.trends.professional_note')}</p>
     </motion.section>
   );
 }

@@ -19,28 +19,25 @@ export default function SessionSummaryCard({ summary, onDelete }) {
 
   const deleteSummaryMutation = useMutation({
     mutationFn: (id) => base44.entities.SessionSummary.delete(id),
-    onMutate: async (id) => {
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['sessionSummaries'] });
-      const snapshots = queryClient.getQueriesData({ queryKey: ['sessionSummaries'] });
+    },
+    onSuccess: (_data, id) => {
       queryClient.setQueriesData({ queryKey: ['sessionSummaries'] }, (old = []) =>
         Array.isArray(old) ? old.filter((item) => item.id !== id) : old
       );
-      return { snapshots };
-    },
-    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['journalCount'] });
       toast.success(t('journal_ui.cards.summary_deleted'));
-      onDelete?.(summary.id);
+      onDelete?.(id);
     },
-    onError: (_error, _variables, context) => {
-      context?.snapshots?.forEach(([key, value]) => queryClient.setQueryData(key, value));
+    onError: () => {
       toast.error(t('journal_ui.cards.summary_delete_error'));
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] })
   });
 
   return (
-    <Card data-testid="session-summary-card" className="overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md backdrop-blur-xl">
+    <Card data-testid="session-summary-card" data-summary-id={summary.id} className="overflow-hidden border border-border/70 bg-[hsl(var(--card)/0.97)] shadow-md backdrop-blur-xl">
       <CardHeader className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
         <div className="min-w-0">
           <CardTitle className="flex items-center gap-2 text-lg font-bold text-primary">
@@ -53,7 +50,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
             <span>{t('journal_ui.cards.summary_subtitle')}</span>
           </CardDescription>
         </div>
-        <div className="flex shrink-0 justify-end gap-1"><MoreActions>
+        <div className="flex shrink-0 justify-end gap-1"><MoreActions deferActions>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full" onClick={() => exportSessionSummaryPdf(summary)}
             aria-label={t('journal_ui.common.export_pdf')} mobileLabelKey="download"><Download className="h-4 w-4 text-primary" /></Button>
           <Button variant="ghost" size="icon" className="min-h-11 min-w-11 rounded-full text-red-600" onClick={() => {
@@ -64,7 +61,8 @@ export default function SessionSummaryCard({ summary, onDelete }) {
         </MoreActions></div>
       </CardHeader>
       <CardContent className="space-y-5 p-4 text-sm text-muted-foreground sm:p-6">
-        <div dir="auto" className="prose prose-sm max-w-none break-words">
+        {deleteSummaryMutation.isError && <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-foreground">{t('journal_ui.cards.summary_delete_error')}</p>}
+        <div dir="auto" className="journal-rich-content prose prose-sm max-w-none">
           <ReactMarkdown>{summary.summary_content || ''}</ReactMarkdown>
         </div>
         <SummaryList icon={Lightbulb} title={t('journal_ui.cards.takeaways')} items={summary.key_takeaways} tone="amber" />
@@ -77,7 +75,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
             <ul className="list-inside list-disc space-y-1">
               {summary.recommended_resources.map((resource, index) => (
                 <li key={index} className="break-words">
-                  {resource.url ? <a href={resource.url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline-offset-2 hover:underline">{resource.title}</a> : resource.title}
+                  {resource.url ? <a href={resource.url} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">{resource.title}</a> : resource.title}
                 </li>
               ))}
             </ul>

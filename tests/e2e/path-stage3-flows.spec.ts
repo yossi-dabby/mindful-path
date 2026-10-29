@@ -149,7 +149,9 @@ for (const language of ['en', 'he'] as const) for (const width of [360, 768, 144
     for (const tab of await tabs.all()) {
       await tab.click(); await expect(tab).toHaveAttribute('aria-selected', 'true');
       await assertPathWidth(page);
-      await page.screenshot({ path: info.outputPath(`progress-${await tab.getAttribute('id')}.png`) });
+      // Radix IDs contain colons, which GitHub artifact uploads reject.
+      const tabId = (await tab.getAttribute('id') || 'tab').replace(/[^a-zA-Z0-9_-]/g, '_');
+      await page.screenshot({ path: info.outputPath(`progress-${tabId}.png`) });
     }
     await page.getByRole('button', { name: labels[language].logHealth }).click();
     const health = await dialogFits(page);

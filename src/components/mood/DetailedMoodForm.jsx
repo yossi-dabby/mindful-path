@@ -164,7 +164,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
 
   return (
-    <PremiumDialog onClose={onClose} label={t('mood_tracker.form.title')}
+    <PremiumDialog localEscape onClose={onClose} label={t('mood_tracker.form.title')}
       role="dialog"
       aria-modal="true"
       aria-labelledby={dialogTitleId}

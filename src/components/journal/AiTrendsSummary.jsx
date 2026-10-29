@@ -1,5 +1,5 @@
-import PremiumOverlay from '@/components/ui/PremiumOverlay';
-import React, { useEffect, useMemo, useState } from 'react';
+import PremiumDialog from '@/components/ui/PremiumDialog';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -17,17 +17,6 @@ export default function AiTrendsSummary({ onClose }) {
   const [timeframe, setTimeframe] = useState('30');
   const [error, setError] = useState(false);
   const languageName = t('journal_ui.ai.language_name');
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (event) => event.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onClose]);
 
   const userQuery = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me(), staleTime: 300000 });
   const userEmail = userQuery.data?.email;
@@ -126,18 +115,18 @@ Mood context: ${JSON.stringify(recentMoods)}`,
   const TrendDirectionIcon = summary?.emotional_patterns?.trend_direction === 'improving' ? TrendingUp : TrendingDown;
 
   return (
-    <PremiumOverlay className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    <PremiumDialog localEscape onClose={onClose} label={t('journal_ui.trends.title')} className="journal-dialog fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog" aria-modal="true" aria-labelledby="journal-trends-title" aria-describedby="journal-trends-description">
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="my-0 w-full max-w-4xl sm:my-8">
         <Card className="flex max-h-[100dvh] flex-col overflow-hidden rounded-b-none rounded-t-[28px] border-border/70 bg-[hsl(var(--card)/0.97)] shadow-2xl sm:max-h-[calc(100dvh-4rem)] sm:rounded-[28px]">
-          <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border bg-secondary/70 p-4 sm:p-6">
+          <div className="journal-dialog-header flex shrink-0 items-start justify-between gap-3 border-b border-border bg-secondary/70 p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary">
                 <BarChart3 className="h-5 w-5 text-white" />
               </div>
               <div>
                 <h2 id="journal-trends-title" className="text-xl font-bold text-foreground sm:text-2xl">{t('journal_ui.trends.title')}</h2>
-                <p id="journal-trends-description" className="mt-1 text-sm text-muted-foreground">{t('journal_ui.trends.intro_description')}</p>
+                <p id="journal-trends-description" className="mt-1 text-sm text-foreground">{t('journal_ui.trends.intro_description')}</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="min-h-11 min-w-11 rounded-full" aria-label={t('journal_ui.common.close_aria')}>
@@ -155,14 +144,14 @@ Mood context: ${JSON.stringify(recentMoods)}`,
                   {['7', '30', '90'].map((days) => (
                     <Button key={days} onClick={() => setTimeframe(days)} aria-pressed={timeframe === days}
                       variant={timeframe === days ? 'default' : 'outline'}
-                      className={`min-h-11 rounded-xl px-2 text-xs sm:text-sm ${timeframe === days ? 'bg-primary text-white hover:bg-primary' : ''}`}>
+                      className={`min-h-11 rounded-xl px-2 text-xs sm:text-sm ${timeframe === days ? 'bg-primary text-primary-foreground hover:bg-primary' : ''}`}>
                       <Calendar className="h-4 w-4" />{t('journal_ui.trends.last_days', { days })}
                     </Button>
                   ))}
                 </div>
 
                 {error && (
-                  <div className="mx-auto mb-5 flex max-w-md items-start gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-start text-sm text-red-800" role="alert">
+                  <div className="mx-auto mb-5 flex max-w-md items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-start text-sm text-foreground" role="alert">
                     <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />{t('journal_ui.trends.error')}
                   </div>
                 )}
@@ -171,14 +160,14 @@ Mood context: ${JSON.stringify(recentMoods)}`,
                   className="min-h-12 rounded-2xl bg-primary px-8 text-primary-foreground hover:bg-primary">
                   <Sparkles className="h-5 w-5" />{error ? t('journal_ui.common.retry') : t('journal_ui.trends.generate')}
                 </Button>
-                <p className="mt-4 text-sm text-muted-foreground">{t('journal_ui.trends.entry_count', { count: selectedEntries.length })}</p>
+                <p className="mt-4 text-sm text-foreground">{t('journal_ui.trends.entry_count', { count: selectedEntries.length })}</p>
               </div>
             )}
 
             {isLoading && (
               <div className="py-14 text-center" role="status">
                 <Loader2 className="mx-auto mb-4 h-11 w-11 animate-spin text-primary" />
-                <p className="font-medium text-muted-foreground">{t('journal_ui.trends.loading')}</p>
+                <p className="font-medium text-foreground">{t('journal_ui.trends.loading')}</p>
               </div>
             )}
 
@@ -192,12 +181,12 @@ Mood context: ${JSON.stringify(recentMoods)}`,
                   <InsightCard tone="blue" title={t('journal_ui.trends.key_themes')} icon={TrendingUp}>
                     <div className="space-y-3">
                       {summary.key_themes.map((theme, index) => (
-                        <div key={index} className="rounded-xl border border-blue-100 bg-[hsl(var(--card)/0.97)] p-3">
+                        <div key={index} className="rounded-xl border border-border bg-[hsl(var(--card)/0.97)] p-3">
                           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                             <h4 className="font-bold text-foreground">{theme.theme}</h4>
                             {theme.frequency && <Badge variant="outline" className="w-fit rounded-full text-xs">{theme.frequency}</Badge>}
                           </div>
-                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{theme.description}</p>
+                          <p className="mt-1 text-sm leading-relaxed text-foreground">{theme.description}</p>
                         </div>
                       ))}
                     </div>
@@ -208,7 +197,7 @@ Mood context: ${JSON.stringify(recentMoods)}`,
                   <InsightCard tone="pink" title={t('journal_ui.trends.emotional_patterns')} icon={Heart}>
                     {summary.emotional_patterns.common_emotions?.length > 0 && (
                       <div>
-                        <h4 className="mb-2 text-sm font-bold text-muted-foreground">{t('journal_ui.trends.common_emotions')}</h4>
+                        <h4 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.trends.common_emotions')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {summary.emotional_patterns.common_emotions.map((emotion, index) => <Badge key={index} className="rounded-full bg-pink-100 text-pink-900">{emotion}</Badge>)}
                         </div>
@@ -217,13 +206,13 @@ Mood context: ${JSON.stringify(recentMoods)}`,
                     {summary.emotional_patterns.intensity_trend && (
                       <div className="mt-3 flex items-start gap-2 rounded-xl bg-[hsl(var(--card)/0.97)] p-3">
                         <TrendDirectionIcon className="mt-0.5 h-5 w-5 shrink-0 text-pink-700" />
-                        <p className="text-sm font-medium text-muted-foreground">{summary.emotional_patterns.intensity_trend}</p>
+                        <p className="text-sm font-medium text-foreground">{summary.emotional_patterns.intensity_trend}</p>
                       </div>
                     )}
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{summary.emotional_patterns.analysis}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-foreground">{summary.emotional_patterns.analysis}</p>
                     {summary.emotional_patterns.common_triggers?.length > 0 && (
                       <div className="mt-3">
-                        <h4 className="mb-2 text-sm font-bold text-muted-foreground">{t('journal_ui.trends.common_triggers')}</h4>
+                        <h4 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.trends.common_triggers')}</h4>
                         <div className="flex flex-wrap gap-2">{summary.emotional_patterns.common_triggers.map((trigger, index) => <Badge key={index} variant="outline" className="rounded-full">{trigger}</Badge>)}</div>
                       </div>
                     )}
@@ -234,15 +223,15 @@ Mood context: ${JSON.stringify(recentMoods)}`,
                   <InsightCard tone="amber" title={t('journal_ui.trends.cognitive_patterns')} icon={Brain}>
                     {summary.cognitive_patterns.frequent_distortions?.length > 0 && (
                       <div>
-                        <h4 className="mb-2 text-sm font-bold text-muted-foreground">{t('journal_ui.trends.frequent_distortions')}</h4>
+                        <h4 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.trends.frequent_distortions')}</h4>
                         <div className="flex flex-wrap gap-2">{summary.cognitive_patterns.frequent_distortions.map((pattern, index) => <Badge key={index} variant="outline" className="rounded-full">{pattern}</Badge>)}</div>
                       </div>
                     )}
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{summary.cognitive_patterns.progress_assessment}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-foreground">{summary.cognitive_patterns.progress_assessment}</p>
                     {summary.cognitive_patterns.areas_for_growth?.length > 0 && (
                       <div className="mt-3">
-                        <h4 className="mb-2 text-sm font-bold text-muted-foreground">{t('journal_ui.trends.growth_areas')}</h4>
-                        <ul className="space-y-2">{summary.cognitive_patterns.areas_for_growth.map((area, index) => <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground"><span className="text-amber-700">•</span>{area}</li>)}</ul>
+                        <h4 className="mb-2 text-sm font-bold text-foreground">{t('journal_ui.trends.growth_areas')}</h4>
+                        <ul className="space-y-2">{summary.cognitive_patterns.areas_for_growth.map((area, index) => <li key={index} className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary">•</span>{area}</li>)}</ul>
                       </div>
                     )}
                   </InsightCard>
@@ -250,22 +239,22 @@ Mood context: ${JSON.stringify(recentMoods)}`,
 
                 {summary.notable_insights?.length > 0 && (
                   <InsightCard tone="teal" title={t('journal_ui.trends.notable')} icon={Sparkles}>
-                    <ol className="space-y-2">{summary.notable_insights.map((insight, index) => <li key={index} className="flex items-start gap-2 rounded-xl bg-[hsl(var(--card)/0.97)] p-3 text-sm text-muted-foreground"><span className="font-bold text-primary">{index + 1}.</span>{insight}</li>)}</ol>
+                    <ol className="space-y-2">{summary.notable_insights.map((insight, index) => <li key={index} className="flex items-start gap-2 rounded-xl bg-[hsl(var(--card)/0.97)] p-3 text-sm text-foreground"><span className="font-bold text-primary">{index + 1}.</span>{insight}</li>)}</ol>
                   </InsightCard>
                 )}
 
                 {summary.recommendations?.length > 0 && (
                   <InsightCard tone="green" title={t('journal_ui.trends.recommendations')} icon={TrendingUp}>
                     <div className="space-y-3">{summary.recommendations.map((recommendation, index) => (
-                      <div key={index} className="rounded-xl border border-emerald-100 bg-[hsl(var(--card)/0.97)] p-3">
+                      <div key={index} className="rounded-xl border border-border bg-[hsl(var(--card)/0.97)] p-3">
                         <h4 className="font-bold text-foreground">{recommendation.title}</h4>
-                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{recommendation.description}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-foreground">{recommendation.description}</p>
                       </div>
                     ))}</div>
                   </InsightCard>
                 )}
 
-                <p className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-muted-foreground">
+                <p className="rounded-xl border border-border bg-secondary/70 p-3 text-xs leading-relaxed text-foreground">
                   {t('journal_ui.trends.professional_note')}
                 </p>
                 <Button onClick={() => { setSummary(null); setError(false); }} variant="outline" className="min-h-12 w-full rounded-xl">
@@ -276,16 +265,16 @@ Mood context: ${JSON.stringify(recentMoods)}`,
           </CardContent>
         </Card>
       </motion.div>
-    </PremiumOverlay>
+    </PremiumDialog>
   );
 }
 
 const toneClasses = {
   teal: 'border-border bg-secondary/70',
-  blue: 'border-blue-200 bg-blue-50/75',
-  pink: 'border-pink-200 bg-pink-50/75',
-  amber: 'border-amber-200 bg-amber-50/75',
-  green: 'border-emerald-200 bg-emerald-50/75'
+  blue: 'border-border bg-secondary/70',
+  pink: 'border-border bg-secondary/70',
+  amber: 'border-border bg-secondary/70',
+  green: 'border-border bg-secondary/70'
 };
 
 function InsightCard({ title, icon: Icon, tone, children }) {
@@ -295,7 +284,7 @@ function InsightCard({ title, icon: Icon, tone, children }) {
         <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-foreground">
           <Icon className="h-5 w-5 text-primary" />{title}
         </h3>
-        <div className="text-sm leading-relaxed text-muted-foreground">{children}</div>
+        <div className="text-sm leading-relaxed text-foreground">{children}</div>
       </CardContent>
     </Card>
   );
