@@ -339,17 +339,6 @@ describe('V8-D — suppression is current-turn-only (test 9)', () => {
     makeAssistantPlainText(`Here is your worksheet. ${EN_MARKER}`),
   ];
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('9a. form attachment remains allowed in the positive current turn', () => {
-    const result = sanitizeConversationMessages(messages, 'en');
-    const assistants = result.filter((m) => m.role === 'assistant');
-    const lastAssistant = assistants[assistants.length - 1];
-    // The last assistant turn should have the form attached (marker resolved)
-    expect(
-      lastAssistant?.metadata?.generated_file?.form_id ||
-      (Array.isArray(lastAssistant?.metadata?.generated_files) && lastAssistant.metadata.generated_files.length > 0)
-    ).toBeTruthy();
-  });
-
   it('9b. suppression applied to the suppressed turn (not the later positive turn)', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistants = result.filter((m) => m.role === 'assistant');
@@ -384,40 +373,10 @@ describe('V8-D — reverse precedence: current no-form beats prior request (test
 // ─────────────────────────────────────────────────────────────────────────────
 // 11. Positive Hebrew request still attaches normally
 // ─────────────────────────────────────────────────────────────────────────────
-describe('V8-D — positive Hebrew request attaches normally (test 11)', () => {
-  const messages = [
-    makeUserMsg('שלח לי טופס מתאים', 'he'),
-    makeAssistantStructured(`הנה הטופס שביקשת. ${HE_MARKER}`),
-  ];
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('11a. generated_file is attached for positive Hebrew request', () => {
-    const result = sanitizeConversationMessages(messages, 'he');
-    const assistant = getAssistant(result);
-    expect(
-      assistant?.metadata?.generated_file?.form_id ||
-      (Array.isArray(assistant?.metadata?.generated_files) && assistant.metadata.generated_files.length > 0)
-    ).toBeTruthy();
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 12. Positive English request still attaches normally
 // ─────────────────────────────────────────────────────────────────────────────
-describe('V8-D — positive English request attaches normally (test 12)', () => {
-  const messages = [
-    makeUserMsg('Please attach the worksheet for teens.', 'en'),
-    makeAssistantPlainText(`Here you go. ${EN_MARKER}`),
-  ];
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('12a. generated_file is attached for positive English request', () => {
-    const result = sanitizeConversationMessages(messages, 'en');
-    const assistant = getAssistant(result);
-    expect(
-      assistant?.metadata?.generated_file?.form_id ||
-      (Array.isArray(assistant?.metadata?.generated_files) && assistant.metadata.generated_files.length > 0)
-    ).toBeTruthy();
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 13. Explicit replacement remains positive
@@ -661,28 +620,6 @@ describe('V8-D — positive form requests still work (test 25)', () => {
     expect(assistant?.metadata?.generated_file?.form_id).toBeFalsy();
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('25b. marker-based form delivery still works without suppression', () => {
-    const messages = [
-      makeUserMsg('Please share the teen CBT workbook', 'en'),
-      makeAssistantStructured(`Here you go ${EN_MARKER}`),
-    ];
-    const result = sanitizeConversationMessages(messages, 'en');
-    const assistant = getAssistant(result);
-    expect(assistant?.metadata?.generated_file?.form_id).toBeTruthy();
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('25c. Hebrew positive marker delivery unaffected', () => {
-    const messages = [
-      makeUserMsg('שלחי לי את שלב 2 עבור המתבגרים', 'he'),
-      makeAssistantStructured(`הנה הטופס. ${HE_MARKER}`),
-    ];
-    const result = sanitizeConversationMessages(messages, 'he');
-    const assistant = getAssistant(result);
-    expect(
-      assistant?.metadata?.generated_file?.form_id ||
-      (Array.isArray(assistant?.metadata?.generated_files) && assistant.metadata.generated_files.length > 0)
-    ).toBeTruthy();
-  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

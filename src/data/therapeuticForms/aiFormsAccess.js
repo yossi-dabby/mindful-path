@@ -290,20 +290,6 @@ function limitGeneratedFiles(files, requestedCount) {
   return dedupeFormsById(files).slice(0, cappedCount);
 }
 
-function normalizeLegacyWorksheetAlias(candidate) {
-  const raw = String(candidate || '').trim().toLowerCase();
-  if (!raw) return raw;
-  const childrenMatch = raw.match(/^children[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
-  if (childrenMatch) return `children-cbt-core-en-${Number(childrenMatch[1])}-${Number(childrenMatch[2])}`;
-  const childrenHebrewMatch = raw.match(/^children[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);
-  if (childrenHebrewMatch) return `children-cbt-core-he-${Number(childrenHebrewMatch[1])}-${Number(childrenHebrewMatch[2])}`;
-  const adolescentsMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
-  if (adolescentsMatch) return `adolescents-cbt-core-en-${Number(adolescentsMatch[1])}-${Number(adolescentsMatch[2])}`;
-  const adolescentsHebrewMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);
-  if (adolescentsHebrewMatch) return `adolescents-cbt-core-he-${Number(adolescentsHebrewMatch[1])}-${Number(adolescentsHebrewMatch[2])}`;
-  return raw;
-}
-
 function getDefaultLanguage(language) {
   return normalizeLanguage(language) || 'en';
 }
@@ -480,7 +466,7 @@ export function searchFormsForAI(query, filters = {}) {
 }
 
 export function resolveFormByIdOrSlug(formId, options = {}) {
-  const normalizedInput = normalizeLegacyWorksheetAlias(String(formId || '').trim());
+  const normalizedInput = String(formId || '').trim();
   if (!normalizedInput) return null;
 
   const requestedLanguage = normalizeLanguage(options.language);

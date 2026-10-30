@@ -235,17 +235,3 @@ describe('sanitizeConversationMessages — generated_file metadata is preserved'
     expect(sanitized[2].metadata?.generated_file?.url).toBe('https://files.example.com/worksheet.pdf');
   });
 });
-
-
-describe('therapeutic forms generated_file metadata contract', () => {
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('includes canonical adolescents package metadata fields for approved marker resolution', () => {
-    const metadata = resolveFormIntent('adolescents-cbt-core-en', 'en');
-    expect(metadata).not.toBeNull();
-    expect(metadata?.form_id).toBe('adolescents-cbt-core-en');
-    expect(metadata?.title).toBe('Adolescents CBT Core Series');
-    expect(metadata?.language).toBe('en');
-    expect(metadata?.audience).toBe('adolescents');
-    expect(metadata?.category).toBe('adolescents_cbt_core');
-    expect(metadata?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
-  });
-});

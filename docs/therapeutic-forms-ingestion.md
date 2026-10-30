@@ -22,7 +22,7 @@ Do not create:
 
 ## Upload locations
 
-- Place therapeutic PDFs under `public/forms/{audience}/{language}/{group-or-category}/...`
+- Place therapeutic PDFs under `public/forms/{language}/{audience}/{group-or-category}/...`
 - Keep URLs under `/forms/...` so they are usable by canonical open/download helpers.
 
 ## Required metadata contract for each form entry
@@ -160,3 +160,27 @@ Focus assertions:
 - Open/Download separation remains correct
 
 Last updated: 2026-05-24
+
+
+## Empty baseline after illustrated-content retirement (2026-10-30)
+
+The old illustrated collection, standby catalog and public upload manifests have
+been removed from the current tree. There are no installed form files. The
+canonical index and compatibility arrays are empty; the library stays under
+revision. Do not refill the retired per-package JavaScript files or rebuild the
+removed standby catalog. New approved assets and `items` manifests feed the same
+canonical generator and resolver architecture.
+
+Use new stable IDs/filenames for replacement content so that a historical link
+cannot silently point to a different document. Keep test-only synthetic content
+under `tests/fixtures`, never in the production catalog or `public/` directory.
+
+For future activation: first add the reviewed files and metadata; explicitly
+change content availability only as part of that reviewed release; generate and
+validate the index; run ingestion, language/audience, AI intent, eligibility,
+viewer, download and navigation tests. Empty-catalog tests describe the current
+release and must be consciously updated when installing replacement content.
+
+The retained generator now uses its declared `SUPPORTED_FORM_LANGUAGES` set in
+fallback discovery; a real temporary-directory ingestion test across all seven
+languages caught and fixed the previous undefined-constant error.

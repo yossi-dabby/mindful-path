@@ -41,27 +41,6 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.content.length).toBeGreaterThan(0);
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('injects generated_file from approved marker and rejects stale marker ids', () => {
-    const approvedMessages = [
-      { role: 'user', content: 'Please share the teen CBT workbook', metadata: { session_language: 'en' } },
-      { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here you go [FORM:adolescents-cbt-core-en:en]' }) },
-    ];
-    const approvedResult = sanitizeConversationMessages(approvedMessages, 'en');
-    const approvedAssistant = approvedResult.find((m) => m.role === 'assistant');
-    expect(approvedAssistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-en');
-    expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
-
-    const staleMessages = [
-      // Non-form user text intentionally avoids deterministic intent routing, so
-      // this assertion isolates stale marker ID rejection behavior.
-      { role: 'user', content: 'Thanks for the help', metadata: { session_language: 'en' } },
-      { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here you go [FORM:tf-adults-cbt-thought-record:en]' }) },
-    ];
-    const staleResult = sanitizeConversationMessages(staleMessages, 'en');
-    const staleAssistant = staleResult.find((m) => m.role === 'assistant');
-    expect(staleAssistant?.metadata?.generated_file ?? null).toBeNull();
-  });
-
   it('blocks adolescents specialized EN attachments when session language is non-English', () => {
     const messages = [
       { role: 'user', content: 'תשלחי לי את הסדרה המלאה', metadata: { session_language: 'he' } },
@@ -97,16 +76,15 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
-  it('blocks refusal-like cannot-access-forms text when deterministic match exists', () => {
+  it('does not invent an installed form to replace an unavailable response', () => {
     const messages = [
       { role: 'user', content: 'Send me a form for anger', metadata: { session_language: 'en' } },
       { role: 'assistant', content: 'I cannot access forms right now due to a technical issue.' },
     ];
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = result.find((m) => m.role === 'assistant');
-    expect(String(assistant?.content || '').toLowerCase()).not.toContain('cannot access forms');
-    expect(String(assistant?.content || '').toLowerCase()).not.toContain('technical issue');
-    expect(assistant?.metadata?.generated_file || (assistant?.content || '').length > 0).toBeTruthy();
+    expect(assistant?.content).toBe(messages[1].content);
+    expect(assistant?.metadata?.generated_file).toBeFalsy();
   });
 
   it('hebrew session explicit english request for child form without age — no attachment', () => {
@@ -118,17 +96,6 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const result = sanitizeConversationMessages(messages, 'he');
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file).toBeFalsy();
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('attaches Hebrew adolescents stage-combined PDF in Hebrew session', () => {
-    const messages = [
-      { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'he' } },
-      { role: 'assistant', content: 'בשמחה.' },
-    ];
-    const result = sanitizeConversationMessages(messages, 'he');
-    const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.metadata?.generated_file?.language).toBe('he');
-    expect(assistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-he-stage-2-combined');
   });
 
   it('Hebrew children core form request without age — no attachment (eligibility gate)', () => {
@@ -175,19 +142,6 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('children-cbt-core-he');
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('stores deterministic multi-form attachments in metadata.generated_files while preserving generated_file', () => {
-    const messages = [
-      { role: 'user', content: 'send all forms from module 06', metadata: { session_language: 'en' } },
-      { role: 'assistant', content: 'Done.' },
-    ];
-    const result = sanitizeConversationMessages(messages, 'en');
-    const assistant = result.find((m) => m.role === 'assistant');
-    expect(Array.isArray(assistant?.metadata?.generated_files)).toBe(true);
-    expect(assistant?.metadata?.generated_files?.length).toBeGreaterThan(0);
-    expect(assistant?.metadata?.generated_files?.length).toBeLessThanOrEqual(5);
-    expect(assistant?.metadata?.generated_file).toBeTruthy();
-  });
-
   it('Hebrew multi-form children request without age — no attachment (gate blocks all)', () => {
     // UPDATED: "לילד" confirms children audience but no numeric age → gate blocks all.
     const messages = [
@@ -199,17 +153,6 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const generatedFiles = assistant?.metadata?.generated_files;
     expect(!generatedFiles || generatedFiles.length === 0).toBe(true);
     expect(assistant?.metadata?.generated_file).toBeFalsy();
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('answers multi-form capability question accurately in Hebrew', () => {
-    const messages = [
-      { role: 'user', content: 'האם אתה יכול לשלוח מספר טפסים במקביל או רק טופס אחד בכל פעם', metadata: { session_language: 'he' } },
-      { role: 'assistant', content: 'אני יכול רק טופס אחד.' },
-    ];
-    const result = sanitizeConversationMessages(messages, 'he');
-    const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.content).toBe('כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת. אם יש קובץ מאוחד מתאים, אעדיף לשלוח אותו במקום להציף בכמה קבצים.');
-    expect(assistant?.metadata?.generated_files ?? []).toHaveLength(0);
   });
 
   it('children worksheet marker without age — blocked by eligibility gate (no marker bypass)', () => {
@@ -230,19 +173,6 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
   });
 
   // ─── Positive flows required by PR 944 problem statement ─────────────────
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('adolescent form attaches when no audience conflict and no age restriction mismatch', () => {
-    // Adolescents forms do not require an explicit numeric age (unlike children forms).
-    // A send intent without age is sufficient if no incompatible audience is stated.
-    const messages = [
-      { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'he' } },
-      { role: 'assistant', content: 'בשמחה.' },
-    ];
-    const result = sanitizeConversationMessages(messages, 'he');
-    const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.metadata?.generated_file?.language).toBe('he');
-    expect(assistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-he-stage-2-combined');
-  });
 
   it('adult thought-record form attaches when user explicitly requests it', () => {
     // Adults form (not age-restricted in the same way as children/adolescents).

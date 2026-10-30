@@ -5,61 +5,7 @@
 
 export const WORKBOOK_CONTENT_METADATA = [];
 
-export const WORKBOOK_CONTENT_METADATA_EN = [
-  {
-    id: 'adolescents-cbt-core-en',
-    slug: 'adolescents-cbt-core-series-1-en',
-    topicKeywords: [
-      'teen cbt',
-      'adolescent cbt',
-      'teenager',
-      'teen',
-      'adolescent',
-      'anxiety',
-      'stress',
-      'worry',
-      'automatic thoughts',
-      'thought record',
-      'cognitive restructuring',
-      'body signals',
-      'triggers',
-      'emotional regulation',
-      'coping',
-      'avoidance',
-      'small steps',
-      'weekly check-in',
-      'coping plan',
-    ],
-  },
-  {
-    id: 'adolescents-cbt-specialized-en',
-    slug: 'adolescents-cbt-specialized-series-en',
-    topicKeywords: [
-      'specialized',
-      'specialised',
-      'full specialized series',
-      'full 60 forms',
-      'all specialized forms',
-      'adolescents cbt specialized series',
-      'ocd',
-      'intrusive thoughts',
-      'sticky thoughts',
-      'adhd',
-      'attention',
-      'organization',
-      'parents and teens',
-      'family conversation',
-      'trauma safe coping',
-      'grounding',
-      'anger impulsivity',
-      'friendship conflict',
-      'self-esteem and identity',
-      'body sleep stress',
-      'module 01',
-      'module 10',
-    ],
-  },
-];
+export const WORKBOOK_CONTENT_METADATA_EN = [];
 
 export const WORKBOOK_CONTENT_METADATA_ES = [];
 export const WORKBOOK_CONTENT_METADATA_FR = [];

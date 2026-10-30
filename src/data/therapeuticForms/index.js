@@ -13,8 +13,8 @@
  */
 
 import GENERATED_THERAPEUTIC_FORMS_INDEX from '../../generated/therapeutic-forms-index.json';
-import UNDER_REVISION_FORMS_CATALOG from './catalog-under-revision.json';
 import { SUPPORTED_LANGUAGES, VALID_AUDIENCE_VALUES } from './categories.js';
+import { THERAPEUTIC_FORMS_CONTENT_AVAILABLE } from './availability.js';
 
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
 export {
@@ -63,19 +63,17 @@ function buildCanonicalRegistry(forms) {
  * The complete, aggregated therapeutic forms registry.
  * This is the single source of truth consumed by the resolver.
  *
- * Adding new forms: add entries to the relevant per-audience file.
- * The resolver picks them up automatically via this aggregation.
+ * Adding new forms: add approved PDF assets and manifest metadata, then
+ * regenerate the canonical index. Retired per-package exports stay empty.
  *
  * @type {readonly object[]}
  */
-export const THERAPEUTIC_FORMS_CATALOG = Object.freeze(UNDER_REVISION_FORMS_CATALOG);
+// Compatibility seam: no retired or metadata-only catalog is retained.
+export const THERAPEUTIC_FORMS_CATALOG = Object.freeze([]);
 
 export const ALL_FORMS = buildCanonicalRegistry([
-  // Installed, approved files always take precedence when forms are restored.
+  // Future approved content is discovered from the canonical installed-files index.
   ...GENERATED_THERAPEUTIC_FORMS_INDEX,
-  // Metadata-only entries preserve the multilingual library architecture while
-  // the source PDFs are reviewed. They are never sendable (`approved: false`).
-  ...THERAPEUTIC_FORMS_CATALOG,
 ]);
 
 function hashStringFNV1a(input) {
@@ -172,7 +170,7 @@ export function getAllTherapeuticForms(options = {}) {
     formsCount: forms.length,
   };
 
-  if (forms.length === 0) {
+  if (forms.length === 0 && THERAPEUTIC_FORMS_CONTENT_AVAILABLE) {
     console.error('[TherapeuticForms] Canonical registry is empty.', diagnostics);
   }
 
@@ -252,7 +250,7 @@ export function getTherapeuticFormsForAI({ language, audience, environment } = {
     formsLengthAfterFilters: aiForms.length,
   };
 
-  if (import.meta.env?.PROD && aiForms.length === 0) {
+  if (import.meta.env?.PROD && THERAPEUTIC_FORMS_CONTENT_AVAILABLE && aiForms.length === 0) {
     console.error('[TherapeuticForms][AI] No forms available after filters in production.', diagnostics);
   }
 

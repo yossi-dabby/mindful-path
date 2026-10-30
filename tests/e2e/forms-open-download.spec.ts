@@ -9,7 +9,7 @@
  *   5. Distinctness contract — Open and Download are separate, non-interchangeable buttons
  */
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
+import { installSyntheticFormsContent } from '../helpers/formsSyntheticContent';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
@@ -22,10 +22,10 @@ const WORKSHEET_VISIBILITY_TIMEOUT_MS = 2000;
 
 /** Hebrew single-worksheet fixture used for Chat generated-file-card tests. */
 const HE_FORM = {
-  id: 'adolescents-cbt-specialized-he-01-04',
+  id: 'qa-adolescents-specialized-he-worksheet',
   title: 'לחץ לפני מבחן',
   language: 'he' as const,
-  url: '/forms/module-01/adolescents_cbt_specialized_he_01_04.pdf',
+  url: '/forms/he/adolescents/qa/qa-adolescents-specialized-he-worksheet.pdf',
   category: 'adolescents_cbt_specialized',
 };
 
@@ -40,6 +40,7 @@ async function setupHebrewFormsLibrary(page: Page) {
     (window as any).__DISABLE_ANALYTICS__ = true;
   });
   await mockApi(page);
+  await installSyntheticFormsContent(page);
 }
 
 /**
@@ -101,11 +102,12 @@ async function setupChatWithGeneratedFileCard(page: Page) {
   });
 
   await mockApi(page);
+  await installSyntheticFormsContent(page);
 
   const generatedFile = {
     type: 'pdf',
     url: HE_FORM.url,
-    name: 'adolescents_cbt_specialized_he_01_04.pdf',
+    name: 'qa-adolescents-specialized-he-worksheet.pdf',
     title: HE_FORM.title,
     description: 'טופס טיפולי לחרדת מבחנים',
     source: 'therapeutic_forms_library',
@@ -211,7 +213,6 @@ async function sendChatMessage(page: Page, message: string) {
 // ─── Test suite ─────────────────────────────────────────────────────────────────
 
 test.describe('Open vs Download runtime behavior — Forms Library and Chat', () => {
-  test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
   // ── Scenario 1: Forms Library Open ─────────────────────────────────────────
 
   test('Forms Library Open action navigates same-tab to PDF viewer and does not trigger download', async ({

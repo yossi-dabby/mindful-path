@@ -19,30 +19,7 @@ import {
 } from '../../src/lib/therapeuticFormsPolicy.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
-const CHILDREN_CBT_CORE_EN_WORKSHEET_COUNT = 30;
-
 describe('therapeutic forms policy reliability', () => {
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps the canonical therapeutic forms registry non-empty for the AI runtime', () => {
-    expect(getAllTherapeuticForms().length).toBeGreaterThan(0);
-    expect(getTherapeuticFormsForAI({ language: 'en', environment: 'production' }).length).toBeGreaterThan(0);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('includes the current policy version marker in the session payload used for new conversations', () => {
-    const { policy, policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
-
-    expect(policy).toContain('[THERAPEUTIC_FORMS_POLICY]');
-    expect(policy).toContain(`[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`);
-    expect(policyVersion).toBe(getTherapeuticFormsPolicyVersion());
-    expect(diagnostics.formsCountAvailableToAI).toBeGreaterThan(0);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps first-message policy payload compact and avoids embedding the full forms registry', () => {
-    const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
-    const markerCount = (policy.match(/\[FORM:/g) || []).length;
-    expect(policy.length).toBeLessThan(8000);
-    expect(markerCount).toBeLessThanOrEqual(10);
-    expect(policy).toContain('CURRENTLY APPROVED FORMS SUMMARY');
-  });
 
   it('records a pending refresh for an existing conversation that lacks the current version without sending an agent message', async () => {
     const addMessage = vi.fn().mockResolvedValue({});
@@ -145,13 +122,13 @@ describe('therapeutic forms policy reliability', () => {
     expect(sanitized).toHaveLength(0);
   });
 
-  it('prevents final assistant replies from falsely claiming there is no access to forms', () => {
+  it('does not falsely claim an installed catalog after content retirement', () => {
     const sanitized = sanitizeConversationMessages([
       { role: 'assistant', content: 'I do not have access to therapeutic forms right now.' },
     ], 'en');
 
-    expect(sanitized[0].content).toContain('installed therapeutic forms catalog');
-    expect(sanitized[0].content.toLowerCase()).not.toContain('no access to therapeutic forms');
+    expect(sanitized[0].content).toBe('I do not have access to therapeutic forms right now.');
+    expect(sanitized[0]?.metadata?.generated_file).toBeFalsy();
   });
 
   it('prepends pending policy refresh into one genuine user send payload deterministically', () => {
@@ -215,24 +192,8 @@ describe('therapeutic forms policy reliability', () => {
 });
 
 describe('therapeutic forms resolver coverage', () => {
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('confirms Hebrew children CBT core exposes modules 01-05 for Hebrew sessions only', () => {
-    const hebrewChildrenCore = getTherapeuticFormsForAI({ language: 'he', audience: 'children' })
-      .filter((form) => form.category === 'children_cbt_core');
-    const englishChildrenCore = getTherapeuticFormsForAI({ language: 'en', audience: 'children' })
-      .filter((form) => form.id.startsWith('children-cbt-core-he'));
-    const spanishChildrenCore = getTherapeuticFormsForAI({ language: 'es', audience: 'children' })
-      .filter((form) => form.id.startsWith('children-cbt-core-he'));
 
-    expect(hebrewChildrenCore).toHaveLength(35);
-    expect(hebrewChildrenCore.every((form) => form.language === 'he')).toBe(true);
-    expect(hebrewChildrenCore.every((form) => /[\u0590-\u05FF]/.test(String(form.title || '')))).toBe(true);
-    expect(hebrewChildrenCore.every((form) => !/^children_cbt_core_he_/i.test(String(form.title || '')))).toBe(true);
-    expect(new Set(hebrewChildrenCore.map((form) => Number(form.module_number || form.moduleNumber))).size).toBe(5);
-    expect(englishChildrenCore).toHaveLength(0);
-    expect(spanishChildrenCore).toHaveLength(0);
-  });
-
-  it('confirms Children CBT Core English still exposes 30 individual worksheets', () => {
+  it('confirms retired Children CBT Core English worksheets are not exposed', () => {
     const childrenCoreWorksheets = getAllTherapeuticForms().filter((form) =>
       form.audience === 'children' &&
       form.language === 'en' &&
@@ -240,32 +201,7 @@ describe('therapeutic forms resolver coverage', () => {
       form.type === 'individual_worksheet'
     );
 
-    expect(childrenCoreWorksheets).toHaveLength(CHILDREN_CBT_CORE_EN_WORKSHEET_COUNT);
+    expect(childrenCoreWorksheets).toEqual([]);
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves known children CBT core worksheet aliases', () => {
-    expect(resolveFormIntent('children_cbt_core_en_05_01', 'en')?.form_id).toBe('children-cbt-core-en-5-1');
-    expect(resolveFormIntent('children_cbt_core_en_04_02', 'en')?.form_id).toBe('children-cbt-core-en-4-2');
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves therapeutic scenarios to approved children CBT core worksheets', () => {
-    const overwhelmed = resolveFormIntent('child feels overwhelmed and needs a calm plan', 'en');
-    const calmingTools = resolveFormIntent('child needs calming tools', 'en');
-
-    expect(overwhelmed?.url || '').toContain('/forms/en/children/cbt-core/');
-    expect(calmingTools?.url || '').toContain('/forms/en/children/cbt-core/');
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps Hebrew adolescents CBT core isolated to Hebrew language mode', () => {
-    const hebrewForms = getTherapeuticFormsForAI({ language: 'he', audience: 'adolescents' })
-      .filter((form) => form.category === 'adolescents_cbt_core');
-    const englishForms = getTherapeuticFormsForAI({ language: 'en', audience: 'adolescents' })
-      .filter((form) => form.id.startsWith('adolescents-cbt-core-he'));
-    const spanishForms = getTherapeuticFormsForAI({ language: 'es', audience: 'adolescents' })
-      .filter((form) => form.id.startsWith('adolescents-cbt-core-he'));
-
-    expect(hebrewForms).toHaveLength(36);
-    expect(englishForms).toHaveLength(0);
-    expect(spanishForms).toHaveLength(0);
-  });
 });

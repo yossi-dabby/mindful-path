@@ -1,6 +1,4 @@
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
-import fs from 'node:fs';
 import path from 'node:path';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
@@ -72,7 +70,6 @@ const EN_SINGLE: FormFixture = {
 };
 
 const LIBRARY_FORM = HE_EXACT;
-const INDEX_PATH = path.resolve(process.cwd(), 'src/generated/therapeutic-forms-index.json');
 
 function generatedFileFromForm(form: FormFixture): GeneratedFilePayload {
   return {
@@ -284,16 +281,6 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
     await expect(page.locator('[data-testid="generated-file-card"][data-is-combined-pdf="true"]')).toHaveCount(1);
   });
 
-  test('Capability question: supports up to 5 forms', async ({ page }) => {
-    test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
-    await setupTherapeuticFormsChat(page, 'he');
-
-    await sendChatMessage(page, 'כמה טפסים אפשר לבקש בכל פעם?');
-
-    await expect(page.getByText('ניתן לבקש עד 5 טפסים בתשובה אחת.')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(0);
-  });
-
   test('English language isolation', async ({ page }) => {
     await setupTherapeuticFormsChat(page, 'en');
 
@@ -330,20 +317,4 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
     await expectSingleGeneratedCard(page, HE_SINGLE.id, 'he', false);
   });
 
-  test('Forms Library to Chat parity', async ({ page }) => {
-    test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
-    expect(fs.existsSync(INDEX_PATH)).toBe(true);
-    const formsIndex = JSON.parse(fs.readFileSync(INDEX_PATH, 'utf-8')) as FormFixture[];
-    const canonical = formsIndex.find((form) => form.id === LIBRARY_FORM.id);
-
-    expect(canonical).toBeTruthy();
-    expect(canonical?.title).toBe(LIBRARY_FORM.title);
-    expect(canonical?.language).toBe('he');
-
-    await setupTherapeuticFormsChat(page, 'he');
-    await sendChatMessage(page, `כותרת מדויקת: ${LIBRARY_FORM.title}`);
-
-    await expectSingleGeneratedCard(page, LIBRARY_FORM.id, 'he', false);
-    await expect(page.getByText(LIBRARY_FORM.title, { exact: true })).toBeVisible();
-  });
 });

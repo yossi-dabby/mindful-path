@@ -72,74 +72,6 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(breadcrumbSource).toContain('text-primary');
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('collection-level data is smaller than worksheet-level data', () => {
-    const enCollections = collectionsFor('en');
-    const worksheetCount = visibleForms('en').filter((form) => form.cardType === 'worksheet').length;
-    expect(enCollections.size).toBeGreaterThan(0);
-    expect(enCollections.size).toBeLessThan(worksheetCount);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew mode displays Hebrew collection labels', () => {
-    const heCollections = collectionsFor('he');
-    expect(heCollections.size).toBeGreaterThan(0);
-    expect(translationsSource).toContain('children_cbt_core: "סדרת ליבה CBT לילדים"');
-    expect(translationsSource).toContain('children_cbt_specialized: "CBT ייעודי לילדים"');
-    expect(translationsSource).toContain('adolescents_cbt_core: "סדרת ליבה CBT למתבגרים/ות"');
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English mode displays English collection labels', () => {
-    const enCollections = collectionsFor('en');
-    expect(enCollections.size).toBeGreaterThan(0);
-    expect(translationsSource).toContain('children_cbt_core: "Children CBT Core"');
-    expect(translationsSource).toContain('adolescents_cbt_core: "Adolescents CBT Core Series"');
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('Hebrew mode does not show English-only forms', () => {
-    const heForms = visibleForms('he');
-    expect(heForms.length).toBeGreaterThan(0);
-    expect(heForms.every((form) => form.language === 'he')).toBe(true);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('English mode does not show Hebrew-only forms', () => {
-    const enForms = visibleForms('en');
-    expect(enForms.length).toBeGreaterThan(0);
-    expect(enForms.every((form) => form.language === 'en')).toBe(true);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('empty audiences are hidden by available collection audiences', () => {
-    const audiences = new Set(Array.from(collectionsFor('he').values()).map((forms) => forms[0].audience));
-    expect(audiences.has('children')).toBe(true);
-    expect(audiences.has('adolescents')).toBe(true);
-    expect(audiences.has('adults')).toBe(false);
-    expect(audiences.has('older_adults')).toBe(false);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('clicking a collection maps to module/stage groups', () => {
-    const groups = modulesForCollection(collectionsFor('en').get('children-cbt-specialized-en') || []);
-    expect(groups.size).toBeGreaterThan(0);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('clicking a module/stage maps to only its worksheets', () => {
-    const forms = collectionsFor('en').get('children-cbt-specialized-en') || [];
-    const groups = modulesForCollection(forms);
-    const moduleForms = Array.from(groups.values()).find((group) => group.some((item) => item.cardType === 'worksheet'));
-    expect(moduleForms).toBeTruthy();
-    const worksheetForms = moduleForms.filter((item) => item.cardType === 'worksheet');
-    const moduleNumber = worksheetForms[0].moduleNumber;
-    expect(worksheetForms.every((item) => item.moduleNumber === moduleNumber)).toBe(true);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('combined PDFs are distinct from worksheets in grouped data', () => {
-    const forms = collectionsFor('he').get('children-cbt-core-he') || [];
-    expect(forms.some((item) => item.cardType === 'combined_pdf')).toBe(true);
-    expect(forms.some((item) => item.cardType === 'worksheet')).toBe(true);
-    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    const combinedCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsCombinedPdfCard.jsx'), 'utf8');
-    expect(pageSource).toContain('FormsCombinedPdfCard');
-    expect(combinedCardSource).toContain('combined-pdf-card');
-    expect(combinedCardSource).toContain('Combined PDF');
-  });
-
   it('open/download behavior: Open navigates same-tab to pdf-viewer, Download resolves and downloads', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
     expect(pageSource).toContain('PDF_VIEWER_ROUTE_PATH');
@@ -194,13 +126,4 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(heForms.every((form) => !/^children_cbt|^adolescents_cbt/i.test(String(form.title || '')))).toBe(true);
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('existing children/adolescents Hebrew forms remain accessible', () => {
-    expect(resolveFormWithLanguage('children-cbt-core-he-5-1', 'he')?.languageData?.file_url).toContain('/forms/');
-    expect(resolveFormWithLanguage('adolescents-cbt-core-he-3-1', 'he')?.languageData?.file_url).toContain('/forms/');
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('existing English forms remain accessible', () => {
-    expect(resolveFormWithLanguage('children-cbt-specialized-en-1-1-1', 'en')?.languageData?.file_url).toContain('/forms/');
-    expect(resolveFormWithLanguage('adolescents-cbt-core-en-2-2', 'en')?.languageData?.file_url).toContain('/forms/');
-  });
 });

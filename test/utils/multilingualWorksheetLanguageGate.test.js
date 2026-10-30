@@ -92,17 +92,4 @@ describe('Multilingual worksheet language eligibility gate', () => {
     expect(result).toMatchObject({ allowed: true, reason: 'eligible' });
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps the no-exact-match policy attachment-free for locales without installed forms', () => {
-    for (const locale of LOCALES_WITHOUT_INSTALLED_FORMS) {
-      const { policy, diagnostics } = getTherapeuticFormsPolicyPayload({
-        sessionLanguage: locale,
-        environment: 'production',
-      });
-      expect(diagnostics.activeLanguage).toBe(locale);
-      expect(diagnostics.formsCountAvailableToAI).toBe(0);
-      expect(policy).toContain('no exact form matches the current language/audience filters');
-      expect(policy).toContain('Do NOT emit [FORM:...] markers');
-      expect(policy).toContain('without attaching a fallback form');
-    }
-  });
 });

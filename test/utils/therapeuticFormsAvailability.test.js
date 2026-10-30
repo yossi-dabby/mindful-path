@@ -23,11 +23,11 @@ describe('therapeutic forms under-revision mode', () => {
     }
   });
 
-  it('keeps metadata-only catalog entries without file locations', () => {
+  it('keeps both installed and standby catalogs empty after content retirement', () => {
     expect(THERAPEUTIC_FORMS_CONTENT_AVAILABLE).toBe(false);
     expect(THERAPEUTIC_FORMS_CONTENT_STATUS).toBe('under_revision');
-    expect(THERAPEUTIC_FORMS_CATALOG).toHaveLength(493);
-    expect(ALL_FORMS).toHaveLength(493);
+    expect(THERAPEUTIC_FORMS_CATALOG).toHaveLength(0);
+    expect(ALL_FORMS).toHaveLength(0);
     expect(generatedFormsIndex).toEqual([]);
     expect(getTherapeuticFormsForAI()).toEqual([]);
 

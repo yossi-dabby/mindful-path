@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
+import { installSyntheticFormsContent } from '../helpers/formsSyntheticContent';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 const VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode';
@@ -34,6 +34,7 @@ async function setupHebrewTherapeuticForms(page: Page) {
   });
 
   await mockApi(page);
+  await installSyntheticFormsContent(page);
   // Forms Library content is sourced from the generated local index, while mockApi
   // keeps unrelated runtime API calls from failing during E2E navigation.
 }
@@ -109,7 +110,6 @@ async function openCollectionAndModuleWithWorksheets(page: Page): Promise<void> 
 }
 
 test.describe('Forms Library runtime view-mode behavior', () => {
-  test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
   test.beforeEach(async ({ page }) => {
     await setupHebrewTherapeuticForms(page);
     await spaNavigate(page, '/TherapeuticForms');
