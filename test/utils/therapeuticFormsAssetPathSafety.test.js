@@ -33,53 +33,6 @@ function isAllowedDuplicateGroup(fileUrl, entries) {
 }
 
 describe('therapeutic forms asset path safety', () => {
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('keeps registered runtime therapeutic-form paths valid and file-backed', () => {
-    expect(Array.isArray(ALL_FORMS)).toBe(true);
-    expect(ALL_FORMS.length).toBeGreaterThan(0);
-
-    const activeForms = ALL_FORMS.filter((form) => form?.approved === true);
-    expect(activeForms.length).toBeGreaterThan(0);
-
-    for (const form of activeForms) {
-      const languageEntries = Object.entries(form?.languages || {});
-      expect(languageEntries.length, `Form ${form.id} has no language entries`).toBeGreaterThan(0);
-
-      const runtimeFileUrl = String(form?.fileUrl || '').trim();
-      expect(runtimeFileUrl.startsWith('/forms/'), `Form ${form.id} fileUrl must start with /forms/: ${runtimeFileUrl}`).toBe(true);
-      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(runtimeFileUrl), `Form ${form.id} has uppercase direct runtime language segment: ${runtimeFileUrl}`).toBe(false);
-      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(runtimeFileUrl), `Form ${form.id} has uppercase nested runtime language segment: ${runtimeFileUrl}`).toBe(false);
-      expect(/\.pdf$/i.test(runtimeFileUrl), `Form ${form.id} runtime fileUrl must end with .pdf: ${runtimeFileUrl}`).toBe(true);
-      expect(fs.existsSync(toAbsoluteFromPublicUrl(runtimeFileUrl)), `Form ${form.id} runtime fileUrl missing on disk: ${runtimeFileUrl}`).toBe(true);
-
-      const runtimeFilePath = String(form?.filePath || form?.file_path || '').trim();
-      expect(runtimeFilePath.startsWith('public/forms/'), `Form ${form.id} filePath must stay under public/forms/: ${runtimeFilePath}`).toBe(true);
-      expect(/\.pdf$/i.test(runtimeFilePath), `Form ${form.id} filePath must end with .pdf: ${runtimeFilePath}`).toBe(true);
-      expect(fs.existsSync(toAbsoluteFromRepoPath(runtimeFilePath)), `Form ${form.id} filePath missing on disk: ${runtimeFilePath}`).toBe(true);
-
-      const expectedPathFromUrl = `public${runtimeFileUrl}`;
-      expect(runtimeFilePath, `Form ${form.id} filePath should mirror runtime URL`).toBe(expectedPathFromUrl);
-
-      for (const [languageCode, languageBlock] of languageEntries) {
-        const fileUrl = String(languageBlock?.file_url || '').trim();
-        if (!fileUrl) continue;
-
-        expect(fileUrl.startsWith('/forms/'), `Form ${form.id} language ${languageCode} file_url must start with /forms/: ${fileUrl}`).toBe(true);
-        expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Form ${form.id} language ${languageCode} has uppercase direct EN/HE segment: ${fileUrl}`).toBe(false);
-        expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Form ${form.id} language ${languageCode} has uppercase nested EN/HE segment: ${fileUrl}`).toBe(false);
-        expect(/\.pdf$/i.test(fileUrl), `Form ${form.id} language ${languageCode} file_url must end with .pdf: ${fileUrl}`).toBe(true);
-        expect(fs.existsSync(toAbsoluteFromPublicUrl(fileUrl)), `Form ${form.id} language ${languageCode} file_url missing on disk: ${fileUrl}`).toBe(true);
-
-        if (languageCode === 'he') {
-          expect(form.language, `Form ${form.id} with Hebrew block must be he`).toBe('he');
-          expect(languageBlock?.rtl, `Form ${form.id} Hebrew block must have rtl=true`).toBe(true);
-        }
-        if (languageCode === 'en') {
-          expect(form.language, `Form ${form.id} with English block must be en`).toBe('en');
-          expect(languageBlock?.rtl === true, `Form ${form.id} English block must not claim rtl=true`).toBe(false);
-        }
-      }
-    }
-  });
 
   it('does not introduce undocumented duplicate runtime fileUrl values', () => {
     const byUrl = new Map();

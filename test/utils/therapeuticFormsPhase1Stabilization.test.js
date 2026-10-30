@@ -65,10 +65,6 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     (f) => f.language === 'he' && f.category === 'adolescents_cbt_specialized' && f.type === 'individual_worksheet'
   );
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('generated index contains 60 Hebrew adolescents specialized worksheet entries', () => {
-    expect(heSpecialized).toHaveLength(60);
-  });
-
   it('every adolescents_cbt_specialized_he entry has a non-null moduleTitle', () => {
     const missing = heSpecialized.filter((f) => f.moduleTitle == null);
     expect(missing, `Entries with null moduleTitle: ${missing.map((f) => f.id).join(', ')}`).toHaveLength(0);
@@ -86,74 +82,11 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     expect(fallback, 'Some entries still use fallback שלב N titles').toHaveLength(0);
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('module 01 entries all have moduleTitle: "חרדה, לחץ ופחדים"', () => {
-    const m01 = heSpecialized.filter((f) => f.moduleNumber === 1);
-    expect(m01).toHaveLength(6);
-    for (const f of m01) {
-      expect(f.moduleTitle).toBe('חרדה, לחץ ופחדים');
-    }
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('module 02 entries all have moduleTitle: "מצב רוח, תפקוד ואנרגיה"', () => {
-    const m02 = heSpecialized.filter((f) => f.moduleNumber === 2);
-    expect(m02).toHaveLength(6);
-    for (const f of m02) {
-      expect(f.moduleTitle).toBe('מצב רוח, תפקוד ואנרגיה');
-    }
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all 10 distinct Hebrew module titles are populated (one per module)', () => {
-    const titles = new Set(heSpecialized.map((f) => f.moduleTitle));
-    // 10 modules × 6 worksheets each; each module should have a unique title
-    expect(titles.size).toBe(10);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('all 10 expected Hebrew module titles are present in the generated index', () => {
-    const expectedTitles = [
-      'חרדה, לחץ ופחדים',                        // module 01
-      'מצב רוח, תפקוד ואנרגיה',                  // module 02
-      'דימוי עצמי וזהות',                         // module 03
-      'חברה, שייכות וקונפליקטים',                // module 04
-      'כעס, אימפולסיביות וויסות',                // module 05
-      'OCD, מחשבות חודרניות ותגובות חדשות',      // module 06
-      'ADHD, קשב, ארגון ואימפולסיביות',           // module 07
-      'גוף, שינה ולחץ',                           // module 08
-      'טראומה והתמודדות בטוחה',                  // module 09
-      'הורים ומתבגרים',                           // module 10
-    ];
-    const actualTitles = new Set(heSpecialized.map((f) => f.moduleTitle));
-    for (const title of expectedTitles) {
-      expect(actualTitles.has(title), `Missing module title: ${title}`).toBe(true);
-    }
-    expect(actualTitles.size).toBe(expectedTitles.length);
-  });
 });
 
 // ── 3. Language gating — no regressions ──────────────────────────────────────
 
 describe('Phase 1 — language gating regression', () => {
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('existing Hebrew forms still appear only in Hebrew language context', () => {
-    const heForms = ALL_FORMS.filter((f) => f.language === 'he' && f.approved === true);
-    expect(heForms.length).toBeGreaterThan(0);
-    // All Hebrew forms should resolve in Hebrew but not in English
-    for (const form of heForms.slice(0, 5)) {
-      const heResolved = resolveFormWithLanguage(form.id, 'he');
-      expect(heResolved, `Form ${form.id} should resolve in Hebrew`).not.toBeNull();
-      const enResolved = resolveFormWithLanguage(form.id, 'en');
-      expect(enResolved, `Form ${form.id} should NOT resolve in English`).toBeNull();
-    }
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('existing English forms still appear only in English language context', () => {
-    const enForms = ALL_FORMS.filter((f) => f.language === 'en' && f.approved === true);
-    expect(enForms.length).toBeGreaterThan(0);
-    for (const form of enForms.slice(0, 5)) {
-      const enResolved = resolveFormWithLanguage(form.id, 'en');
-      expect(enResolved, `Form ${form.id} should resolve in English`).not.toBeNull();
-      const heResolved = resolveFormWithLanguage(form.id, 'he');
-      expect(heResolved, `Form ${form.id} should NOT resolve in Hebrew`).toBeNull();
-    }
-  });
 
   it('Hebrew adolescents forms are not surfaced in English mode', () => {
     const heForms = ALL_FORMS.filter(
@@ -168,21 +101,21 @@ describe('Phase 1 — language gating regression', () => {
 // ── 4. AI retrieval — no regressions ─────────────────────────────────────────
 
 describe('Phase 1 — AI retrieval regression', () => {
-  it('AI retrieval catalog still contains children_cbt_core forms', () => {
+  it('AI retrieval has no retired children core forms', () => {
     const childrenCore = ALL_FORMS.filter((f) => f.category === 'children_cbt_core');
-    expect(childrenCore.length).toBeGreaterThan(0);
+    expect(childrenCore).toEqual([]);
   });
 
-  it('AI retrieval catalog still contains children_cbt_specialized forms', () => {
+  it('AI retrieval has no retired children specialized forms', () => {
     const childrenSpecialized = ALL_FORMS.filter((f) => f.category === 'children_cbt_specialized');
-    expect(childrenSpecialized.length).toBeGreaterThan(0);
+    expect(childrenSpecialized).toEqual([]);
   });
 
-  it('AI retrieval catalog still contains adolescents_cbt_specialized Hebrew forms', () => {
+  it('AI retrieval contains no retired adolescents specialized Hebrew forms', () => {
     const heSpecialized = ALL_FORMS.filter(
       (f) => f.category === 'adolescents_cbt_specialized' && f.language === 'he'
     );
-    expect(heSpecialized).toHaveLength(60);
+    expect(heSpecialized).toEqual([]);
   });
 });
 
@@ -206,11 +139,6 @@ describe('Phase 1 — open/download behavior unchanged', () => {
     expect(src).toMatch(/download/i);
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('PDF asset paths have not changed — adolescents-cbt-core-en still at expected URL', () => {
-    const entry = ALL_FORMS.find((f) => f.id === 'adolescents-cbt-core-en');
-    expect(entry).toBeDefined();
-    expect(entry?.fileUrl).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
-  });
 });
 
 // ── 6. Collection-first redesign contracts ───────────────────────────────────

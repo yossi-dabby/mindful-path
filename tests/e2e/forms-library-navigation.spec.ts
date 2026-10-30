@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import contentStatus from '../../src/data/therapeuticForms/content-status.json' with { type: 'json' };
+import { installSyntheticFormsContent } from '../helpers/formsSyntheticContent';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 const HEBREW_COLLECTION_LABEL = 'CBT ייעודי לילדים';
@@ -25,6 +25,7 @@ async function setupHebrewTherapeuticForms(page: Page) {
   });
 
   await mockApi(page);
+  await installSyntheticFormsContent(page);
 }
 
 async function navigateToWorksheetsLevel(page: Page) {
@@ -68,7 +69,6 @@ async function navigateToWorksheetsLevel(page: Page) {
 }
 
 test.describe('Forms Library runtime navigation', () => {
-  test.skip(contentStatus.contentAvailable !== true, 'Requires installed therapeutic-form files.');
   test('Hebrew collection-first navigation works across collection/module/worksheet levels', async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on('console', (msg) => {

@@ -9,7 +9,10 @@
 ## A. Before Uploading Assets
 
 1. **Choose the canonical folder path.**
-   Follow the established pattern: `public/forms/{audience}_{language}_{group-or-category}/` or `public/forms/module-{NN}/` for specialized modules.
+   For replacement content, follow the generator-supported pattern:
+   `public/forms/{language}/{audience}/{group-or-category}/...`.
+   The old audience-first and upload-wrapper paths describe retired content;
+   do not recreate them. See `docs/therapeutic-forms-ingestion.md`.
    Do not invent new folder hierarchies without updating this doc.
 
 2. **Avoid temporary folder suffixes for new uploads.**

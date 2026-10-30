@@ -356,7 +356,7 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
     const rawSegments = fileUrl.split('/').filter(Boolean);
     const rawLanguageSegment = rawSegments[1] || '';
     const rawAudienceSegment = rawSegments[2] || '';
-    if (!SUPPORTED_LANGUAGES.has(rawLanguageSegment) || !KNOWN_AUDIENCES.has(rawAudienceSegment)) continue;
+    if (!SUPPORTED_FORM_LANGUAGES.has(rawLanguageSegment) || !KNOWN_AUDIENCES.has(rawAudienceSegment)) continue;
 
     const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
     const { audience, language, categorySegment } = inferAudienceAndLanguage(fileUrl);

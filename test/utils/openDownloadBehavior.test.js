@@ -19,16 +19,10 @@ const ROOT = path.resolve(process.cwd());
 const packageJson = JSON.parse(fs.readFileSync(`${ROOT}/package.json`, 'utf8'));
 
 describe('openDownloadBehavior.test.js', () => {
-  it('keeps runtime form catalog on the canonical adolescents package', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
+  it('keeps retired packages out of the runtime catalog', () => {
+    expect(ALL_FORMS).toEqual([]);
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves only the active adolescents package for open/download actions', () => {
-    const resolved = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
-    expect(resolved?.languageData?.file_url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
-    expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
-    expect(resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en')).toBeNull();
-  });
 });
 
 // ─── openFile — source-code contract ─────────────────────────────────────────
@@ -120,12 +114,6 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
 // ─── Forms library Open action — direct public URL ────────────────────────────
 
 describe('forms library Open action — uses direct public URL', () => {
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves adolescents package to a /forms/ public URL suitable for Open', () => {
-    const resolved = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
-    const fileUrl = resolved?.languageData?.file_url;
-    expect(fileUrl).toBeTruthy();
-    expect(fileUrl.startsWith('/forms/')).toBe(true);
-  });
 
   it('resolves individual worksheets to /forms/en/adolescents/cbt-core/stage-XX/ public URLs', () => {
     for (const w of FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL) {
@@ -134,46 +122,6 @@ describe('forms library Open action — uses direct public URL', () => {
     }
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves adolescents CBT specialized EN series to /forms/en/adolescents/cbt-specialized/ URL suitable for Open', () => {
-    const resolved = resolveFormWithLanguage('adolescents-cbt-specialized-en', 'en');
-    const fileUrl = resolved?.languageData?.file_url;
-    expect(fileUrl).toBeTruthy();
-    expect(fileUrl.startsWith('/forms/en/adolescents/cbt-specialized/')).toBe(true);
-    // Language-gated: must not resolve for non-English locales
-    expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'he')).toBeNull();
-    expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'es')).toBeNull();
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves Hebrew adolescents stage combined and individual PDFs only in Hebrew mode', () => {
-    const combined = resolveFormWithLanguage('adolescents-cbt-core-he-stage-6-combined', 'he');
-    const individual = resolveFormWithLanguage('adolescents-cbt-core-he-6-4', 'he');
-    expect(combined?.languageData?.file_url).toContain('adolescents_cbt_core_he_series_6_combined.pdf');
-    expect(individual?.languageData?.file_url).toContain('adolescents_cbt_core_he_6_4.pdf');
-    expect(resolveFormWithLanguage('adolescents-cbt-core-he-stage-6-combined', 'en')).toBeNull();
-    expect(resolveFormWithLanguage('adolescents-cbt-core-he-6-4', 'en')).toBeNull();
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves Hebrew children core module and worksheet PDFs only in Hebrew mode', () => {
-    const modulePdf = resolveFormWithLanguage('children-cbt-core-he-module-05', 'he');
-    const worksheet = resolveFormWithLanguage('children-cbt-core-he-5-1', 'he');
-    expect(modulePdf?.languageData?.file_url).toContain('children_cbt_core_he_module_05_combined.pdf');
-    expect(worksheet?.languageData?.file_url).toContain('children_cbt_core_he_5.1.pdf');
-    expect(resolveFormWithLanguage('children-cbt-core-he-module-05', 'en')).toBeNull();
-    expect(resolveFormWithLanguage('children-cbt-core-he-5-1', 'es')).toBeNull();
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('resolves all 10 specialized EN module PDFs to /forms/en/adolescents/cbt-specialized/ public URLs', () => {
-    for (const module of FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS) {
-      const resolved = resolveFormWithLanguage(module.id, 'en');
-      expect(resolved).not.toBeNull();
-      const fileUrl = resolved?.languageData?.file_url;
-      expect(fileUrl).toBeTruthy();
-      expect(fileUrl.startsWith('/forms/en/adolescents/cbt-specialized/')).toBe(true);
-      expect(fileUrl).toContain('yourcbttrapist_adolescents_cbt_specialized_en_module_');
-      // Module PDFs must not resolve for non-English locales (Open would have nothing to open)
-      expect(resolveFormWithLanguage(module.id, 'he')).toBeNull();
-    }
-  });
 });
 
 // ─── normalizeGeneratedFile — Open vs Download URL contract ──────────────────
@@ -219,21 +167,6 @@ describe('formFileUrls — open/download URL separation', () => {
     expect(resolvePdfViewerFileParam('%2Fprivate%2Fsecret.pdf')).toBeNull();
   });
 
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI-sent generated file open URL uses viewer route without download query', () => {
-    const resolved = resolveFormByIdOrSlug('children-cbt-specialized-en-1-1-1', { language: 'en' });
-    const generated = createGeneratedFileFromResolvedForm(resolved);
-    const openUrl = getFormOpenUrl(generated?.url);
-    expect(openUrl).toContain(`${PDF_VIEWER_ROUTE_PATH}?file=`);
-    expect(openUrl.includes('download=1')).toBe(false);
-  });
-
-  it.skipIf(!THERAPEUTIC_FORMS_CONTENT_AVAILABLE)('AI-sent generated file download URL explicitly uses download behavior', () => {
-    const resolved = resolveFormByIdOrSlug('children-cbt-specialized-en-1-1-1', { language: 'en' });
-    const generated = createGeneratedFileFromResolvedForm(resolved);
-    const downloadUrl = getFormDownloadUrl(generated?.url);
-    expect(downloadUrl).toContain('/forms/');
-    expect(downloadUrl).toContain('download=1');
-  });
 });
 
 describe('pdf viewer route and build/source cache contracts', () => {
