@@ -4,8 +4,9 @@ Date: 2026-10-30. Active-content retirement PR #1043 was merged and published.
 
 ## Status
 
-The history rewrite is **prepared and verified locally only**. No GitHub ref,
-asset, checkpoint, deployment or cache was changed by this work. The live source
+The history rewrite is **prepared and verified locally only**. No existing GitHub
+branch/tag was rewritten; tooling is delivered on a separate maintenance branch.
+No asset, checkpoint, deployment or cache was changed. The live source
 is `f42cbc102a2b59a6372aca619070e553a1caa3b7` with tree
 `a29ffb451da6209aeba68593dc62e6dd2c796130` at the time of the audit.
 
